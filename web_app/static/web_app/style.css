@@ -1,0 +1,92 @@
+/* Navbar */
+
+.navbar {
+    background: #189BCD;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15),inset 0 -1px 0 rgba(255,255,255,0.15);
+    margin-bottom: 20px;
+}
+
+.navbar .navbar-brand {
+    font-weight: 1000;
+    border-radius: 10px;
+    padding: 5px 1px 5px 1px;
+}
+
+.navbar .navbar-brand:focus-visible {
+    font-weight: 1000;
+    outline: none;
+    background: #00000020;
+    box-shadow: 0px 0px 0px 2px #00000060;
+}
+
+.navbar .nav-link {
+    border-radius: 10px;
+    margin: 1px;
+}
+
+.navbar .nav-link.active, .navbar .nav-link.active:hover {
+    font-weight: 600;
+    background: linear-gradient(135deg, #00000030, #00000080);
+}
+
+.navbar .nav-link:hover {
+    background: #00000020;
+}
+
+.navbar .nav-link:focus-visible {
+    background: #00000020;
+    box-shadow: 0px 0px 0px 2px #00000060;
+}
+
+.navbar .form-control:focus {
+    border-color: #00000060;
+    box-shadow: 0px 0px 0px 2px #00000060;
+}
+
+.navbar-toggler {
+    border-color: #ffffff80;
+    border-width: 2px;
+}
+
+/* Body */
+
+.btn {
+    background-color: #189BCD;
+    border-color: #189BCD;
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, #00000030, #00000080);
+    background-color: #189BCD;
+    border-color: white;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+    background-color: #189BCD;
+}
+
+.card {
+    text-decoration: none;
+    transition: all 0.2s linear;
+    text-shadow: 0 0 4px #000000AA;
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
+
+a {
+    text-decoration: none;
+    color: #189BCD;
+}
+
+a:hover {
+    color: #189BCDAA;
+}
+
+/* Footer */
+
+footer h5 {
+    font-weight: 800;
+    color: #189BCD;
+}
