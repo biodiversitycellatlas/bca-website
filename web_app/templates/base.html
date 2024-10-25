@@ -2,21 +2,32 @@
 <html lang="en">
 <head>
     {# Load the tag library #}
-	{% load django_bootstrap5 %}
+    {% load django_bootstrap5 %}
 
-	{# Load CSS and JavaScript #}
-	{% bootstrap_css %}
-	{% bootstrap_javascript %}
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 
-	{# Display django.contrib.messages as Bootstrap alerts #}
-	{% bootstrap_messages %}
-	
-	{% load static %}
-	<link rel="stylesheet" href="{% static 'web_app/style.css' %}">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-	<title>{% block title %}Biodiversity Cell Atlas{% endblock %}</title>
-	<meta name="theme-color" content="#189BCD">
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'web_app/style.css' %}">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- D3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <!-- DataTables -->
+    <script   src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <title>{% block title %}Biodiversity Cell Atlas{% endblock %}</title>
+    <meta name="theme-color" content="#189BCD">
 </head>
 
 <body>

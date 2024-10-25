@@ -84,6 +84,16 @@ a:hover {
     color: #189BCDAA;
 }
 
+table.dataTable.display tbody tr:nth-child(odd) > * {
+    background-color: #189BCD22;
+    box-shadow: none !important;
+}
+
+/*a[rel="external"]:after {
+    content: "\00a0\f08e";
+    font-family: "Font Awesome 5 Free";
+}*/
+
 /* Footer */
 
 footer h5 {
