@@ -8,3 +8,4 @@ media
 
 # Backup files
 *.bak 
+.DS_Store
