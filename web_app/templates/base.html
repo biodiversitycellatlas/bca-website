@@ -10,7 +10,7 @@
 
     {# Display django.contrib.messages as Bootstrap alerts #}
     {% bootstrap_messages %}
-    
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'web_app/style.css' %}">
 
@@ -37,102 +37,10 @@
 </head>
 
 <body>
+    {% block navbar %}{% include 'navbar.html' %}{% endblock navbar %}
 
-{% block navbar %}
-{% with request.resolver_match.url_name as url_name %}
-<nav class="navbar navbar-expand-md sticky-top navbar-dark">
-  <div class="container-md container-fluid">
-    <a class="navbar-brand" href="{% url 'index' %}">BCA</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto">
-      	<li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle  {% if url_name in 'atlas,markers' %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Cell Atlas
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item {% if url_name == 'atlas' %}active{% endif %}" href="{% url 'atlas' %}">Overview</a></li>
-            <li><a class="dropdown-item {% if url_name == 'markers' %}active{% endif %}" href="{% url 'markers' %}">Cell type markers</a></li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if url_name == 'comparison' %}active{% endif %}" href="{% url 'comparison' %}">Species comparison</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if url_name == 'downloads' %}active{% endif %}" href="{% url 'downloads' %}">Downloads</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if url_name == 'blog' %}active{% endif %}" href="{% url 'blog' %}">Blog</a>
-        </li>
-        <li class="nav-item nav-right">
-          <a class="nav-link {% if url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">About</a>
-        </li>
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item d-none d-md-block d-lg-none">
-          <a class="nav-link" href="#"><i class="fa fa-search"></i> Search</a>
-        </li>
-      </ul>
-      <form class="d-md-none d-lg-block d-flex" role="search">
-        <input class="form-control" type="search" placeholder="Search BCA..." aria-label="Search">
-      </form>
-    </div>
-  </div>
-</nav>
-{% endwith %}
-{% endblock navbar %}
+    <div class="container">{% block content %}{% endblock %}</div>
 
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
-
-{% block footer %}
-<div class="container">
-  <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
-    <div class="col mb-3">
-      <p class="text-muted">Biodiversity Cell Atlas</br>© 2024-{% now "Y" %}</p>
-      <a href="https://www.crg.eu/" target="_blank">
-      	<p><img title="CRG" width="150" src="{% static 'web_app/images/CRG/LOGOs-CRG-ENG_2014_transparent_back.png' %}"></i></p>
-      </a>
-      <a href="https://www.ebi.ac.uk/" target="_blank">
-      	<p><img title="EMBL-EBI" width="150" src="{% static 'web_app/images/EMBL-EBI/EMBL_EBI_Logo_black.svg' %}"></i></p>
-      </a>
-    </div>
-
-    <div class="col mb-3 d-sm-none d-md-block"></div>
-
-    <div class="col mb-3">
-      <h5>Cite us</h5>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">Darwin <i>et al.</i>, <a href="#"><b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b></a>, Systems Biology. 2024, 54(13):23-27</span></li>
-      </ul>
-    </div>
-
-    <div class="col mb-3">
-      <h5>BCA</h5>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2"><a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">Cell atlas</a></li>
-        <li class="nav-item mb-2"><a href="{% url 'markers' %}" class="nav-link p-0 text-muted">Cell type markers</a></li>
-        <li class="nav-item mb-2"><a href="{% url 'comparison' %}" class="nav-link p-0 text-muted">Species comparison</a></li>
-        <li class="nav-item mb-2"><a href="{% url 'downloads' %}" class="nav-link p-0 text-muted">Downloads</a></li>
-        <li class="nav-item mb-2"><a href="{% url 'blog' %}" class="nav-link p-0 text-muted">Blog</a></li>
-      </ul>
-    </div>
-
-    <div class="col mb-3">
-      <h5>Details</h5>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2"><a href="{% url 'about' %}" class="nav-link p-0 text-muted">About us</a></li>
-        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Contact us</a></li>
-        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Legal notice</a></li>
-        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Privacy notice</a></li>
-      </ul>
-    </div>
-  </footer>
-</div>
-{% endblock footer %}
-
+    {% block footer %}{% include 'footer.html' %}{% endblock footer %}
 </body>
 </html>
