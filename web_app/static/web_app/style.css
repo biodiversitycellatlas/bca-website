@@ -89,6 +89,14 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     box-shadow: none !important;
 }
 
+/* Fix anchor links position to avoid navbar overlap */
+:target::before {
+  content: "";
+  display: block;
+  height: 70px;
+  margin: -70px 0 0;
+}
+
 /*a[rel="external"]:after {
     content: "\00a0\f08e";
     font-family: "Font Awesome 5 Free";
