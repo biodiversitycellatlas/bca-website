@@ -15,9 +15,9 @@ To setup the project and locally deploy the web app, follow these steps:
 
 ```bash
 # Start Docker Compose to locally deploy the web app to localhost:8000
-#   - Prepares and downloads all Docker containers and starts the containers
-#   - `--build web`: rebuilds the web image if needed (such as in the case of
-#     new Python dependencies in `requirements.txt`)
+# - Prepares and downloads all Docker containers and starts the containers
+# - `--build web`: rebuilds the web image if needed (such as in the case of new
+#   Python dependencies in `requirements.txt`)
 docker compose up --build web
 
 # Run a bash shell within the Docker container for the web app
