@@ -58,20 +58,27 @@ docker compose down
 ```
 
 The project directory is automatically mounted to the web app container,
-allowing the preview updates in the web app in real-time. However, any changes
-to Django model require to run the [`migrate`][migrate] command:
+allowing the preview updates in the web app in real-time. However, to apply any
+changes to Django models, you need to run the [`migrate`][migrate] command:
 
 ```bash
 docker compose exec web python manage.py migrate
 ```
 
-This command is automatically run when starting the web app container. As such,
-an alternative is to simply restart the web app service:
+This command runs automatically when the web app container starts. As such, you
+may simply restart the web app service to apply changes to Django models:
 
 ```bash
 docker compose restart web
 ```
 
+## Contact us
+
+[Centre for Genomic Regulation (CRG)][CRG]
+[European Bioinformatics Institute (EMBL-EBI)][EBI]
+
 [compose]: https://docs.docker.com/compose
 [django]: https://www.djangoproject.com
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
+[CRG]: https://www.crg.eu
+[EBI]: https://www.ebi.ac.uk/
