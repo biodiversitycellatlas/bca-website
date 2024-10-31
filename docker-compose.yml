@@ -6,6 +6,7 @@ services:
         command: >
             /bin/bash -c "python manage.py migrate
             && python manage.py runserver 0.0.0.0:8000"
+        # Mount volume on the current directory to live update Django files
         volumes:
             - ".:/usr/src/app"
         ports:

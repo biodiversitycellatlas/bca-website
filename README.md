@@ -27,7 +27,7 @@ docker compose exec web python manage.py createsuperuser
 
 ### Development
 
-These are some of the commands that will be used during development:
+These are some of the commands to use during development:
 
 ```bash
 # Start Docker Compose to locally deploy the web app to localhost:8000
@@ -35,6 +35,13 @@ docker compose up -d --build web
 
 # Check information about the active Docker Compose containers
 docker compose ps
+
+# Check container logs
+# - use `-f` to live update log output
+# - add container name to print logs only for that container
+docker compose logs
+docker compose logs -f
+docker compose logs web
 
 # Run a bash shell within the Docker container for the web app
 docker compose exec web bash
@@ -50,5 +57,21 @@ docker compose exec web python manage.py test
 docker compose down
 ```
 
+The project directory is automatically mounted to the web app container,
+allowing the preview updates in the web app in real-time. However, any changes
+to Django model require to run the [`migrate`][migrate] command:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+This command is automatically run when starting the web app container. As such,
+an alternative is to simply restart the web app service:
+
+```bash
+docker compose restart web
+```
+
 [compose]: https://docs.docker.com/compose
 [django]: https://www.djangoproject.com
+[migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
