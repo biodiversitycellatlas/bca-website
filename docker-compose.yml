@@ -2,7 +2,10 @@ services:
     web:
         build: .
         restart: always
-        command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+        # Automatically runs migrate in case of changes to Django models
+        command: >
+            /bin/bash -c "python manage.py migrate
+            && python manage.py runserver 0.0.0.0:8000"
         volumes:
             - ".:/usr/src/app"
         ports:
@@ -11,10 +14,6 @@ services:
             db:
                 condition: service_healthy
 
-    # To properly setup Django with Postgres, we need to run these commands:
-    #   docker compose up -d
-    #   docker compose exec web python manage.py migrate
-    #   docker compose exec web python manage.py createsuperuser
     db:
         image: postgres
         restart: always
