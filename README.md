@@ -74,8 +74,9 @@ docker compose restart web
 
 ## Contact us
 
-[Centre for Genomic Regulation (CRG)][CRG]
-[European Bioinformatics Institute (EMBL-EBI)][EBI]
+[<img src="web_app/static/web_app/images/CRG/LOGOs-CRG-ENG_2014_transparent_back.png" width="100" target="_blank" alt="Centre for Genomic Regulation (CRG)"/>][CRG]
+
+[<img src="web_app/static/web_app/images/EMBL-EBI/EMBL-EBI_Logo_black_big.png" width="100" target="_blank" alt="European Bioinformatics Institute (EMBL-EBI)"/>][EBI]
 
 [compose]: https://docs.docker.com/compose
 [django]: https://www.djangoproject.com
