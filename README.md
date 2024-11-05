@@ -65,8 +65,9 @@ changes to Django models, you need to run the [`migrate`][migrate] command:
 docker compose exec web python manage.py migrate
 ```
 
-This command runs automatically when the web app container starts. As such, you
-may simply restart the web app service to apply changes to Django models:
+The `migrate` command runs automatically when the web app container starts. As
+such, you may simply restart the web app service to apply changes to Django
+models:
 
 ```bash
 docker compose restart web
