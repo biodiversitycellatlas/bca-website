@@ -50,15 +50,40 @@
 
 /* Body */
 
-.btn {
+.btn-primary {
     background-color: #189BCD;
     border-color: #189BCD;
 }
 
-.btn:hover {
-    background: linear-gradient(135deg, #00000030, #00000080);
-    background-color: #189BCD;
+.btn-primary:hover {
+    background: #189BCDAA;
+    border-color: #189BCDAA;
     border-color: white;
+}
+
+.btn-primary:active {
+    background: #189BCD !important;
+    background-color: #189BCD !important;
+    border-color: white !important;
+}
+
+.btn-outline-primary {
+    border-color: #189BCD !important;
+    color: #189BCD;
+}
+
+.btn-check+.btn:hover {
+    color: #189BCDAA;
+}
+
+.btn-check:checked+.btn {
+    background-color: #189BCD;
+    color: white;
+}
+
+.btn-check:checked+.btn:hover {
+    background-color: #189BCDAA;
+    color: white;
 }
 
 .dropdown-item.active, .dropdown-item:active {
@@ -107,4 +132,8 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 footer h5 {
     font-weight: 800;
     color: #189BCD;
+}
+
+a.text-muted:hover {
+    opacity: 0.5;
 }
