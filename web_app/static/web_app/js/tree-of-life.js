@@ -27,7 +27,7 @@ async function readNewickJSON(file) {
   return flatten(obj);
 }
 
-function createTreeOfLife(file) {
+function createTreeOfLife(id, file) {
 	fetch(file)
 	    .then( res => res.json() )
 	    .then( obj => flatten(obj) )
@@ -170,6 +170,6 @@ function createTreeOfLife(file) {
 	                }
 	            }]
 	        };
-	        vegaEmbed('#tree', chart, {renderer: "svg"});
+	        vegaEmbed(id, chart, {renderer: "svg"});
 	});
 }
