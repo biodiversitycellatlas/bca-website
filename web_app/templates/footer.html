@@ -14,18 +14,18 @@
         <div class="col mb-3 d-sm-none d-md-block"></div>
 
         <div class="col mb-3">
-            <h5>Cite us</h5>
+            <h5><a href="#">Cite us</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">
                     Darwin <i>et al.</i>,
-                    <a href="#"><b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b></a>,
+                    <b><a href="#">The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</a></b>,
                     Systems Biology. 2024, 54(13):23-27
                 </span></li>
             </ul>
         </div>
 
         <div class="col mb-3">
-            <h5>BCA</h5>
+            <h5><a href="{% url 'index' %}">BCA</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">Cell atlas</a></li>
                 <li class="nav-item mb-2"><a href="{% url 'markers' %}" class="nav-link p-0 text-muted">Cell type markers</a></li>
@@ -36,7 +36,7 @@
         </div>
     
         <div class="col mb-3">
-            <h5>Details</h5>
+            <h5><a href="{% url 'about' %}">Details</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><a href="{% url 'about' %}#about" class="nav-link p-0 text-muted">About us</a></li>
                 <li class="nav-item mb-2"><a href="{% url 'about' %}#contact" class="nav-link p-0 text-muted">Contact us</a></li>
