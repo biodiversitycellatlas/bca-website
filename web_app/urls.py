@@ -1,6 +1,10 @@
 from django.urls import path
+from django.contrib import admin
 
 from . import views
+
+admin.site.site_header = 'BCA website'
+admin.site.site_title = 'BCA website admin'
 
 urlpatterns = [
     path("", views.index, name="index"),
