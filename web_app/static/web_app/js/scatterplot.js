@@ -8,14 +8,13 @@ $('input[type="checkbox"]').each(function() {
 function createMetacellProjection(id, sc_data, mc_data, mc_links) {
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-	  	"description": "Scatterplot.",
 	  	"title": {
     		"text": {"expr": "data('sc_data').length + ' cells, ' + data('mc_data').length + ' metacells'"},
     		"fontWeight": "normal",
     		"anchor": "start"
   		},
-	  	"width": 500,
-	  	"height": 500,
+	  	"width": "container",
+	  	"height": "container",
 	  	"params": [
 	  		{ "name": "showCells", "bind": { "element": "#projection-cells" } },
 	  		{ "name": "showMetacells", "bind": { "element": "#projection-metacells" } },
@@ -72,7 +71,8 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"size": {"value": 400},
 	    		"color": {"field": "cell_type", 
-	    			"scale": {"range": {"field": "color"}}
+	    			"scale": {"range": {"field": "color"}},
+	    			"legend":{"title": "Cell type annotation"}
 	    		},
 	    		"opacity": {
 			    	"condition": {
@@ -104,11 +104,7 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	    	}
   		}],
   		"config": {
-			"style": {
-		    	"cell": {
-		      		"stroke": "transparent"
-		    	}
-		  	},
+			"style": { "cell": { "stroke": "transparent" } },
 		  	"axis": {
 		  		"domain": false,
 		  		"grid": false,
@@ -119,6 +115,6 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 		}
 	};
     vegaEmbed(id, chart)
-   		.then(res => { view = res.view; })
+   		.then(res => { metacellProjectionView = res.view; })
     	.catch(console.error);
 }

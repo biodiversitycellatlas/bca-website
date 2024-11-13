@@ -5,7 +5,7 @@
 {% load static %}
 <h1 class="h3" id="projection">Metacell 2D projection</h1>
 
-<div id="projection-plot"></div> </br>
+<div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
 <div class="btn-group" role="group" aria-label="Metacell 2D projection options">
   <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
@@ -28,7 +28,13 @@
 		{{ sc_data|safe }}, {{ mc_data|safe }}, {{ mc_links|safe }})
 </script>
 
-<h1 class="h3" id="expression">Gene expression</h1>
+<h1 class="h3 pt-5" id="expression">Gene expression</h1>
 
-<div id="heatmap"></div>
+<div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
+
+<script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
+<script type="text/javascript">
+	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }})
+</script>
+
 {% endblock content %}

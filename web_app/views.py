@@ -56,7 +56,21 @@ def atlas(request):
         color      = r_colors[r_colors['name'] == color]['hex'].values[0]
         sc_array.append({"id": this_id, "x": sc_x[idx], "y": sc_y[idx], "metacell_type": type, "color": color})
 
-    context = {"sc_data": sc_array, "mc_data": mc_array, "mc_links": links_array}
+    expr = read_rds('web_app/static/web_app/data/tadh/tadh_reord_metacell_gene_FC.RDS')
+    gene_annot = pandas.read_csv('web_app/static/web_app/data/tadh/Tadh_GENE_ANNOTATION.tsv', sep="\t", header=None)
+
+    minFC = 2
+    expr_array = []
+    gene_name, mc_name = expr.dimnames
+    for id_row, val_row in enumerate(expr.matrix):
+        g = gene_name[id_row]
+        val_row = val_row.tolist()
+        for id_col, val_cell in enumerate(val_row):
+            m = mc_name[id_col]
+            if val_cell >= minFC:
+                expr_array.append({"value": val_cell, "gene": g, "metacell": m})
+
+    context = {"sc_data": sc_array, "mc_data": mc_array, "mc_links": links_array, "expr": expr_array}
     return render(request, "web_app/atlas.html", context)
 
 
