@@ -1,0 +1,7 @@
+# Production specific changes
+services:
+    web:
+        # Automatically runs migrate to update Django models
+        command: >
+            /bin/bash -c "python manage.py migrate
+            && python manage.py runserver 0.0.0.0:8000"
