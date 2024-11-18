@@ -7,18 +7,21 @@
 
 <div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
-<div class="btn-group" role="group" aria-label="Metacell 2D projection options">
-  <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
-  <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
-
-  <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
-  <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
-
-  <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
-  <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
-  
-  <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
-  <label class="btn btn-outline-primary" for="projection-links">Links</label>
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+    <label class="col-form-label px-2">Toggle </label>
+    <div class="btn-group" role="group" aria-label="Metacell 2D projection options">
+      <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
+    
+      <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
+    
+      <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
+      
+      <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
+      <label class="btn btn-outline-primary" for="projection-links">Links</label>
+    </div>
 </div>
 
 <script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
@@ -34,7 +37,7 @@
 
 <script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
-	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }})
+	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }}, {{ expr_genes|safe }}, {{ expr_mcs|safe }})
 </script>
 
 {% endblock content %}
