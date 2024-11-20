@@ -3,41 +3,24 @@
 {% block content %}
 
 {% load static %}
-<h1 class="h3" id="projection">Metacell 2D projection</h1>
+{% include 'web_app/atlas-select.html' %}
 
-<div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
-
-<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-    <label class="col-form-label px-2">Toggle </label>
-    <div class="btn-group" role="group" aria-label="Metacell 2D projection options">
-      <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
-    
-      <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
-    
-      <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
-      
-      <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
-      <label class="btn btn-outline-primary" for="projection-links">Links</label>
+<div class="container">
+    <div class="row">
+        <div class="col-2 align-self-center pt-1" style="background-color: lightgray; height: 130px; text-align: center; align-items: center; color: white;">
+            <i class="fa fa-{{icon}} fa-3x d-block d-md-none"></i>
+            <i class="fa fa-{{icon}} fa-5x d-none d-md-block d-lg-none"></i>
+            <i class="fa fa-{{icon}} fa-6x d-none d-lg-block"></i>
+            <p><small>No species selected</small></p>
+        </div>
+        <div class="col-10">
+            <span style="display: inline-block; height: 1em; vertical-align: middle; background-color: lightgray; width: 290px;"></span></br>
+            <span style="display: inline-block; height: 1em; vertical-align: middle; background-color: lightgray; width: 260px;"></span></br>
+            <span style="display: inline-block; height: 1em; vertical-align: middle; background-color: lightgray; width: 280px;"></span></br>
+            <span style="display: inline-block; height: 1em; vertical-align: middle; background-color: lightgray; width: 270px;"></span></br>
+            <span style="display: inline-block; height: 1em; vertical-align: middle; background-color: lightgray; width: 150px;"></span></br>
+        </div>
     </div>
 </div>
-
-<script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
-<script type="text/javascript">
-	createMetacellProjection(
-		"#projection-plot",
-		{{ sc_data|safe }}, {{ mc_data|safe }}, {{ mc_links|safe }})
-</script>
-
-<h1 class="h3 pt-5" id="expression">Gene expression</h1>
-
-<div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
-
-<script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
-<script type="text/javascript">
-	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }}, {{ expr_genes|safe }}, {{ expr_mcs|safe }})
-</script>
 
 {% endblock content %}

@@ -1,15 +1,30 @@
 from django.shortcuts import render
+from django.views.generic.base import TemplateView
+
 import json
 from rds2py import read_rds
 from scipy.cluster.hierarchy import ward, leaves_list
 import numpy as np
 import pandas as pd
+import random
 
-def index(request):
-    return render(request, "web_app/index.html")
+
+class IndexView(TemplateView):
+    template_name = "web_app/index.html"
 
 
 def atlas(request):
+    species = request.COOKIES.get('species')
+    gene = request.COOKIES.get('gene')
+    icon = random.choice(["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow", "dove", "fish-fins", "cat", "horse", "locust", "tree"])
+    return render(request, "web_app/atlas.html", {"icon": icon})
+
+
+def atlas_info(request, species):
+    return render(request, "web_app/atlas-info.html")
+
+
+def atlas_overview(request, species):
     mc2d = read_rds('web_app/static/web_app/data/tadh/tadh_reord_2dproj.RDS')
     r_colors = pd.read_csv('web_app/static/web_app/data/R_colors.tsv', sep="\t")
 
@@ -125,24 +140,27 @@ def atlas(request):
             expr_array.append({"index": index, "value": val, "gene": g, "metacell": mc, "metacell_type": mc_type, "metacell_color": mc_color, "gene_domain": gene_domain, "gene_domains": gene_domains})
 
     context = {"sc_data": sc_array, "mc_data": mc_array, "mc_links": links_array, "expr": expr_array, "expr_genes": gene_count, "expr_mcs": mc_count}
-    return render(request, "web_app/atlas.html", context)
+    return render(request, "web_app/atlas-overview.html", context)
 
 
-def markers(request):
-    return render(request, "web_app/markers.html")
+def atlas_markers(request, species):
+    species = request.COOKIES.get('species')
+    gene = request.COOKIES.get('gene')
+    context = {"species": species, "gene": gene}
+    return render(request, "web_app/atlas-markers.html", context)
 
 
-def comparison(request):
-    return render(request, "web_app/comparison.html")
+class ComparisonView(TemplateView):
+    template_name = "web_app/comparison.html"
 
 
-def downloads(request):
-    return render(request, "web_app/downloads.html")
+class DownloadsView(TemplateView):
+    template_name = "web_app/downloads.html"
 
 
-def blog(request):
-    return render(request, "web_app/blog.html")
+class BlogView(TemplateView):
+    template_name = "web_app/blog.html"
 
 
-def about(request):
-    return render(request, "web_app/about.html")
+class AboutView(TemplateView):
+    template_name = "web_app/about.html"

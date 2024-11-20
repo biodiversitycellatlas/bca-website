@@ -1,0 +1,53 @@
+<div class="row">
+    <div class="col">
+        <label for="species">Species</label>
+        <select id="species" placeholder="Select species...">
+            <option value="">Select species...</option>
+            <optgroup label="Placozoa">
+                <option value="Trichoplax_adhaerens">Trichoplax adhaerens</option>
+                <option value="Another_species">Another species</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div class="col">
+        <label for="gene">Gene</label>
+        <select id="gene" multiple placeholder="Select gene...">
+        	<option value="">Select gene...</option>
+        	<option value="geneA">Gene A</option>
+            <option value="geneB">Gene B</option>
+        </select>
+    </div>
+</div>
+
+<!-- Set species and gene; redirect to species page when selecting a species -->
+<script>
+    $(function () {
+        $("#species").selectize({
+        	onChange: function(value, isOnInitialize) {
+    			document.cookie='species=' + value;
+    			<!-- Jump to species -->
+    			window.location.replace(
+    			    "{% url 'atlas-info' 'arg' %}".replace('arg', value)
+    			);
+			}
+        });
+        $("#gene").selectize({
+        	onChange: function(value, isOnInitialize) {
+    			document.cookie='gene=' + value;
+			}
+        });
+    });
+</script>
+
+<ul class="nav nav-tabs pt-4 mb-3">
+  <li class="nav-item">
+    <a class="nav-link {% if not species %}active disabled{% endif %}" href="{% if species %}{% url 'atlas-info' species %}{% endif %}">Information</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-overview' species %}{% endif %}">Overview</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species %}{% endif %}">Cell type markers</a>
+  </li>
+</ul>
