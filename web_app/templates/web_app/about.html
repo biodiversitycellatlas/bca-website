@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1 class="h3" id="about">About us</h1>
 
 <p>The Biodiversity Cell Atlas is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species.</p>
@@ -20,5 +21,12 @@
 <p><b>JavaScript:</b> The website also uses JavaScript to enhance functionality and improve user experience, including interactive features for visualizations. Disabling JavaScript restricts access to certain features.</p>
 
 <p>For inquiries, please <a href="#contact">contact us</a>.</p>
+
+<h1 class="h3" id="licenses">Licenses</h1>
+
+Icons by <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome</a>.
+
+{% load custom_tags %}
+<p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "web_app/templates/web_app/about.html" "%d %b %Y" %}</b></i></p>
 
 {% endblock content %}
