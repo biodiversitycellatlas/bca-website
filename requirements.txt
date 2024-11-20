@@ -1,5 +1,4 @@
 django
-django-bootstrap5
 psycopg
 rds2py
 scipy
