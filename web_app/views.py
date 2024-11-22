@@ -16,12 +16,12 @@ class IndexView(TemplateView):
 def atlas(request):
     species = request.COOKIES.get('species')
     gene = request.COOKIES.get('gene')
-    icon = random.choice(["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow", "dove", "fish-fins", "cat", "horse", "locust", "tree"])
+    icon = random.choice(["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow", "dove", "fish-fins", "cat", "locust", "tree"])
     return render(request, "web_app/atlas.html", {"icon": icon})
 
 
 def atlas_info(request, species):
-    return render(request, "web_app/atlas-info.html")
+    return render(request, "web_app/atlas-info.html", {"species": species})
 
 
 def atlas_overview(request, species):
@@ -139,14 +139,12 @@ def atlas_overview(request, species):
 
             expr_array.append({"index": index, "value": val, "gene": g, "metacell": mc, "metacell_type": mc_type, "metacell_color": mc_color, "gene_domain": gene_domain, "gene_domains": gene_domains})
 
-    context = {"sc_data": sc_array, "mc_data": mc_array, "mc_links": links_array, "expr": expr_array, "expr_genes": gene_count, "expr_mcs": mc_count}
+    context = {"sc_data": sc_array, "mc_data": mc_array, "mc_links": links_array, "expr": expr_array, "expr_genes": gene_count, "expr_mcs": mc_count, "species": species}
     return render(request, "web_app/atlas-overview.html", context)
 
 
 def atlas_markers(request, species):
-    species = request.COOKIES.get('species')
-    gene = request.COOKIES.get('gene')
-    context = {"species": species, "gene": gene}
+    context = {"species": species }
     return render(request, "web_app/atlas-markers.html", context)
 
 
