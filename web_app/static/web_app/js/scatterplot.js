@@ -35,8 +35,8 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
-	    		"color": {"field": "metacell_type", 
-	    			"scale": {"range": {"field": "color"}}
+	    		"color": {"field": "metacell__type", 
+	    			"scale": {"range": {"field": "metacell__color"}}
 	    		},
 	    		"opacity": {
 			    	"condition": {
@@ -54,10 +54,10 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
   			"data": {"name": "mc_links"},
   			"mark": "rule",
 	  		"encoding": {
-	    		"x":  {"field": "x",  "type": "quantitative"},
-	    		"x2": {"field": "x2", "type": "quantitative"},
-	    		"y":  {"field": "y",  "type": "quantitative"},
-	    		"y2": {"field": "y2", "type": "quantitative"},
+	    		"x":  {"field": "metacell__x",  "type": "quantitative"},
+	    		"x2": {"field": "metacell2__x", "type": "quantitative"},
+	    		"y":  {"field": "metacell__y",  "type": "quantitative"},
+	    		"y2": {"field": "metacell2__y", "type": "quantitative"},
 	    		"color": {"value": "#B7B7B7"},
 	    		"opacity": {
 			    	"condition": { "test": "showLinks == 'false'", "value": 0 }
@@ -70,7 +70,7 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"size": {"value": 400},
-	    		"color": {"field": "cell_type", 
+	    		"color": {"field": "type", 
 	    			"scale": {"range": {"field": "color"}},
 	    			"legend":{"title": "Cell type annotation"}
 	    		},

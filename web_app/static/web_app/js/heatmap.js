@@ -9,14 +9,14 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
   		},
 		"datasets": { "expr_data": expr },
 		"height": "container",
-		"transform": [{"calculate": "toNumber(datum.metacell)", "as": "metacell"}],
+		"transform": [{"calculate": "toNumber(datum.metacell__name)", "as": "metacell__name"}],
 		"data": {"name": "expr_data"},
 		"vconcat": [{
 		  	"width": "container",
 		  	"mark": {"type": "rect", "tooltip": {"content": "data"}},
 	      	"encoding": {
-	        	"x": {"field": "metacell", "axis": {"labels": false, "ticks": false}},
-	        	"color": {"field": "metacell_color", "legend": false}
+	        	"x": {"field": "metacell__name", "axis": {"labels": false, "ticks": false}},
+	        	"color": {"field": "metacell__color", "legend": false}
 	      	}
 	    }, {
 	    	"width": "container",
@@ -24,16 +24,16 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
 			"mark": {"type": "rect", "tooltip": {"content": "data"}},
 			"encoding": {
 	    		"x": {
-	    			"field": "metacell",
+	    			"field": "metacell__name",
 	    			"axis": { "labels": false, "ticks": false }
 	    		},
 	    		"y": {
-	    			"field": "gene",
+	    			"field": "gene__name",
 	    			"axis": { "labels": false, "ticks": false },
 	    			"sort": {"field": "index"}
 	    		},
 	    		"color": {
-	    			"field": "value",
+	    			"field": "expression",
 	    			//"sort": "descending",
 			      	//"scale": {"scheme": "magma"},
 	    			"type": "quantitative"
@@ -43,8 +43,8 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
 		  	"width": "container",
 		  	"mark": {"type": "rect", "tooltip": {"content": "data"}},
 	      	"encoding": {
-	        	"x": {"field": "metacell", "axis": {"labels": false, "ticks": false}},
-	        	"color": {"field": "metacell_color", "legend": false}
+	        	"x": {"field": "metacell__name", "axis": {"labels": false, "ticks": false}},
+	        	"color": {"field": "metacell__color", "legend": false}
 	      	}
 	    }],
 		"config": { "view": { "stroke": "transparent" } }

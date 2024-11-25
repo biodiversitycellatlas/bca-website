@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
+{% block title %}{{species}} Overview{% endblock title %}
+
 {% block content %}
 
 {% load static %}
 {% include 'web_app/atlas-select.html' %}
 
-<h1 class="h3 pt-5" id="projection">Metacell 2D projection</h1>
+<div class="container">
+<h1 class="h3 pt-2" id="projection">Metacell 2D projection</h1>
 
 <div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
@@ -39,6 +42,7 @@
 
 <script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
-	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }}, {{ expr_genes|safe }}, {{ expr_mcs|safe }})
+	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }}, {{ expr_genes|safe }}, {{ expr_metacells|safe }})
 </script>
+</div>
 {% endblock content %}

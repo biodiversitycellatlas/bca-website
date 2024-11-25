@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
+{% block title %}{{species}} Cell Type Markers{% endblock title %}
+
 {% block content %}
 {% include 'web_app/atlas-select.html' %}
 
-<h1 class="h5 pt-2">Cookies: <b><i>{{ species }}</i></b> and <b>{{ gene }}</b></h1>
+<div class="container">
+Markers for <b>{{ species }}</b>
+</div>
 
 {% endblock content %}

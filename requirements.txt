@@ -1,4 +1,5 @@
 django
+django-colorfield
 psycopg
 rds2py
 scipy

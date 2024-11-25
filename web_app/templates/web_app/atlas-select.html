@@ -1,12 +1,23 @@
+<!--
+Select species and gene for the Cell Atlas section
+
+When a species is selected, redirect to that species page
+-->
+
 <div class="row">
     <div class="col">
         <label for="species">Species</label>
         <select id="species" placeholder="Select species...">
             <option value="">Select species...</option>
-            <optgroup label="Placozoa">
-                <option value="Trichoplax_adhaerens">Trichoplax adhaerens</option>
-                <option value="Another_species">Another species</option>
-            </optgroup>
+            {% for phylum, species_list in species_dict.items %}
+                <optgroup label="{{ phylum }}">
+                {% for element in species_list %}
+                    <option value="{{element.species_underscore}}" {% if species == element %}selected{%endif%}>
+                        {{ element.scientific_name }}
+                    </option>
+                {% endfor %}
+                </optgroup>
+            {% endfor %}
         </select>
     </div>
 
@@ -14,24 +25,29 @@
         <label for="gene">Gene</label>
         <select id="gene" multiple placeholder="Select gene...">
         	<option value="">Select gene...</option>
-        	<option value="geneA">Gene A</option>
-            <option value="geneB">Gene B</option>
+            <option value="apple" data-scientific="Malus domestica">Apple</option>
+            <option value="banana" data-scientific="Musa acuminata">Banana</option>
+            <option value="cherry" data-scientific="Prunus avium">Cherry</option>
+            <option value="date" data-scientific="Phoenix dactylifera">Date</option>
+            <option value="elderberry" data-scientific="Sambucus nigra">Elderberry</option>
         </select>
     </div>
 </div>
 
-<!-- Set species and gene; redirect to species page when selecting a species -->
+<!-- Species and gene selection: selectize.js JavaScript options -->
 <script>
     $(function () {
         $("#species").selectize({
         	onChange: function(value, isOnInitialize) {
-    			document.cookie='species=' + value;
-    			<!-- Jump to species -->
-    			window.location.replace(
-    			    "{% url 'atlas-info' 'arg' %}".replace('arg', value)
-    			);
+        	    if (value !== "") {
+        			<!-- Jump to URL of a species upon selection -->
+        			window.location.replace(
+        			    "{% url 'atlas-info' '::arg' %}".replace('::arg', value)
+        			);
+        		}
 			}
         });
+
         $("#gene").selectize({
         	onChange: function(value, isOnInitialize) {
     			document.cookie='gene=' + value;
@@ -40,14 +56,22 @@
     });
 </script>
 
+<!-- Set species in cookie -->
+<!--{% if species %}
+<script>document.cookie='species={{species}}';</script>
+{% endif %}-->
+
+<!-- Tabs to navigate the cell atlas of a given species -->
+{% with request.resolver_match.url_name as url_name %}
 <ul class="nav nav-tabs pt-4 mb-3">
   <li class="nav-item">
-    <a class="nav-link {% if not species %}active disabled{% endif %}" href="{% if species %}{% url 'atlas-info' species %}{% endif %}">Information</a>
+    <a class="nav-link {% if not 'markers' in url_name and not 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-info' species.species_underscore %}{% endif %}">Information</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-overview' species %}{% endif %}">Overview</a>
+    <a class="nav-link {% if 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-overview' species.species_underscore %}{% endif %}">Overview</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species %}{% endif %}">Cell type markers</a>
+    <a class="nav-link {% if 'markers' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species.species_underscore %}{% endif %}">Cell type markers</a>
   </li>
 </ul>
+{% endwith %}

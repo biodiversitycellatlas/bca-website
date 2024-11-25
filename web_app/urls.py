@@ -8,10 +8,10 @@ admin.site.site_title = 'BCA website admin'
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    path("atlas/", views.atlas, name="atlas"),
-    path("atlas/<species>", views.atlas_info, name="atlas-info"),
-    path("atlas/<species>/overview", views.atlas_overview, name="atlas-overview"),
-    path("atlas/<species>/markers", views.atlas_markers, name="atlas-markers"),
+    path("atlas/", views.AtlasView.as_view(), name="atlas"),
+    path("atlas/<species>", views.AtlasInfoView.as_view(), name="atlas-info"),
+    path("atlas/<species>/overview", views.AtlasOverviewView.as_view(), name="atlas-overview"),
+    path("atlas/<species>/markers", views.AtlasMarkersView.as_view(), name="atlas-markers"),
 
     path("comparison/", views.ComparisonView.as_view(), name="comparison"),
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
