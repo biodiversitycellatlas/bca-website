@@ -38,7 +38,12 @@
 
 <h1 class="h3 pt-5" id="expression">Gene expression</h1>
 
-<div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
+<!-- Use columns to workaround vega-lite's bug for concatenated plots within containers -->
+<div class="row">
+    <div class="col-10 col-sm-11">
+        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
+    </div>
+</div>
 
 <script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
