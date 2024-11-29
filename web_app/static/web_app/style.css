@@ -123,12 +123,39 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     cursor: default;
 }
 
+/* Selectize.js */
+.selectize-dropdown .selected {
+    background-color: #189BCD;
+}
+
+.species-meta {
+    display: none;
+}
+
+/* Navigation tabs (Cell Atlas) */
+
+.nav-tabs .nav-link {
+    color: #189BCD;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #189BCDAA;
+}
+
+.nav-tabs .nav-link.disabled {
+    color: var(--bs-nav-link-disabled-color);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--bs-nav-tabs-link-active-color);
+}
+
 /* Fix anchor links position to avoid navbar overlap */
 :target::before {
-  content: "";
-  display: block;
-  height: 70px;
-  margin: -70px 0 0;
+    content: "";
+    display: block;
+    height: 70px;
+    margin: -70px 0 0;
 }
 
 /*a[rel="external"]:after {

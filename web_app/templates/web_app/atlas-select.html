@@ -11,10 +11,8 @@ When a species is selected, redirect to that species page
             <option value="">Select species...</option>
             {% for phylum, species_list in species_dict.items %}
                 <optgroup label="{{ phylum }}">
-                {% for element in species_list %}
-                    <option value="{{element.species_underscore}}" {% if species == element %}selected{%endif%}>
-                        {{ element.scientific_name }}
-                    </option>
+                {% for elem in species_list %}
+                    <option value="{{elem.species.species_underscore}}" data-meta="{{elem.meta|join:','}}" {% if species == elem.species %}selected{%endif%}>{{ elem.species.scientific_name }}</option>
                 {% endfor %}
                 </optgroup>
             {% endfor %}
@@ -22,14 +20,9 @@ When a species is selected, redirect to that species page
     </div>
 
     <div class="col">
-        <label for="gene">Gene</label>
-        <select id="gene" multiple placeholder="Select gene...">
+        <label for="gene">Genes</label>
+        <select id="gene" multiple {% if not species %}disabled{% endif %} placeholder="Select genes...">
         	<option value="">Select gene...</option>
-            <option value="apple" data-scientific="Malus domestica">Apple</option>
-            <option value="banana" data-scientific="Musa acuminata">Banana</option>
-            <option value="cherry" data-scientific="Prunus avium">Cherry</option>
-            <option value="date" data-scientific="Phoenix dactylifera">Date</option>
-            <option value="elderberry" data-scientific="Sambucus nigra">Elderberry</option>
         </select>
     </div>
 </div>
@@ -38,20 +31,62 @@ When a species is selected, redirect to that species page
 <script>
     $(function () {
         $("#species").selectize({
-        	onChange: function(value, isOnInitialize) {
-        	    if (value !== "") {
-        			<!-- Jump to URL of a species upon selection -->
+            // Jump to species page upon selection
+            onChange: function(value) {
+                // Avoid jumping if value is empty or matches current species
+        	    if (value !== "" && value !== '{{species.species_underscore}}') {
         			window.location.replace(
-        			    "{% url 'atlas-info' '::arg' %}".replace('::arg', value)
+        			    {% if request.resolver_match.view_name == 'atlas' %}
+        			        "{% url 'atlas-info' '::arg' %}".replace('::arg', value)
+        			    {% else %}
+        			        "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value)
+        			    {% endif %}
         			);
         		}
-			}
+			},
+			onDropdownOpen: function() {
+			    this.clear();
+			},
+			onDropdownClose: function() {
+			    // Set current species if no value is selected
+                if (!this.getValue()) {
+                    this.setValue('{{species.species_underscore}}');
+                }
+            },
+			onType: function(str) {
+			    $('.highlight').closest('.species-meta').css('display', 'inline-block');
+			},
+			render: {
+                item: function (item, escape) {
+                    return ("<div class='option'>" + item.text + "</div>");
+                },
+                option: function (item, escape) {
+                    var meta_array = item.meta.split(',');
+                    badges = '';
+                    for(var i = 0; i < meta_array.length; i++) {
+                        if (meta_array[i] !== '') {
+                            span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
+                            badges += ` ${span}<small>${meta_array[i]}</small></span>`;
+                        }
+                    }
+                    return ("<div class='option'>" + item.text + badges + "</div>");
+                },
+                score: function(search) {                    
+                    var score = this.getScoreFunction(search);
+                    return function(item) {
+                        return score(item) > 0;
+                    };
+                }
+            },
+            searchField: ['text', 'meta', 'optgroup']
         });
 
         $("#gene").selectize({
         	onChange: function(value, isOnInitialize) {
     			document.cookie='gene=' + value;
-			}
+			},
+			dataAttr: 'data-extra',
+            searchField: ['value','text','scientific']
         });
     });
 </script>
@@ -71,7 +106,8 @@ When a species is selected, redirect to that species page
     <a class="nav-link {% if 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-overview' species.species_underscore %}{% endif %}">Overview</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if 'markers' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species.species_underscore %}{% endif %}">Cell type markers</a>
+    <a class="nav-link {% if 'markers' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species.species_underscore %}{% endif %}">Cell markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected cells"></i></a>
   </li>
 </ul>
+
 {% endwith %}
