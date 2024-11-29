@@ -17,7 +17,13 @@
         </div>
         <div class="col-8">
             <h1 class="h3" id="projection"><i>{{species.scientific_name}}</i></h1>
-            <p>{{species.description|safe}}</p>
+            <p>
+                {% if species.description %}
+                    {{species.description|safe}}
+                {% else %}
+                    No description available
+                {% endif %}
+            </p>
         </div>
     </div>
 </div>

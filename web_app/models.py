@@ -31,6 +31,9 @@ class Species(models.Model):
         Example:
             For 'https://test.wikimedia.org/path/img.jpg', returns 'Wikimedia'.
         """
+        if not self.image_url:
+            return None
+
         regex = r'https?://(?:[a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+)\.'
         match = re.match(regex, self.image_url)
         if match:
