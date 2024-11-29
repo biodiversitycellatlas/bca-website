@@ -13,10 +13,14 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
 		"data": {"name": "expr_data"},
 		"vconcat": [{
 		  	"width": "container",
-		  	"mark": {"type": "rect", "tooltip": {"content": "data"}},
+		  	"mark": "rect",
 	      	"encoding": {
 	        	"x": {"field": "metacell__name", "axis": {"labels": false, "ticks": false}},
-	        	"color": {"field": "metacell__color", "legend": false}
+	        	"color": {
+	        		"field": "metacell__color", "legend": false,
+	        		"scale": {"range": {"field": "metacell__color"}}
+	        	},
+	        	"tooltip": [ {"field": "metacell__name"}, {"field": "metacell__type"} ]
 	      	}
 	    }, {
 	    	"width": "container",
@@ -33,7 +37,7 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
 	    			"sort": {"field": "index"}
 	    		},
 	    		"color": {
-	    			"field": "expression",
+	    			"field": "log2_expression",
 	    			//"sort": "descending",
 			      	//"scale": {"scheme": "magma"},
 	    			"type": "quantitative"
@@ -41,10 +45,14 @@ function createExpressionHeatmap(id, expr, genes, metacells) {
 		  	}
 		}, {
 		  	"width": "container",
-		  	"mark": {"type": "rect", "tooltip": {"content": "data"}},
+		  	"mark": "rect",
 	      	"encoding": {
 	        	"x": {"field": "metacell__name", "axis": {"labels": false, "ticks": false}},
-	        	"color": {"field": "metacell__color", "legend": false}
+	        	"color": {
+	        		"field": "metacell__color", "legend": false,
+	        		"scale": {"range": {"field": "metacell__color"}}
+	        	},
+	        	"tooltip": [ {"field": "metacell__name"}, {"field": "metacell__type"} ]
 	      	}
 	    }],
 		"config": { "view": { "stroke": "transparent" } }
