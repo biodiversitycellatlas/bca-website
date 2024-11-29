@@ -114,6 +114,15 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     box-shadow: none !important;
 }
 
+.placeholder {
+    display: inline-block;
+    height: 1em;
+    vertical-align: middle;
+    background-color: lightgray;
+    opacity: 1;
+    cursor: default;
+}
+
 /* Fix anchor links position to avoid navbar overlap */
 :target::before {
   content: "";
