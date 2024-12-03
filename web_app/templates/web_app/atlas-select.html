@@ -7,12 +7,12 @@ When a species is selected, redirect to that species page
 <div class="row">
     <div class="col">
         <label for="species">Species</label>
-        <select id="species" placeholder="Select species...">
-            <option value="">Select species...</option>
+        <select id="species" placeholder="Search species by name, taxonomic ranks, division, ...">
+            <option value=""></option>
             {% for phylum, species_list in species_dict.items %}
                 <optgroup label="{{ phylum }}">
                 {% for elem in species_list %}
-                    <option value="{{elem.species.species_underscore}}" data-meta="{{elem.meta|join:','}}" {% if species == elem.species %}selected{%endif%}>{{ elem.species.scientific_name }}</option>
+                    <option value="{{elem.species.species_underscore}}" data-meta="{{elem.meta|join:','}}" data-image="{{elem.species.image_url}}" {% if species == elem.species %}selected{%endif%}>{{ elem.species.scientific_name }}</option>
                 {% endfor %}
                 </optgroup>
             {% endfor %}
@@ -21,8 +21,11 @@ When a species is selected, redirect to that species page
 
     <div class="col">
         <label for="gene">Genes</label>
-        <select id="gene" multiple {% if not species %}disabled{% endif %} placeholder="Select genes...">
-        	<option value="">Select gene...</option>
+        <select id="gene" multiple {% if not species %}disabled{% endif %} placeholder="Search genes...">
+        	<option value=""></option>
+        	<option value="apple">Apple</option>
+        	<option value="pear">Pear</option>
+        	<option value="blueberry">Blueberry</option>
         </select>
     </div>
 </div>
@@ -58,7 +61,7 @@ When a species is selected, redirect to that species page
 			},
 			render: {
                 item: function (item, escape) {
-                    return ("<div class='option'>" + item.text + "</div>");
+                    return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i></div>`;
                 },
                 option: function (item, escape) {
                     var meta_array = item.meta.split(',');
@@ -69,7 +72,7 @@ When a species is selected, redirect to that species page
                             badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                         }
                     }
-                    return ("<div class='option'>" + item.text + badges + "</div>");
+                    return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i>${badges}</div>`;
                 },
                 score: function(search) {                    
                     var score = this.getScoreFunction(search);
