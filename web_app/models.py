@@ -124,7 +124,9 @@ class MetacellGeneExpression(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
-    value = models.FloatField()
+    umi_raw  = models.FloatField(blank=True, null=True)
+    umifrac = models.FloatField(blank=True, null=True)
+    fold_change = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ["gene", "metacell", "species"]

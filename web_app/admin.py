@@ -37,7 +37,7 @@ class GeneAdmin(admin.ModelAdmin):
 
 
 class MetacellGeneExpressionAdmin(admin.ModelAdmin):
-    list_display = ["gene", "metacell", "value", "species"]
+    list_display = ["gene", "metacell", "fold_change", "umifrac", "species"]
 
 
 admin.site.register(Species, SpeciesAdmin)

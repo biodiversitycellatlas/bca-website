@@ -7,22 +7,28 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-4">  
+        <div class="col-3">
             <form id="markers-form">
                 <fieldset>
                     <legend class="h5">Cell selection</legend>
-                    <div class="btn-toolbar row mb-3" role="toolbar" aria-label="Cell selection">
-                        <label class="col-form-label col-lg-4">Select by </label>
-                        <div class="btn-group-vertical col-lg-8" role="group" aria-label="Cell selection">
-                          <input type="radio" class="btn-check" name="select" id="cell_types" value="cell_types" autocomplete="off" {% if not query.select or query.select == 'cell_types' %}checked{% endif %}>
-                          <label class="btn btn-outline-primary" for="cell_types">Cell types</label>
-        
-                          <input type="radio" class="btn-check" name="select" id="metacells" value="metacells" autocomplete="off" {% if query.select == 'metacells' %}checked{% endif %}>
-                          <label class="btn btn-outline-primary" for="metacells">Metacells</label>
-                          
-                          <input type="radio" class="btn-check" name="select" id="custom" value="custom" autocomplete="off" {% if query.select == 'custom' %}checked{% endif %}>
-                          <label class="btn btn-outline-primary" for="custom">Custom</label>
-                        </div>
+                    <div class="mb-3">
+                        <label class="col-form-label" for="metacells">Metacells</label>
+                        <select name="metacells" value="" id="metacells" multiple placeholder="Select metacells...">
+                            <option value=""></option>
+                            {% for key, value in metacell_dict.items %}
+                                <optgroup label="{{ key }}">
+                                    {% if key == 'Cell types' %}
+                                        {% for type, mc in value.items %}
+                                            <option value="{{type}}" data-type="cell_types" data-metacells="{{mc|join:','}}" data-color="{{type.color}}">{{type}}</option>
+                                        {% endfor %}
+                                    {% elif key == 'Metacells' %}
+                                        {% for mc in value %}
+                                            <option value="{{mc.name}}" data-type="metacells" data-color="{{mc.color}}" data-celltype="{{mc.type}}">{{mc.name}}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
                     </div>
                 </fieldset>
                 
@@ -31,7 +37,7 @@
                     <div class="mb-3">
                         <label class="col-form-label" for="fc_min_type">Min. fold-change <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Minimum fold-change for gene filtering"></i></label>
                         <select class="form-select" name="fc_min_type" id="fc_min_type" aria-label="Select example" value="median">
-                            <option value="absolute" {% if query.fc_max_bg_type == 'absolute' %}selected{% endif %}>Absolute</option>
+                            <option value="mean" {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
                             <option value="median" {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
                         </select>
                     </div>
@@ -53,7 +59,7 @@
                         <label class="col-form-label" for="fc_max_bg_type">Max. fold-change (background) <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Maximum fold-change in non-selected cells"></i></label>
                         <select class="form-select" id="fc_max_bg_type" name="fc_max_bg_type" aria-label="Select example" onchange="toggleMaxFCslider(this, '#fc_max_bg');">
                             <option value="ignore" {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>Ignore</option>
-                            <option value="absolute" {% if query.fc_max_bg_type == 'absolute' %}selected{% endif %}>Absolute</option>
+                            <option value="mean" {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
                             <option value="median" {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
                         </select>
                     </div>
@@ -82,13 +88,47 @@
                         // Hide slider depending on value of #fc_max_bg_type
                         toggleMaxFCslider($('#fc_max_bg_type')[0], '#fc_max_bg')
                     </script>
-                    <button type="submit" class="btn btn-primary my-3">List markers</button>
+                    <button type="submit" class="btn btn-primary my-3 w-100">List markers</button>
                 </fieldset>
             </form>
         </div>
-        <div class="col">
-            {% if query %}
-                Some table
+        <div class="col-9">
+            {% if markers_table %}
+                <p class="text-end text-muted"><small>Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b></small></p>
+                <table id="markers_table" class="display" style="width:100%"></table>
+                <script>
+                    // Round numeric values
+                    function round (data, type, row) {
+                        if (type === 'display' || type === 'filter') {
+                            return parseFloat(data).toFixed(2);
+                        }
+                        return data;
+                    }
+
+                    // Improve array parsing
+                    function parseArray (data, type, row) {
+                        if (Array.isArray(data)) {
+                            return data.join(', ');
+                        }
+                        return data;
+                    }
+
+                    // Create DataTable
+                    var data = {{markers_table|safe}};
+                    $('#markers_table').dataTable({
+                        data: data,
+                        scrollX: true,
+                        columns: [
+                            { data: 'name', title: "Gene ID" },
+                            { data: 'description', title: "Name" },
+                            { data: 'domains', title: "Domains", render: parseArray },
+                            { data: 'fg_sum_umi', title: "Total UMIs", render: round },
+                            { data: 'umi_perc', title: "UMI %", render: round },
+                            { data: 'fg_mean_fc', title: "Mean FC", render: round },
+                            { data: 'fg_median_fc', title: "Median FC", render: round }
+                        ]
+                    });
+                </script>
             {% else %}
                 <table class="table">
                     <thead>
@@ -124,5 +164,106 @@
         </div>
     </div>
 </div>
+
+<!-- Metacell: selectize.js JavaScript options -->
+<script>
+    function convertToRange(str) {
+        // Sort numeric values
+        const numbers = str.split(',').map(Number).sort((a, b) => a - b);
+        let ranges = [];
+        let start = numbers[0];
+        let end = numbers[0];
+        
+        for (let i = 1; i < numbers.length; i++) {
+            if (numbers[i] === end + 1) {
+                end = numbers[i];
+            } else {
+                ranges.push(start === end ? `${start}` : `${start}-${end}`);
+                start = numbers[i];
+                end = numbers[i];
+            }
+        }
+        
+        // Add the last range
+        ranges.push(start === end ? `${start}` : `${start}-${end}`);
+        
+        return ranges.join(',');
+    }
+
+    $(function () {
+        $("#metacells").selectize({
+            multiple: true,
+            plugins: ['remove_button'],
+            onInitialize: function() {
+                var metacell_values = '{{ query.metacells }}'.split(',');
+                this.setValue(metacell_values);
+            },
+            searchField: ['text', 'celltype'],
+            render: {
+                item: function (item, escape) {
+                    var metacells;
+                    var text;
+                    var span_class = 'badge rounded-pill text-bg-secondary';
+                    if (item.type == 'metacells') {
+                        metacells = item.text;
+                        text      = '';
+                    } else {
+                        metacells = item.metacells;
+                        text      = item.text.replaceAll('_',' ');
+                        span_class += ' ms-1';
+                    }
+
+                    var badge = '';
+                    if (metacells) {
+                        metacells = convertToRange(String(metacells));
+                        badge = `<span class="${span_class}">${metacells}</span>`;
+                    }
+                    return `<div class='item'>${text}${badge}</div>`;
+                },
+                option: function (item, escape) {
+                    var extra = '';
+                    var text = item.text;
+                    if (item.metacells) {
+                        var metacells = convertToRange(String(item.metacells));
+                        extra = `<br><small>Metacells: ${metacells}</small>`;
+                    } else {
+                        var type = item.celltype.replaceAll('_',' ');;
+                        extra = `<br><small>Cell type: ${type}</small>`;
+                    }
+                    text = text.replaceAll('_',' ');
+                    return `<div class='option'>${text}${extra}</div>`;
+                }
+            },
+        });
+    });
+</script>
+
+<!-- Simplify multiple select input into a single comma-separated value -->
+<script>
+    function updateMetacellSelectionText(selected) {
+        var minimized = convertToRange(selected).replaceAll(',', ', ');
+
+        underline = 'style="-webkit-text-decoration: underline dotted; text-decoration: underline dotted;"';
+        tooltip   = `data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="${selected}"`;
+        $('#selected_metacells').html(`<span ${underline} ${tooltip}>${minimized}</span>`);
+    }
+    updateMetacellSelectionText("{{selected_metacells|join:', '}}");
+
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+    
+        var formData = new FormData(this);
+        var values = formData.getAll('metacells').join(',');
+        formData.set('metacells', values);
+    
+        var query = {};
+        for (let [key, value] of formData.entries()) {
+            query[key] = value;
+        }
+        // Convert query to URL parameters (but maintain commas)
+        query = $.param(query).replaceAll('%2C', ',');
+        window.location.href = '{{ request.path }}?' + query;
+    })
+</script>
 
 {% endblock content %}
