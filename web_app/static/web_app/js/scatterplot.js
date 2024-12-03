@@ -92,7 +92,7 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
-	    		"text": {"field": "id"},
+	    		"text": {"field": "name"},
 	    		"opacity": {
 			    	"condition": {
         				"test": "showLabels == 'true'",

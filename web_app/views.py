@@ -148,10 +148,10 @@ class AtlasOverviewView(TemplateView):
         context["species_dict"] = getSpeciesDict()
 
         context["sc_data"] = convertQuerysetToJSON(species.singlecell_set.values(
-            "id", "x", "y", "metacell__type", "metacell__color"))
+            "name", "x", "y", "metacell__type", "metacell__color"))
 
         context["mc_data"] = convertQuerysetToJSON(species.metacell_set.values(
-            "id", "x", "y", "type", "color"))
+            "name", "x", "y", "type", "color"))
 
         context["mc_links"] = convertQuerysetToJSON(species.metacelllink_set.values(
             "metacell__x", "metacell__y", "metacell2__x", "metacell2__y"))
