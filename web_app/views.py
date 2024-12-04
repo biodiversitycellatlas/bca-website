@@ -250,6 +250,21 @@ class AtlasOverviewView(TemplateView):
         return context
 
 
+class AtlasGeneView(TemplateView):
+    model = Species
+    template_name = "web_app/atlas_gene.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["species"] = context["species"].replace("_", " ")
+        try:
+            context["species"] = Species.objects.filter(scientific_name=context["species"])[0]
+            context["species_dict"] = getSpeciesDict()
+        except:
+            raise Http404(f"Species {context['species']} not found")
+        return context
+
+
 class AtlasMarkersView(TemplateView):
     model = Species
     template_name = "web_app/atlas_markers.html"
@@ -273,6 +288,21 @@ class AtlasMarkersView(TemplateView):
             table, selected = getMarkersTable(context["species"], query)
             context['markers_table'] = table
             context['selected_metacells'] = selected
+        return context
+
+
+class AtlasCompareView(TemplateView):
+    model = Species
+    template_name = "web_app/atlas_compare.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["species"] = context["species"].replace("_", " ")
+        try:
+            context["species"] = Species.objects.filter(scientific_name=context["species"])[0]
+            context["species_dict"] = getSpeciesDict()
+        except:
+            raise Http404(f"Species {context['species']} not found")
         return context
 
 
