@@ -192,7 +192,7 @@ class AtlasView(TemplateView):
     def get(self, request, *args, **kwargs):
         previous_species = request.COOKIES.get('species')
         if previous_species:
-            return redirect('atlas-info', previous_species)
+            return redirect('atlas_info', previous_species)
         else:
             return super().get(request, *args, **kwargs)
 
@@ -207,7 +207,7 @@ class AtlasView(TemplateView):
 
 class AtlasInfoView(TemplateView):
     model = Species
-    template_name = "web_app/atlas-info.html"
+    template_name = "web_app/atlas_info.html"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -222,7 +222,7 @@ class AtlasInfoView(TemplateView):
 
 class AtlasOverviewView(TemplateView):
     model = Species
-    template_name = "web_app/atlas-overview.html"
+    template_name = "web_app/atlas_overview.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -252,7 +252,7 @@ class AtlasOverviewView(TemplateView):
 
 class AtlasMarkersView(TemplateView):
     model = Species
-    template_name = "web_app/atlas-markers.html"
+    template_name = "web_app/atlas_markers.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -40,7 +40,7 @@ When a species is selected, redirect to that species page
         	    if (value !== "" && value !== '{{species.species_underscore}}') {
         			window.location.replace(
         			    {% if request.resolver_match.view_name == 'atlas' %}
-        			        "{% url 'atlas-info' '::arg' %}".replace('::arg', value)
+        			        "{% url 'atlas_info' '::arg' %}".replace('::arg', value)
         			    {% else %}
         			        "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value)
         			    {% endif %}
@@ -103,13 +103,13 @@ When a species is selected, redirect to that species page
 {% with request.resolver_match.url_name as url_name %}
 <ul class="nav nav-tabs pt-4 mb-3">
   <li class="nav-item">
-    <a class="nav-link {% if not 'markers' in url_name and not 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-info' species.species_underscore %}{% endif %}">Information</a>
+    <a class="nav-link {% if not 'markers' in url_name and not 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_info' species.species_underscore %}{% endif %}">Information</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-overview' species.species_underscore %}{% endif %}">Overview</a>
+    <a class="nav-link {% if 'overview' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_overview' species.species_underscore %}{% endif %}">Overview</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if 'markers' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas-markers' species.species_underscore %}{% endif %}">Cell markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected cells"></i></a>
+    <a class="nav-link {% if 'markers' in url_name %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}">Cell markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected cells"></i></a>
   </li>
 </ul>
 
