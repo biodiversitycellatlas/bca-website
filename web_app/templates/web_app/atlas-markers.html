@@ -3,7 +3,7 @@
 {% block title %}{{species}} Markers{% endblock title %}
 
 {% block content %}
-{% include 'web_app/atlas-select.html' %}
+{% include 'web_app/components/atlas_selection.html' %}
 
 <div class="container">
     <div class="row">
@@ -94,7 +94,14 @@
         </div>
         <div class="col-9">
             {% if markers_table %}
-                <p class="text-end text-muted"><small>Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b></small></p>
+                <div class="row g-0 float-end">
+                    <div class="col-auto">
+                        <p class="text-end text-muted form-control-sm"><small>Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b></small></p>
+                    </div>
+                    <div class="col-auto">
+                        {% include 'web_app/components/clipboard_button.html' %}
+                    </div>
+                </div>
                 <table id="markers_table" class="display" style="width:100%"></table>
                 <script>
                     // Round numeric values
@@ -130,36 +137,7 @@
                     });
                 </script>
             {% else %}
-                <table class="table">
-                    <thead>
-                        <tr style="border-bottom: 2px solid lightgray;">
-                            <th scope="col">#</span></th>
-                            <th scope="col">Gene ID</span></th>
-                            <th scope="col">Name</span></th>
-                            <th scope="col">Domains</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row"><span class="placeholder" style="width: 20px;"></span></th>
-                            <td><span class="placeholder" style="width: 110px;"></span></td>
-                            <td><span class="placeholder" style="width: 110px;"></span></td>
-                            <td><span class="placeholder" style="width: 95px;"></span></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><span class="placeholder" style="width: 15px;"></span></th>
-                            <td><span class="placeholder" style="width: 125px;"></span></td>
-                            <td><span class="placeholder" style="width: 90px;"></span></td>
-                            <td><span class="placeholder" style="width: 89px;"></span></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><span class="placeholder" style="width: 18px;"></span></th>
-                            <td><span class="placeholder" style="width: 118px;"></span></td>
-                            <td><span class="placeholder" style="width: 100px;"></span></td>
-                            <td><span class="placeholder" style="width: 100px;"></span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                {% include 'web_app/components/mockup_table.html' %}
             {% endif %}
         </div>
     </div>

@@ -1,0 +1,32 @@
+<!--
+Copy to clipboard button
+
+When clicking this button the current URL is copied to clipboard and a tooltip
+is activated for 2 seconds (default)
+-->
+
+<button type="button" class="btn btn-secondary btn-sm" id="clipboard"
+data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual"
+data-bs-title="<i class='fa fa-circle-check'></i> Copied to clipboard!">
+    {{text|default:'<i class="fa fa-chain"></i> Copy link'}}
+</button>
+
+<script>
+// Show tooltip and automatically hide after some time
+$('#clipboard').on('click', function(e) {
+    navigator.clipboard.writeText(window.location.href);
+    var clipboard = $(this);
+    clipboard.tooltip('show');
+    setTimeout(function() {
+        clipboard.tooltip('hide');
+    }, 2000);
+})
+
+// Hide tooltip (almost) immediately on mouse hover out
+$('#clipboard').on('mouseleave', function(e) {
+    var clipboard = $(this);
+    setTimeout(function() {
+        clipboard.tooltip('hide');
+    }, 200);    
+})
+</script>
