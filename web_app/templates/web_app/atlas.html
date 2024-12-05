@@ -7,6 +7,13 @@
 {% load static %}
 {% include 'web_app/components/atlas_selection.html' %}
 
+{% if warning %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <i class="fa fa-triangle-exclamation"></i> <strong>{{warning.title|safe}}</strong> {{warning.description|safe}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
 <div class="container">
     <div class="row">
         <div class="col-2 align-self-center pt-2" style="background-color: lightgray; height: 140px; text-align: center; align-items: center; color: white;">

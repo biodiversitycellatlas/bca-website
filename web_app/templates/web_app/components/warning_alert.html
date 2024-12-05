@@ -1,0 +1,12 @@
+<!--
+Warning alert
+
+Create an alert for a warning
+-->
+
+{% if warning %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <i class="fa fa-triangle-exclamation"></i> <strong>{{warning.title}}</strong> {{warning.description|safe}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
