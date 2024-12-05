@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.db.models import (
@@ -81,7 +81,7 @@ def prepareHeatmapData(species, n_top_genes=5, minFC=2):
             .annotate(rank=Window(expression=Rank(),
                                   partition_by='metacell_id',
                                   order_by=F('fold_change').desc()))
-            .filter(rank__lte=5)
+            .filter(rank__lte=n_top_genes)
             .values_list("gene__name", flat=True))
     top_genes = list(set(top_genes))
 
@@ -154,23 +154,27 @@ def getMarkersTable(species, query):
         fg_mean_fc=Avg(mge_fc, filter=fg_metacells))
 
     # Get "gap genes" (those specifically expressed in selected metacells)
-    if query['fc_min_type'] == 'mean':
-        # Keep genes whose FC across all selected metacells >= fc_min
-        data = data.filter(fg_mean_fc__gte=query['fc_min'])
-    elif query['fc_min_type'] == 'median':
-        # Keep genes whose median FC across selected metacells >= fc_min
-        data = data.filter(fg_median_fc__gte=query['fc_min'])
+    fc_min_type = query['fc_min_type'] if 'fc_min_type' in query.keys() else 'mean'
+    fc_min = query['fc_min'] if 'fc_min' in query.keys() else 2
 
+    if fc_min_type == 'mean':
+        # Keep genes whose FC across all selected metacells >= fc_min
+        data = data.filter(fg_mean_fc__gte=fc_min)
+    elif fc_min_type == 'median':
+        # Keep genes whose median FC across selected metacells >= fc_min
+        data = data.filter(fg_median_fc__gte=fc_min)
+
+    fc_max_bg_type = query['fc_max_bg_type'] if 'fc_max_bg_type' in query.keys() else 'ignore'
     # Discard "gap genes" based on background
-    if query['fc_max_bg_type'] == 'ignore':
+    if fc_max_bg_type == 'ignore':
         # Ignore backgound filtering
         data = data
-    elif query['fc_max_bg_type'] == 'mean':
+    elif fc_max_bg_type == 'mean':
         # Keep genes whose FC across all background <= fc_max_bg
         data = data.annotate(
             bg_avg_fc=Avg(mge_fc, filter=bg_metacells)
         ).filter(bg_avg_fc__lte=query['fc_max_bg'])
-    elif query['fc_max_bg_type'] == 'median':
+    elif fc_max_bg_type == 'median':
         # Keep genes whose median FC across background <= fc_max_bg
         data = data.annotate(
             bg_median_fc=Median(mge_fc, filter=bg_metacells)
@@ -182,6 +186,19 @@ def getMarkersTable(species, query):
     return table, selected
 
 
+def getSpecies(species):
+    ''' Returns species if it exists in the database; returns None otherwise. '''
+    if isinstance(species, Species):
+        return obj
+    
+    species = species.replace("_", " ")
+    try:
+        obj = Species.objects.filter(scientific_name=species)[0]
+    except:
+        obj = None
+    return obj
+
+
 class IndexView(TemplateView):
     template_name = "web_app/index.html"
 
@@ -189,50 +206,78 @@ class IndexView(TemplateView):
 class AtlasView(TemplateView):
     template_name = "web_app/atlas.html"
 
-    def get(self, request, *args, **kwargs):
-        previous_species = request.COOKIES.get('species')
-        if previous_species:
-            return redirect('atlas_info', previous_species)
-        else:
-            return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)    
+        context = super().get_context_data(**kwargs)
         context["icon"] = random.choice(
             ["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
             "dove", "fish-fins", "cat", "locust", "tree"])
         context["species_dict"] = getSpeciesDict()
+
+        query = self.request.GET
+        if query and query.get('species'):
+            species = getSpecies(query['species'])
+            if isinstance(species, Species):
+                context['species'] = species
+            else:
+                # Warn that species is not available in the database
+                context['warning'] = {
+                    'title': f'Invalid species <code>{query['species']}</code>!',
+                    'description': f"Please check available species in the search box above."
+                }
+
         return context
 
+    def get(self, request, *args, **kwargs):
+        query = self.request.GET
+        species = request.COOKIES.get('species') or query.get('species')
 
-class AtlasInfoView(TemplateView):
+        if species and isinstance(getSpecies(species), Species):
+            return redirect('atlas_info', species)
+        else:
+            return super().get(request, *args, **kwargs)
+
+
+class BaseAtlasView(TemplateView):
+    '''
+    Base view for species-specific Cell Atlas pages.
+    
+    Redirects to standard Atlas view with a warning when passing a species not
+    available in the database.
+    '''
     model = Species
     template_name = "web_app/atlas_info.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species"] = context["species"].replace("_", " ")
+        species = context["species"].replace("_", " ")
         try:
-            context["species"] = Species.objects.filter(scientific_name=context["species"])[0]
-            context["species_dict"] = getSpeciesDict()
+            context["species"] = Species.objects.filter(scientific_name=species)[0]
         except:
-            raise Http404(f"Species {context['species']} not found")
+            context["species"] = species
+            return context
+
+        context["species_dict"] = getSpeciesDict()
         return context
 
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if not isinstance(context["species"], Species):
+            return redirect(reverse('atlas') + '?species=' + context["species"])
+        return super().get(*args, **kwargs)
 
-class AtlasOverviewView(TemplateView):
-    model = Species
+
+class AtlasInfoView(BaseAtlasView):
+    template_name = "web_app/atlas_info.html"
+
+
+class AtlasOverviewView(BaseAtlasView):
     template_name = "web_app/atlas_overview.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species"] = context["species"].replace("_", " ")
-        try:
-            species = Species.objects.filter(scientific_name=context["species"])[0]
-            context["species"] = species
-        except:
-            raise Http404(f"Species {context['species']} not found")
-        context["species_dict"] = getSpeciesDict()
+        species = context['species']
+        if not isinstance(species, Species):
+            return context
 
         context["sc_data"] = convertQuerysetToJSON(species.singlecell_set.values(
             "name", "x", "y", "metacell__type", "metacell__color"))
@@ -243,67 +288,52 @@ class AtlasOverviewView(TemplateView):
         context["mc_links"] = convertQuerysetToJSON(species.metacelllink_set.values(
             "metacell__x", "metacell__y", "metacell2__x", "metacell2__y"))
 
-        (expr, expr_genes, expr_metacells) = prepareHeatmapData(species)
+        # Get URL query parameters and prepare table with cell markers
+        query = self.request.GET
+        context['query'] = query
+        markers = int(query.get('markers', 5))
+        fc_min = float(query.get('fc_min', 2))
+
+        (expr, expr_genes, expr_metacells) = prepareHeatmapData(species, markers, fc_min)
         context["expr"] = expr
         context["expr_genes"] = expr_genes
         context["expr_metacells"] = expr_metacells
         return context
 
 
-class AtlasGeneView(TemplateView):
-    model = Species
+class AtlasGeneView(BaseAtlasView):
     template_name = "web_app/atlas_gene.html"
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["species"] = context["species"].replace("_", " ")
-        try:
-            context["species"] = Species.objects.filter(scientific_name=context["species"])[0]
-            context["species_dict"] = getSpeciesDict()
-        except:
-            raise Http404(f"Species {context['species']} not found")
-        return context
 
 
-class AtlasMarkersView(TemplateView):
-    model = Species
+class AtlasMarkersView(BaseAtlasView):
     template_name = "web_app/atlas_markers.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species"] = context["species"].replace("_", " ")
-        try:
-            species = Species.objects.filter(scientific_name=context["species"])[0]
-            context["species"] = species
-        except:
-            raise Http404(f"Species {context['species']} not found")
+        species = context["species"]
+        if not isinstance(species, Species):
+            return context
 
-        context["species_dict"]  = getSpeciesDict()
         context['metacell_dict'] = getMetacellDict(species)
 
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         if query:
             context['query'] = query
-            table, selected = getMarkersTable(context["species"], query)
-            context['markers_table'] = table
-            context['selected_metacells'] = selected
+            if 'metacells' in query.keys():
+                table, selected = getMarkersTable(context["species"], query)
+                context['markers_table'] = table
+                context['selected_metacells'] = selected
+            else:
+                context['warning'] = {
+                    'title': 'Invalid URL!',
+                    'description': f"There is no <code>metacells</code> parameter in your query: <code>{query.urlencode()}</code>"
+                }
         return context
 
 
-class AtlasCompareView(TemplateView):
-    model = Species
+class AtlasCompareView(BaseAtlasView):
     template_name = "web_app/atlas_compare.html"
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["species"] = context["species"].replace("_", " ")
-        try:
-            context["species"] = Species.objects.filter(scientific_name=context["species"])[0]
-            context["species_dict"] = getSpeciesDict()
-        except:
-            raise Http404(f"Species {context['species']} not found")
-        return context
 
 
 class ComparisonView(TemplateView):

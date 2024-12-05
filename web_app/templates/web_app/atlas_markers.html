@@ -4,11 +4,12 @@
 
 {% block content %}
 {% include 'web_app/components/atlas_selection.html' %}
+{% include 'web_app/components/warning_alert.html' %}
 
 <div class="container">
     <div class="row">
         <div class="col-3">
-            <form id="markers-form">
+            <form>
                 <fieldset>
                     <legend class="h5">Cell selection</legend>
                     <div class="mb-3">
@@ -94,9 +95,9 @@
         </div>
         <div class="col-9">
             {% if markers_table %}
-                <div class="row g-0 float-end">
-                    <div class="col-auto">
-                        <p class="text-end text-muted form-control-sm"><small>Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b></small></p>
+                <div class="row g-0 float-end mb-3">
+                    <div class="col-auto text-end text-muted form-control-sm">
+                        Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b>
                     </div>
                     <div class="col-auto">
                         {% include 'web_app/components/clipboard_button.html' %}

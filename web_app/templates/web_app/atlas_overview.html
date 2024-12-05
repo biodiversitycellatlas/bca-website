@@ -27,18 +27,95 @@
       <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
       <label class="btn btn-outline-primary" for="projection-links">Links</label>
     </div>
+
+    <label class="col-form-label ms-2 px-2">Metacell selection </label>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-primary" id="list_markers">List markers</button>
+        <button type="button" class="btn btn-primary" id="filter_heatmap">Filter heatmap</button>
+    </div>
 </div>
 
 <script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
 <script type="text/javascript">
 	createMetacellProjection(
 		"#projection-plot",
-		{{ sc_data|safe }}, {{ mc_data|safe }}, {{ mc_links|safe }})
+		{{ sc_data|safe }}, {{ mc_data|safe }}, {{ mc_links|safe }});
+
+    function getSelectedMetacells() {
+        var view = metacellProjectionView;
+
+        // Get selection brush
+        var brush = view.signal('brush');
+        if ($.isEmptyObject(brush)) {
+            // Brush not available
+            return [];
+        }
+        var [minX, maxX] = brush.x;
+        var [minY, maxY] = brush.y;
+
+        // Get data within selection brush
+        var data = view.data('mc_data');
+        var x, y;
+        var metacells = [];
+        for (let i=0; i < data.length; i++) {
+            x = data[i].x;
+            y = data[i].y;
+            if (minX <= x && x <= maxX && minY <= y && y <= maxY) {
+                metacells.push(data[i].name);
+            }
+        }
+        return metacells;
+    }
+
+	$('#list_markers').on('click', function(e) {
+	    var metacells = getSelectedMetacells();
+	    if (metacells.length >= 1) {
+	        url = '{% url 'atlas_markers' species.species_underscore %}?metacells=' + metacells;
+	        window.location.href = url;
+	    } else {
+	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+	    }
+	})
 </script>
 
 <h1 class="h3 pt-5" id="expression">Gene expression</h1>
 
-<!-- Use columns to workaround vega-lite's bug for concatenated plots within containers -->
+<form action="#expression" class="mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-auto" style="width: 300px;">
+            <label for="markers" class="col-form-label"><small>Markers per cluster</small></label>
+            <input type="range" class="js-range-slider" id="markers" name="markers" value="{{query.markers|default:5}}" step="0.1">
+        </div>
+
+        <div class="col-auto" style="width: 300px;">
+            <label for="markers" class="col-form-label"><small>Marker min. fold-change</small></label>
+            <input type="range" class="js-range-slider" id="fc_min" name="fc_min" value="{{query.fc_min|default:2}}" step="0.1">
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+    </div>
+</form>
+
+<script>
+$("#markers").ionRangeSlider({
+    min: 1,
+    max: 21,
+    from: {{query.markers|default:5}},
+    skin: "round"
+});
+
+$("#fc_min").ionRangeSlider({
+    min: 0,
+    max: 6,
+    from: {{query.fc_min|default:2}},
+    step: 0.1,
+    skin: "round"
+});
+</script>
+
+<!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
         <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
