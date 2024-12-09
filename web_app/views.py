@@ -303,6 +303,22 @@ class AtlasOverviewView(BaseAtlasView):
 
 class AtlasGeneView(BaseAtlasView):
     template_name = "web_app/atlas_gene.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        species = context["species"]
+        if not isinstance(species, Species):
+            return context
+
+        query = self.request.GET
+        if query:
+            context['query'] = query
+
+        data = species.metacellgeneexpression_set.filter(gene__name=query.get('gene'))
+        context["gene_data"] = convertQuerysetToJSON(data.values(
+            "metacell__name", "metacell__type", "metacell__color", "fold_change", "umifrac"))
+        context["gene_list"] = species.gene_set.values("name", "description", "domains")[:100]
+        return context
 
 
 class AtlasMarkersView(BaseAtlasView):
