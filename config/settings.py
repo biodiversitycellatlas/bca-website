@@ -137,13 +137,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [], # no permissions required
     'DEFAULT_PERMISSION_CLASSES': [], # no permissions required
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend', ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_RENDERER_CLASSES': [ 'rest_framework.renderers.JSONRenderer', ],
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'BCA REST API',
-    'DESCRIPTION': 'Data from Biodiversity Cell Atlas',
+    'TITLE': 'Biodiversity Cell Atlas REST API',
+    'DESCRIPTION': 'Fetch [BCA](http://localhost:8000) pre-processed data',
+
+    'CONTACT': {'name': 'BCA', 'url': 'http://localhost:8000/about'},
+    'TOS': 'http://localhost:8000/about',
+
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
