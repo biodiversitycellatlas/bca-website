@@ -87,14 +87,17 @@ class MetacellLinkFilter(FilterSet):
 
 class MetacellGeneExpressionFilter(FilterSet):
     species = getSpeciesChoiceFilter()
+    genes = CharFilter(
+        label = 'Comma-separated list of genes to retrieve data for. If not provided, data is returned for all genes.',
+        method='filter_genes_in')
     fc_min = NumberFilter(
-        label = 'Filter expression data by minimum fold-change.',
+        label = 'Filter expression data by minimum fold-change (default: <kbd>0</kbd>).',
         field_name = 'fold_change', lookup_expr='gte')
     n_markers = NumberFilter(
         label = 'Filter data based on a number of the top genes of each metacell (markers).',
         method = 'filter_markers')
     sort_genes = BooleanFilter(
-        label = 'Sort genes based on their highest gene expression across metacells.',
+        label = 'Sort genes based on their highest gene expression across metacells (default: <kbd>false</kbd>).',
         method = 'sort_genes_across_metacells')
     log2 = BooleanFilter(
         label = 'Log2-transform <kbd>fold_change</kbd> (default: <kbd>false</kbd>).',
@@ -102,6 +105,11 @@ class MetacellGeneExpressionFilter(FilterSet):
     clip_log2 = NumberFilter(
         label='Set the maximum limit for <kbd>log2_fold_change</kbd> values (requires <kbd>log2=true</kbd>). If <kbd>fc_min</kbd> is higher, <kbd>clip_log2</kbd> is set to <kbd>fc_min</kbd>.',
         method='clip_expression')
+
+    def filter_genes_in(self, queryset, name, value):
+        if value:
+            queryset = queryset.filter(gene__name__in=value.split(','))
+        return queryset
 
     def filter_markers(self, queryset, name, value):
         ''' Filter data based on top genes. '''

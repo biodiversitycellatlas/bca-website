@@ -4,54 +4,79 @@ Select gene
 When a gene is selected, automatically submit form with gene as parameter
 
 Input:
-    - genes: list of available genes with name, description and domains
-    - selected: default gene to select (ignore if default is none)
+    - gene: default gene to select (ignore if default is none)
 -->
 
 <form>
-<select id="gene" name="gene" class="mb-3" placeholder="Search gene by name, description or domains...">
-    <option value=""></option>
-    {% for gene in genes %}
-        <option value="{{gene.name}}" data-description="{{gene.description}}" data-domains="{{gene.domains|join:','}}">{{ gene.name }}</option>
-    {% endfor %}
-</select>
+    <select id="gene" name="gene" class="mb-3" placeholder="Search gene by name, description or domains...">
+        <option value=""></option>
+    </select>
 </form>
 
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
-$(function () {
-    function display_gene (item, escape) {
-        var domains_array = item.domains.split(',');
-        badges = '';
-        for(var i = 0; i < domains_array.length; i++) {
-            if (domains_array[i] !== '') {
-                span = '<span class="badge rounded-pill text-bg-secondary">';
-                badges += ` ${span}<small>${domains_array[i]}</small></span>`;
-            }
+function display_gene (item, escape) {
+    var domains_array = item.domains;
+    badges = '';
+    for(var i = 0; i < domains_array.length; i++) {
+        if (domains_array[i] !== '') {
+            span = '<span class="badge rounded-pill text-bg-secondary">';
+            badges += ` ${span}<small>${domains_array[i]}</small></span>`;
         }
-        var desc = item.description === "None" ? "" : `<span class="text-muted"><small>${item.description}</small></span>`;
-        return `<div class='option'>${item.text} ${desc} ${badges}</div>`;
     }
+    var desc = item.description === null ? "" : `<span class="text-muted"><small>${item.description}</small></span>`;
+    return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
+}
 
+$(function () {
     $("#gene").selectize({
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
-    	    if (value !== "" && value !== '{{selected}}') {
+    	    if (value !== "" && value !== '{{gene}}') {
     			console.log($("#gene").parent().submit());
     		}
 		},
-		onDropdownOpen: function() {
+		onDropdownOpen: function($dropdown) {
 		    this.clear();
 		},
-		onDropdownClose: function() {
-		    // Set current species if no value is selected
+		onBlur: function() {
+		    // Set current gene if no value is selected
             if (!this.getValue()) {
-                this.setValue('{{species.species_underscore}}');
+                this.setValue('{{gene}}');
             }
         },
+        onType: function(str) {
+            // Clear available options to avoid selection while loading more data
+            this.clearOptions();
+        },
         render: { item: display_gene, option: display_gene },
-        searchField: ['text', 'description', 'domains'],
-        items: [ '{{selected}}' ],
+        valueField: 'name',
+        searchField: ['name', 'description', 'domains'],
+        preload: true,
+        load: function(query, callback) {
+            $.ajax({
+                url: 'http://localhost:8000/api/v1/gene',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    species: '{{species}}',
+                    q: query || '{{gene}}',
+                    limit: 50
+                },
+                error: function() { callback(); },
+                success: function(res) { callback(res.results); }
+            });
+        }
     });
+
+    // Set default value after loading data
+    var selectize = $("#gene")[0].selectize;
+    function setDefaultGene() {
+        selectize.setValue('{{gene}}');
+        // Remove the event listener after it runs once
+        selectize.off('load', setDefaultGene);
+    }
+    // Use addEventListener to attach the handler
+    selectize.on('load', setDefaultGene);
 });
 </script>

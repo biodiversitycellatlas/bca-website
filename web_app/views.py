@@ -70,57 +70,6 @@ def convertQuerysetToJSON(qs):
     return json.dumps(list(qs))
 
 
-def prepareHeatmapData(species, n_top_genes=5, minFC=2):    
-    ''' Prepare data for heatmap '''
-    scale_expression_fc = max(minFC, 6)
-
-    # Get list of top genes per metacell
-    top_genes = list(
-        species.metacellgeneexpression_set
-            .filter(fold_change__gte=minFC)
-            .annotate(rank=Window(expression=Rank(),
-                                  partition_by='metacell_id',
-                                  order_by=F('fold_change').desc()))
-            .filter(rank__lte=n_top_genes)
-            .values_list("gene__name", flat=True))
-    top_genes = list(set(top_genes))
-
-    # Filter data based on top genes and exclude FC < minFC
-    filtered = species.metacellgeneexpression_set.filter(
-        gene__name__in=top_genes, fold_change__gte=minFC)
-    
-    # Re-order genes based on highest gene expression per metacell
-    ordered_genes = filtered.annotate(
-        rank=Window(
-            expression=Rank(),
-            partition_by='gene__name',
-            order_by=F('fold_change').desc()
-        )
-    ).filter(rank=1).order_by(
-        -Cast('metacell__name', IntegerField())
-    ).values_list("gene", flat=True)
-
-    # Order filtered queryset to match that of the ordered genes
-    ordered_qs = filtered.order_by(Case(
-        *[When(gene=gene, then=pos) for pos, gene in enumerate(ordered_genes)]
-    ))
-
-    # Log2-transform values and clip maximum value to scale_expression_fc
-    clipped = ordered_qs.annotate(
-        fold_change_log2=Log(2, 'fold_change'),
-        log2_expression=Case(
-            When(fold_change_log2__gt=scale_expression_fc, then=scale_expression_fc),
-            default=F('fold_change_log2'),
-            output_field=FloatField(),
-        )
-    )
-
-    res = convertQuerysetToJSON(clipped.values(
-        'id', 'log2_expression', 'gene__name', 'gene__description', 'gene__domains',
-        'metacell__name', 'metacell__type', 'metacell__color'))
-    return res, len(top_genes), species.metacell_set.count()
-
-
 def getMarkersTable(species, query):
     ''' Prepare table with cell markers based on query. '''
 
@@ -279,25 +228,11 @@ class AtlasOverviewView(BaseAtlasView):
         if not isinstance(species, Species):
             return context
 
-        context["sc_data"] = convertQuerysetToJSON(species.singlecell_set.values(
-            "name", "x", "y", "metacell__type", "metacell__color"))
-
-        context["mc_data"] = convertQuerysetToJSON(species.metacell_set.values(
-            "name", "x", "y", "type", "color"))
-
-        context["mc_links"] = convertQuerysetToJSON(species.metacelllink_set.values(
-            "metacell__x", "metacell__y", "metacell2__x", "metacell2__y"))
-
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         context['query'] = query
         markers = int(query.get('markers', 5))
         fc_min = float(query.get('fc_min', 2))
-
-        (expr, expr_genes, expr_metacells) = prepareHeatmapData(species, markers, fc_min)
-        context["expr"] = expr
-        context["expr_genes"] = expr_genes
-        context["expr_metacells"] = expr_metacells
         return context
 
 
@@ -313,11 +248,6 @@ class AtlasGeneView(BaseAtlasView):
         query = self.request.GET
         if query:
             context['query'] = query
-
-        data = species.metacellgeneexpression_set.filter(gene__name=query.get('gene'))
-        context["gene_data"] = convertQuerysetToJSON(data.values(
-            "metacell__name", "metacell__type", "metacell__color", "fold_change", "umifrac"))
-        context["gene_list"] = species.gene_set.values("name", "description", "domains")[:100]
         return context
 
 

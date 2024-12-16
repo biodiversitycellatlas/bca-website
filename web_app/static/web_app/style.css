@@ -133,6 +133,29 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     display: none;
 }
 
+ .selectize-control::before {
+	-moz-transition: opacity 0.2s;
+	-webkit-transition: opacity 0.2s;
+	transition: opacity 0.2s;
+	content: ' ';
+	z-index: 2;
+	position: absolute;
+	display: block;
+	top: 6px;
+	right: 36px;
+	font-family: 'Font Awesome 5 Free';
+	content: "\f110";
+	opacity: 0;
+	-webkit-animation: none;
+	animation: none;
+}
+
+.selectize-control.loading::before {
+	opacity: 1;
+	-webkit-animation: fa-spin 2s infinite linear;
+	animation: fa-spin 2s infinite linear;
+}
+
 /* Navigation tabs (Cell Atlas) */
 
 .nav-tabs .nav-link {
