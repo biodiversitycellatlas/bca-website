@@ -13,7 +13,7 @@ class SpectacularElementsView(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     permission_classes = spectacular_settings.SERVE_PERMISSIONS
     authentication_classes = AUTHENTICATION_CLASSES
-    url_name = 'schema'
+    url_name = 'rest:schema'
     url = None
     template_name = 'rest/elements.html'
     title = spectacular_settings.TITLE
