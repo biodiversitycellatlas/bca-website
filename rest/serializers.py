@@ -20,19 +20,44 @@ class SpeciesSerializer(serializers.HyperlinkedModelSerializer):
 class GeneSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gene
-        exclude = ['species']
+        exclude = ['id', 'species']
 
 
 class MetacellSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Metacell
+        exclude = ['id', 'species']
+
+
+class SingleCellSerializer(serializers.ModelSerializer):
+    metacell_name  = serializers.CharField(source='metacell.name')
+    metacell_type  = serializers.CharField(source='metacell.type')
+    metacell_color = serializers.CharField(source='metacell.color')
+
+    class Meta:
+        model = models.SingleCell
+        exclude = ['species']
+
+
+class MetacellLinkSerializer(serializers.ModelSerializer):
+    metacell  = MetacellSerializer(read_only=True)
+    metacell2 = MetacellSerializer(read_only=True)
+
+    class Meta:
+        model = models.MetacellLink
         exclude = ['species']
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
-    log2_expression = serializers.FloatField()
-    gene            = GeneSerializer(read_only=True)
-    metacell        = MetacellSerializer(read_only=True)
+    log2_fold_change = serializers.FloatField(required=False)
+
+    gene_name        = serializers.CharField(source='gene.name')
+    gene_description = serializers.CharField(source='gene.description')
+    gene_domains     = serializers.CharField(source='gene.domains')
+
+    metacell_name  = serializers.CharField(source='metacell.name')
+    metacell_type  = serializers.CharField(source='metacell.type')
+    metacell_color = serializers.CharField(source='metacell.color')
 
     class Meta:
         model = models.MetacellGeneExpression
