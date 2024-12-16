@@ -109,11 +109,6 @@ a:hover {
     color: #189BCDAA;
 }
 
-table.dataTable.display tbody tr:nth-child(odd) > * {
-    background-color: #189BCD22;
-    box-shadow: none !important;
-}
-
 .placeholder {
     display: inline-block;
     height: 1em;
@@ -124,6 +119,19 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     cursor: default;
 }
 
+/* DataTables */
+table.dataTable.display tbody tr:nth-child(odd) > * {
+    background-color: #189BCD22;
+    box-shadow: none !important;
+}
+
+.truncate {
+    max-width:200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Selectize.js */
 .selectize-dropdown .selected {
     background-color: #189BCD;
@@ -131,6 +139,29 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 
 .species-meta {
     display: none;
+}
+
+ .selectize-control::before {
+	-moz-transition: opacity 0.2s;
+	-webkit-transition: opacity 0.2s;
+	transition: opacity 0.2s;
+	content: ' ';
+	z-index: 2;
+	position: absolute;
+	display: block;
+	top: 6px;
+	right: 36px;
+	font-family: 'Font Awesome 5 Free';
+	content: "\f110";
+	opacity: 0;
+	-webkit-animation: none;
+	animation: none;
+}
+
+.selectize-control.loading::before {
+	opacity: 1;
+	-webkit-animation: fa-spin 2s infinite linear;
+	animation: fa-spin 2s infinite linear;
 }
 
 /* Navigation tabs (Cell Atlas) */

@@ -8,6 +8,8 @@
 {% include 'web_app/components/atlas_selection.html' %}
 
 <div class="container">
+
+<!-- Metacell projection -->
 <h1 class="h3 pt-2" id="projection">Metacell projection</h1>
 
 <div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
@@ -37,12 +39,15 @@
 
 <script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
 <script type="text/javascript">
-	createMetacellProjection(
-		"#projection-plot",
-		{{ sc_data|safe }}, {{ mc_data|safe }}, {{ mc_links|safe }});
+    var urls = {
+        "sc_data": "{% url 'rest:singlecell-list' %}",
+        "mc_data": "{% url 'rest:metacell-list' %}",
+        "mc_links": "{% url 'rest:metacelllink-list' %}"
+    };
+	createMetacellProjection("#projection-plot", "{{species}}", urls);
 
     function getSelectedMetacells() {
-        var view = metacellProjectionView;
+        var view = viewMetacellProjection;
 
         // Get selection brush
         var brush = view.signal('brush');
@@ -78,7 +83,11 @@
 	})
 </script>
 
-<h1 class="h3 pt-5" id="expression">Gene expression heatmap</h1>
+<!-- Gene expression heatmap -->
+<h1 class="h3 pt-5 mb-3" id="expression">
+    Gene expression heatmap
+    {% include 'web_app/components/clipboard_button.html' %}
+</h1>
 
 <form action="#expression" class="mb-4">
     <div class="row g-4 align-items-center">
@@ -118,13 +127,21 @@ $("#fc_min").ionRangeSlider({
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
-        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
+        <div id="loading-bar-container"><div id="loading-bar"></div></div>
+        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;">Hello</div>
     </div>
 </div>
 
 <script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
-	createExpressionHeatmap("#heatmap-plot", {{ expr|safe }}, {{ expr_genes|safe }}, {{ expr_metacells|safe }})
+    var url = "{% url 'rest:metacellgeneexpression-list' %}";
+    createExpressionHeatmap(
+        "#heatmap-plot",
+        "{{species}}",
+        url,
+        $("#markers").val(),
+        $("#fc_min").val()
+    )
 </script>
 </div>
 {% endblock content %}

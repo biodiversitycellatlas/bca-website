@@ -9,13 +9,13 @@
 
 <div class="container">
 
-{% include 'web_app/components/gene_selection.html' with genes=gene_list selected=query.gene %}
+{% include 'web_app/components/gene_selection.html' with gene=query.gene %}
 
 {% if query.gene %}
-    <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
-    {{query.gene}}
-
-    <h1 class="h3 pt-2" id="expression">Gene expression</h1>
+    <h1 class="h3 pt-2" id="expression">
+        Gene expression
+        <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
+    </h1>
 
     <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
     <div class="row">
@@ -26,7 +26,8 @@
 
     <script type="text/javascript" src="{% static 'web_app/js/barplot.js' %}"></script>
     <script type="text/javascript">
-    	createExpressionBarPlot("#bar-plot", '{{query.gene}}', {{gene_data|safe}})
+        var url = '{% url 'rest:metacellgeneexpression-list' %}';
+    	createExpressionBarPlot("#bar-plot", '{{species}}', '{{query.gene}}', url);
     </script>
 {% else %}
     <div class="row">

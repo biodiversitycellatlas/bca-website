@@ -5,7 +5,13 @@ $('input[type="checkbox"]').each(function() {
 	this.setAttribute('onclick', 'updateCheckboxValue(this);');
 });
 
-function createMetacellProjection(id, sc_data, mc_data, mc_links) {
+function createMetacellProjection(id, species, urls) {
+    var params = new URLSearchParams({ species: species, limit: 0 });
+    var sc_data_url = urls['sc_data'] + "?" + params.toString(),
+        mc_data_url = urls['mc_data'] + "?" + params.toString(),
+        mc_links_url = urls['mc_links'] + "?" + params.toString();
+    console.log(sc_data_url, mc_data_url, mc_links_url);
+
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  	"title": {
@@ -21,23 +27,16 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	  		{ "name": "showLabels", "bind": { "element": "#projection-labels" } },
 	  		{ "name": "showLinks", "bind": { "element": "#projection-links" } }
 	  	],
-	  	"datasets": {
-	  		"sc_data": sc_data,
-	  		"mc_data": mc_data,
-	  		"mc_links": mc_links
-	  	},
 		"layer": [ {
-			"data": {"name": "sc_data"},
-  			"mark": {"type": "circle", "tooltip": {"encoding": "data"}},
+			"data": { "name": "sc_data", "url": sc_data_url },
+  			"mark": { "type": "circle", "tooltip": {"encoding": "data"} },
 	  		"params": [
 	  			{ "name": "brush", "select": {"type": "interval"} }
 	  		],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
-	    		"color": {"field": "metacell__type", 
-	    			"scale": {"range": {"field": "metacell__color"}}
-	    		},
+	    		"color": {"field": "metacell_type"},
 	    		"opacity": {
 			    	"condition": {
         				"test": "showCells == 'true'",
@@ -51,20 +50,20 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
     			}
 	    	}
   		}, {
-  			"data": {"name": "mc_links"},
+  			"data": { "name": "mc_links", "url": mc_links_url },
   			"mark": "rule",
 	  		"encoding": {
-	    		"x":  {"field": "metacell__x",  "type": "quantitative"},
-	    		"x2": {"field": "metacell2__x", "type": "quantitative"},
-	    		"y":  {"field": "metacell__y",  "type": "quantitative"},
-	    		"y2": {"field": "metacell2__y", "type": "quantitative"},
+	    		"x":  {"field": "metacell.x",  "type": "quantitative"},
+	    		"x2": {"field": "metacell2.x", "type": "quantitative"},
+	    		"y":  {"field": "metacell.y",  "type": "quantitative"},
+	    		"y2": {"field": "metacell2.y", "type": "quantitative"},
 	    		"color": {"value": "#B7B7B7"},
 	    		"opacity": {
 			    	"condition": { "test": "showLinks == 'false'", "value": 0 }
     			}
 	    	}
   		}, {
-  			"data": {"name": "mc_data"},
+  			"data": { "name": "mc_data", "url": mc_data_url },
   			"mark": {"type": "circle", "tooltip": {"encoding": "data"}},
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
@@ -88,7 +87,7 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 	    	}
   		}, {
   			"data": {"name": "mc_data"},
-  			"mark": {"type": "text"},
+  			"mark": "text",
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
@@ -115,6 +114,6 @@ function createMetacellProjection(id, sc_data, mc_data, mc_links) {
 		}
 	};
     vegaEmbed(id, chart)
-   		.then(res => { metacellProjectionView = res.view; })
+   		.then(res => { viewMetacellProjection = res.view; })
     	.catch(console.error);
 }

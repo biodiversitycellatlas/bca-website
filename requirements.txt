@@ -3,3 +3,9 @@ django-colorfield
 psycopg
 rds2py
 scipy
+
+# REST
+djangorestframework
+markdown
+django-filter
+drf-spectacular

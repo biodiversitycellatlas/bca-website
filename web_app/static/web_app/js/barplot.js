@@ -1,4 +1,11 @@
-function createExpressionBarPlot(id, gene, gene_data) {
+function createExpressionBarPlot(id, species, gene, url) {
+	var params = new URLSearchParams({
+		species: species,
+		genes: gene,
+		limit: 0
+	});
+	var apiURL = url + "?" + params.toString();
+
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   		"title": {
@@ -6,27 +13,26 @@ function createExpressionBarPlot(id, gene, gene_data) {
     		"fontWeight": "normal",
     		"anchor": "start"
   		},
-	  	"datasets": { "gene_data": gene_data },
 	  	"transform": [
-	  	    {"calculate": "toNumber(datum.metacell__name)", "as": "metacell__name"},
+	  	    {"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
 	  	    {"calculate": "datum.umifrac * 10", "as": "umifrac"}
 	  	],
-	  	"data": {"name": "gene_data"},
+	  	"data": {"name": "gene_data", "url": apiURL},
 	  	"repeat": {"row": ["umifrac", "fold_change"]},
 	  	"spec": {
 	  	    "width": "container",
 	  	    "mark": {"type": "bar", "tooltip": {"content": "data"}},
 	  	    "encoding": {
-	  	        "x": {"field": "metacell__name"},
+	  	        "x": {"field": "metacell_name"},
 	  	        "y": {"field": {"repeat": "row"}, "aggregate": "sum"},
 	  	        "color": {
-	  	            "field": "metacell__type",
-	  	            "scale": {"range": {"field": "metacell__color"}}
+	  	            "field": "metacell_type",
+	  	            "scale": {"range": {"field": "metacell_color"}}
 	  	        }
             }
         }
     };
     vegaEmbed(id, chart)
-   		.then(res => { metacellProjectionView = res.view; })
+   		.then(res => { viewExpression = res.view; })
     	.catch(console.error);
 }
