@@ -12,9 +12,10 @@
 {% include 'web_app/components/gene_selection.html' with gene=query.gene %}
 
 {% if query.gene %}
-    <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
-
-    <h1 class="h3 pt-2" id="expression">Gene expression</h1>
+    <h1 class="h3 pt-2" id="expression">
+        Gene expression
+        <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
+    </h1>
 
     <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
     <div class="row">
