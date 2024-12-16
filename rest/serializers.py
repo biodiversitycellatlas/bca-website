@@ -62,3 +62,15 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MetacellGeneExpression
         exclude = ['species']
+
+
+class MetacellMarkerSerializer(serializers.ModelSerializer):
+    bg_sum_umi = serializers.FloatField()
+    fg_sum_umi = serializers.FloatField()
+    umi_perc = serializers.FloatField()
+    fg_mean_fc = serializers.FloatField()
+    fg_median_fc = serializers.FloatField()
+
+    class Meta:
+        model = models.Gene
+        exclude = ['species']

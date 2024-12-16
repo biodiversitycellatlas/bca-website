@@ -3,12 +3,14 @@
 {% block title %}{{species}} Markers{% endblock title %}
 
 {% block content %}
+
+{% load static %}
 {% include 'web_app/components/atlas_selection.html' %}
 {% include 'web_app/components/warning_alert.html' %}
 
 <div class="container">
     <div class="row">
-        <div class="col-3">
+        <div class="col-md-3">
             <form>
                 <fieldset>
                     <legend class="h5">Cell selection</legend>
@@ -78,58 +80,31 @@
                 </fieldset>
             </form>
         </div>
-        <div class="col-9">
-            {% if markers_table %}
+        <div class="col-md-9">
+            {% if metacells %}
                 <div class="row g-0 float-end mb-3">
                     <div class="col-auto text-end text-muted form-control-sm">
-                        Selected metacells: <span id="selected_metacells">None</span> <b>({{selected_metacells|length}} in total)</b>
+                        Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
                     </div>
                     <div class="col-auto">
                         {% include 'web_app/components/clipboard_button.html' %}
                     </div>
                 </div>
                 <table id="markers_table" class="display" style="width:100%"></table>
+                
+                <script type="text/javascript" src="{% static 'web_app/js/markers_table.js' %}"></script>
                 <script>
-                    // Link to gene
-                    function linkGene (data, type, row) {
-                        if (type === 'display') {
-                            var url = "{% url 'atlas_gene' species.species_underscore %}";
-                            data = `<a href=${url}?gene=${data}>${data}</a>`;
-                        }
-                        return data;
-                    }
-
-                    // Round numeric values
-                    function round (data, type, row) {
-                        if (type === 'display' || type === 'filter') {
-                            return parseFloat(data).toFixed(2);
-                        }
-                        return data;
-                    }
-
-                    // Improve array parsing
-                    function parseArray (data, type, row) {
-                        if (Array.isArray(data)) {
-                            return data.join(', ');
-                        }
-                        return data;
-                    }
-
-                    // Create DataTable
-                    var data = {{markers_table|safe}};
-                    $('#markers_table').dataTable({
-                        data: data,
-                        scrollX: true,
-                        columns: [
-                            { data: 'name', title: "Gene ID", render: linkGene },
-                            { data: 'description', title: "Name" },
-                            { data: 'domains', title: "Domains", render: parseArray },
-                            { data: 'fg_sum_umi', title: "Total UMIs", render: round },
-                            { data: 'umi_perc', title: "UMI %", render: round },
-                            { data: 'fg_mean_fc', title: "Mean FC", render: round },
-                            { data: 'fg_median_fc', title: "Median FC", render: round }
-                        ]
-                    });
+                    var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
+                    var url = '{% url 'rest:metacellmarker-list' %}';
+                    createMarkersTable(
+                        "#markers_table",
+                        url,
+                        '{{species}}',
+                        '{{query.metacells}}',
+                        '{{query.fc_min_type}}',
+                        '{{query.fc_min}}',
+                        '{{query.fc_max_bg_type}}',
+                        '{{query.fc_max_bg}}')
                 </script>
             {% else %}
                 {% include 'web_app/components/mockup_table.html' %}
@@ -146,7 +121,7 @@ function updateMetacellSelectionText(selected) {
     tooltip   = `data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="${selected}"`;
     $('#selected_metacells').html(`<span ${underline} ${tooltip}>${minimized}</span>`);
 }
-updateMetacellSelectionText("{{selected_metacells|join:', '}}");
+updateMetacellSelectionText("{{metacells|join:', '}}");
 </script>
 
 {% endblock content %}

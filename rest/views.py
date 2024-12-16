@@ -81,3 +81,12 @@ class MetacellGeneExpressionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.MetacellGeneExpressionSerializer
     pagination_class = StandardPagination
     filterset_class = filters.MetacellGeneExpressionFilter
+
+
+class MetacellMarkerViewSet(viewsets.ReadOnlyModelViewSet):
+    """ Retrieve gene markers of selected metacells. """
+    # Gene as model (easier to perform gene-wise operations)
+    queryset = models.Gene.objects.all()
+    serializer_class = serializers.MetacellMarkerSerializer
+    pagination_class = StandardPagination
+    filterset_class = filters.MetacellMarkerFilter

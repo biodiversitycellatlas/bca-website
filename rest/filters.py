@@ -1,6 +1,7 @@
 from django_filters.rest_framework import (
     BooleanFilter,
     CharFilter,
+    ChoiceFilter,
     FilterSet,
     ModelChoiceFilter,
     NumberFilter,
@@ -27,6 +28,7 @@ from django.db.models.functions import Cast, Greatest, Log, Rank
 
 from web_app import models
 from .functions import ArrayToString
+from .aggregates import Median
 
 def getSpeciesChoiceFilter():
     return ModelChoiceFilter(
@@ -170,4 +172,116 @@ class MetacellGeneExpressionFilter(FilterSet):
 
     class Meta:
         model = models.MetacellGeneExpression
+        fields = ['species']
+
+
+def createFCtypeChoiceFilter(mode, ignoreMode=False):
+    if mode == 'minimum':
+        var = 'fc_min'
+        sign = '≥'
+        target = 'selected metacells'
+        default = 'min'
+        method = 'filter_fc_min'
+        required = True
+    else:
+        var = 'bg_fc_max'
+        sign = '≤'
+        target = 'background (i.e., non-selected) metacells'
+        default = 'ignore'
+        method = 'filter_fc_max_bg'
+        required = False
+
+    choices = [[item, f'Keep genes whose {item} fold-change across {target} {sign} <kbd>{var}</kbd>'] for item in ['mean', 'average']]
+
+    if ignoreMode:
+        choices.append(['ignore', 'Skip this filtering'])
+
+    res = ChoiceFilter(
+        choices = choices,
+        label = f"Type of filtering to use for the {mode} fold-change threshold (default: <kbd>{default}</kbd>).",
+        method = method,
+        required = required
+    )
+    return res
+
+
+class MetacellMarkerFilter(FilterSet):
+    species = getSpeciesChoiceFilter()
+    metacells = CharFilter(
+        label = "Comma-separated list of metacell names and cell types (example: <i>12,30,Peptidergic1</i>).",
+        method = "select_metacells",
+        required=True)
+
+    fc_min = NumberFilter(
+        label = "Filter genes across metacells by their minimum fold-change (default: <kbd>2</kbd>).",
+        method = "skip_filter")
+    fc_min_type = createFCtypeChoiceFilter('minimum')
+
+    fc_max_bg = NumberFilter(
+        label = "Filter genes across background (i.e., non-selected) metacells by their maximum fold-change (default: <kbd>6</kbd>).",
+        method = "skip_filter")
+    fc_max_bg_type = createFCtypeChoiceFilter('maximum', ignoreMode=True)
+
+    def select_metacells(self, queryset, name, value):
+        # Select foreground (selected) and background metacells
+        metacells = value.split(',')
+        fg_metacells = (
+            # Check by metacell name
+            Q(metacellgeneexpression__metacell__name__in=metacells) |
+            # Check by metacell type
+            Q(metacellgeneexpression__metacell__type__in=metacells)
+        )
+        bg_metacells = ~fg_metacells
+
+        # Calculate gene's UMI fraction
+        mge_umi = "metacellgeneexpression__umi_raw"
+        queryset = queryset.annotate(
+            bg_sum_umi=Sum(mge_umi, filter=bg_metacells),
+            fg_sum_umi=Sum(mge_umi, filter=fg_metacells)
+        ).annotate(
+            umi_perc=F('fg_sum_umi') / (F('fg_sum_umi') + F('bg_sum_umi')) * 100)
+    
+        # Calculate median FC per gene
+        mge_fc = "metacellgeneexpression__fold_change"
+        queryset = queryset.annotate(
+            fg_median_fc=Median(mge_fc, filter=fg_metacells),
+            fg_mean_fc=Avg(mge_fc, filter=fg_metacells))
+        return queryset
+
+    def filter_fc_min(self, queryset, name, value):
+       # Get "gap genes" (those specifically expressed in selected metacells)
+        fc_min = self.data.get('fc_min', 2)
+
+        if not value or value == 'mean':
+            # Keep genes whose mean FC across selected metacells >= fc_min
+            queryset = queryset.filter(fg_mean_fc__gte=fc_min)
+        elif value == 'median':
+            # Keep genes whose median FC across selected metacells >= fc_min
+            queryset = queryset.filter(fg_median_fc__gte=fc_min)
+        return queryset
+
+    def filter_fc_max_bg(self, queryset, name, value):
+        fc_min = self.data.get('fc_min', 2)
+        # Discard "gap genes" based on background
+        if not value or value == 'ignore':
+            # Ignore backgound filtering
+            return queryset
+        elif value == 'mean':
+            # Keep genes whose mean FC across background <= fc_max_bg
+            queryset = queryset.annotate(
+                bg_avg_fc=Avg(mge_fc, filter=bg_metacells)
+            ).filter(bg_avg_fc__lte=query['fc_max_bg'])
+        elif value == 'median':
+            # Keep genes whose median FC across background <= fc_max_bg
+            queryset = queryset.annotate(
+                bg_median_fc=Median(mge_fc, filter=bg_metacells)
+            ).filter(bg_median_fc__lte=query['fc_max_bg'])
+        return queryset
+
+    def skip_filter(self, queryset, name, value):
+        # These params are already consumed by other functions
+        return queryset
+
+    class Meta:
+        model = models.Gene
         fields = ['species']

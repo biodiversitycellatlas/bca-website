@@ -109,11 +109,6 @@ a:hover {
     color: #189BCDAA;
 }
 
-table.dataTable.display tbody tr:nth-child(odd) > * {
-    background-color: #189BCD22;
-    box-shadow: none !important;
-}
-
 .placeholder {
     display: inline-block;
     height: 1em;
@@ -122,6 +117,19 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     background-color: lightgray;
     opacity: 1;
     cursor: default;
+}
+
+/* DataTables */
+table.dataTable.display tbody tr:nth-child(odd) > * {
+    background-color: #189BCD22;
+    box-shadow: none !important;
+}
+
+.truncate {
+    max-width:200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Selectize.js */
