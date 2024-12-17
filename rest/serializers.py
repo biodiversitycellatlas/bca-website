@@ -9,12 +9,10 @@ class MetaSerializer(serializers.ModelSerializer):
         fields = ['key', 'value']
 
 
-class SpeciesSerializer(serializers.HyperlinkedModelSerializer):
-    meta = MetaSerializer(many=True, read_only=True, source='meta_set')
-
+class SpeciesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Species
-        fields = '__all__'
+        exclude = ['id']
 
 
 class GeneSerializer(serializers.ModelSerializer):

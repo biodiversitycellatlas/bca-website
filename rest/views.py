@@ -37,6 +37,7 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     """ List available species. """
     queryset = models.Species.objects.all()
     serializer_class = serializers.SpeciesSerializer
+    pagination_class = StandardPagination
     lookup_field = 'scientific_name'
 
 

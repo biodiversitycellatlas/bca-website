@@ -179,7 +179,7 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
     if mode == 'minimum':
         var = 'fc_min'
         sign = '≥'
-        target = 'selected metacells'
+        target = 'foreground (i.e., selected) metacells'
         default = 'min'
         method = 'filter_fc_min'
         required = True
@@ -213,12 +213,12 @@ class MetacellMarkerFilter(FilterSet):
         required=True)
 
     fc_min = NumberFilter(
-        label = "Filter genes across metacells by their minimum fold-change (default: <kbd>2</kbd>).",
+        label = "Filter genes across foreground (i.e., selected) metacells by their minimum fold-change (default: <kbd>2</kbd>).",
         method = "skip_filter")
     fc_min_type = createFCtypeChoiceFilter('minimum')
 
     fc_max_bg = NumberFilter(
-        label = "Filter genes across background (i.e., non-selected) metacells by their maximum fold-change (default: <kbd>6</kbd>).",
+        label = "Filter genes across background (i.e., non-selected) metacells by their maximum fold-change (default: <kbd>3</kbd>).",
         method = "skip_filter")
     fc_max_bg_type = createFCtypeChoiceFilter('maximum', ignoreMode=True)
 
@@ -261,7 +261,7 @@ class MetacellMarkerFilter(FilterSet):
         return queryset
 
     def filter_fc_max_bg(self, queryset, name, value):
-        fc_min = self.data.get('fc_min', 2)
+        fc_max_bg = self.data.get('fc_min', 3)
         # Discard "gap genes" based on background
         if not value or value == 'ignore':
             # Ignore backgound filtering
