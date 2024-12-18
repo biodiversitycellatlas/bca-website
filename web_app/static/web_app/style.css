@@ -133,6 +133,10 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 }
 
 /* Selectize.js */
+.selectize-dropdown, .selectize-dropdown.form-control {
+    z-index: 1001; /* Higher z-index than vega-embed button */
+}
+
 .selectize-dropdown .selected {
     background-color: #189BCD;
 }

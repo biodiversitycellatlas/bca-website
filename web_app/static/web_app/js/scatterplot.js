@@ -10,7 +10,6 @@ function createMetacellProjection(id, species, urls) {
     var sc_data_url = urls['sc_data'] + "?" + params.toString(),
         mc_data_url = urls['mc_data'] + "?" + params.toString(),
         mc_links_url = urls['mc_links'] + "?" + params.toString();
-    console.log(sc_data_url, mc_data_url, mc_links_url);
 
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",

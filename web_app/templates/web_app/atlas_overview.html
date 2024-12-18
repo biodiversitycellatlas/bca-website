@@ -7,10 +7,11 @@
 {% load static %}
 {% include 'web_app/components/atlas_selection.html' %}
 
-<div class="container">
-
 <!-- Metacell projection -->
-<h1 class="h3 pt-2" id="projection">Metacell projection</h1>
+<h1 class="h3 pt-2" id="projection">
+    Metacell projection
+    {% include 'web_app/components/clipboard_button.html' with id='projection' %}
+</h1>
 
 <div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
@@ -86,7 +87,7 @@
 <!-- Gene expression heatmap -->
 <h1 class="h3 pt-5 mb-3" id="expression">
     Gene expression heatmap
-    {% include 'web_app/components/clipboard_button.html' %}
+    {% include 'web_app/components/clipboard_button.html' with id='expression' %}
 </h1>
 
 <form action="#expression" class="mb-4">
@@ -143,5 +144,4 @@ $("#fc_min").ionRangeSlider({
         $("#fc_min").val()
     )
 </script>
-</div>
 {% endblock content %}
