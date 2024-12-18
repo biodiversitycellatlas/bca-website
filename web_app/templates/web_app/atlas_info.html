@@ -8,24 +8,39 @@
 {% include 'web_app/components/atlas_selection.html' %}
 {% include 'web_app/components/warning_alert.html' %}
 
-<div class="container">
-    <div class="row pt-2">
-        <div class="col-4">
-            <img src="{{species.image_url}}" style="width: 100%;">
-            {% if species.image_source %}
-                <span class="small text-secondary"><i>Image credits: <a href="{{species.image_url}}" target="_blank">{{species.image_source}}</a></i></span>
+<div class="row pt-2">
+    <div class="col-4">
+        <img src="{{species.image_url}}" style="width: 100%;">
+        {% if species.image_source %}
+            <span class="small text-secondary"><i>Image credits: <a href="{{species.image_url}}" target="_blank">{{species.image_source}}</a></i></span>
+        {% endif %}
+
+        <table class="table table-sm table-striped mt-4" style="margin: 0 auto;">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meta in species.meta_set.values %}
+                <tr>
+                    <td>{{ meta.key }}</td>
+                    <td>{{ meta.value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-8">
+        <h1 class="h3" id="projection"><i>{{species.scientific_name}}</i></h1>
+        <p>
+            {% if species.description %}
+                {{species.description|safe}}
+            {% else %}
+                No description available
             {% endif %}
-        </div>
-        <div class="col-8">
-            <h1 class="h3" id="projection"><i>{{species.scientific_name}}</i></h1>
-            <p>
-                {% if species.description %}
-                    {{species.description|safe}}
-                {% else %}
-                    No description available
-                {% endif %}
-            </p>
-        </div>
+        </p>
     </div>
 </div>
 
