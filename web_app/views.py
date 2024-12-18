@@ -162,13 +162,26 @@ class AtlasGeneView(BaseAtlasView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context["species"]
+        species = context.get('species')
         if not isinstance(species, Species):
             return context
 
+        gene = context.get('gene')
+        if gene:
+            # Fetch information on selected gene
+            obj = species.gene_set.filter(name=gene)
+            if obj:
+                context['gene'] = obj.first()
+            else:
+                # Throw a warning if gene does not exist
+                context['gene'] = ''
+                context['warning'] = {
+                    'title': f'Invalid gene <code>{gene}</code>!',
+                    'description': f"Please check available genes in the search box above."
+                }
+
         query = self.request.GET
-        if query:
-            context['query'] = query
+        context['query'] = query
         return context
 
 

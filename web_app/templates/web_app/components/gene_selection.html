@@ -1,21 +1,20 @@
 <!--
-Select gene
+Gene selector
 
-When a gene is selected, automatically submit form with gene as parameter
+When a gene is selected, automatically redirects to gene page
 
 Input:
-    - gene: default gene to select (ignore if default is none)
+    - gene: default gene to select with properties 'name', 'description' and
+            'domains' (ignore if default is none)
 -->
 
-<form>
-    <select id="gene" name="gene" class="mb-3" placeholder="Search gene by name, description or domains...">
-        <option value=""></option>
-    </select>
-</form>
+<select id="gene" name="gene" class="mb-3" placeholder="Search gene by name, description or domains...">
+    <option value=""></option>
+</select>
 
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
-function display_gene (item, escape) {
+function displayGene (item, escape) {
     var domains_array = item.domains;
     badges = '';
     for(var i = 0; i < domains_array.length; i++) {
@@ -33,7 +32,8 @@ $(function () {
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
-    			console.log($("#gene").parent().submit());
+    			window.location.replace(
+    			    "{% url 'atlas_gene' species.species_underscore '::arg' %}".replace('::arg', value));
     		}
 		},
 		onDropdownOpen: function($dropdown) {
@@ -49,7 +49,7 @@ $(function () {
             // Clear available options to avoid selection while loading more data
             this.clearOptions();
         },
-        render: { item: display_gene, option: display_gene },
+        render: { item: displayGene, option: displayGene },
         valueField: 'name',
         searchField: ['name', 'description', 'domains'],
         preload: true,
@@ -69,14 +69,19 @@ $(function () {
         }
     });
 
-    // Set default value after loading data
-    var selectize = $("#gene")[0].selectize;
-    function setDefaultGene() {
-        selectize.setValue('{{gene}}');
-        // Remove the event listener after it runs once
-        selectize.off('load', setDefaultGene);
-    }
-    // Use addEventListener to attach the handler
-    selectize.on('load', setDefaultGene);
+    {% if gene %}
+        function setDefaultGene() {
+            var geneOptions = {
+                'name': '{{gene.name}}',
+                'description': '{{gene.description}}',
+                'domains': {{gene.domains|safe}}
+            };
+        
+            var selectize = $("#gene")[0].selectize;
+            selectize.addOption(geneOptions);
+            selectize.setValue('{{gene}}');
+        }
+        setDefaultGene();
+    {% endif %}
 });
 </script>
