@@ -8,35 +8,47 @@
 {% include 'web_app/components/atlas_selection.html' %}
 
 <!-- Metacell projection -->
-<h1 class="h3 pt-2" id="projection">
+<h1 class="h3 pt-2 mb-3" id="projection">
     Metacell projection
     {% include 'web_app/components/clipboard_button.html' with id='projection' %}
 </h1>
 
-<div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
+<div class="row mb-4">
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label"><i class="fa fa-eye"></i> Toggle visibility </label>
+        </div>
 
-<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-    <label class="col-form-label px-2">Toggle </label>
-    <div class="btn-group" role="group" aria-label="Metacell 2D projection options">
-      <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
-    
-      <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
-    
-      <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
-      
-      <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
-      <label class="btn btn-outline-primary" for="projection-links">Links</label>
+        <div class="btn-group" role="group" style="display: flex;">
+          <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
+        
+          <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
+        
+          <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
+          
+          <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
+          <label class="btn btn-outline-primary" for="projection-links">Links</label>
+        </div>
     </div>
 
-    <label class="col-form-label ms-2 px-2">Metacell selection </label>
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-primary" id="list_markers">List markers</button>
-        <button type="button" class="btn btn-primary" id="filter_heatmap">Filter heatmap</button>
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label"><i class="fa fa-object-group"></i> Metacell selection </label>
+            <i class="fa fa-circle-question" 
+               data-bs-toggle="tooltip" data-bs-placement="top" 
+               data-bs-title="Click and drag in the plot to select metacells"></i>
+        </div>
+        <div class="btn-group" role="group" style="display: flex;">
+            <button type="button" class="btn btn-outline-primary" id="list_markers">List markers</button>
+            <button type="button" class="btn btn-outline-primary" id="filter_heatmap">Filter heatmap</button>
+        </div>
     </div>
 </div>
+
+<div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
 <script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
 <script type="text/javascript">
@@ -46,6 +58,13 @@
         "mc_links": "{% url 'rest:metacelllink-list' %}"
     };
 	createMetacellProjection("#projection-plot", "{{species}}", urls);
+
+    const interval = setInterval(() => {
+        if (typeof viewMetacellProjection !== 'undefined') {
+            clearInterval(interval);
+            console.log('data loaded');
+        }
+    }, 100);
 
     function getSelectedMetacells() {
         var view = viewMetacellProjection;
@@ -90,16 +109,54 @@
     {% include 'web_app/components/clipboard_button.html' with id='expression' %}
 </h1>
 
-<form action="#expression" class="mb-4">
-    <div class="row g-4 align-items-center">
-        <div class="col-auto" style="width: 300px;">
-            <label for="markers" class="col-form-label"><small>Markers per cluster</small></label>
-            <input type="range" class="js-range-slider" id="markers" name="markers" value="{{query.markers|default:5}}" step="0.1">
+<form action="#expression">
+    <div class="row g-4 mb-4 align-items-end">
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label"><i class="fa fa-list-check"></i> Gene filtering</label>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <span id="n_markers_value">1</span> markers per cluster
+                </button>
+                <div class="dropdown-menu">
+                    <div class="mx-4 mb-3" style="width: 250px;">
+                        <label class="col-form-label"><small>Markers per cluster</small></label>
+                        <input type="range" class="js-range-slider" id="markers" name="markers" value="0" step="0.1" style="opacity: 0;">
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-auto" style="width: 300px;">
-            <label for="markers" class="col-form-label"><small>Marker min. fold-change</small></label>
-            <input type="range" class="js-range-slider" id="fc_min" name="fc_min" value="{{query.fc_min|default:2}}" step="0.1">
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label"><i class="fa fa-filter"></i> Fold-change thresholds</label>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle flat-right-border" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">FC ≥ <span id="fc_min_value">2</span></button>
+                <div class="dropdown-menu">
+                    <div class="mx-4 mb-3" style="width: 250px;">
+                        <label for="markers" class="col-form-label">
+                            <small>Minimum fold-change</small>
+                        </label>
+
+                        <input type="range" class="js-range-slider" id="fc_min" name="fc_min" value="0" step="0.1" style="opacity: 0;">
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Scale log₂ FC ≤ <span id="clip_log2_value">0</span></button>
+                <div class="dropdown-menu">
+                    <div class="mx-4 mb-3" style="width: 250px;">
+                        <label for="markers" class="col-form-label">
+                            <small>Scale maximum fold-change</small>
+                        </label>
+
+                        <input type="range" class="js-range-slider" id="clip_log2" name="clip_log2" value="0" step="0.1" style="opacity: 0;">
+
+                        <p class="mt-3 text-muted small"><i class="fa fa-info-circle"></i> Lower limit of selection depends on minimum fold-change.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-auto">
@@ -109,27 +166,60 @@
 </form>
 
 <script>
-$("#markers").ionRangeSlider({
-    min: 1,
-    max: 21,
-    from: {{query.markers|default:5}},
-    skin: "round"
-});
+    function updateText (id, from_min_id) {
+        return function update(data) {
+            $(id).text(data.from);
 
-$("#fc_min").ionRangeSlider({
-    min: 0,
-    max: 6,
-    from: {{query.fc_min|default:2}},
-    step: 0.1,
-    skin: "round"
-});
+            // Update from_min of given ionRangeSlider
+            if (from_min_id && from_min_id !== null) {
+                $(from_min_id).data("ionRangeSlider").update({from_min: data.from})
+            }
+        }
+    }
+    
+    $("#markers").ionRangeSlider({
+        min: 1,
+        max: 21,
+        from: {{query.markers|default:5}},
+        grid: true,
+        skin: "round",
+        onStart: updateText("#n_markers_value"),
+        onChange: updateText("#n_markers_value"),
+        onUpdate: updateText("#n_markers_value")
+    });
+
+    $("#clip_log2").ionRangeSlider({
+        min: 0,
+        max: 6,
+        from: {{query.clip_log2|default:6}},
+        step: 0.1,
+        grid: true,
+        skin: "round",
+        from_min: 2,
+        from_shadow: true,
+        onStart: updateText("#clip_log2_value"),
+        onChange: updateText("#clip_log2_value"),
+        onUpdate: updateText("#clip_log2_value")
+    });
+
+    $("#fc_min").ionRangeSlider({
+        min: 0,
+        max: 6,
+        from: {{query.fc_min|default:2}},
+        step: 0.1,
+        grid: true,
+        skin: "round",
+        onStart: updateText("#fc_min_value", "#clip_log2"),
+        onChange: updateText("#fc_min_value", "#clip_log2"),
+        onUpdate: updateText("#fc_min_value", "#clip_log2")
+    });
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
         <div id="loading-bar-container"><div id="loading-bar"></div></div>
-        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;">Hello</div>
+        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
     </div>
 </div>
 
@@ -141,7 +231,8 @@ $("#fc_min").ionRangeSlider({
         "{{species}}",
         url,
         $("#markers").val(),
-        $("#fc_min").val()
+        $("#fc_min").val(),
+        $("#clip_log2").val()
     )
 </script>
 {% endblock content %}

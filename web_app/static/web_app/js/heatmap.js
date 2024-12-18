@@ -1,25 +1,35 @@
-function createExpressionHeatmap(id, species, url, n_markers, fc_min) {
+function createExpressionHeatmap(id, species, url, n_markers, fc_min, clip_log2) {
 	var params = new URLSearchParams({
 		species: species,
 		fc_min: fc_min,
 		n_markers: n_markers,
 		sort_genes: true,
 		log2: true,
-		clip_log2: 6,
+		clip_log2: clip_log2,
 		limit: 0
 	});
 	var apiURL = url + "?" + params.toString();
 
     var chart = {
 		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+		"height": "container",
+		"data": {"name": "exprData", "url": apiURL },
+		"transform": [
+			{"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
+			{"joinaggregate": [
+		        {"op": "distinct", "field": "gene_name", "as": "gene_count"},
+		        {"op": "distinct", "field": "metacell_name", "as": "metacell_count"}
+		    ]}
+		],
+		"params": [{
+      		"name": "title",
+      		"expr": "data('data_0')[0].gene_count + ' genes, ' + data('data_0')[0].metacell_count + ' metacells'"
+		}],
 		"title": {
-    		// "text": genes + ' genes, ' + metacells + ' metacells',
+    		"text": {"expr": "title"},
     		"fontWeight": "normal",
     		"anchor": "start"
   		},
-		"height": "container",
-		"transform": [{"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"}],
-		"data": {"name": "exprData", "url": apiURL },
 		"vconcat": [{
 		  	"width": "container",
 		  	"mark": "rect",

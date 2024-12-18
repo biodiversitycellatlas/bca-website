@@ -72,6 +72,21 @@
     color: #189BCD;
 }
 
+.btn-outline-primary:hover {
+    border-color: #189BCD !important;
+    color: white;
+    background-color: #189BCDAA;
+}
+
+.btn-outline-primary:active {
+    border-color: #189BCD !important;
+    background-color: #189BCD !important;
+}
+
+.btn.btn-outline-primary.dropdown-toggle.show {
+    background-color: #189BCD;
+}
+
 .btn-check+.btn:hover {
     color: #189BCDAA;
 }
@@ -207,6 +222,12 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     display: block;
     height: 70px;
     margin: -70px 0 0;
+}
+
+/* Manual fix for dropdown in btn-groups */
+.flat-right-border {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 /*a[rel="external"]:after {
