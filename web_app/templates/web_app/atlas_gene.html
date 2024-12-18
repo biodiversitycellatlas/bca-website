@@ -7,11 +7,10 @@
 {% load static %}
 {% include 'web_app/components/atlas_selection.html' %}
 
-<div class="container">
+{% include 'web_app/components/gene_selection.html' with gene=gene %}
+{% include 'web_app/components/warning_alert.html' %}
 
-{% include 'web_app/components/gene_selection.html' with gene=query.gene %}
-
-{% if query.gene %}
+{% if gene %}
     <h1 class="h3 pt-2" id="expression">
         Gene expression
         <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
@@ -27,7 +26,7 @@
     <script type="text/javascript" src="{% static 'web_app/js/barplot.js' %}"></script>
     <script type="text/javascript">
         var url = '{% url 'rest:metacellgeneexpression-list' %}';
-    	createExpressionBarPlot("#bar-plot", '{{species}}', '{{query.gene}}', url);
+    	createExpressionBarPlot("#bar-plot", '{{species}}', '{{gene}}', url);
     </script>
 {% else %}
     <div class="row">

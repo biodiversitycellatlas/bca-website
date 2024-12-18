@@ -1,7 +1,7 @@
 <!--
 Species selector and tab navigation for Cell Atlas
 
-When a species is selected, automatically redirect to that species page
+When a species is selected, automatically redirects to species page
 -->
 
 <select id="species" class="mb-3" placeholder="Search species by name, taxonomic rank, division, ...">
@@ -35,7 +35,7 @@ $(function () {
 		onDropdownOpen: function() {
 		    this.clear();
 		},
-		onDropdownClose: function() {
+		onBlur: function() {
 		    // Set current species if no value is selected
             if (!this.getValue()) {
                 this.setValue('{{species.species_underscore}}');

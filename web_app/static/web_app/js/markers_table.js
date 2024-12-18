@@ -1,7 +1,7 @@
 // Link to gene
 function linkGene (data, type, row) {
     if (type === 'display') {
-        data = `<a href=${gene_url}?gene=${data}>${data}</a>`;
+        data = `<a href=${gene_url}${data}>${data}</a>`;
     }
     return data;
 }
@@ -48,6 +48,7 @@ function createMarkersTable(id, url, species, metacells, fc_min_type, fc_min, fc
             { data: 'fg_mean_fc', title: "Mean FC", render: round },
             { data: 'fg_median_fc', title: "Median FC", render: round }
         ],
+        order: [[5, 'des']],
         createdCell: function(td, cellData, rowData, row, col) {
             if ($(td).hasClass('truncate')) {
                 $(td).attr('title', cellData);
