@@ -61,7 +61,7 @@ class SingleCellViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MetacellViewSet(viewsets.ReadOnlyModelViewSet):
     """ List metacells for a given species. """
-    queryset = models.Metacell.objects.all()
+    queryset = models.Metacell.objects.prefetch_related('type')
     serializer_class = serializers.MetacellSerializer
     pagination_class = StandardPagination
     filterset_class = filters.MetacellFilter

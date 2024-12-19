@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.template.defaultfilters import truncatechars
 
-from .models import Species, Meta, SingleCell, Metacell, MetacellLink, Gene, MetacellGeneExpression
+from . import models
 
 
 class MetaInline(admin.TabularInline):
-    model = Meta
+    model = models.Meta
     extra = 3
 
 
@@ -21,8 +21,13 @@ class SingleCellAdmin(admin.ModelAdmin):
 
 
 class MetacellAdmin(admin.ModelAdmin):
-    list_display = ["name", "x", "y", "type", "color", "species"]
+    list_display = ["name", "x", "y", "type__name", "type__color", "species"]
     list_filter = ["species", "type"]
+
+
+class MetacellTypeAdmin(admin.ModelAdmin):
+    list_display = ["name", "color", "species"]
+    list_filter = ["species"]
 
 
 class MetacellLinkAdmin(admin.ModelAdmin):
@@ -38,13 +43,23 @@ class GeneAdmin(admin.ModelAdmin):
 
 class MetacellGeneExpressionAdmin(admin.ModelAdmin):
     list_display = ["gene", "metacell", "fold_change", "umifrac", "species"]
+    list_filter = ["species"]
 
 
-admin.site.register(Species, SpeciesAdmin)
+class OrthologAdmin(admin.ModelAdmin):
+    list_select_related = ["species", "gene"]
+    list_display = ["orthogroup", "gene", "species"]
+    search_fields = ["orthogroup", "gene"]
+    list_filter = ["species"]
 
-admin.site.register(SingleCell, SingleCellAdmin)
-admin.site.register(Metacell, MetacellAdmin)
-admin.site.register(MetacellLink, MetacellLinkAdmin)
 
-admin.site.register(Gene, GeneAdmin)
-admin.site.register(MetacellGeneExpression, MetacellGeneExpressionAdmin)
+admin.site.register(models.Species, SpeciesAdmin)
+
+admin.site.register(models.SingleCell, SingleCellAdmin)
+admin.site.register(models.Metacell, MetacellAdmin)
+admin.site.register(models.MetacellType, MetacellTypeAdmin)
+admin.site.register(models.MetacellLink, MetacellLinkAdmin)
+
+admin.site.register(models.Gene, GeneAdmin)
+admin.site.register(models.MetacellGeneExpression, MetacellGeneExpressionAdmin)
+admin.site.register(models.Ortholog, OrthologAdmin)

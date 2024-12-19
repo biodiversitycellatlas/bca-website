@@ -22,6 +22,9 @@ class GeneSerializer(serializers.ModelSerializer):
 
 
 class MetacellSerializer(serializers.ModelSerializer):
+    type  = serializers.CharField(source='type.name')
+    color = serializers.CharField(source='type.color')
+
     class Meta:
         model = models.Metacell
         exclude = ['id', 'species']
@@ -29,8 +32,8 @@ class MetacellSerializer(serializers.ModelSerializer):
 
 class SingleCellSerializer(serializers.ModelSerializer):
     metacell_name  = serializers.CharField(source='metacell.name')
-    metacell_type  = serializers.CharField(source='metacell.type')
-    metacell_color = serializers.CharField(source='metacell.color')
+    metacell_type  = serializers.CharField(source='metacell.type.name')
+    metacell_color = serializers.CharField(source='metacell.type.color')
 
     class Meta:
         model = models.SingleCell
@@ -54,8 +57,8 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     gene_domains     = serializers.CharField(source='gene.domains')
 
     metacell_name  = serializers.CharField(source='metacell.name')
-    metacell_type  = serializers.CharField(source='metacell.type')
-    metacell_color = serializers.CharField(source='metacell.color')
+    metacell_type  = serializers.CharField(source='metacell.type.name')
+    metacell_color = serializers.CharField(source='metacell.type.color')
 
     class Meta:
         model = models.MetacellGeneExpression

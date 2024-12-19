@@ -113,7 +113,7 @@
     <div class="row g-4 mb-4 align-items-end">
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
-                <label class="col-form-label"><i class="fa fa-list-check"></i> Gene filtering</label>
+                <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
             </div>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -123,6 +123,22 @@
                     <div class="mx-4 mb-3" style="width: 250px;">
                         <label class="col-form-label"><small>Markers per cluster</small></label>
                         <input type="range" class="js-range-slider" id="markers" name="markers" value="0" step="0.1" style="opacity: 0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label"><i class="fa fa-list-check"></i> Metacells</label>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <span id="metacells_count">All metacells (45)</span>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="mx-4 mb-3" style="width: 250px;">
+                        <label class="col-form-label"><small>Selected metacells</small></label>
                     </div>
                 </div>
             </div>

@@ -16,7 +16,7 @@ class Species(models.Model):
     @property
     def species_underscore(self):
         """
-        Returns scientific name with underscores to use in URL.
+        Returns scientific name with underscores for use in URLs.
 
         Example:
             For 'Trichoplax adhaerens', returns 'Trichoplax_adhaerens'.
@@ -62,13 +62,34 @@ class Meta(models.Model):
         return f"{self.value} ({self.key}): {self.species}"
 
 
+class MetacellType(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    name = models.CharField()
+    color = ColorField(default='#AAAAAA')
+
+    @property
+    def type_underscore(self):
+        """
+        Returns type with underscores for use in URLs.
+
+        Example:
+            For 'Epithelial cells', returns 'Epithelial_cells'.
+        """
+        return self.name.replace(" ", "_")
+
+    class Meta:
+        unique_together = ["species", "name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Metacell(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
-    type = models.CharField(max_length=100, blank=True, null=True)
-    color = ColorField(default='#AAAAAA')
 
     class Meta:
         unique_together = ["name", "species"]
@@ -80,7 +101,7 @@ class Metacell(models.Model):
 class SingleCell(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, blank=True, null=True)
+    metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
     x = models.FloatField()
     y = models.FloatField()
 
@@ -120,6 +141,7 @@ class Gene(models.Model):
     def __str__(self):
         return str(self.name)
 
+
 class MetacellGeneExpression(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
@@ -135,3 +157,12 @@ class MetacellGeneExpression(models.Model):
 
     def __str__(self):
         return f"{self.gene} {self.metacell}"
+
+
+class Ortholog(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
+    orthogroup = models.CharField()
+
+    def __str__(self):
+        return f"{self.orthogroup} {self.gene}"
