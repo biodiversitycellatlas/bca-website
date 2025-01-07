@@ -229,7 +229,7 @@ class MetacellMarkerFilter(FilterSet):
             # Check by metacell name
             Q(metacellgeneexpression__metacell__name__in=metacells) |
             # Check by metacell type
-            Q(metacellgeneexpression__metacell__type__in=metacells)
+            Q(metacellgeneexpression__metacell__type__name__in=metacells)
         )
         bg_metacells = ~fg_metacells
 

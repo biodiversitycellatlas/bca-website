@@ -204,7 +204,8 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query['metacells'].split(',')
                 selected = list(species.metacell_set.filter(
-                    Q(name__in=metacells) | Q(type__in=metacells)).values_list('name', flat=True).distinct())
+                    Q(name__in=metacells) | Q(type__name__in=metacells)
+                ).values_list('name', flat=True).distinct())
                 selected = [int(s) for s in selected]
                 selected.sort()
 
