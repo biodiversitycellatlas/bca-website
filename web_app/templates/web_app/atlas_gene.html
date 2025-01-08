@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{species}} Gene{% endblock title %}
+{% block title %}{{species}} {{gene|default:'Gene'}}{% endblock title %}
 
 {% block content %}
 
@@ -16,18 +16,54 @@
         {% include 'web_app/components/clipboard_button.html' %}
         {% include 'web_app/components/data_button.html' %}
     </h1>
+    <div id="{{gene}}" class="container"></div>
 
-    <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
-    <div class="row">
-        <div class="col-8 col-md-9 col-lg-10">
-            <div id="bar-plot" class="container" style="aspect-ratio: 4/1;"></div>
-        </div>
-    </div>
+    <h1 class="h3 pt-2" id="expression">
+        Orthologs
+        {% include 'web_app/components/clipboard_button.html' %}
+        {% include 'web_app/components/data_button.html' %}
+    </h1>
+
+    <div id="ortholog-plots"></div>
+    <template id="ortholog-template">
+        <h2 class="h4 pt-2">Hello!</h2>
+        <div id="plot" class="container"></div>
+    </template>
 
     <script type="text/javascript" src="{% static 'web_app/js/barplot.js' %}"></script>
     <script type="text/javascript">
-        var url = '{% url 'rest:metacellgeneexpression-list' %}';
-    	createExpressionBarPlot("#bar-plot", '{{species}}', '{{gene}}', url);
+        // Create URL for REST API
+        var url = '{% url 'rest:ortholog-list' %}';
+        var params = new URLSearchParams({
+		    genes: '{{gene}}',
+		    expression: true,
+		    limit: 0
+	    });
+	    var apiURL = url + "?" + params.toString();
+
+        // Fetch data from the API and create plots
+        const template  = document.getElementById('ortholog-template');
+        const container = document.getElementById('ortholog-plots');
+
+        fetch(apiURL)
+            .then(response => response.json())  // Parse the JSON response
+            .then(data =>
+                data.forEach(item => {
+                    gene = item.gene_name;
+
+                    if (gene != '{{gene}}') {
+                        clone = document.importNode(template.content, true);
+                        orthologDiv = clone.getElementById('plot');
+                        orthologDiv.id = gene;
+                        container.appendChild(clone);
+                    }
+                    
+                    createExpressionBarPlot("#" + gene, gene, item.expression);
+                })
+            )
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
     </script>
 {% else %}
     <div class="row">

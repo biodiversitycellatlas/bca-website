@@ -30,13 +30,13 @@ from web_app import models
 from .functions import ArrayToString
 from .aggregates import Median
 
-def getSpeciesChoiceFilter():
+def getSpeciesChoiceFilter(required=True):
     return ModelChoiceFilter(
         queryset = models.Species.objects.all(),
         field_name = "species__scientific_name",
         to_field_name = "scientific_name",
         label = "Species scientific name (example: <i>Trichoplax adhaerens</i>).",
-        required = True
+        required = required
     )
 
 
@@ -60,6 +60,29 @@ class GeneFilter(FilterSet):
                             TrigramStrictWordSimilarity(value, ArrayToString('domains'))
                         )
                     ).filter(similarity__gt=0.3).order_by('-similarity')
+        return queryset
+
+
+class OrthologFilter(FilterSet):
+    gene = CharFilter(
+        method = 'find_orthologs',
+        label = "Gene name to search for orthologs.")
+    expression = BooleanFilter(
+        method='skip',
+        label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
+
+    class Meta:
+        model = models.Ortholog
+        fields = ['species']
+
+    def find_orthologs(self, queryset, name, value):
+        if value:
+            orthogroup = queryset.filter(gene__name=value).values('orthogroup')[:1]
+            return queryset.filter(orthogroup=orthogroup)
+        return queryset
+
+    def skip(self, queryset, name, value):
+        # used in serializers.py: OrthologSerializer
         return queryset
 
 
@@ -245,7 +268,10 @@ class MetacellMarkerFilter(FilterSet):
         mge_fc = "metacellgeneexpression__fold_change"
         queryset = queryset.annotate(
             fg_median_fc=Median(mge_fc, filter=fg_metacells),
-            fg_mean_fc=Avg(mge_fc, filter=fg_metacells))
+            fg_mean_fc=Avg(mge_fc, filter=fg_metacells),
+            bg_mean_fc=Avg(mge_fc, filter=bg_metacells),
+            bg_median_fc=Median(mge_fc, filter=bg_metacells)
+        )
         return queryset
 
     def filter_fc_min(self, queryset, name, value):
@@ -268,14 +294,10 @@ class MetacellMarkerFilter(FilterSet):
             return queryset
         elif value == 'mean':
             # Keep genes whose mean FC across background <= fc_max_bg
-            queryset = queryset.annotate(
-                bg_avg_fc=Avg(mge_fc, filter=bg_metacells)
-            ).filter(bg_avg_fc__lte=query['fc_max_bg'])
+            queryset = queryset.filter(bg_mean_fc__lte=fc_max_bg)
         elif value == 'median':
             # Keep genes whose median FC across background <= fc_max_bg
-            queryset = queryset.annotate(
-                bg_median_fc=Median(mge_fc, filter=bg_metacells)
-            ).filter(bg_median_fc__lte=query['fc_max_bg'])
+            queryset = queryset.filter(bg_median_fc__lte=fc_max_bg)
         return queryset
 
     def skip_filter(self, queryset, name, value):

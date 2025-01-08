@@ -164,5 +164,9 @@ class Ortholog(models.Model):
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     orthogroup = models.CharField()
 
+    @property
+    def expression(self):
+        return self.gene.metacellgeneexpression_set.all()
+
     def __str__(self):
         return f"{self.orthogroup} {self.gene}"

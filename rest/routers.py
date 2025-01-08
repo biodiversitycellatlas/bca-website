@@ -4,7 +4,10 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'species', views.SpeciesViewSet)
+
 router.register(r'gene', views.GeneViewSet)
+router.register(r'orthologs', views.OrthologViewSet)
+
 router.register(r'single_cell', views.SingleCellViewSet)
 router.register(r'metacell', views.MetacellViewSet)
 router.register(r'metacell_link', views.MetacellLinkViewSet)

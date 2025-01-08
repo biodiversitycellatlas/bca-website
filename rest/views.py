@@ -50,6 +50,15 @@ class GeneViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'name'
 
 
+class OrthologViewSet(viewsets.ReadOnlyModelViewSet):
+    """ List gene orthologs. """
+    queryset = models.Ortholog.objects.all()
+    serializer_class = serializers.OrthologSerializer
+    pagination_class = StandardPagination
+    lookup_field = 'orthogroup'
+    filterset_class = filters.OrthologFilter
+
+
 class SingleCellViewSet(viewsets.ReadOnlyModelViewSet):
     """ List single cells for a given species. """
     queryset = models.SingleCell.objects.prefetch_related('metacell')

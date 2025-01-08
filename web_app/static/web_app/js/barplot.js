@@ -1,11 +1,4 @@
-function createExpressionBarPlot(id, species, gene, url) {
-	var params = new URLSearchParams({
-		species: species,
-		genes: gene,
-		limit: 0
-	});
-	var apiURL = url + "?" + params.toString();
-
+function createExpressionBarPlot(id, gene, data) {
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   		"title": {
@@ -15,21 +8,30 @@ function createExpressionBarPlot(id, species, gene, url) {
   		},
 	  	"transform": [
 	  	    {"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
-	  	    {"calculate": "datum.umifrac * 10", "as": "umifrac"}
+	  	    {"calculate": "datum.umifrac * 10", "as": "umifrac"},
+	  	    {"fold": ["umifrac", "fold_change"]}
 	  	],
-	  	"data": {"name": "gene_data", "url": apiURL},
-	  	"repeat": {"row": ["umifrac", "fold_change"]},
-	  	"spec": {
-	  	    "width": "container",
-	  	    "mark": {"type": "bar", "tooltip": {"content": "data"}},
-	  	    "encoding": {
-	  	        "x": {"field": "metacell_name"},
-	  	        "y": {"field": {"repeat": "row"}, "aggregate": "sum"},
-	  	        "color": {
-	  	            "field": "metacell_type",
-	  	            "scale": {"range": {"field": "metacell_color"}}
-	  	        }
-            }
+	  	"data": {"name": "gene_data", "values": data},
+  	    "width": "container",
+  	    "mark": {"type": "circle", "tooltip": {"content": "data"}},
+  	    "encoding": {
+  	        "x": {"field": "metacell_name"},
+  	        "y": {"field": "key", "title": ""},
+  	        "size": {
+  	            "field": "value",
+  	            "type": "quantitative",
+  	            "impute": {"value": 0},
+  	            "legend": null
+  	        },
+  	        "color": {
+  	            "field": "metacell_type",
+  	            "scale": {"range": {"field": "metacell_color"}},
+  	            "legend": {
+                    "orient": "bottom",
+                    "direction": "horizontal",
+                    "columns": 4
+                }
+  	        }
         }
     };
     vegaEmbed(id, chart)

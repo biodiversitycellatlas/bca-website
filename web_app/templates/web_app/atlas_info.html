@@ -25,7 +25,7 @@
             <tbody>
                 {% for meta in species.meta_set.values %}
                 <tr>
-                    <td>{{ meta.key }}</td>
+                    <td>{{ meta.key | capfirst }}</td>
                     <td>{{ meta.value }}</td>
                 </tr>
                 {% endfor %}

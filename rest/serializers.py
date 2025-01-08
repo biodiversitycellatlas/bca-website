@@ -54,7 +54,7 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
 
     gene_name        = serializers.CharField(source='gene.name')
     gene_description = serializers.CharField(source='gene.description')
-    gene_domains     = serializers.CharField(source='gene.domains')
+    gene_domains     = serializers.ListField(source='gene.domains', child=serializers.CharField())
 
     metacell_name  = serializers.CharField(source='metacell.name')
     metacell_type  = serializers.CharField(source='metacell.type.name')
@@ -75,3 +75,22 @@ class MetacellMarkerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gene
         exclude = ['species']
+
+
+class OrthologSerializer(serializers.ModelSerializer):
+    species = serializers.CharField(source='species.scientific_name')
+
+    gene_name = serializers.CharField(source='gene.name')
+    gene_description = serializers.CharField(source='gene.description')
+    gene_domains = serializers.ListField(source='gene.domains', child=serializers.CharField())
+    expression = MetacellGeneExpressionSerializer(source='gene.metacellgeneexpression_set', many=True, required=False)
+
+    class Meta:
+        model = models.Ortholog
+        exclude = ['id']
+
+    def __init__(self, *args, **kwargs):
+        show_expression = kwargs['context']['request'].GET.get('expression', 'false') == 'true'
+        if not show_expression:
+            self.fields.pop('expression')
+        super().__init__(*args, **kwargs)
