@@ -32,8 +32,8 @@ $(function () {
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
-    			window.location.replace(
-    			    "{% url 'atlas_gene' species.species_underscore '::arg' %}".replace('::arg', value));
+    			window.location.href =
+    			    "{% url 'atlas_gene' species.species_underscore '::arg' %}".replace('::arg', value);
     		}
 		},
 		onDropdownOpen: function($dropdown) {

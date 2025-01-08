@@ -23,13 +23,12 @@ $(function () {
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current species
     	    if (value !== "" && value !== '{{species.species_underscore}}') {
-    			window.location.replace(
+    			window.location.href =
     			    {% if request.resolver_match.view_name == 'atlas' %}
     			        "{% url 'atlas_info' '::arg' %}".replace('::arg', value)
     			    {% else %}
     			        "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value)
-    			    {% endif %}
-    			);
+    			    {% endif %};
     		}
 		},
 		onDropdownOpen: function() {
