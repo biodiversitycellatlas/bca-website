@@ -13,7 +13,8 @@
 {% if gene %}
     <h1 class="h3 pt-2" id="expression">
         Gene expression
-        <div class="float-end"> {% include 'web_app/components/clipboard_button.html' %} </div>
+        {% include 'web_app/components/clipboard_button.html' %}
+        {% include 'web_app/components/data_button.html' %}
     </h1>
 
     <!-- Use column due to vega-lite's bug with containers for concatenated plots -->

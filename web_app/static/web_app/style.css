@@ -50,6 +50,12 @@
 
 /* Body */
 
+.btn-xs {
+    --bs-btn-padding-y: .25rem;
+    --bs-btn-padding-x: .5rem;
+    --bs-btn-font-size: .75rem;
+}
+
 .btn-primary {
     background-color: #189BCD;
     border-color: #189BCD;
