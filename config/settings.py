@@ -140,7 +140,11 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend', ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest.pagination.StandardPagination',
-    'DEFAULT_RENDERER_CLASSES': [ 'rest_framework.renderers.JSONRenderer', ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest.renderers.CSVRenderer',
+        'rest.renderers.TSVRenderer',
+    ],
 }
 
 SPECTACULAR_SETTINGS = {
