@@ -78,7 +78,7 @@ class MetacellMarkerSerializer(serializers.ModelSerializer):
 
 
 class OrthologSerializer(serializers.ModelSerializer):
-    species = serializers.CharField(source='species.scientific_name')
+    species = SpeciesSerializer()
 
     gene_name = serializers.CharField(source='gene.name')
     gene_description = serializers.CharField(source='gene.description')

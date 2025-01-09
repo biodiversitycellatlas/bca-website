@@ -13,21 +13,23 @@
 {% if gene %}
     <h1 class="h3 pt-2" id="expression">
         Gene expression
-        {% include 'web_app/components/clipboard_button.html' %}
+        {% include 'web_app/components/clipboard_button.html' with id='expression' %}
         {% include 'web_app/components/data_button.html' %}
     </h1>
     <div id="{{gene}}" class="container"></div>
 
-    <h1 class="h3 pt-2" id="expression">
+    <h1 class="h3 pt-2" id="orthologs">
         Orthologs
-        {% include 'web_app/components/clipboard_button.html' %}
+        {% include 'web_app/components/clipboard_button.html' with id='orthologs' %}
         {% include 'web_app/components/data_button.html' %}
     </h1>
 
     <div id="ortholog-plots"></div>
     <template id="ortholog-template">
-        <h2 class="h4 pt-2">Hello!</h2>
-        <div id="plot" class="container"></div>
+        <h2 class="h6 pt-2">
+            <i><span id="ortholog-species" class="badge bg-secondary rounded-pill">organism</span></i>
+            <span id="ortholog-gene">Gene</span></h2>
+        <div id="ortholog-plot" class="container"></div>
     </template>
 
     <script type="text/javascript" src="{% static 'web_app/js/barplot.js' %}"></script>
@@ -35,7 +37,7 @@
         // Create URL for REST API
         var url = '{% url 'rest:ortholog-list' %}';
         var params = new URLSearchParams({
-		    genes: '{{gene}}',
+		    gene: '{{gene}}',
 		    expression: true,
 		    limit: 0
 	    });
@@ -46,18 +48,17 @@
         const container = document.getElementById('ortholog-plots');
 
         fetch(apiURL)
-            .then(response => response.json())  // Parse the JSON response
+            .then(response => response.json())
             .then(data =>
                 data.forEach(item => {
                     gene = item.gene_name;
-
                     if (gene != '{{gene}}') {
                         clone = document.importNode(template.content, true);
-                        orthologDiv = clone.getElementById('plot');
-                        orthologDiv.id = gene;
+                        clone.getElementById('ortholog-gene').innerHTML = gene;
+                        clone.getElementById('ortholog-species').innerHTML = `<img class="rounded-circle" style="box-shadow: 0px 0px 2px white !important;;" src="${item.species.image_url}" height="24px"> ${item.species.scientific_name}`;
+                        clone.getElementById('ortholog-plot').id = gene;
                         container.appendChild(clone);
                     }
-                    
                     createExpressionBarPlot("#" + gene, gene, item.expression);
                 })
             )

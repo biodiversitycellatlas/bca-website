@@ -1,11 +1,7 @@
 function createExpressionBarPlot(id, gene, data) {
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  		"title": {
-    		"text": gene,
-    		"fontWeight": "normal",
-    		"anchor": "start"
-  		},
+  		//"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
 	  	"transform": [
 	  	    {"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
 	  	    {"calculate": "datum.umifrac * 10", "as": "umifrac"},
@@ -26,12 +22,15 @@ function createExpressionBarPlot(id, gene, data) {
   	        "color": {
   	            "field": "metacell_type",
   	            "scale": {"range": {"field": "metacell_color"}},
-  	            "legend": {
-                    "orient": "bottom",
-                    "direction": "horizontal",
-                    "columns": 4
-                }
-  	        }
+  	            "legend": null
+  	            // "legend": { "orient": "bottom", "direction": "horizontal", "columns": 4 }
+  	        },
+  	        "tooltip": [
+                {"field": "metacell_type"},
+                {"field": "umi_raw"},
+                {"field": "umifrac"},
+                {"field": "fold_change"}
+            ]
         }
     };
     vegaEmbed(id, chart)
