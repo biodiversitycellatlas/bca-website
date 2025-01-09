@@ -30,6 +30,13 @@ from web_app import models
 from .functions import ArrayToString
 from .aggregates import Median
 
+def skip_param(queryset, name, value):
+    '''
+    Function to allow to document a parameter without actually running anything.
+    Useful if the param is used elsewhere.
+    '''
+    return queryset
+
 def getSpeciesChoiceFilter(required=True):
     return ModelChoiceFilter(
         queryset = models.Species.objects.all(),
@@ -68,7 +75,7 @@ class OrthologFilter(FilterSet):
         method = 'find_orthologs',
         label = "Gene name to search for orthologs.")
     expression = BooleanFilter(
-        method='skip',
+        method = skip_param, # used in serializers.py: OrthologSerializer
         label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
 
     class Meta:
@@ -79,10 +86,6 @@ class OrthologFilter(FilterSet):
         if value:
             orthogroup = queryset.filter(gene__name=value).values('orthogroup')[:1]
             return queryset.filter(orthogroup=orthogroup)
-        return queryset
-
-    def skip(self, queryset, name, value):
-        # used in serializers.py: OrthologSerializer
         return queryset
 
 
@@ -237,12 +240,12 @@ class MetacellMarkerFilter(FilterSet):
 
     fc_min = NumberFilter(
         label = "Filter genes across foreground (i.e., selected) metacells by their minimum fold-change (default: <kbd>2</kbd>).",
-        method = "skip_filter")
+        method = skip_param)
     fc_min_type = createFCtypeChoiceFilter('minimum')
 
     fc_max_bg = NumberFilter(
         label = "Filter genes across background (i.e., non-selected) metacells by their maximum fold-change (default: <kbd>3</kbd>).",
-        method = "skip_filter")
+        method = skip_param)
     fc_max_bg_type = createFCtypeChoiceFilter('maximum', ignoreMode=True)
 
     def select_metacells(self, queryset, name, value):
@@ -298,10 +301,6 @@ class MetacellMarkerFilter(FilterSet):
         elif value == 'median':
             # Keep genes whose median FC across background <= fc_max_bg
             queryset = queryset.filter(bg_median_fc__lte=fc_max_bg)
-        return queryset
-
-    def skip_filter(self, queryset, name, value):
-        # These params are already consumed by other functions
         return queryset
 
     class Meta:
