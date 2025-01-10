@@ -3,9 +3,7 @@ import csv
 from io import StringIO
 
 class CSVRenderer(BaseRenderer):
-    """
-    Class for rendering files with comma-separated values.
-    """
+    """ Render files with comma-separated values. """
     delimiter = ','
     media_type = 'text/csv'
     format = 'csv'
@@ -16,12 +14,21 @@ class CSVRenderer(BaseRenderer):
         if not data:
             return ''
 
-        # Handle pagination if enabled
-        if isinstance(data, dict) and 'results' in data:
-            data = data['results']
-
         output = StringIO()
         writer = csv.writer(output, delimiter=self.delimiter, quotechar=self.quotechar, quoting=self.quoting)
+
+        # Handle pagination if enabled
+        if isinstance(data, dict) and 'results' in data:
+            total_count = data.get('count', 0)
+            next_link = data.get('next', '')
+            previous_link = data.get('previous', '')
+            data = data['results']
+
+            # Add comment with pagination details
+            output.write(
+                f"# Count: {total_count}\n"
+                f"# Next: {next_link}\n"
+                f"# Previous: {previous_link}\n")
 
         # Write headers
         if isinstance(data, list):
@@ -40,9 +47,7 @@ class CSVRenderer(BaseRenderer):
 
 
 class TSVRenderer(CSVRenderer):
-    """
-    Class for rendering files with tab-separated values.
-    """
+    """ Render files with tab-separated values. """
     delimiter = '\t'
     media_type = 'text/tab-separated-values'
     format = 'tsv'
