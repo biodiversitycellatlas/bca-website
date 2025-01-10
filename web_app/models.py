@@ -52,7 +52,7 @@ class Meta(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     key     = models.CharField(max_length=100)
     value   = models.CharField(max_length=100)
-    
+
     class Meta:
         unique_together = ["species", "key", "value"]
         verbose_name = "meta"
@@ -109,7 +109,7 @@ class SingleCell(models.Model):
         unique_together = ["name", "species"]
 
     def __str__(self):
-        return f"{self.id}"
+        return self.name
 
 
 class MetacellLink(models.Model):
@@ -157,6 +157,21 @@ class MetacellGeneExpression(models.Model):
 
     def __str__(self):
         return f"{self.gene} {self.metacell}"
+
+
+class SingleCellGeneExpression(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
+    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE)
+    umi_raw = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ["gene", "single_cell", "species"]
+        verbose_name = "single-cell gene expression"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.gene} {self.single_cell}"
 
 
 class Ortholog(models.Model):

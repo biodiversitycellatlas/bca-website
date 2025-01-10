@@ -56,6 +56,13 @@ class MetacellGeneExpressionViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = filters.MetacellGeneExpressionFilter
 
 
+class SingleCellGeneExpressionViewSet(viewsets.ReadOnlyModelViewSet):
+    """ Retrieve gene expression data per single cell. """
+    queryset = models.SingleCellGeneExpression.objects.prefetch_related('single_cell', 'gene')
+    serializer_class = serializers.SingleCellGeneExpressionSerializer
+    filterset_class = filters.SingleCellGeneExpressionFilter
+
+
 class MetacellMarkerViewSet(viewsets.ReadOnlyModelViewSet):
     """ Retrieve gene markers of selected metacells. """
     # Gene as model (easier to perform gene-wise operations)

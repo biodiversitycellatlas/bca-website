@@ -37,7 +37,7 @@ class SingleCellSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SingleCell
-        exclude = ['species']
+        exclude = ['id', 'species']
 
 
 class MetacellLinkSerializer(serializers.ModelSerializer):
@@ -62,6 +62,18 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellGeneExpression
+        exclude = ['species']
+
+
+class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
+    gene_name        = serializers.CharField(source='gene.name')
+    gene_description = serializers.CharField(source='gene.description')
+    gene_domains     = serializers.ListField(source='gene.domains', child=serializers.CharField())
+
+    single_cell_name = serializers.CharField(source='single_cell.name')
+
+    class Meta:
+        model = models.SingleCellGeneExpression
         exclude = ['species']
 
 

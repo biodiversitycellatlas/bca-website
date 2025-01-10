@@ -16,12 +16,12 @@ class SpeciesAdmin(admin.ModelAdmin):
 
 
 class SingleCellAdmin(admin.ModelAdmin):
-    list_display = ["id", "x", "y", "metacell", "metacell__type", "species"]
+    list_display = ["name", "metacell", "metacell__type", "species"]
     list_filter = ["species", "metacell__type"]
 
 
 class MetacellAdmin(admin.ModelAdmin):
-    list_display = ["name", "x", "y", "type__name", "type__color", "species"]
+    list_display = ["name", "type__name", "type__color"]
     list_filter = ["species", "type"]
 
 
@@ -37,12 +37,17 @@ class MetacellLinkAdmin(admin.ModelAdmin):
 
 class GeneAdmin(admin.ModelAdmin):
     list_display = ["name", "description", "domains", "species"]
-    search_fields = ["name", "description"] 
+    search_fields = ["name", "description"]
     list_filter = ["species"]
 
 
 class MetacellGeneExpressionAdmin(admin.ModelAdmin):
-    list_display = ["gene", "metacell", "fold_change", "umifrac", "species"]
+    list_display = ["id", "gene", "metacell", "fold_change", "umifrac", "species"]
+    list_filter = ["species"]
+
+
+class SingleCellGeneExpressionAdmin(admin.ModelAdmin):
+    list_display = ["id", "gene", "single_cell", "umi_raw", "species"]
     list_filter = ["species"]
 
 
@@ -62,4 +67,5 @@ admin.site.register(models.MetacellLink, MetacellLinkAdmin)
 
 admin.site.register(models.Gene, GeneAdmin)
 admin.site.register(models.MetacellGeneExpression, MetacellGeneExpressionAdmin)
+admin.site.register(models.SingleCellGeneExpression, SingleCellGeneExpressionAdmin)
 admin.site.register(models.Ortholog, OrthologAdmin)

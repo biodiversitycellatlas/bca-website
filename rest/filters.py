@@ -77,6 +77,7 @@ class OrthologFilter(FilterSet):
     expression = BooleanFilter(
         method = skip_param, # used in serializers.py: OrthologSerializer
         label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
+    species = getSpeciesChoiceFilter(required=False)
 
     class Meta:
         model = models.Ortholog
@@ -165,7 +166,7 @@ class MetacellGeneExpressionFilter(FilterSet):
             ).filter(rank=1).order_by(
                 -Cast('metacell__name', IntegerField())
             ).values_list("gene", flat=True)
-        
+
             # Order filtered queryset to match that of the ordered genes
             # ordered_qs = filtered.order_by(ArrayPosition('gene__name', array=ordered_genes))
             queryset = queryset.order_by(Case(
@@ -198,6 +199,22 @@ class MetacellGeneExpressionFilter(FilterSet):
 
     class Meta:
         model = models.MetacellGeneExpression
+        fields = ['species']
+
+
+class SingleCellGeneExpressionFilter(FilterSet):
+    species = getSpeciesChoiceFilter()
+    genes = CharFilter(
+        label = 'Comma-separated list of genes to retrieve data for. If not provided, data is returned for all genes.',
+        method='filter_genes_in')
+
+    def filter_genes_in(self, queryset, name, value):
+        if value:
+            queryset = queryset.filter(gene__name__in=value.split(','))
+        return queryset
+
+    class Meta:
+        model = models.SingleCellGeneExpression
         fields = ['species']
 
 
@@ -266,7 +283,7 @@ class MetacellMarkerFilter(FilterSet):
             fg_sum_umi=Sum(mge_umi, filter=fg_metacells)
         ).annotate(
             umi_perc=F('fg_sum_umi') / (F('fg_sum_umi') + F('bg_sum_umi')) * 100)
-    
+
         # Calculate median FC per gene
         mge_fc = "metacellgeneexpression__fold_change"
         queryset = queryset.annotate(
