@@ -60,6 +60,24 @@
     border-width: 2px;
 }
 
+/* Navigation tabs (Cell Atlas) */
+
+.nav-tabs .nav-link {
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--hover-color);
+}
+
+.nav-tabs .nav-link.disabled {
+    color: var(--bs-nav-link-disabled-color);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--bs-nav-tabs-link-active-color);
+}
+
 /* Body */
 
 .btn-xs {
@@ -153,6 +171,7 @@ a:hover {
 }
 
 /* DataTables */
+
 table.dataTable.display tbody tr:nth-child(odd) > * {
     background-color: var(--table-row-color);
     box-shadow: none !important;
@@ -166,10 +185,6 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 }
 
 /* Selectize.js */
-.selectize-dropdown, .selectize-dropdown.form-control {
-    z-index: 1001; /* Higher z-index than vega-embed button */
-}
-
 .selectize-dropdown .selected {
     background-color: var(--primary-color);
 }
@@ -201,22 +216,10 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 	animation: fa-spin 2s infinite linear;
 }
 
-/* Navigation tabs (Cell Atlas) */
+/* vega-embed fix to avoid button on top of other elements */
 
-.nav-tabs .nav-link {
-    color: var(--primary-color);
-}
-
-.nav-tabs .nav-link:hover {
-    color: var(--hover-color);
-}
-
-.nav-tabs .nav-link.disabled {
-    color: var(--bs-nav-link-disabled-color);
-}
-
-.nav-tabs .nav-link.active {
-    color: var(--bs-nav-tabs-link-active-color);
+.vega-embed summary {
+    z-index: 999 !important;
 }
 
 /* range-slider */
