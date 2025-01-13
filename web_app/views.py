@@ -60,7 +60,7 @@ def getSpecies(species):
     ''' Returns species if it exists in the database; returns None otherwise. '''
     if isinstance(species, Species):
         return obj
-    
+
     species = species.replace("_", " ")
     try:
         obj = Species.objects.filter(scientific_name=species)[0]
@@ -80,7 +80,7 @@ class AtlasView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["icon"] = random.choice(
             ["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
-            "dove", "fish-fins", "cat", "locust", "tree"])
+            "dove", "fish-fins", "cat", "locust", "tree", "spider", "hippo"])
         context["species_dict"] = getSpeciesDict()
 
         query = self.request.GET
@@ -110,7 +110,7 @@ class AtlasView(TemplateView):
 class BaseAtlasView(TemplateView):
     '''
     Base view for species-specific Cell Atlas pages.
-    
+
     Redirects to standard Atlas view with a warning when passing a species not
     available in the database.
     '''
@@ -159,7 +159,7 @@ class AtlasOverviewView(BaseAtlasView):
 
 class AtlasGeneView(BaseAtlasView):
     template_name = "web_app/atlas_gene.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         species = context.get('species')
