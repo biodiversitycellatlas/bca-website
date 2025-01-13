@@ -123,16 +123,16 @@
     background-color: var(--primary-color);
 }
 
-.btn-check+.btn:hover {
+.btn-check+.btn.btn-outline-primary:hover {
     color: var(--hover-color);
 }
 
-.btn-check:checked+.btn {
+.btn-check:checked+.btn.btn-outline-primary {
     background-color: var(--primary-color);
     color: white;
 }
 
-.btn-check:checked+.btn:hover {
+.btn-check:checked+.btn.btn-outline-primary:hover {
     background-color: var(--hover-color);
     color: white;
 }

@@ -11,29 +11,36 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
 </button>
 
 <ul class="dropdown-menu">
+    <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);" class="d-flex justify-content-end">
+        <label class="col-form-label-sm me-2">Format</label>
+
+        <form>
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                {% with 'CSV TSV JSON' as formats %}{% for format in formats.split %}
+                    <input type="radio" class="btn-check" name="btnradio" id="format_{{format}}" autocomplete="off" {% if format == 'CSV' %}checked{% endif %}>
+                    <label class="btn btn-outline-secondary btn-xs" for="format_{{format}}">{{format}}</label>
+                {% endfor %}{% endwith %}
+            </div>
+        </form>
+    </li>
+    <li><hr class="dropdown-divider"></li>
+
     {% with 'Single-cell Metacell Links' as data %}{% for each in data.split %}
-        <li class="dropdown-header">{{each}}</li>
-        {% with 'CSV JSON' as formats %}{% for format in formats.split %}
-            <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
-                <label style="line-height: 1.5">{{format}}</label>
-                <div class="btn-toolbar ms-4 float-end" role="toolbar">
-                    <div class="btn-group me-2" role="group">
-                        <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
-                            <i class="fa fa-eye"></i> View
-                        </a>
-                        <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
-                            <i class="fa fa-file-arrow-down"></i> Download
-                        </a>
-                    </div>
+        <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
+            <label style="line-height: 1.5">{{each}}</label>
+            <div class="btn-toolbar ms-4 float-end" role="toolbar">
+                <div class="btn-group me-2" role="group">
                     <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
-                        <i class="fa fa-code"></i> Copy API link
+                        <i class="fa fa-eye"></i> View
+                    </a>
+                    <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
+                        <i class="fa fa-file-arrow-down"></i> Download
                     </a>
                 </div>
-            </li>
-        {% endfor %}{% endwith %}
-
-        {% if not forloop.last %}
-            <li><hr class="dropdown-divider"></li>
-        {% endif %}
+                <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
+                    <i class="fa fa-code"></i> Copy API link
+                </a>
+            </div>
+        </li>
     {% endfor %}{% endwith %}
 </ul>
