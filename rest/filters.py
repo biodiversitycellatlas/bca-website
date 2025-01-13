@@ -27,7 +27,7 @@ from django.db.models import (
 from django.db.models.functions import Cast, Greatest, Log, Rank
 
 from web_app import models
-from .functions import ArrayToString
+from .functions import ArrayToString, ArrayPosition
 from .aggregates import Median
 
 def skip_param(queryset, name, value):
@@ -92,6 +92,7 @@ class OrthologFilter(FilterSet):
 
 class SingleCellFilter(FilterSet):
     species = getSpeciesChoiceFilter()
+    gene = CharFilter(method=skip_param, label='Retrieve expression for a given gene.')
 
     class Meta:
         model = models.SingleCell
@@ -100,6 +101,7 @@ class SingleCellFilter(FilterSet):
 
 class MetacellFilter(FilterSet):
     species = getSpeciesChoiceFilter()
+    gene = CharFilter(method=skip_param, label='Retrieve expression for a given gene.')
 
     class Meta:
         model = models.Metacell
@@ -157,7 +159,7 @@ class MetacellGeneExpressionFilter(FilterSet):
     def sort_genes_across_metacells(self, queryset, name, value):
         ''' Sort genes by their highest gene expression across metacells. '''
         if value:
-            ordered_genes = queryset.annotate(
+            sorted_genes = queryset.annotate(
                 rank=Window(
                     expression=Rank(),
                     partition_by='gene__name',
@@ -165,13 +167,12 @@ class MetacellGeneExpressionFilter(FilterSet):
                 )
             ).filter(rank=1).order_by(
                 -Cast('metacell__name', IntegerField())
-            ).values_list("gene", flat=True)
+            ).values_list('gene', flat=True)
 
-            # Order filtered queryset to match that of the ordered genes
-            # ordered_qs = filtered.order_by(ArrayPosition('gene__name', array=ordered_genes))
-            queryset = queryset.order_by(Case(
-                *[When(gene=gene, then=pos) for pos, gene in enumerate(ordered_genes)]
-            ))
+            sorted_genes = list(sorted_genes)
+
+            # Sort queryset based on gene list
+            queryset = queryset.order_by(ArrayPosition('gene', array=sorted_genes))
         return queryset
 
     def log2_transform(self, queryset, name, value):

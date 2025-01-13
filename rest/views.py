@@ -1,4 +1,5 @@
 from rest_framework import viewsets, pagination
+from django.db.models import Prefetch
 
 from . import serializers, filters
 from web_app import models
@@ -26,20 +27,44 @@ class OrthologViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
-class SingleCellViewSet(viewsets.ReadOnlyModelViewSet):
+class ExpressionPrefetchMixin:
+    """ Mixin to prefetch gene expression for single cell and metacell views. """
+
+    def get_queryset(self):
+        gene = self.request.query_params.get('gene', None)
+
+        # Prefetch gene expression
+        if gene:
+            return self.queryset.prefetch_related(
+                Prefetch(
+                    self.expression_related_name,
+                    queryset=self.expression_model.objects.filter(gene__name=gene),
+                    to_attr = 'gene_expression'
+                )
+            )
+        return self.queryset
+
+
+class SingleCellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     """ List single cells for a given species. """
     queryset = models.SingleCell.objects.prefetch_related('metacell')
     serializer_class = serializers.SingleCellSerializer
     filterset_class = filters.SingleCellFilter
     lookup_field = 'name'
 
+    expression_related_name = 'singlecellgeneexpression_set'
+    expression_model = models.SingleCellGeneExpression
 
-class MetacellViewSet(viewsets.ReadOnlyModelViewSet):
+
+class MetacellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     """ List metacells for a given species. """
     queryset = models.Metacell.objects.prefetch_related('type')
     serializer_class = serializers.MetacellSerializer
     filterset_class = filters.MetacellFilter
     lookup_field = 'name'
+
+    expression_related_name = 'metacellgeneexpression_set'
+    expression_model = models.MetacellGeneExpression
 
 
 class MetacellLinkViewSet(viewsets.ReadOnlyModelViewSet):
