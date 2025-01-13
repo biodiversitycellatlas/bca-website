@@ -37,15 +37,18 @@ def skip_param(queryset, name, value):
     '''
     return queryset
 
-def getSpeciesChoiceFilter(required=True):
+def getSpeciesChoiceFilter(field="species__scientific_name", required=True):
     return ModelChoiceFilter(
         queryset = models.Species.objects.all(),
-        field_name = "species__scientific_name",
+        field_name = field,
         to_field_name = "scientific_name",
         label = "Species scientific name (example: <i>Trichoplax adhaerens</i>).",
         required = required
     )
 
+
+class SpeciesFilter(FilterSet):
+    species = getSpeciesChoiceFilter("scientific_name", required = False)
 
 class GeneFilter(FilterSet):
     species = getSpeciesChoiceFilter()

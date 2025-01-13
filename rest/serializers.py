@@ -12,6 +12,8 @@ class MetaSerializer(serializers.ModelSerializer):
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
+    meta = MetaSerializer(source='meta_set', many=True)
+
     class Meta:
         model = models.Species
         exclude = ['id']

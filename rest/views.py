@@ -4,10 +4,12 @@ from django.db.models import Prefetch
 from . import serializers, filters
 from web_app import models
 
+
 class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     """ List available species. """
-    queryset = models.Species.objects.all()
+    queryset = models.Species.objects.prefetch_related('meta_set')
     serializer_class = serializers.SpeciesSerializer
+    filterset_class = filters.SpeciesFilter
     lookup_field = 'scientific_name'
 
 
