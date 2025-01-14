@@ -238,11 +238,8 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 }
 
 /* Fix anchor links position to avoid navbar overlap */
-:target::before {
-    content: "";
-    display: block;
-    height: 70px;
-    margin: -70px 0 0;
+html {
+  scroll-padding-top: 50px; /* Adjust to match your navbar height */
 }
 
 /* Manual fix for dropdown in btn-groups */
