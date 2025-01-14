@@ -81,7 +81,7 @@ Input:
                 option: function (item, escape) {
                     var extra = '';
                     var text = item.text;
-                    var circle = `<i class="fa fa-circle" style="color: ${item.color}; -webkit-text-stroke: 0.5px lightgray; text-stroke: 0.5px lightgray;"></i> `;
+                    var circle = `<i class="fa fa-circle" style="color: ${item.color}; -webkit-text-stroke: 0.5px lightgray; text-stroke: 0.5px lightgray; font-size: 0.6em; vertical-align: middle;"></i> `;
                     if (item.metacells) {
                         text = circle + text;
                         var metacells = convertToRange(String(item.metacells));
