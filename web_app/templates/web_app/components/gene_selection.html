@@ -1,20 +1,30 @@
 <!--
 Gene selector
 
-When a gene is selected, automatically redirects to gene page
+When a gene is selected, automatically redirects to a page with that gene
 
 Input:
     - gene: default gene to select with properties 'name', 'description' and
-            'domains' (ignore if default is none)
+      'domains' (default: none, i.e., no gene is selected)
+    - placeholder: text in search box (default: "Search gene by symbol,
+      description or domains...")
+    - width: element width (default: '100%')
+    - display: if 'name' (default), show gene name for selected gene; if 'all',
+      show gene name, description and domains
+    - redirect: if 'query' (default), redirect to URL using a query parameter
+      (e.g., '?gene=BRCA1'); if 'arg', redirect using gene as an argument
+    - hash: hash to add to URL (default: none)
 -->
 
-<select id="gene" name="gene" class="mb-3" placeholder="Search gene by symbol, description or domains...">
+<select id="gene" name="gene" class="mb-3" style="width: {{width|default:'100%'}};"
+placeholder="{{placeholder|default:'Search gene...'}}"
+{% if disabled == 'true' %}disabled{% endif %}>
     <option value=""></option>
 </select>
 
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
-function displayGene (item, escape) {
+function displayGeneInfo (item, escape) {
     var domains_array = item.domains;
     badges = '';
     for(var i = 0; i < domains_array.length; i++) {
@@ -27,13 +37,25 @@ function displayGene (item, escape) {
     return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
 }
 
+function displayGeneName (item, escape) {
+    return `<div class='option'>${item.name}</div>`;
+}
+
 $(function () {
     $("#gene").selectize({
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
-    			window.location.href =
-    			    "{% url 'atlas_gene' species.species_underscore '::arg' %}".replace('::arg', value);
+    	        {% if redirect|default:'query' == 'arg' %}
+    	            window.location.href = "{% url request.resolver_match.url_name species.species_underscore '::arg' %}".replace('::arg', value);
+			    {% else %}
+                    var url = new URL(window.location.href);
+    	            url.searchParams.set('gene', value)
+    	            if ('{{hash}}' !== '') {
+    	                url.hash = '#{{hash}}';
+    	            }
+    	            window.location.href = url;
+			    {% endif %}
     		}
 		},
 		onDropdownOpen: function($dropdown) {
@@ -49,13 +71,16 @@ $(function () {
             // Clear available options to avoid selection while loading more data
             this.clearOptions();
         },
-        render: { item: displayGene, option: displayGene },
+        render: {
+            item: {% if display|default:'name' == 'all' %}displayGeneInfo{% else %}displayGeneName{% endif %},
+            option: displayGeneInfo
+        },
         valueField: 'name',
         searchField: ['name', 'description', 'domains'],
         preload: true,
         load: function(query, callback) {
             $.ajax({
-                url: 'http://localhost:8000/api/v1/gene',
+                url: '{% url 'rest:gene-list' %}',
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -76,7 +101,7 @@ $(function () {
                 'description': '{{gene.description}}',
                 'domains': {{gene.domains|safe}}
             };
-        
+
             var selectize = $("#gene")[0].selectize;
             selectize.addOption(geneOptions);
             selectize.setValue('{{gene}}');

@@ -14,19 +14,27 @@ data-bs-title="<i class='fa fa-circle-check'></i> Copied to clipboard!">
 <script>
 // Show tooltip and automatically hide after some time
 $('#clipboard_{{id}}').on('click', function(e) {
-    navigator.clipboard.writeText(window.location.href);
     var clipboard = $(this);
+    clipboard.prop("disabled", true);
+
+    url = new URL(window.location.href);
+    if ('{{id}}' !== '') {
+        url.hash = '#{{id}}';
+    }
+    navigator.clipboard.writeText(url.href);
     clipboard.tooltip('show');
+
     setTimeout(function() {
         clipboard.tooltip('hide');
-    }, 2500);
-})
+        clipboard.prop("disabled", false);
+    }, 1500);
+});
 
 // Hide tooltip (almost) immediately on mouse hover out
-$('#clipboard_{{id}}').on('mouseleave', function(e) {
-    var clipboard = $(this);
-    setTimeout(function() {
-        clipboard.tooltip('hide');
-    }, 1000);
-})
+//$('#clipboard_{{id}}').on('mouseleave', function(e) {
+//    var clipboard = $(this);
+//    setTimeout(function() {
+//        clipboard.tooltip('hide');
+//    }, 1000);
+//});
 </script>

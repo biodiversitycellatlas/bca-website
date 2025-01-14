@@ -5,11 +5,10 @@ $('input[type="checkbox"]').each(function() {
 	this.setAttribute('onclick', 'updateCheckboxValue(this);');
 });
 
-function createMetacellProjection(id, species, urls) {
-    var params = new URLSearchParams({ species: species, limit: 0 });
-    var sc_data_url = urls['sc_data'] + "?" + params.toString(),
-        mc_data_url = urls['mc_data'] + "?" + params.toString(),
-        mc_links_url = urls['mc_links'] + "?" + params.toString();
+function createMetacellProjection(id, species, urls, color_by_metacell_type=true) {
+    var mc_links_url = urls['mc_links'],
+	    sc_data_url  = urls['sc_data'],
+	    mc_data_url  = urls['mc_data'];
 
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -32,10 +31,17 @@ function createMetacellProjection(id, species, urls) {
 	  		"params": [
 	  			{ "name": "brush", "select": {"type": "interval"} }
 	  		],
+	  		"transform": [
+	  			{ "calculate": "datum.umi_raw/10", "as": "umi_raw" }
+	  		],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
-	    		"color": {"field": "metacell_type"},
+	    		"color": {
+	    			"field": "umi_raw",
+	    			"type": "quantitative",
+	    			"scale": {"scheme": "blues", "reverse": false}
+	    		},
 	    		"opacity": {
 			    	"condition": {
         				"test": "showCells == 'true'",
@@ -68,10 +74,10 @@ function createMetacellProjection(id, species, urls) {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"size": {"value": 400},
-	    		"color": {"field": "type", 
-	    			"scale": {"range": {"field": "color"}},
-	    			"legend":{"title": "Cell type annotation"}
-	    		},
+	    		"fill": {
+	    			"field": "fold_change",
+	    			"type": "quantitative",
+	    			"scale": {"scheme": "viridis",  "reverse": true}},
 	    		"opacity": {
 			    	"condition": {
         				"test": "showMetacells == 'true'",
@@ -112,6 +118,23 @@ function createMetacellProjection(id, species, urls) {
 		  	}
 		}
 	};
+
+	// Colour by metacell_type
+	if (color_by_metacell_type) {
+		chart.layer[0].encoding.color = {
+			'field': 'metacell_type',
+			"scale": {"range": {"field": "metacell_color"}},
+			"legend":{"title": "Cell type annotation"}
+		};
+
+		delete chart.layer[2].encoding.fill;
+		chart.layer[2].encoding.color = {
+			'field': 'type',
+			"scale": {"range": {"field": "color"}},
+			"legend":{"title": "Cell type annotation"}
+		};
+	}
+
     vegaEmbed(id, chart)
    		.then(res => { viewMetacellProjection = res.view; })
     	.catch(console.error);

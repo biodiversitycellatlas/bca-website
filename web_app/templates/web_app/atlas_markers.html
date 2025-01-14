@@ -18,7 +18,7 @@
                     {% include 'web_app/components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
                 </div>
             </fieldset>
-            
+
             <fieldset>
                 <legend class="h5">Fold-change</legend>
                 <div class="mb-3">
@@ -91,7 +91,7 @@
                 </div>
             </div>
             <table id="markers_table" class="display" style="width:100%"></table>
-            
+
             <script type="text/javascript" src="{% static 'web_app/js/markers_table.js' %}"></script>
             <script>
                 var gene_url = "{% url 'atlas_gene' species.species_underscore %}";

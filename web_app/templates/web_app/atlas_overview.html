@@ -14,7 +14,8 @@
     {% include 'web_app/components/data_button.html' %}
 </h1>
 
-<div class="row mb-4">
+<div class="row g-3 mb-4">
+    <!-- Toggle visibility -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
             <label class="col-form-label"><i class="fa fa-eye"></i> Toggle visibility </label>
@@ -23,23 +24,74 @@
         <div class="btn-group" role="group" style="display: flex;">
           <input type="checkbox" class="btn-check" id="projection-cells" autocomplete="off" checked>
           <label class="btn btn-outline-primary" for="projection-cells">Cells</label>
-        
+
           <input type="checkbox" class="btn-check" id="projection-metacells" autocomplete="off" checked>
           <label class="btn btn-outline-primary" for="projection-metacells">Metacells</label>
-        
+
           <input type="checkbox" class="btn-check" id="projection-labels" autocomplete="off" checked>
           <label class="btn btn-outline-primary" for="projection-labels">Labels</label>
-          
+
           <input type="checkbox" class="btn-check" id="projection-links" autocomplete="off">
           <label class="btn btn-outline-primary" for="projection-links">Links</label>
         </div>
     </div>
+    <!-- Color by -->
+    <div class="col-auto">
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label"><i class="fa fa-palette"></i> Color</label>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <span id="color_by_label">{% if query.gene %}{{query.gene}} expression{% else %}Metacell type{% endif %}</span>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="mx-4" style="width: 250px;">
+                        <label class="col-form-label"><small>Color by</small></label>
+                        <div class="btn-group mb-3" role="group" style="display: flex;">
+                            <input type="radio" class="btn-check" name="color_by" id="color_metacell_type" autocomplete="off" {% if not query.gene %}checked{% endif %}>
+                            <label class="btn btn-outline-primary btn-sm" for="color_metacell_type">Metacell type</label>
 
+                            <input type="radio" class="btn-check" name="color_by" id="color_expression" autocomplete="off" {% if query.gene %}checked{% endif %}>
+                            <label class="btn btn-outline-primary btn-sm" for="color_expression">Gene expression</label>
+                        </div>
+
+                        <label class="col-form-label"><small>Select gene</small></label>
+                        <div class="btn-group" role="group" style="display: flex;">
+                            {% if not query.gene %}
+                                {% include 'web_app/components/gene_selection.html' with hash='projection' disabled='true' %}
+                            {% else %}
+                                {% include 'web_app/components/gene_selection.html' with hash='projection' %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle disabled state of gene selectize element
+        $('input[name="color_by"]').change(function () {
+            var elem = $('#gene')[0].selectize;
+            this.id.includes('expression') ? elem.enable() : elem.disable();
+
+            url = new URL(window.location.href);
+            if (url.searchParams.has('gene')) {
+                url.searchParams.delete('gene');
+                url.hash = '#projection';
+                console.log(url);
+                window.location.href = url;
+            }
+        });
+    </script>
+
+    <!-- Metacell selection -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
             <label class="col-form-label"><i class="fa fa-object-group"></i> Metacell selection </label>
-            <i class="fa fa-circle-question" 
-               data-bs-toggle="tooltip" data-bs-placement="top" 
+            <i class="fa fa-circle-question"
+               data-bs-toggle="tooltip" data-bs-placement="top"
                data-bs-title="Click and drag in the plot to select metacells"></i>
         </div>
         <div class="btn-group" role="group" style="display: flex;">
@@ -51,14 +103,27 @@
 
 <div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
 
-<script type="text/javascript" src="{% static 'web_app/js/scatterplot.js' %}"></script>
+<script type="text/javascript" src="{% static 'web_app/js/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
     var urls = {
         "sc_data": "{% url 'rest:singlecell-list' %}",
         "mc_data": "{% url 'rest:metacell-list' %}",
-        "mc_links": "{% url 'rest:metacelllink-list' %}"
+        "mc_links": "{% url 'rest:metacelllink-list' %}",
     };
-	createMetacellProjection("#projection-plot", "{{species}}", urls);
+
+    var params = new URLSearchParams({ species: '{{species}}', limit: 0 });
+    urls['mc_links'] += "?" + params.toString();
+
+    {% if query.gene %}
+	    params.append('gene', '{{query.gene}}');
+	{% endif %}
+
+	urls['sc_data'] += "?" + params.toString();
+	urls['mc_data'] += "?" + params.toString();
+
+	createMetacellProjection(
+	    "#projection-plot", "{{species}}", urls,
+	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %});
 
     const interval = setInterval(() => {
         if (typeof viewMetacellProjection !== 'undefined') {
@@ -105,14 +170,14 @@
 </script>
 
 <!-- Gene expression heatmap -->
-<h1 class="h3 pt-5 mb-3" id="expression">
+<h1 class="h3 pt-2 mb-3" id="expression">
     Gene expression heatmap
     {% include 'web_app/components/clipboard_button.html' with id='expression' %}
     {% include 'web_app/components/data_button.html' %}
 </h1>
 
 <form action="#expression">
-    <div class="row g-4 mb-4 align-items-end">
+    <div class="row g-3 mb-4 align-items-end">
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
                 <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
@@ -194,7 +259,7 @@
             }
         }
     }
-    
+
     $("#markers").ionRangeSlider({
         min: 1,
         max: 21,

@@ -149,11 +149,9 @@ class AtlasOverviewView(BaseAtlasView):
         if not isinstance(species, Species):
             return context
 
-        # Get URL query parameters and prepare table with cell markers
+        # Get URL query parameters
         query = self.request.GET
         context['query'] = query
-        markers = int(query.get('markers', 5))
-        fc_min = float(query.get('fc_min', 2))
         return context
 
 
