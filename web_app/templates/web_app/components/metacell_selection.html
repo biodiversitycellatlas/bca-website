@@ -16,7 +16,7 @@ Input:
                 {% endfor %}
             {% elif key == 'Metacells' %}
                 {% for mc in value %}
-                    <option value="{{mc.name}}" data-type="metacells" data-color="{{mc.color}}" data-celltype="{{mc.type}}">{{mc.name}}</option>
+                    <option value="{{mc.name}}" data-type="metacells" data-color="{{mc.type.color}}" data-celltype="{{mc.type}}">{{mc.name}}</option>
                 {% endfor %}
             {% endif %}
         </optgroup>
@@ -31,7 +31,7 @@ Input:
         let ranges = [];
         let start = numbers[0];
         let end = numbers[0];
-        
+
         for (let i = 1; i < numbers.length; i++) {
             if (numbers[i] === end + 1) {
                 end = numbers[i];
@@ -41,10 +41,10 @@ Input:
                 end = numbers[i];
             }
         }
-        
+
         // Add the last range
         ranges.push(start === end ? `${start}` : `${start}-${end}`);
-        
+
         return ranges.join(',');
     }
 
@@ -81,13 +81,16 @@ Input:
                 option: function (item, escape) {
                     var extra = '';
                     var text = item.text;
+                    var circle = `<i class="fa fa-circle" style="color: ${item.color}; -webkit-text-stroke: 0.5px lightgray; text-stroke: 0.5px lightgray;"></i> `;
                     if (item.metacells) {
+                        text = circle + text;
                         var metacells = convertToRange(String(item.metacells));
-                        extra = `<br><small>Metacells: ${metacells}</small>`;
+                        extra = `Metacells: ${metacells}`;
                     } else {
                         var type = item.celltype.replaceAll('_',' ');;
-                        extra = `<br><small>Cell type: ${type}</small>`;
+                        extra = circle + type;
                     }
+                    extra = `<span class="float-end"><small>` + extra + `</small></span>`;
                     text = text.replaceAll('_',' ');
                     return `<div class='option'>${text}${extra}</div>`;
                 }
@@ -101,11 +104,11 @@ Input:
 <script>
     $('form').on('submit', function(e) {
         e.preventDefault();
-    
+
         var formData = new FormData(this);
         var values = formData.getAll('metacells').join(',');
         formData.set('metacells', values);
-    
+
         var query = {};
         for (let [key, value] of formData.entries()) {
             query[key] = value;
