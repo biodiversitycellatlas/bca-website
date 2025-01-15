@@ -146,7 +146,7 @@ class MetacellGeneExpression(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
-    umi_raw  = models.FloatField(blank=True, null=True)
+    umi_raw = models.FloatField(blank=True, null=True)
     umifrac = models.FloatField(blank=True, null=True)
     fold_change = models.FloatField(blank=True, null=True)
 
@@ -164,6 +164,7 @@ class SingleCellGeneExpression(models.Model):
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE)
     umi_raw = models.FloatField(blank=True, null=True)
+    umifrac = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ["gene", "single_cell", "species"]

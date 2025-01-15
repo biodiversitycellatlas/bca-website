@@ -123,7 +123,8 @@
 
 	createMetacellProjection(
 	    "#projection-plot", "{{species}}", urls,
-	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %});
+	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %},
+	    {% if query.gene %}'{{query.gene}}'{% else %}null{% endif %});
 
     const interval = setInterval(() => {
         if (typeof viewMetacellProjection !== 'undefined') {

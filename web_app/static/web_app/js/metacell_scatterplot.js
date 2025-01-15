@@ -5,7 +5,7 @@ $('input[type="checkbox"]').each(function() {
 	this.setAttribute('onclick', 'updateCheckboxValue(this);');
 });
 
-function createMetacellProjection(id, species, urls, color_by_metacell_type=true) {
+function createMetacellProjection(id, species, urls, color_by_metacell_type=true, gene=null) {
     var mc_links_url = urls['mc_links'],
 	    sc_data_url  = urls['sc_data'],
 	    mc_data_url  = urls['mc_data'];
@@ -14,6 +14,7 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  	"title": {
     		"text": {"expr": "data('sc_data').length + ' cells, ' + data('mc_data').length + ' metacells'"},
+    		"subtitle": gene !== null ? gene + " expression" : null,
     		"fontWeight": "normal",
     		"anchor": "start"
   		},
@@ -31,16 +32,18 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
 	  		"params": [
 	  			{ "name": "brush", "select": {"type": "interval"} }
 	  		],
-	  		"transform": [
-	  			{ "calculate": "datum.umi_raw/10", "as": "umi_raw" }
-	  		],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"color": {
-	    			"field": "umi_raw",
+	    			"condition": {
+	    				"test": "datum.umifrac == null",
+				        "value": "#F1F7FE"
+				    },
+	    			"title": "UMI/10K",
+	    			"field": "umifrac",
 	    			"type": "quantitative",
-	    			"scale": {"scheme": "blues", "reverse": false}
+	    			"scale": {"scheme": "magma", "reverse": true},
 	    		},
 	    		"opacity": {
 			    	"condition": {
@@ -70,14 +73,19 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
   		}, {
   			"data": { "name": "mc_data", "url": mc_data_url },
   			"mark": {"type": "circle", "tooltip": {"encoding": "data"}},
+  			"transform": [
+			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" }
+			],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"size": {"value": 400},
 	    		"fill": {
-	    			"field": "fold_change",
+	    			"title": "Log\u2082 FC",
+	    			"field": "log2_fold_change",
 	    			"type": "quantitative",
-	    			"scale": {"scheme": "viridis",  "reverse": true}},
+	    			"scale": {"scheme": "magma",  "reverse": true}
+	    		},
 	    		"opacity": {
 			    	"condition": {
         				"test": "showMetacells == 'true'",
@@ -108,6 +116,7 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
 	    	}
   		}],
   		"config": {
+  			"mark": { "invalid": null },
 			"style": { "cell": { "stroke": "transparent" } },
 		  	"axis": {
 		  		"domain": false,
@@ -121,17 +130,14 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
 
 	// Colour by metacell_type
 	if (color_by_metacell_type) {
-		chart.layer[0].encoding.color = {
-			'field': 'metacell_type',
-			"scale": {"range": {"field": "metacell_color"}},
-			"legend":{"title": "Cell type annotation"}
-		};
+		chart.layer[0].encoding.color = { "field": "metacell_type" };
+		delete chart.layer[0].transform;
 
 		delete chart.layer[2].encoding.fill;
 		chart.layer[2].encoding.color = {
-			'field': 'type',
+			"field": "type",
 			"scale": {"range": {"field": "color"}},
-			"legend":{"title": "Cell type annotation"}
+			"title": "Cell type"
 		};
 	}
 

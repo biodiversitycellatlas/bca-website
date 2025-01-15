@@ -60,7 +60,7 @@ function createExpressionHeatmap(id, species, url, n_markers, fc_min, clip_log2)
 	    			//"sort": "descending",
 			      	//"scale": {"scheme": "magma"},
 	    			"type": "quantitative",
-	    			"legend":{"title": "Log2 FC"}
+	    			"title": "Log\u2082 FC"
 	    		}
 		  	}
 		}, {

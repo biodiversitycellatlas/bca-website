@@ -1,4 +1,5 @@
 from rest_framework import viewsets, pagination
+from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
 
 from . import serializers, filters
@@ -34,16 +35,18 @@ class ExpressionPrefetchMixin:
 
     def get_queryset(self):
         gene = self.request.query_params.get('gene', None)
-
         # Prefetch gene expression
         if gene:
-            return self.queryset.prefetch_related(
+            queryset = self.queryset.prefetch_related(
                 Prefetch(
                     self.expression_related_name,
                     queryset=self.expression_model.objects.filter(gene__name=gene),
                     to_attr = 'gene_expression'
                 )
             )
+            if not any(getattr(obj, 'gene_expression', None) for obj in queryset):
+                raise NotFound(f"No gene expression data found for gene '{gene}'")
+            return queryset
         return self.queryset
 
 

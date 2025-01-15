@@ -27,27 +27,37 @@ class GeneSerializer(serializers.ModelSerializer):
 
 class BaseExpressionSerializer(serializers.ModelSerializer):
     """ Base class to display gene expression for single cell and metacell serializers. """
-    expression_fields = []
+    # Show expression data for a given gene
+    expression_fields = ['gene_name', 'umi_raw', 'umifrac', 'fold_change']
+    gene_name = serializers.SerializerMethodField(required=False)
+    umi_raw   = serializers.SerializerMethodField(required=False)
+    umifrac   = serializers.SerializerMethodField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get('request')
-        if request and not request.query_params.get('gene'):
+        if not (request and request.query_params.get('gene')):
             for field in self.expression_fields:
                 self.fields.pop(field, None)
 
     def get_expression_value(self, obj, field):
-        """ Retrieve field from expression data (e.g., umi_raw) for query gene. """
-        # Get gene from query parameters
+        """ Retrieve field from gene expression data (e.g., umi_raw). """
         gene = self.context['request'].GET.get('gene')
-        if gene:
-            filtered = getattr(obj, 'gene_expression', [])
-            if filtered:
-                return attrgetter(field)(filtered[0])
+        if gene and obj.gene_expression:
+            return attrgetter(field)(obj.gene_expression[0])
         return None
 
     def get_gene_name(self, obj):
-        return self.get_expression_value(obj, 'gene.name')
+        return self.context['request'].GET.get('gene')
+
+    def get_umi_raw(self, obj):
+        return self.get_expression_value(obj, 'umi_raw')
+
+    def get_umifrac(self, obj):
+        return self.get_expression_value(obj, 'umifrac')
+
+    def get_fold_change(self, obj):
+        return self.get_expression_value(obj, 'fold_change')
 
 
 class SingleCellSerializer(BaseExpressionSerializer):
@@ -55,17 +65,10 @@ class SingleCellSerializer(BaseExpressionSerializer):
     metacell_type  = serializers.CharField(source='metacell.type.name')
     metacell_color = serializers.CharField(source='metacell.type.color')
 
-    # Show expression for a given gene
-    umi_raw   = serializers.SerializerMethodField(required=False)
-    gene_name = serializers.SerializerMethodField(required=False)
-    expression_fields = ['gene_name', 'umi_raw']
-
-    def get_umi_raw(self, obj):
-        return self.get_expression_value(obj, 'umi_raw')
-
     class Meta:
         model = models.SingleCell
         exclude = ['id', 'species']
+
 
 class MetacellSerializer(BaseExpressionSerializer):
     type  = serializers.CharField(source='type.name')
@@ -73,11 +76,6 @@ class MetacellSerializer(BaseExpressionSerializer):
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)
-    gene_name   = serializers.SerializerMethodField(required=False)
-    expression_fields = ['gene_name', 'fold_change']
-
-    def get_fold_change(self, obj):
-        return self.get_expression_value(obj, 'fold_change')
 
     class Meta:
         model = models.Metacell
