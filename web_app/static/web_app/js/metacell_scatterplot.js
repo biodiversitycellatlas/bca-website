@@ -44,10 +44,10 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    		"opacity": {
 			    	"condition": {
         				"test": "showCells == 'true'",
-        				"value": "0.7",
+        				"value": 0.7,
         				"type": "nominal"
       				},
-      				"value": "0"
+      				"value": 0
     			},
     			"tooltip": {
     				"condition": {"test": "showCells == 'false'", "value": null}
@@ -68,7 +68,12 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    	}
   		}, {
   			"data": { "name": "mc_data", "values": data['mc_data'] },
-  			"mark": {"type": "circle", "tooltip": {"encoding": "data"}},
+  			"mark": {
+  				"type": "circle",
+  				"stroke": "white",
+  				"strokeWidth": 1,
+  				"tooltip": {"encoding": "data"}
+  			},
   			"transform": [
 			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" }
 			],
