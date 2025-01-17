@@ -4,7 +4,10 @@ Species selector and tab navigation for Cell Atlas
 When a species is selected, automatically redirects to species page
 -->
 
-<select id="species" class="mb-3" placeholder="Search species by nomenclature, taxonomic rank, division, ...">
+<!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
+<select id="species-select" class="mb-3"
+style="margin-bottom: 30px !important; visibility: hidden;"
+placeholder="Search species by nomenclature, taxonomic rank, division, ...">
     <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
@@ -18,7 +21,7 @@ When a species is selected, automatically redirects to species page
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 $(function () {
-    $("#species").selectize({
+    $("#species-select").selectize({
         // Jump to species page upon selection
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current species
