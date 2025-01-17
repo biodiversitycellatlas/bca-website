@@ -219,6 +219,10 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     background-color: var(--primary-color);
 }
 
+.atlas-select .selectize-dropdown-content {
+    max-height: 50vh;
+}
+
 .species-meta {
     display: none;
 }
