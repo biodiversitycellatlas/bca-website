@@ -2,45 +2,178 @@
 Data view/download button
 
 Shows options to view/download data or get API link
+
+Input:
+    - id: string
 -->
 
-<button type="button" id="data-projection"
+<button type="button"
 class="btn btn-secondary btn-sm float-end me-2 dropdown-toggle"
 data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
     <i class="fa fa-table"></i> Data
 </button>
 
-<ul class="dropdown-menu">
+<ul id="data_dropdown_{{id}}" class="dropdown-menu">
     <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);" class="d-flex justify-content-end">
         <label class="col-form-label-sm me-2">Format</label>
 
         <form>
-            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+            <div class="btn-group" role="group">
                 {% with 'CSV TSV JSON' as formats %}{% for format in formats.split %}
-                    <input type="radio" class="btn-check" name="btnradio" id="format_{{format}}" autocomplete="off" {% if format == 'CSV' %}checked{% endif %}>
-                    <label class="btn btn-outline-secondary btn-xs" for="format_{{format}}">{{format}}</label>
+                    <input type="radio" class="btn-check" name="data_format_{{id}}" id="data_format_{{id}}_{{format}}" value="{{format}}" autocomplete="off" {% if format == 'CSV' %}checked{% endif %}>
+                    <label class="btn btn-outline-secondary btn-xs" for="data_format_{{id}}_{{format}}">{{format}}</label>
                 {% endfor %}{% endwith %}
             </div>
         </form>
     </li>
     <li><hr class="dropdown-divider"></li>
 
-    {% with 'Single-cell Metacell Links' as data %}{% for each in data.split %}
+    <template id="data_template_{{id}}">
         <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
-            <label style="line-height: 1.5">{{each}}</label>
-            <div class="btn-toolbar ms-4 float-end" role="toolbar">
+            <label style="font-weight: 600; line-height: 2; font-size: .875rem; color: var(--bs-dropdown-header-color);">Label</label>
+            <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
-                    <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
+                    <a name="data_view_{{id}}"
+                    type="button" target="_blank"
+                    class="btn btn-outline-secondary btn-xs">
                         <i class="fa fa-eye"></i> View
                     </a>
-                    <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
+                    <a name="data_download_{{id}}" type="button"
+                    class="btn btn-outline-secondary btn-xs">
                         <i class="fa fa-file-arrow-down"></i> Download
                     </a>
                 </div>
-                <a type="button" href="#" class="btn btn-outline-secondary btn-xs">
+                <a name="data_link_{{id}}" type="button"
+                class="btn btn-outline-secondary btn-xs"
+                data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual"
+                data-bs-placement="right"
+                data-bs-title="<i class='fa fa-circle-check'></i> Copied to clipboard!">
                     <i class="fa fa-code"></i> Copy API link
                 </a>
             </div>
         </li>
-    {% endfor %}{% endwith %}
+    </template>
+
+    <li id='data_footer_{{id}}'><hr class="dropdown-divider"></li>
+    <li class="text-muted small text-end"
+    style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
+        See also:
+        <a href="{% url 'downloads' %}">Data download</a> &#8226;
+        <a href="{% url 'rest:index' %}">REST API docs</a>
+    </li>
 </ul>
+
+<script>
+    // Get current link to data from view button
+    function getDataURL(id, index) {
+        url = $(`a[name="data_view_${id}"]`)[index].href;
+        url = new URL(url, window.location.href);
+        return url;
+    }
+
+    // Download data from URL as a file
+    function downloadData(id, index) {
+        url = getDataURL(id, index);
+
+        // Prepare filename
+        format   = url.searchParams.get('format');
+        filename = url.pathname.split('/').filter(Boolean).pop();
+
+        // Fetch and download data
+        fetch(url)
+            .then(response => response.blob())
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${filename}.${format}`;
+                link.click();
+            })
+            .catch(error => console.error('Error downloading file:', error));
+    }
+
+    // Copy API URL to clipboard
+    function copyDataLink(id, index) {
+        const btn = $(`a[name="data_link_${id}"]`).eq(index);
+        btn.addClass("disabled");
+
+        const url = getDataURL(id, index);
+        navigator.clipboard.writeText(url.href);
+        btn.tooltip('show');
+
+        setTimeout(function() {
+            btn.tooltip('hide');
+            btn.removeClass("disabled");
+        }, 500);
+    }
+
+    // Change data format depending on user selection
+    function updateDataFormat(id) {
+        const format = $(`input[name="data_format_${id}"]:checked`).val().toLowerCase();
+        const view_btns = $(`a[name="data_view_${id}"]`);
+        for (let i = 0; i < view_btns.length; i++) {
+            url = new URL(view_btns[i].href);
+            url.searchParams.set('format', format);
+            view_btns[i].href = url;
+        }
+    }
+    $(document).ready(function () { updateDataFormat('{{id}}'); });
+
+    /**
+     * Update URLs for a data download dropdown menu.
+     *
+     * @param {string} id - The prefix identifier of the HTML elements.
+     * @param {string|Object} urls - String of single URL dictionary where keys
+     *    are labels (overridden by `labels` if provided) and values are URLs.
+     * @param {string[]} [labels] - Optional string or array of labels used to
+     *    identify each link.
+     *
+     * @example
+     * updateDropdownURL('heatmap', {
+     *     sc_data: '/api/v1/singlecells/?species=Mus+musculus',
+     *     mc_data: '/api/v1/metacells/?species=Mus+musculus'
+     * }, ['Single-cell data', 'Metacell data']);
+     *
+     * @example
+     * updateDropdownURL('metacells', '/api/v1/metacells/?species=Mus+musculus',
+     *                   'Metacell data');
+     */
+    function updateDataDownloadLinks(id, urls, labels) {
+        var template = document.getElementById(`data_template_${id}`);
+        var dropdownMenu = document.getElementById(`data_dropdown_${id}`);
+        var dropdownFooter = document.getElementById(`data_footer_${id}`);
+
+        if (typeof urls == 'string') {
+            urls = { [labels]: urls };
+            labels = undefined;
+        }
+
+        var i = 0;
+        for (key in urls) {
+            const clone = document.importNode(template.content, true);
+            label = labels === undefined ? key : labels[i];
+            clone.querySelector('label').textContent = label;
+
+            url = urls[key];
+
+            // View data
+            clone.querySelector(`a[name="data_view_${id}"]`).href = url;
+
+            // Download data
+            clone.querySelector(`a[name="data_download_${id}"]`).onclick = (function(id, i) {
+                return function() { downloadData(id, i); };
+            })(id, i);
+
+            // Copy API link
+            clone.querySelector(`a[name="data_link_${id}"]`).onclick = (function(id, i) {
+                return function() { copyDataLink(id, i); };
+            })(id, i);
+
+            dropdownMenu.insertBefore(clone, dropdownFooter);
+            i++;
+        }
+    }
+
+    $('input[name=data_format_{{id}}]').on('change', function() {
+        updateDataFormat('{{id}}')
+    });
+</script>

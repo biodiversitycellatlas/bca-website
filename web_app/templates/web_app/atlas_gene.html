@@ -14,14 +14,14 @@
     <h1 class="h3 pt-2" id="expression">
         Gene expression
         {% include 'web_app/components/clipboard_button.html' with id='expression' %}
-        {% include 'web_app/components/data_button.html' %}
+        {% include 'web_app/components/data_button.html' with id='expression' %}
     </h1>
     <div id="{{gene}}" class="container"></div>
 
     <h1 class="h3 pt-2" id="orthologs">
         Orthologs
         {% include 'web_app/components/clipboard_button.html' with id='orthologs' %}
-        {% include 'web_app/components/data_button.html' %}
+        {% include 'web_app/components/data_button.html' with id='orthologs' %}
     </h1>
 
     <div id="ortholog-plots"></div>
@@ -44,7 +44,7 @@
             limit: 0
         });
 	    var apiURL = url + "?" + params.toString();
-	    console.log(apiURL);
+	    updateDataDownloadLinks('expression', apiURL, '{{gene}} expression');
 
 	    fetch(apiURL)
             .then(response => response.json())
@@ -64,6 +64,7 @@
 		    limit: 0
 	    });
 	    var apiURL = url + "?" + params.toString();
+	    updateDataDownloadLinks('orthologs', apiURL, 'Ortholog expression');
 
         // Fetch data from the API and create plots
         const template  = document.getElementById('ortholog-template');

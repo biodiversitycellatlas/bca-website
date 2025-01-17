@@ -86,8 +86,8 @@
                     Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
                 </div>
                 <div class="col-auto">
-                    {% include 'web_app/components/clipboard_button.html' %}
-                    {% include 'web_app/components/data_button.html' %}
+                    {% include 'web_app/components/clipboard_button.html' with id='markers' %}
+                    {% include 'web_app/components/data_button.html' with id='markers' %}
                 </div>
             </div>
             <table id="markers_table" class="display" style="width:100%"></table>
@@ -95,16 +95,21 @@
             <script type="text/javascript" src="{% static 'web_app/js/markers_table.js' %}"></script>
             <script>
                 var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
-                var url = '{% url 'rest:metacellmarker-list' %}';
-                createMarkersTable(
-                    "#markers_table",
-                    url,
-                    '{{species}}',
-                    '{{query.metacells}}',
-                    '{{query.fc_min_type|default:'mean'}}',
-                    '{{query.fc_min|default:2}}',
-                    '{{query.fc_max_bg_type|default:'ignore'}}',
-                    '{{query.fc_max_bg|default:3}}')
+                var url = "{% url 'rest:metacellmarker-list' %}";
+
+                var params = new URLSearchParams({
+            	    species: '{{species}}',
+            		metacells: '{{query.metacells}}',
+            		fc_min_type: '{{query.fc_min_type|default:'mean'}}',
+            		fc_min: '{{query.fc_min|default:2}}',
+            		fc_max_bg_type: '{{query.fc_max_bg_type|default:'ignore'}}',
+            		fc_max_bg: '{{query.fc_max_bg|default:3}}',
+            		limit: 0
+            	});
+            	var apiURL = url + "?" + params.toString();
+
+                createMarkersTable('markers', apiURL)
+                updateDataDownloadLinks('markers', apiURL, 'Metacell markers');
             </script>
         {% else %}
             {% include 'web_app/components/mockup_table.html' %}

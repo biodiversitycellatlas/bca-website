@@ -4,7 +4,7 @@ Species selector and tab navigation for Cell Atlas
 When a species is selected, automatically redirects to species page
 -->
 
-<select id="species" class="mb-3" placeholder="Search species by name, taxonomic rank, division, ...">
+<select id="species" class="mb-3" placeholder="Search species by nomenclature, taxonomic rank, division, ...">
     <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">

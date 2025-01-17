@@ -23,20 +23,9 @@ function parseArray (data, type, row) {
 }
 
 // Create DataTable
-function createMarkersTable(id, url, species, metacells, fc_min_type, fc_min, fc_max_bg_type, fc_max_bg) {
-	var params = new URLSearchParams({
-	    species: species,
-		metacells: metacells,
-		fc_min_type: fc_min_type,
-		fc_min: fc_min,
-		fc_max_bg_type: fc_max_bg_type,
-		fc_max_bg: fc_max_bg,
-		limit: 0
-	});
-	var apiURL = url + "?" + params.toString();
-
-    $(id).dataTable({
-        ajax: { url: apiURL, dataSrc: function (json) { return json; } },
+function createMarkersTable(id, url) {
+    $(`#${id}_table`).dataTable({
+        ajax: { url: url, dataSrc: function (json) { return json; } },
         pageLength: 25,
         scrollX: true,
         columns: [

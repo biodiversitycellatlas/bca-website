@@ -121,10 +121,8 @@
 	urls['sc_data'] += "?" + params.toString();
 	urls['mc_data'] += "?" + params.toString();
 
-	createMetacellProjection(
-	    "#projection-plot", "{{species}}", urls,
-	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %},
-	    {% if query.gene %}'{{query.gene}}'{% else %}null{% endif %});
+	updateDataDownloadLinks(
+	    'projection', urls, ['Single-cell data', 'Metacell data', 'Metacell links']);
 
     Promise.all(
         Object.entries(urls).map(([key, url]) =>
@@ -344,5 +342,7 @@
             createExpressionHeatmap("#expression-plot", "{{species}}", data)
         })
         .catch(error => console.error('Error fetching data:', error));
+
+    updateDataDownloadLinks('expression', apiURL, 'Metacell gene expression');
 </script>
 {% endblock content %}
