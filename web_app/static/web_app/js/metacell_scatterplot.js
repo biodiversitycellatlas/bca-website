@@ -5,11 +5,7 @@ $('input[type="checkbox"]').each(function() {
 	this.setAttribute('onclick', 'updateCheckboxValue(this);');
 });
 
-function createMetacellProjection(id, species, urls, color_by_metacell_type=true, gene=null) {
-    var mc_links_url = urls['mc_links'],
-	    sc_data_url  = urls['sc_data'],
-	    mc_data_url  = urls['mc_data'];
-
+function createMetacellProjection(id, species, data, color_by_metacell_type=true, gene=null) {
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  	"title": {
@@ -27,7 +23,7 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
 	  		{ "name": "showLinks", "bind": { "element": "#projection-links" } }
 	  	],
 		"layer": [ {
-			"data": { "name": "sc_data", "url": sc_data_url },
+			"data": { "name": "sc_data", "values": data['sc_data'] },
   			"mark": { "type": "circle", "tooltip": {"encoding": "data"} },
 	  		"params": [
 	  			{ "name": "brush", "select": {"type": "interval"} }
@@ -58,7 +54,7 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
     			}
 	    	}
   		}, {
-  			"data": { "name": "mc_links", "url": mc_links_url },
+  			"data": { "name": "mc_links", "values": data['mc_links'] },
   			"mark": "rule",
 	  		"encoding": {
 	    		"x":  {"field": "metacell.x",  "type": "quantitative"},
@@ -71,7 +67,7 @@ function createMetacellProjection(id, species, urls, color_by_metacell_type=true
     			}
 	    	}
   		}, {
-  			"data": { "name": "mc_data", "url": mc_data_url },
+  			"data": { "name": "mc_data", "values": data['mc_data'] },
   			"mark": {"type": "circle", "tooltip": {"encoding": "data"}},
   			"transform": [
 			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" }

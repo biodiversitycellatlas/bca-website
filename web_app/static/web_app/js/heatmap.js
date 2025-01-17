@@ -1,19 +1,8 @@
-function createExpressionHeatmap(id, species, url, n_markers, fc_min, clip_log2) {
-	var params = new URLSearchParams({
-		species: species,
-		fc_min: fc_min,
-		n_markers: n_markers,
-		sort_genes: true,
-		log2: true,
-		clip_log2: clip_log2,
-		limit: 0
-	});
-	var apiURL = url + "?" + params.toString();
-
+function createExpressionHeatmap(id, species, data) {
     var chart = {
 		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 		"height": "container",
-		"data": {"name": "exprData", "url": apiURL },
+		"data": {"name": "exprData", "values": data },
 		"transform": [
 			{"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
 			{"joinaggregate": [

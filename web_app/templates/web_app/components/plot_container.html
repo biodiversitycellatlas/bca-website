@@ -1,0 +1,29 @@
+<!--
+Plot container (including loading spinner)
+
+Create a plot container with a loading spinner
+
+Input:
+    - id: prefix used for all identifiers (e.g., expression)
+-->
+
+<div id="{{id}}-plot" class="container" style="aspect-ratio: 16/9;">
+    <div id="{{id}}-spinner" class="loading-state">
+        <div class="loader"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Loading spinner functions
+    function getSpinner (id) {
+        return document.getElementById(id + '-spinner');
+    }
+
+    function hideSpinner (id) {
+        getSpinner(id).style.display = 'none';
+    }
+
+    function showSpinner (id) {
+        getSpinner(id).style.display = 'flex';
+    }
+</script>

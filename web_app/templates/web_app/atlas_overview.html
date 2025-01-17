@@ -11,7 +11,7 @@
 <h1 class="h3 pt-2 mb-3" id="projection">
     Metacell projection
     {% include 'web_app/components/clipboard_button.html' with id='projection' %}
-    {% include 'web_app/components/data_button.html' %}
+    {% include 'web_app/components/data_button.html'  with id='projection' %}
 </h1>
 
 <div class="row g-3 mb-4">
@@ -101,7 +101,7 @@
     </div>
 </div>
 
-<div id="projection-plot" class="container" style="aspect-ratio: 16/9;"></div> </br>
+{% include 'web_app/components/plot_container.html' with id='projection' %}
 
 <script type="text/javascript" src="{% static 'web_app/js/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
@@ -126,12 +126,29 @@
 	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %},
 	    {% if query.gene %}'{{query.gene}}'{% else %}null{% endif %});
 
-    const interval = setInterval(() => {
-        if (typeof viewMetacellProjection !== 'undefined') {
-            clearInterval(interval);
-            console.log('data loaded');
-        }
-    }, 100);
+    Promise.all(
+        Object.entries(urls).map(([key, url]) =>
+            fetch(url)
+                .then(res => res.json())
+                .then(data => ({ key, data }))
+        )
+    )
+    .then(results => {
+        // Combine results into a dictionary
+        const data = results.reduce((acc, { key, data }) => {
+          acc[key] = data;
+          return acc;
+        }, {});
+
+        createMetacellProjection(
+    	    "#projection-plot", "{{species}}", data,
+    	    color_by_metacell_type={% if query.gene%}false{% else %}true{% endif %},
+    	    {% if query.gene %}'{{query.gene}}'{% else %}null{% endif %});
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        hideSpinner('projection');
+    });
 
     function getSelectedMetacells() {
         var view = viewMetacellProjection;
@@ -174,7 +191,7 @@
 <h1 class="h3 pt-2 mb-3" id="expression">
     Gene expression heatmap
     {% include 'web_app/components/clipboard_button.html' with id='expression' %}
-    {% include 'web_app/components/data_button.html' %}
+    {% include 'web_app/components/data_button.html' with id='expression' %}
 </h1>
 
 <form action="#expression">
@@ -302,21 +319,30 @@
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
-        <div id="loading-bar-container"><div id="loading-bar"></div></div>
-        <div id="heatmap-plot" class="container" style="aspect-ratio: 16/9;"></div>
+        {% include 'web_app/components/plot_container.html' with id='expression' %}
     </div>
 </div>
 
 <script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
     var url = "{% url 'rest:metacellgeneexpression-list' %}";
-    createExpressionHeatmap(
-        "#heatmap-plot",
-        "{{species}}",
-        url,
-        $("#markers").val(),
-        $("#fc_min").val(),
-        $("#clip_log2").val()
-    )
+
+    var params = new URLSearchParams({
+		species: '{{species}}',
+		fc_min: $("#fc_min").val(),
+		n_markers: $("#markers").val(),
+		sort_genes: true,
+		log2: true,
+		clip_log2: $("#clip_log2").val(),
+		limit: 0
+	});
+	var apiURL = url + "?" + params.toString();
+
+    fetch(apiURL)
+        .then(response => response.json())
+        .then(data => {
+            createExpressionHeatmap("#expression-plot", "{{species}}", data)
+        })
+        .catch(error => console.error('Error fetching data:', error));
 </script>
 {% endblock content %}

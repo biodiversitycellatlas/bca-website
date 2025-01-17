@@ -170,6 +170,36 @@ a:hover {
     cursor: default;
 }
 
+/* Loading icon */
+
+.loading-state {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 10px solid;
+    border-color: var(--primary-color) var(--hover-color) var(--hover-color) var(--hover-color);
+    box-sizing: border-box;
+    animation: rotation 1.5s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* DataTables */
 
 table.dataTable.display tbody tr:nth-child(odd) > * {
