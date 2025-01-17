@@ -75,12 +75,15 @@ docker compose restart web
 
 ## Contact us
 
-[<img src="web_app/static/web_app/images/CRG/LOGOs-CRG-ENG_2014_transparent_back.png" width="100" target="_blank" alt="Centre for Genomic Regulation (CRG)"/>][CRG]
+[<img src="app/static/app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png" width="250" target="_blank" alt="Centre for Genomic Regulation (CRG)"/>][CRG]
 
-[<img src="web_app/static/web_app/images/EMBL-EBI/EMBL-EBI_Logo_black_big.png" width="100" target="_blank" alt="European Bioinformatics Institute (EMBL-EBI)"/>][EBI]
+[<img src="app/static/app/images/logos/EMBL-EBI/EMBL-EBI_Logo_black_big.png" width="250" target="_blank" alt="European Bioinformatics Institute (EMBL-EBI)"/>][EBI]
 
-[compose]: https://docs.docker.com/compose
-[django]: https://www.djangoproject.com
-[migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
-[CRG]: https://www.crg.eu
-[EBI]: https://www.ebi.ac.uk/
+[<img src="app/static/app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.png" width="250" target="_blank" alt="Wellcome Sanger Institute (Sanger)"/>][Sanger]
+
+[compose]: docs.docker.com/compose
+[django]: djangoproject.com
+[migrate]: docs.djangoproject.com/en/dev/topics/migrations/
+[CRG]: crg.eu
+[EBI]: ebi.ac.uk/
+[Sanger]: sanger.ac.uk/
