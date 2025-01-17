@@ -5,8 +5,8 @@
 {% block content %}
 
 {% load static %}
-{% include 'web_app/components/atlas_selection.html' %}
-{% include 'web_app/components/warning_alert.html' %}
+{% include './components/atlas_selection.html' %}
+{% include './components/warning_alert.html' %}
 
 <div class="row">
     <div class="col-md-3">
@@ -15,7 +15,7 @@
                 <legend class="h5">Cell selection</legend>
                 <div class="mb-3">
                     <label class="col-form-label" for="metacells">Metacells</label>
-                    {% include 'web_app/components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
+                    {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
                 </div>
             </fieldset>
 
@@ -86,13 +86,13 @@
                     Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
                 </div>
                 <div class="col-auto">
-                    {% include 'web_app/components/clipboard_button.html' with id='markers' %}
-                    {% include 'web_app/components/data_button.html' with id='markers' %}
+                    {% include './components/clipboard_button.html' with id='markers' %}
+                    {% include './components/data_button.html' with id='markers' %}
                 </div>
             </div>
             <table id="markers_table" class="display" style="width:100%"></table>
 
-            <script type="text/javascript" src="{% static 'web_app/js/markers_table.js' %}"></script>
+            <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
             <script>
                 var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
                 var url = "{% url 'rest:metacellmarker-list' %}";
@@ -112,7 +112,7 @@
                 updateDataDownloadLinks('markers', apiURL, 'Metacell markers');
             </script>
         {% else %}
-            {% include 'web_app/components/mockup_table.html' %}
+            {% include './components/mockup_table.html' %}
         {% endif %}
     </div>
 </div>

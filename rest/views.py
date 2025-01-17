@@ -3,7 +3,7 @@ from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
 
 from . import serializers, filters
-from web_app import models
+from app import models
 
 
 class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):

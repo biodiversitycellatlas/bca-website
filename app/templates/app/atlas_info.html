@@ -5,8 +5,8 @@
 {% block content %}
 
 {% load static %}
-{% include 'web_app/components/atlas_selection.html' %}
-{% include 'web_app/components/warning_alert.html' %}
+{% include './components/atlas_selection.html' %}
+{% include './components/warning_alert.html' %}
 
 <div class="row pt-2">
     <div class="col-4">
@@ -35,8 +35,8 @@
     <div class="col-8">
         <h1 class="h3" id="projection">
             <i>{{species.scientific_name}}</i>
-            {% include 'web_app/components/clipboard_button.html' %}
-            {% include 'web_app/components/data_button.html' with id='info' %}
+            {% include './components/clipboard_button.html' %}
+            {% include './components/data_button.html' with id='info' %}
         </h1>
 
         <p>{{species.description|default:'No description available'|safe}}</p>

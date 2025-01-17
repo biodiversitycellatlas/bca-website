@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from web_app import models
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
-
 from operator import attrgetter
 
+from app import models
 
 class MetaSerializer(serializers.ModelSerializer):
     class Meta:

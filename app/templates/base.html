@@ -3,10 +3,10 @@
 <head>
     <!-- Favicons -->
     {% load static %}
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'web_app/images/favicons/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'web_app/images/favicons/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'web_app/images/favicons/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'web_app/site.webmanifest' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'app/images/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'app/images/favicons/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css" integrity="sha512-Ars0BmSwpsUJnWMw+KoUKGKunT7+T8NGK0ORRKj+HT8naZzLSIQoOSIIM3oyaJljgLxFi0xImI5oZkAWEFARSA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <link rel="stylesheet" href="{% static 'web_app/style.css' %}">
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
     <title>{% block title %}Biodiversity Cell Atlas{% endblock %}</title>
     <meta name="theme-color" content="#189BCD">
 </head>
@@ -48,12 +48,12 @@
     <div class="container">
         {% block content %}{% endblock %}
     </div>
-    
+
     <!-- Enable tooltips and popovers-->
     <script>
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-    
+
     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
     const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
     </script>

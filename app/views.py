@@ -70,11 +70,11 @@ def getSpecies(species):
 
 
 class IndexView(TemplateView):
-    template_name = "web_app/index.html"
+    template_name = "app/index.html"
 
 
 class AtlasView(TemplateView):
-    template_name = "web_app/atlas.html"
+    template_name = "app/atlas.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -115,7 +115,7 @@ class BaseAtlasView(TemplateView):
     available in the database.
     '''
     model = Species
-    template_name = "web_app/atlas_info.html"
+    template_name = "app/atlas_info.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,11 +137,11 @@ class BaseAtlasView(TemplateView):
 
 
 class AtlasInfoView(BaseAtlasView):
-    template_name = "web_app/atlas_info.html"
+    template_name = "app/atlas_info.html"
 
 
 class AtlasOverviewView(BaseAtlasView):
-    template_name = "web_app/atlas_overview.html"
+    template_name = "app/atlas_overview.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -156,7 +156,7 @@ class AtlasOverviewView(BaseAtlasView):
 
 
 class AtlasGeneView(BaseAtlasView):
-    template_name = "web_app/atlas_gene.html"
+    template_name = "app/atlas_gene.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -184,7 +184,7 @@ class AtlasGeneView(BaseAtlasView):
 
 
 class AtlasMarkersView(BaseAtlasView):
-    template_name = "web_app/atlas_markers.html"
+    template_name = "app/atlas_markers.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -217,20 +217,20 @@ class AtlasMarkersView(BaseAtlasView):
 
 
 class AtlasCompareView(BaseAtlasView):
-    template_name = "web_app/atlas_compare.html"
+    template_name = "app/atlas_compare.html"
 
 
 class ComparisonView(TemplateView):
-    template_name = "web_app/comparison.html"
+    template_name = "app/comparison.html"
 
 
 class DownloadsView(TemplateView):
-    template_name = "web_app/downloads.html"
+    template_name = "app/downloads.html"
 
 
 class BlogView(TemplateView):
-    template_name = "web_app/blog.html"
+    template_name = "app/blog.html"
 
 
 class AboutView(TemplateView):
-    template_name = "web_app/about.html"
+    template_name = "app/about.html"

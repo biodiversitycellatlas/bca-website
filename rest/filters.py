@@ -26,7 +26,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Greatest, Log, Rank
 
-from web_app import models
+from app import models
 from .functions import ArrayToString, ArrayPosition
 from .aggregates import Median
 

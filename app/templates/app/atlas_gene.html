@@ -5,23 +5,23 @@
 {% block content %}
 
 {% load static %}
-{% include 'web_app/components/atlas_selection.html' %}
+{% include './components/atlas_selection.html' %}
 
-{% include 'web_app/components/gene_selection.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
-{% include 'web_app/components/warning_alert.html' %}
+{% include './components/gene_selection.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
+{% include './components/warning_alert.html' %}
 
 {% if gene %}
     <h1 class="h3 pt-2" id="expression">
         Gene expression
-        {% include 'web_app/components/clipboard_button.html' with id='expression' %}
-        {% include 'web_app/components/data_button.html' with id='expression' %}
+        {% include './components/clipboard_button.html' with id='expression' %}
+        {% include './components/data_button.html' with id='expression' %}
     </h1>
     <div id="{{gene}}" class="container"></div>
 
     <h1 class="h3 pt-2" id="orthologs">
         Orthologs
-        {% include 'web_app/components/clipboard_button.html' with id='orthologs' %}
-        {% include 'web_app/components/data_button.html' with id='orthologs' %}
+        {% include './components/clipboard_button.html' with id='orthologs' %}
+        {% include './components/data_button.html' with id='orthologs' %}
     </h1>
 
     <div id="ortholog-plots"></div>
@@ -32,7 +32,7 @@
         <div id="ortholog-plot" class="container"></div>
     </template>
 
-    <script type="text/javascript" src="{% static 'web_app/js/barplot.js' %}"></script>
+    <script type="text/javascript" src="{% static 'app/js/barplot.js' %}"></script>
 
     <!-- Plot gene expression data -->
     <script type="text/javascript">
@@ -94,7 +94,7 @@
             });
     </script>
 {% else %}
-    {% include 'web_app/components/mockup_barplot.html' %}
+    {% include './components/mockup_barplot.html' %}
 {% endif %}
 
 {% endblock content %}

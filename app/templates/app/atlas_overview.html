@@ -5,13 +5,13 @@
 {% block content %}
 
 {% load static %}
-{% include 'web_app/components/atlas_selection.html' %}
+{% include './components/atlas_selection.html' %}
 
 <!-- Metacell projection -->
 <h1 class="h3 pt-2 mb-3" id="projection">
     Metacell projection
-    {% include 'web_app/components/clipboard_button.html' with id='projection' %}
-    {% include 'web_app/components/data_button.html'  with id='projection' %}
+    {% include './components/clipboard_button.html' with id='projection' %}
+    {% include './components/data_button.html'  with id='projection' %}
 </h1>
 
 <div class="row g-3 mb-4">
@@ -59,9 +59,9 @@
                         <label class="col-form-label"><small>Select gene</small></label>
                         <div class="btn-group" role="group" style="display: flex;">
                             {% if not query.gene %}
-                                {% include 'web_app/components/gene_selection.html' with hash='projection' disabled='true' %}
+                                {% include './components/gene_selection.html' with hash='projection' disabled='true' %}
                             {% else %}
-                                {% include 'web_app/components/gene_selection.html' with hash='projection' %}
+                                {% include './components/gene_selection.html' with hash='projection' %}
                             {% endif %}
                         </div>
                     </div>
@@ -101,9 +101,9 @@
     </div>
 </div>
 
-{% include 'web_app/components/plot_container.html' with id='projection' %}
+{% include './components/plot_container.html' with id='projection' %}
 
-<script type="text/javascript" src="{% static 'web_app/js/metacell_scatterplot.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/js/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
     var urls = {
         "sc_data": "{% url 'rest:singlecell-list' %}",
@@ -188,8 +188,8 @@
 <!-- Gene expression heatmap -->
 <h1 class="h3 pt-2 mb-3" id="expression">
     Gene expression heatmap
-    {% include 'web_app/components/clipboard_button.html' with id='expression' %}
-    {% include 'web_app/components/data_button.html' with id='expression' %}
+    {% include './components/clipboard_button.html' with id='expression' %}
+    {% include './components/data_button.html' with id='expression' %}
 </h1>
 
 <form action="#expression">
@@ -317,11 +317,11 @@
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
-        {% include 'web_app/components/plot_container.html' with id='expression' %}
+        {% include './components/plot_container.html' with id='expression' %}
     </div>
 </div>
 
-<script type="text/javascript" src="{% static 'web_app/js/heatmap.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/js/heatmap.js' %}"></script>
 <script type="text/javascript">
     var url = "{% url 'rest:metacellgeneexpression-list' %}";
 
