@@ -33,10 +33,21 @@ class OrthologViewSet(viewsets.ReadOnlyModelViewSet):
 class ExpressionPrefetchMixin:
     """ Mixin to prefetch gene expression for single cell and metacell views. """
 
+    related_field = 'singlecellgeneexpression'
+    expression_related_name = 'singlecellgeneexpression_set'
+    expression_model = models.SingleCellGeneExpression
+
     def get_queryset(self):
         gene = self.request.query_params.get('gene', None)
-        # Prefetch gene expression
-        if gene:
+        species = self.request.query_params.get('species', None)
+
+        if species and gene:
+            # Check if gene expression data exists
+            filters = {f"{self.related_field}__gene__name": gene}
+            if not self.queryset.filter(**filters).exists():
+                raise NotFound(f"No gene expression data found for {gene} in {species}")
+
+            # Prefetch gene expression
             queryset = self.queryset.prefetch_related(
                 Prefetch(
                     self.expression_related_name,
@@ -44,8 +55,6 @@ class ExpressionPrefetchMixin:
                     to_attr = 'gene_expression'
                 )
             )
-            if not any(getattr(obj, 'gene_expression', None) for obj in queryset):
-                raise NotFound(f"No gene expression data found for gene '{gene}'")
             return queryset
         return self.queryset
 
@@ -57,10 +66,6 @@ class SingleCellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     filterset_class = filters.SingleCellFilter
     lookup_field = 'name'
 
-    expression_related_name = 'singlecellgeneexpression_set'
-    expression_model = models.SingleCellGeneExpression
-
-
 class MetacellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     """ List metacells for a given species. """
     queryset = models.Metacell.objects.prefetch_related('type')
@@ -68,6 +73,7 @@ class MetacellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     filterset_class = filters.MetacellFilter
     lookup_field = 'name'
 
+    related_field = 'metacellgeneexpression'
     expression_related_name = 'metacellgeneexpression_set'
     expression_model = models.MetacellGeneExpression
 
