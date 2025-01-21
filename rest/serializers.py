@@ -19,9 +19,20 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
 
 class GeneSerializer(serializers.ModelSerializer):
+    species = SpeciesSerializer(required=False)
+
     class Meta:
         model = models.Gene
-        exclude = ['id', 'species']
+        exclude = ['id']
+
+    def __init__(self, *args, **kwargs):
+        # Do not show 'species' in result if filtered in query params
+        species = kwargs['context']['request'].GET.get('species', None)
+
+        if species:
+            self.fields.pop('species')
+
+        super().__init__(*args, **kwargs)
 
 
 class BaseExpressionSerializer(serializers.ModelSerializer):

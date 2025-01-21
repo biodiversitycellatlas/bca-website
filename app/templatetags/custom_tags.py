@@ -15,3 +15,7 @@ def file_last_modified(file_path, format_string="%d %B %Y"):
         return datetime.fromtimestamp(timestamp).strftime(format_string)
     except FileNotFoundError:
         return None
+
+@register.simple_tag
+def startswith(value, arg):
+    return value.startswith(arg)

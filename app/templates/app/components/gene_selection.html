@@ -14,6 +14,7 @@ Input:
     - redirect: if 'query' (default), redirect to URL using a query parameter
       (e.g., '?gene=BRCA1'); if 'arg', redirect using gene as an argument
     - hash: hash to add to URL (default: none)
+    - limit: maximum number of genes to fetch from API (default: 50)
 -->
 
 <select id="gene" name="gene" class="mb-3" style="width: {{width|default:'100%'}};"
@@ -86,7 +87,7 @@ $(function () {
                 data: {
                     species: '{{species}}',
                     q: query || '{{gene}}',
-                    limit: 50
+                    limit: {{limit|default:50}}
                 },
                 error: function() { callback(); },
                 success: function(res) { callback(res.results); }

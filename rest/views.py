@@ -15,8 +15,8 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class GeneViewSet(viewsets.ReadOnlyModelViewSet):
-    """ List genes for a given species. """
-    queryset = models.Gene.objects.all()
+    """ List genes. """
+    queryset = models.Gene.objects.prefetch_related('species')
     serializer_class = serializers.GeneSerializer
     filterset_class = filters.GeneFilter
     lookup_field = 'name'
@@ -42,7 +42,7 @@ class ExpressionPrefetchMixin:
         species = self.request.query_params.get('species', None)
 
         if species and gene:
-            # Check if gene expression data exists
+            # Check if gene expression data for the selected gene exists
             filters = {f"{self.related_field}__gene__name": gene}
             if not self.queryset.filter(**filters).exists():
                 raise NotFound(f"No gene expression data found for {gene} in {species}")

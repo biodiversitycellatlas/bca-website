@@ -47,30 +47,44 @@ def getSpeciesChoiceFilter(field="species__scientific_name", required=True):
     )
 
 
-class SpeciesFilter(FilterSet):
-    species = getSpeciesChoiceFilter("scientific_name", required = False)
+class QueryFilterSet(FilterSet):
+    ''' Base FilterSet to query multiple fields from a model. '''
 
-class GeneFilter(FilterSet):
-    species = getSpeciesChoiceFilter()
+    # Array of strings to use when querying
+    query_fields = []
+    threshold = 0.3
+
+    def query(self, queryset, name, value):
+        if value:
+            similarity_expressions = []
+            for field in self.query_fields:
+                # Aggregate (Sum) to avoid multiple results from query lookups (e.g., meta__value)
+                similarity_expressions.append(Sum(TrigramStrictWordSimilarity(value, field)))
+            queryset = queryset.annotate(
+                similarity=Greatest(*similarity_expressions)
+            ).filter(similarity__gt=self.threshold).order_by('-similarity')
+        return queryset
+
+
+class SpeciesFilter(QueryFilterSet):
+    species = getSpeciesChoiceFilter("scientific_name", required = False)
+    q = CharFilter(
+        method = 'query',
+        label = "Query string to filter results (example: <kbd>mouse</kbd>). The string will be searched and ranked based on common name, scientific name and metadata."
+    )
+    query_fields = ['common_name', 'scientific_name', 'meta__value']
+
+class GeneFilter(QueryFilterSet):
+    species = getSpeciesChoiceFilter(required = False)
     q = CharFilter(
         method = 'query',
         label = "Query string to filter results (example: <kbd>ATP binding</kbd>). The string will be searched and ranked across gene names, descriptions, and domains."
     )
+    query_fields = ['name', 'description', ArrayToString('domains')]
 
     class Meta:
         model = models.Gene
         fields = ['species']
-
-    def query(self, queryset, name, value):
-        if value:
-            return queryset.annotate(
-                        similarity=Greatest(
-                            TrigramStrictWordSimilarity(value, 'name'),
-                            TrigramStrictWordSimilarity(value, 'description'),
-                            TrigramStrictWordSimilarity(value, ArrayToString('domains'))
-                        )
-                    ).filter(similarity__gt=0.3).order_by('-similarity')
-        return queryset
 
 
 class OrthologFilter(FilterSet):

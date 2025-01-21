@@ -59,9 +59,9 @@
                         <label class="col-form-label"><small>Select gene</small></label>
                         <div class="btn-group" role="group" style="display: flex;">
                             {% if not query.gene %}
-                                {% include './components/gene_selection.html' with hash='projection' disabled='true' %}
+                                {% include './components/gene_selection.html' with hash='projection' disabled='true' limit=10 %}
                             {% else %}
-                                {% include './components/gene_selection.html' with hash='projection' %}
+                                {% include './components/gene_selection.html' with hash='projection' limit=10 %}
                             {% endif %}
                         </div>
                     </div>

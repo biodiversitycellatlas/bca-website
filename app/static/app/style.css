@@ -227,7 +227,7 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
     display: none;
 }
 
- .selectize-control::before {
+.selectize-control::before {
 	-moz-transition: opacity 0.2s;
 	-webkit-transition: opacity 0.2s;
 	transition: opacity 0.2s;
@@ -248,6 +248,24 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 	opacity: 1;
 	-webkit-animation: fa-spin 2s infinite linear;
 	animation: fa-spin 2s infinite linear;
+}
+
+.bca-search .selectize-input::after {
+    display: none !important;
+}
+
+.bca-search .selectize-dropdown {
+    width: 400px !important;
+    left: auto !important;
+    right: 0 !important;
+}
+
+.bca-search .selectize-dropdown-content {
+    max-height: 80vh;
+}
+
+.bca-search input[type="search"] {
+    width: 100% !important;
 }
 
 /* vega-embed fix to avoid button on top of other elements */
