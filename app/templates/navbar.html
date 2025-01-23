@@ -3,34 +3,58 @@
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
     <div class="container-md container-fluid">
         <a class="navbar-brand" href="{% url 'index' %}">BCA</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link {% if 'atlas' in url_name %}active{% endif %}" href="{% url 'atlas' %}">Cell Atlas</a>
+                    <a class="nav-link {% if 'atlas' in url_name %}active{% endif %}"
+                    href="{% url 'atlas' %}">
+                        Cell Atlas
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if url_name == 'comparison' %}active{% endif %}" href="{% url 'comparison' %}">Species Comparison</a>
+                    <a class="nav-link {% if url_name == 'comparison' %}active{% endif %}"
+                    href="{% url 'comparison' %}">
+                        Species Comparison
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if url_name == 'downloads' %}active{% endif %}" href="{% url 'downloads' %}">Downloads</a>
+                    <a class="nav-link {% if url_name == 'downloads' %}active{% endif %}"
+                    href="{% url 'downloads' %}">
+                        Downloads
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if url_name == 'blog' %}active{% endif %}" href="{% url 'blog' %}">Blog</a>
+                    <a class="nav-link {% if url_name == 'blog' %}active{% endif %}"
+                    href="{% url 'blog' %}">
+                        Blog
+                    </a>
                 </li>
                 <li class="nav-item nav-right">
-                    <a class="nav-link {% if url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">About</a>
+                    <a class="nav-link {% if url_name == 'about' %}active{% endif %}"
+                    href="{% url 'about' %}">
+                        About
+                    </a>
                 </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item d-none d-md-block d-lg-none">
-                    <a class="nav-link" href="#"><i class="fa fa-search"></i> Search</a>
+                    <a class="nav-link" href="#">
+                        <i class="fa fa-search"></i> Search
+                    </a>
                 </li>
             </ul>
             <form class="d-md-none d-lg-block d-flex" role="search">
-                <input class="bca-search form-control" type="search" placeholder="Search the BCA..." style="width: 220px;" aria-label="Search">
+                <input class="bca-search form-control" type="search"
+                placeholder="Search the BCA..." style="width: 220px;"
+                aria-label="Search">
             </form>
         </div>
     </div>
@@ -51,11 +75,13 @@ function displaySearchResults (item, escape) {
             }
         }
 
-        var desc = item.description === null ? "" : `<span class="text-muted"><small>${item.description}</small></span>`;
+        var desc = item.description === null ? "" :
+            `<span class="text-muted"><small>${item.description}</small></span>`;
         var res = `<div class='option'>${item.name} ${desc} ${badges}</div>`;
     } else if (group == 'species') {
         var img = item.image_url ? `<img src="${item.image_url}" style="width: 25px;"> ` : '';
-        var desc = item.common_name === item.scientific_name ? "" : `<span class="text-muted"><small>${item.common_name}</small></span>`;
+        var desc = item.common_name === item.scientific_name ? "" :
+            `<span class="text-muted"><small>${item.common_name}</small></span>`;
         var res = `<div class='option'>${img}<i>${item.scientific_name}</i> ${desc}</div>`;
     }
     return res;
@@ -68,7 +94,9 @@ $(function () {
         maxItems: 1,
         maxOptions: 5,
         render: {
-            item: function (item, escape) { return `<div style="color: darkgray;">Search the BCA...</div>`; },
+            item: function (item, escape) {
+                return `<div style="color: darkgray;">Search the BCA...</div>`;
+            },
             option: displaySearchResults,
             optgroup_header: function(data, escape) {
                 count = `<span class="badge rounded-pill" style="background: var(--primary-color);">${data.count} results</span>`;
@@ -117,8 +145,10 @@ $(function () {
                 fetch(genesURL).then(res => res.json())
             ]).then(([species_data, gene_data]) => {
                 const options = [
-                    ...species_data.results.map(item => ({ ...item, group: 'species', name: item.scientific_name })),
-                    ...gene_data.results.map(item => ({ ...item, group: 'gene' }))
+                    ...species_data.results.map(item => ({ ...item,
+                        group: 'species', name: item.scientific_name })),
+                    ...gene_data.results.map(item => ({ ...item,
+                        group: 'gene' }))
                 ];
                 this.clearOptions()
 
@@ -159,10 +189,12 @@ $(function () {
     			        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
     			        {% if atlas %}
     			            // Jump to same page in atlas with another species
-    			            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', species_underscore)
+    			            "{% url request.resolver_match.view_name '::arg' %}"
+    			                .replace('::arg', species_underscore)
     			        {% else %}
     			            // Jump to atlas_info
-    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', species_underscore)
+    			            "{% url 'atlas_info' '::arg' %}"
+    			                .replace('::arg', species_underscore)
     			        {% endif %};
     	        }
     	    }
