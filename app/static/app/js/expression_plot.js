@@ -1,4 +1,4 @@
-function createExpressionBarPlot(id, gene, data) {
+function createExpressionBubblePlot(id, gene, data) {
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   		//"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
