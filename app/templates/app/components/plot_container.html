@@ -1,11 +1,14 @@
-<!--
-Plot container (including loading spinner)
+{% comment %}
 
-Create a plot container with a loading spinner
+Container for rendering plots
+
+Features:
+- Loading spinner and functions to show/hide it while plot is loading
 
 Input:
-    - id: prefix used for all identifiers (e.g., expression)
--->
+- id: prefix used in the identifiers of all elements
+
+{% endcomment %}
 
 <div id="{{id}}-plot" class="container" style="aspect-ratio: 16/9;">
     <div id="{{id}}-spinner" class="loading-state">

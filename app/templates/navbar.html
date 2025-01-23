@@ -1,3 +1,13 @@
+{% comment %}
+
+Navigation bar and search feature across BCA website
+
+Features:
+- Navbar with active state highlighting based on the current page
+- Search box (selectize.js) to search for species and genes using API endpoints
+
+{% endcomment %}
+
 {% load static %}
 {% with request.resolver_match.url_name as url_name %}
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
@@ -168,33 +178,24 @@ $(function () {
     	        item = this.options[value];
     	        if (item.group == 'gene') {
     	            gene = item.name;
-    	            // Jump to gene unless it matches gene in current page
-    	            if (gene === '{{gene}}') {
-    	                return;
-    	            }
-
     	            species = item.species.scientific_name.replace(' ', '_');
     	            window.location.href =
     	                "{% url 'atlas_gene' '::species' '::gene' %}"
     	                .replace('::species', species)
     	                .replace('::gene', gene);
     	        } else if (item.group == 'species') {
-    	            // Jump to species unless it matches species in current page
-    	            species_underscore = item.scientific_name.replace(' ', '_');
-    	            if (species_underscore === '{{species.species_underscore}}') {
-    	                return;
-	                }
-
+    	            // Jump to species
+    	            species = item.scientific_name.replace(' ', '_');
     			    window.location.href =
     			        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
     			        {% if atlas %}
     			            // Jump to same page in atlas with another species
     			            "{% url request.resolver_match.view_name '::arg' %}"
-    			                .replace('::arg', species_underscore)
+    			                .replace('::arg', species)
     			        {% else %}
     			            // Jump to atlas_info
     			            "{% url 'atlas_info' '::arg' %}"
-    			                .replace('::arg', species_underscore)
+    			                .replace('::arg', species)
     			        {% endif %};
     	        }
     	    }

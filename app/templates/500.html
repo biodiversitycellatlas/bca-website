@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Template for 500 Server Error page
+
+{% endcomment %}
+
 {% block content %}
 <div class="container">
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
@@ -8,7 +14,7 @@
         </div>
         <div class="col align-self-center">
             <h1 class="h3">500: server error</h1>
-            <p>Try to refresh this page or contact us if the issue persists.</p>
+            <p>Try to refresh this page or <a href="{% url 'about' %}#contact"> contact us</a> if the issue persists.</p>
         </div>
     </div>
 </div>

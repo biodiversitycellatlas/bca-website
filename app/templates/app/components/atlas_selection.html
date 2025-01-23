@@ -1,8 +1,18 @@
-<!--
-Species selector and tab navigation for Cell Atlas
+{% comment %}
 
-When a species is selected, automatically redirects to species page
--->
+Atlas selection dropdown and tab navigation for Cell Atlas
+
+Features:
+- Allows user to search species by nomenclature and metadata (including taxonomic ranks)
+- Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
+- Upon species selection, the user is redirected to that species page
+- Navigation tabs redirect to different views for the selected species
+- When no species is selected, mockup is shown and navigation tabs are disabled
+
+Input:
+- species_dict: dictionary of arrays of species grouped by their phylum
+
+{% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="species-select" class="mb-3 atlas-select"

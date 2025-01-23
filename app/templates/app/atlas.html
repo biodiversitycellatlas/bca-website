@@ -1,5 +1,21 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Template for the Cell Atlas pages
+
+Features:
+- Atlas selection via `components/atlas_selection.html` or URL path parameters,
+  such as `/atlas/Homo_sapiens`
+- Warning message (e.g., if selected species is not available in the database)
+- Placeholders shown when no species is selected
+
+Input:
+- warning: warning message to display
+- icon: the FontAwesome icon to show if no species is selected (e.g., 'question-circle')
+
+{% endcomment %}
+
 {% block title %}Cell Atlas{% endblock title %}
 
 {% block content %}

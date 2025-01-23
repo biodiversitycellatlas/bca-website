@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Template for 404 Not Found page
+
+{% endcomment %}
+
 {% block content %}
 <div class="container">
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
@@ -8,7 +14,7 @@
         </div>
         <div class="col align-self-center">
             <h1 class="h3">404: page not found!</h1>
-            <p>We cannot find the page you requested...</p>
+            <p>We cannot find the page you requested... If you think something is wrong, please <a href="{% url 'about' %}#contact"> contact us</a>!</p>
         </div>
     </div>
 </div>

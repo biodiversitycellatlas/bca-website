@@ -1,13 +1,17 @@
-<!--
-Data view/download button
+{% comment %}
 
-Shows options to view/download data or copy API link in various formats. The
-user's selected data format is saved to localStorage and automatically selected
-across the app.
+Dropdown button to view and download data
+
+Features:
+- Displays buttons for viewing, downloading and copying API links for multiple
+  data types
+- Output format selection: CSV, TSV, JSON
+- Selected output format is saved to local storage and loaded at page load
 
 Input:
-    - id: string
--->
+- id: suffix to create unique identifiers to all elements
+
+{% endcomment %}
 
 <button type="button"
 class="btn btn-secondary btn-sm float-end me-2 dropdown-toggle"
@@ -137,7 +141,7 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
     });
 
     /**
-     * Update URLs for a data download dropdown menu.
+     * Creates data dropdown menus.
      *
      * @param {string} id - The prefix identifier of the HTML elements.
      * @param {string|Object} urls - String of single URL dictionary where keys
@@ -146,16 +150,16 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
      *    identify each link.
      *
      * @example
-     * updateDropdownURL('heatmap', {
+     * createDataMenu('heatmap', {
      *     sc_data: '/api/v1/singlecells/?species=Mus+musculus',
      *     mc_data: '/api/v1/metacells/?species=Mus+musculus'
      * }, ['Single-cell data', 'Metacell data']);
      *
      * @example
-     * updateDropdownURL('metacells', '/api/v1/metacells/?species=Mus+musculus',
-     *                   'Metacell data');
+     * createDataMenu('metacells', '/api/v1/metacells/?species=Mus+musculus',
+     *                'Metacell data');
      */
-    function updateDataDownloadLinks(id, urls, labels) {
+    function createDataMenu(id, urls, labels) {
         var template = document.getElementById(`data_template_${id}`);
         var dropdownMenu = document.getElementById(`data_dropdown_${id}`);
         var dropdownFooter = document.getElementById(`data_footer_${id}`);

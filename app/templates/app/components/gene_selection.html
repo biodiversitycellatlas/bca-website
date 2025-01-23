@@ -1,21 +1,25 @@
-<!--
-Gene selector
+{% comment %}
 
-When a gene is selected, automatically redirects to a page with that gene
+Gene selection dropdown
+
+Features:
+- Allows user to search genes by name, description and domains
+- Upon gene selection, the user is redirected to that gene page
 
 Input:
-    - gene: default gene to select with properties 'name', 'description' and
-      'domains' (default: none, i.e., no gene is selected)
-    - placeholder: text in search box (default: "Search gene by symbol,
-      description or domains...")
-    - width: element width (default: '100%')
-    - display: if 'name' (default), show gene name for selected gene; if 'all',
-      show gene name, description and domains
-    - redirect: if 'query' (default), redirect to URL using a query parameter
-      (e.g., '?gene=BRCA1'); if 'arg', redirect using gene as an argument
-    - hash: hash to add to URL (default: none)
-    - limit: maximum number of genes to fetch from API (default: 50)
--->
+- gene: default gene to select with properties 'name', 'description' and
+  'domains' (default: none, i.e., no gene is selected)
+- placeholder: text in search box (default: "Search gene by symbol,
+  description or domains...")
+- width: element width (default: '100%')
+- display: if 'name' (default), show gene name for selected gene; if 'all',
+  show gene name, description and domains
+- redirect: if 'query' (default), redirect to URL using a query parameter
+  (e.g., '?gene=BRCA1'); if 'arg', redirect using gene as an argument
+- hash: hash to add to URL (default: none)
+- limit: maximum number of genes to fetch from API (default: 50)
+
+{% endcomment %}
 
 <select id="gene" name="gene" class="mb-3" style="width: {{width|default:'100%'}};"
 placeholder="{{placeholder|default:'Search gene...'}}"

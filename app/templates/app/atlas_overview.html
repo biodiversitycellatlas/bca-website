@@ -1,5 +1,23 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Metacell projection ang gene expression heatmap for a given species
+
+Features:
+- Select metacells for further analysis (e.g., listing their markers)
+- Metacell projection and gene expression heatmap:
+    - Fetches data via REST API
+    - Plots data
+    - Download data button
+    - Copy link to clipboard button
+
+Input:
+- species: Species object from `models.py`
+- query: query parameters to automatically filter and adjust the plots
+
+{% endcomment %}
+
 {% block title %}{{species}} Overview{% endblock title %}
 
 {% block content %}
@@ -121,8 +139,8 @@
 	urls['sc_data'] += "?" + params.toString();
 	urls['mc_data'] += "?" + params.toString();
 
-	updateDataDownloadLinks(
-	    'projection', urls, ['Single-cell data', 'Metacell data', 'Metacell links']);
+	createDataMenu('projection', urls,
+	               ['Single-cell data', 'Metacell data', 'Metacell links']);
 
     Promise.all(
         Object.entries(urls).map(([key, url]) =>
@@ -343,6 +361,6 @@
         })
         .catch(error => console.error('Error fetching data:', error));
 
-    updateDataDownloadLinks('expression', apiURL, 'Metacell gene expression');
+    createDataMenu('expression', apiURL, 'Metacell gene expression');
 </script>
 {% endblock content %}

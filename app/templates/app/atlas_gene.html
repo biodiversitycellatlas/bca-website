@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Gene expression and orthologs comparison page for a gene from a given species
+
+Features:
+- Gene selection via `components/gene_selection.html` or URL path parameters,
+  such as `/atlas/Homo_sapiens/gene/BRCA1`
+- Mockup plot if no gene is selected
+- Expression data for selected gene and orthologs:
+    - Fetches via REST API
+    - Plots for data
+    - Download data button
+    - Copy link to clipboard button
+
+Input:
+- species: Species object from `models.py`
+
+{% endcomment %}
+
 {% block title %}{{species}} {{gene|default:'Gene'}}{% endblock title %}
 
 {% block content %}
@@ -44,7 +63,7 @@
             limit: 0
         });
 	    var apiURL = url + "?" + params.toString();
-	    updateDataDownloadLinks('expression', apiURL, '{{gene}} expression');
+	    createDataMenu('expression', apiURL, '{{gene}} expression');
 
 	    fetch(apiURL)
             .then(response => response.json())
@@ -64,7 +83,7 @@
 		    limit: 0
 	    });
 	    var apiURL = url + "?" + params.toString();
-	    updateDataDownloadLinks('orthologs', apiURL, 'Ortholog expression');
+	    createDataMenu('orthologs', apiURL, 'Ortholog expression');
 
         // Fetch data from the API and create plots
         const template  = document.getElementById('ortholog-template');

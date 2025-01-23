@@ -1,5 +1,20 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+Species info page
+
+Features:
+- Species description and image
+- Table metadata (including taxonomic information)
+- Download button for species info and metadata
+- Copy link to clipboard button
+
+Input:
+- species: Species object from `models.py`
+
+{% endcomment %}
+
 {% block title %}{{species}} Information{% endblock title %}
 
 {% block content %}
@@ -45,7 +60,7 @@
 
 <script>
     var url = "{% url 'rest:species-detail' species %}";
-    updateDataDownloadLinks('info', url, 'Species information');
+    createDataMenu('info', url, 'Species information');
 </script>
 
 {% endblock content %}

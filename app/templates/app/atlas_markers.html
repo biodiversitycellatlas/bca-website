@@ -1,5 +1,26 @@
 {% extends "base.html" %}
 
+{% comment %}
+
+List metacell markers for a given species
+
+Features:
+- Form to set metacells and fold-change thresholds
+- Mockup table if no analyses is loaded
+- Metacell markers filtered as per the user input:
+    - Fetches via REST API
+    - Table for the data
+    - Download data button
+    - Copy link to clipboard button
+
+Input:
+- species: Species object from `models.py`
+- metacells: list of selected metacells
+- metacell_dict: dictionary with available metacells to populate the select input
+- query: query parameters to automatically filter metacells, fold-change values, etc.
+
+{% endcomment %}
+
 {% block title %}{{species}} Markers{% endblock title %}
 
 {% block content %}
@@ -109,7 +130,7 @@
             	var apiURL = url + "?" + params.toString();
 
                 createMarkersTable('markers', apiURL)
-                updateDataDownloadLinks('markers', apiURL, 'Metacell markers');
+                createDataMenu('markers', apiURL, 'Metacell markers');
             </script>
         {% else %}
             {% include './components/mockup_table.html' %}
