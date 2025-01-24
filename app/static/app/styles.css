@@ -215,6 +215,12 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 }
 
 /* Selectize.js */
+
+.atlas-select .highlight { /* Highlight phylum in atlas selection */
+    background: rgba(255,237,40,.4);
+    border-radius: 1px;
+}
+
 .selectize-dropdown .selected {
     background-color: var(--primary-color);
 }
@@ -291,7 +297,7 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 
 /* Fix anchor links position to avoid navbar overlap */
 html {
-  scroll-padding-top: 50px; /* Adjust to match your navbar height */
+  scroll-padding-top: 50px;
 }
 
 /* Manual fix for dropdown in btn-groups */

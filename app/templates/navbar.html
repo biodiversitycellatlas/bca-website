@@ -87,7 +87,13 @@ function displaySearchResults (item, escape) {
 
         var desc = item.description === null ? "" :
             `<span class="text-muted"><small>${item.description}</small></span>`;
-        var res = `<div class='option'>${item.name} ${desc} ${badges}</div>`;
+
+        shortenedName = item.species.scientific_name.split(' ')
+            .map((word, index) => index === 0 ? `${word[0]}.` : word)
+            .join(' ');
+        var species = `<span class='text-muted float-end'><small><img src="${item.species.image_url}" style="width: 15px;"> <i>${shortenedName}</i></small></span>`;
+
+        var res = `<div class='option'>${item.name} ${desc} ${badges} ${species}</div>`;
     } else if (group == 'species') {
         var img = item.image_url ? `<img src="${item.image_url}" style="width: 25px;"> ` : '';
         var desc = item.common_name === item.scientific_name ? "" :
@@ -102,7 +108,6 @@ function displaySearchResults (item, escape) {
 $(function () {
     $(".bca-search").selectize({
         maxItems: 1,
-        maxOptions: 5,
         render: {
             item: function (item, escape) {
                 return `<div style="color: darkgray;">Search the BCA...</div>`;
@@ -129,6 +134,7 @@ $(function () {
 		    this.clear();
 		},
         valueField: 'name',
+        labelField: 'name',
         searchField: ['name', 'description', 'domains', 'scientific_name'],
         score: function() {
             // Avoid filtering by returning the same score to all results
