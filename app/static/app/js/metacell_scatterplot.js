@@ -25,9 +25,11 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 		"layer": [ {
 			"data": { "name": "sc_data", "values": data['sc_data'] },
   			"mark": { "type": "circle", "tooltip": {"encoding": "data"} },
-	  		"params": [
-	  			{ "name": "brush", "select": {"type": "interval"} }
-	  		],
+
+  			// Avoid this transform for cells: this changes axis limits
+  			// "transform": [ { "filter": "showCells == 'true'" } ],
+
+	  		"params": [ { "name": "brush", "select": {"type": "interval"} } ],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
@@ -56,15 +58,14 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
   		}, {
   			"data": { "name": "mc_links", "values": data['mc_links'] },
   			"mark": "rule",
+  			"transform": [ { "filter": "showLinks == 'true'" } ],
 	  		"encoding": {
 	    		"x":  {"field": "metacell.x",  "type": "quantitative"},
 	    		"x2": {"field": "metacell2.x", "type": "quantitative"},
 	    		"y":  {"field": "metacell.y",  "type": "quantitative"},
 	    		"y2": {"field": "metacell2.y", "type": "quantitative"},
 	    		"color": {"value": "#B7B7B7"},
-	    		"opacity": {
-			    	"condition": { "test": "showLinks == 'false'", "value": 0 }
-    			}
+	    		"opacity": { "value": 0.7 }
 	    	}
   		}, {
   			"data": { "name": "mc_data", "values": data['mc_data'] },
@@ -75,7 +76,8 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
   				"tooltip": {"encoding": "data"}
   			},
   			"transform": [
-			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" }
+			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" },
+			    { "filter": "showMetacells == 'true'" }
 			],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
@@ -87,33 +89,17 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    			"type": "quantitative",
 	    			"scale": {"scheme": "magma",  "reverse": true}
 	    		},
-	    		"opacity": {
-			    	"condition": {
-        				"test": "showMetacells == 'true'",
-        				"value": 0.7,
-        				"type": "nominal"
-      				},
-      				"value": 0
-    			},
-    			"tooltip": {
-    				"condition": { test: "showMetacells == 'false'", "value": null }
-    			}
+	    		"opacity": { "value": 0.7 }
 	    	}
   		}, {
   			"data": {"name": "mc_data"},
   			"mark": "text",
+  			"transform": [ { "filter": "showLabels == 'true'" } ],
 	  		"encoding": {
 	    		"x": {"field": "x", "type": "quantitative"},
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"text": {"field": "name"},
-	    		"opacity": {
-			    	"condition": {
-        				"test": "showLabels == 'true'",
-        				"value": 0.7,
-        				"type": "nominal"
-      				},
-      				"value": 0
-    			}
+	    		"opacity": { "value": 0.7 }
 	    	}
   		}],
   		"config": {
@@ -131,7 +117,13 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 
 	// Colour by metacell_type
 	if (color_by_metacell_type) {
-		chart.layer[0].encoding.color = { "field": "metacell_type" };
+		// The vega-lite conditions do not support updating the legend when
+		// changing the field/type used for colouring
+		chart.layer[0].encoding.color = {
+			"field": "metacell_type",
+			"scale": {"range": {"field": "metacell_color"}},
+			"title": "Cell type"
+		};
 		delete chart.layer[0].transform;
 
 		delete chart.layer[2].encoding.fill;
