@@ -108,21 +108,22 @@ Input:
 </script>
 
 
-<!-- Simplify multiple select input into a single comma-separated value -->
+<!-- Simplify multiple select data into a single comma-separated value -->
 <script>
     $('form').on('submit', function(e) {
         e.preventDefault();
 
+        // Get values
         var formData = new FormData(this);
         var values = formData.getAll('metacells').join(',');
-        formData.set('metacells', values);
 
-        var query = {};
-        for (let [key, value] of formData.entries()) {
-            query[key] = value;
-        }
-        // Convert query to URL parameters (but maintain commas)
-        query = $.param(query).replaceAll('%2C', ',');
-        window.location.href = '{{ request.path }}?' + query;
+        // Modify form URL
+        var url = new URL(e.target.action);
+        url.searchParams.set('metacells', values);
+        e.target.action = url.href;
+
+        // Maintain commas in query params
+        href = url.href.replaceAll('%2C', ',');
+        window.location.href = href;
     })
 </script>

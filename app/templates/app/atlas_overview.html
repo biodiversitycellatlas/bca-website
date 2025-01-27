@@ -200,7 +200,19 @@ Input:
 	    } else {
 	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
 	    }
-	})
+	});
+
+	$('#filter_heatmap').on('click', function(e) {
+	    var metacells = getSelectedMetacells();
+	    if (metacells.length >= 1) {
+	        url = new URL(window.location.href);
+	        url.searchParams.set('metacells', metacells)
+	        url.hash = "expression";
+	        window.location.href = url;
+	    } else {
+	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+	    }
+	});
 </script>
 
 <!-- Gene expression heatmap -->
@@ -210,7 +222,7 @@ Input:
     {% include './components/data_button.html' with id='expression' %}
 </h1>
 
-<form action="#expression">
+<form novalidate action="#expression">
     <div class="row g-3 mb-4 align-items-end">
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
@@ -235,11 +247,18 @@ Input:
             </div>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                    <span id="metacells_count">All metacells (45)</span>
+                    <span id="metacells_filter">All metacells</span>
                 </button>
-                <div class="dropdown-menu">
+                <div id="metacell_dropdown" class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
-                        <label class="col-form-label"><small>Selected metacells</small></label>
+                        <div class="d-flex">
+                            <button type="button" class="btn btn-outline-primary mt-3 ms-auto w-100" id="select_all_metacells" onclick="$('#metacells')[0].selectize.clear(); $('#metacell_dropdown').removeClass('show');">
+                                <i class="fa-solid fa-check-double"></i> Select all metacells
+                            </button>
+                        </div>
+
+                        <label class="col-form-label"><small>Filter metacells</small></label>
+                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
                     </div>
                 </div>
             </div>
@@ -283,6 +302,23 @@ Input:
 </form>
 
 <script>
+    $(function() {
+        // Change metacell selection label
+        function updateMetacellSelectionLabel (count) {
+            var label = count > 0 ? 'Select metacells' : 'All metacells';
+            $('#metacells_filter').text(label);
+        }
+
+        const metacell_selectize = $('#metacells')[0].selectize;
+        var count = metacell_selectize.items.length;
+        updateMetacellSelectionLabel(count);
+
+        metacell_selectize.on('change', function() {
+            var count = this.items.length;
+            updateMetacellSelectionLabel(count);
+        });
+    });
+
     function updateText (id, from_min_id) {
         return function update(data) {
             $(id).text(data.from);
@@ -341,10 +377,12 @@ Input:
 
 <script type="text/javascript" src="{% static 'app/js/expression_heatmap.js' %}"></script>
 <script type="text/javascript">
+$(function() {
     var url = "{% url 'rest:metacellgeneexpression-list' %}";
 
     var params = new URLSearchParams({
 		species: '{{species}}',
+		metacells: $("#metacells").val().join(","),
 		fc_min: $("#fc_min").val(),
 		n_markers: $("#markers").val(),
 		sort_genes: true,
@@ -362,5 +400,6 @@ Input:
         .catch(error => console.error('Error fetching data:', error));
 
     createDataMenu('expression', apiURL, 'Metacell gene expression');
+});
 </script>
 {% endblock content %}

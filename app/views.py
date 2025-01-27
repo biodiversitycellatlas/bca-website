@@ -149,6 +149,8 @@ class AtlasOverviewView(BaseAtlasView):
         if not isinstance(species, Species):
             return context
 
+        context['metacell_dict'] = getMetacellDict(species)
+
         # Get URL query parameters
         query = self.request.GET
         context['query'] = query

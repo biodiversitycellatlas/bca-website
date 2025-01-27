@@ -137,7 +137,10 @@ class MetacellGeneExpressionFilter(FilterSet):
     species = getSpeciesChoiceFilter()
     genes = CharFilter(
         label = 'Comma-separated list of genes to retrieve data for. If not provided, data is returned for all genes.',
-        method='filter_genes_in')
+        method='filter_genes')
+    metacells = CharFilter(
+        label = "Comma-separated list of metacell names and cell types (example: <i>12,30,Peptidergic1</i>).",
+        method = "filter_metacells")
     fc_min = NumberFilter(
         label = 'Filter expression data by minimum fold-change (default: <kbd>0</kbd>).',
         field_name = 'fold_change', lookup_expr='gte')
@@ -154,10 +157,22 @@ class MetacellGeneExpressionFilter(FilterSet):
         label='Set the maximum limit for <kbd>log2_fold_change</kbd> values (requires <kbd>log2=true</kbd>). If <kbd>fc_min</kbd> is higher, <kbd>clip_log2</kbd> is set to <kbd>fc_min</kbd>.',
         method='clip_expression')
 
-    def filter_genes_in(self, queryset, name, value):
+    def filter_genes(self, queryset, name, value):
         if value:
             queryset = queryset.filter(gene__name__in=value.split(','))
         return queryset
+
+    def filter_metacells(self, queryset, name, value):
+        if value:
+            metacells = value.split(',')
+            # Filter metacells by name and type
+            selected = (
+                Q(metacell__name__in=metacells) |
+                Q(metacell__type__name__in=metacells)
+            )
+            queryset = queryset.filter(selected)
+        return queryset
+
 
     def filter_markers(self, queryset, name, value):
         ''' Filter data based on top genes. '''
@@ -271,7 +286,7 @@ class MetacellMarkerFilter(FilterSet):
     metacells = CharFilter(
         label = "Comma-separated list of metacell names and cell types (example: <i>12,30,Peptidergic1</i>).",
         method = "select_metacells",
-        required=True)
+        required = True)
 
     fc_min = NumberFilter(
         label = "Filter genes across foreground (i.e., selected) metacells by their minimum fold-change (default: <kbd>2</kbd>).",
