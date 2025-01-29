@@ -79,9 +79,14 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
 
     // Download data from URL as a file
     function downloadData(id, index) {
-        url = getDataURL(id, index);
+        // Disable download button and change icon to spinner
+        const button = $(`a[name="data_download_${id}"]`)[index];
+        button.classList.add('disabled');
+        const previousInnerHTML = button.innerHTML;
+        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Downloading...';
 
         // Prepare filename
+        url = getDataURL(id, index);
         format   = url.searchParams.get('format');
         filename = url.pathname.split('/').filter(Boolean).pop();
 
@@ -94,7 +99,11 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                 link.download = `${filename}.${format}`;
                 link.click();
             })
-            .catch(error => console.error('Error downloading file:', error));
+            .catch(error => console.error('Error downloading file:', error))
+            .finally(() => {
+                button.classList.remove('disabled');
+                button.innerHTML = previousInnerHTML;
+            });
     }
 
     // Copy API URL to clipboard
