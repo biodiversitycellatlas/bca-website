@@ -3,15 +3,26 @@
 :root {
     --primary-color: #189BCD;
     --hover-color: #189BCDAA;
-    --table-row-color: #189BCD22;
-    --card-text-shadow: #000000CC;
 
-    --navbar-hover: #00000030;
-    --navbar-hover-shadow: #00000080;
-    --navbar-box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15),inset 0 -1px 0 rgba(255,255,255,0.15);
+    --navbar-hover-color: #00000030;
+    --navbar-hover-shadow-color: #00000080;
+    --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
+
+    --card-text-shadow: var(--navbar-hover-shadow-color);
+    --table-row-color: #189BCD22;
+    --dropdown-menu-color: #FFFFFF80;
+    --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
 }
 
-/* Navbar */
+/* Navbar (and related fixes) */
+
+html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
+  scroll-padding-top: 60px;
+}
+
+main.container { /* Move content to avoid navbar overlap */
+    padding-top: 80px;
+}
 
 .navbar {
     background: var(--primary-color);
@@ -27,8 +38,8 @@
 
 .navbar .navbar-brand:focus-visible {
     outline: none;
-    background: var(--navbar-hover);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow);
+    background: var(--navbar-hover-color);
+    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar .nav-link {
@@ -38,21 +49,21 @@
 
 .navbar .nav-link.active, .navbar .nav-link.active:hover {
     font-weight: 600;
-    background: linear-gradient(135deg, var(--navbar-hover), var(--navbar-hover-shadow));
+    background: linear-gradient(135deg, var(--navbar-hover-color), var(--navbar-hover-shadow-color));
 }
 
 .navbar .nav-link:hover {
-    background: var(--navbar-hover);
+    background: var(--navbar-hover-color);
 }
 
 .navbar .nav-link:focus-visible {
-    background: var(--navbar-hover);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow);
+    background: var(--navbar-hover-color);
+    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar .form-control:focus {
-    border-color: var(--navbar-hover-shadow);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow);
+    border-color: var(--navbar-hover-shadow-color);
+    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar-toggler {
@@ -168,6 +179,14 @@ a:hover {
     background-color: lightgray;
     opacity: 1;
     cursor: default;
+}
+
+/* Dropdown menu */
+
+.dropdown-menu {
+    background: var(--dropdown-menu-color);
+    backdrop-filter: blur(25px);
+    box-shadow: var(--dropdown-menu-shadow);
 }
 
 /* Loading icon */
@@ -293,11 +312,6 @@ table.dataTable.display tbody tr:nth-child(odd) > * {
 
 .irs--round .irs-from::before, .irs--round .irs-to::before, .irs--round .irs-single::before {
     border-top-color: var(--primary-color);
-}
-
-/* Fix anchor links position to avoid navbar overlap */
-html {
-  scroll-padding-top: 50px;
 }
 
 /* Manual fix for dropdown in btn-groups */

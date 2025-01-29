@@ -10,7 +10,7 @@ Features:
 
 {% load static %}
 {% with request.resolver_match.url_name as url_name %}
-<nav class="navbar navbar-expand-md sticky-top navbar-dark">
+<header><nav class="navbar navbar-expand-md fixed-top navbar-dark">
     <div class="container-md container-fluid">
         <a class="navbar-brand" href="{% url 'index' %}">BCA</a>
 
@@ -62,13 +62,13 @@ Features:
                 </li>
             </ul>
             <form class="d-md-none d-lg-block d-flex" role="search">
-                <input class="bca-search form-control" type="search"
-                placeholder="Search the BCA..." style="width: 220px;"
-                aria-label="Search">
+                <input id="bca-search" class="bca-search form-control"
+                type="search" placeholder="Search the BCA..."
+                style="width: 220px;" aria-label="Search">
             </form>
         </div>
     </div>
-</nav>
+</nav></header>
 {% endwith %}
 
 <script>
@@ -106,7 +106,7 @@ function displaySearchResults (item, escape) {
 // Search box functionality
 {% load custom_tags %}
 $(function () {
-    $(".bca-search").selectize({
+    $("#bca-search").selectize({
         maxItems: 1,
         render: {
             item: function (item, escape) {
@@ -209,5 +209,13 @@ $(function () {
 		},
         optgroupField: 'group'
     });
+});
+
+// Jump to search bar when pressing the keyboard shortcut: / (slash)
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && !e.ctrlKey && !e.altKey) {
+    e.preventDefault();
+    $("#bca-search")[0].selectize.focus();
+  }
 });
 </script>
