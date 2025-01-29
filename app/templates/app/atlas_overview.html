@@ -251,14 +251,20 @@ Input:
                 </button>
                 <div id="metacell_dropdown" class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
-                        <div class="d-flex">
-                            <button type="button" class="btn btn-outline-primary mt-3 ms-auto w-100" id="select_all_metacells" onclick="$('#metacells')[0].selectize.clear(); $('#metacell_dropdown').removeClass('show');">
-                                <i class="fa-solid fa-check-double"></i> Select all metacells
-                            </button>
+
+                        <div class="d-flex justify-content-between align-items-center small">
+                            <label class="col-form-label">
+                                Filter metacells
+                            </label>
+
+                            <a id="select_all_metacells" href="javascript:void(0);"
+                                class="d-block text-end"
+                                onclick="$('#metacells')[0].selectize.clear();">
+                                    Select all metacells
+                            </a>
                         </div>
 
-                        <label class="col-form-label"><small>Filter metacells</small></label>
-                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
+                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells placeholder="All metacells selected" %}
                     </div>
                 </div>
             </div>
@@ -305,7 +311,7 @@ Input:
     $(function() {
         // Change metacell selection label
         function updateMetacellSelectionLabel (count) {
-            var label = count > 0 ? 'Select metacells' : 'All metacells';
+            var label = count > 0 ? 'Selected metacells' : 'All metacells';
             $('#metacells_filter').text(label);
         }
 

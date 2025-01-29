@@ -11,10 +11,11 @@ Features:
 Input:
 - metacell_dict: dictionary of metacells
 - selected: selected metacells
+- placeholder: placeholder text
 
 {% endcomment %}
 
-<select required name="metacells" value="" id="metacells" multiple placeholder="Select metacells...">
+<select required name="metacells" value="" id="metacells" multiple placeholder="{{placeholder|default:'Select metacells...'}}">
     <option value=""></option>
     {% for key, value in metacell_dict.items %}
         <optgroup label="{{ key }}">
@@ -98,7 +99,7 @@ Input:
                         var type = item.celltype.replaceAll('_',' ');;
                         extra = circle + type;
                     }
-                    extra = `<span class="float-end"><small>` + extra + `</small></span>`;
+                    extra = `<span class="float-end text-muted small"><small>` + extra + `</small></span>`;
                     text = text.replaceAll('_',' ');
                     return `<div class='option'>${text}${extra}</div>`;
                 }
