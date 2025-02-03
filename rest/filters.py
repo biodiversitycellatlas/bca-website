@@ -42,7 +42,7 @@ def getSpeciesChoiceFilter(field="species__scientific_name", required=True):
         queryset = models.Species.objects.all(),
         field_name = field,
         to_field_name = "scientific_name",
-        label = "Species scientific name (example: <i>Trichoplax adhaerens</i>).",
+        label = "Filter by <a href='#/operations/species_list'>species' scientific name</a> (example: <i>Trichoplax adhaerens</i>).",
         required = required
     )
 
@@ -68,29 +68,53 @@ class QueryFilterSet(FilterSet):
 
 class SpeciesFilter(QueryFilterSet):
     species = getSpeciesChoiceFilter("scientific_name", required = False)
+
     q = CharFilter(
         method = 'query',
         label = "Query string to filter results (example: <kbd>mouse</kbd>). The string will be searched and ranked based on common name, scientific name and metadata."
     )
     query_fields = ['common_name', 'scientific_name', 'meta__value']
 
+
 class GeneFilter(QueryFilterSet):
     species = getSpeciesChoiceFilter(required = False)
+    genelists = CharFilter(
+        method = "find_in_genelists",
+        label = "Comma-separated list of <a href='#/operations/gene_lists_list'>gene lists</a> to retrieve genes for (example: <i>Transcription factors,RNA-binding proteins</i>).")
+
     q = CharFilter(
         method = 'query',
         label = "Query string to filter results (example: <kbd>ATP binding</kbd>). The string will be searched and ranked across gene names, descriptions, and domains."
     )
     query_fields = ['name', 'description', ArrayToString('domains')]
 
+    def find_in_genelists(self, queryset, name, value):
+        if value:
+            queryset = queryset.filter(genelists__name__in=value.split(','))
+        return queryset
+
     class Meta:
         model = models.Gene
         fields = ['species']
 
 
+class GeneListFilter(QueryFilterSet):
+    species = getSpeciesChoiceFilter("gene__species__scientific_name", required = False)
+
+    class Meta:
+        model = models.GeneList
+        fields = ['species']
+
+    def filter_queryset(self, queryset):
+        # Avoid returning duplicate gene lists because of the species filter
+        queryset = super().filter_queryset(queryset)
+        return queryset.distinct()
+
+
 class OrthologFilter(FilterSet):
     gene = CharFilter(
         method = 'find_orthologs',
-        label = "Gene name to search for orthologs.")
+        label = "The <a href='#/operations/gene_list'>gene name</a> for ortholog search. If not defined, returns all orthologs.")
     expression = BooleanFilter(
         method = skip_param, # used in serializers.py: OrthologSerializer
         label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
@@ -109,7 +133,9 @@ class OrthologFilter(FilterSet):
 
 class SingleCellFilter(FilterSet):
     species = getSpeciesChoiceFilter()
-    gene = CharFilter(method=skip_param, label='Retrieve expression for a given gene.')
+    gene = CharFilter(
+        method=skip_param,
+        label="Retrieve expression for a given <a href='#/operations/gene_list'>gene</a>.")
 
     class Meta:
         model = models.SingleCell
@@ -118,7 +144,9 @@ class SingleCellFilter(FilterSet):
 
 class MetacellFilter(FilterSet):
     species = getSpeciesChoiceFilter()
-    gene = CharFilter(method=skip_param, label='Retrieve expression for a given gene.')
+    gene = CharFilter(
+        method=skip_param,
+        label="Retrieve expression for a given <a href='#/operations/gene_list'>gene</a>.")
 
     class Meta:
         model = models.Metacell
@@ -136,10 +164,10 @@ class MetacellLinkFilter(FilterSet):
 class MetacellGeneExpressionFilter(FilterSet):
     species = getSpeciesChoiceFilter()
     genes = CharFilter(
-        label = 'Comma-separated list of genes to retrieve data for. If not provided, data is returned for all genes.',
+        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a> to retrieve data for. If not provided, data is returned for all genes.",
         method='filter_genes')
     metacells = CharFilter(
-        label = "Comma-separated list of metacell names and cell types (example: <i>12,30,Peptidergic1</i>).",
+        label = "Comma-separated list of <a href='#/operations/metacell_list'>metacell names and cell types</a> (example: <i>12,30,Peptidergic1</i>).",
         method = "filter_metacells")
     fc_min = NumberFilter(
         label = 'Filter expression data by minimum fold-change (default: <kbd>0</kbd>).',
@@ -238,7 +266,7 @@ class MetacellGeneExpressionFilter(FilterSet):
 class SingleCellGeneExpressionFilter(FilterSet):
     species = getSpeciesChoiceFilter()
     genes = CharFilter(
-        label = 'Comma-separated list of genes to retrieve data for. If not provided, data is returned for all genes.',
+        label = "Filter by a comma-separated list of <a href='#/operations/gene_list'>genes</a>.",
         method='filter_genes_in')
 
     def filter_genes_in(self, queryset, name, value):
@@ -284,7 +312,7 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
 class MetacellMarkerFilter(FilterSet):
     species = getSpeciesChoiceFilter()
     metacells = CharFilter(
-        label = "Comma-separated list of metacell names and cell types (example: <i>12,30,Peptidergic1</i>).",
+        label = "Comma-separated list of <a href='#/operations/metacell_list'>metacell names and cell types</a> (example: <i>12,30,Peptidergic1</i>).",
         method = "select_metacells",
         required = True)
 

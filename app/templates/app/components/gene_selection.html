@@ -7,6 +7,7 @@ Features:
 - Upon gene selection, the user is redirected to that gene page
 
 Input:
+- id: prefex used to identify elements
 - gene: default gene to select with properties 'name', 'description' and
   'domains' (default: none, i.e., no gene is selected)
 - placeholder: text in search box (default: "Search gene by symbol,
@@ -21,7 +22,8 @@ Input:
 
 {% endcomment %}
 
-<select id="gene" name="gene" class="mb-3" style="width: {{width|default:'100%'}};"
+<select id="{{id}}_gene_selection" name="gene" class="mb-3"
+style="width: {{width|default:'100%'}};"
 placeholder="{{placeholder|default:'Search gene...'}}"
 {% if disabled == 'true' %}disabled{% endif %}>
     <option value=""></option>
@@ -47,7 +49,7 @@ function displayGeneName (item, escape) {
 }
 
 $(function () {
-    $("#gene").selectize({
+    $("#{{id}}_gene_selection").selectize({
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {

@@ -36,9 +36,15 @@ class MetacellLinkAdmin(admin.ModelAdmin):
 
 
 class GeneAdmin(admin.ModelAdmin):
-    list_display = ["name", "description", "domains", "species"]
+    list_display = ["name", "description", "domains", "species", "genelist_names"]
     search_fields = ["name", "description"]
-    list_filter = ["species"]
+    list_filter = ["species", "genelists"]
+    filter_horizontal = ('genelists',)
+
+
+class GeneListAdmin(admin.ModelAdmin):
+    list_display = ["name", "description"]
+    search_fields = ["name", "description"]
 
 
 class MetacellGeneExpressionAdmin(admin.ModelAdmin):
@@ -66,6 +72,8 @@ admin.site.register(models.MetacellType, MetacellTypeAdmin)
 admin.site.register(models.MetacellLink, MetacellLinkAdmin)
 
 admin.site.register(models.Gene, GeneAdmin)
+admin.site.register(models.GeneList, GeneListAdmin)
+
 admin.site.register(models.MetacellGeneExpression, MetacellGeneExpressionAdmin)
 admin.site.register(models.SingleCellGeneExpression, SingleCellGeneExpressionAdmin)
 admin.site.register(models.Ortholog, OrthologAdmin)

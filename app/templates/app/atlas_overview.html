@@ -77,9 +77,9 @@ Input:
                         <label class="col-form-label"><small>Select gene</small></label>
                         <div class="btn-group" role="group" style="display: flex;">
                             {% if not query.gene %}
-                                {% include './components/gene_selection.html' with hash='projection' disabled='true' limit=10 %}
+                                {% include './components/gene_selection.html' with id='projection' hash='projection' disabled='true' limit=10 %}
                             {% else %}
-                                {% include './components/gene_selection.html' with hash='projection' limit=10 %}
+                                {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 %}
                             {% endif %}
                         </div>
                     </div>
@@ -91,14 +91,13 @@ Input:
     <script>
         // Toggle disabled state of gene selectize element
         $('input[name="color_by"]').change(function () {
-            var elem = $('#gene')[0].selectize;
+            var elem = $('#projection_gene_selection')[0].selectize;
             this.id.includes('expression') ? elem.enable() : elem.disable();
 
             url = new URL(window.location.href);
             if (url.searchParams.has('gene')) {
                 url.searchParams.delete('gene');
                 url.hash = '#projection';
-                console.log(url);
                 window.location.href = url;
             }
         });
@@ -234,8 +233,29 @@ Input:
                 </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
+                        <label class="col-form-label"><small>Gene selection</small></label>
+                        <div class="btn-group mb-3" role="group" style="display: flex;">
+                            <input type="radio" class="btn-check" name="select_gene_by" id="select_gene_by_markers" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="select_gene_by_markers">Markers per cluster</label>
+
+                            <input type="radio" class="btn-check" name="select_gene_by" id="select_gene_by_list" autocomplete="off">
+                            <label class="btn btn-outline-primary btn-sm" for="select_gene_by_list">Gene list</label>
+                        </div>
+
                         <label class="col-form-label"><small>Markers per cluster</small></label>
                         <input type="range" class="js-range-slider" id="markers" name="markers" value="0" step="0.1" style="opacity: 0;">
+
+                        <div class="d-flex justify-content-between align-items-center small">
+                            <label class="col-form-label">Select genes</label>
+
+                            <a id="select_all_metacells" href="javascript:void(0);"
+                            class="d-block text-end"
+                            data-bs-toggle="modal" data-bs-target="#gene_list_editor">
+                                Edit gene lists...
+                            </a>
+                        </div>
+
+                        {% include './components/gene_selection.html' with id='expression' hash='expression' limit=10 %}
                     </div>
                 </div>
             </div>
@@ -307,6 +327,7 @@ Input:
     </div>
 </form>
 
+<!-- Gene expression heatmap form -->
 <script>
     $(function() {
         // Change metacell selection label
@@ -373,6 +394,9 @@ Input:
         onUpdate: updateText("#fc_min_value", "#clip_log2")
     });
 </script>
+
+<!-- Gene list editor -->
+{% include './components/list_editor.html' with id='gene_list' %}
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">

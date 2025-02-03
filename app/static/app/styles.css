@@ -181,6 +181,20 @@ a:hover {
     cursor: default;
 }
 
+.list-group-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.list-group-item.active .text-muted {
+    color: white !important;
+}
+
+.upload-tooltip .tooltip-inner {
+    max-width: 230px;
+    width: 230px;
+}
+
 /* Dropdown menu */
 
 .dropdown-menu {

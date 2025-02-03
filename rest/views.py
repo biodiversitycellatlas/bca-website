@@ -14,6 +14,14 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'scientific_name'
 
 
+class GeneListViewSet(viewsets.ReadOnlyModelViewSet):
+    """ List gene lists. """
+    queryset = models.GeneList.objects.all()
+    serializer_class = serializers.GeneListSerializer
+    filterset_class = filters.GeneListFilter
+    lookup_field = 'name'
+
+
 class GeneViewSet(viewsets.ReadOnlyModelViewSet):
     """ List genes. """
     queryset = models.Gene.objects.prefetch_related('species')

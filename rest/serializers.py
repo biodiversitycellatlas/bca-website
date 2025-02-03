@@ -15,24 +15,41 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Species
-        exclude = ['id']
+        fields = ['common_name', 'scientific_name', 'description', 'image_url', 'meta']
 
 
 class GeneSerializer(serializers.ModelSerializer):
     species = SpeciesSerializer(required=False)
+    genelists = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = models.Gene
-        exclude = ['id']
+        fields = ['name', 'description', 'domains', 'genelists', 'species']
 
     def __init__(self, *args, **kwargs):
         # Do not show 'species' in result if filtered in query params
-        species = kwargs['context']['request'].GET.get('species', None)
+        if 'context' in kwargs and 'request' in kwargs['context']:
+            species = kwargs['context']['request'].GET.get('species', None)
 
-        if species:
-            self.fields.pop('species')
+            if species:
+                self.fields.pop('species')
 
         super().__init__(*args, **kwargs)
+
+
+class GeneListSerializer(serializers.ModelSerializer):
+    gene_count = serializers.SerializerMethodField(required=False)
+
+    def get_gene_count(self, obj):
+        genes = obj.gene_set
+        species = self.context.get('request').query_params.get('species', None)
+        if species:
+            genes = genes.filter(species__scientific_name=species)
+        return genes.count()
+
+    class Meta:
+        model = models.GeneList
+        fields = ['name', 'description', 'gene_count']
 
 
 class BaseExpressionSerializer(serializers.ModelSerializer):
