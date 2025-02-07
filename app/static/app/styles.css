@@ -1,4 +1,4 @@
-/* Root variables */
+/* Theme variables */
 
 :root {
     --primary-color: #189BCD;
@@ -8,10 +8,21 @@
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
 
-    --card-text-shadow: var(--navbar-hover-shadow-color);
     --table-row-color: #189BCD22;
-    --dropdown-menu-color: #FFFFFF80;
+    --table-selected-row-color: var(--primary-color);
+    --table-selected-a-color: #FFFFFF80;
+
+    --card-text-shadow: var(--navbar-hover-shadow-color);
+    --dropdown-menu-color: var(--table-selected-a-color);
     --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
+}
+
+.pagination {
+    --bs-pagination-color: var(--primary-color);
+    --bs-pagination-active-color: white;
+    --bs-pagination-hover-color: var(--hover-color);
+    --bs-pagination-active-bg: var(--primary-color);
+    --bs-pagination-active-border-color: var(--primary-color);
 }
 
 /* Navbar (and related fixes) */
@@ -61,7 +72,7 @@ main.container { /* Move content to avoid navbar overlap */
     box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
 
-.navbar .form-control:focus {
+.navbar .selectize-input.focus {
     border-color: var(--navbar-hover-shadow-color);
     box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
@@ -186,7 +197,7 @@ a:hover {
     border-color: var(--primary-color);
 }
 
-.list-group-item.active .text-muted {
+.list-group-item.active .text-body-secondary {
     color: white !important;
 }
 
@@ -238,6 +249,19 @@ a:hover {
 table.dataTable.display tbody tr:nth-child(odd) > * {
     background-color: var(--table-row-color);
     box-shadow: none !important;
+}
+
+table.dataTable .selected {
+    background-color: var(--table-selected-row-color);
+    color: white;
+}
+
+table.dataTable .selected a {
+    color: var(--table-selected-a-color);
+}
+
+table.dataTable .selected a:hover {
+    color: white;
 }
 
 .truncate {

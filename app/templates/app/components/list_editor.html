@@ -37,10 +37,10 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
                             data-bs-toggle="list" data-list="Transcription factors">
                                 <span class="{{id}}_group_title">Transcription factors</span>
                                 <div class="d-grid d-lg-flex w-100 justify-content-between">
-                                    <small class="{{id}}_group_count text-muted">
+                                    <small class="{{id}}_group_count text-body-secondary">
                                         140 genes
                                     </small>
-                                    <small class="{{id}}_group_type text-muted"
+                                    <small class="{{id}}_group_type text-body-secondary"
                                     style="font-variant: all-small-caps;">
                                         Preset <i class="fa fa-lock fa-fw"></i>
                                     </small>
@@ -57,60 +57,45 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
                             <i class="fa fa-plus"></i> New
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="javascript:void(0);"
+                            id="{{id}}_new_empty">
                                 <i class="fa-regular fa-circle fa-fw"></i>
                                 Empty list
                             </a>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item disabled"
+                            href="javascript:void(0);" id="{{id}}_new_selected">
                                 <i class="fa fa-list-ul fa-fw"></i>
-                                List with selected 8 genes
+                                List with selected
+                                <span id="{{id}}_new_selected_count">0 genes</span>
                             </a>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="javascript:void(0);"
+                            id="{{id}}_new_duplicate">
                                 <i class="fa fa-clone fa-fw"></i>
                                 Duplicate from selected list
-                            </a>
-                            <a class="dropdown-item" href="#"
-                            data-bs-toggle="tooltip" data-bs-placement="right"
-                            data-bs-html="true" data-bs-container="body"
-                            data-bs-custom-class="upload-tooltip"
-                            data-bs-title="Comma- or tab-separated file with two columns:
-                                    <ul class='text-start'>
-                                        <li>Name of gene list</li>
-                                        <li>Gene symbol (one per line)</li>
-                                    </ul><hr><span>Example:</span>
-                                    <table class='table table-sm table-dark table-hover my-1'>
-                                        <tbody>
-                                            <tr><td>Homeoboxes</td><td>PAX6</td></tr>
-                                            <tr><td>Homeoboxes</td><td>HOXA1</td></tr>
-                                            <tr><td>Myosins</td><td>MYH2</td></tr>
-                                        </tbody>
-                                    </table>">
-                                <i class="fa fa-file-arrow-up fa-fw"></i>
-                                Upload list
                             </a>
 
                             <!-- Boolean operations -->
                             <hr class="dropdown-divider">
-                            <p class="text-muted small ps-3 mb-0">
+                            <p class="text-body-secondary small ps-3 mb-0">
                                 Boolean operations
                             </p>
 
-                            <a class="dropdown-item" href="#"
+                            <a class="dropdown-item" href="javascript:void(0);"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             data-bs-title="Create a new list with all genes from selected lists">
                                 <i class="ph-duotone ph-unite"></i> Unite genes
                             </a>
-                            <a class="dropdown-item" href="#"
+                            <a class="dropdown-item" href="javascript:void(0);"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             data-bs-title="Create a new list with intersecting genes from selected lists">
                                 <i class="ph-duotone ph-intersect"></i> Intersect genes
                             </a>
-                            <a class="dropdown-item" href="#"
+                            <a class="dropdown-item" href="javascript:void(0);"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             data-bs-title="Create a new list with non-intersecting genes from selected lists">
                                 <i class="ph-duotone ph-exclude"></i> Exclude genes
                             </a>
-                            <a class="dropdown-item" href="#"
+                            <a class="dropdown-item" href="javascript:void(0);"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             data-bs-title="Create a new list by subtracting genes from selected lists">
                                 <i class="ph-duotone ph-subtract"></i> Subtract genes
@@ -118,45 +103,75 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
 
 
                             <hr class="dropdown-divider">
-                            <p class="text-muted small mb-0"
+                            <p class="text-body-secondary small mb-0"
                             style="text-align: center;">
                                 <i class="fa fa-shield-halved"></i>
                                 Custom lists are stored<br>
-                                <b>only</b> in your local browser.
+                                <b>only</b> in your local browser
                             </p>
                         </div>
 
-                        <button type="button" class="btn btn-outline-danger btn-xs"
+                        <button id="{{id}}_reset"
+                        type="button" class="btn btn-outline-danger btn-xs"
                         data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                         data-bs-title="Remove custom gene lists for <i>{{species}}</i>">
                             <i class="fa fa-clock-rotate-left fa-fw"></i>
                             <span class="d-none d-lg-inline">Reset</span>
                         </button>
                     </div>
+
+                    <div class="d-flex justify-content-between align-items-center small mt-2">
+                        <label class="col-form-label">
+                            <i class="fa fa-file-arrow-up fa-fw"></i> Upload lists
+                        </label>
+                        <i class="fa fa-circle-question"
+                        data-bs-toggle="tooltip" data-bs-placement="right"
+                        data-bs-html="true" data-bs-container="body"
+                        data-bs-custom-class="upload-tooltip"
+                        data-bs-title="Comma- or tab-separated file with two columns:
+                                <ul class='text-start'>
+                                    <li>Name of gene list</li>
+                                    <li>Gene symbol (one per line)</li>
+                                </ul><hr><span>Example:</span>
+                                <table class='table table-sm table-dark table-hover my-1'>
+                                    <tbody>
+                                        <tr><td>Homeoboxes</td><td>PAX6</td></tr>
+                                        <tr><td>Homeoboxes</td><td>HOXA1</td></tr>
+                                        <tr><td>Myosins</td><td>MYH2</td></tr>
+                                    </tbody>
+                                </table>">
+                        </i>
+                    </div>
+
+                    <input id="{{id}}_new_upload" type="file"
+                    class="form-control form-control-sm">
                 </div>
                 <div class="col-8">
-                    <div class="row">
-                        <div class="col">
-                            <div class="input-group">
-                                <input class="form-control"
-                                id="{{id}}_editor_list_name"
-                                value="Transcription factors">
+                    <fieldset id="{{id}}_controls">
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input class="form-control"
+                                    id="{{id}}_rename"
+                                    value="Transcription factors">
 
-                                <button class="btn btn-outline-secondary"
-                                type="button">
-                                    Rename
+                                    <button id="{{id}}_rename_btn" type="button"
+                                    class="btn btn-outline-secondary">
+                                        Rename
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <button id="{{id}}_remove"
+                                type="button" class="btn btn-outline-danger"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="Remove gene list">
+                                    <i class="fa fa-trash"></i>
+                                    <span class="d-none d-lg-inline">Remove</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-outline-danger"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Remove gene list">
-                                <i class="fa fa-trash"></i>
-                                <span class="d-none d-lg-inline">Remove</span>
-                            </button>
-                        </div>
-                    </div>
+                    </fieldset>
 
                     <hr>
                     <table id="{{id}}_editor_table" class="display compact"
@@ -175,37 +190,128 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
 </script>
 <script type="text/javascript" src="{% static 'app/js/list_editor_table.js' %}"></script>
 <script>
+
 $(function() {
+    // Functions to get, set and append custom lists
+    function getCustomLists(id, species, name) {
+        var lists = JSON.parse( localStorage.getItem(id) ) || {};
+
+        if (species === undefined) {
+            return lists;
+        } else if (name === undefined) {
+            return lists[species];
+        } else {
+            return lists[species][name];
+        }
+    }
+
+    function resetCustomLists(id, species) {
+        var lists = getCustomLists(id);
+        delete lists[species];
+        localStorage.setItem(id, JSON.stringify(lists));
+    }
+
+    function setCustomList(id, species, name, values) {
+        var lists = getCustomLists(id);
+        if (Object.keys(lists).length === 0) {
+            lists[species] = {};
+        }
+        lists[species][name] = values;
+        localStorage.setItem(id, JSON.stringify(lists));
+    }
+
+    function removeCustomList(id, species, name) {
+        var lists = getCustomLists(id);
+        if (lists[species] !== undefined) {
+            delete lists[species][name];
+        }
+        localStorage.setItem(id, JSON.stringify(lists));
+    }
+
+    function appendCustomList(id, species, name, values) {
+        var lists = getCustomLists(id, species);
+
+        if (lists === undefined) {
+            // Create new object if not available
+            lists = {};
+        } else {
+            // Ensure new list name is unique
+            while (lists[name]) {
+                const match = name.match(/(.*?) (\d+)$/);
+                if (match) {
+                    // Increase index in the name
+                    index = parseInt(match[2]) + 1;
+                    name = match[1];
+                } else {
+                    // Append 2 if there is no index
+                    index = 2;
+                }
+                name += ' ' + index;
+            }
+        }
+
+        // Assign new values to list
+        setCustomList(id, species, name, values);
+        appendListGroupItem('{{id}}', name, 'custom', values.length, index=0);
+    }
+
+    function renameCustomList(id, species, name, newName) {
+        var values = getCustomLists(id, species, name);
+        removeCustomList(id, species, name);
+        setCustomList(id, species, newName, values);
+    }
+
     // Get lists from API
     var url = "{% url 'rest:genelist-list' %}";
     var params = new URLSearchParams({ species: '{{species}}' });
     var genelist_apiURL = url + "?" + params.toString();
 
-    const template = document.getElementById('{{id}}_element');
-    const container = document.getElementById('{{id}}_options');
+    function appendListGroupItem (id, name, type, gene_count, index=0, firstRender=false) {
+        const template = document.getElementById(`${id}_element`);
+        const container = document.getElementById(`${id}_options`);
 
-    fetch(genelist_apiURL)
-        .then(response => response.json())
-        .then(data => {
-            res = data.results;
-            res.forEach(item =>{
-                const clone = document.importNode(template.content, true);
+        // Render each list based on template
+        var $clone = $(document.importNode(template.content, true));
 
-                clone.querySelector('.{{id}}_group_a').setAttribute("data-list", item.name);
-                clone.querySelector('.{{id}}_group_title').textContent = item.name;
-                clone.querySelector('.{{id}}_group_count').textContent = `${item.gene_count} genes`;
+        $clone.find(`.${id}_group_a`)
+            .attr("data-list", name)
+            .attr("data-type", type || 'preset');
 
-                container.appendChild(clone);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
+        // Set first element to active if first data table rendering
+        if (firstRender && index === 0) {
+            $clone.find('.{{id}}_group_a').addClass('active');
+        }
 
-    // Get data and render table for lists
-    var url = "{% url 'rest:gene-list' %}";
+        $clone.find(`.${id}_group_title`).text(name);
+        $clone.find(`.${id}_group_count`).text(`${gene_count} genes`);
 
-    function getApiURL (genelist) {
+        if (type === 'custom') {
+            userLabel = `Custom <i class="fa fa-user fa-fw"></i>`;
+            $clone.find(`.${id}_group_type`).html(userLabel);
+        }
+        container.appendChild($clone[0]);
+
+        if (!firstRender && index === 0) {
+            $(container).find('a').removeClass('active');
+            $(container).children('a:last').addClass('active').click();
+        }
+    }
+
+    function redrawCustomLists (id) {
+        // Delete all custom lists from interface
+        const container = document.getElementById(`${id}_options`);
+        $(container).find('a[data-type="custom"]').remove();
+
+        // Re-render all custom lists
+        var customLists = getCustomLists('{{id}}', '{{species}}');
+        for (var name in customLists) {
+            var count = customLists[name].length
+            appendListGroupItem('{{id}}', name, 'custom', count);
+        }
+    }
+
+    function getGenesFromListURL (genelist) {
+        var url = "{% url 'rest:gene-list' %}";
         var params = new URLSearchParams({
     	    species: '{{species}}',
     	    genelists: genelist
@@ -213,25 +319,169 @@ $(function() {
     	return url + "?" + params.toString();
     }
 
-    var list = $("#{{id}}_options").find(".active").attr('data-list');
-    createListEditorTable('{{id}}_editor_table', getApiURL(list));
+    function getGenesURL (genes) {
+        var url = "{% url 'rest:gene-list' %}";
+        var params = new URLSearchParams({
+    	    species: '{{species}}',
+    	    genes: genes.join(',')
+    	});
+    	return url + "?" + params.toString();
+    }
 
-    $("#{{id}}_options").on('click', '.active', function(event) {
-        // Prevent event triggering if already active
-        //if ($(this).hasClass('active')) {
-        //    event.preventDefault();
-        //    return;
-        //}
+    fetch(genelist_apiURL)
+        .then(response => response.json())
+        .then(data => {
+            const res = data.results;
 
-        var list = $(this).attr('data-list');
-        apiURL = getApiURL(list);
+            // Append custom lists
+            var customLists = getCustomLists('{{id}}', '{{species}}');
+            for (var elem in customLists) {
+                res.push({
+                    name: elem,
+                    gene_count: customLists[elem].length,
+                    type: 'custom'
+                });
+            }
+            return res;
+        })
+        .then(data => {
+            data.forEach((item, index) => {
+                appendListGroupItem('{{id}}', item.name, item.type,
+                                    item.gene_count, index, firstRender=true);
+            });
+        })
+        .then(data => {
+            // Create table and fetch data for active list
+            createListEditorTable('{{id}}_editor_table');
+            renderListDetail('{{id}}', '{{species}}');
 
-        var table = $('#{{id}}_editor_table').DataTable();
+            // Update interface based on selection
+            var table = $('#{{id}}_editor_table').DataTable();
+            table.on('select deselect', function(e, dt, type, indexes) {
+                if (type === 'row') {
+                    const len = getSelectedRows('{{id}}_editor_table').length;
+                    var label = len + (len === 1 ? ' gene' : ' genes');
+                    $('#{{id}}_new_selected_count').text(label);
+
+                    // Disable element if no rows are selected
+                    if (len === 0) {
+                        $('#{{id}}_new_selected').addClass('disabled');
+                    } else {
+                        $('#{{id}}_new_selected').removeClass('disabled');
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+
+    // Get data and render table for active group list
+    let previousActiveList = null;
+
+    /**
+     * Renders details for a selected list.
+     *
+     * @param {string} id - Identifier.
+     * @param {string} species - Species.
+     */
+    function renderListDetail (id, species) {
+        var table = $(`#${id}_editor_table`).DataTable();
         table.search('').columns().search(''); // Clear search
         table.clear(); // Clear data
-        table.ajax.url(apiURL).load();
 
-        $('#{{id}}_editor_list_name').val(list);
+        // Load data depending on list type
+        var name = $(`#${id}_options`).find(".active").attr('data-list');
+        var type = $(`#${id}_options`).find(".active").attr('data-type');
+
+        var url;
+        if (type === 'preset') {
+            url = getGenesFromListURL(name);
+        } else if (type === 'custom')  {
+            var genes = getCustomLists(id, species, name);
+            url = genes.length === 0 ? '' : getGenesURL(genes);
+        }
+        table.ajax.url(url).load();
+
+        // Update list-specific controls
+        $(`#${id}_rename`).val(name);
+        $(`#${id}_controls`).prop('disabled', type === 'preset');
+    }
+
+    // Trigger data rendering on any change to .active class
+    $("#{{id}}_options").on('click keyup', '.active', function (event) {
+        // Prevent event triggering if element was previously active
+        if ( previousActiveList && previousActiveList.is($(this)) ) {
+            event.preventDefault();
+            return;
+        }
+        previousActiveList = $(this);
+        renderListDetail('{{id}}', '{{species}}');
     });
+
+    // Menu actions: New
+    $('#{{id}}_new_empty').on('click', function(e) {
+        appendCustomList('{{id}}', '{{species}}', 'Empty list', []);
+    });
+
+    $('#{{id}}_new_selected').on('click', function(e) {
+        const selected = getSelectedRows('{{id}}_editor_table');
+        appendCustomList('{{id}}', '{{species}}', 'Selected genes', selected);
+    });
+
+    // Menu actions: Reset
+    $('#{{id}}_reset').on('click', function(e) {
+        if (confirm("Do you want to reset all custom gene lists for {{species}}?")) {
+            resetCustomLists('{{id}}', '{{species}}');
+            redrawCustomLists('{{id}}');
+
+            // Select the first item in the list if no element is selected
+            if ($("#{{id}}_options").find('a.active').length === 0) {
+                $("#{{id}}_options a").first().addClass('active').click();
+            }
+        }
+    });
+
+    // Menu actions: Rename and remove
+    $('#{{id}}_rename_btn').on('click', function(e) {
+        var renameInput = $('#{{id}}_rename');
+        var newName = renameInput.val().trim();
+
+        var activeItem = $("#{{id}}_options").find('a.active');
+        var name = activeItem.find('.{{id}}_group_title').text();
+
+        var all_names = $("#{{id}}_options").find('a .{{id}}_group_title')
+            .map((i, el) => $(el).text()).get();
+
+        if (newName === '') {
+            // Avoid empty list name
+            renameInput.val(name);
+            alert('The name of a list cannot be empty.');
+        } else if (all_names.includes(newName)) {
+            // Avoid duplicated name
+            alert('This name is already being used for a different list.');
+        } else {
+            renameCustomList('{{id}}', '{{species}}', name, newName);
+            redrawCustomLists('{{id}}');
+            //activeItem[0].setAttribute('data-list', newName);
+            //activeItem.find('.{{id}}_group_title').text(newName);
+        }
+    });
+
+    $('#{{id}}_remove').on('click', function(e) {
+        var activeItem = $("#{{id}}_options").find('a.active');
+        var name = activeItem.find('.{{id}}_group_title').text();
+
+        if (confirm(`Do you want to remove the following list: ${name}?`)) {
+            removeCustomList('{{id}}', '{{species}}', name);
+            redrawCustomLists('{{id}}');
+
+            // Select the first item in the list if no element is selected
+            if ($("#{{id}}_options").find('a.active').length === 0) {
+                $("#{{id}}_options a").first().addClass('active').click();
+            }
+        }
+    });
+
 });
 </script>

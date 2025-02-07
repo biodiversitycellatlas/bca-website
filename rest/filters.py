@@ -78,6 +78,9 @@ class SpeciesFilter(QueryFilterSet):
 
 class GeneFilter(QueryFilterSet):
     species = getSpeciesChoiceFilter(required = False)
+    genes = CharFilter(
+        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a> to retrieve data for. If not provided, data is returned for all genes.",
+        method='filter_genes')
     genelists = CharFilter(
         method = "find_in_genelists",
         label = "Comma-separated list of <a href='#/operations/gene_lists_list'>gene lists</a> to retrieve genes for (example: <i>Transcription factors,RNA-binding proteins</i>).")
@@ -87,6 +90,11 @@ class GeneFilter(QueryFilterSet):
         label = "Query string to filter results (example: <kbd>ATP binding</kbd>). The string will be searched and ranked across gene names, descriptions, and domains."
     )
     query_fields = ['name', 'description', ArrayToString('domains')]
+
+    def filter_genes(self, queryset, name, value):
+        if value:
+            queryset = queryset.filter(name__in=value.split(','))
+        return queryset
 
     def find_in_genelists(self, queryset, name, value):
         if value:
@@ -266,10 +274,10 @@ class MetacellGeneExpressionFilter(FilterSet):
 class SingleCellGeneExpressionFilter(FilterSet):
     species = getSpeciesChoiceFilter()
     genes = CharFilter(
-        label = "Filter by a comma-separated list of <a href='#/operations/gene_list'>genes</a>.",
-        method='filter_genes_in')
+        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a> to retrieve data for. If not provided, data is returned for all genes.",
+        method='filter_genes')
 
-    def filter_genes_in(self, queryset, name, value):
+    def filter_genes(self, queryset, name, value):
         if value:
             queryset = queryset.filter(gene__name__in=value.split(','))
         return queryset

@@ -22,9 +22,13 @@ function parseArray (data, type, row) {
     return data;
 }
 
+// Get selected rows
+function getSelectedRows(id) {
+    return $(`#${id}`).DataTable().select.cumulative().rows.slice();
+}
+
 // Create DataTable
-function createListEditorTable(id, url) {
-    console.log(url);
+function createListEditorTable(id, url='') {
     $(`#${id}`).dataTable({
         ajax: {
             url: url,
@@ -44,15 +48,26 @@ function createListEditorTable(id, url) {
                 return JSON.stringify( json );
             },
             dataSrc: function (json) { return json.results; },
+            cache: true
         },
-        pageLength: 25,
+        pageLength: 10,
+        layout: {
+            bottomEnd: {
+                paging: {
+                    firstLast: false,
+                    previousNext: false
+                }
+            }
+        },
         processing: true,
         serverSide: true,
         select: true,
         rowId: 'name',
         scrollX: true,
         language: {
-            info: "Total entries: _TOTAL_"
+            info: "Total entries: _TOTAL_",
+            infoEmpty: "Total entries: 0",
+            infoFiltered: ""
         },
         columns: [
             { data: 'name', title: "Gene", render: linkGene },
