@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app/atlas.html" %}
 
 {% comment %}
 
@@ -22,9 +22,7 @@ Input:
 {% block title %}{{species}} {{gene|default:'Gene'}}{% endblock title %}
 
 {% block content %}
-
 {% load static %}
-{% include './components/atlas_selection.html' %}
 
 {% include './components/gene_selection.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
 {% include './components/warning_alert.html' %}

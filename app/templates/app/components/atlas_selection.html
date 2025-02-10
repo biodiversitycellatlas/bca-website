@@ -15,18 +15,20 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="species-select" class="mb-3 atlas-select"
-style="margin-bottom: 30px !important; visibility: hidden;"
-placeholder="Search species by nomenclature, taxonomic rank, division, ...">
-    <option value=""></option>
-    {% for phylum, species_list in species_dict.items %}
-        <optgroup label="{{ phylum }}">
-        {% for elem in species_list %}
-            <option value="{{elem.species.species_underscore}}" data-meta="{{elem.meta|join:','}}" data-image="{{elem.species.image_url}}" data-name="{{elem.species.common_name}}" {% if species == elem.species %}selected{%endif%}>{{ elem.species.scientific_name }}</option>
+<div class="container">
+    <select id="species-select" class="mb-2 atlas-select"
+    style="margin-bottom: 31px !important; visibility: hidden;"
+    placeholder="Search species by nomenclature, taxonomic rank, division, ...">
+        <option value=""></option>
+        {% for phylum, species_list in species_dict.items %}
+            <optgroup label="{{ phylum }}">
+            {% for elem in species_list %}
+                <option value="{{elem.species.species_underscore}}" data-meta="{{elem.meta|join:','}}" data-image="{{elem.species.image_url}}" data-name="{{elem.species.common_name}}" {% if species == elem.species %}selected{%endif%}>{{ elem.species.scientific_name }}</option>
+            {% endfor %}
+            </optgroup>
         {% endfor %}
-        </optgroup>
-    {% endfor %}
-</select>
+    </select>
+</div>
 
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
@@ -96,29 +98,36 @@ $(function () {
 });
 </script>
 
-<!-- Tabs to navigate the cell atlas of a given species -->
+<!-- Subnavbar to navigate the Cell Atlas -->
 {% with request.resolver_match.url_name as url_name %}
-<ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-        <a class="nav-link {% if url_name in 'atlas,atlas_info' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_info' species.species_underscore %}{% endif %}"><i class="fa fa-dna"></i> Information</a>
-    </li>
+<div class="subnavbar sticky-md-top py-1">
+    <div class="container">
+        <ul class="nav nav-pills small flex-column flex-md-row">
+            <li class="nav-item">
+                <a class="nav-link {% if url_name in 'atlas,atlas_info' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_info' species.species_underscore %}{% endif %}"><i class="fa fa-dna"></i> Information</a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link {% if url_name == 'atlas_overview' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_overview' species.species_underscore %}{% endif %}"><i class="fa fa-diagram-project"></i> Overview</a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link {% if url_name == 'atlas_overview' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_overview' species.species_underscore %}{% endif %}"><i class="fa fa-diagram-project"></i> Overview</a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link {% if url_name == 'atlas_markers' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}"><i class="fa fa-list-ul"></i> Gene markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected metacells"></i></a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link {% if url_name == 'atlas_markers' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}"><i class="fa fa-list-ul"></i> Gene markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected metacells"></i></a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link {% if url_name == 'atlas_gene' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_gene' species.species_underscore %}{% endif %}"><i class="fa fa-bezier-curve"></i> Gene and orthologs <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Visualise gene and ortholog expression"></i></a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link {% if url_name == 'atlas_gene' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_gene' species.species_underscore %}{% endif %}"><i class="fa fa-bezier-curve"></i> Gene and orthologs <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Visualise gene and ortholog expression"></i></a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link {% if url_name == 'atlas_compare' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_compare' species.species_underscore %}{% endif %}"><i class="fa fa-scale-unbalanced"></i> Species comparison <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Compare genes between cell types of different species"></i></a>
-    </li>
-</ul>
+            <li class="nav-item">
+                <a class="nav-link {% if url_name == 'atlas_compare' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_compare' species.species_underscore %}{% endif %}"><i class="fa fa-scale-unbalanced"></i> Species comparison <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Compare genes between cell types of different species"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Add some whitespace between subnavbar and content -->
+<div class="mb-2"></div>
 
 <!-- Set species in cookie -->
 <!--{% if species %}

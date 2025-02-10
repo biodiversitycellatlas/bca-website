@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app/atlas.html" %}
 
 {% comment %}
 
@@ -21,9 +21,7 @@ Input:
 {% block title %}{{species}} Overview{% endblock title %}
 
 {% block content %}
-
 {% load static %}
-{% include './components/atlas_selection.html' %}
 
 <!-- Metacell projection -->
 <h1 class="h3 pt-2 mb-3" id="projection">

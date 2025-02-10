@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app/atlas.html" %}
 
 {% comment %}
 
@@ -9,8 +9,4 @@ Comparison page between multiple species
 {% block title %}{{species}} Compare{% endblock title %}
 
 {% block content %}
-
-{% load static %}
-{% include './components/atlas_selection.html' %}
-
 {% endblock content %}

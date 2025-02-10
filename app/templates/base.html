@@ -73,6 +73,11 @@ Dynamic blocks:
 
 <body>
     {% block navbar %}{% include 'navbar.html' %}{% endblock navbar %}
+    {% block subnav %}
+        {% comment %}
+            Subnavigation bar (e.g., used in Cell Atlas)
+        {% endcomment %}
+    {% endblock subnav %}
 
     <main class="container">
         {% block content %}{% endblock %}

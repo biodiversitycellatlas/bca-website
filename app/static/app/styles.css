@@ -9,13 +9,17 @@
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
 
-    --table-row-color: #3bbcb222;
-    --table-selected-row-color: var(--primary-color);
-    --table-selected-a-color: #FFFFFF80;
+    --subnavbar-bg-color: #FFFFFF80;
+    --subnavbar-blur: blur(20px);
 
     --card-text-shadow: var(--navbar-hover-shadow-color);
-    --dropdown-menu-color: var(--table-selected-a-color);
+    --dropdown-menu-color: var(--subnavbar-bg-color);
     --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
+    --dropdown-menu-blur: var(--subnavbar-blur);
+
+    --table-row-color: #3bbcb222;
+    --table-selected-row-color: var(--primary-color);
+    --table-selected-a-color: var(--subnavbar-bg-color);
 }
 
 .pagination {
@@ -30,10 +34,6 @@
 
 html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
   scroll-padding-top: 60px;
-}
-
-main.container { /* Move content to avoid navbar overlap */
-    padding-top: 80px;
 }
 
 .navbar {
@@ -60,7 +60,7 @@ main.container { /* Move content to avoid navbar overlap */
 }
 
 .navbar .nav-link.active, .navbar .nav-link.active:hover {
-    font-weight: 600;
+    font-weight: 500;
     background: linear-gradient(135deg, var(--navbar-hover-color), var(--navbar-hover-shadow-color));
 }
 
@@ -83,27 +83,35 @@ main.container { /* Move content to avoid navbar overlap */
     border-width: 2px;
 }
 
-/* Navigation tabs (Cell Atlas) */
+/* Subnavbar: navigation tabs (Cell Atlas) */
 
-.nav-tabs .nav-link {
+.subnavbar {
+    top: 58px;
+    background-color: var(--subnavbar-bg-color);
+    backdrop-filter: var(--subnavbar-blur);
+}
+
+.nav-pills .nav-link {
     color: var(--primary-color);
 }
 
-.nav-tabs .nav-link:hover {
+.nav-pills .nav-link:hover {
     color: var(--hover-color);
 }
 
-.nav-tabs .nav-link.disabled {
+.nav-pills .nav-link.disabled {
     color: var(--bs-nav-link-disabled-color);
 }
 
-.nav-tabs .nav-link.active {
-    color: var(--bs-nav-tabs-link-active-color);
+.nav-pills .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
 }
 
 /* Body */
 
 body {
+    padding-top: 80px;
     font-family: var(--font);
 }
 
@@ -215,7 +223,7 @@ a:hover {
 
 .dropdown-menu {
     background: var(--dropdown-menu-color);
-    backdrop-filter: blur(25px);
+    backdrop-filter: var(--dropdown-menu-blur);
     box-shadow: var(--dropdown-menu-shadow);
 }
 
@@ -283,8 +291,8 @@ table.dataTable .selected a:hover {
     border-radius: 1px;
 }
 
-.selectize-dropdown .selected {
-    background-color: var(--primary-color);
+.atlas-select .selectize-dropdown {
+    z-index: 1030; /* Bigger than Cell Atlas subnavbar */
 }
 
 .atlas-select .selectize-dropdown-content {
@@ -293,6 +301,10 @@ table.dataTable .selected a:hover {
 
 .species-meta {
     display: none;
+}
+
+.selectize-dropdown .selected {
+    background-color: var(--primary-color);
 }
 
 .selectize-control::before {
