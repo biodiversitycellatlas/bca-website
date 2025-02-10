@@ -108,7 +108,7 @@ $(function () {
     </li>
 
     <li class="nav-item">
-        <a class="nav-link {% if url_name == 'atlas_markers' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}"><i class="fa fa-list-ul"></i> Metacell markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected metacells"></i></a>
+        <a class="nav-link {% if url_name == 'atlas_markers' %}active{% endif %} {% if not species %}disabled{% endif %}" href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}"><i class="fa fa-list-ul"></i> Gene markers <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Identify genes with specific expression patterns in selected metacells"></i></a>
     </li>
 
     <li class="nav-item">

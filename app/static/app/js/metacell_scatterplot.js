@@ -64,8 +64,7 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    		"x2": {"field": "metacell2.x", "type": "quantitative"},
 	    		"y":  {"field": "metacell.y",  "type": "quantitative"},
 	    		"y2": {"field": "metacell2.y", "type": "quantitative"},
-	    		"color": {"value": "#B7B7B7"},
-	    		"opacity": { "value": 0.7 }
+	    		"color": {"value": "#B7B7B7"}
 	    	}
   		}, {
   			"data": { "name": "mc_data", "values": data['mc_data'] },

@@ -21,9 +21,11 @@ Dynamic blocks:
 <head>
     <!-- Favicons -->
     {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-96x96.png' %}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'app/images/favicons/favicon.svg' %}" />
+    <link rel="shortcut icon" href="{% static 'app/images/favicons/favicon.ico' %}" />
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'app/images/favicons/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'app/images/favicons/favicon-16x16.png' %}">
+    <meta name="apple-mobile-web-app-title" content="BCA" />
     <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
 
     <!-- jQuery -->
@@ -61,9 +63,12 @@ Dynamic blocks:
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css" integrity="sha512-Ars0BmSwpsUJnWMw+KoUKGKunT7+T8NGK0ORRKj+HT8naZzLSIQoOSIIM3oyaJljgLxFi0xImI5oZkAWEFARSA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    <!-- Rubik typeface from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{% static 'app/styles.css' %}">
     <title>{% block title %}Biodiversity Cell Atlas{% endblock %}</title>
-    <meta name="theme-color" content="#189BCD">
+    <meta name="theme-color" content="#239184">
 </head>
 
 <body>

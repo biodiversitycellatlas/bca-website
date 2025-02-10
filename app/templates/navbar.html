@@ -12,7 +12,9 @@ Features:
 {% with request.resolver_match.url_name as url_name %}
 <header><nav class="navbar navbar-expand-md fixed-top navbar-dark">
     <div class="container-md container-fluid">
-        <a class="navbar-brand" href="{% url 'index' %}">BCA</a>
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img title="Biodiversity Cell Atlas" width="50" src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_White.svg' %}" style="margin: -10px;">
+        </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
         data-bs-target="#navbarSupportedContent"

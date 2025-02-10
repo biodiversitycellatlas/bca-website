@@ -12,18 +12,21 @@ Features:
 {% endcomment %}
 
 {% block content %}
-<div class="px-2 pt-2 my-2 text-center">
-    <h1 class="display-5 fw-bold text-body-emphasis">
+{% load static %}
+<div class="px-2 text-center">
+    <h1 class="display-5 fw-bold text-body-emphasis d-none">
         The Biodiversity Cell Atlas
     </h1>
+
+    <img title="Biodiversity Cell Atlas" width="500" src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}" style="margin: -40px;">
+
     <div class="col-lg-8 mx-auto">
-      <p class="lead" style="margin-bottom: -5px;">The Biodiversity Cell Atlas is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species. <a href="{% url 'about' %}">Read more...</a>
+      <p class="lead" style="margin-bottom: -5px;">The <b>Biodiversity Cell Atlas</b> is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species. <a href="{% url 'about' %}">Read more...</a>
       </p>
     </div>
 </div>
 
 <!-- Tree of Life -->
-{% load static %}
 <div id="tree" class="container d-flex align-items-center justify-content-center" style="height: 1000px; width: 1000px;"></div>
 <script type="text/javascript" src="{% static 'app/js/tree_of_life.js' %}"></script>
 <script type="text/javascript">createTreeOfLife("#tree", "{% static 'life.json' %}")</script>

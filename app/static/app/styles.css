@@ -1,14 +1,15 @@
 /* Theme variables */
 
 :root {
-    --primary-color: #189BCD;
-    --hover-color: #189BCDAA;
+    --font: 'Rubik', sans-serif;
+    --primary-color: #239184;
+    --hover-color: #3bbcb2;
 
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
 
-    --table-row-color: #189BCD22;
+    --table-row-color: #3bbcb222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: #FFFFFF80;
 
@@ -101,6 +102,10 @@ main.container { /* Move content to avoid navbar overlap */
 }
 
 /* Body */
+
+body {
+    font-family: var(--font);
+}
 
 .btn-xs {
     --bs-btn-padding-y: .25rem;

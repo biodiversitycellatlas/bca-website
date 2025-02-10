@@ -22,6 +22,84 @@ Features:
 
 <p>Contact us at <a href="https://crg.eu" target="_blank">Centre for Genomic Regulation (CRG)</a>.</p>
 
+<h1 class="h3" id="media">Media kit</h1>
+
+{% load static %}
+<div class="row">
+	<div class="col-6 col-md-5 col-lg-4 col-xl-3 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Primary_Logo_Color.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Secondary_Logo_Color.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Secondary_Logo_Color.svg' %}">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Seal_Logo_Color.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_Color.svg' %}">
+		</a>
+	</div>
+</div>
+<div class="row">
+	<div class="col-6 col-md-5 col-lg-4 col-xl-3 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Primary_Logo_Black.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Black.svg' %}">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Secondary_Logo_Black.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Secondary_Logo_Black.svg' %}">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Seal_Logo_Black.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_Black.svg' %}">
+		</a>
+	</div>
+</div>
+<div class="row">
+	<div class="col-6 col-md-5 col-lg-4 col-xl-3 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Primary_Logo_White.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_White.svg' %}"
+			style="background-color: var(--primary-color);">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Secondary_Logo_White.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Secondary_Logo_White.svg' %}"
+			style="background-color: var(--primary-color);">
+		</a>
+	</div>
+	<div class="col-3 col-lg-2 d-flex justify-content-center">
+		<a href="{% static 'app/images/logos/BCA/PNG/BCALogotypeDesign_2024_Seal_Logo_White.png' %}" target="_blank">
+			<img title="Biodiversity Cell Atlas" height="120"
+			class="rounded"
+			src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_White.svg' %}"
+			style="background-color: var(--primary-color);">
+		</a>
+	</div>
+</div>
+
+<p class="mt-3">BCA logo by <a href="https://joanaccarvalho.com" target="_blank">Joana C. Carvalho</a>. Free to use with mandatory attribution. Modification not allowed.</p>
+
 <h1 class="h3" id="legal">Legal notice</h1>
 
 <p>The Biodiversity Cell Atlas website was developed and is maintained by <a href="https://crg.eu" target="_blank">Centre for Genomic Regulation (CRG)</a>, located in Barcelona, Spain. By accessing and using this site, you agree to comply with all applicable laws and regulations. The content on this website is for informational purposes only. For inquiries, please <a href="#contact">contact us</a>.</p>
@@ -36,7 +114,7 @@ Features:
 
 <h1 class="h3" id="licenses">Licenses</h1>
 
-Icons by <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome</a>.
+<p>Icons by <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome</a>.</p>
 
 {% load custom_tags %}
 <p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "app/templates/app/about.html" "%d %b %Y" %}</b></i></p>
