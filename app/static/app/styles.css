@@ -91,15 +91,15 @@ html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
     backdrop-filter: var(--subnavbar-blur);
 }
 
-.nav-pills .nav-link {
+.nav .nav-link {
     color: var(--primary-color);
 }
 
-.nav-pills .nav-link:hover {
+.nav .nav-link:hover {
     color: var(--hover-color);
 }
 
-.nav-pills .nav-link.disabled {
+.nav .nav-link.disabled {
     color: var(--bs-nav-link-disabled-color);
 }
 
