@@ -277,6 +277,10 @@ table.dataTable .selected a:hover {
     color: white;
 }
 
+div.dt-container div.dt-processing > div > div {
+    background: var(--primary-color) !important;
+}
+
 .truncate {
     max-width:200px;
     white-space: nowrap;

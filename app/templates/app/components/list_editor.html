@@ -37,13 +37,15 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
                             data-bs-toggle="list" data-list="Transcription factors">
                                 <span class="{{id}}_group_title">Transcription factors</span>
                                 <div class="d-grid d-lg-flex w-100 justify-content-between">
-                                    <small class="{{id}}_group_count text-body-secondary">
+                                    <span class="{{id}}_group_count text-body-secondary small">
                                         140 genes
-                                    </small>
-                                    <small class="{{id}}_group_type text-body-secondary"
-                                    style="font-variant: all-small-caps;">
-                                        Preset <i class="fa fa-lock fa-fw"></i>
-                                    </small>
+                                    </span>
+                                    <span class="{{id}}_group_type text-body-secondary"
+                                    style="font-variant: small-caps;
+                                    text-transform: lowercase;
+                                    margin-bottom: -5px;">
+                                        Preset <i class="fa fa-lock fa-xs fa-fw"></i>
+                                    </span>
                                 </div>
                             </a>
                         </template>
@@ -185,145 +187,15 @@ aria-labelledby="{{id}}_modal_label" aria-hidden="true">
 <script>
     var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
 </script>
+<script type="text/javascript" src="{% static 'app/js/list_editor.js' %}"></script>
 <script type="text/javascript" src="{% static 'app/js/list_editor_table.js' %}"></script>
 <script>
 
 $(function() {
-    // Functions to get, set and append custom lists
-    function getCustomLists(id, species, name) {
-        var lists = JSON.parse( localStorage.getItem(id) ) || {};
-
-        if (species === undefined) {
-            return lists;
-        } else if (name === undefined) {
-            return lists[species];
-        } else {
-            return lists[species][name];
-        }
-    }
-
-    function resetCustomLists(id, species) {
-        var lists = getCustomLists(id);
-        delete lists[species];
-        localStorage.setItem(id, JSON.stringify(lists));
-    }
-
-    function setCustomList(id, species, name, values) {
-        var lists = getCustomLists(id);
-        if (Object.keys(lists).length === 0) {
-            lists[species] = {};
-        }
-        lists[species][name] = values;
-        localStorage.setItem(id, JSON.stringify(lists));
-    }
-
-    function removeCustomList(id, species, name) {
-        var lists = getCustomLists(id);
-        if (lists[species] !== undefined) {
-            delete lists[species][name];
-        }
-        localStorage.setItem(id, JSON.stringify(lists));
-    }
-
-    function appendCustomList(id, species, name, values) {
-        var lists = getCustomLists(id, species);
-
-        if (lists === undefined) {
-            // Create new object if not available
-            lists = {};
-        } else {
-            // Ensure new list name is unique
-            while (lists[name]) {
-                const match = name.match(/(.*?) (\d+)$/);
-                if (match) {
-                    // Increase index in the name
-                    index = parseInt(match[2]) + 1;
-                    name = match[1];
-                } else {
-                    // Append 2 if there is no index
-                    index = 2;
-                }
-                name += ' ' + index;
-            }
-        }
-
-        // Assign new values to list
-        setCustomList(id, species, name, values);
-        appendListGroupItem('{{id}}', name, 'custom', values.length, index=0);
-    }
-
-    function renameCustomList(id, species, name, newName) {
-        var values = getCustomLists(id, species, name);
-        removeCustomList(id, species, name);
-        setCustomList(id, species, newName, values);
-    }
-
     // Get lists from API
     var url = "{% url 'rest:genelist-list' %}";
     var params = new URLSearchParams({ species: '{{species}}' });
     var genelist_apiURL = url + "?" + params.toString();
-
-    function appendListGroupItem (id, name, type, gene_count, index=0, firstRender=false) {
-        const template = document.getElementById(`${id}_element`);
-        const container = document.getElementById(`${id}_options`);
-
-        // Render each list based on template
-        var $clone = $(document.importNode(template.content, true));
-
-        $clone.find(`.${id}_group_a`)
-            .attr("data-list", name)
-            .attr("data-type", type || 'preset');
-
-        // Set first element to active if first data table rendering
-        if (firstRender && index === 0) {
-            $clone.find('.{{id}}_group_a').addClass('active');
-        }
-
-        $clone.find(`.${id}_group_title`).text(name);
-        $clone.find(`.${id}_group_count`).text(`${gene_count} genes`);
-
-        if (type === 'custom') {
-            userLabel = `Custom <i class="fa fa-user fa-fw"></i>`;
-            $clone.find(`.${id}_group_type`).html(userLabel);
-        }
-        container.appendChild($clone[0]);
-
-        if (!firstRender && index === 0) {
-            $(container).find('a').removeClass('active');
-            $(container).children('a:last').addClass('active').click();
-        }
-    }
-
-    function redrawCustomLists (id) {
-        // Delete all custom lists from interface
-        const container = document.getElementById(`${id}_options`);
-        $(container).find('a[data-type="custom"]').remove();
-
-        // Re-render all custom lists
-        var customLists = getCustomLists('{{id}}', '{{species}}');
-        for (var name in customLists) {
-            var count = customLists[name].length
-            appendListGroupItem('{{id}}', name, 'custom', count);
-        }
-    }
-
-    function getGenesFromListURL (genelist) {
-        var url = "{% url 'rest:gene-list' %}";
-        var params = new URLSearchParams({
-    	    species: '{{species}}',
-    	    genelists: genelist
-    	});
-    	return url + "?" + params.toString();
-    }
-
-    function getGenesURL (genes) {
-        var url = "{% url 'rest:gene-list' %}";
-        var params = new URLSearchParams({
-    	    species: '{{species}}',
-    	    genes: genes.join(',')
-    	});
-    	return url + "?" + params.toString();
-    }
 
     fetch(genelist_apiURL)
         .then(response => response.json())
@@ -348,9 +220,9 @@ $(function() {
             });
         })
         .then(data => {
-            // Create table and fetch data for active list
+            // Create table
             createListEditorTable('{{id}}_editor_table');
-            renderListDetail('{{id}}', '{{species}}');
+            renderListDetail('{{id}}', '{{species}}', "{% url 'rest:gene-list' %}");
 
             // Update interface based on selection
             var table = $('#{{id}}_editor_table').DataTable();
@@ -376,35 +248,6 @@ $(function() {
     // Get data and render table for active group list
     let previousActiveList = null;
 
-    /**
-     * Renders details for a selected list.
-     *
-     * @param {string} id - Identifier.
-     * @param {string} species - Species.
-     */
-    function renderListDetail (id, species) {
-        var table = $(`#${id}_editor_table`).DataTable();
-        table.search('').columns().search(''); // Clear search
-        table.clear(); // Clear data
-
-        // Load data depending on list type
-        var name = $(`#${id}_options`).find(".active").attr('data-list');
-        var type = $(`#${id}_options`).find(".active").attr('data-type');
-
-        var url;
-        if (type === 'preset') {
-            url = getGenesFromListURL(name);
-        } else if (type === 'custom')  {
-            var genes = getCustomLists(id, species, name);
-            url = genes.length === 0 ? '' : getGenesURL(genes);
-        }
-        table.ajax.url(url).load();
-
-        // Update list-specific controls
-        $(`#${id}_rename`).val(name);
-        $(`#${id}_controls`).prop('disabled', type === 'preset');
-    }
-
     // Trigger data rendering on any change to .active class
     $("#{{id}}_options").on('click keyup', '.active', function (event) {
         // Prevent event triggering if element was previously active
@@ -413,7 +256,7 @@ $(function() {
             return;
         }
         previousActiveList = $(this);
-        renderListDetail('{{id}}', '{{species}}');
+        renderListDetail('{{id}}', '{{species}}', "{% url 'rest:gene-list' %}");
     });
 
     // Menu actions: New
@@ -430,7 +273,7 @@ $(function() {
     $('#{{id}}_reset').on('click', function(e) {
         if (confirm("Do you want to reset all custom gene lists for {{species}}?")) {
             resetCustomLists('{{id}}', '{{species}}');
-            redrawCustomLists('{{id}}');
+            redrawCustomLists('{{id}}', '{{species}}');
 
             // Select the first item in the list if no element is selected
             if ($("#{{id}}_options").find('a.active').length === 0) {
@@ -459,7 +302,7 @@ $(function() {
             alert('This name is already being used for a different list.');
         } else {
             renameCustomList('{{id}}', '{{species}}', name, newName);
-            redrawCustomLists('{{id}}');
+            redrawCustomLists('{{id}}', '{{species}}');
             //activeItem[0].setAttribute('data-list', newName);
             //activeItem.find('.{{id}}_group_title').text(newName);
         }
@@ -471,7 +314,7 @@ $(function() {
 
         if (confirm(`Do you want to remove the following list: ${name}?`)) {
             removeCustomList('{{id}}', '{{species}}', name);
-            redrawCustomLists('{{id}}');
+            redrawCustomLists('{{id}}', '{{species}}');
 
             // Select the first item in the list if no element is selected
             if ($("#{{id}}_options").find('a.active').length === 0) {
