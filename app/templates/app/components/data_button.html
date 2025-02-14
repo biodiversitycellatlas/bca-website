@@ -26,7 +26,7 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
         <form>
             <div class="btn-group" role="group">
                 {% with 'csv tsv json' as formats %}{% for format in formats.split %}
-                    <input type="radio" class="btn-check" name="data_format_{{id}}" id="data_format_{{id}}_{{format}}" value="{{format}}" autocomplete="off" {% if format == 'csv' %}checked{% endif %}>
+                    <input type="radio" class="btn-check" name="data_format_{{id}}" id="data_format_{{id}}_{{format}}" value="{{format}}" autocomplete="off">
                     <label class="btn btn-outline-secondary btn-xs" for="data_format_{{id}}_{{format}}">{{format | upper}}</label>
                 {% endfor %}{% endwith %}
             </div>
@@ -54,7 +54,7 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                 data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual"
                 data-bs-placement="right"
                 data-bs-title="<i class='fa fa-circle-check'></i> Copied to clipboard!">
-                    <i class="fa fa-code"></i> Copy API link
+                    <i class="fa fa-code"></i> Copy <span class="d-none d-sm-inline">API </span>link
                 </a>
             </div>
         </li>
@@ -135,7 +135,7 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
     $(document).ready(function () {
         // Set format based on saved setting (fallback to 'csv')
         format = localStorage.getItem('data_format');
-        valid = $('input[name="data_format_expression"]').map((_, el) => el.value).get();
+        valid = $('input[name="data_format_{{id}}"]').map((_, el) => el.value).get();
         format = valid.includes(format) ? format : 'csv';
         $(`input[name="data_format_{{id}}"][value="${format}"]`).prop('checked', true);
         updateDataFormat(format);

@@ -69,6 +69,7 @@ Dynamic blocks:
     <link rel="stylesheet" href="{% static 'app/styles.css' %}">
     <title>{% block title %}Biodiversity Cell Atlas{% endblock %}</title>
     <meta name="theme-color" content="#239184">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
@@ -79,7 +80,7 @@ Dynamic blocks:
         {% endcomment %}
     {% endblock subnav %}
 
-    <main class="container">
+    <main class="container-xxl">
         {% block content %}{% endblock %}
     </main>
 

@@ -23,7 +23,7 @@ Input:
 {% include './components/warning_alert.html' %}
 
 <div class="row pt-2">
-    <div class="col-4">
+    <div class="col-sm-4">
         <img src="{{species.image_url}}" style="width: 100%;">
         {% if species.image_source %}
             <span class="small text-secondary"><i>Image credits: <a href="{{species.image_url}}" target="_blank">{{species.image_source}}</a></i></span>
@@ -46,7 +46,7 @@ Input:
             </tbody>
         </table>
     </div>
-    <div class="col-8">
+    <div class="col-sm-8 mt-4 mt-sm-0">
         <h1 class="h3" id="projection">
             <i>{{species.scientific_name}}</i>
             {% include './components/clipboard_button.html' %}

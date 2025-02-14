@@ -87,7 +87,32 @@ html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
 
 .subnavbar {
     top: 58px;
+}
+
+.subnavbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
     background-color: var(--subnavbar-bg-color);
+    backdrop-filter: var(--subnavbar-blur);
+}
+
+.offcanvas-md {
+    @include media-breakpoint-down(md) {
+        height: 100vh;
+    }
+}
+
+.offcanvas-header {
+    margin-top: 58px;
+}
+
+.offcanvas-backdrop.show {
+    background-color: var(--navbar-hover-color);
     backdrop-filter: var(--subnavbar-blur);
 }
 
