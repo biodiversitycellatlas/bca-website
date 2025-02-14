@@ -129,7 +129,12 @@ $(function () {
                         <a class="nav-link p-2
                         {% if url_name in 'atlas,atlas_info' %}active{% endif %}
                         {% if not species %}disabled{% endif %}"
-                        href="{% if species %}{% url 'atlas_info' species.species_underscore %}{% endif %}">
+                        href="
+                        {% if url_name in 'atlas,atlas_info' %}
+                            #top
+                        {% elif species %}
+                            {% url 'atlas_info' species.species_underscore %}
+                        {% endif %}">
                             <i class="fa fa-dna"></i>
                             Information
                         </a>
@@ -139,7 +144,12 @@ $(function () {
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_overview' %}active{% endif %}
                         {% if not species %}disabled{% endif %}"
-                        href="{% if species %}{% url 'atlas_overview' species.species_underscore %}{% endif %}">
+                        href="
+                        {% if url_name == 'atlas_overview' %}
+                            #top
+                        {% elif species %}
+                            {% url 'atlas_overview' species.species_underscore %}
+                        {% endif %}">
                             <i class="fa fa-diagram-project"></i>
                             Overview
                         </a>
@@ -149,7 +159,12 @@ $(function () {
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_markers' %}active{% endif %}
                         {% if not species %}disabled{% endif %}"
-                        href="{% if species %}{% url 'atlas_markers' species.species_underscore %}{% endif %}">
+                        href="
+                        {% if url_name == 'atlas_markers' %}
+                            #top
+                        {% elif species %}
+                            {% url 'atlas_markers' species.species_underscore %}
+                        {% endif %}">
                             <i class="fa fa-list-ol"></i>
                             Gene markers
                             <i class="fa fa-circle-question" data-bs-toggle="tooltip"
@@ -162,7 +177,12 @@ $(function () {
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_gene' %}active{% endif %}
                         {% if not species %}disabled{% endif %}"
-                        href="{% if species %}{% url 'atlas_gene' species.species_underscore %}{% endif %}">
+                        href="
+                        {% if url_name == 'atlas_gene' %}
+                            #top
+                        {% elif species %}
+                            {% url 'atlas_gene' species.species_underscore %}
+                        {% endif %}">
                             <i class="fa fa-bezier-curve"></i>
                             Gene and orthologs
                             <i class="fa fa-circle-question"
@@ -176,7 +196,12 @@ $(function () {
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_compare' %}active{% endif %}
                         {% if not species %}disabled{% endif %}"
-                        href="{% if species %}{% url 'atlas_compare' species.species_underscore %}{% endif %}">
+                        href="
+                        {% if url_name == 'atlas_compare' %}
+                            #top
+                        {% elif species %}
+                            {% url 'atlas_compare' species.species_underscore %}
+                        {% endif %}">
                             <i class="fa fa-scale-unbalanced"></i>
                             Cross-species
                             <i class="fa fa-circle-question"
