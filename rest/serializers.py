@@ -40,7 +40,7 @@ class GeneSerializer(serializers.ModelSerializer):
 class GeneListSerializer(serializers.ModelSerializer):
     gene_count = serializers.SerializerMethodField(required=False)
 
-    def get_gene_count(self, obj):
+    def get_gene_count(self, obj) -> int:
         genes = obj.gene_set
         species = self.context.get('request').query_params.get('species', None)
         if species:
