@@ -116,7 +116,7 @@ Input:
     </div>
 </div>
 
-{% include './components/plot_container.html' with id='projection' %}
+{% include './components/plot_container.html' with id='projection' ratio='16/9' %}
 
 <script type="text/javascript" src="{% static 'app/js/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
@@ -399,7 +399,7 @@ Input:
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
-        {% include './components/plot_container.html' with id='expression' %}
+        {% include './components/plot_container.html' with id='expression' ratio='16/9' %}
     </div>
 </div>
 
