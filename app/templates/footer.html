@@ -11,8 +11,8 @@ Features:
 
 {% load static %}
 <div class="container-xxl">
-    <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
-        <div class="col mb-3">
+    <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-5 mt-5 border-top">
+        <div class="col-6 mb-3">
             <p class="text-muted">Biodiversity Cell Atlas</br>© 2024-{% now "Y" %}</p>
             <a href="https://www.crg.eu/" target="_blank">
                 <p><img title="CRG" width="150" src="{% static 'app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png' %}"></i></p>
@@ -25,9 +25,9 @@ Features:
             </a>
         </div>
 
-        <div class="col mb-3 d-sm-none d-md-block"></div>
+        <div class="col mb-3 d-none d-md-block"></div>
 
-        <div class="col mb-3">
+        <div class="col-6 mb-3">
             <h5><a href="#">Cite us</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">
@@ -38,7 +38,7 @@ Features:
             </ul>
         </div>
 
-        <div class="col mb-3">
+        <div class="col-6 mb-3">
             <h5><a href="{% url 'index' %}">BCA</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">Cell atlas</a></li>
@@ -48,7 +48,7 @@ Features:
             </ul>
         </div>
 
-        <div class="col mb-3">
+        <div class="col-6 mb-3">
             <h5><a href="{% url 'about' %}#about">About</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><a href="{% url 'about' %}#contact" class="nav-link p-0 text-muted">Contact us</a></li>

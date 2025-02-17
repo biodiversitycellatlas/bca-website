@@ -26,18 +26,19 @@ Input:
 {% include './components/warning_alert.html' %}
 <div class="container-xxl">
     <div class="row">
-        <div class="col-2 align-self-center pt-2" style="background-color: lightgray; height: 140px; text-align: center; align-items: center; color: white;">
-            <i class="fa fa-{{icon}} fa-3x d-block d-md-none"></i>
+        <div class="col-4 pt-4 d-flex flex-column align-items-center justify-content-center"
+        style="background-color: lightgray; height: 140px; text-align: center; color: white;">
+            <i class="fa fa-{{icon}} fa-4x d-block d-md-none"></i>
             <i class="fa fa-{{icon}} fa-5x d-none d-md-block d-lg-none"></i>
             <i class="fa fa-{{icon}} fa-6x d-none d-lg-block"></i>
             <p><small>No species selected</small></p>
         </div>
-        <div class="col-10">
-            <span class="placeholder" style="width: 290px;"></span></br>
-            <span class="placeholder" style="width: 260px;"></span></br>
-            <span class="placeholder" style="width: 280px;"></span></br>
-            <span class="placeholder" style="width: 270px;"></span></br>
-            <span class="placeholder" style="width: 150px;"></span></br>
+        <div class="col-8">
+            <span class="placeholder" style="width: 290px; max-width: 100%;"></span></br>
+            <span class="placeholder" style="width: 260px; max-width:  89%;"></span></br>
+            <span class="placeholder" style="width: 280px; max-width:  96%;"></span></br>
+            <span class="placeholder" style="width: 270px; max-width:  93%;"></span></br>
+            <span class="placeholder" style="width: 150px; max-width:  52%;"></span></br>
         </div>
     </div>
 </div>
