@@ -2,8 +2,15 @@
 
 :root {
     --font: 'Rubik', sans-serif;
-    --primary-color: #239184;
-    --hover-color: #3bbcb2;
+
+    --bold-dark-color: #239184;
+    --bold-light-color: #3BBCB2;
+    --neutral-color: #FFF6EE;
+    --light-accent-color: #FFAC3E;
+    --bold-accent-color: #3AB064;
+
+    --primary-color: var(--bold-dark-color);
+    --hover-color: var(--bold-light-color);
 
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
@@ -17,7 +24,7 @@
     --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
     --dropdown-menu-blur: var(--subnavbar-blur);
 
-    --table-row-color: #3bbcb222;
+    --table-row-color: #3BBCB222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: var(--subnavbar-bg-color);
 }
@@ -140,6 +147,10 @@ body {
     font-family: var(--font);
 }
 
+.lead {
+    font-size: 1.20rem;
+}
+
 .btn-xs {
     --bs-btn-padding-y: .25rem;
     --bs-btn-padding-x: .5rem;
@@ -201,14 +212,14 @@ body {
     background-color: var(--primary-color);
 }
 
-.card {
+.news {
     text-decoration: none;
     transition: all 0.1s linear;
     text-shadow: 0 0 4px var(--card-text-shadow);
 }
 
 .card:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 a {
