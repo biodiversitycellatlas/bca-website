@@ -146,6 +146,26 @@ function updateMetacellSelectionText(selected) {
     $('#selected_metacells').html(`<span ${underline} ${tooltip}>${minimized}</span>`);
 }
 updateMetacellSelectionText("{{metacells|join:', '}}");
+
+<!-- Simplify multiple select data into a single comma-separated value -->
+$('form').on('submit', function(e) {
+    e.preventDefault();
+
+    // Get values
+    var formData = new FormData(this);
+    var values = formData.getAll('metacells').join(',');
+
+    // Modify form URL
+    var url = new URL(e.target.action);
+    for (let [key, value] of formData.entries()) {
+        url.searchParams.set(key, value);
+    }
+    url.searchParams.set('metacells', values);
+
+    // Maintain commas in query params
+    href = url.href.replaceAll('%2C', ',');
+    window.location.href = href;
+});
 </script>
 
 {% endblock content %}

@@ -30,7 +30,7 @@ Input:
     {% include './components/data_button.html'  with id='projection' %}
 </h1>
 
-<div class="row g-3 mb-4">
+<div class="row g-2 mb-4 align-items-end">
     <!-- Toggle visibility -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -51,35 +51,34 @@ Input:
           <label class="btn btn-outline-primary" for="projection-links">Links</label>
         </div>
     </div>
+
     <!-- Color by -->
     <div class="col-auto">
-        <div class="col-auto">
-            <div class="d-flex justify-content-between align-items-center small">
-                <label class="col-form-label"><i class="fa fa-palette"></i> Color</label>
-            </div>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                    <span id="color_by_label">{% if query.gene %}{{query.gene}} expression{% else %}Metacell type{% endif %}</span>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="mx-4" style="width: 250px;">
-                        <label class="col-form-label"><small>Color by</small></label>
-                        <div class="btn-group mb-3" role="group" style="display: flex;">
-                            <input type="radio" class="btn-check" name="color_by" id="color_metacell_type" autocomplete="off" {% if not query.gene %}checked{% endif %}>
-                            <label class="btn btn-outline-primary btn-sm" for="color_metacell_type">Metacell type</label>
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label"><i class="fa fa-palette"></i> Color</label>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                <span id="color_by_label">{% if query.gene %}{{query.gene}} expression{% else %}Metacell type{% endif %}</span>
+            </button>
+            <div class="dropdown-menu">
+                <div class="mx-4" style="width: 250px;">
+                    <label class="col-form-label"><small>Color by</small></label>
+                    <div class="btn-group mb-3" role="group" style="display: flex;">
+                        <input type="radio" class="btn-check" name="color_by" id="color_metacell_type" autocomplete="off" {% if not query.gene %}checked{% endif %}>
+                        <label class="btn btn-outline-primary btn-sm" for="color_metacell_type">Metacell type</label>
 
-                            <input type="radio" class="btn-check" name="color_by" id="color_expression" autocomplete="off" {% if query.gene %}checked{% endif %}>
-                            <label class="btn btn-outline-primary btn-sm" for="color_expression">Gene expression</label>
-                        </div>
+                        <input type="radio" class="btn-check" name="color_by" id="color_expression" autocomplete="off" {% if query.gene %}checked{% endif %}>
+                        <label class="btn btn-outline-primary btn-sm" for="color_expression">Gene expression</label>
+                    </div>
 
-                        <label class="col-form-label"><small>Select gene</small></label>
-                        <div class="btn-group" role="group" style="display: flex;">
-                            {% if not query.gene %}
-                                {% include './components/gene_selection.html' with id='projection' hash='projection' disabled='true' limit=10 %}
-                            {% else %}
-                                {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 %}
-                            {% endif %}
-                        </div>
+                    <label class="col-form-label"><small>Select gene</small></label>
+                    <div class="btn-group" role="group" style="display: flex;">
+                        {% if not query.gene %}
+                            {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 redirect='query' disabled='true' %}
+                        {% else %}
+                            {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 redirect='query' %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -219,41 +218,64 @@ Input:
     {% include './components/data_button.html' with id='expression' %}
 </h1>
 
+{% include './components/list_editor.html' with id='expression' type='gene_lists' %}
+
 <form novalidate action="#expression">
-    <div class="row g-3 mb-4 align-items-end">
+    <div class="row g-2 mb-4 align-items-end">
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
                 <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
             </div>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                    <span id="n_markers_value">1</span> markers per cluster
+                    <span id="genes_label">5 markers per cluster</span>
                 </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
                         <label class="col-form-label"><small>Gene selection</small></label>
                         <div class="btn-group mb-3" role="group" style="display: flex;">
-                            <input type="radio" class="btn-check" name="select_gene_by" id="select_gene_by_markers" autocomplete="off" checked>
+                            <input type="radio" class="btn-check" autocomplete="off"
+                            name="select" id="select_gene_by_markers" value="markers"
+                            {% if not query.select or query.select == 'markers' %}checked{% endif %}>
                             <label class="btn btn-outline-primary btn-sm" for="select_gene_by_markers">Markers per cluster</label>
 
-                            <input type="radio" class="btn-check" name="select_gene_by" id="select_gene_by_list" autocomplete="off">
-                            <label class="btn btn-outline-primary btn-sm" for="select_gene_by_list">Gene list</label>
+                            <input type="radio" class="btn-check" autocomplete="off"
+                            name="select" id="select_gene_by_list" value="lists"
+                            {% if query.select == 'lists' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary btn-sm"
+                            for="select_gene_by_list">Gene list</label>
                         </div>
 
-                        <label class="col-form-label"><small>Markers per cluster</small></label>
-                        <input type="range" class="js-range-slider" id="markers" name="markers" value="0" step="0.1" style="opacity: 0;">
-
-                        <div class="d-flex justify-content-between align-items-center small">
-                            <label class="col-form-label">Select genes</label>
-
-                            <a id="select_all_metacells" href="javascript:void(0);"
-                            class="d-block text-end"
-                            data-bs-toggle="modal" data-bs-target="#gene_list_editor">
-                                Edit gene lists...
-                            </a>
+                        <div>
+                            <label class="col-form-label">
+                                <small>Number of markers per cluster</small>
+                            </label>
+                            <input type="range" class="js-range-slider"
+                            id="markers" name="markers" value="0" step="0.1"
+                            style="opacity: 0;">
                         </div>
 
-                        {% include './components/gene_selection.html' with id='expression' hash='expression' limit=10 %}
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center small">
+                                <label class="col-form-label">Filter genes</label>
+
+                                <div class="d-flex gap-3">
+                                    <a id="clear_selected_genes" href="javascript:void(0);"
+                                    class="d-block text-end"
+                                    onclick="$('#expression_gene_selection')[0].selectize.clear();">
+                                        Clear all
+                                    </a>
+
+                                    <a id="edit_gene_lists" href="javascript:void(0);"
+                                    class="d-block text-end"
+                                    data-bs-toggle="modal" data-bs-target="#expression_gene_lists_editor">
+                                        Edit lists...
+                                    </a>
+                                </div>
+                            </div>
+
+                            {% include './components/gene_selection.html' with id='expression' name='gene_lists' hash='expression' limit=10 multiple='true' disabled='true' selected=query.gene_lists %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -276,13 +298,13 @@ Input:
                             </label>
 
                             <a id="select_all_metacells" href="javascript:void(0);"
-                                class="d-block text-end"
-                                onclick="$('#metacells')[0].selectize.clear();">
-                                    Select all metacells
+                            class="d-block text-end"
+                            onclick="$('#metacells')[0].selectize.clear();">
+                                Select all metacells
                             </a>
                         </div>
 
-                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells placeholder="All metacells selected" %}
+                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
                     </div>
                 </div>
             </div>
@@ -327,6 +349,27 @@ Input:
 
 <!-- Gene expression heatmap form -->
 <script>
+    function updateGenePanel(val) {
+        if (val == 'markers') {
+            $("#markers").data("ionRangeSlider").update({ disable: false });
+            $("#markers").parent().removeClass('d-none');
+
+            $('#expression_gene_selection')[0].selectize.disable();
+            $('#expression_gene_selection').parent().addClass('d-none');
+
+            var markers = $("#markers").val();
+            $('#genes_label').text( markers + ' markers per cluster' );
+        } else if (val == 'lists') {
+            $("#markers").data("ionRangeSlider").update({ disable: true });
+            $("#markers").parent().addClass('d-none');
+
+            $('#expression_gene_selection')[0].selectize.enable();
+            $('#expression_gene_selection').parent().removeClass('d-none');
+
+            $('#genes_label').text('Selected gene lists');
+        }
+    }
+
     $(function() {
         // Change metacell selection label
         function updateMetacellSelectionLabel (count) {
@@ -342,11 +385,19 @@ Input:
             var count = this.items.length;
             updateMetacellSelectionLabel(count);
         });
+
+        // Update gene panel
+        updateGenePanel( $('input[name="select"]:checked').val() );
+
+        $('input[name="select"]').change(function() {
+            var val = $(this).val();
+            updateGenePanel(val);
+        });
     });
 
-    function updateText (id, from_min_id) {
+    function updateText (id, from_min_id, suffix = "") {
         return function update(data) {
-            $(id).text(data.from);
+            $(id).text(data.from + suffix);
 
             // Update from_min of given ionRangeSlider
             if (from_min_id && from_min_id !== null) {
@@ -361,9 +412,9 @@ Input:
         from: {{query.markers|default:5}},
         grid: true,
         skin: "round",
-        onStart: updateText("#n_markers_value"),
-        onChange: updateText("#n_markers_value"),
-        onUpdate: updateText("#n_markers_value")
+        onStart:  updateText("#genes_label", undefined, suffix=" markers per cluster"),
+        onChange: updateText("#genes_label", undefined, suffix=" markers per cluster"),
+        onUpdate: updateText("#genes_label", undefined, suffix=" markers per cluster")
     });
 
     $("#clip_log2").ionRangeSlider({
@@ -391,10 +442,52 @@ Input:
         onChange: updateText("#fc_min_value", "#clip_log2"),
         onUpdate: updateText("#fc_min_value", "#clip_log2")
     });
-</script>
 
-<!-- Gene list editor -->
-{% include './components/list_editor.html' with id='gene_list' %}
+    <!-- Simplify multiple select data into a single comma-separated value -->
+    function modifyFormQuery (elem, e, id, species, multiple = []) {
+        e.preventDefault();
+
+        // Modify form URL
+        var formData = new FormData(elem);
+        var url = new URL(e.target.action);
+        for (let [key, value] of formData.entries()) {
+            url.searchParams.set(key, value);
+        }
+
+        // Get values
+        for (var i in multiple) {
+            var param = multiple[i];
+            var values = formData.getAll(param);
+            url.searchParams.set(param, values.join(','));
+
+            // Process values from user lists as hidden query parameters
+            if (param == 'gene_lists') {
+                // Get genes from user lists
+                var lists = getUserLists(`${id}_${param}`, species);
+                let matches = lists.filter(list => values.includes(list.name));
+                var genes = matches.flatMap(list => list.items);
+
+                // Get remaining lists
+                var names = matches.flatMap(list => list.name);
+                var diff = values.filter(value => !names.includes(value));
+                genes = diff.concat(genes);
+
+                // Set query parameter
+                url.searchParams.set('genes', genes.join(','));
+            }
+        }
+
+        // Maintain commas in query params
+        href = url.href.replaceAll('%2C', ',');
+        window.location.href = href;
+    }
+
+    $('form').on('submit', function(e) {
+        modifyFormQuery(this, e, 'expression', '{{species}}',
+                        ['metacell_lists', 'gene_lists']);
+    });
+
+</script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
@@ -414,6 +507,7 @@ $(function() {
 		fc_min: $("#fc_min").val(),
 		n_markers: $("#markers").val(),
 		sort_genes: true,
+		{% if query.genes %} genes: '{{query.genes}}', {% endif %}
 		log2: true,
 		clip_log2: $("#clip_log2").val(),
 		limit: 0

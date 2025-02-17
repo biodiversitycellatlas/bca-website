@@ -7,24 +7,32 @@ Features:
 - Upon gene selection, the user is redirected to that gene page
 
 Input:
-- id: prefex used to identify elements
+- id: prefix used to identify elements
+- name: form field name (default: 'gene')
 - gene: default gene to select with properties 'name', 'description' and
   'domains' (default: none, i.e., no gene is selected)
+- selected: selected genes (only use instead of gene if multiple = 'true')
+- multiple: allow to select multiple genes (default: 'false'); when enabled,
+  also shows available gene lists
 - placeholder: text in search box (default: "Search gene by symbol,
   description or domains...")
+- disabled: start the element as disabled
 - width: element width (default: '100%')
-- display: if 'name' (default), show gene name for selected gene; if 'all',
+- display: if 'name' (default), show only gene name for selected gene; if 'all',
   show gene name, description and domains
-- redirect: if 'query' (default), redirect to URL using a query parameter
-  (e.g., '?gene=BRCA1'); if 'arg', redirect using gene as an argument
+- redirect: one of 'query', 'arg' or 'none' (default); if 'query', redirect to
+  URL using a query parameter (e.g., '?gene=BRCA1'); if 'arg', redirect using
+  gene as an argument
 - hash: hash to add to URL (default: none)
 - limit: maximum number of genes to fetch from API (default: 50)
 
 {% endcomment %}
 
-<select id="{{id}}_gene_selection" name="gene" class="mb-3"
+<select id="{{id}}_gene_selection" class="mb-3"
+name="{{name|default:'gene'}}"
 style="width: {{width|default:'100%'}};"
 placeholder="{{placeholder|default:'Search gene...'}}"
+{% if multiple == 'true' %}multiple{% endif %}
 {% if disabled == 'true' %}disabled{% endif %}>
     <option value=""></option>
 </select>
@@ -32,30 +40,50 @@ placeholder="{{placeholder|default:'Search gene...'}}"
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 function displayGeneInfo (item, escape) {
-    var domains_array = item.domains;
-    badges = '';
-    for(var i = 0; i < domains_array.length; i++) {
-        if (domains_array[i] !== '') {
-            span = '<span class="badge rounded-pill text-bg-secondary">';
-            badges += ` ${span}<small>${domains_array[i]}</small></span>`;
+    if (item.group && item.group !== 'genes') {
+        // Display gene lists
+        return `<div class='option'>${item.name} <span class="text-muted small">${item.count} genes</span></div>`;
+    } else {
+        var domains_array = item.domains;
+        badges = '';
+        for(var i = 0; i < domains_array.length; i++) {
+            if (domains_array[i] !== '') {
+                span = '<span class="badge rounded-pill text-bg-secondary">';
+                badges += ` ${span}<small>${domains_array[i]}</small></span>`;
+            }
         }
+        var desc = item.description === null ? "" : `<span class="text-muted small">${item.description}</span>`;
+        return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
     }
-    var desc = item.description === null ? "" : `<span class="text-muted"><small>${item.description}</small></span>`;
-    return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
 }
 
 function displayGeneName (item, escape) {
     return `<div class='option'>${item.name}</div>`;
 }
 
+function prependGeneLists (selectize, callback, data) {
+    var res = data.map(obj => ({ ...obj, group: "genes" }));
+    res = getAllLists('{{id}}_gene_lists').concat(res);
+    callback(res);
+}
+
 $(function () {
     $("#{{id}}_gene_selection").selectize({
+        {% if multiple == 'true' %}
+            multiple: true,
+            optgroupField: 'group',
+            optgroups: [
+                { value: 'custom', label: 'Custom gene lists' },
+                { value: 'preset', label: 'Preset gene lists' },
+                { value: 'genes', label: 'Genes' }
+            ],
+        {% endif %}
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
-    	        {% if redirect|default:'query' == 'arg' %}
+    	        {% if redirect == 'arg' %}
     	            window.location.href = "{% url request.resolver_match.url_name species.species_underscore '::arg' %}".replace('::arg', value);
-			    {% else %}
+			    {% elif redirect == 'query' %}
                     var url = new URL(window.location.href);
     	            url.searchParams.set('gene', value)
     	            if ('{{hash}}' !== '') {
@@ -65,19 +93,21 @@ $(function () {
 			    {% endif %}
     		}
 		},
-		onDropdownOpen: function($dropdown) {
-		    this.clear();
-		},
-		onBlur: function() {
-		    // Set current gene if no value is selected
-            if (!this.getValue()) {
-                this.setValue('{{gene}}');
-            }
-        },
-        onType: function(str) {
-            // Clear available options to avoid selection while loading more data
-            this.clearOptions();
-        },
+		{% if multiple != 'true' %}
+    		onDropdownOpen: function($dropdown) {
+    		    this.clear();
+    		},
+    		onBlur: function() {
+    		    // Set current gene if no value is selected
+                if (!this.getValue()) {
+                    this.setValue('{{gene}}');
+                }
+            },
+            onType: function(str) {
+                // Clear available options to avoid selection while loading more data
+                this.clearOptions();
+            },
+        {% endif %}
         render: {
             item: {% if display|default:'name' == 'all' %}displayGeneInfo{% else %}displayGeneName{% endif %},
             option: displayGeneInfo
@@ -96,24 +126,62 @@ $(function () {
                     limit: {{limit|default:50}}
                 },
                 error: function() { callback(); },
-                success: function(res) { callback(res.results); }
+                success: function(res) {
+                    {% if multiple == 'true' %}
+                        prependGeneLists(this, callback, res.results);
+                    {% else %}
+                        callback(res.results);
+                    {% endif %}
+                }
             });
         }
     });
 
     {% if gene %}
-        function setDefaultGene() {
+        function setDefaultGene(id, name, description, domains) {
             var geneOptions = {
-                'name': '{{gene.name}}',
-                'description': '{{gene.description}}',
-                'domains': {{gene.domains|safe}}
+                'name': name,
+                'description': description,
+                'domains': domains
             };
 
-            var selectize = $("#gene")[0].selectize;
+            var selectize = $(`#${id}_gene_selection`)[0].selectize;
             selectize.addOption(geneOptions);
-            selectize.setValue('{{gene}}');
+            selectize.setValue(name);
         }
-        setDefaultGene();
+        setDefaultGene('{{id}}', '{{gene.name}}',
+                       '{{gene.description}}', '{{gene.domains|safe}}');
+    {% endif %}
+
+    {% if multiple == 'true' %}
+        // Run once after loading results
+        var hasRun = false;
+        var selectize = $("#{{id}}_gene_selection")[0].selectize;
+        selectize.on('load', function() {
+            if (!hasRun) {
+                var values = '{{ selected }}'.split(',');
+
+                var options = selectize.options;
+                var missingValues = values.filter(function(value) {
+                    return !(value in options);
+                });
+
+                var missingValuesArray = [];
+                for (var i in missingValues) {
+                    var elem = missingValues[i];
+                    missingValuesArray.push({
+                        'name': elem,
+                        'description': '',
+                        'domains': [],
+                    })
+                }
+                selectize.addOption(missingValuesArray);
+
+                selectize.setValue(values);
+
+                hasRun = true;
+            }
+        });
     {% endif %}
 });
 </script>

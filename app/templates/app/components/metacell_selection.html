@@ -9,23 +9,32 @@ Features:
   string for URL query params and the page is reloaded with such params
 
 Input:
+- name: form field name (default: 'metacells')
 - metacell_dict: dictionary of metacells
 - selected: selected metacells
 - placeholder: placeholder text
 
 {% endcomment %}
 
-<select required name="metacells" value="" id="metacells" multiple placeholder="{{placeholder|default:'Select metacells...'}}">
+<select required name="{{name|default:'metacells'}}" value="" id="metacells"
+multiple placeholder="{{placeholder|default:'Select metacells...'}}">
     <option value=""></option>
     {% for key, value in metacell_dict.items %}
         <optgroup label="{{ key }}">
             {% if key == 'Cell types' %}
                 {% for type, mc in value.items %}
-                    <option value="{{type}}" data-type="cell_types" data-metacells="{{mc|join:','}}" data-color="{{type.color}}">{{type}}</option>
+                    <option value="{{type}}" data-type="cell_types"
+                    data-metacells="{{mc|join:','}}"
+                    data-color="{{type.color}}">
+                        {{type}}
+                    </option>
                 {% endfor %}
             {% elif key == 'Metacells' %}
                 {% for mc in value %}
-                    <option value="{{mc.name}}" data-type="metacells" data-color="{{mc.type.color}}" data-celltype="{{mc.type}}">{{mc.name}}</option>
+                    <option value="{{mc.name}}" data-type="metacells"
+                    data-color="{{mc.type.color}}" data-celltype="{{mc.type}}">
+                        {{mc.name}}
+                    </option>
                 {% endfor %}
             {% endif %}
         </optgroup>
@@ -90,13 +99,13 @@ Input:
                 option: function (item, escape) {
                     var extra = '';
                     var text = item.text;
-                    var circle = `<i class="fa fa-circle" style="color: ${item.color}; -webkit-text-stroke: 0.5px lightgray; text-stroke: 0.5px lightgray; font-size: 0.6em; vertical-align: middle;"></i> `;
+                    var circle = `<i class="fa fa-circle color-bullet" style="color: ${item.color};"></i> `;
                     if (item.metacells) {
                         text = circle + text;
                         var metacells = convertToRange(String(item.metacells));
                         extra = `Metacells: ${metacells}`;
                     } else {
-                        var type = item.celltype.replaceAll('_',' ');;
+                        var type = item.celltype;
                         extra = circle + type;
                     }
                     extra = `<span class="float-end text-muted small"><small>` + extra + `</small></span>`;
@@ -106,25 +115,4 @@ Input:
             },
         });
     });
-</script>
-
-
-<!-- Simplify multiple select data into a single comma-separated value -->
-<script>
-    $('form').on('submit', function(e) {
-        e.preventDefault();
-
-        // Get values
-        var formData = new FormData(this);
-        var values = formData.getAll('metacells').join(',');
-
-        // Modify form URL
-        var url = new URL(e.target.action);
-        url.searchParams.set('metacells', values);
-        e.target.action = url.href;
-
-        // Maintain commas in query params
-        href = url.href.replaceAll('%2C', ',');
-        window.location.href = href;
-    })
 </script>

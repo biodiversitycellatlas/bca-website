@@ -240,8 +240,15 @@ a:hover {
 }
 
 .upload-tooltip .tooltip-inner {
-    max-width: 230px;
-    width: 230px;
+    max-width: 300px;
+}
+
+.color-bullet {
+    color: red;
+    -webkit-text-stroke: .8px white;
+    text-stroke: .8px white;
+    font-size: 0.6em;
+    vertical-align: middle;
 }
 
 /* Dropdown menu */
