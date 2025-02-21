@@ -110,8 +110,12 @@ class MetacellSerializer(BaseExpressionSerializer):
 
 
 class MetacellLinkSerializer(serializers.ModelSerializer):
-    metacell  = MetacellSerializer(read_only=True)
-    metacell2 = MetacellSerializer(read_only=True)
+    metacell    = serializers.CharField(source='metacell.name')
+    metacell_x  = serializers.FloatField(source='metacell.x')
+    metacell_y  = serializers.FloatField(source='metacell.y')
+    metacell2   = serializers.CharField(source='metacell2.name')
+    metacell2_x = serializers.FloatField(source='metacell2.x')
+    metacell2_y = serializers.FloatField(source='metacell2.y')
 
     class Meta:
         model = models.MetacellLink

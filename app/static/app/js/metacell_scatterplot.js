@@ -60,10 +60,10 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
   			"mark": "rule",
   			"transform": [ { "filter": "showLinks == 'true'" } ],
 	  		"encoding": {
-	    		"x":  {"field": "metacell.x",  "type": "quantitative"},
-	    		"x2": {"field": "metacell2.x", "type": "quantitative"},
-	    		"y":  {"field": "metacell.y",  "type": "quantitative"},
-	    		"y2": {"field": "metacell2.y", "type": "quantitative"},
+	    		"x":  {"field": "metacell_x",  "type": "quantitative"},
+	    		"x2": {"field": "metacell2_x", "type": "quantitative"},
+	    		"y":  {"field": "metacell_y",  "type": "quantitative"},
+	    		"y2": {"field": "metacell2_y", "type": "quantitative"},
 	    		"color": {"value": "#B7B7B7"}
 	    	}
   		}, {
