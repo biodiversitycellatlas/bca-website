@@ -1,4 +1,4 @@
-{% extends "app/atlas.html" %}
+{% extends "./atlas.html" %}
 
 {% comment %}
 
@@ -20,7 +20,7 @@ Input:
 {% block content %}
 
 {% load static %}
-{% include './components/warning_alert.html' %}
+{% include '../components/warning_alert.html' %}
 
 <div class="row pt-2">
     <div class="col-sm-4">
@@ -49,8 +49,8 @@ Input:
     <div class="col-sm-8 mt-4 mt-sm-0">
         <h1 class="h3" id="projection">
             <i>{{species.scientific_name}}</i>
-            {% include './components/clipboard_button.html' %}
-            {% include './components/data_button.html' with id='info' %}
+            {% include '../components/button/copy_to_clipboard.html' %}
+            {% include '../components/button/data_download.html' with id='info' %}
         </h1>
 
         <p>{{species.description|default:'No description available'|safe}}</p>

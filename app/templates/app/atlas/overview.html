@@ -1,4 +1,4 @@
-{% extends "app/atlas.html" %}
+{% extends "./atlas.html" %}
 
 {% comment %}
 
@@ -26,8 +26,8 @@ Input:
 <!-- Metacell projection -->
 <h1 class="h3 pt-2 mb-3" id="projection">
     Metacell projection
-    {% include './components/clipboard_button.html' with id='projection' %}
-    {% include './components/data_button.html'  with id='projection' %}
+    {% include '../components/button/copy_to_clipboard.html' with id='projection' %}
+    {% include '../components/button/data_download.html'  with id='projection' %}
 </h1>
 
 <div class="row g-2 mb-4 align-items-end">
@@ -52,6 +52,7 @@ Input:
         </div>
     </div>
 
+    {% comment %}
     <!-- Color by -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -75,15 +76,16 @@ Input:
                     <label class="col-form-label"><small>Select gene</small></label>
                     <div class="btn-group" role="group" style="display: flex;">
                         {% if not query.gene %}
-                            {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 redirect='query' disabled='true' %}
+                            {% include '../components/select/gene.html' with id='projection' hash='projection' limit=10 redirect='query' disabled='true' %}
                         {% else %}
-                            {% include './components/gene_selection.html' with id='projection' hash='projection' limit=10 redirect='query' %}
+                            {% include '../components/select/gene.html' with id='projection' hash='projection' limit=10 redirect='query' %}
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {% endcomment %}
 
     <script>
         // Toggle disabled state of gene selectize element
@@ -115,7 +117,7 @@ Input:
     </div>
 </div>
 
-{% include './components/plot_container.html' with id='projection' ratio='16/9' %}
+{% include '../components/plot_container.html' with id='projection' ratio='16/9' %}
 
 <script type="text/javascript" src="{% static 'app/js/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
@@ -214,11 +216,11 @@ Input:
 <!-- Gene expression heatmap -->
 <h1 class="h3 pt-2 mb-3" id="expression">
     Gene expression heatmap
-    {% include './components/clipboard_button.html' with id='expression' %}
-    {% include './components/data_button.html' with id='expression' %}
+    {% include '../components/button/copy_to_clipboard.html' with id='expression' %}
+    {% include '../components/button/data_download.html' with id='expression' %}
 </h1>
 
-{% include './components/list_editor.html' with id='expression' type='gene_lists' %}
+{% include '../components/list_editor.html' with id='expression' type='gene_lists' %}
 
 <form novalidate action="#expression">
     <div class="row g-2 mb-4 align-items-end">
@@ -232,6 +234,7 @@ Input:
                 </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
+                        {% comment %}
                         <label class="col-form-label"><small>Gene selection</small></label>
                         <div class="btn-group mb-3" role="group" style="display: flex;">
                             <input type="radio" class="btn-check" autocomplete="off"
@@ -245,6 +248,7 @@ Input:
                             <label class="btn btn-outline-primary btn-sm"
                             for="select_gene_by_list">Gene list</label>
                         </div>
+                        {% endcomment %}
 
                         <div>
                             <label class="col-form-label">
@@ -255,6 +259,7 @@ Input:
                             style="opacity: 0;">
                         </div>
 
+                        {% comment %}
                         <div>
                             <div class="d-flex justify-content-between align-items-center small">
                                 <label class="col-form-label">Filter genes</label>
@@ -274,8 +279,9 @@ Input:
                                 </div>
                             </div>
 
-                            {% include './components/gene_selection.html' with id='expression' name='gene_lists' hash='expression' limit=10 multiple='true' disabled='true' selected=query.gene_lists %}
+                            {% include '../components/select/gene.html' with id='expression' name='gene_lists' hash='expression' limit=10 multiple='true' disabled='true' selected=query.gene_lists %}
                         </div>
+                        {% endcomment %}
                     </div>
                 </div>
             </div>
@@ -304,7 +310,7 @@ Input:
                             </a>
                         </div>
 
-                        {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
+                        {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
                     </div>
                 </div>
             </div>
@@ -492,7 +498,7 @@ Input:
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 <div class="row">
     <div class="col-10 col-sm-11">
-        {% include './components/plot_container.html' with id='expression' ratio='16/9' %}
+        {% include '../components/plot_container.html' with id='expression' ratio='16/9' %}
     </div>
 </div>
 

@@ -1,12 +1,12 @@
-{% extends "app/atlas.html" %}
+{% extends "./atlas.html" %}
 
 {% comment %}
 
 Gene expression and orthologs comparison page for a gene from a given species
 
 Features:
-- Gene selection via `components/gene_selection.html` or URL path parameters,
-  such as `/atlas/Homo_sapiens/gene/BRCA1`
+- Gene selection via select element or using URL path parameters, such as
+  `/atlas/Homo_sapiens/gene/BRCA1`
 - Mockup plot if no gene is selected
 - Expression data for selected gene and orthologs:
     - Fetches via REST API
@@ -24,24 +24,24 @@ Input:
 {% block content %}
 {% load static %}
 
-{% include './components/gene_selection.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
-{% include './components/warning_alert.html' %}
+{% include '../components/select/gene.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
+{% include '../components/warning_alert.html' %}
 
 {% if gene %}
     <h1 class="h3 pt-2" id="expression">
         Gene expression
-        {% include './components/clipboard_button.html' with id='expression' %}
-        {% include './components/data_button.html' with id='expression' %}
+        {% include '../components/button/copy_to_clipboard.html' with id='expression' %}
+        {% include '../components/button/data_download.html' with id='expression' %}
     </h1>
-    {% include './components/plot_container.html' with id=gene %}
+    {% include '../components/plot_container.html' with id=gene %}
 
     <h1 class="h3 pt-2" id="orthologs">
         Orthologs
-        {% include './components/clipboard_button.html' with id='orthologs' %}
-        {% include './components/data_button.html' with id='orthologs' %}
+        {% include '../components/button/copy_to_clipboard.html' with id='orthologs' %}
+        {% include '../components/button/data_download.html' with id='orthologs' %}
     </h1>
 
-    {% include './components/plot_container.html' with id='orthologs' %}
+    {% include '../components/plot_container.html' with id='orthologs' %}
     <template id="ortholog-template">
         <h2 class="h6 pt-2">
             <i><span id="ortholog-species" class="badge bg-secondary rounded-pill">organism</span></i>
@@ -122,7 +122,7 @@ Input:
             });
     </script>
 {% else %}
-    {% include './components/mockup_barplot.html' %}
+    {% include '../components/mockup/barplot.html' %}
 {% endif %}
 
 {% endblock content %}

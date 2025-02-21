@@ -1,4 +1,4 @@
-{% extends "app/atlas.html" %}
+{% extends "./atlas.html" %}
 
 {% comment %}
 
@@ -26,7 +26,7 @@ Input:
 {% block content %}
 
 {% load static %}
-{% include './components/warning_alert.html' %}
+{% include '../components/warning_alert.html' %}
 
 <div class="row">
     <div class="col-md-3">
@@ -35,7 +35,7 @@ Input:
                 <legend class="h5">Cell selection</legend>
                 <div class="mb-3">
                     <label class="col-form-label" for="metacells">Metacells</label>
-                    {% include './components/metacell_selection.html' with metacell_dict=metacell_dict selected=query.metacells %}
+                    {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacells %}
                 </div>
             </fieldset>
 
@@ -106,8 +106,8 @@ Input:
                     Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
                 </div>
                 <div class="col-auto">
-                    {% include './components/clipboard_button.html' with id='markers' %}
-                    {% include './components/data_button.html' with id='markers' %}
+                    {% include '../components/button/copy_to_clipboard.html' with id='markers' %}
+                    {% include '../components/button/data_download.html' with id='markers' %}
                 </div>
             </div>
             <table id="markers_table" class="display" style="width:100%"></table>
@@ -132,7 +132,7 @@ Input:
                 createDataMenu('markers', apiURL, 'Metacell markers');
             </script>
         {% else %}
-            {% include './components/mockup_table.html' %}
+            {% include '../components/mockup/table.html' %}
         {% endif %}
     </div>
 </div>

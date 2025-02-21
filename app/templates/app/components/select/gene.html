@@ -150,7 +150,7 @@ $(function () {
             selectize.setValue(name);
         }
         setDefaultGene('{{id}}', '{{gene.name}}',
-                       '{{gene.description}}', '{{gene.domains|safe}}');
+                       '{{gene.description}}', {{gene.domains|safe}});
     {% endif %}
 
     {% if multiple == 'true' %}

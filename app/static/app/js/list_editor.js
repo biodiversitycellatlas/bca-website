@@ -10,9 +10,9 @@ function setLocalStorageLists(id, lists) {
 function getUserLists(id, species, name = undefined) {
     var lists = getLocalStorageLists(id);
     if (name === undefined) {
-        return lists[species];
+        return lists[species] || [];
     } else {
-        return lists[species].find(item => item.name == name);
+        return lists[species].find(item => item.name == name) || [];
     }
 }
 

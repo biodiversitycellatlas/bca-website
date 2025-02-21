@@ -5,8 +5,8 @@
 Template for the Cell Atlas pages
 
 Features:
-- Atlas selection via `components/atlas_selection.html` or URL path parameters,
-  such as `/atlas/Homo_sapiens`
+- Atlas selection via select element or using URL path parameters, such as
+  `/atlas/Homo_sapiens`
 - Warning message (e.g., if selected species is not available in the database)
 - Placeholders shown when no species is selected
 
@@ -19,11 +19,11 @@ Input:
 {% block title %}Cell Atlas{% endblock title %}
 
 {% block subnav %}
-    {% include './components/atlas_selection.html' %}
+    {% include '../components/select/atlas.html' %}
 {% endblock subnav %}
 
 {% block content %}
-{% include './components/warning_alert.html' %}
+{% include '../components/warning_alert.html' %}
 <div class="container-xxl">
     <div class="row">
         <div class="col-4 pt-4 d-flex flex-column align-items-center justify-content-center"
