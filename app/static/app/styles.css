@@ -11,6 +11,7 @@
 
     --primary-color: var(--bold-dark-color);
     --hover-color: var(--bold-light-color);
+    --hover-border-color: #3BBCB277;
 
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
@@ -80,7 +81,7 @@ html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
     box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
 
-.navbar .selectize-input.focus {
+.navbar .selectize-input:focus-within {
     border-color: var(--navbar-hover-shadow-color);
     box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
 }
@@ -135,6 +136,10 @@ html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
     color: var(--bs-nav-link-disabled-color);
 }
 
+.nav .nav-link:focus-visible {
+    box-shadow: 0 0 0 .25rem var(--hover-border-color);
+}
+
 .nav-pills .nav-link.active {
     color: white;
     background-color: var(--primary-color);
@@ -149,6 +154,17 @@ body {
 
 .lead {
     font-size: 1.20rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
+.btn.btn-primary, .btn.btn-outline-primary {
+    --bs-btn-hover-bg: var(--hover-color);
+    --bs-btn-hover-border-color: var(--primary-color);
+    --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
 .btn-xs {
@@ -262,6 +278,10 @@ a:hover {
     vertical-align: middle;
 }
 
+.search-highlight {
+    background: rgba(255,237,40,.4);
+}
+
 /* Dropdown menu */
 
 .dropdown-menu {
@@ -346,8 +366,24 @@ div.dt-container div.dt-processing > div > div {
     max-height: 50vh;
 }
 
+@media (max-width: 959px) {
+    .selectize-dropdown.plugin-optgroup_columns {
+        .optgroup {
+            border-right: none;
+            float: none;
+        }
+        .optgroup-header {
+            border-top: none;
+        }
+    }
+}
+
 .species-meta {
     display: none;
+}
+
+.species-meta:has(.highlight) {
+    display: inline-block;
 }
 
 .selectize-dropdown .selected {
@@ -371,6 +407,15 @@ div.dt-container div.dt-processing > div > div {
 	animation: none;
 }
 
+.selectize-input.focus {
+    border: 1px solid #ced4da;
+    box-shadow: none;
+}
+
+.selectize-input:focus-within {
+    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
 .selectize-control.loading::before {
 	opacity: 1;
 	-webkit-animation: fa-spin 2s infinite linear;
@@ -385,6 +430,7 @@ div.dt-container div.dt-processing > div > div {
     width: 400px !important;
     left: auto !important;
     right: 0 !important;
+    z-index: 1040;
 }
 
 .bca-search .selectize-dropdown-content {

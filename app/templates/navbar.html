@@ -102,7 +102,20 @@ function displaySearchResults (item, escape) {
         var img = item.image_url ? `<img src="${item.image_url}" style="width: 25px;"> ` : '';
         var desc = item.common_name === item.scientific_name ? "" :
             `<span class="text-muted"><small>${item.common_name}</small></span>`;
-        var res = `<div class='option'>${img}<i>${item.scientific_name}</i> ${desc}</div>`;
+
+        // Add metadata (only visible when matching user query)
+        var meta_array = item.meta.map(i => i.value);
+        badges = '';
+        for(var i = 0; i < meta_array.length; i++) {
+            var elem = meta_array[i];
+            // Avoid showing badges identical to displayed names
+            if (elem && !item.scientific_name.includes(elem) && !item.common_name.includes(elem)) {
+                span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
+                badges += ` ${span}<small>${elem}</small></span>`;
+            }
+        }
+
+        var res = `<div class='option'>${img}<i>${item.scientific_name}</i> ${desc}${badges}</div>`;
     }
     return res;
 }
@@ -118,8 +131,10 @@ $(function () {
             },
             option: displaySearchResults,
             optgroup_header: function(data, escape) {
-                count = `<span class="badge rounded-pill" style="background: var(--primary-color);">${data.count} results</span>`;
-                content = `<div class="optgroup-header d-flex justify-content-between"><span>${data.label}</span>${count}</div>`
+                var query = this.getTextboxValue();
+
+                count = `<a href="{% url 'search' %}?q=${query}&category=${data.category}"><span class="badge rounded-pill" style="background: var(--primary-color); padding-top: 6px;">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
+                content = `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`
                 return content;
             }
         },
@@ -173,8 +188,8 @@ $(function () {
                 this.clearOptions()
 
                 this.optgroups = {
-                    species: { label: "Species search", count: species_data.count },
-                    gene:    { label: "Gene search",    count: gene_data.count }
+                    species: { label: "Species", category: "species", count: species_data.count },
+                    gene:    { label: "Gene",    category: "genes",   count: gene_data.count }
                 };
                 callback(options);
             })
@@ -213,6 +228,18 @@ $(function () {
 		},
         optgroupField: 'group'
     });
+
+    function toggleClassBasedOnWidth() {
+        if ($(window).width() <= 960) {
+            $('.atlas-select').removeClass('plugin-optgroup_columns');
+        } else {
+            $('.atlas-select').addClass('plugin-optgroup_columns');
+        }
+    }
+
+    // Run on initial load and when resizing window
+    toggleClassBasedOnWidth();
+    $(window).resize(function() { toggleClassBasedOnWidth(); });
 });
 
 // Jump to search bar when pressing the keyboard shortcut: / (slash)

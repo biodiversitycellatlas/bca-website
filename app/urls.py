@@ -20,4 +20,6 @@ urlpatterns = [
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path("blog/", views.BlogView.as_view(), name="blog"),
     path("about/", views.AboutView.as_view(), name="about"),
+
+    path("search/", views.SearchView.as_view(), name="search"),
 ]

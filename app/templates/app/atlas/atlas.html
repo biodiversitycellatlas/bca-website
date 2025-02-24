@@ -19,7 +19,7 @@ Input:
 {% block title %}Cell Atlas{% endblock title %}
 
 {% block subnav %}
-    {% include '../components/select/atlas.html' %}
+    {% include '../components/select/atlas.html' with redirect='arg' class='atlas-select' optgroup_columns='true' %}
 {% endblock subnav %}
 
 {% block content %}

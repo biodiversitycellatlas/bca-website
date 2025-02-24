@@ -70,11 +70,11 @@ def getSpecies(species):
 
 
 class IndexView(TemplateView):
-    template_name = "app/index.html"
+    template_name = "app/home.html"
 
 
 class AtlasView(TemplateView):
-    template_name = "app/atlas.html"
+    template_name = "app/atlas/atlas.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -115,7 +115,7 @@ class BaseAtlasView(TemplateView):
     available in the database.
     '''
     model = Species
-    template_name = "app/atlas_info.html"
+    template_name = "app/atlas/info.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,11 +137,11 @@ class BaseAtlasView(TemplateView):
 
 
 class AtlasInfoView(BaseAtlasView):
-    template_name = "app/atlas_info.html"
+    template_name = "app/atlas/info.html"
 
 
 class AtlasOverviewView(BaseAtlasView):
-    template_name = "app/atlas_overview.html"
+    template_name = "app/atlas/overview.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -158,7 +158,7 @@ class AtlasOverviewView(BaseAtlasView):
 
 
 class AtlasGeneView(BaseAtlasView):
-    template_name = "app/atlas_gene.html"
+    template_name = "app/atlas/gene.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -186,7 +186,7 @@ class AtlasGeneView(BaseAtlasView):
 
 
 class AtlasMarkersView(BaseAtlasView):
-    template_name = "app/atlas_markers.html"
+    template_name = "app/atlas/markers.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -219,7 +219,7 @@ class AtlasMarkersView(BaseAtlasView):
 
 
 class AtlasCompareView(BaseAtlasView):
-    template_name = "app/atlas_compare.html"
+    template_name = "app/atlas/compare.html"
 
 
 class ComparisonView(TemplateView):
@@ -236,3 +236,16 @@ class BlogView(TemplateView):
 
 class AboutView(TemplateView):
     template_name = "app/about.html"
+
+
+class SearchView(TemplateView):
+    template_name = "app/search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["species_dict"] = getSpeciesDict()
+        # Get URL query parameters and prepare table with cell markers
+        query = self.request.GET
+        if query:
+            context['query'] = query
+        return context
