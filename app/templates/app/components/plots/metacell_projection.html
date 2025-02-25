@@ -1,0 +1,157 @@
+{% comment %}
+
+Metacell projection plot
+
+Input:
+- id: prefix used in the identifiers of all elements
+
+{% endcomment %}
+
+<div class="row g-2 mb-4 align-items-end">
+    <!-- Toggle visibility -->
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label"><i class="fa fa-eye"></i> Toggle visibility </label>
+        </div>
+
+        <div class="btn-group" role="group" style="display: flex;">
+          <input type="checkbox" class="btn-check" id="{{id}}-cells" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="{{id}}-cells">Cells</label>
+
+          <input type="checkbox" class="btn-check" id="{{id}}-metacells" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="{{id}}-metacells">Metacells</label>
+
+          <input type="checkbox" class="btn-check" id="{{id}}-labels" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="{{id}}-labels">Labels</label>
+
+          <input type="checkbox" class="btn-check" id="{{id}}-links" autocomplete="off">
+          <label class="btn btn-outline-primary" for="{{id}}-links">Links</label>
+        </div>
+    </div>
+
+    <script>
+        // Toggle disabled state of gene selectize element
+        $('input[name="color_by"]').change(function () {
+            var elem = $('#{{id}}_gene_selection')[0].selectize;
+            this.id.includes('expression') ? elem.enable() : elem.disable();
+
+            url = new URL(window.location.href);
+            if (url.searchParams.has('gene')) {
+                url.searchParams.delete('gene');
+                url.hash = '#{{id}}';
+                window.location.href = url;
+            }
+        });
+    </script>
+
+    <!-- Metacell selection -->
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label"><i class="fa fa-object-group"></i> Metacell selection </label>
+            <i class="fa fa-circle-question"
+               data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="Click and drag in the plot to select metacells"></i>
+        </div>
+        <div class="btn-group" role="group" style="display: flex;">
+            <button type="button" class="btn btn-outline-primary" id="list_markers">List markers</button>
+            <button type="button" class="btn btn-outline-primary" id="filter_heatmap">Filter heatmap</button>
+        </div>
+    </div>
+</div>
+
+{% include '../plot_container.html' with id=id ratio='16/9' %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'app/js/metacell_scatterplot.js' %}"></script>
+<script type="text/javascript">
+    var urls = {
+        "sc_data": "{% url 'rest:singlecell-list' %}",
+        "mc_data": "{% url 'rest:metacell-list' %}",
+        "mc_links": "{% url 'rest:metacelllink-list' %}",
+    };
+
+    var params = new URLSearchParams({ species: '{{species}}', limit: 0 });
+    urls['mc_links'] += "?" + params.toString();
+
+    {% if gene %}
+	    params.append('gene', '{{gene}}');
+	{% endif %}
+
+	urls['sc_data'] += "?" + params.toString();
+	urls['mc_data'] += "?" + params.toString();
+
+	createDataMenu('{{id}}', urls,
+	               ['Single-cell data', 'Metacell data', 'Metacell links']);
+
+    Promise.all(
+        Object.entries(urls).map(([key, url]) =>
+            fetch(url)
+                .then(res => res.json())
+                .then(data => ({ key, data }))
+        )
+    )
+    .then(results => {
+        // Combine results into a dictionary
+        const data = results.reduce((acc, { key, data }) => {
+          acc[key] = data;
+          return acc;
+        }, {});
+
+        createMetacellProjection(
+    	    "#{{id}}-plot", "{{species}}", data,
+    	    color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
+    	    {% if gene %}'{{gene}}'{% else %}null{% endif %});
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        hideSpinner('{{id}}');
+    });
+
+    function getSelectedMetacells() {
+        var view = viewMetacellProjection;
+
+        // Get selection brush
+        var brush = view.signal('brush');
+        if ($.isEmptyObject(brush)) {
+            // Brush not available
+            return [];
+        }
+        var [minX, maxX] = brush.x;
+        var [minY, maxY] = brush.y;
+
+        // Get data within selection brush
+        var data = view.data('mc_data');
+        var x, y;
+        var metacells = [];
+        for (let i=0; i < data.length; i++) {
+            x = data[i].x;
+            y = data[i].y;
+            if (minX <= x && x <= maxX && minY <= y && y <= maxY) {
+                metacells.push(data[i].name);
+            }
+        }
+        return metacells;
+    }
+
+	$('#list_markers').on('click', function(e) {
+	    var metacells = getSelectedMetacells();
+	    if (metacells.length >= 1) {
+	        url = '{% url 'atlas_markers' species.species_underscore %}?metacells=' + metacells;
+	        window.location.href = url;
+	    } else {
+	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+	    }
+	});
+
+	$('#filter_heatmap').on('click', function(e) {
+	    var metacells = getSelectedMetacells();
+	    if (metacells.length >= 1) {
+	        url = new URL(window.location.href);
+	        url.searchParams.set('metacells', metacells)
+	        url.hash = "expression";
+	        window.location.href = url;
+	    } else {
+	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+	    }
+	});
+</script>

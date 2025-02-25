@@ -34,15 +34,18 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 
                         <template id="{{id}}_{{type}}_element">
                             <a href="javascript:void(0);"
-                            class="list-group-item list-group-item-action {{id}}_{{type}}_group_a"
+                            class="list-group-item list-group-item-action {{id}}_{{type}}_group_a px-2 py-1"
                             data-bs-toggle="list">
-                                <i class="fa fa-circle color-bullet {{id}}_{{type}}_group_bullet"></i>
-                                <span class="{{id}}_{{type}}_group_title"></span>
                                 <div class="d-grid d-lg-flex w-100 justify-content-between">
-                                    <span class="{{id}}_{{type}}_group_count text-body-secondary small">
-                                        140 genes
+                                    <span>
+                                        <i class="fa fa-circle color-bullet {{id}}_{{type}}_group_bullet"></i>
+                                        <span class="{{id}}_{{type}}_group_title small"></span>
                                     </span>
-                                    <span class="{{id}}_{{type}}_group_group text-body-secondary"
+
+                                    <span class="{{id}}_{{type}}_group_count text-body-secondary small">
+                                        140
+                                    </span>
+                                    <span class="{{id}}_{{type}}_group_group text-body-secondary d-none"
                                     style="font-variant: small-caps;
                                     text-transform: lowercase;
                                     margin-bottom: -5px;">
@@ -70,9 +73,9 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                             href="javascript:void(0);"
                             id="{{id}}_{{type}}_new_selected">
                                 <i class="fa fa-list-ul fa-fw"></i>
-                                List with selected
+                                List with
                                 <span id="{{id}}_{{type}}_new_selected_count">
-                                    0 genes
+                                    0 selected genes
                                 </span>
                             </a>
                             <a class="dropdown-item" href="javascript:void(0);"
@@ -80,6 +83,21 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                                 <i class="fa fa-clone fa-fw"></i>
                                 Duplicate from selected list
                             </a>
+
+                            <hr class="dropdown-divider">
+
+                            <a class="dropdown-item" href="javascript:void(0);"
+                            id="{{id}}_{{type}}_new_duplicate">
+                                <i class="fa fa-shapes fa-fw"></i>
+                                Based on protein domains...
+                            </a>
+
+                            <a class="dropdown-item" href="javascript:void(0);"
+                            id="{{id}}_{{type}}_new_duplicate">
+                                <i class="fa fa-align-center fa-fw"></i>
+                                From MMseqs2 alignment...
+                            </a>
+
                             <a class="dropdown-item" href="javascript:void(0);"
                             onclick="document.getElementById('{{id}}_{{type}}_new_upload').click();"
                             data-bs-toggle="tooltip" data-bs-placement="right"
@@ -115,7 +133,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                                         </tbody>
                                     </table>">
                                 <i class="fa fa-file-arrow-up fa-fw"></i>
-                                Upload lists
+                                Upload lists...
 
                                 <input id="{{id}}_{{type}}_new_upload"
                                 type="file"
@@ -256,7 +274,7 @@ $(function() {
             table.on('select deselect', function(e, dt, type, indexes) {
                 if (type === 'row') {
                     const len = getSelectedRows('{{id}}_{{type}}_editor_table').length;
-                    var label = len + (len === 1 ? ' gene' : ' genes');
+                    var label = `${len} selected gene` + (len === 1 ? '' : 's');
                     $('#{{id}}_{{type}}_new_selected_count').text(label);
 
                     // Disable element if no rows are selected

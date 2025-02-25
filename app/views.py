@@ -184,6 +184,21 @@ class AtlasGeneView(BaseAtlasView):
         context['query'] = query
         return context
 
+class AtlasPanelView(BaseAtlasView):
+    template_name = "app/atlas/panel.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        species = context.get('species')
+        if not isinstance(species, Species):
+            return context
+
+        context['metacell_dict'] = getMetacellDict(species)
+
+        query = self.request.GET
+        context['query'] = query
+        return context
+
 
 class AtlasMarkersView(BaseAtlasView):
     template_name = "app/atlas/markers.html"

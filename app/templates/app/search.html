@@ -187,10 +187,11 @@ function updateQuery(key, value) {
         const container = $('#results');
         let $clone = $(template.html());
 
-        title_mod       = (title || '').replace(/_/g, "_<wbr>");
-        subtitle_mod    = (subtitle || '').replace(/_/g, "_<wbr>");
+        title_mod       = title
+        subtitle_mod    = subtitle
         description_mod = (description || '').replace("-", "");
 
+        // Highlight query matches
         var query = $('#search').val().trim();
         if (query) {
             title_mod       = highlightMatch(title_mod, query);
@@ -199,6 +200,11 @@ function updateQuery(key, value) {
             badges          = badges.map(item => highlightMatch(item, query));
         }
 
+        // Add word break lines on underscores
+        title_mod       = (title_mod       || '').replace(/_/g, "_<wbr>");
+        subtitle_mod    = (subtitle_mod    || '').replace(/_/g, "_<wbr>");
+
+        // Italicize title
         if (italic_title) {
             title_mod = `<i>${title_mod}</i>`;
         }
@@ -254,7 +260,7 @@ function updateQuery(key, value) {
     				appendResult(title, species_url, subtitle, species_url,
     				             description, badges, italic_title=true);
     			});
-    			$('#results_count').text(`${data.count} results`);
+    			$('#results_count').text(`${data.count.toLocaleString()} results`);
     		})
     		.catch(err => {
                 console.error('Error loading data:', err);
@@ -284,7 +290,7 @@ function updateQuery(key, value) {
     				appendResult(gene, gene_url, species_name, species_url,
     				             description, domains);
     			});
-    			$('#results_count').text(`${data.count} results`);
+    			$('#results_count').text(`${data.count.toLocaleString()} results`);
     		})
     		.catch(err => {
                 console.error('Error loading data:', err);

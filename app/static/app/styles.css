@@ -44,6 +44,10 @@ html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
   scroll-padding-top: 60px;
 }
 
+html:has(.subnavbar) {
+  scroll-padding-top: 96px;
+}
+
 .navbar {
     background: var(--primary-color);
     box-shadow: var(--navbar-box-shadow);

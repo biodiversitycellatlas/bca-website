@@ -9,6 +9,7 @@ Features:
 Input:
 - id: prefix used to identify elements
 - name: form field name (default: 'gene')
+- class: select element class (default: 'mb-3')
 - gene: default gene to select with properties 'name', 'description' and
   'domains' (default: none, i.e., no gene is selected)
 - selected: selected genes (only use instead of gene if multiple = 'true')
@@ -28,7 +29,7 @@ Input:
 
 {% endcomment %}
 
-<select id="{{id}}_gene_selection" class="mb-3"
+<select id="{{id}}_gene_selection" class="{{class|default:'mb-3'}}"
 name="{{name|default:'gene'}}"
 style="width: {{width|default:'100%'}};"
 placeholder="{{placeholder|default:'Search gene...'}}"
@@ -117,7 +118,7 @@ $(function () {
         preload: true,
         load: function(query, callback) {
             $.ajax({
-                url: '{% url 'rest:gene-list' %}',
+                url: '{% url "rest:gene-list" %}',
                 type: 'GET',
                 dataType: 'json',
                 data: {

@@ -13,6 +13,7 @@ urlpatterns = [
     path("atlas/<species>/overview/", views.AtlasOverviewView.as_view(), name="atlas_overview"),
     path("atlas/<species>/gene/", views.AtlasGeneView.as_view(), name="atlas_gene"),
     path("atlas/<species>/gene/<gene>", views.AtlasGeneView.as_view(), name="atlas_gene"),
+    path("atlas/<species>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
     path("atlas/<species>/markers/", views.AtlasMarkersView.as_view(), name="atlas_markers"),
     path("atlas/<species>/compare/", views.AtlasCompareView.as_view(), name="atlas_compare"),
 

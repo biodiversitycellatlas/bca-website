@@ -24,7 +24,7 @@ Input:
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="species-select" class="mb-2 {{class}}"
-style="margin-bottom: 31px !important; visibility: hidden;"
+style="margin-bottom: 23px !important; visibility: hidden;"
 placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...'}}">
     <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
@@ -45,7 +45,8 @@ placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic ra
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 $(function () {
-    $("#species-select").selectize({
+    var $select = $("#species-select");
+    $select.selectize({
         onChange: function(value) {
             // Jump to species page upon selection
     	    if (value !== "" && value !== '{{species.species_underscore}}') {

@@ -1,0 +1,25 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Gene expression heatmap for a specific selection of genes
+
+Input:
+- species: Species object from `models.py`
+
+{% endcomment %}
+
+{% block title %}{{species}} {{gene|default:'Gene'}}{% endblock title %}
+
+{% block content %}
+
+<!-- Gene expression heatmap -->
+<h1 class="h3 pt-2 mb-3" id="expression">
+    Gene expression heatmap
+    {% include '../components/button/copy_to_clipboard.html' with id='expression' %}
+    {% include '../components/button/data_download.html' with id='expression' %}
+</h1>
+
+{% include '../components/plots/expression_heatmap.html' with id='expression' type='gene-lists' %}
+
+{% endblock content %}

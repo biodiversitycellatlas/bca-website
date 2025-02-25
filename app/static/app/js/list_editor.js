@@ -120,7 +120,7 @@ function appendListGroupItem (id, name, group, count, active=false, firstRender=
     }
 
     $clone.find(`.${id}_group_title`).text(name);
-    $clone.find(`.${id}_group_count`).text(`${count} genes`);
+    $clone.find(`.${id}_group_count`).text(count);
 
     if (group === 'custom') {
         userLabel = `Custom <i class="fa fa-user fa-xs fa-fw"></i>`;

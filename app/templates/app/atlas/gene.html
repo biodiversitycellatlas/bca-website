@@ -24,10 +24,26 @@ Input:
 {% block content %}
 {% load static %}
 
+<div class="d-flex justify-content-between align-items-center small">
+    <label class="col-form-label">
+        <i class="fa fa-dna"></i>
+        Gene selection
+    </label>
+    <a href="#">Select from MMseqs2 alignment...</a>
+</div>
+
 {% include '../components/select/gene.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
+
 {% include '../components/warning_alert.html' %}
 
 {% if gene %}
+    <h1 class="h3 pt-2" id="projection">
+        Metacell projection
+        {% include '../components/button/copy_to_clipboard.html' with id='projection' %}
+        {% include '../components/button/data_download.html' with id='projection' %}
+    </h1>
+    {% include '../components/plots/metacell_projection.html' with id='projection' %}
+
     <h1 class="h3 pt-2" id="expression">
         Gene expression
         {% include '../components/button/copy_to_clipboard.html' with id='expression' %}
@@ -124,5 +140,7 @@ Input:
 {% else %}
     {% include '../components/mockup/barplot.html' %}
 {% endif %}
+
+
 
 {% endblock content %}
