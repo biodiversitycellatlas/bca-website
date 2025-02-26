@@ -4,7 +4,8 @@ Gene expression heatmap
 
 Input:
 - id: prefix used in the identifiers of all elements
-- type: gene selection by top 'markers' per metacell (default) or 'gene-lists'
+- type: gene selection based on top 'markers' per metacell (default) or
+  'gene-lists'
 
 {% endcomment %}
 
@@ -45,7 +46,7 @@ Input:
                         </a>
 
                         <a id="edit_gene_lists" href="javascript:void(0);" class="d-block text-end" data-bs-toggle="modal" data-bs-target="#{{id}}_gene_lists_editor">
-                            Edit lists
+                            Edit lists...
                         </a>
                     </div>
                 </div>
@@ -272,39 +273,41 @@ Input:
             {% include '../plot_container.html' with id=id ratio='16/9' %}
         </div>
     </div>
+
+    {% load static %}
+    <script type="text/javascript"
+    src="{% static 'app/js/expression_heatmap.js' %}"></script>
+
+    <script type="text/javascript">
+    $(function() {
+        var url = "{% url 'rest:metacellgeneexpression-list' %}";
+
+        var params = new URLSearchParams({
+    		species: '{{species}}',
+    		metacells: $("#metacells").val().join(","),
+    		fc_min: $("#fc_min").val(),
+    		{% if not query.genes %} n_markers: $("#markers").val(), {% endif %}
+    		sort_genes: true,
+    		{% if query.genes %} genes: '{{query.genes}}', {% endif %}
+    		log2: true,
+    		clip_log2: $("#clip_log2").val(),
+    		limit: 0
+    	});
+    	var apiURL = url + "?" + params.toString();
+
+        fetch(apiURL)
+            .then(response => response.json())
+            .then(data => {
+                createExpressionHeatmap("#{{id}}-plot", "{{species}}", data)
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        createDataMenu('{{id}}', apiURL, 'Metacell gene expression');
+    });
+    </script>
 {% elif type == 'gene-lists' and not query.genes %}
     <p class="text-muted">
         <i class="fa fa-circle-exclamation"></i>
         Select genes to show heatmap.
     </p>
 {% endif %}
-
-{% load static %}
-<script type="text/javascript" src="{% static 'app/js/expression_heatmap.js' %}"></script>
-<script type="text/javascript">
-$(function() {
-    var url = "{% url 'rest:metacellgeneexpression-list' %}";
-
-    var params = new URLSearchParams({
-		species: '{{species}}',
-		metacells: $("#metacells").val().join(","),
-		fc_min: $("#fc_min").val(),
-		{% if not query.genes %} n_markers: $("#markers").val(), {% endif %}
-		sort_genes: true,
-		{% if query.genes %} genes: '{{query.genes}}', {% endif %}
-		log2: true,
-		clip_log2: $("#clip_log2").val(),
-		limit: 0
-	});
-	var apiURL = url + "?" + params.toString();
-
-    fetch(apiURL)
-        .then(response => response.json())
-        .then(data => {
-            createExpressionHeatmap("#{{id}}-plot", "{{species}}", data)
-        })
-        .catch(error => console.error('Error fetching data:', error));
-
-    createDataMenu('{{id}}', apiURL, 'Metacell gene expression');
-});
-</script>
