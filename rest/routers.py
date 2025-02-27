@@ -16,3 +16,5 @@ router.register('markers', views.MetacellMarkerViewSet, basename='metacellmarker
 
 router.register('single_cell', views.SingleCellViewSet)
 router.register('single_cell_expression', views.SingleCellGeneExpressionViewSet)
+
+router.register('align', views.AlignViewSet, basename='align')

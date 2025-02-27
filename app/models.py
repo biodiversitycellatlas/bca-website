@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 
 from colorfield.fields import ColorField
 import re
+import hashlib
 
 
 class Species(models.Model):
@@ -45,6 +46,34 @@ class Species(models.Model):
 
     def __str__(self):
         return self.scientific_name
+
+
+class File(models.Model):
+    title_choices = {
+        "Proteome": "Proteome",
+        "DIAMOND": "DIAMOND"
+    }
+
+    species     = models.ForeignKey(Species, on_delete=models.CASCADE,
+                                    related_name="files")
+    title       = models.CharField(max_length=255, choices=title_choices)
+    file        = models.FileField(upload_to="data/")
+    checksum    = models.CharField(max_length=64, editable=False)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            hasher = hashlib.sha256()
+            for chunk in self.file.chunks():
+                hasher.update(chunk)
+            self.checksum = hasher.hexdigest()
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ["species", "title"]
+
+    def __str__(self):
+        return f"{self.species.scientific_name} - {self.title}"
 
 
 class Meta(models.Model):

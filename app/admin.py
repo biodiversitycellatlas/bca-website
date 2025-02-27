@@ -15,6 +15,11 @@ class SpeciesAdmin(admin.ModelAdmin):
     inlines = [MetaInline]
 
 
+class FileAdmin(admin.ModelAdmin):
+    list_display = ["title", "species", "file", "checksum"]
+    list_filter = ["species"]
+
+
 class SingleCellAdmin(admin.ModelAdmin):
     list_display = ["name", "metacell", "metacell__type", "species"]
     list_filter = ["species", "metacell__type"]
@@ -65,6 +70,7 @@ class OrthologAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Species, SpeciesAdmin)
+admin.site.register(models.File, FileAdmin)
 
 admin.site.register(models.SingleCell, SingleCellAdmin)
 admin.site.register(models.Metacell, MetacellAdmin)

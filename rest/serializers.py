@@ -179,3 +179,21 @@ class OrthologSerializer(serializers.ModelSerializer):
         if not show_expression:
             self.fields.pop('expression')
         super().__init__(*args, **kwargs)
+
+
+class AlignRequestSerializer(serializers.Serializer):
+    query = serializers.CharField(
+        required=True,
+        help_text="The nucleotide or amino acid FASTA sequence(s).")
+    species = serializers.ChoiceField(
+        choices=[s.scientific_name for s in models.Species.objects.all()],
+        required=True,
+        help_text="The species' [scientific name](#/operations/species_list) (example: Trichoplax adhaerens).")
+
+
+class AlignResponseSerializer(serializers.Serializer):
+    title = serializers.CharField(help_text="Title of the hit.")
+    e_value = serializers.FloatField(help_text="E-value for the alignment.")
+    score = serializers.IntegerField(help_text="Score of the alignment.")
+    query_start = serializers.IntegerField(help_text="Start position of the alignment in the query.")
+    query_end = serializers.IntegerField(help_text="End position of the alignment in the query.")
