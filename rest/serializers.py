@@ -182,9 +182,12 @@ class OrthologSerializer(serializers.ModelSerializer):
 
 
 class AlignRequestSerializer(serializers.Serializer):
-    query = serializers.CharField(
+    sequence = serializers.CharField(
         required=True,
-        help_text="The nucleotide or amino acid FASTA sequence(s).")
+        help_text="The nucleotide or amino acid FASTA sequence(s) to query.")
+    type = serializers.ChoiceField(
+        choices=('aminoacids', 'nucleotides'), required=True,
+        help_text="The type of monomers used in the query sequence: 'aminoacids' for proteins (default) or 'nucleotides' for DNA/RNA.")
     species = serializers.ChoiceField(
         choices=[s.scientific_name for s in models.Species.objects.all()],
         required=True,

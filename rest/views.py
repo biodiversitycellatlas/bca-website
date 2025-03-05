@@ -133,10 +133,14 @@ class AlignViewSet(viewsets.ViewSet):
         parameters=[
             OpenApiParameter(
                 'species', str, location='query', required=True,
+                enum=serializers.AlignRequestSerializer().fields['species'].choices,
                 description=serializers.AlignRequestSerializer().fields['species'].help_text),
             OpenApiParameter(
-                'query', str, location='query', required=True,
-                description=serializers.AlignRequestSerializer().fields['query'].help_text),
+                'sequence', str, location='query', required=True,
+                description=serializers.AlignRequestSerializer().fields['sequence'].help_text),
+            OpenApiParameter(
+                'type', str, location='query', required=True, enum=serializers.AlignRequestSerializer().fields['type'].choices,
+                description=serializers.AlignRequestSerializer().fields['type'].help_text)
         ],
         operation_id='align_get',
         responses={200: serializers.AlignResponseSerializer(many=True)},
@@ -160,12 +164,12 @@ class AlignViewSet(viewsets.ViewSet):
         """
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        result = self.align(data['species'], data['query'])
+        result = self.align(data['species'], data['sequence'], data['type'])
         return Response(result)
 
-    def align(self, species, query):
+    def align(self, species, sequence, type):
         """
-        Align user query against proteome database from the species.
+        Align query sequence against proteome database from the species.
         """
         s = models.Species.objects.filter(scientific_name=species).first()
         db = s.files.filter(title='DIAMOND')
@@ -176,51 +180,55 @@ class AlignViewSet(viewsets.ViewSet):
             db = db.first()
 
         # Avoid literal newlines from GET request
-        query = query.replace("\\n", "\n")
+        sequence = sequence.replace("\\n", "\n")
 
         # Count lines up to a limit and get a sample from first 10 sequences
         count = 0
         sample = ""
-        for line in query.splitlines():
+        for line in sequence.splitlines():
             if line.startswith('>'):
                 count = count + 1
                 if count > self.limit:
-                    raise ValueError(f"Query can only contain up to {self.limit} FASTA sequences")
+                    raise ValueError(f"Query sequence can only contain up to {self.limit} FASTA sequences")
             elif count <= 10:
                 sample = sample + line + "\n"
 
         # Check if sample is composed of amino acids or nucleotides
-        if re.search('[DEFHIKLMNPQRSVWY]', sample, re.IGNORECASE):
-            type = 'blastp'
-        elif re.search('[ACGTU]', sample, re.IGNORECASE):
-            type = 'blastx'
-        else:
-            raise ValueError(f"Query contains invalid characters: {sample}")
+        program = 'blastp' if (type is None or type == 'aminoacids') else 'blastx'
 
-        # Write query to temporary file
+        # Write query sequence to temporary file
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.fasta') as temp_file:
-            if not query.startswith(">") or not query.startswith("@"):
+            if not sequence.startswith(">") or not sequence.startswith("@"):
                 temp_file.write(">query\n")
-            temp_file.write(query)
+            temp_file.write(sequence)
             temp_file.write("\n")
             query_path = temp_file.name
         out_path = tempfile.NamedTemporaryFile(suffix='.m8').name
 
         results = []
         try:
-            cmd = ['diamond', type, '--query', query_path, '--db', db.file.path, '--out', out_path]
-            subprocess.run(cmd, check=True)
+            cmd = [
+                'diamond', program,
+                '--query', query_path,
+                '--db', db.file.path,
+                '--out', out_path
+            ]
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
 
-            columns = ["qseqid", "sseqid", "pident", "length", "mismatch", "gapopen",
-                       "qstart", "qend", "sstart", "send", "evalue", "bitscore"]
+            columns = ["qseqid", "sseqid", "pident", "length", "mismatch",
+                       "gapopen", "qstart", "qend", "sstart", "send", "evalue",
+                       "bitscore"]
 
             with open(out_path) as file:
                 for line in file:
                     values = line.strip().split("\t")
                     entry = dict(zip(columns, values))
                     results.append(entry)
+        except subprocess.CalledProcessError as e:
+            # Raise error if command fails
+            raise subprocess.SubprocessError(e.stderr)
         finally:
-            # Clean up temporary files (even if command fails)
+            # Clean up temporary files
             for f in [query_path, out_path]:
                 if os.path.exists(f):
                     os.remove(f)

@@ -12,6 +12,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+from . import pre_settings
+
+# Global variables
+DIAMOND_VERSION = pre_settings.get_DIAMOND_version()
+MAX_ALIGNMENT_SEQS = 100 # Maximum number of sequences for alignment
+MAX_FILE_SIZE = 10 # Maximum file size (in MB) allowed for file upload input
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -68,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.global_settings',
             ],
         },
     },
