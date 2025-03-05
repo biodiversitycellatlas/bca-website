@@ -1,9 +1,18 @@
 // Functions to get, set and append user lists
+function parseID(str) {
+    if (str.includes("gene_list")) {
+        return "gene_list";
+    }
+    return "list";
+}
+
 function getLocalStorageLists(id) {
+    id = parseID(id);
     return JSON.parse( localStorage.getItem(id) ) || {};
 }
 
 function setLocalStorageLists(id, lists) {
+    id = parseID(id);
     localStorage.setItem(id, JSON.stringify(lists));
 }
 
@@ -16,16 +25,22 @@ function getUserLists(id, species, name = undefined) {
     }
 }
 
-function setUserList(id, species, name, values, color='gray', group='custom') {
+function setUserList(id, species, name, values, group='Custom lists', color='gray') {
     var lists = getLocalStorageLists(id);
+
     // Create species key if not present
     lists[species] ||= [];
+
     lists[species].push({
         name: name,
         items: values,
         color: color,
         group: group
     });
+
+    // Sort by group
+    lists[species].sort((a, b) => a.group.localeCompare(b.group));
+
     setLocalStorageLists(id, lists);
 }
 
@@ -77,7 +92,7 @@ function getAllListNames(id) {
     return lists;
 }
 
-function appendUserList(id, species, name, values) {
+function appendUserList(id, species, name, values, group='Custom lists', color='gray') {
     var lists = getUserLists(id, species);
     var allListNames = getAllListNames(id);
 
@@ -96,12 +111,32 @@ function appendUserList(id, species, name, values) {
     }
 
     // Assign new values to list
-    setUserList(id, species, name, values);
-    appendListGroupItem(id, name, 'custom', values.length, active=true);
+    setUserList(id, species, name, values, group, color);
+    redrawUserLists(id, species, active=name);
 }
 
-// Render user group items
-function appendListGroupItem (id, name, group, count, active=false, firstRender=false) {
+// Render user group headings and items
+function appendListGroupHeading (id, group) {
+    const template = document.getElementById(`${id}_heading`);
+    const container = document.getElementById(`${id}_options`);
+
+    const isPreset = group === 'preset';
+
+    // Render each list based on template
+    var $clone = $(document.importNode(template.content, true));
+    $clone.find(`div`)
+        .text(isPreset ? 'Preset gene lists' : group)
+        .attr("data-group", group);
+
+    if (isPreset) {
+        const readonly = '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i> read-only</span>';
+        $clone.find(`div`).html('Preset gene lists' + readonly);
+    }
+
+    container.appendChild($clone[0]);
+}
+
+function appendListGroupItem (id, name, group, count, active=false) {
     const template = document.getElementById(`${id}_element`);
     const container = document.getElementById(`${id}_options`);
 
@@ -114,38 +149,51 @@ function appendListGroupItem (id, name, group, count, active=false, firstRender=
         .attr("data-count", count || 0)
         .attr("data-color", 'orange');
 
-    // Set first element to active if first data table
-    if ( firstRender && active ) {
-        $clone.find(`.${id}_group_a`).addClass('active');
-    }
-
     $clone.find(`.${id}_group_title`).text(name);
     $clone.find(`.${id}_group_count`).text(count);
 
-    if (group === 'custom') {
-        userLabel = `Custom <i class="fa fa-user fa-xs fa-fw"></i>`;
-        $clone.find(`.${id}_group_group`).html(userLabel);
-    }
     container.appendChild($clone[0]);
 
-    if (!firstRender && active) {
+    if (active) {
         $(container).find('a').removeClass('active');
         $(container).children('a:last').addClass('active').click();
     }
 }
 
-function redrawUserLists (id, species, activeList=[]) {
-    // Delete all user lists from interface
-    const container = document.getElementById(`${id}_options`);
-    $(container).find('a[data-group="custom"]').remove();
-
-    // Re-render all user lists
+function drawUserLists (id, species, activeList=[]) {
+    // Render all user lists (sorted by group)
     var lists = getUserLists(id, species);
+
+    group = '';
     for (const index in lists) {
         const elem = lists[index];
         var active = activeList.includes(elem.name);
-        appendListGroupItem(id, elem.name, elem.group, elem.items.length, active=active);
+        if (elem.group != group) {
+            appendListGroupHeading(id, elem.group);
+            group = elem.group;
+        }
+        const len = elem.items ? elem.items.length : 0;
+        appendListGroupItem(id, elem.name, elem.group, len, active=active);
     };
+}
+
+
+function clearSearch(id) {
+    var search = $(`#${id}_search`);
+    search.val('');
+
+    // Trigger input event as if the user cleared the search box
+    search[0].dispatchEvent(new Event('input'));
+}
+
+function redrawUserLists (id, species, activeList=[]) {
+    clearSearch(id);
+
+    // Delete all user lists from interface
+    const container = document.getElementById(`${id}_options`);
+    $(container).find('*[data-group]:not([data-group="preset"]').remove();
+
+    drawUserLists(id, species, activeList);
 }
 
 /* Prepare URLs to retrieve gene information for a given list */
@@ -208,7 +256,6 @@ function renderListDetail (id, species, url) {
     table.ajax.url(url || '').load();
 
     // Update list-specific controls
-    $(`#${id}_rename`).val(name);
     $(`#${id}_controls`).prop('disabled', group === 'preset');
 }
 
@@ -221,7 +268,7 @@ function createUserListsFromFile (elem, id, species, maxMB = 10) {
     }
 
     if (file.size > maxMB * 1024 * 1024) {
-        alert(`Size limit exceeded! File needs to be smaller than ${maxMB} MB.`);
+        alert(`Size limit of ${maxMB} MB exceeded.`);
     } else {
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -243,7 +290,7 @@ function createUserListsFromFile (elem, id, species, maxMB = 10) {
 
             // Append user lists
             for (const key in dict) {
-                appendUserList(id, species, key, dict[key]);
+                appendUserList(id, species, key, dict[key], 'Uploaded lists');
             }
         };
         reader.readAsText(file);

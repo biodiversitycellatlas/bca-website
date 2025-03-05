@@ -160,9 +160,14 @@ body {
     font-size: 1.20rem;
 }
 
-.form-control:focus {
+.form-control:focus, .sequence-input:has(.sequence-textarea:focus) {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
+.btn.btn-primary.disabled, .btn.btn-primary:disabled, fieldset:disabled.btn.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .btn.btn-primary, .btn.btn-outline-primary {
@@ -264,10 +269,38 @@ a:hover {
 .list-group-item.active {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+
+    position: sticky;
+    top: 0;
+    bottom: 0;
 }
 
 .list-group-item.active .text-body-secondary {
     color: white !important;
+}
+
+.list-group-heading {
+    color: var(--primary-color);
+    font-weight: 500;
+    text-transform: lowercase;
+    font-variant: small-caps;
+
+    background-color: rgb(var(--bs-light-rgb));
+
+    border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+}
+
+.list-group-heading + .list-group-heading,
+.list-group-heading + .list-group-item,
+.list-group-item + .list-group-heading,
+.list-group-item + .list-group-item {
+    border-top-width: 0;
+}
+
+.list-group-heading:first-child {
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    border-top-width: 1px;
 }
 
 .upload-tooltip .tooltip-inner {
@@ -284,6 +317,10 @@ a:hover {
 
 .search-highlight {
     background: rgba(255,237,40,.4);
+}
+
+.sequence-textarea:focus {
+    box-shadow: none;
 }
 
 /* Dropdown menu */
@@ -351,8 +388,18 @@ div.dt-container div.dt-processing > div > div {
 .truncate {
     max-width:200px;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: overlay;
     text-overflow: ellipsis;
+}
+
+.truncate-3 {
+	line-clamp: 3;
+	-webkit-line-clamp: 3;
+	text-overflow: ellipsis;
+	hyphens: auto;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: overlay;
 }
 
 /* Selectize.js */
@@ -424,6 +471,20 @@ div.dt-container div.dt-processing > div > div {
 	opacity: 1;
 	-webkit-animation: fa-spin 2s infinite linear;
 	animation: fa-spin 2s infinite linear;
+}
+
+.selectize-control.multi .selectize-input > div.active {
+    background: var(--primary-color);
+    color: #fff;
+    border: 0 solid transparent;
+}
+
+.selectize-control .remove {
+    color: var(--hover-color);
+}
+
+.selectize-control div.active .remove {
+    color: white;
 }
 
 .bca-search .selectize-input::after {

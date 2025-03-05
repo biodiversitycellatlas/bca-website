@@ -73,12 +73,8 @@ $(function () {
         {% if multiple == 'true' %}
             multiple: true,
             optgroupField: 'group',
-            optgroups: [
-                { value: 'custom', label: 'Custom gene lists' },
-                { value: 'preset', label: 'Preset gene lists' },
-                { value: 'genes', label: 'Genes' }
-            ],
         {% endif %}
+
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
@@ -94,6 +90,7 @@ $(function () {
 			    {% endif %}
     		}
 		},
+
 		{% if multiple != 'true' %}
     		onDropdownOpen: function($dropdown) {
     		    this.clear();
@@ -116,6 +113,11 @@ $(function () {
         valueField: 'name',
         searchField: ['name', 'description', 'domains'],
         preload: true,
+        plugins: {
+            {% if multiple == 'true' %}
+                'remove_button': { label: ' &#xd7;' }
+            {% endif %}
+        },
         load: function(query, callback) {
             $.ajax({
                 url: '{% url "rest:gene-list" %}',
@@ -179,8 +181,27 @@ $(function () {
                 selectize.addOption(missingValuesArray);
 
                 selectize.setValue(values);
-
                 hasRun = true;
+            }
+
+            // Set up optgroups
+            const groups = [...new Set(Object
+                .values(selectize.options)
+                .map(obj => obj.group))];
+
+            for (i in groups) {
+                const group = groups[i];
+                if (group) {
+                    var label = group;
+                    if (group == 'preset') {
+                        label = 'Preset gene lists';
+                    } else if (group == 'custom') {
+                        label = 'Custom gene lists';
+                    } else if (group == 'genes') {
+                        label = 'Genes';
+                    }
+                    selectize.addOptionGroup(group, { label: label });
+                }
             }
         });
     {% endif %}

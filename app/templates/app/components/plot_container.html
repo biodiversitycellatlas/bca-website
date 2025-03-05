@@ -25,10 +25,16 @@ style="{% if ratio %}aspect-ratio: {{ratio}};{% endif %}">
     }
 
     function hideSpinner (id) {
-        getSpinner(id).style.display = 'none';
+        var spinner = getSpinner(id);
+        if (spinner !== null) {
+            spinner.style.display = 'none';
+        }
     }
 
     function showSpinner (id) {
-        getSpinner(id).style.display = 'flex';
+        var spinner = getSpinner(id);
+        if (spinner !== null) {
+            spinner.style.display = 'flex';
+        }
     }
 </script>

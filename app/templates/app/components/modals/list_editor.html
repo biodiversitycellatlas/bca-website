@@ -8,6 +8,8 @@ Input:
 
 {% endcomment %}
 
+{% include './align.html' %}
+
 <div class="modal fade" id="{{id}}_{{type}}_editor" tabindex="-1"
 data-bs-backdrop="static" data-bs-keyboard="false"
 aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
@@ -16,12 +18,13 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
         <div class="modal-header">
             <h1 class="modal-title fs-5" id="{{id}}_{{type}}_editor_label">Gene lists</h1>
             <span class="ms-2 me-5">
-                <img class="rounded" src="{{species.image_url}}" style="width: 25px;">
+                <img class="rounded" src="{{species.image_url}}"
+                style="width: 25px;">
                 <i class="small">{{species}}</i>
             </span>
 
             <div class="ms-auto d-flex align-items-center">
-                {% include './button/data_download.html' with id=id %}
+                {% include '../button/data_download.html' with id=id %}
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         </div>
@@ -29,33 +32,45 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
             <div class="row">
                 <div class="col-4">
 
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input id="{{id}}_{{type}}_search"
+                        type="search" class="form-control"
+                        placeholder="Filter by name of lists...">
+                    </div>
+
                     <div id="{{id}}_{{type}}_options" class="list-group"
                     style="max-height: 500px; overflow-y: auto; margin-left: -1px; padding-right: 1px;">
-
-                        <template id="{{id}}_{{type}}_element">
-                            <a href="javascript:void(0);"
-                            class="list-group-item list-group-item-action {{id}}_{{type}}_group_a px-2 py-1"
-                            data-bs-toggle="list">
-                                <div class="d-grid d-lg-flex w-100 justify-content-between">
-                                    <span>
-                                        <i class="fa fa-circle color-bullet {{id}}_{{type}}_group_bullet"></i>
-                                        <span class="{{id}}_{{type}}_group_title small"></span>
-                                    </span>
-
-                                    <span class="{{id}}_{{type}}_group_count text-body-secondary small">
-                                        140
-                                    </span>
-                                    <span class="{{id}}_{{type}}_group_group text-body-secondary d-none"
-                                    style="font-variant: small-caps;
-                                    text-transform: lowercase;
-                                    margin-bottom: -5px;">
-                                        Preset <i class="fa fa-lock fa-xs fa-fw"></i>
-                                    </span>
-                                </div>
-                            </a>
-                        </template>
-
                     </div>
+
+                    <template id="{{id}}_{{type}}_heading">
+                        <div class="list-group-heading py-0 px-2 d-flex justify-content-between">
+                            Preset gene lists
+                        </div>
+                    </template>
+
+                    <template id="{{id}}_{{type}}_element">
+                        <a href="javascript:void(0);"
+                        class="list-group-item list-group-item-action {{id}}_{{type}}_group_a px-2 py-1"
+                        data-bs-toggle="list">
+                            <div class="d-grid d-lg-flex w-100 justify-content-between">
+                                <span class="truncate-3">
+                                    <i class="fa fa-circle color-bullet {{id}}_{{type}}_group_bullet"
+                                    style="padding-left: 1px;"></i>
+                                    <span class="{{id}}_{{type}}_group_title small">
+                                    </span>
+                                </span>
+
+                                <span class="{{id}}_{{type}}_group_count
+                                text-body-secondary small">
+                                    140
+                                </span>
+                            </div>
+                        </a>
+                    </template>
+
 
                     <div class="btn-group mt-3 w-100" role="group">
                         <button type="button"
@@ -64,21 +79,23 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                             <i class="fa fa-plus"></i> New
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:void(0);"
+                            <a class="dropdown-item small"
+                            href="javascript:void(0);"
                             id="{{id}}_{{type}}_new_empty">
                                 <i class="fa-regular fa-circle fa-fw"></i>
                                 Empty list
                             </a>
-                            <a class="dropdown-item disabled"
+                            <a class="dropdown-item small disabled"
                             href="javascript:void(0);"
                             id="{{id}}_{{type}}_new_selected">
-                                <i class="fa fa-list-ul fa-fw"></i>
+                                <i class="fa fa-list-check fa-fw"></i>
                                 List with
                                 <span id="{{id}}_{{type}}_new_selected_count">
                                     0 selected genes
                                 </span>
                             </a>
-                            <a class="dropdown-item" href="javascript:void(0);"
+                            <a class="dropdown-item small"
+                            href="javascript:void(0);"
                             id="{{id}}_{{type}}_new_duplicate">
                                 <i class="fa fa-clone fa-fw"></i>
                                 Duplicate from selected list
@@ -86,19 +103,22 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 
                             <hr class="dropdown-divider">
 
-                            <a class="dropdown-item" href="javascript:void(0);"
-                            id="{{id}}_{{type}}_new_duplicate">
+                            <a class="dropdown-item small"
+                            href="javascript:void(0);">
                                 <i class="fa fa-shapes fa-fw"></i>
                                 Based on protein domains...
                             </a>
 
-                            <a class="dropdown-item" href="javascript:void(0);"
-                            id="{{id}}_{{type}}_new_duplicate">
+                            <a class="dropdown-item small"
+                            href="javascript:void(0);"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{id}}_alignment">
                                 <i class="fa fa-align-center fa-fw"></i>
-                                From MMseqs2 alignment...
+                                From sequence alignment...
                             </a>
 
-                            <a class="dropdown-item" href="javascript:void(0);"
+                            <a class="dropdown-item small"
+                            href="javascript:void(0);"
                             onclick="document.getElementById('{{id}}_{{type}}_new_upload').click();"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             data-bs-html="true" data-bs-container="body"
@@ -110,8 +130,14 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                                         <li>Colour of gene list (HEX/RGB code or colour name)</li>
                                         <li>Gene symbol (one per line)</li>
                                     </ul>
-                                    <i class='fa fa-triangle-exclamation'></i>
-                                    Lines starting with <code>#</code> are ignored.
+                                    <p>
+                                        <i class='fa fa-triangle-exclamation'></i>
+                                        Lines starting with <code>#</code> are ignored.
+                                    </p>
+                                    <p>
+                                        <i class='fa fa-triangle-exclamation'></i>
+                                        File size limited to {{ MAX_FILE_SIZE }} MB.
+                                    </p>
                                     <hr><span>Example:</span>
                                     <table class='table table-sm table-dark table-hover my-1'>
                                         <tbody>
@@ -170,10 +196,9 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                             {% endcomment %}
 
                             <hr class="dropdown-divider">
-                            <p class="text-body-secondary small mb-0"
-                            style="text-align: center;">
+                            <p class="text-body-secondary small mb-0 text-center">
                                 <i class="fa fa-shield-halved"></i>
-                                Custom lists are stored<br>
+                                User lists are stored<br>
                                 <b>only</b> in your local browser
                             </p>
                         </div>
@@ -181,7 +206,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                         <button id="{{id}}_{{type}}_reset"
                         type="button" class="btn btn-outline-danger btn-xs"
                         data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-                        data-bs-title="Remove custom gene lists for <i>{{species}}</i>">
+                        data-bs-title="Remove user gene lists for <i>{{species}}</i>">
                             <i class="fa fa-clock-rotate-left fa-fw"></i>
                             <span class="d-none d-lg-inline">Reset</span>
                         </button>
@@ -191,24 +216,30 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                     <fieldset id="{{id}}_{{type}}_controls">
                         <div class="row">
                             <div class="col">
-                                <div class="input-group">
-                                    <input class="form-control"
-                                    id="{{id}}_{{type}}_rename" value="">
+                                <button id="{{id}}_{{type}}_append_btn"
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm">
+                                    <i class="fa fa-plus"></i>
+                                    Add genes
+                                </button>
 
-                                    <button id="{{id}}_{{type}}_rename_btn"
-                                    type="button"
-                                    class="btn btn-outline-secondary">
-                                        Rename
-                                    </button>
-                                </div>
+                                <button id="{{id}}_{{type}}_rename_btn"
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm">
+                                    <i class="fa fa-pencil"></i>
+                                    Rename...
+                                </button>
                             </div>
                             <div class="col-auto">
                                 <button id="{{id}}_{{type}}_remove"
-                                type="button" class="btn btn-outline-danger"
+                                type="button"
+                                class="btn btn-outline-danger btn-sm"
                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                 data-bs-title="Remove gene list">
                                     <i class="fa fa-trash"></i>
-                                    <span class="d-none d-lg-inline">Remove</span>
+                                    <span class="d-none d-lg-inline">
+                                        Remove
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -216,8 +247,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 
                     <hr>
                     <table id="{{id}}_{{type}}_editor_table"
-                    class="display compact"
-                    style="width:100%"></table>
+                    class="display compact w-100"></table>
 
                 </div>
             </div>
@@ -233,7 +263,6 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 <script type="text/javascript" src="{% static 'app/js/list_editor.js' %}"></script>
 <script type="text/javascript" src="{% static 'app/js/list_editor_table.js' %}"></script>
 <script>
-
 $(function() {
     // Get lists from API
     var url = "{% url 'rest:genelist-list' %}";
@@ -243,31 +272,16 @@ $(function() {
     fetch(genelist_apiURL)
         .then(response => response.json())
         .then(data => {
-            const res = data.results;
-
-            // Append user lists
-            var lists = getUserLists('{{id}}_{{type}}', '{{species}}');
-            for (const index in lists) {
-                const elem = lists[index];
-                res.push({
-                    name: elem.name,
-                    gene_count: elem.items.length,
-                    type: elem.group
-                });
-            }
-            return res;
-        })
-        .then(data => {
-            data.forEach((item, index) => {
+            appendListGroupHeading('{{id}}_{{type}}', 'preset');
+            data.results.forEach((item, index) => {
                 appendListGroupItem('{{id}}_{{type}}', item.name, item.type,
-                                    item.gene_count,
-                                    active=index === 0, firstRender=true);
+                                    item.gene_count);
             });
+            drawUserLists('{{id}}_{{type}}', '{{species}}');
         })
         .then(data => {
             // Create table
             createListEditorTable('{{id}}_{{type}}_editor_table');
-            renderListDetail('{{id}}_{{type}}', '{{species}}', "{% url 'rest:gene-list' %}");
 
             // Update interface based on selection
             var table = $('#{{id}}_{{type}}_editor_table').DataTable();
@@ -316,7 +330,7 @@ $(function() {
 
     // Menu actions: Reset
     $('#{{id}}_{{type}}_reset').on('click', function(e) {
-        if (confirm("Do you want to reset all custom gene lists for {{species}}?")) {
+        if (confirm("Do you want to reset all user gene lists for {{species}}?")) {
             resetUserLists('{{id}}_{{type}}', '{{species}}');
             redrawUserLists('{{id}}_{{type}}', '{{species}}');
 
@@ -329,26 +343,31 @@ $(function() {
 
     // Menu actions: Rename and remove
     $('#{{id}}_{{type}}_rename_btn').on('click', function(e) {
-        var renameInput = $('#{{id}}_{{type}}_rename');
-        var newName = renameInput.val().trim();
-
         var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
-        var name = activeItem.find('.{{id}}_{{type}}_group_title').text();
+        var oldName = activeItem.find('.{{id}}_{{type}}_group_title').text();
 
-        var all_names = $("#{{id}}_{{type}}_options").find('a .{{id}}_{{type}}_group_title')
-            .map((i, el) => $(el).text()).get();
-
+        var newName = prompt("Rename list:", oldName);
         if (newName === '') {
             // Avoid empty list name
-            renameInput.val(name);
             alert('The name of a list cannot be empty.');
-        } else if (all_names.includes(newName)) {
-            // Avoid duplicated name
-            alert('This list name is already in use.');
-        } else {
-            renameUserList('{{id}}_{{type}}', '{{species}}', name, newName);
-            redrawUserLists('{{id}}_{{type}}', '{{species}}', activeList=[newName]);
+            return;
+        } else if (newName === null) {
+            // Cancel rename
+            return;
         }
+
+        // Avoid duplicated name
+        var all_names = $("#{{id}}_{{type}}_options")
+            .find('a .{{id}}_{{type}}_group_title')
+            .map((i, el) => $(el).text()).get();
+
+        if (all_names.includes(newName)) {
+            alert('This list name is already in use.');
+            return;
+        }
+
+        renameUserList('{{id}}_{{type}}', '{{species}}', oldName, newName);
+        redrawUserLists('{{id}}_{{type}}', '{{species}}', activeList=[newName]);
     });
 
     $('#{{id}}_{{type}}_remove').on('click', function(e) {
@@ -382,7 +401,29 @@ $(function() {
     });
 
     $("#{{id}}_{{type}}_new_upload").on("change", function () {
-        createUserListsFromFile (this, '{{id}}_{{type}}', '{{species}}')
+        createUserListsFromFile (this, '{{id}}_{{type}}', '{{species}}',
+                                 {{ MAX_FILE_SIZE }});
+    });
+
+    function highlightMatch(content, query) {
+        const regex = new RegExp(`(${query})`, 'gi');
+        return content.replace(regex, '<span class="search-highlight">$1</span>');
+    }
+
+    $("#{{id}}_{{type}}_search").on("input search", function () {
+        const query = this.value.toLowerCase(); // lowercase comparison
+
+        // Hide lists that do not match query value
+        var elems = $('#{{id}}_{{type}}_options a');
+        elems.each(function() {
+            const title = $(this).find('.{{id}}_{{type}}_group_title');
+            if (title.text().toLowerCase().includes(query)) {
+                $(this).removeClass('d-none');
+            } else {
+                $(this).addClass('d-none');
+            }
+            title.html(highlightMatch(title.text(), query));
+        });
     });
 });
 </script>
