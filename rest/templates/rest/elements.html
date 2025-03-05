@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>{{ title|default:"Elements" }}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <script src="{{ js_dist }}"></script>
-    <link rel="stylesheet" href="{{ css_dist }}">
+    <head>
+        <title>{{ title|default:"Elements" }}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <script src="{{ js_dist }}"></script>
+        <link rel="stylesheet" href="{{ css_dist }}">
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'rest/styles.css' %}">
-  </head>
-  <body>
-    <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash" layout="responsive" />
-  </body>
+        <!-- Rubik typeface from Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'app/styles.css' %}">
+        <link rel="stylesheet" href="{% static 'rest/styles.css' %}">
+    </head>
+    <body>
+        <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash" layout="responsive" />
+    </body>
 </html>
