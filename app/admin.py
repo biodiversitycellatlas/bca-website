@@ -28,6 +28,7 @@ class SingleCellAdmin(admin.ModelAdmin):
 class MetacellAdmin(admin.ModelAdmin):
     list_display = ["name", "type__name", "type__color"]
     list_filter = ["species", "type"]
+    filter_horizontal = ('links',)
 
 
 class MetacellTypeAdmin(admin.ModelAdmin):
@@ -41,7 +42,7 @@ class MetacellLinkAdmin(admin.ModelAdmin):
 
 
 class GeneAdmin(admin.ModelAdmin):
-    list_display = ["name", "description", "domains", "species", "genelist_names"]
+    list_display = ["name", "description", "species", "genelist_names"]
     search_fields = ["name", "description"]
     list_filter = ["species", "genelists"]
     filter_horizontal = ('genelists',)
