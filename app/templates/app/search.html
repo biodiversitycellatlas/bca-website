@@ -170,14 +170,14 @@ function updateQuery(key, value) {
     }
 
     function appendResult(title, title_url, subtitle, subtitle_url,
-                          description, badges, italic_title=false) {
+                          description, badges, italic_title=false, italic_subtitle=false) {
         const template  = $('#result-template');
         const container = $('#results');
         let $clone = $(template.html());
 
         title_mod       = title
         subtitle_mod    = subtitle
-        description_mod = (description || '').replace("-", "");
+        description_mod = (description || '').replace(/[_/]/g, match => match + "<wbr>");
 
         // Highlight query matches
         var query = $('#search').val().trim();
@@ -189,12 +189,15 @@ function updateQuery(key, value) {
         }
 
         // Add word break lines on underscores
-        title_mod       = (title_mod       || '').replace(/_/g, "_<wbr>");
-        subtitle_mod    = (subtitle_mod    || '').replace(/_/g, "_<wbr>");
+        title_mod       = (title_mod       || '').replace(/[_/]/g, match => match + "<wbr>");
+        subtitle_mod    = (subtitle_mod    || '').replace(/[_/]/g, match => match + "<wbr>");
 
-        // Italicize title
+        // Italicize title and subtitle
         if (italic_title) {
             title_mod = `<i>${title_mod}</i>`;
+        }
+        if (italic_subtitle) {
+            subtitle_mod = `<i>${subtitle_mod}</i>`;
         }
 
         $clone.find('.result-title')
@@ -276,7 +279,8 @@ function updateQuery(key, value) {
     				    .replace('::gene', gene);
 
     				appendResult(gene, gene_url, species_name, species_url,
-    				             description, domains);
+    				             description, domains,
+    				             italic_title=false, italic_subtitle=true);
     			});
     			$('#results_count').text(`${data.count.toLocaleString()} results`);
     		})

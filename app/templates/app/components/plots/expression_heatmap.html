@@ -9,7 +9,9 @@ Input:
 
 {% endcomment %}
 
-{% include '../modals/list_editor.html' with id='expression' type='gene_lists' %}
+{% if type == 'gene-lists' %}
+    {% include '../modals/list_editor.html' with id='expression' type='gene_lists' %}
+{% endif %}
 
 <form novalidate action="#{{id}}">
     <div class="row g-2 mb-4 align-items-start">
@@ -36,7 +38,7 @@ Input:
                         </div>
                     </div>
                 </div>
-            {% else %}
+            {% elif type == 'gene-lists' %}
                 <div class="d-flex justify-content-between align-items-center small">
                     <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
 
@@ -128,27 +130,6 @@ Input:
 
 <!-- Gene expression heatmap form -->
 <script>
-    function updateGenePanel(id, val) {
-        if (val == 'markers') {
-            $("#markers").data("ionRangeSlider").update({ disable: false });
-            $("#markers").parent().removeClass('d-none');
-
-            $(`#${id}_gene_selection`)[0].selectize.disable();
-            $(`#${id}_gene_selection`).parent().addClass('d-none');
-
-            var markers = $("#markers").val();
-            $('#genes_label').text( markers + ' markers per cluster' );
-        } else if (val == 'lists') {
-            $("#markers").data("ionRangeSlider").update({ disable: true });
-            $("#markers").parent().addClass('d-none');
-
-            $(`#${id}_gene_selection`)[0].selectize.enable();
-            $(`#${id}_gene_selection`).parent().removeClass('d-none');
-
-            $('#genes_label').text('Selected gene lists');
-        }
-    }
-
     function toggleSubmitButton(id) {
         var elem = $(`#${id}_gene_selection`)[0].selectize;
         var isEmpty = elem.items.length === 0;
@@ -171,19 +152,13 @@ Input:
             updateMetacellSelectionLabel(count);
         });
 
-        // Update gene panel
-        updateGenePanel('{{id}}', $('input[name="select"]:checked').val() );
-
-        $('input[name="select"]').change(function() {
-            var val = $(this).val();
-            updateGenePanel('{{id}}', val);
-        });
-
-        // Enable/disable submit button
-        toggleSubmitButton('{{id}}');
-        $('#expression_gene_selection')[0].selectize.on('change', function() {
+        {% if type == 'gene-lists' %}
+            // Enable/disable submit button
             toggleSubmitButton('{{id}}');
-        });
+            $('#expression_gene_selection')[0].selectize.on('change', function() {
+                toggleSubmitButton('{{id}}');
+            });
+        {% endif %}
     });
 
     function updateText (id, from_min_id, suffix = "") {
@@ -275,7 +250,7 @@ Input:
 
     $('form').on('submit', function(e) {
         modifyFormQuery(this, e, '{{id}}', '{{species}}',
-                        ['metacell_lists', 'gene_lists']);
+                        ['metacell_lists' {% if type == "gene-lists" %}, 'gene_lists' {% endif %}]);
     });
 </script>
 
