@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Biodiversity Cell Atlas REST API',
+    'TITLE': 'Biodiversity Cell Atlas API',
     'DESCRIPTION': 'Fetch [BCA](http://localhost:8000) pre-processed data',
 
     'CONTACT': {'name': 'BCA', 'url': 'http://localhost:8000/about'},

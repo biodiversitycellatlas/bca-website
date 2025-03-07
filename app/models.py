@@ -157,6 +157,13 @@ class MetacellLink(models.Model):
         super().save(*args, **kwargs)
 
 
+class Domain(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
 class GeneList(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=400, blank=True, null=True)
@@ -169,7 +176,7 @@ class Gene(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, blank=True, null=True)
-    domains = ArrayField(models.CharField(max_length=30), blank=True, null=True)
+    domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList)
 
     def genelist_names(self):

@@ -1,6 +1,7 @@
 :root {
 	--font-ui: var(--font);
 	--font-prose: var(--font);
+	--color-text-heading: var(--primary-color);
 }
 
 html {

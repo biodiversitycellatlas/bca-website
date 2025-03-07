@@ -7,6 +7,7 @@ router.register('species', views.SpeciesViewSet)
 
 router.register('gene', views.GeneViewSet)
 router.register('gene_lists', views.GeneListViewSet)
+router.register('domain', views.DomainViewSet)
 router.register('orthologs', views.OrthologViewSet)
 
 router.register('metacell', views.MetacellViewSet)

@@ -247,7 +247,7 @@ $("#{{id}}_align_btn").on("click", function() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            sequence: $('#{{id}}_query').val(),
+            sequences: $('#{{id}}_query').val(),
             type: $('input[name="{{id}}_type"]:checked').val(),
             species: '{{species}}'
         })
@@ -261,9 +261,9 @@ $("#{{id}}_align_btn").on("click", function() {
             return;
         }
 
-        const result = data.reduce((acc, { qseqid, sseqid }) => {
-            acc[qseqid] ||= [];
-            acc[qseqid].push(sseqid);
+        const result = data.reduce((acc, { query, target }) => {
+            acc[query] ||= [];
+            acc[query].push(target);
             return acc;
         }, {});
 

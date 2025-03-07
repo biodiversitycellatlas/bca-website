@@ -2,7 +2,8 @@ from rest_framework import viewsets, pagination
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from django.conf import settings
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from . import serializers, filters
 from app import models
@@ -12,7 +13,19 @@ import os
 import subprocess
 import tempfile
 
-class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
+
+class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
+    @extend_schema(exclude=True)
+    def retrieve(self, request, *args, **kwargs):
+        # Skip the original retrieve behavior
+        raise NotImplementedError("This method was not implemented.")
+
+
+@extend_schema(
+    summary="List species",
+    tags=["Species"]
+)
+class SpeciesViewSet(BaseReadOnlyModelViewSet):
     """ List available species. """
     queryset = models.Species.objects.prefetch_related('meta_set')
     serializer_class = serializers.SpeciesSerializer
@@ -20,23 +33,47 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'scientific_name'
 
 
-class GeneListViewSet(viewsets.ReadOnlyModelViewSet):
-    """ List gene lists. """
+@extend_schema(
+    summary="List protein domains",
+    tags=["Gene"]
+)
+class DomainViewSet(BaseReadOnlyModelViewSet):
+    """ List protein domains. """
+    queryset = models.Domain.objects.all()
+    serializer_class = serializers.DomainSerializer
+    filterset_class = filters.DomainFilter
+    lookup_field = 'name'
+
+
+@extend_schema(
+    summary="List preset lists of genes",
+    tags=["Gene"]
+)
+class GeneListViewSet(BaseReadOnlyModelViewSet):
+    """ List preset lists of genes, such as transcription factors. """
     queryset = models.GeneList.objects.all()
     serializer_class = serializers.GeneListSerializer
     filterset_class = filters.GeneListFilter
     lookup_field = 'name'
 
 
-class GeneViewSet(viewsets.ReadOnlyModelViewSet):
+@extend_schema(
+    summary="List genes",
+    tags=["Gene"]
+)
+class GeneViewSet(BaseReadOnlyModelViewSet):
     """ List genes. """
-    queryset = models.Gene.objects.prefetch_related('species')
+    queryset = models.Gene.objects.prefetch_related('species', 'domains')
     serializer_class = serializers.GeneSerializer
     filterset_class = filters.GeneFilter
     lookup_field = 'name'
 
 
-class OrthologViewSet(viewsets.ReadOnlyModelViewSet):
+@extend_schema(
+    summary="List orthologs",
+    tags=["Gene"]
+)
+class OrthologViewSet(BaseReadOnlyModelViewSet):
     """ List gene orthologs. """
     queryset = models.Ortholog.objects.all()
     serializer_class = serializers.OrthologSerializer
@@ -73,14 +110,23 @@ class ExpressionPrefetchMixin:
         return self.queryset
 
 
-class SingleCellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
+@extend_schema(
+    summary="List single cells",
+    tags=["Single cell"]
+)
+class SingleCellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     """ List single cells for a given species. """
     queryset = models.SingleCell.objects.prefetch_related('metacell')
     serializer_class = serializers.SingleCellSerializer
     filterset_class = filters.SingleCellFilter
     lookup_field = 'name'
 
-class MetacellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
+
+@extend_schema(
+    summary="List metacells",
+    tags=["Metacell"]
+)
+class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     """ List metacells for a given species. """
     queryset = models.Metacell.objects.prefetch_related('type')
     serializer_class = serializers.MetacellSerializer
@@ -92,42 +138,64 @@ class MetacellViewSet(ExpressionPrefetchMixin, viewsets.ReadOnlyModelViewSet):
     expression_model = models.MetacellGeneExpression
 
 
-class MetacellLinkViewSet(viewsets.ReadOnlyModelViewSet):
+@extend_schema(
+    summary="List metacell links",
+    tags=["Metacell"]
+)
+class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
     """ List metacell links for a given species. """
     queryset = models.MetacellLink.objects.prefetch_related('metacell', 'metacell2')
     serializer_class = serializers.MetacellLinkSerializer
     filterset_class = filters.MetacellLinkFilter
 
-
-class MetacellGeneExpressionViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Retrieve gene expression data per metacell. """
-    queryset = models.MetacellGeneExpression.objects.prefetch_related('metacell', 'gene')
+@extend_schema(
+    summary="List gene expression per metacell",
+    tags=["Metacell", "Gene"]
+)
+class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
+    """ List gene expression data per metacell. """
+    queryset = models.MetacellGeneExpression.objects.prefetch_related(
+        'metacell', 'gene', 'gene__domains')
     serializer_class = serializers.MetacellGeneExpressionSerializer
     filterset_class = filters.MetacellGeneExpressionFilter
 
 
-class SingleCellGeneExpressionViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Retrieve gene expression data per single cell. """
-    queryset = models.SingleCellGeneExpression.objects.prefetch_related('single_cell', 'gene')
+@extend_schema(
+    summary="List gene expression per single cell",
+    tags=["Single cell", "Gene"]
+)
+class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
+    """ List gene expression data per single cell. """
+    queryset = models.SingleCellGeneExpression.objects.prefetch_related(
+        'single_cell', 'gene', 'gene__domains')
     serializer_class = serializers.SingleCellGeneExpressionSerializer
     filterset_class = filters.SingleCellGeneExpressionFilter
 
 
-class MetacellMarkerViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Retrieve gene markers of selected metacells. """
+@extend_schema(
+    summary="List cell type markers",
+    tags=["Metacell"]
+)
+class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
+    """ List gene markers of selected metacells. """
     # Gene as model (easier to perform gene-wise operations)
     queryset = models.Gene.objects.all()
     serializer_class = serializers.MetacellMarkerSerializer
     filterset_class = filters.MetacellMarkerFilter
 
+    @extend_schema(exclude=True)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
+
+@extend_schema(
+    summary='Submit sequences for alignment',
+    description=f"Align query sequences against the protein sequences in the BCA database using [DIAMOND {settings.DIAMOND_VERSION}](https://github.com/bbuchfink/diamond).",
+    tags=["Sequence alignment"]
+)
 class AlignViewSet(viewsets.ViewSet):
-    """
-    Align sequences against the proteins in the BCA database using
-    [DIAMOND](https://github.com/bbuchfink/diamond).
-    """
     serializer_class = serializers.AlignRequestSerializer
-    limit = 100 # Limit number of sequences to align
+    limit = settings.MAX_ALIGNMENT_SEQS # Limit number of sequences to align
 
     @extend_schema(
         parameters=[
@@ -136,8 +204,17 @@ class AlignViewSet(viewsets.ViewSet):
                 enum=serializers.AlignRequestSerializer().fields['species'].choices,
                 description=serializers.AlignRequestSerializer().fields['species'].help_text),
             OpenApiParameter(
-                'sequence', str, location='query', required=True,
-                description=serializers.AlignRequestSerializer().fields['sequence'].help_text),
+                'sequences', str, location='query', required=True, examples=[
+                    OpenApiExample(
+                        'Single query',
+                        value='MSIWFSIAILSVLVPFVQLTPIRPRS'
+                    ),
+                    OpenApiExample(
+                        'Multiple queries',
+                        summary='Multiple queries',
+                        value='>Query_1\\nMSLIRNYNYHLRSASLANASQLDT\\n>Query_2\\nMDSSTDIPCNCVEILTA\\n>Query_3\\nMDSLTDRPCNYVEILTA'
+                    )
+                ], description=serializers.AlignRequestSerializer().fields['sequences'].help_text),
             OpenApiParameter(
                 'type', str, location='query', required=True, enum=serializers.AlignRequestSerializer().fields['type'].choices,
                 description=serializers.AlignRequestSerializer().fields['type'].help_text)
@@ -164,12 +241,12 @@ class AlignViewSet(viewsets.ViewSet):
         """
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        result = self.align(data['species'], data['sequence'], data['type'])
+        result = self.align(data['species'], data['sequences'], data['type'])
         return Response(result)
 
-    def align(self, species, sequence, type):
+    def align(self, species, sequences, type):
         """
-        Align query sequence against proteome database from the species.
+        Align query sequences against proteome database from the species.
         """
         s = models.Species.objects.filter(scientific_name=species).first()
         db = s.files.filter(title='DIAMOND')
@@ -180,27 +257,27 @@ class AlignViewSet(viewsets.ViewSet):
             db = db.first()
 
         # Avoid literal newlines from GET request
-        sequence = sequence.replace("\\n", "\n")
+        sequences = sequences.replace("\\n", "\n")
 
         # Count lines up to a limit and get a sample from first 10 sequences
         count = 0
         sample = ""
-        for line in sequence.splitlines():
+        for line in sequences.splitlines():
             if line.startswith('>'):
                 count = count + 1
                 if count > self.limit:
-                    raise ValueError(f"Query sequence can only contain up to {self.limit} FASTA sequences")
+                    raise ValueError(f"Query can only contain up to {self.limit} FASTA sequences")
             elif count <= 10:
                 sample = sample + line + "\n"
 
         # Check if sample is composed of amino acids or nucleotides
         program = 'blastp' if (type is None or type == 'aminoacids') else 'blastx'
 
-        # Write query sequence to temporary file
+        # Write query sequences to temporary file
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.fasta') as temp_file:
-            if not sequence.startswith(">") or not sequence.startswith("@"):
+            if not sequences.startswith(">") or not sequences.startswith("@"):
                 temp_file.write(">query\n")
-            temp_file.write(sequence)
+            temp_file.write(sequences)
             temp_file.write("\n")
             query_path = temp_file.name
         out_path = tempfile.NamedTemporaryFile(suffix='.m8').name
@@ -215,9 +292,7 @@ class AlignViewSet(viewsets.ViewSet):
             ]
             subprocess.run(cmd, check=True, capture_output=True, text=True)
 
-            columns = ["qseqid", "sseqid", "pident", "length", "mismatch",
-                       "gapopen", "qstart", "qend", "sstart", "send", "evalue",
-                       "bitscore"]
+            columns = list(serializers.AlignResponseSerializer().fields.keys())
 
             with open(out_path) as file:
                 for line in file:
