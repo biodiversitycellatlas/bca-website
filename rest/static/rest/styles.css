@@ -11,8 +11,13 @@ body {
     padding-top: 0px;
 }
 
-
 .sl-px-24 {
     padding-left: 30px;
     padding-right: 30px;
 }
+
+/* Full height sidebar */
+.sl-flex.sl-overflow-y-auto.sl-flex-col.sl-sticky {
+    height: 100vh !important;
+}
+
