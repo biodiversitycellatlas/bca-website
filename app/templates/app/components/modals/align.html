@@ -93,7 +93,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                             small py-1 px-2 border-top border-secondary-subtle
                             bg-light rounded-bottom">
                                 <a href="javascript:void(0);"
-                                onclick="$('#{{id}}_file').click();">
+                                onclick="$('#{{id}}_upload').click();">
                                     <i class="fa fa-file-lines"></i>
                                     Load from FASTA file...
                                 </a>
@@ -105,7 +105,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                         </div>
 
                         <input class="form-control d-none" type="file"
-                        id="{{id}}_file">
+                        id="{{id}}_upload">
                     </div>
                 </div>
             </div>
@@ -146,6 +146,47 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 </div>
 
 <script>
+$("#{{id}}_upload").on("change", function () {
+    const file = this.files[0];
+    const maxMB = {{ MAX_FILE_SIZE }};
+    const maxSeqs = {{ MAX_ALIGNMENT_SEQS }};
+
+    if (!file) {
+        console.error('Error uploading file: no file selected');
+        return;
+    } else if (file.size > maxMB * 1024 * 1024) {
+        alert(`Size limit of ${maxMB} MB exceeded.`);
+    } else {
+        // Add text to sequence textarea
+        const reader = new FileReader();
+        reader.onload = function(event) {
+
+        };
+
+
+        reader.onload = function(event) {
+            const content = event.target.result;
+            const lines = content.split('\n');
+
+            // Count number of sequences in FASTA file
+            const count = lines.filter(line => line.startsWith('>')).length;
+
+            if (count > maxSeqs) {
+                alert(`The uploaded file has ${count} sequences. Only files with up to ${maxSeqs} sequences are allowed.`);
+            } else {
+                $("#{{id}}_query").val(content);
+
+                // Update sequence count in status bar
+                $("#{{id}}_query")[0].dispatchEvent(new Event('input'));
+            }
+        };
+
+        reader.readAsText(file);
+    }
+    // Clear selection to allow uploading the same file again
+    $(this).val("");
+});
+
 $("#{{id}}_query").on("input", function() {
     const limit = {{ MAX_ALIGNMENT_SEQS }};
 

@@ -125,12 +125,12 @@ function appendListGroupHeading (id, group) {
     // Render each list based on template
     var $clone = $(document.importNode(template.content, true));
     $clone.find(`div`)
-        .text(isPreset ? 'Preset gene lists' : group)
+        .text(group)
         .attr("data-group", group);
 
     if (isPreset) {
-        const readonly = '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i> read-only</span>';
-        $clone.find(`div`).html('Preset gene lists' + readonly);
+        const readonly = '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i><span class="d-none d-lg-inline"> read-only</span></span>';
+        $clone.find(`div`).html('Preset lists' + readonly);
     }
 
     container.appendChild($clone[0]);
