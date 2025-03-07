@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from drf_spectacular.utils import extend_schema_serializer
 from django.conf import settings
 from operator import attrgetter
 
@@ -222,7 +222,7 @@ class AlignRequestSerializer(serializers.Serializer):
             for s in models.Species.objects.filter(files__title='DIAMOND')
         ],
         required=True,
-        help_text="The [species' scientific name](#/operations/species_list) (example: <i>Trichoplax adhaerens</i>).")
+        help_text="The [species' scientific name](#/operations/species_list).")
 
 
 class AlignResponseSerializer(serializers.Serializer):

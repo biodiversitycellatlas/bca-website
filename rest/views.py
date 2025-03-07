@@ -1,6 +1,7 @@
 from rest_framework import viewsets, pagination
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.filters import OrderingFilter
 from django.db.models import Prefetch
 from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -23,7 +24,15 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List species",
-    tags=["Species"]
+    tags=["Species"],
+    parameters=[
+        OpenApiParameter(
+            'q', str,
+            description="Query string to filter results. The string will be searched and ranked across species' common name, scientific name and metadata.",
+            examples=[ OpenApiExample(
+                'Example', value='mouse'
+            ) ])
+    ]
 )
 class SpeciesViewSet(BaseReadOnlyModelViewSet):
     """ List available species. """
@@ -35,7 +44,15 @@ class SpeciesViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List protein domains",
-    tags=["Gene"]
+    tags=["Gene"],
+    parameters=[
+        OpenApiParameter(
+            'q', str,
+            description=filters.DomainFilter().base_filters['q'].label,
+            examples=[ OpenApiExample(
+                'Example', value='kinase'
+            ) ]),
+    ]
 )
 class DomainViewSet(BaseReadOnlyModelViewSet):
     """ List protein domains. """
@@ -59,7 +76,21 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List genes",
-    tags=["Gene"]
+    tags=["Gene"],
+    parameters=[
+        OpenApiParameter(
+            'genes', str,
+            description=filters.GeneFilter().base_filters['genes'].label,
+            examples=[ OpenApiExample(
+                'Example', value='Transcription factors,Pkinase,Tadh_P33902'
+            ) ]),
+        OpenApiParameter(
+            'q', str,
+            description=filters.GeneFilter().base_filters['q'].label,
+            examples=[ OpenApiExample(
+                'Example', value='ATP binding'
+            ) ]),
+    ]
 )
 class GeneViewSet(BaseReadOnlyModelViewSet):
     """ List genes. """
@@ -150,7 +181,21 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List gene expression per metacell",
-    tags=["Metacell", "Gene"]
+    tags=["Metacell", "Gene"],
+    parameters=[
+        OpenApiParameter(
+            'genes', str,
+            description=filters.MetacellGeneExpressionFilter().base_filters['genes'].label,
+            examples=[ OpenApiExample(
+                'Example', value='Transcription factors,Pkinase,Tadh_P33902'
+            ) ]),
+        OpenApiParameter(
+            'metacells', str,
+            description=filters.MetacellGeneExpressionFilter().base_filters['metacells'].label,
+            examples=[ OpenApiExample(
+                'Example', value='12,30,Peptidergic1'
+            ) ]),
+    ]
 )
 class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
     """ List gene expression data per metacell. """
@@ -162,7 +207,15 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List gene expression per single cell",
-    tags=["Single cell", "Gene"]
+    tags=["Single cell", "Gene"],
+    parameters=[
+        OpenApiParameter(
+            'genes', str,
+            description=filters.SingleCellGeneExpressionFilter().base_filters['genes'].label,
+            examples=[ OpenApiExample(
+                'Example', value='Transcription factors,Pkinase,Tadh_P33902'
+            ) ])
+    ]
 )
 class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
     """ List gene expression data per single cell. """
@@ -174,7 +227,15 @@ class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List cell type markers",
-    tags=["Metacell"]
+    tags=["Metacell"],
+    parameters=[
+        OpenApiParameter(
+            'metacells', str,
+            description=filters.MetacellMarkerFilter().base_filters['metacells'].label,
+            examples=[ OpenApiExample(
+                'Example', value='12,30,Peptidergic1'
+            ) ])
+    ]
 )
 class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
     """ List gene markers of selected metacells. """
