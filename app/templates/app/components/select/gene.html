@@ -62,9 +62,11 @@ function displayGeneName (item, escape) {
     return `<div class='option'>${item.name}</div>`;
 }
 
-function prependGeneLists (selectize, callback, data) {
-    var res = data.map(obj => ({ ...obj, group: "genes" }));
-    res = getAllLists('{{id}}_gene_lists').concat(res);
+function prependGeneLists (selectize, callback, genes, domains) {
+    res = getAllLists('{{id}}_gene_lists')
+        .concat( domains.map(obj => ({ ...obj, count: obj.gene_count, group: "domains" })) )
+        .concat(   genes.map(obj => ({ ...obj, group: "genes"   })) );
+    console.log(res);
     callback(res);
 }
 
@@ -112,6 +114,7 @@ $(function () {
         },
         valueField: 'name',
         searchField: ['name', 'description', 'domains'],
+        respect_word_boundaries: false,
         preload: true,
         plugins: {
             {% if multiple == 'true' %}
@@ -119,24 +122,41 @@ $(function () {
             {% endif %}
         },
         load: function(query, callback) {
-            $.ajax({
+            const genes = $.ajax({
                 url: '{% url "rest:gene-list" %}',
-                type: 'GET',
-                dataType: 'json',
                 data: {
                     species: '{{species}}',
                     q: query || '{{gene}}',
                     limit: {{limit|default:50}}
-                },
-                error: function() { callback(); },
-                success: function(res) {
-                    {% if multiple == 'true' %}
-                        prependGeneLists(this, callback, res.results);
-                    {% else %}
-                        callback(res.results);
-                    {% endif %}
                 }
             });
+
+            const domains =
+            {% if multiple == 'true' %}
+                $.ajax({
+                    url: '{% url "rest:domain-list" %}',
+                    data: {
+                        species: '{{species}}',
+                        q: query || '{{gene}}',
+                        limit: 10
+                    }
+                });
+            {% else %}
+                undefined;
+            {% endif %}
+
+            Promise.all([genes, domains])
+                .then(data => {
+                    {% if multiple == 'true' %}
+                        prependGeneLists(this, callback, data[0].results, data[1].results);
+                    {% else %}
+                        callback(results);
+                    {% endif %}
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    callback();
+                })
         }
     });
 
@@ -199,6 +219,8 @@ $(function () {
                         label = 'Custom gene lists';
                     } else if (group == 'genes') {
                         label = 'Genes';
+                    } else if (group == 'domains') {
+                        label = 'Domains';
                     }
                     selectize.addOptionGroup(group, { label: label });
                 }
