@@ -32,6 +32,7 @@ function createMarkersTable(id, url) {
             { data: 'name', title: "Gene ID", render: linkGene },
             { data: 'description', title: "Description", className: 'truncate' },
             { data: 'domains', title: "Domains", render: parseArray, className: 'truncate' },
+            { data: 'genelists', title: "Gene lists", className: 'truncate' },
             { data: 'fg_sum_umi', title: "Total UMIs" },
             { data: 'umi_perc', title: "UMI %", render: round },
             { data: 'fg_mean_fc', title: "Mean FC", render: round },

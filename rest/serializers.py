@@ -171,6 +171,10 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class MetacellMarkerSerializer(serializers.ModelSerializer):
+    # Parse name of domains and gene lists
+    domains = serializers.StringRelatedField(many=True)
+    genelists = serializers.StringRelatedField(many=True)
+
     bg_sum_umi = serializers.FloatField()
     fg_sum_umi = serializers.FloatField()
     umi_perc = serializers.FloatField()

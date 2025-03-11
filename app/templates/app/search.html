@@ -165,6 +165,8 @@ function updateQuery(key, value) {
 
 <script>
     function highlightMatch(content, query) {
+    	if (content === null) return content;
+
         const regex = new RegExp(`(${query})`, 'gi');
         return content.replace(regex, '<span class="search-highlight">$1</span>');
     }

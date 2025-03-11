@@ -183,8 +183,10 @@ $(function () {
             selectize.addOption(geneOptions);
             selectize.setValue(name);
         }
-        setDefaultGene('{{id}}', '{{gene.name}}',
-                       '{{gene.description}}', {{gene.domains|safe}});
+        setDefaultGene(
+            '{{id}}', '{{gene.name}}', '{{gene.description|default:''}}',
+            [ {% for domain in gene.domains.all %}"{{domain}}"{% if not forloop.last %}, {% endif %}{% endfor %} ]
+        );
     {% endif %}
 
     {% if multiple == 'true' %}
