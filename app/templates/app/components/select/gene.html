@@ -161,7 +161,7 @@ $(function () {
                     {% if multiple == 'true' %}
                         prependGeneLists(this, callback, data[0].results, data[1].results);
                     {% else %}
-                        callback(results);
+                        callback(data[0].results);
                     {% endif %}
                 })
                 .catch(error => {
