@@ -177,7 +177,7 @@ function updateQuery(key, value) {
 
         title_mod       = title
         subtitle_mod    = subtitle
-        description_mod = (description || '').replace(/[_/]/g, match => match + "<wbr>");
+        description_mod = description
 
         // Highlight query matches
         var query = $('#search').val().trim();
@@ -189,8 +189,13 @@ function updateQuery(key, value) {
         }
 
         // Add word break lines on underscores
-        title_mod       = (title_mod       || '').replace(/[_/]/g, match => match + "<wbr>");
-        subtitle_mod    = (subtitle_mod    || '').replace(/[_/]/g, match => match + "<wbr>");
+        const mods = { title_mod, subtitle_mod, description_mod };
+		for (const key in mods) {
+			// Regex: ignore HTML code, i.e. text inside brackets <>
+    		mods[key] = (mods[key] || '')
+    			.replace(/(?<!<[^>]*)[_/]/g, match => match + "<wbr>");
+		}
+		({ title_mod, subtitle_mod, description_mod } = mods);
 
         // Italicize title and subtitle
         if (italic_title) {

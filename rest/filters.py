@@ -69,7 +69,7 @@ class QueryFilterSet(FilterSet):
             expr = []
             for field in self.query_fields:
                 # Aggregate to avoid multiple results from query lookups (e.g., meta__value)
-                results = Sum(TrigramStrictWordSimilarity(value, field))
+                results = Max(TrigramStrictWordSimilarity(value, field))
                 expr.append(results)
 
             # Use the greatest value if multiple exist
