@@ -2,9 +2,11 @@ from rest_framework import viewsets, pagination
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import OrderingFilter
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+
+from django.contrib.postgres.aggregates import ArrayAgg
 
 from . import serializers, filters
 from app import models
@@ -61,6 +63,15 @@ class DomainViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.DomainFilter
     lookup_field = 'name'
 
+    def get_queryset(self):
+        qs = self.queryset
+
+        species = self.request.query_params.get('species')
+        if species:
+            qs = qs.filter(gene__species__scientific_name=species)
+
+        qs = qs.annotate(gene_count=Count('gene', distinct=True))
+        return qs
 
 @extend_schema(
     summary="List preset lists of genes",

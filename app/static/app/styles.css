@@ -479,6 +479,10 @@ div.dt-container div.dt-processing > div > div {
     border: 0 solid transparent;
 }
 
+.selectize-control.multi .selectize-input > div.active span.badge {
+    background: var(--bs-tertiary-color) !important;
+}
+
 .selectize-control .remove {
     color: var(--hover-color);
 }

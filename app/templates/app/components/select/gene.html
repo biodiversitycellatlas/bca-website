@@ -59,7 +59,12 @@ function displayGeneInfo (item, escape) {
 }
 
 function displayGeneName (item, escape) {
-    return `<div class='option'>${item.name}</div>`;
+    badges = '';
+    if (item.group && item.group !== 'genes') {
+        // Show count as a badge
+        badges = ` <span class="badge rounded-pill text-bg-secondary"><small>${item.count}</small></span>`;
+    }
+    return `<div class='option'>${item.name}${badges}</div>`;
 }
 
 function prependGeneLists (selectize, callback, genes, domains) {
@@ -109,7 +114,12 @@ $(function () {
             },
         {% endif %}
         render: {
-            item: {% if display|default:'name' == 'all' %}displayGeneInfo{% else %}displayGeneName{% endif %},
+            item:
+                {% if display|default:'name' == 'all' %}
+                    displayGeneInfo
+                {% else %}
+                    displayGeneName
+                {% endif %},
             option: displayGeneInfo
         },
         valueField: 'name',
@@ -138,7 +148,8 @@ $(function () {
                     data: {
                         species: '{{species}}',
                         q: query || '{{gene}}',
-                        limit: 10
+                        limit: 10,
+                        order_by_gene_count: true
                     }
                 });
             {% else %}

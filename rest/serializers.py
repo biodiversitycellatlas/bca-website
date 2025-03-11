@@ -48,14 +48,7 @@ class GeneSerializer(serializers.ModelSerializer):
 
 
 class DomainSerializer(serializers.ModelSerializer):
-    gene_count = serializers.SerializerMethodField(required=False)
-
-    def get_gene_count(self, obj) -> int:
-        genes = obj.gene_set
-        species = self.context.get('request').query_params.get('species', None)
-        if species:
-            genes = genes.filter(species__scientific_name=species)
-        return genes.count()
+    gene_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.GeneList

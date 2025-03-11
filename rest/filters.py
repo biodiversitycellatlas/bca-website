@@ -121,6 +121,15 @@ class DomainFilter(QueryFilterSet):
     )
     query_fields = ['name']
 
+    order_by_gene_count = BooleanFilter(
+        method='order',
+        label="Order results by gene count (ascending).")
+
+    def order(self, queryset, name, value):
+        if value:
+            queryset = queryset.order_by('-gene_count')
+        return queryset
+
     class Meta:
         model = models.Domain
         fields = ['species']
