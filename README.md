@@ -84,6 +84,6 @@ docker compose restart web
 [compose]: docs.docker.com/compose
 [django]: djangoproject.com
 [migrate]: docs.djangoproject.com/en/dev/topics/migrations/
-[CRG]: crg.eu
-[EBI]: ebi.ac.uk/
-[Sanger]: sanger.ac.uk/
+[CRG]: https://crg.eu
+[EBI]: https://ebi.ac.uk/
+[Sanger]: https://sanger.ac.uk/
