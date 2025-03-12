@@ -216,12 +216,48 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                     <fieldset id="{{id}}_{{type}}_controls">
                         <div class="row">
                             <div class="col">
-                                <button id="{{id}}_{{type}}_append_btn"
-                                type="button"
-                                class="btn btn-outline-secondary btn-sm">
+
+                                <button type="button"
+                                class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false"
+                                data-bs-auto-close="outside">
                                     <i class="fa fa-plus"></i>
                                     Add genes
                                 </button>
+                                <div class="dropdown-menu">
+                                    <div class="mx-4 mb-2" style="width: 450px;">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="d-flex justify-content-between align-items-center small">
+                                                    <label class="col-form-label">
+                                                        Select genes to add
+                                                    </label>
+
+                                                    <a id="select_all_metacells"
+                                                    href="javascript:void(0);"
+                                                    class="d-block text-end"
+                                                    onclick="$('#append_gene_selection')[0].selectize.clear();">
+                                                        Clear selection
+                                                    </a>
+                                                </div>
+
+                                                {% include '../select/gene.html' with id='append' name='gene_lists' hash=id limit=10 multiple='true' selected=query.gene_lists class=' ' placeholder='Search genes, gene lists and domains...' %}
+                                            </div>
+
+                                            <div class="col-auto">
+                                                <div class="d-flex mb-0"
+                                                style="margin-top: 35px;">
+                                                    <button
+                                                    id="{{id}}_{{type}}_append_btn"
+                                                    type="button"
+                                                    class="btn btn-primary">
+                                                        Add genes
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <button id="{{id}}_{{type}}_rename_btn"
                                 type="button"
@@ -315,10 +351,11 @@ $(function() {
             return;
         }
         previousActiveList = $(this);
+        console.log(this);
         renderListDetail('{{id}}_{{type}}', '{{species}}', "{% url 'rest:gene-list' %}");
     });
 
-    // Menu actions: New
+    // Menu action: New list
     $('#{{id}}_{{type}}_new_empty').on('click', function(e) {
         appendUserList('{{id}}_{{type}}', '{{species}}', 'Empty list', []);
     });
@@ -328,7 +365,7 @@ $(function() {
         appendUserList('{{id}}_{{type}}', '{{species}}', 'Selected genes', selected);
     });
 
-    // Menu actions: Reset
+    // Menu action: Reset
     $('#{{id}}_{{type}}_reset').on('click', function(e) {
         if (confirm("Do you want to reset all user gene lists for {{species}}?")) {
             resetUserLists('{{id}}_{{type}}', '{{species}}');
@@ -341,7 +378,7 @@ $(function() {
         }
     });
 
-    // Menu actions: Rename and remove
+    // Menu action: Rename
     $('#{{id}}_{{type}}_rename_btn').on('click', function(e) {
         var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
         var oldName = activeItem.find('.{{id}}_{{type}}_group_title').text();
@@ -370,6 +407,7 @@ $(function() {
         redrawUserLists('{{id}}_{{type}}', '{{species}}', activeList=[newName]);
     });
 
+    // Menu action: Remove
     $('#{{id}}_{{type}}_remove').on('click', function(e) {
         var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
         var name = activeItem.find('.{{id}}_{{type}}_group_title').text();
@@ -385,6 +423,7 @@ $(function() {
         }
     });
 
+    // Menu action: duplicate
     $('#{{id}}_{{type}}_new_duplicate').on('click', function(e) {
         var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
         var name = activeItem.data('list');
@@ -400,6 +439,7 @@ $(function() {
             });
     });
 
+    // Menu action: upload file containing lists
     $("#{{id}}_{{type}}_new_upload").on("change", function () {
         createUserListsFromFile (this, '{{id}}_{{type}}', '{{species}}',
                                  {{ MAX_FILE_SIZE }});
@@ -410,6 +450,7 @@ $(function() {
         return content.replace(regex, '<span class="search-highlight">$1</span>');
     }
 
+    // Filter by list name
     $("#{{id}}_{{type}}_search").on("input search", function () {
         const query = this.value.toLowerCase(); // lowercase comparison
 

@@ -267,11 +267,17 @@ $("#{{id}}_align_btn").on("click", function() {
             return acc;
         }, {});
 
+        const id = '{{id}}_{{type}}';
+        const species = '{{species}}';
+
+        var name;
         for (key in result) {
-            const name = key + ' alignment';
-            appendUserList('{{id}}_{{type}}', '{{species}}', name, result[key],
-                           group="Alignment results");
+            name = key + ' alignment';
+            name = appendUserList(id, species, name, result[key],
+                                  group="Alignment results", color='gray',
+                                  redraw=false);
         }
+        redrawUserLists(id, species, active=[name]);
 
         $('#{{id}}_alignment').modal('hide');
         $('#{{id}}_{{type}}_editor').modal('show');

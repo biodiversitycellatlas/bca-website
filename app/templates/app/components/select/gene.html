@@ -71,7 +71,6 @@ function prependGeneLists (selectize, callback, genes, domains) {
     res = getAllLists('{{id}}_gene_lists')
         .concat( domains.map(obj => ({ ...obj, count: obj.gene_count, group: "domains" })) )
         .concat(   genes.map(obj => ({ ...obj, group: "genes"   })) );
-    console.log(res);
     callback(res);
 }
 

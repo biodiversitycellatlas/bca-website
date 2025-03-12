@@ -270,6 +270,8 @@ a:hover {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 
+    margin-left: 1px;
+
     position: sticky;
     top: 0;
     bottom: 0;

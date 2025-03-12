@@ -92,7 +92,34 @@ function getAllListNames(id) {
     return lists;
 }
 
-function appendUserList(id, species, name, values, group='Custom lists', color='gray') {
+/**
+ * Appends a new user list with unique naming and updates the UI.
+ *
+ * @param {string} id - User identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} name - Name for the new list. If already existing, the name
+ * will have a number appended or incremented.
+ * @param {Array} values - Array of values to store in the list.
+ * @param {string} [group='Custom lists'] - Group name for categorization.
+ * @param {string} [color='gray'] - Color assigned to the list.
+ * @param {boolean} [redraw=true] - Whether to update the UI after adding the list.
+ * If adding multiple lists, manually call redrawUserLists to only set the last
+ * list as active (see example).
+ *
+ * @returns {string} - Unique name assigned to the list. If the name given
+ * already exists, a number is appended or incremented.
+ *
+ * @example
+ * // When appending multiple lists, set redraw=false and manually update the UI:
+ * var name;
+ * for (name in lists) {
+ *     name = appendUserList(id, species, name, lists[name], group="Group",
+ *                           color='gray', redraw=false);
+ * }
+ * redrawUserLists(id, species, active=[name]);
+ */
+function appendUserList(id, species, name, values, group='Custom lists',
+                        color='gray', redraw=true) {
     var lists = getUserLists(id, species);
     var allListNames = getAllListNames(id);
 
@@ -112,7 +139,12 @@ function appendUserList(id, species, name, values, group='Custom lists', color='
 
     // Assign new values to list
     setUserList(id, species, name, values, group, color);
-    redrawUserLists(id, species, active=name);
+
+    // Redraw user lists
+    if (redraw) {
+        redrawUserLists(id, species, active=[name]);
+    }
+    return name;
 }
 
 // Render user group headings and items
@@ -289,9 +321,12 @@ function createUserListsFromFile (elem, id, species, maxMB = 10) {
             });
 
             // Append user lists
+            var name;
             for (const key in dict) {
-                appendUserList(id, species, key, dict[key], 'Uploaded lists');
+                name = appendUserList(id, species, key, dict[key],
+                                      'Uploaded lists', redraw=false);
             }
+            redrawUserLists(id, species, active=[name]);
         };
         reader.readAsText(file);
     }
