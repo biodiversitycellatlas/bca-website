@@ -250,7 +250,15 @@ class BlogView(TemplateView):
 
 
 class AboutView(TemplateView):
-    template_name = "app/about.html"
+    template_name = "app/about/about.html"
+
+
+class CookiesView(TemplateView):
+    template_name = "app/about/cookies.html"
+
+
+class PrivacyView(TemplateView):
+    template_name = "app/about/privacy.html"
 
 
 class SearchView(TemplateView):

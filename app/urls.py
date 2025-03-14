@@ -20,7 +20,10 @@ urlpatterns = [
     path("comparison/", views.ComparisonView.as_view(), name="comparison"),
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path("blog/", views.BlogView.as_view(), name="blog"),
+
     path("about/", views.AboutView.as_view(), name="about"),
+    path("about/cookies/", views.CookiesView.as_view(), name="cookies"),
+    path("about/privacy/", views.PrivacyView.as_view(), name="privacy"),
 
     path("search/", views.SearchView.as_view(), name="search"),
 ]

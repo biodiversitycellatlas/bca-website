@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% comment %}
+
+Cookies policy
+
+Features:
+- The page displays the most recent update date of this file using a custom
+  Django tag `{% file_last_modified %}`
+
+{% endcomment %}
+
+{% block title %}Cookies{% endblock title %}
+
+{% block content %}
+
+<h1 class="h3 pb-3">Cookies policy</h1>
+
+<h2 class="h4">What is a cookie?</h2>
+
+<p>Cookies are small amounts of information that are stored in the browser of each user so that the server remembers certain information that subsequently only the server that implemented it will read. Cookies generally function for a limited duration of time.</p>
+
+<h2 class="h4">Which cookies do we use?</h2>
+
+<p>CRG uses the following cookies:</p>
+
+<ul>
+	<li>
+		<b>Technical cookies:</b>
+		They allow the user to browse a web page and to use the various options or services within, such as traffic control and data communication, session identification, access to restricted areas, etc.
+	</li>
+	<li>
+		<b>Personal cookies:</b>
+		These allow the user to access the service with some predefined general characteristics such as the language, the type of browser used to access the service, the regional settings where access to the service is from, etc.
+	</li>
+	<li>
+		<b>Analysis cookies:</b>
+		These allow tracking and analysis of user behaviour. The information collected by this type of cookie is used in the measurement of website activity and to develop user navigation profiles, in order to make improvements.
+	</li>
+</ul>
+
+<h2 class="h4">Who uses cookies?</h2>
+
+<p>The information obtained via cookies will be collected and processed by:</p>
+
+{% include './crg_info.html' %}
+
+<p>For the management of this Website.</p>
+
+<h2 class="h4">Can the cookies be disabled?</h2>
+
+<p>It is possible to block or delete cookies via your internet browser however, this may create problems when using or loading the platform.</p>
+
+<p>The configuration of the Internet browser for this purpose depends on the browser used. The following are links to the instructions of the most used browsers to delete cookies:</p>
+
+<ul>
+	<li>
+		<a href="https://support.google.com/accounts/answer/32050" target="_blank">
+			Chrome Desktop
+		</a>
+	</li>
+	<li>
+		<a href="https://support.google.com/accounts/answer/32050?co=GENIE.Platform%3DAndroid&oco=1" target="_blank">
+			Chrome for Android
+		</a>
+	</li>
+	<li>
+		<a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank">
+			Edge
+		</a>
+	</li>
+	<li>
+		<a href="https://support.mozilla.org/en-US/kb/clear-cookies-and-site-data-firefox" target="_blank">
+			Firefox
+		</a>
+	</li>
+	<li>
+		<a href="https://support.mozilla.org/en-US/kb/clear-cookies-and-website-data-single-domain-android" target="_blank">
+			Firefox for Android
+		</a>
+	</li>
+	<li>
+		<a href="https://support.microsoft.com/en-gb/help/17442/windows-internet-explorer-delete-manage-cookies" target="_blank">
+			Internet Explorer
+		</a>
+	</li>
+	<li>
+		<a href="https://support.apple.com/et-ee/guide/safari/sfri11471/mac" target="_blank">
+			Safari macOS
+		</a>
+	</li>
+	<li>
+		<a href="https://support.apple.com/en-us/HT201265" target="_blank">
+			Safari iOS
+		</a>
+	</li>
+</ul>
+
+{% load custom_tags %}
+<p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "." "%d %b %Y" %}</b></i></p>
+
+{% endblock content %}
