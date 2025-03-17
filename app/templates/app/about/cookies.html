@@ -97,6 +97,10 @@ Features:
 </ul>
 
 {% load custom_tags %}
-<p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "." "%d %b %Y" %}</b></i></p>
+
+<p style="text-align: right;"><i>
+	Last updated:
+	<b>{% file_last_modified "app/templates/app/about/cookies.html" "%d %b %Y" %}</b>
+</i></p>
 
 {% endblock content %}

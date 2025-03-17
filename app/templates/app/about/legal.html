@@ -52,7 +52,7 @@ Features:
 
 <h2 class="h4">Security on the ‘NET</h2>
 
-<p>In particular, the CRG employs security systems that, by using certification and encryption systems, allow for the checking of the authenticity of foundation website from which personal data is gathered, as well as the integrity and confidentiality of your personal data during its transmission.</p>
+<p>In particular, the CRG employs security systems that, by using certification and encryption systems, allow for the checking of the authenticity of this website from which personal data is gathered, as well as the integrity and confidentiality of your personal data during its transmission.</p>
 
 <p>Nevertheless, you as user should be aware that Internet security measures are not invulnerable. You are therefore notified and warned by means hereof that such Internet-based measures are not infallible and that, consequently, the CRG accepts no responsibility or liability for practices in which you as user do not assume the proper level of security nor due diligence, nor for the consequences thereof. Given all of this, we recommend that all users exercise the very greatest diligence in this regard and that they employ all the security mechanisms at their disposal.</p>
 
@@ -60,16 +60,13 @@ Features:
 
 <ol>
 	<li>
-		All content and graphics (images, sounds, texts, logos, source code, etc.) forming part of this site are the exclusive property of the CRG or of third parties identified on the site that have authorised their use by the CRG, and so are protected by Spain’s current Intellectual Property Act, approved by Royal Legislative Decree 1/1996, with the exceptions provided for in Article 13 thereof.
+		All content and graphics (images, sounds, texts, logos, source code, etc.) forming part of this site are the exclusive property of the CRG or of third parties identified on the site that have authorized their use by the CRG, and so are protected by Spain’s current Intellectual Property Act, approved by Royal Legislative Decree 1/1996, with the exceptions provided for in Article 13 thereof.
 	</li>
 	<li>
 		Access to intellectual property content by users does not imply the transfer of any entitlement thereover. In this regard, any use or reproduction by users of said content or of any that may be included in the future must be carried out in accordance with the provisions and within the limits of the aforementioned legislation.
 	</li>
 	<li>
 		More specifically, any reproduction (except for private use), transformation, distribution, public communication, making available to the public or any other exploitation of this website’s content is strictly prohibited without the written consent of its owner. To this end, the interested party must write to the CRG, by conventional mail FAO The Technology Transfer Department, calle Doctor Aiguader 88, Barcelona, Spain, or by email to the following email address: <a href="mailto:tech-transfer@crg.eu">tech-transfer@crg.eu</a>
-	</li>
-	<li>
-		Nor may links be made to this website without the consent of its owner, and only links to its home page shall be permitted. To establish any link to said page from any other  webpage, the consent of the foundation’s management must be sought by writing to the Legal Department, calle Doctor Aiguader 88, Barcelona or by email to the following email address: <a href="mailto:rrhh@crg.eu">rrhh@crg.eu</a>
 	</li>
 </ol>
 
@@ -80,6 +77,9 @@ Features:
 <br>
 
 {% load custom_tags %}
-<p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "." "%d %b %Y" %}</b></i></p>
+<p style="text-align: right;"><i>
+	Last updated:
+	<b>{% file_last_modified "app/templates/app/about/legal.html" "%d %b %Y" %}</b>
+</i></p>
 
 {% endblock content %}

@@ -257,8 +257,8 @@ class CookiesView(TemplateView):
     template_name = "app/about/cookies.html"
 
 
-class PrivacyView(TemplateView):
-    template_name = "app/about/privacy.html"
+class LegalView(TemplateView):
+    template_name = "app/about/legal.html"
 
 
 class SearchView(TemplateView):

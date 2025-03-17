@@ -102,13 +102,16 @@ Features:
 
 <h1 class="h3" id="legal">Legal and privacy information</h1>
 
-<p>Please read our <a href="{% url 'privacy' %}">Legal Notice & Privacy Policy</a> and <a href="{% url 'cookies' %}">Cookies policy</a>.</p>
+<p>Please read our <a href="{% url 'legal' %}">Legal Notice & Privacy Policy</a> and <a href="{% url 'cookies' %}">Cookies policy</a>.</p>
 
 <h1 class="h3" id="licenses">Licenses</h1>
 
 <p>Icons by <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome</a>.</p>
 
 {% load custom_tags %}
-<p style="text-align: right;"><i>Last updated: <b>{% file_last_modified "." "%d %b %Y" %}</b></i></p>
+<p style="text-align: right;"><i>
+	Last updated:
+	<b>{% file_last_modified "app/templates/app/about/about.html" "%d %b %Y" %}</b>
+</i></p>
 
 {% endblock content %}

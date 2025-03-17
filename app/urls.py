@@ -23,7 +23,7 @@ urlpatterns = [
 
     path("about/", views.AboutView.as_view(), name="about"),
     path("about/cookies/", views.CookiesView.as_view(), name="cookies"),
-    path("about/privacy/", views.PrivacyView.as_view(), name="privacy"),
+    path("about/legal/", views.LegalView.as_view(), name="legal"),
 
     path("search/", views.SearchView.as_view(), name="search"),
 ]
