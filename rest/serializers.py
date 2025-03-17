@@ -3,6 +3,9 @@ from drf_spectacular.utils import extend_schema_serializer
 from django.conf import settings
 from operator import attrgetter
 
+from django.db.models import Count, Sum, Avg, Min, Max, StdDev
+from .aggregates import PercentileCont
+
 from app import models
 
 class MetaSerializer(serializers.ModelSerializer):
@@ -25,6 +28,53 @@ class SpeciesSerializer(serializers.ModelSerializer):
         model = models.Species
         fields = ['common_name', 'scientific_name', 'description', 'image_url',
                   'meta', 'files']
+
+
+class StatsSerializer(serializers.ModelSerializer):
+    cells = serializers.SerializerMethodField()
+    metacells = serializers.SerializerMethodField()
+    umis = serializers.SerializerMethodField()
+    umis_per_metacell = serializers.SerializerMethodField()
+    cells_per_metacell = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Species
+        fields = ['scientific_name', 'cells', 'metacells', 'umis', 'umis_per_metacell', 'cells_per_metacell']
+
+    def get_metacell_counts(self, obj):
+        return models.MetacellCount.objects.filter(metacell__species=obj.id)
+
+    def get_cells(self, obj) -> int:
+        res = self.get_metacell_counts(obj).aggregate(Sum('cells')).values()
+        return list(res)[0]
+
+    def get_metacells(self, obj) -> int:
+        res = self.get_metacell_counts(obj).count()
+        return res
+
+    def get_umis(self, obj) -> int:
+        res = self.get_metacell_counts(obj).aggregate(Sum('umis')).values()
+        return list(res)[0]
+
+    def calculate_stats(self, obj, field):
+        counts = self.get_metacell_counts(obj)
+
+        stats = counts.aggregate(
+            min=Min(field),
+            q1=PercentileCont(field, percentile=0.25),
+            avg=Avg(field),
+            median=PercentileCont(field, percentile=0.50),
+            q3=PercentileCont(field, percentile=0.75),
+            max=Max(field),
+            stddev=StdDev(field)
+        )
+        return stats
+
+    def get_cells_per_metacell(self, obj) -> int:
+        return self.calculate_stats(obj, 'cells')
+
+    def get_umis_per_metacell(self, obj) -> int:
+        return self.calculate_stats(obj, 'umis')
 
 
 class GeneSerializer(serializers.ModelSerializer):
@@ -116,8 +166,9 @@ class SingleCellSerializer(BaseExpressionSerializer):
 
 
 class MetacellSerializer(BaseExpressionSerializer):
-    type  = serializers.CharField(source='type.name')
-    color = serializers.CharField(source='type.color')
+    """ Metacell information. """
+    type  = serializers.CharField(source='type.name', help_text="Metacell type.")
+    color = serializers.CharField(source='type.color', help_text="Color of metacell type.")
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)
@@ -138,6 +189,16 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MetacellLink
         exclude = ['species']
+
+
+class MetacellCountSerializer(serializers.ModelSerializer):
+    metacell = MetacellSerializer()
+    cells    = serializers.IntegerField(help_text="Cell count.")
+    umis     = serializers.IntegerField(help_text="UMI count.")
+
+    class Meta:
+        model = models.MetacellCount
+        exclude = ['materialized_id']
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):

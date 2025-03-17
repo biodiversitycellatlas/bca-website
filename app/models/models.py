@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 
@@ -118,6 +118,7 @@ class Metacell(models.Model):
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
+    links = models.ManyToManyField("self", symmetrical=True)
 
     class Meta:
         unique_together = ["name", "species"]

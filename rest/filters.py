@@ -87,6 +87,10 @@ class SpeciesFilter(QueryFilterSet):
     query_fields = ['common_name', 'scientific_name', 'meta__value']
 
 
+class StatsFilter(QueryFilterSet):
+    species = getSpeciesChoiceFilter(field_name='scientific_name')
+
+
 class GeneFilter(QueryFilterSet):
     species = getSpeciesChoiceFilter()
     genes = CharFilter(
@@ -201,6 +205,10 @@ class MetacellLinkFilter(FilterSet):
     class Meta:
         model = models.MetacellLink
         fields = ['species']
+
+
+class MetacellCountFilter(FilterSet):
+    species = getSpeciesChoiceFilter(field_name="metacell__species__scientific_name", required=True)
 
 
 class MetacellGeneExpressionFilter(FilterSet):

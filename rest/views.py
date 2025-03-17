@@ -45,6 +45,17 @@ class SpeciesViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
+    summary="List species statistics",
+    tags=["Species"]
+)
+class StatsViewSet(BaseReadOnlyModelViewSet):
+    queryset = models.Species.objects.all()
+    serializer_class = serializers.StatsSerializer
+    filterset_class = filters.StatsFilter
+    lookup_field = 'scientific_name'
+
+
+@extend_schema(
     summary="List protein domains",
     tags=["Gene"],
     parameters=[
@@ -258,6 +269,16 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
     @extend_schema(exclude=True)
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+
+
+@extend_schema(
+    summary="List metacell counts",
+    tags=["Metacell"]
+)
+class MetacellCountViewSet(BaseReadOnlyModelViewSet):
+    queryset = models.MetacellCount.objects.prefetch_related('metacell')
+    serializer_class = serializers.MetacellCountSerializer
+    filterset_class = filters.MetacellCountFilter
 
 
 @extend_schema(
