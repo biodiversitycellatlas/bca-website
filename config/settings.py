@@ -155,6 +155,10 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+def sort_API_tags(operation):
+    return ['Species', 'Gene', 'Metacell', 'Single cell', 'Sequence alignment']
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Biodiversity Cell Atlas API',
     'DESCRIPTION': 'Fetch [BCA](http://localhost:8000) pre-processed data',
@@ -164,5 +168,6 @@ SPECTACULAR_SETTINGS = {
 
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SORT_OPERATIONS': sort_API_tags
 }
 
