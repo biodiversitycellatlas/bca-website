@@ -363,6 +363,13 @@ a:hover {
   }
 }
 
+/* Tables */
+
+.table td, .table th {
+    border-style: none;
+    --bs-table-striped-bg: var(--table-row-color);
+}
+
 /* DataTables */
 
 table.dataTable.display tbody tr:nth-child(odd) > * {
