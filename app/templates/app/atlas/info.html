@@ -23,10 +23,15 @@ Input:
 {% include '../components/warning_alert.html' %}
 
 <div class="row pt-2">
-    <div class="col-sm-4">
+    <div class="col-md-4">
         <img src="{{species.image_url}}" style="width: 100%;">
         {% if species.image_source %}
-            <span class="small text-secondary"><i>Image credits: <a href="{{species.image_url}}" target="_blank">{{species.image_source}}</a></i></span>
+            <span class="small text-secondary"><i>
+                Image credits:
+                <a href="{{species.image_url}}" target="_blank">
+                    {{species.image_source}}
+                </a>
+            </i></span>
         {% endif %}
 
         <table class="table table-sm table-striped mt-4" style="margin: 0 auto;">
@@ -46,20 +51,108 @@ Input:
             </tbody>
         </table>
     </div>
-    <div class="col-sm-8 mt-4 mt-sm-0">
-        <h1 class="h3" id="projection">
+
+    <div class="col-md-8 mt-4 mt-sm-0">
+        <h1 class="h3">
             <i>{{species.scientific_name}}</i>
             {% include '../components/button/copy_to_clipboard.html' %}
             {% include '../components/button/data_download.html' with id='info' %}
         </h1>
 
-        <p>{{species.description|default:'No description available'|safe}}</p>
+        <p>{{species.description|default:'No description available.'|safe}}</p>
+
+        <div class="row text-center mt-5">
+            <div class="col-6 col-lg-3">
+                <p id="n_cells" class="h3 mb-0">0</p>
+                <p>cells</p>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <p id="n_metacells" class="h3 mb-0">0</p>
+                <p>metacells</p>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <p id="n_umis" class="h3 mb-0">0</p>
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom"
+                data-bs-title="Total number of Unique Molecular Identifiers (UMIs)">
+                    UMIs <i class="fa fa-question-circle fa-sm"></i>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <p id="n_genes" class="h3 mb-0">0</p>
+                <p>genes</p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                {% include '../components/plot_container.html' with id='metacell-cells' ratio='16/9' %}
+            </div>
+
+            <div class="col-md-6">
+                {% include '../components/plot_container.html' with id='metacell-umis' ratio='16/9' %}
+            </div>
+        </div>
     </div>
 </div>
 
+<script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
 <script>
-    var url = "{% url 'rest:species-detail' species %}";
-    createDataMenu('info', url, 'Species information');
+    var counts_url = new URL("{% url 'rest:metacellcount-list' %}", window.location.origin);
+    counts_url.searchParams.append('species', '{{species}}');
+    counts_url.searchParams.append('limit', '0');
+
+    var urls = {
+        info: "{% url 'rest:species-detail' species %}",
+        stats: "{% url 'rest:stats-detail' species %}",
+        counts: counts_url.toString()
+    };
+    createDataMenu('info', urls,
+                   ['Species info', 'Summary statistics', 'Metacell counts']);
+
+    function animateNumber(id, target) {
+        let val = 0;
+
+        // Increment value at a fixed interval
+        const time = 15;
+        const duration = 250;
+        const increment = Math.max( Math.floor(target / (duration / time)), 1 );
+
+        const interval = setInterval(function() {
+            val += increment;
+            if (val >= target) {
+                val = target;
+                clearInterval(interval);
+            }
+            $(id).text(val.toLocaleString());
+        }, time);
+    }
+
+    fetch(urls.stats)
+        .then(response => response.json())
+        .then(data => {
+            animateNumber('#n_cells', data.cells);
+            animateNumber('#n_metacells', data.metacells);
+            animateNumber('#n_umis', data.umis);
+            animateNumber('#n_genes', data.genes);
+        })
+        .catch(error => console.error('Error:', error))
+
+    $(function() {
+        fetch(urls.counts)
+            .then(response => response.json())
+            .then(data => {
+                createStatsPlot(
+                    '#metacell-cells-plot', data, 'cells',
+                    'Cells per metacell', 'Cell count');
+                createStatsPlot(
+                    '#metacell-umis-plot', data, 'umis',
+                    'UMIs per metacell', 'UMI count');
+            })
+            .catch(error => console.error('Error:', error))
+    });
 </script>
 
 {% endblock content %}

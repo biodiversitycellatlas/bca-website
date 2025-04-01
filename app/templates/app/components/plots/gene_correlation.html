@@ -1,0 +1,32 @@
+{% comment %}
+
+Gene correlation plot
+
+Input:
+- id
+- species
+- gene
+
+{% endcomment %}
+
+{% include '../plot_container.html' with id=id %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
+
+<!-- Plot expression data to compare two genes based on table selection -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(`#{{id}}_table`).DataTable().on('select deselect', function(e, dt, type, indexes) {
+            if (type === 'row') {
+                let selected = dt.rows({ selected: true }).data();
+                if (selected && selected.length > 0) {
+                    const url = '{% url 'rest:metacellgeneexpression-list' %}';
+                    var gene2 = selected[0].name;
+                    plotGeneExpressionComparison(
+                        '{{id}}', '{{species}}', '{{gene}}', gene2, url, selected[0]);
+                }
+            }
+        });
+    });
+</script>

@@ -28,15 +28,57 @@ function getSelectedRows(id) {
 }
 
 // Create DataTable
-function createListEditorTable(id, url='') {
+function createGeneTable(id, url='', correlation=false, select='multiple') {
+    // Columns to display
+    var cols = [{
+        name: 'name', data: 'name', title: "Gene",
+        orderable: false, render: linkGene
+    }, {
+        name: 'description', data: 'description', title: "Description",
+        orderable: false, className: 'truncate'
+    }, {
+        name: 'domains', data: 'domains', title: "Domains",
+        orderable: false, render: parseArray, className: 'truncate'
+    }];
+
+    var order;
+    if (correlation) {
+        cols = cols.concat([
+            { name: 'pearson_r',       data: 'pearson_r',       title: "Pearson" },
+            { name: 'pearson_pvalue',  data: 'pearson_pvalue',  title: "p-value" },
+            { name: 'spearman_rho',    data: 'spearman_rho',    title: "Spearman" },
+            { name: 'spearman_pvalue', data: 'spearman_pvalue', title: "p-value" }
+        ]);
+
+        order = { name: 'pearson_r', dir: 'desc' };
+    }
+
+    // Gene selection mode
+    var selectMode, selectLayout;
+    if (select == 'multiple') {
+        selectParam = true;
+    } else if (select == 'single') {
+        selectParam = { style: 'single' };
+        selectLayout = { rows: { _: '', 0: '', 1: '' } };
+    } else {
+        selectParam = false;
+    }
+
     $(`#${id}`).dataTable({
         ajax: {
             url: url,
             data: function(data) {
+                var ordering;
+                if (data.order && data.order[0]) {
+                    const o = data.order[0];
+                    ordering = (o.dir == 'desc' ? '-' : '') + o.name;
+                }
+
                 var params = {
                     offset: data.start,
                     limit: data.length,
-                    q: data.search.value
+                    q: data.search.value,
+                    ordering: ordering
                 };
                 return params;
             },
@@ -52,6 +94,7 @@ function createListEditorTable(id, url='') {
         },
         pageLength: 10,
         layout: {
+            bottomStart: 'info',
             bottomEnd: {
                 paging: {
                     firstLast: false,
@@ -61,20 +104,23 @@ function createListEditorTable(id, url='') {
         },
         processing: true,
         serverSide: true,
-        select: true,
+        select: selectParam,
+        initComplete: function() {
+            if (select == 'single') {
+                // Select first row
+                this.api().row(0).select();
+            }
+        },
         rowId: 'name',
         scrollX: true,
         language: {
             info: "Total entries: _TOTAL_",
             infoEmpty: "Total entries: 0",
-            infoFiltered: ""
+            infoFiltered: "",
+            select: selectLayout
         },
-        columns: [
-            { data: 'name', title: "Gene", render: linkGene },
-            { data: 'description', title: "Description", className: 'truncate' },
-            { data: 'domains', title: "Domains", render: parseArray, className: 'truncate' }
-        ],
-        order: [[5, 'des']],
+        columns: cols,
+        order: order,
         createdCell: function(td, cellData, rowData, row, col) {
             if ($(td).hasClass('truncate')) {
                 $(td).attr('title', cellData);

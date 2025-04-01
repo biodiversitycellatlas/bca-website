@@ -17,6 +17,23 @@ import subprocess
 import tempfile
 
 
+def get_enum_description(description, enum):
+    """
+    Appends list of enumerated values to the description.
+
+    Args:
+        description (str): The description.
+        enum (dict): Dictionary of choices (keys) and their descriptions (values).
+
+    Returns:
+        str: Updated description with list of enumerated values.
+    """
+    new_description = description + "\n\n"
+    for key, value in enum.items():
+        new_description = new_description + f"* `{key}` - {value}\n"
+    return new_description
+
+
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(exclude=True)
     def retrieve(self, request, *args, **kwargs):
@@ -24,8 +41,14 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         raise NotImplementedError("This method was not implemented.")
 
 
+speciesPathParam = OpenApiParameter(
+    'species', str, OpenApiParameter.PATH,
+    description=filters.SpeciesChoiceFilter().label,
+    enum=[i for (i, k) in filters.SpeciesChoiceFilter().field.choices if i]
+)
+
 @extend_schema(
-    summary="List species",
+    summary="List species information",
     tags=["Species"],
     parameters=[
         OpenApiParameter(
@@ -36,24 +59,41 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
             ) ])
     ]
 )
-class SpeciesViewSet(BaseReadOnlyModelViewSet):
-    """ List available species. """
+class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Species.objects.prefetch_related('meta_set')
     serializer_class = serializers.SpeciesSerializer
     filterset_class = filters.SpeciesFilter
     lookup_field = 'scientific_name'
+    lookup_url_kwarg = 'species'
+
+    @extend_schema(
+        summary="Retrieve species information",
+        description="Retrieve information for a given species",
+        tags=["Species"],
+        parameters=[ speciesPathParam ]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 
 @extend_schema(
     summary="List species statistics",
     tags=["Species"]
 )
-class StatsViewSet(BaseReadOnlyModelViewSet):
+class StatsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Species.objects.all()
     serializer_class = serializers.StatsSerializer
-    filterset_class = filters.StatsFilter
     lookup_field = 'scientific_name'
+    lookup_url_kwarg = 'species'
 
+    @extend_schema(
+        summary="Retrieve species statistics",
+        description="Retrieve statistics for a given species",
+        tags=["Species"],
+        parameters=[ speciesPathParam ]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 @extend_schema(
     summary="List protein domains",
@@ -201,6 +241,27 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
     serializer_class = serializers.MetacellLinkSerializer
     filterset_class = filters.MetacellLinkFilter
 
+
+@extend_schema(
+    summary="List gene expression per single cell",
+    tags=["Single cell", "Gene"],
+    parameters=[
+        OpenApiParameter(
+            'genes', str,
+            description=filters.SingleCellGeneExpressionFilter().base_filters['genes'].label,
+            examples=[ OpenApiExample(
+                'Example', value='Transcription factors,Pkinase,Tadh_P33902'
+            ) ])
+    ]
+)
+class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
+    """ List gene expression data per single cell. """
+    queryset = models.SingleCellGeneExpression.objects.prefetch_related(
+        'single_cell', 'gene', 'gene__domains')
+    serializer_class = serializers.SingleCellGeneExpressionSerializer
+    filterset_class = filters.SingleCellGeneExpressionFilter
+
+
 @extend_schema(
     summary="List gene expression per metacell",
     tags=["Metacell", "Gene"],
@@ -228,23 +289,23 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="List gene expression per single cell",
-    tags=["Single cell", "Gene"],
+    summary="List correlated genes",
+    tags=["Gene"],
     parameters=[
         OpenApiParameter(
-            'genes', str,
-            description=filters.SingleCellGeneExpressionFilter().base_filters['genes'].label,
-            examples=[ OpenApiExample(
-                'Example', value='Transcription factors,Pkinase,Tadh_P33902'
-            ) ])
+            'ordering', str,
+            description=get_enum_description(
+                filters.CorrelatedGenesFilter().base_filters['ordering'].label,
+                dict(filters.CorrelatedGenesFilter().base_filters['ordering'].extra['choices'])),
+            enum=dict(filters.CorrelatedGenesFilter().base_filters['ordering'].extra['choices']),
+            examples=[ OpenApiExample( 'Example', value='-pearson_r' ) ])
     ]
 )
-class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
-    """ List gene expression data per single cell. """
-    queryset = models.SingleCellGeneExpression.objects.prefetch_related(
-        'single_cell', 'gene', 'gene__domains')
-    serializer_class = serializers.SingleCellGeneExpressionSerializer
-    filterset_class = filters.SingleCellGeneExpressionFilter
+class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
+    """ List correlated genes for a given gene and species. """
+    queryset = models.GeneCorrelation.objects.all()
+    serializer_class = serializers.CorrelatedGenesSerializer
+    filterset_class = filters.CorrelatedGenesFilter
 
 
 @extend_schema(

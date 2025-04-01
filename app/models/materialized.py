@@ -36,8 +36,11 @@ class MaterializedModel(models.Model):
     @classmethod
     def execute_sql(cls, sql):
         """ Executes raw SQL query. """
-        with connection.cursor() as cursor:
-            cursor.execute(sql)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+        except Exception as e:
+            print(f"Error executing SQL: {e}")
 
     @classmethod
     def create_materialized_view(cls, queryset):

@@ -62,7 +62,7 @@ Input:
 {% include '../plot_container.html' with id=id ratio='16/9' %}
 
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/metacell_scatterplot.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/js/plots/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
     var urls = {
         "sc_data": "{% url 'rest:singlecell-list' %}",

@@ -179,6 +179,7 @@ class Gene(models.Model):
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList)
+    correlations = models.ManyToManyField('self', through='GeneCorrelation', symmetrical=True)
 
     def genelist_names(self):
         return [genelist.name for genelist in self.genelists.all()]
@@ -189,6 +190,22 @@ class Gene(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+
+class GeneCorrelation(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
+    gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
+    spearman_rho = models.FloatField(blank=True, null=True)
+    spearman_pvalue = models.FloatField(blank=True, null=True)
+    pearson_r = models.FloatField(blank=True, null=True)
+    pearson_pvalue = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ("gene", "gene2")
+
+    def __str__(self):
+        return f"{self.gene.name} - {self.gene2.name}"
 
 
 class MetacellGeneExpression(models.Model):

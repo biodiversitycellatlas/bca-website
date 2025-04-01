@@ -10,6 +10,7 @@ router.register('gene', views.GeneViewSet)
 router.register('gene_lists', views.GeneListViewSet)
 router.register('domain', views.DomainViewSet)
 router.register('orthologs', views.OrthologViewSet)
+router.register('correlated', views.CorrelatedGenesViewSet, basename='correlated')
 
 router.register('metacell', views.MetacellViewSet)
 router.register('metacell_link', views.MetacellLinkViewSet)

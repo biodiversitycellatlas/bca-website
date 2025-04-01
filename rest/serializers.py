@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_serializer
+from drf_spectacular.utils import extend_schema_field
 from django.conf import settings
 from operator import attrgetter
 
+import pandas as pd
 from django.db.models import Count, Sum, Avg, Min, Max, StdDev
 from .aggregates import PercentileCont
 
@@ -30,16 +31,33 @@ class SpeciesSerializer(serializers.ModelSerializer):
                   'meta', 'files']
 
 
+class SummaryStatsSerializer(serializers.ModelSerializer):
+    """ Summary statistics. """
+    min = serializers.FloatField(help_text="Minimum value.")
+    q1 = serializers.FloatField(help_text="First quartile (Q1) value.")
+    avg = serializers.FloatField(help_text="Average value.")
+    median = serializers.FloatField(help_text="Median value.")
+    q3 = serializers.FloatField(help_text="Third quartile (Q3) value.")
+    max = serializers.FloatField(help_text="Maximum value.")
+    stddev = serializers.FloatField(help_text="Standard deviation.")
+
+    class Meta:
+        model = models.Species
+        fields = ['min', 'q1', 'avg', 'median', 'q3', 'max', 'stddev']
+
+
 class StatsSerializer(serializers.ModelSerializer):
-    cells = serializers.SerializerMethodField()
-    metacells = serializers.SerializerMethodField()
-    umis = serializers.SerializerMethodField()
+    cells = serializers.SerializerMethodField(help_text="Number of cells.")
+    metacells = serializers.SerializerMethodField(help_text="Number of metacells.")
+    umis = serializers.SerializerMethodField(help_text="Number of unique molecular identifiers (UMIs).")
+    genes = serializers.SerializerMethodField(help_text="Number of genes.")
+
     umis_per_metacell = serializers.SerializerMethodField()
     cells_per_metacell = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Species
-        fields = ['scientific_name', 'cells', 'metacells', 'umis', 'umis_per_metacell', 'cells_per_metacell']
+        fields = ['scientific_name', 'genes', 'cells', 'metacells', 'umis', 'umis_per_metacell', 'cells_per_metacell']
 
     def get_metacell_counts(self, obj):
         return models.MetacellCount.objects.filter(metacell__species=obj.id)
@@ -49,12 +67,14 @@ class StatsSerializer(serializers.ModelSerializer):
         return list(res)[0]
 
     def get_metacells(self, obj) -> int:
-        res = self.get_metacell_counts(obj).count()
-        return res
+        return self.get_metacell_counts(obj).count()
 
     def get_umis(self, obj) -> int:
         res = self.get_metacell_counts(obj).aggregate(Sum('umis')).values()
         return list(res)[0]
+
+    def get_genes(self, obj) -> int:
+        return models.Gene.objects.filter(species=obj.id).count()
 
     def calculate_stats(self, obj, field):
         counts = self.get_metacell_counts(obj)
@@ -70,9 +90,11 @@ class StatsSerializer(serializers.ModelSerializer):
         )
         return stats
 
+    @extend_schema_field(SummaryStatsSerializer)
     def get_cells_per_metacell(self, obj) -> int:
         return self.calculate_stats(obj, 'cells')
 
+    @extend_schema_field(SummaryStatsSerializer)
     def get_umis_per_metacell(self, obj) -> int:
         return self.calculate_stats(obj, 'umis')
 
@@ -192,13 +214,29 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
 
 
 class MetacellCountSerializer(serializers.ModelSerializer):
-    metacell = MetacellSerializer()
+    metacell       = serializers.CharField(source='metacell.name')
+    metacell_type  = serializers.CharField(source='metacell.type.name')
+    metacell_color = serializers.CharField(source='metacell.type.color')
+
     cells    = serializers.IntegerField(help_text="Cell count.")
     umis     = serializers.IntegerField(help_text="UMI count.")
 
     class Meta:
         model = models.MetacellCount
         exclude = ['materialized_id']
+
+
+class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
+    gene_name        = serializers.CharField(source='gene.name')
+    gene_description = serializers.CharField(source='gene.description')
+    gene_domains     = serializers.StringRelatedField(source='gene.domains',
+                                                      many=True)
+
+    single_cell_name = serializers.CharField(source='single_cell.name')
+
+    class Meta:
+        model = models.SingleCellGeneExpression
+        exclude = ['species']
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
@@ -215,21 +253,37 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellGeneExpression
-        exclude = ['species']
+        exclude = ['species', 'id', 'gene', 'metacell']
 
 
-class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
-    gene_name        = serializers.CharField(source='gene.name')
-    gene_description = serializers.CharField(source='gene.description')
-    gene_domains     = serializers.StringRelatedField(source='gene.domains',
-                                                      many=True)
-
-    single_cell_name = serializers.CharField(source='single_cell.name')
+class CorrelatedGenesSerializer(serializers.ModelSerializer):
+    name        = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    domains     = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SingleCellGeneExpression
-        exclude = ['species']
+        model = models.GeneCorrelation
+        exclude = ['species', 'id', 'gene', 'gene2']
 
+    def get_non_selected_gene(self, obj):
+        input = self.context['request'].query_params.get('gene')
+        # Return the gene that was not selected in the input
+        if obj.gene.name == input:
+            return obj.gene2
+        else:
+            return obj.gene
+
+    def get_name(self, obj):
+        gene = self.get_non_selected_gene(obj)
+        return gene.name
+
+    def get_description(self, obj):
+        gene = self.get_non_selected_gene(obj)
+        return gene.description
+
+    def get_domains(self, obj):
+        gene = self.get_non_selected_gene(obj)
+        return [domain.name for domain in gene.domains.all()]
 
 class MetacellMarkerSerializer(serializers.ModelSerializer):
     # Parse name of domains and gene lists

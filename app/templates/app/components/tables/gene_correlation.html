@@ -1,0 +1,26 @@
+{% comment %}
+
+Gene correlation table
+
+Input:
+- species
+- gene
+
+{% endcomment %}
+
+<table id="{{id}}_table" class="display compact w-100"></table>
+
+{% load static %}
+<script type="text/javascript" src="{% static 'app/js/gene_table.js' %}"></script>
+<script>
+$(function() {
+    // Get lists from API
+    var url = "{% url 'rest:correlated-list' %}";
+    var params = new URLSearchParams({
+        species: '{{species}}',
+        gene: '{{gene}}'
+    });
+    var apiURL = url + "?" + params.toString();
+    createGeneTable('{{id}}_table', apiURL, correlation=true, select='single');
+});
+</script>

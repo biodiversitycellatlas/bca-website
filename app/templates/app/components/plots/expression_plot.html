@@ -1,0 +1,36 @@
+{% comment %}
+
+Gene expression plot
+
+Input:
+- species
+- gene
+
+{% endcomment %}
+
+{% include '../plot_container.html' with id=gene %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
+
+<!-- Plot gene expression data -->
+<script type="text/javascript">
+    // Create URL to fetch gene expression data
+    var url = '{% url 'rest:metacellgeneexpression-list' %}';
+    var params = new URLSearchParams({
+        species: '{{species}}',
+        genes: '{{gene}}',
+        limit: 0
+    });
+    var apiURL = url + "?" + params.toString();
+    createDataMenu('expression', apiURL, '{{gene}} expression');
+
+    fetch(apiURL)
+        .then(response => response.json())
+        .then(data => {
+            createExpressionBubblePlot("#{{gene}}-plot", "{{gene}}", data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+</script>

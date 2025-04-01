@@ -37,4 +37,10 @@ style="{% if ratio %}aspect-ratio: {{ratio}};{% endif %}">
             spinner.style.display = 'flex';
         }
     }
+
+    // Reset container with a plot to show spinner
+    function clearContainer (id) {
+        $("#" + id + "-plot").html(
+            `<div id="${id}-spinner" class="loading-state"><div class="loader"></div></div>`);
+    }
 </script>

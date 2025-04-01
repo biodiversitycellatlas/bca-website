@@ -297,7 +297,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
     var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
 </script>
 <script type="text/javascript" src="{% static 'app/js/list_editor.js' %}"></script>
-<script type="text/javascript" src="{% static 'app/js/list_editor_table.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/js/gene_table.js' %}"></script>
 <script>
 $(function() {
     // Get lists from API
@@ -316,8 +316,8 @@ $(function() {
             drawUserLists('{{id}}_{{type}}', '{{species}}');
         })
         .then(data => {
-            // Create table
-            createListEditorTable('{{id}}_{{type}}_editor_table');
+            // Create gene table
+            createGeneTable('{{id}}_{{type}}_editor_table');
 
             // Update interface based on selection
             var table = $('#{{id}}_{{type}}_editor_table').DataTable();

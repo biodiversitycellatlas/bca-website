@@ -30,11 +30,11 @@ class ArrayToString(Func):
 class ArrayPosition(Func):
     """
     Find index of the first occurrence of an element in a given array.
-    
+
     Args:
         expression (Field): The database column.
         array (list): The (one-dimensional) Python list.
-        
+
     Returns:
         int: The index of the elements relative to the array.
 
@@ -49,3 +49,8 @@ class ArrayPosition(Func):
     output_field = IntegerField()
     default_alias = 'index'
     template = "%(function)s(ARRAY%(array)s, %(expressions)s)"
+
+
+class Correlation(Func):
+    function = 'CORR'
+    template = '%(function)s(%(expressions)s)'

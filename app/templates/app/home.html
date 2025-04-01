@@ -23,15 +23,20 @@ Features:
     style="margin: -40px;">
 
     <div class="col-lg-8 mx-auto mt-3 mt-md-0">
-      <p class="lead" style="margin-bottom: -5px;">The <b>Biodiversity Cell Atlas</b> is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species. <a href="{% url 'about' %}">Read more...</a>
-      </p>
+        <p class="lead" style="margin-bottom: -5px;">
+            The <b>Biodiversity Cell Atlas</b> is a coordinated international
+            effort aimed at molecularly characterizing cell types across the
+            eukaryotic tree of life. Our mission is to pave the way for the
+            efficient expansion of cell atlases to hundreds of species.
+            <a href="{% url 'about' %}">Read more...</a>
+        </p>
     </div>
 </div>
 
 <!-- Tree of Life -->
 <div id="tree" class="container d-flex align-items-center justify-content-center"
 style="height: 1000px; width: 1000px;"></div>
-<script type="text/javascript" src="{% static 'app/js/tree_of_life.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
 <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
 
 {% comment %}

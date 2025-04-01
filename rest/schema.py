@@ -23,8 +23,8 @@ class SpectacularElementsView(APIView):
         return Response(
             data={
                 'title': self.title,
-                'js_dist': 'https://unpkg.com/@stoplight/elements/web-components.min.js',
-                'css_dist': 'https://unpkg.com/@stoplight/elements/styles.min.css',
+                'js_dist': 'https://www.unpkg.com/@stoplight/elements/web-components.min.js',
+                'css_dist': 'https://www.unpkg.com/@stoplight/elements/styles.min.css',
                 'schema_url': self._get_schema_url(request),
             },
             template_name=self.template_name
