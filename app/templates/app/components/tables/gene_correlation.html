@@ -21,6 +21,8 @@ $(function() {
         gene: '{{gene}}'
     });
     var apiURL = url + "?" + params.toString();
+
+    appendDataMenu('{{id}}', apiURL, 'Correlation table (current page)');
     createGeneTable('{{id}}_table', apiURL, correlation=true, select='single');
 });
 </script>

@@ -11,7 +11,16 @@ function createExpressionBubblePlot(id, gene, data) {
   	    "width": "container",
   	    "mark": {"type": "circle", "tooltip": {"content": "data"}},
   	    "encoding": {
-  	        "x": {"field": "metacell_name"},
+  	        "x": {
+  	            "field": "metacell_name",
+  	            "type": "quantitative",
+  	            "title": "Metacell",
+  	            "axis": {
+                    "labels": false,
+                    "ticks": false
+                },
+                "scale": { "nice": false }
+  	        },
   	        "y": {"field": "key", "title": ""},
   	        "size": {
   	            "field": "value",
@@ -26,12 +35,22 @@ function createExpressionBubblePlot(id, gene, data) {
   	            // "legend": { "orient": "bottom", "direction": "horizontal", "columns": 4 }
   	        },
   	        "tooltip": [
+  	            {"field": "metacell_name"},
                 {"field": "metacell_type"},
                 {"field": "umi_raw"},
                 {"field": "umifrac"},
                 {"field": "fold_change"}
             ]
-        }
+        },
+        "params": [
+            // Pan and zoom plot
+            { "name": "brush", "select": {"type": "interval", "encodings": ["x"]}, "bind": "scales" }
+        ],
+        "scale": {
+            "type": "ordinal",
+            "nice": false,
+            "tickStep": 1
+        },
     };
     vegaEmbed(id, chart)
    		.then(res => { viewExpression = res.view; })
@@ -46,7 +65,7 @@ function plotGeneExpressionComparison (id, species, gene, gene2, url, stats) {
 	    limit: 0
     });
     var apiURL = url + "?" + params.toString().replace('%2C', ',');
-    createDataMenu(id, apiURL, 'Comparison expression');
+    updateDataMenu(id, apiURL, 'Expression comparison (plot data)');
 
     // Fetch data from the API and create plot
     clearContainer(id);

@@ -17,7 +17,7 @@ Input:
 <!-- Plot expression data to compare two genes based on table selection -->
 <script type="text/javascript">
     $(document).ready(function () {
-        $(`#{{id}}_table`).DataTable().on('select deselect', function(e, dt, type, indexes) {
+        $(`#{{id}}_table`).DataTable().on('select', function(e, dt, type, indexes) {
             if (type === 'row') {
                 let selected = dt.rows({ selected: true }).data();
                 if (selected && selected.length > 0) {
@@ -28,5 +28,7 @@ Input:
                 }
             }
         });
+        // Hide spinner if gene correlation table is empty
+        hideSpinner('{{id}}');
     });
 </script>

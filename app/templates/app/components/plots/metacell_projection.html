@@ -80,7 +80,7 @@ Input:
 	urls['sc_data'] += "?" + params.toString();
 	urls['mc_data'] += "?" + params.toString();
 
-	createDataMenu('{{id}}', urls,
+	appendDataMenu('{{id}}', urls,
 	               ['Single-cell data', 'Metacell data', 'Metacell links']);
 
     Promise.all(

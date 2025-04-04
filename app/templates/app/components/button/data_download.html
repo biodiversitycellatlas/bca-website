@@ -20,7 +20,9 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
 </button>
 
 <ul id="data_dropdown_{{id}}" class="dropdown-menu">
-    <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);" class="d-flex justify-content-end">
+    <li
+    style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);"
+    class="d-flex justify-content-end">
         <label class="col-form-label-sm me-2">Format</label>
 
         <form>
@@ -35,7 +37,9 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
     <li><hr class="dropdown-divider"></li>
 
     <template id="data_template_{{id}}">
-        <li style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
+        <li
+        name="data_download_option"
+        style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
             <label style="font-weight: 600; line-height: 2; font-size: .875rem; color: var(--bs-dropdown-header-color);">Label</label>
             <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
@@ -149,8 +153,14 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
         updateDataFormat(format);
     });
 
+    function updateDataMenuLink(id, elem, url) {
+        // View data
+        elem.querySelector(`a[name="data_view_${id}"]`).href = url;
+        return elem;
+    }
+
     /**
-     * Creates data dropdown menus.
+     * Append menu to data dropdown.
      *
      * @param {string} id - The prefix identifier of the HTML elements.
      * @param {string|Object} urls - String of single URL dictionary where keys
@@ -159,16 +169,16 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
      *    identify each link.
      *
      * @example
-     * createDataMenu('heatmap', {
+     * appendDataMenu('heatmap', {
      *     sc_data: '/api/v1/singlecells/?species=Mus+musculus',
      *     mc_data: '/api/v1/metacells/?species=Mus+musculus'
      * }, ['Single-cell data', 'Metacell data']);
      *
      * @example
-     * createDataMenu('metacells', '/api/v1/metacells/?species=Mus+musculus',
+     * appendDataMenu('metacells', '/api/v1/metacells/?species=Mus+musculus',
      *                'Metacell data');
      */
-    function createDataMenu(id, urls, labels) {
+    function appendDataMenu(id, urls, labels) {
         var template = document.getElementById(`data_template_${id}`);
         var dropdownMenu = document.getElementById(`data_dropdown_${id}`);
         var dropdownFooter = document.getElementById(`data_footer_${id}`);
@@ -178,16 +188,19 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
             labels = undefined;
         }
 
-        var i = 0;
+        // Find last index of data download option for this identifier
+        var lastIndex = $(`ul[id="data_dropdown_${id}"] > li[name="data_download_option"]`).last().data('index');
+
+        var i = lastIndex !== undefined ? lastIndex + 1 : 0;
         for (key in urls) {
             const clone = document.importNode(template.content, true);
             label = labels === undefined ? key : labels[i];
             clone.querySelector('label').textContent = label;
-
-            url = urls[key];
+            clone.querySelector('li').setAttribute('data-index', i);
 
             // View data
-            clone.querySelector(`a[name="data_view_${id}"]`).href = url;
+            url = urls[key];
+            updateDataMenuLink(id, clone, url);
 
             // Download data
             clone.querySelector(`a[name="data_download_${id}"]`).onclick = (function(id, i) {
@@ -201,6 +214,17 @@ data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
 
             dropdownMenu.insertBefore(clone, dropdownFooter);
             i++;
+        }
+    }
+
+    function updateDataMenu(id, url, label) {
+        var li = $(`ul[id="data_dropdown_${id}"] > li[name="data_download_option"] > label:contains("${label}")`).last().parent()[0];
+        if (li === undefined) {
+            // If running for the first time, append data instead
+            appendDataMenu(id, url, label);
+        } else {
+            // Update URL
+            updateDataMenuLink(id, li, url);
         }
     }
 </script>

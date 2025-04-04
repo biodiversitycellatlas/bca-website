@@ -69,7 +69,10 @@ Input:
 
             <div class="col-6 col-lg-3">
                 <p id="n_metacells" class="h3 mb-0">0</p>
-                <p>metacells</p>
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom"
+                data-bs-title="Groups of cells with highly similar gene expression">
+                    metacells <i class="fa fa-question-circle fa-sm"></i>
+                </a>
             </div>
 
             <div class="col-6 col-lg-3">
@@ -109,7 +112,7 @@ Input:
         stats: "{% url 'rest:stats-detail' species %}",
         counts: counts_url.toString()
     };
-    createDataMenu('info', urls,
+    appendDataMenu('info', urls,
                    ['Species info', 'Summary statistics', 'Metacell counts']);
 
     function animateNumber(id, target) {

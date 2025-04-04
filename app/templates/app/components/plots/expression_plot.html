@@ -23,7 +23,7 @@ Input:
         limit: 0
     });
     var apiURL = url + "?" + params.toString();
-    createDataMenu('expression', apiURL, '{{gene}} expression');
+    appendDataMenu('expression', apiURL, '{{gene}} expression');
 
     fetch(apiURL)
         .then(response => response.json())

@@ -290,7 +290,7 @@ Input:
             })
             .catch(error => console.error('Error fetching data:', error));
 
-        createDataMenu('{{id}}', apiURL, 'Metacell gene expression');
+        appendDataMenu('{{id}}', apiURL, 'Metacell gene expression');
     });
     </script>
 {% elif type == 'gene-lists' and not query.genes %}

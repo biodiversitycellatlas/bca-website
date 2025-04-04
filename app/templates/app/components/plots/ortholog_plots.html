@@ -29,7 +29,7 @@ Input:
 	    limit: 0
     });
     var apiURL = url + "?" + params.toString();
-    createDataMenu('orthologs', apiURL, 'Ortholog expression');
+    appendDataMenu('orthologs', apiURL, 'Ortholog expression');
 
     // Fetch data from the API and create plots
     const template  = document.getElementById('ortholog-template');

@@ -129,7 +129,7 @@ Input:
             	var apiURL = url + "?" + params.toString();
 
                 createMarkersTable('markers', apiURL)
-                createDataMenu('markers', apiURL, 'Metacell markers');
+                appendDataMenu('markers', apiURL, 'Metacell markers');
             </script>
         {% else %}
             {% include '../components/mockup/table.html' %}
