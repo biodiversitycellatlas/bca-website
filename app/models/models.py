@@ -196,10 +196,11 @@ class GeneCorrelation(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
-    spearman_rho = models.FloatField(blank=True, null=True)
-    spearman_pvalue = models.FloatField(blank=True, null=True)
-    pearson_r = models.FloatField(blank=True, null=True)
-    pearson_pvalue = models.FloatField(blank=True, null=True)
+
+    spearman_rho = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    spearman_pvalue = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    pearson_r = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    pearson_pvalue = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
     class Meta:
         unique_together = ("gene", "gene2")
