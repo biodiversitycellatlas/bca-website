@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_filters',
     'colorfield',
     'drf_spectacular',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

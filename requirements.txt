@@ -5,6 +5,9 @@ rds2py >= 0.6.1
 scipy
 pandas
 
+# dev
+django-extensions
+
 # REST
 djangorestframework
 markdown
