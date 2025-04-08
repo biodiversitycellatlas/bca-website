@@ -2,6 +2,7 @@ services:
     web:
         build: .
         restart: always
+        env_file: [.env]
         # Automatically runs makemigrations + migrate to update Django models
         command: >
             /bin/bash -c "python manage.py makemigrations
@@ -18,12 +19,10 @@ services:
     db:
         image: postgres
         restart: always
-        environment:
-            POSTGRES_HOST_AUTH_METHOD: trust
-            PGUSER: postgres
-            POSTGRES_PASSWORD: mypassword
+        env_file: [.env]
         volumes:
             - db_data:/var/lib/postgresql/data
+        ports: ["5432:5432"]
         healthcheck:
             test: ["CMD-SHELL", "pg_isready"]
             interval: 1s

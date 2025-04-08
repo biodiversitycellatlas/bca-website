@@ -16,3 +16,4 @@ app/static/app/images/logos/BCA/EPS/*
 
 # Environment
 .env*
+!.env.template

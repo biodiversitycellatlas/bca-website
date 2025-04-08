@@ -12,27 +12,28 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-from . import pre_settings
+from .pre_settings import get_DIAMOND_version, get_env
+
 
 # Global variables
-DIAMOND_VERSION = pre_settings.get_DIAMOND_version()
-MAX_ALIGNMENT_SEQS = 100 # Maximum number of sequences for alignment
-MAX_FILE_SIZE = 10 # Maximum file size (in MB) allowed for file upload input
+DIAMOND_VERSION = get_DIAMOND_version()
+MAX_ALIGNMENT_SEQS = get_env('BCA_APP_MAX_ALIGNMENT_SEQS', 100, type='int') # Max sequences for alignment
+MAX_FILE_SIZE = get_env('BCA_APP_MAX_FILE_SIZE', 10, type='int') # Max file upload size in MB
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-98xa^kz2sy*vpu%i=he6wilxre_u099(@*65^f@kc6)tz8kfnw'
+SECRET_KEY = get_env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env('DJANGO_DEBUG', type='bool')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_env('DJANGO_ALLOWED_HOSTS', "", type='array')
 
 
 # Application definition
@@ -92,10 +93,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mypassword',
-        'HOST': 'db',
-        'PORT': 5432,
+        'USER': get_env('PGUSER'),
+        'PASSWORD': get_env('POSTGRES_PASSWORD'),
+        'HOST': get_env('POSTGRES_HOST'),
+        'PORT': get_env('POSTGRES_PORT'),
     }
 }
 
@@ -167,8 +168,27 @@ SPECTACULAR_SETTINGS = {
     'CONTACT': {'name': 'BCA', 'url': 'http://localhost:8000/about'},
     'TOS': 'http://localhost:8000/about',
 
-    'VERSION': '1.0.0',
+    'VERSION': get_env('BCA_REST_VERSION'),
     'SERVE_INCLUDE_SCHEMA': False,
     'SORT_OPERATIONS': sort_API_tags
 }
 
+# Logging in console
+
+if get_env('DJANGO_LOGGING', type='bool'):
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.db.backends': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+            },
+        },
+    }
