@@ -41,11 +41,12 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         raise NotImplementedError("This method was not implemented.")
 
 
-speciesPathParam = OpenApiParameter(
-    'species', str, OpenApiParameter.PATH,
-    description=filters.SpeciesChoiceFilter().label,
-    enum=[i for (i, k) in filters.SpeciesChoiceFilter().field.choices if i]
-)
+def getSpeciesPathParam():
+    return OpenApiParameter(
+        'species', str, OpenApiParameter.PATH,
+        description=filters.SpeciesChoiceFilter().label,
+        enum=[i for (i, k) in filters.SpeciesChoiceFilter().field.choices if i]
+    )
 
 @extend_schema(
     summary="List species information",
@@ -70,7 +71,7 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
         summary="Retrieve species information",
         description="Retrieve information for a given species",
         tags=["Species"],
-        parameters=[ speciesPathParam ]
+        parameters=[ getSpeciesPathParam() ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -90,7 +91,7 @@ class StatsViewSet(viewsets.ReadOnlyModelViewSet):
         summary="Retrieve species statistics",
         description="Retrieve statistics for a given species",
         tags=["Species"],
-        parameters=[ speciesPathParam ]
+        parameters=[ getSpeciesPathParam() ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)

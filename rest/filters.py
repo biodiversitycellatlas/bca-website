@@ -32,6 +32,7 @@ from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schem
 from app import models
 from .functions import ArrayToString, ArrayPosition
 from .aggregates import Median
+from .utils import check_model_exists
 
 def skip_param(queryset, name, value):
     '''
@@ -53,7 +54,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
         choices = [
             (s.scientific_name, s.common_name)
             for s in models.Species.objects.all()
-        ]
+        ] if check_model_exists(models.Species) else []
         kwargs['choices'] = choices
         super().__init__(*args, **kwargs)
 

@@ -5,9 +5,10 @@ from operator import attrgetter
 
 import pandas as pd
 from django.db.models import Count, Sum, Avg, Min, Max, StdDev
-from .aggregates import PercentileCont
 
 from app import models
+from .aggregates import PercentileCont
+from .utils import check_model_exists
 
 class MetaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -332,7 +333,7 @@ class AlignRequestSerializer(serializers.Serializer):
         choices=[
             (s.scientific_name, s.common_name)
             for s in models.Species.objects.filter(files__title='DIAMOND')
-        ],
+        ] if check_model_exists(models.Species) else [],
         required=True,
         help_text="The [species' scientific name](#/operations/species_list).")
 
