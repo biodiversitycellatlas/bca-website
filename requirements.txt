@@ -1,12 +1,14 @@
 django
 django-colorfield
 psycopg
-rds2py >= 0.6.1
+gunicorn
+
 scipy
 pandas
 
 # dev
 django-extensions
+rds2py >= 0.6.1
 
 # REST
 djangorestframework

@@ -5,6 +5,10 @@ services:
             - 80:80
         volumes:
             - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+            # Media and static files
+            - ./app/static/app:/static/app
+            - ./rest/static/rest:/static/rest
+            - ./data:/data
         depends_on:
             - web
 
@@ -17,9 +21,15 @@ services:
             /bin/bash -c "python manage.py makemigrations
             && python manage.py migrate
             && python manage.py runserver 0.0.0.0:8000"
-        # Mount volume on the current directory to live update Django files
+        expose:
+            - 8000
         volumes:
-            - ".:/usr/src/app"
+            # Update Django files in real-time
+            - .:/usr/src/app
+            # Media and static files
+            - ./app/static/app:/usr/src/app/static/app
+            - ./rest/static/rest:/usr/src/app/static/rest
+            - ./data:/usr/src/app/data
         depends_on:
             db:
                 condition: service_healthy
@@ -30,7 +40,8 @@ services:
         env_file: [.env]
         volumes:
             - db_data:/var/lib/postgresql/data
-        ports: ["5432:5432"]
+        ports:
+            - 5432:5432
         healthcheck:
             test: ["CMD-SHELL", "pg_isready"]
             interval: 1s
