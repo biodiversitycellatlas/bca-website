@@ -5,3 +5,16 @@ services:
         command: >
             /bin/bash -c "python manage.py migrate
             && python manage.py runserver 0.0.0.0:8000"
+        env_file:
+            - .env
+            - .env.prod
+        volumes:
+            - ./app/static/app:/usr/src/app/static/app
+            - ./rest/static/rest:/usr/src/app/static/rest
+            - ./data:/usr/src/app/data
+
+    nginx:
+        volumes:
+            - ./app/static/app:/static/app
+            - ./rest/static/rest:/static/rest
+            - ./data:/data
