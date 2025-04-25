@@ -6,8 +6,7 @@ services:
         volumes:
             - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
             # Media and static files
-            - ./app/static/app:/static/app
-            - ./rest/static/rest:/static/rest
+            - static_files:/static
             - ./data:/data
         depends_on:
             - web
@@ -16,9 +15,10 @@ services:
         build: .
         restart: always
         env_file: [.env]
-        # Automatically runs makemigrations + migrate to update Django models
+        # Collect static files and update Django models
         command: >
-            /bin/bash -c "python manage.py makemigrations
+            /bin/bash -c "python manage.py collectstatic --noinput
+            && python manage.py makemigrations
             && python manage.py migrate
             && python manage.py runserver 0.0.0.0:8000"
         expose:
@@ -27,8 +27,7 @@ services:
             # Update Django files in real-time
             - .:/usr/src/app
             # Media and static files
-            - ./app/static/app:/usr/src/app/static/app
-            - ./rest/static/rest:/usr/src/app/static/rest
+            - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
         depends_on:
             db:
@@ -50,3 +49,4 @@ services:
 
 volumes:
     db_data:
+    static_files:

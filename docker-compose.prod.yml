@@ -1,9 +1,9 @@
 # Production specific changes
 services:
     web:
-        # Automatically runs migrate to update Django models
+        # Collect static files and run gunicorn
         command: >
-            /bin/bash -c "python manage.py migrate
+            /bin/bash -c "python manage.py collectstatic --noinput
             && gunicorn -w 4 config.wsgi --bind 0.0.0.0:8000"
         env_file:
             - .env
