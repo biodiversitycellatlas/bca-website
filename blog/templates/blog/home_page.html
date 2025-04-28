@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+    <div>
+        <h1 class="h3">{{ page.title }}</h1>
+        {% image page.image fill-480x320 %}
+        <p>{{ page.hero_text }}</p>
+        {% if page.hero_cta_link %}
+            <a href="{% pageurl page.hero_cta_link %}">
+                {% firstof page.hero_cta page.hero_cta_link.title %}
+            </a>
+        {% endif %}
+    </div>
+
+  {{ page.body|richtext }}
+{% endblock content %}

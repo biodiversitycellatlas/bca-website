@@ -5,6 +5,7 @@ gunicorn
 
 scipy
 pandas
+wagtail
 
 # dev
 django-extensions

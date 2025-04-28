@@ -245,10 +245,6 @@ class DownloadsView(TemplateView):
     template_name = "app/downloads.html"
 
 
-class BlogView(TemplateView):
-    template_name = "app/blog.html"
-
-
 class AboutView(TemplateView):
     template_name = "app/about/about.html"
 

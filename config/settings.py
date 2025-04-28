@@ -40,14 +40,32 @@ ALLOWED_HOSTS = get_env('DJANGO_ALLOWED_HOSTS', "", type='array')
 # Application definition
 
 INSTALLED_APPS = [
-    'app.apps.AppConfig',
-    'rest.apps.RestConfig',
+    'app',
+    'rest',
+
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail',
+    'blog',
+
+    'taggit',
+    'modelcluster',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'django_filters',
     'colorfield',
@@ -63,6 +81,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -163,7 +183,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-
 def sort_API_tags(operation):
     return ['Species', 'Gene', 'Metacell', 'Single cell', 'Sequence alignment']
 
@@ -178,6 +197,10 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     'SORT_OPERATIONS': sort_API_tags
 }
+
+# Wagtail settings
+WAGTAIL_SITE_NAME = 'Blog'
+
 
 # Logging in console
 
