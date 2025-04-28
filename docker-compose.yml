@@ -10,6 +10,41 @@ services:
             - ./data:/data
         depends_on:
             - web
+            - ghost
+
+    ghost:
+        build: ./ghost
+        environment:
+            - database__client=mysql
+            - database__connection__host=mysql
+            - database__connection__user=root
+            - database__connection__password=example
+            - database__connection__database=ghost
+            - url=http://localhost/blog/
+        expose:
+            - "2368"
+        volumes:
+            - ghost:/var/lib/ghost/content
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    mysql:
+        image: mysql:8.0
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: example
+            MYSQL_DATABASE: ghost
+        volumes:
+            - mysql:/var/lib/mysql
+        ports:
+            - 3306:3306
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+            interval: 30s
+            retries: 3
+            start_period: 10s
+            timeout: 10s
 
     web:
         build: .
@@ -48,5 +83,7 @@ services:
             retries: 10
 
 volumes:
+    ghost:
+    mysql:
     db_data:
     static_files:
