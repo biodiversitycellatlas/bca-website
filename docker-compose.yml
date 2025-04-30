@@ -13,11 +13,8 @@ services:
             - ghost
 
     ghost:
-        build: ghost:5.118-alpine
-        environment:
-            url: http://localhost/blog/
-            database__client: sqlite3
-            database__connection__filename: /var/lib/ghost/content/data/ghost.db
+        image: ghost:5.118-alpine
+        env_file: [.env]
         expose:
             - "2368"
         volumes:
