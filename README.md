@@ -17,6 +17,12 @@ This project uses:
 To setup the project and locally deploy the web app, follow these steps:
 
 ```bash
+# Go to the project directory
+cd bca-website
+
+# Copy the .env.template to .env
+cp .env.template .env
+
 # Start Docker Compose to locally deploy the web app to localhost:8000
 # - Prepares and downloads all Docker containers and starts the containers
 # - `-d`: starts the Docker containers in detached mode
@@ -27,10 +33,6 @@ docker compose up -d --build web
 # Create a superuser (only required once for database setup)
 docker compose exec web python manage.py createsuperuser
 ```
-
-You will also need to create a `.env` file to store environmental variables.
-For development work, you can simply copy the [`.env.template`](.env.template)
-file as `.env`.
 
 ### Development
 
