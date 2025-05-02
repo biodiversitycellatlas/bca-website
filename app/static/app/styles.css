@@ -71,15 +71,6 @@ html:has(.subnavbar) {
     margin: 1px;
 }
 
-.navbar .nav-link.active, .navbar .nav-link.active:hover {
-    font-weight: 500;
-    background: linear-gradient(135deg, var(--navbar-hover-color), var(--navbar-hover-shadow-color));
-}
-
-.navbar .nav-link:hover {
-    background: var(--navbar-hover-color);
-}
-
 .navbar .nav-link:focus-visible {
     background: var(--navbar-hover-color);
     box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
@@ -412,6 +403,10 @@ div.dt-container div.dt-processing > div > div {
 }
 
 /* Selectize.js */
+
+.atlas-select.home {
+    max-width: 800px;
+}
 
 .atlas-select .highlight { /* Highlight phylum in atlas selection */
     background: rgba(255,237,40,.4);
