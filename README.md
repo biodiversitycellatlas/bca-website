@@ -6,8 +6,11 @@ The Biodiversity Cell Atlas is a coordinated international effort aimed at molec
 
 This project uses:
 
-* [Docker Compose][compose] to manage multiple Docker containers
-* [Django][django], a high-level Python web framework
+* [Docker Compose][] to manage multiple Docker containers
+* [Django][], a high-level Python web framework setup using [Gunicorn][]
+* [PostgreSQL][], a relational database
+* [Nginx][], a reverse proxy
+* [Ghost][], a blog-focused content management system (CMS)
 
 ### Initial setup
 
@@ -24,6 +27,10 @@ docker compose up -d --build web
 # Create a superuser (only required once for database setup)
 docker compose exec web python manage.py createsuperuser
 ```
+
+You will also need to create a `.env` file to store environmental variables.
+For development work, you can simply copy the [`.env.template`](.env.template)
+file as `.env`.
 
 ### Development
 
@@ -46,11 +53,11 @@ docker compose logs web
 # Run a bash shell within the Docker container for the web app
 docker compose exec web bash
 
-# Run a Python shell within the context of the web app: read
+# Run a Python shell within the context of the web app
 # https://docs.djangoproject.com/en/dev/intro/tutorial02/#playing-with-the-api
 docker compose exec web python manage.py shell
 
-# Run unit tests: read https://docs.djangoproject.com/en/dev/topics/testing/
+# Run unit tests: https://docs.djangoproject.com/en/dev/topics/testing/
 docker compose exec web python manage.py test
 
 # Stop and delete all containers and Docker networks
@@ -65,12 +72,22 @@ changes to Django models, you need to run the [`migrate`][migrate] command:
 docker compose exec web python manage.py migrate
 ```
 
-The `migrate` command runs automatically when the web app container starts. As
-such, you may simply restart the web app service to apply changes to Django
-models:
+The `migrate` command runs automatically when the web app container starts in
+development mode. As such, you may simply restart the web app service to apply
+changes to Django models:
 
 ```bash
 docker compose restart web
+```
+
+### Production
+
+A dedicated Compose file modifies the settings required to deploy the website
+for production:
+
+``` bash
+# Start Docker Compose to deploy in production mode
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ## Contact us
@@ -81,9 +98,14 @@ docker compose restart web
 
 [<img src="app/static/app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.png" width="250" target="_blank" alt="Wellcome Sanger Institute (Sanger)"/>][Sanger]
 
-[compose]: docs.docker.com/compose
-[django]: djangoproject.com
-[migrate]: docs.djangoproject.com/en/dev/topics/migrations/
+[Docker Compose]: https://docs.docker.com/compose
+[Django]: https://djangoproject.com
+[PostgreSQL]: https://postgresql.org
+[Nginx]: https://nginx.org
+[Gunicorn]: https://gunicorn.org
+[Ghost]: https://ghost.org
+
+[migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
 [CRG]: https://crg.eu
 [EBI]: https://ebi.ac.uk/
 [Sanger]: https://sanger.ac.uk/
