@@ -72,6 +72,11 @@ def getSpecies(species):
 class IndexView(TemplateView):
     template_name = "app/home.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["species_dict"] = getSpeciesDict()
+        return context
+
 
 class AtlasView(TemplateView):
     template_name = "app/atlas/atlas.html"

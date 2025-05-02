@@ -14,17 +14,19 @@ Input:
 - species: selected species
 - placeholder: text in search box (default: "Search species by nomenclature,
   taxonomic rank, division, ...")
-- redirect: one of 'query', 'arg' or 'none' (default); if 'query', redirect to
-  URL using a query parameter (e.g., '?species=Trichoplax_adhaerens'); if 'arg',
-  redirect using species as an argument
+- redirect: one of 'query', 'arg', 'atlas' or 'none' (default); if 'query',
+  redirect to URL using a query parameter (e.g., '?species=Mus_musculus');
+  if 'arg', redirect using species as an argument; if 'atlas', redirect to
+  selected species in the Cell Atlas
 - class: additional class for select element
 - optgroup_columns: if 'true', enable the optgroup_columns plugin
+- maxwidth: maximum width of the element
 
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="species-select" class="mb-2 {{class}}"
-style="margin-bottom: 23px !important; visibility: hidden;"
+style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px;"
 placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...'}}">
     <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
@@ -54,14 +56,17 @@ $(function () {
     	            // Avoid jumping if value is empty or matches current species
     			    window.location.href =
     			        {% if request.resolver_match.view_name == 'atlas' %}
-    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value)
+    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
     			        {% else %}
-    			            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value)
-    			        {% endif %};
+    			            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
+    			        {% endif %}
                 {% elif redirect == 'query' %}
                     var url = new URL(window.location.href);
     	            url.searchParams.set('species', value)
     	            window.location.href = url;
+    	        {% elif redirect == 'atlas' %}
+    	            window.location.href =
+    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
                 {% endif %}
     		}
 		},
