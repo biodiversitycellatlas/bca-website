@@ -169,10 +169,10 @@ def sort_API_tags(operation):
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Biodiversity Cell Atlas API',
-    'DESCRIPTION': 'Fetch [BCA](http://localhost:8000) pre-processed data',
+    'DESCRIPTION': 'Fetch [BCA](/) pre-processed data',
 
-    'CONTACT': {'name': 'BCA', 'url': 'http://localhost:8000/about'},
-    'TOS': 'http://localhost:8000/about',
+    'CONTACT': {'name': 'BCA', 'url': '/about'},
+    'TOS': '/about/legal',
 
     'VERSION': get_env('BCA_REST_VERSION'),
     'SERVE_INCLUDE_SCHEMA': False,
