@@ -34,7 +34,8 @@ Features:
                 <li class="nav-item">
                     <a class="nav-link {% if url_name == 'comparison' %}active{% endif %}"
                     href="{% url 'comparison' %}">
-                        Species Comparison
+                        <span class="d-inline d-md-none d-xl-inline">Species Comparison</span>
+                        <span class="d-md-inline">Compare</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -65,15 +66,57 @@ Features:
                 </li>
             </ul>
             {% endcomment %}
-            <form class="d-block d-flex" role="search">
-                <input id="bca-search" class="bca-search form-control"
-                type="search" placeholder="Search the BCA..."
-                style="width: 220px;" aria-label="Search">
-            </form>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown pe-2">
+                    <button class="btn btn-warning"
+                    style="background-color: var(--light-accent-color); border-color: var(--light-accent-color);"
+                    data-bs-toggle="modal" data-bs-target="#demoModal">
+                        <span class="text-black-50">
+                            Demo <span class="d-inline d-md-none d-xl-inline">release</span>
+                        </span>
+                    </button>
+                </li>
+                <li>
+                    <form class="d-block d-flex" role="search">
+                        <input id="bca-search" class="bca-search form-control"
+                        type="search" placeholder="Search the BCA..."
+                        style="width: 220px;" aria-label="Search">
+                    </form>
+                </li>
+            </ul>
         </div>
     </div>
 </nav></header>
 {% endwith %}
+
+<div class="modal fade" id="demoModal" tabindex="-1"
+aria-labelledby="demoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"
+            style="background-color: var(--light-accent-color);">
+                <h1 class="modal-title fs-5 text-black-50" id="demoModalLabel">
+                    BCA Demo release
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>The Biodiversity Cell Atlas web app and data are currently
+                available as a <b>demo release</b>.</p>
+                <p>This version allows users to explore preliminary data and
+                interact with key features of the platform.</p>
+                <p class="mb-0">Please note that <b>the data and functionalities are still
+                under development and subject to change.</b></p>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ FEEDBACK_URL }}" class="btn btn-primary w-100">
+                    <i class="fa fa-comments fa-fw"></i> Share feedback
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 function displaySearchResults (item, escape) {
