@@ -16,10 +16,15 @@ from pathlib import Path
 from .pre_settings import get_DIAMOND_version, get_env
 
 
-# Global variables
+# GLOBAL VARIABLES: registered in context_processors.py
 DIAMOND_VERSION = get_DIAMOND_version()
-MAX_ALIGNMENT_SEQS = get_env('BCA_APP_MAX_ALIGNMENT_SEQS', 100, type='int') # Max sequences for alignment
-MAX_FILE_SIZE = get_env('BCA_APP_MAX_FILE_SIZE', 10, type='int') # Max file upload size in MB
+FEEDBACK_URL = get_env('BCA_APP_FEEDBACK_URL', required=True)
+
+# Max sequences for alignment
+MAX_ALIGNMENT_SEQS = get_env('BCA_APP_MAX_ALIGNMENT_SEQS', 100, type='int')
+
+# Max file upload size in MB
+MAX_FILE_SIZE = get_env('BCA_APP_MAX_FILE_SIZE', 10, type='int')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -125,11 +130,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 

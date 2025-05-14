@@ -1,9 +1,9 @@
 from django.conf import settings
 
 def global_settings(request):
-    settings_list = [
-        "DIAMOND_VERSION",
-        "MAX_ALIGNMENT_SEQS",
-        "MAX_FILE_SIZE"
-    ]
-    return {key: getattr(settings, key) for key in settings_list}
+    # Make settings (including GLOBAL VARIABLES) accessible in Django templates
+    return {
+    	key: getattr(settings, key)
+    	for key in dir(settings)
+    	if not key.startswith('_')
+    }

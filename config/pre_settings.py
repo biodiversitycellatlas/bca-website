@@ -15,6 +15,12 @@ def get_env(key, default=None, **kwargs):
     env = os.getenv(key, default)
     res = env
 
+    # Raise error if variable is required and is not defined
+    required = kwargs['required'] if 'required' in kwargs else False
+    if required and res is None:
+        raise RuntimeError(f'{key}: environmental variable must be defined in a .env* file')
+
+    # Parse according to variable type
     type = kwargs['type'] if 'type' in kwargs else None
 
     if type == 'bool':
