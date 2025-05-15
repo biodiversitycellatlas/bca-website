@@ -35,7 +35,7 @@ Features:
                     <a class="nav-link {% if url_name == 'comparison' %}active{% endif %}"
                     href="{% url 'comparison' %}">
                         <span class="d-inline d-md-none d-xl-inline">Species Comparison</span>
-                        <span class="d-md-inline">Compare</span>
+                        <span class="d-md-inline d-xl-none">Compare</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -110,7 +110,8 @@ aria-labelledby="demoModalLabel" aria-hidden="true">
                 under development and subject to change.</b></p>
             </div>
             <div class="modal-footer">
-                <a href="{{ FEEDBACK_URL }}" class="btn btn-primary w-100">
+                <a class="btn btn-primary w-100"
+                href="{{ FEEDBACK_URL }}" target="_blank">
                     <i class="fa fa-comments fa-fw"></i> Share feedback
                 </a>
             </div>
