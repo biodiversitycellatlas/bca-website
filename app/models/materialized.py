@@ -13,7 +13,7 @@ import hashlib
 
 from django.db.models import F, Count, Avg, Sum, OuterRef, Subquery
 
-from .models import Species, Metacell
+from .models import Metacell
 from ..functions import RowNumber
 
 

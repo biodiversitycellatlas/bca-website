@@ -1,6 +1,7 @@
 from django.db import models, connection
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
+from django.utils.text import slugify
 
 from colorfield.fields import ColorField
 import re
@@ -8,28 +9,32 @@ import hashlib
 
 
 class Species(models.Model):
-    common_name     = models.CharField(max_length=100, unique=True)
-    scientific_name = models.CharField(max_length=100, unique=True)
-    description     = models.TextField(blank=True, null=True)
-    image_url       = models.URLField(blank=True, null=True)
+    common_name     = models.CharField(
+        max_length=100, unique=True, help_text="Common name used for the species")
+    scientific_name = models.CharField(
+        max_length=100, unique=True, help_text="Scientific name used for the species")
+    description     = models.TextField(
+        blank=True, null=True, help_text="Species description")
+    image_url       = models.URLField(
+        blank=True, null=True, help_text="URL for species image")
 
     @property
-    def species_underscore(self):
+    def slug(self):
         """
-        Returns scientific name with underscores for use in URLs.
+        Formats the model representation for safe use in URLs.
 
         Example:
-            For 'Trichoplax adhaerens', returns 'Trichoplax_adhaerens'.
+            For 'Trichoplax adhaerens', returns 'trichoplax-adhaerens'.
         """
-        return self.scientific_name.replace(" ", "_")
+        return slugify(self)
 
     @property
     def image_source(self):
         """
-        Get image source based on URL domain.
+        Get image source based on the domain of the image URL.
 
         Example:
-            For 'https://test.wikimedia.org/path/img.jpg', returns 'Wikimedia'.
+            For https://test.wikimedia.org/path/img.jpg, returns Wikimedia.
         """
         if not self.image_url:
             return None
@@ -47,6 +52,58 @@ class Species(models.Model):
     def __str__(self):
         return self.scientific_name
 
+
+class Source(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+    version = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Dataset(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.CASCADE,
+                                related_name="datasets")
+    name = models.CharField(
+        max_length=255, default="main", help_text="Name of the dataset")
+    description = models.TextField(
+        blank=True, null=True, help_text="Description of the dataset")
+    date_created = models.DateTimeField(
+        auto_now_add=True, help_text="Timestamp when the dataset was created")
+    date_updated = models.DateTimeField(
+        auto_now=True, help_text="Timestamp when the dataset was last updated")
+
+    source = models.ForeignKey(
+        Source, on_delete=models.SET_NULL, null=True, blank=True,
+        help_text="Source of the dataset")
+    #version = models.CharField(max_length=50, blank=True, null=True)
+    #is_public = models.BooleanField(default=True)
+
+    # Dataset order: only required if revelant, such as in the case of
+    # developmental stages
+    order = models.PositiveIntegerField(
+        default=0, help_text="Order of the dataset (for ordinal sets like developmental stages)")
+
+    @property
+    def slug(self):
+        """
+        Formats the model representation for safe use in URLs.
+
+        Example:
+            For an adult mouse dataset, returns 'mus-musculus-adult'.
+        """
+        return slugify(self)
+
+    class Meta:
+        unique_together = ('species', 'name')
+
+    def __str__(self):
+        name = self.species.scientific_name
+        if self.name != "main":
+            name = f"{name} – {self.name}"
+        return name
 
 class File(models.Model):
     title_choices = {
@@ -91,7 +148,7 @@ class Meta(models.Model):
 
 
 class MetacellType(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     name = models.CharField()
     color = ColorField(default='#AAAAAA')
 
@@ -106,56 +163,39 @@ class MetacellType(models.Model):
         return self.name.replace(" ", "_")
 
     class Meta:
-        unique_together = ["species", "name"]
+        unique_together = ["dataset", "name"]
 
     def __str__(self):
         return self.name
 
 
 class Metacell(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
-    links = models.ManyToManyField("self", symmetrical=True)
+    links = models.ManyToManyField('self', symmetrical=True)
 
     class Meta:
-        unique_together = ["name", "species"]
+        unique_together = ["name", "dataset"]
 
     def __str__(self):
         return self.name
 
 
 class SingleCell(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
     x = models.FloatField()
     y = models.FloatField()
 
     class Meta:
-        unique_together = ["name", "species"]
+        unique_together = ["name", "dataset"]
 
     def __str__(self):
         return self.name
-
-
-class MetacellLink(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='metacell')
-    metacell2 = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='metacell2')
-
-    class Meta:
-        unique_together = ["species", "metacell", "metacell2"]
-
-    def clean(self):
-        if self.metacell == self.metacell2:
-            raise ValidationError("Metacells cannot be linked to themselves.")
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
 
 
 class Domain(models.Model):
@@ -193,7 +233,7 @@ class Gene(models.Model):
 
 
 class GeneCorrelation(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
 
@@ -210,7 +250,7 @@ class GeneCorrelation(models.Model):
 
 
 class MetacellGeneExpression(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
     umi_raw = models.FloatField(blank=True, null=True)
@@ -218,7 +258,7 @@ class MetacellGeneExpression(models.Model):
     fold_change = models.FloatField(blank=True, null=True)
 
     class Meta:
-        unique_together = ["gene", "metacell", "species"]
+        unique_together = ["gene", "metacell", "dataset"]
         verbose_name = "metacell gene expression"
         verbose_name_plural = verbose_name
 
@@ -227,14 +267,14 @@ class MetacellGeneExpression(models.Model):
 
 
 class SingleCellGeneExpression(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE)
     umi_raw = models.FloatField(blank=True, null=True)
     umifrac = models.FloatField(blank=True, null=True)
 
     class Meta:
-        unique_together = ["gene", "single_cell", "species"]
+        unique_together = ["gene", "single_cell", "dataset"]
         verbose_name = "single-cell gene expression"
         verbose_name_plural = verbose_name
 

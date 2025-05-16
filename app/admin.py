@@ -21,24 +21,19 @@ class FileAdmin(admin.ModelAdmin):
 
 
 class SingleCellAdmin(admin.ModelAdmin):
-    list_display = ["name", "metacell", "metacell__type", "species"]
-    list_filter = ["species", "metacell__type"]
+    list_display = ["name", "metacell", "metacell__type", "dataset"]
+    list_filter = ["dataset", "metacell__type"]
 
 
 class MetacellAdmin(admin.ModelAdmin):
     list_display = ["name", "type__name", "type__color"]
-    list_filter = ["species", "type"]
+    list_filter = ["dataset", "type"]
     filter_horizontal = ('links',)
 
 
 class MetacellTypeAdmin(admin.ModelAdmin):
-    list_display = ["name", "color", "species"]
-    list_filter = ["species"]
-
-
-class MetacellLinkAdmin(admin.ModelAdmin):
-    list_display = ["id", "metacell", "metacell__type", "metacell2", "metacell2__type", "species"]
-    list_filter = ["species"]
+    list_display = ["name", "color", "dataset"]
+    list_filter = ["dataset"]
 
 
 class GeneAdmin(admin.ModelAdmin):
@@ -54,13 +49,13 @@ class GeneListAdmin(admin.ModelAdmin):
 
 
 class MetacellGeneExpressionAdmin(admin.ModelAdmin):
-    list_display = ["id", "gene", "metacell", "fold_change", "umifrac", "species"]
-    list_filter = ["species"]
+    list_display = ["id", "gene", "metacell", "fold_change", "umifrac", "dataset"]
+    list_filter = ["dataset"]
 
 
 class SingleCellGeneExpressionAdmin(admin.ModelAdmin):
-    list_display = ["id", "gene", "single_cell", "umi_raw", "species"]
-    list_filter = ["species"]
+    list_display = ["id", "gene", "single_cell", "umi_raw", "dataset"]
+    list_filter = ["dataset"]
 
 
 class OrthologAdmin(admin.ModelAdmin):
@@ -76,7 +71,6 @@ admin.site.register(models.File, FileAdmin)
 admin.site.register(models.SingleCell, SingleCellAdmin)
 admin.site.register(models.Metacell, MetacellAdmin)
 admin.site.register(models.MetacellType, MetacellTypeAdmin)
-admin.site.register(models.MetacellLink, MetacellLinkAdmin)
 
 admin.site.register(models.Gene, GeneAdmin)
 admin.site.register(models.GeneList, GeneListAdmin)
