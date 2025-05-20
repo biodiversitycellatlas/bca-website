@@ -86,7 +86,7 @@ $(function () {
             // Avoid jumping if value is empty or matches current gene
     	    if (value !== "" && value !== '{{gene}}') {
     	        {% if redirect == 'arg' %}
-    	            window.location.href = "{% url request.resolver_match.url_name species.species_underscore '::arg' %}".replace('::arg', value);
+    	            window.location.href = "{% url request.resolver_match.url_name species.slug '::arg' %}".replace('::arg', value);
 			    {% elif redirect == 'query' %}
                     var url = new URL(window.location.href);
     	            url.searchParams.set('gene', value)

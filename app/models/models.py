@@ -67,7 +67,7 @@ class Dataset(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE,
                                 related_name="datasets")
     name = models.CharField(
-        max_length=255, default="main", help_text="Name of the dataset")
+        max_length=255, default=None, null=True, help_text="Name of the dataset")
     description = models.TextField(
         blank=True, null=True, help_text="Description of the dataset")
     date_created = models.DateTimeField(
@@ -101,7 +101,7 @@ class Dataset(models.Model):
 
     def __str__(self):
         name = self.species.scientific_name
-        if self.name != "main":
+        if self.name is not None:
             name = f"{name} – {self.name}"
         return name
 
@@ -153,14 +153,14 @@ class MetacellType(models.Model):
     color = ColorField(default='#AAAAAA')
 
     @property
-    def type_underscore(self):
+    def slug(self):
         """
-        Returns type with underscores for use in URLs.
+        Formats the model representation for safe use in URLs.
 
         Example:
-            For 'Epithelial cells', returns 'Epithelial_cells'.
+            For 'Epithelial cells', returns 'epithelial-cells'.
         """
-        return self.name.replace(" ", "_")
+        return slugify(self)
 
     class Meta:
         unique_together = ["dataset", "name"]

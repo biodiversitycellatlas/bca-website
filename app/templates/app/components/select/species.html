@@ -32,11 +32,11 @@ placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic ra
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}
-                <option value="{{elem.species.species_underscore}}"
+                <option value="{{elem.species.slug}}"
                 data-meta="{{elem.meta|join:','}}"
                 data-image="{{elem.species.image_url}}"
                 data-name="{{elem.species.common_name}}"
-                {% if species == elem.species or species == elem.species.species_underscore %}
+                {% if species == elem.species or species == elem.species.slug %}
                     selected
                 {%endif%}>{{ elem.species.scientific_name }}</option>
             {% endfor %}
@@ -51,7 +51,7 @@ $(function () {
     $select.selectize({
         onChange: function(value) {
             // Jump to species page upon selection
-    	    if (value !== "" && value !== '{{species.species_underscore}}') {
+    	    if (value !== "" && value !== '{{species.slug}}') {
     	        {% if redirect == 'arg' %}
     	            // Avoid jumping if value is empty or matches current species
     			    window.location.href =
@@ -73,7 +73,7 @@ $(function () {
 		onDropdownOpen: function() {
 		    this.clear();
 		    setTimeout(() => {
-		        var species = '{{species.species_underscore}}';
+		        var species = '{{species.slug}}';
                 if (species) {
                     var current = this.getOption(species);
                     this.setActiveOption(current);
@@ -83,7 +83,7 @@ $(function () {
 		onBlur: function() {
 		    // Set current species if no value is selected
             if (!this.getValue()) {
-                this.setValue('{{species.species_underscore}}');
+                this.setValue('{{species.slug}}');
             }
         },
 		onType: function(str) {

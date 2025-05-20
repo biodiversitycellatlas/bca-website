@@ -136,7 +136,7 @@ Input:
 	$('#list_markers').on('click', function(e) {
 	    var metacells = getSelectedMetacells();
 	    if (metacells.length >= 1) {
-	        url = '{% url 'atlas_markers' species.species_underscore %}?metacells=' + metacells;
+	        url = '{% url 'atlas_markers' species.slug %}?metacells=' + metacells;
 	        window.location.href = url;
 	    } else {
 	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');

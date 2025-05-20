@@ -252,9 +252,9 @@ function updateQuery(key, value) {
     				    !subtitle.includes(item)
     				);
 
-                    var species_underscore = title.replace(' ', '_');
+                    var slug = title.slug;
                     var species_url = '{% url "atlas_info" '::species' %}'
-    				    .replace('::species', species_underscore);
+    				    .replace('::species', slug);
     				appendResult(title, species_url, subtitle, species_url,
     				             description, badges, italic_title=true);
     			});
@@ -276,13 +276,12 @@ function updateQuery(key, value) {
     				var description = item.description;
     				var domains = item.domains;
 
-                    var species_underscore =
-                        (item.species ? item.species.scientific_name : species)
-                        .replace(' ', '_');
+                    var slug = item.species ?
+                    	item.species.scientific_name.slug : species.slug;
     				var species_url = '{% url "atlas_info" '::species' %}'
-    				    .replace('::species', species_underscore);
+    				    .replace('::species', slug);
     				var gene_url = '{% url "atlas_gene" '::species' '::gene' %}'
-    				    .replace('::species', species_underscore)
+    				    .replace('::species', slug)
     				    .replace('::gene', gene);
 
     				appendResult(gene, gene_url, species_name, species_url,

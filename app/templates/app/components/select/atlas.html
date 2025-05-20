@@ -53,7 +53,7 @@ Input:
                         {% if url_name in 'atlas,atlas_info' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_info' species.species_underscore %}
+                            {% url 'atlas_info' species.slug %}
                         {% endif %}">
                             <i class="fa fa-dna"></i>
                             Information
@@ -68,7 +68,7 @@ Input:
                         {% if url_name == 'atlas_overview' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_overview' species.species_underscore %}
+                            {% url 'atlas_overview' species.slug %}
                         {% endif %}">
                             <i class="fa fa-diagram-project"></i>
                             Atlas overview
@@ -83,7 +83,7 @@ Input:
                         {% if url_name == 'atlas_panel' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_panel' species.species_underscore %}
+                            {% url 'atlas_panel' species.slug %}
                         {% endif %}">
                             <i class="fa fa-solar-panel"></i>
                             Gene panel
@@ -98,7 +98,7 @@ Input:
                         {% if url_name == 'atlas_gene' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_gene' species.species_underscore %}
+                            {% url 'atlas_gene' species.slug %}
                         {% endif %}">
                             <i class="fa fa-bezier-curve"></i>
                             Gene and orthologs
@@ -117,7 +117,7 @@ Input:
                         {% if url_name == 'atlas_markers' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_markers' species.species_underscore %}
+                            {% url 'atlas_markers' species.slug %}
                         {% endif %}">
                             <i class="fa fa-list-ol"></i>
                             Cell type markers
@@ -135,7 +135,7 @@ Input:
                         {% if url_name == 'atlas_compare' %}
                             #top
                         {% elif species %}
-                            {% url 'atlas_compare' species.species_underscore %}
+                            {% url 'atlas_compare' species.slug %}
                         {% endif %}">
                             <i class="fa fa-scale-unbalanced"></i>
                             Cross-species

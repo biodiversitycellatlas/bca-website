@@ -10,6 +10,16 @@ class CSVRenderer(BaseRenderer):
     quotechar = '"'
     quoting = csv.QUOTE_MINIMAL
 
+    def flatten(self, nested):
+    	flat = {}
+    	for k, v in nested.items():
+    		if isinstance(v, dict):
+    			for k2, v2 in v.items():
+    				flat[f"{k}_{k2}"] = v2
+    		else:
+    			flat[k] = v
+    	return flat
+
     def render(self, data, media_type=None, renderer_context=None):
         if not data:
             return ''
@@ -33,9 +43,9 @@ class CSVRenderer(BaseRenderer):
         # Write headers
         if isinstance(data, list):
             if len(data) > 0 and isinstance(data[0], dict):
-                writer.writerow(data[0].keys())
+                writer.writerow(self.flatten(data[0]).keys())
                 for item in data:
-                    writer.writerow(item.values())
+                    writer.writerow(self.flatten(item).values())
             else:
                 for item in data:
                     writer.writerow([item])
