@@ -28,7 +28,6 @@ class SingleCellAdmin(admin.ModelAdmin):
 class MetacellAdmin(admin.ModelAdmin):
     list_display = ["name", "type__name", "type__color"]
     list_filter = ["dataset", "type"]
-    filter_horizontal = ('links',)
 
 
 class MetacellTypeAdmin(admin.ModelAdmin):

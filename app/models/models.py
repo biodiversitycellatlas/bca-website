@@ -148,7 +148,7 @@ class Meta(models.Model):
 
 
 class MetacellType(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_types')
     name = models.CharField()
     color = ColorField(default='#AAAAAA')
 
@@ -169,13 +169,20 @@ class MetacellType(models.Model):
         return self.name
 
 
+class MetacellLink(models.Model):
+    metacell  = models.ForeignKey('Metacell', related_name='from_links', on_delete=models.CASCADE)
+    metacell2 = models.ForeignKey('Metacell', related_name='to_links', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.metacell} - {self.metacell2}"
+
 class Metacell(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacells')
     type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
-    links = models.ManyToManyField('self', symmetrical=True)
+    links = models.ManyToManyField('self', through='MetacellLink', symmetrical=True)
 
     class Meta:
         unique_together = ["name", "dataset"]
@@ -185,7 +192,7 @@ class Metacell(models.Model):
 
 
 class SingleCell(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='sc')
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
     x = models.FloatField()
@@ -214,7 +221,7 @@ class GeneList(models.Model):
 
 
 class Gene(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name='genes')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
@@ -233,7 +240,7 @@ class Gene(models.Model):
 
 
 class GeneCorrelation(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='gene_corr')
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
 
@@ -250,7 +257,7 @@ class GeneCorrelation(models.Model):
 
 
 class MetacellGeneExpression(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='mge')
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
     umi_raw = models.FloatField(blank=True, null=True)
@@ -267,7 +274,7 @@ class MetacellGeneExpression(models.Model):
 
 
 class SingleCellGeneExpression(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='scge')
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE)
     umi_raw = models.FloatField(blank=True, null=True)
@@ -283,7 +290,7 @@ class SingleCellGeneExpression(models.Model):
 
 
 class Ortholog(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name='orthologs')
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     orthogroup = models.CharField()
 

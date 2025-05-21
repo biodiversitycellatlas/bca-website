@@ -9,6 +9,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 from django.contrib.postgres.aggregates import ArrayAgg
 
 from . import serializers, filters
+from .utils import parse_species_dataset
+
 from app import models
 
 import re
@@ -79,7 +81,7 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
 
 def getDatasetPathParam():
     return OpenApiParameter(
-        'species', str, OpenApiParameter.PATH,
+        'dataset', str, OpenApiParameter.PATH,
         description=filters.DatasetChoiceFilter().label,
         enum=[i for (i, k) in filters.DatasetChoiceFilter().field.choices if i]
     )
@@ -90,9 +92,9 @@ def getDatasetPathParam():
     parameters=[
         OpenApiParameter(
             'q', str,
-            description="Query string to filter results. The string will be searched and ranked across species' common name, scientific name and metadata.",
+            description="Query string to filter results. The string will be searched and ranked across dataset's name and description.",
             examples=[ OpenApiExample(
-                'Example', value='mouse'
+                'Example', value='adult'
             ) ])
     ]
 )
@@ -100,8 +102,14 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Dataset.objects.all()
     serializer_class = serializers.DatasetSerializer
     filterset_class = filters.DatasetFilter
-    #lookup_field = 'scientific_name'
-    #lookup_url_kwarg = 'species'
+    lookup_field = 'name'
+    lookup_url_kwarg = 'dataset'
+
+    def get_object(self):
+        (species, dataset) = parse_species_dataset( self.kwargs.get("dataset") )
+        obj = models.Dataset.objects.get(
+            species__scientific_name__iexact=species, name__iexact=dataset)
+        return obj
 
     @extend_schema(
         summary="Retrieve dataset information",
@@ -273,8 +281,8 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     tags=["Metacell"]
 )
 class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
-    """ List metacell links for a given dataset. """
-    queryset = models.Metacell.objects.all()
+    """ List metacell links (visualised in projections) for a given dataset. """
+    queryset = models.MetacellLink.objects.all()
     serializer_class = serializers.MetacellLinkSerializer
     filterset_class = filters.MetacellLinkFilter
 

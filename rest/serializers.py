@@ -30,11 +30,13 @@ class SourceSerializer(serializers.ModelSerializer):
 
 class DatasetSerializer(serializers.ModelSerializer):
     source = SourceSerializer()
+    species = serializers.CharField(source='species.scientific_name')
+    slug = serializers.CharField()
 
     class Meta:
         model = models.Dataset
         fields = [
-            'name', 'description', 'source', 'order',
+            'species', 'name', 'slug', 'description', 'source', 'order',
             'date_created', 'date_updated'
         ]
 
@@ -124,7 +126,7 @@ class StatsSerializer(serializers.ModelSerializer):
 
 
 class GeneSerializer(serializers.ModelSerializer):
-    species = SpeciesSerializer(required=False)
+    species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
 
@@ -235,8 +237,8 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
     metacell2_y = serializers.FloatField(source='metacell2.y')
 
     class Meta:
-        model = models.Metacell
-        exclude = ['dataset']
+        model = models.MetacellLink
+        fields = '__all__'
 
 
 class MetacellCountSerializer(serializers.ModelSerializer):

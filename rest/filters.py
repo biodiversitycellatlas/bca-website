@@ -32,7 +32,7 @@ from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schem
 from app import models
 from .functions import ArrayToString, ArrayPosition
 from .aggregates import Median
-from .utils import check_model_exists
+from .utils import check_model_exists, parse_species_dataset
 
 def skip_param(queryset, name, value):
     '''
@@ -83,10 +83,10 @@ class DatasetChoiceFilter(ChoiceFilter):
         kwargs.setdefault('field_name', self.default_field_name)
         kwargs.setdefault(
             'label',
-            "The <a href='#/operations/dataset_list'>dataset name</a>.")
+            "The <a href='#/operations/datasets_list'>dataset's slug</a>.")
 
         choices = [
-            (str(d), str(d))
+            (d.slug, str(d))
             for d in models.Dataset.objects.all()
         ] if check_model_exists(models.Dataset) else []
         kwargs['choices'] = choices
@@ -100,12 +100,10 @@ class DatasetChoiceFilter(ChoiceFilter):
             if self.field_name != 'dataset':
                 dataset_id_field = f'{self.field_name}__{dataset_id_field}'
 
-            v = value.split(' – ')
-            species = v[0]
-            dataset = v[1] if len(v) == 2 else None
+            (species, dataset) = parse_species_dataset(value)
 
             dataset_subquery = models.Dataset.objects.filter(
-                name=dataset, species__scientific_name=species
+                name__iexact=dataset, species__scientific_name__iexact=species
             ).values('id')[:1]
             qs = qs.filter(**{dataset_id_field: Subquery(dataset_subquery)})
         else:
@@ -149,6 +147,7 @@ class SpeciesFilter(QueryFilterSet):
 
 
 class DatasetFilter(QueryFilterSet):
+    species = SpeciesChoiceFilter()
     q = CharFilter(method = 'query')
     query_fields = ['name', 'description']
 
@@ -156,7 +155,7 @@ class DatasetFilter(QueryFilterSet):
 class GeneFilter(QueryFilterSet):
     species = SpeciesChoiceFilter()
     genes = CharFilter(
-        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domain_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label = "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
         method='filter_genes')
     q = CharFilter(
         method = 'query',
@@ -222,7 +221,7 @@ class GeneListFilter(FilterSet):
 class OrthologFilter(FilterSet):
     gene = CharFilter(
         method = 'find_orthologs',
-        label = "The <a href='#/operations/gene_list'>gene name</a> for ortholog search. If not defined, returns all orthologs.")
+        label = "The <a href='#/operations/genes_list'>gene name</a> for ortholog search. If not defined, returns all orthologs.")
     expression = BooleanFilter(
         method = skip_param, # used in serializers.py: OrthologSerializer
         label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
@@ -243,7 +242,7 @@ class SingleCellFilter(FilterSet):
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
         method=skip_param,
-        label="Retrieve expression for a given <a href='#/operations/gene_list'>gene</a>.")
+        label="Retrieve expression for a given <a href='#/operations/genes_list'>gene</a>.")
 
     class Meta:
         model = models.SingleCell
@@ -254,7 +253,7 @@ class MetacellFilter(FilterSet):
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
         method=skip_param,
-        label="Retrieve expression for a given <a href='#/operations/gene_list'>gene</a>.")
+        label="Retrieve expression for a given <a href='#/operations/genes_list'>gene</a>.")
 
     class Meta:
         model = models.Metacell
@@ -262,10 +261,10 @@ class MetacellFilter(FilterSet):
 
 
 class MetacellLinkFilter(FilterSet):
-    dataset = DatasetChoiceFilter(required=True)
+    dataset = DatasetChoiceFilter(field_name='metacell', required=True)
 
     class Meta:
-        model = models.Metacell
+        model = models.MetacellLink
         fields = ['dataset']
 
 
@@ -276,7 +275,7 @@ class MetacellCountFilter(FilterSet):
 class SingleCellGeneExpressionFilter(FilterSet):
     dataset = DatasetChoiceFilter(required=True)
     genes = CharFilter(
-        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domain_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label = "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
         method='filter_genes')
 
     def filter_genes(self, queryset, name, value):
@@ -297,10 +296,10 @@ class SingleCellGeneExpressionFilter(FilterSet):
 class MetacellGeneExpressionFilter(FilterSet):
     dataset = DatasetChoiceFilter(required=True)
     genes = CharFilter(
-        label = "Comma-separated list of <a href='#/operations/gene_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domain_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label = "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
         method='filter_genes')
     metacells = CharFilter(
-        label = "Comma-separated list of <a href='#/operations/metacell_list'>metacell names and cell types</a>.",
+        label = "Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>.",
         method = "filter_metacells")
     fc_min = NumberFilter(
         label = 'Filter expression data by minimum fold-change (default: <kbd>0</kbd>).',
@@ -404,7 +403,7 @@ class MetacellGeneExpressionFilter(FilterSet):
 class CorrelatedGenesFilter(QueryFilterSet):
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
-        label = "<a href='#/operations/gene_list'>Gene symbol</a> to retrieve top correlated genes for.",
+        label = "<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top correlated genes for.",
         method='filter_gene', required=True
     )
     ordering = OrderingFilter(
@@ -447,7 +446,7 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
         var = 'fc_min'
         sign = '≥'
         target = 'foreground (i.e., selected) metacells'
-        default = 'min'
+        default = 'mean'
         method = 'filter_fc_min'
         required = True
     else:
@@ -458,7 +457,7 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
         method = 'filter_fc_max_bg'
         required = False
 
-    choices = [[item, f'Keep genes whose {item} fold-change across {target} {sign} <kbd>{var}</kbd>'] for item in ['mean', 'average']]
+    choices = [[item, f'Keep genes whose {item} fold-change across {target} {sign} <kbd>{var}</kbd>'] for item in ['mean', 'median']]
 
     if ignoreMode:
         choices.append(['ignore', 'Skip this filtering'])
@@ -473,9 +472,9 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
 
 
 class MetacellMarkerFilter(FilterSet):
-    species = SpeciesChoiceFilter(required=True)
+    dataset = DatasetChoiceFilter(field_name='metacellgeneexpression', required=True)
     metacells = CharFilter(
-        label = "Comma-separated list of <a href='#/operations/metacell_list'>metacell names and cell types</a>.",
+        label = "Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>.",
         method = "select_metacells",
         required = True)
 
