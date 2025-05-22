@@ -114,7 +114,7 @@ Input:
 
             <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
             <script>
-                var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
+                var gene_url = "{% url 'atlas_gene' species.slug %}";
                 var url = "{% url 'rest:metacellmarker-list' %}";
 
                 var params = new URLSearchParams({

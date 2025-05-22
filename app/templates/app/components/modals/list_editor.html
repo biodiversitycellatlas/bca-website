@@ -294,7 +294,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
 
 {% load static %}
 <script>
-    var gene_url = "{% url 'atlas_gene' species.species_underscore %}";
+    var gene_url = "{% url 'atlas_gene' species.slug %}";
 </script>
 <script type="text/javascript" src="{% static 'app/js/list_editor.js' %}"></script>
 <script type="text/javascript" src="{% static 'app/js/gene_table.js' %}"></script>

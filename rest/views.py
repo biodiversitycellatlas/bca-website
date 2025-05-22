@@ -9,6 +9,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 from django.contrib.postgres.aggregates import ArrayAgg
 
 from . import serializers, filters
+from .utils import parse_species_dataset
+
 from app import models
 
 import re
@@ -49,7 +51,7 @@ def getSpeciesPathParam():
     )
 
 @extend_schema(
-    summary="List species information",
+    summary="List species",
     tags=["Species"],
     parameters=[
         OpenApiParameter(
@@ -72,6 +74,48 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
         description="Retrieve information for a given species",
         tags=["Species"],
         parameters=[ getSpeciesPathParam() ]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+
+def getDatasetPathParam():
+    return OpenApiParameter(
+        'dataset', str, OpenApiParameter.PATH,
+        description=filters.DatasetChoiceFilter().label,
+        enum=[i for (i, k) in filters.DatasetChoiceFilter().field.choices if i]
+    )
+
+@extend_schema(
+    summary="List datasets",
+    tags=["Dataset"],
+    parameters=[
+        OpenApiParameter(
+            'q', str,
+            description="Query string to filter results. The string will be searched and ranked across dataset's name and description.",
+            examples=[ OpenApiExample(
+                'Example', value='adult'
+            ) ])
+    ]
+)
+class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Dataset.objects.all()
+    serializer_class = serializers.DatasetSerializer
+    filterset_class = filters.DatasetFilter
+    lookup_field = 'name'
+    lookup_url_kwarg = 'dataset'
+
+    def get_object(self):
+        (species, dataset) = parse_species_dataset( self.kwargs.get("dataset") )
+        obj = models.Dataset.objects.get(
+            species__scientific_name__iexact=species, name__iexact=dataset)
+        return obj
+
+    @extend_schema(
+        summary="Retrieve dataset information",
+        description="Retrieve information for a given dataset",
+        tags=["Dataset"],
+        parameters=[ getDatasetPathParam() ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -184,13 +228,13 @@ class ExpressionPrefetchMixin:
 
     def get_queryset(self):
         gene = self.request.query_params.get('gene', None)
-        species = self.request.query_params.get('species', None)
+        dataset = self.request.query_params.get('dataset', None)
 
-        if species and gene:
+        if dataset and gene:
             # Check if gene expression data for the selected gene exists
             filters = {f"{self.related_field}__gene__name": gene}
             if not self.queryset.filter(**filters).exists():
-                raise NotFound(f"No gene expression data found for {gene} in {species}")
+                raise NotFound(f"No gene expression data found for {gene} in {dataset}")
 
             # Prefetch gene expression
             queryset = self.queryset.prefetch_related(
@@ -209,7 +253,7 @@ class ExpressionPrefetchMixin:
     tags=["Single cell"]
 )
 class SingleCellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
-    """ List single cells for a given species. """
+    """ List single cells for a given dataset. """
     queryset = models.SingleCell.objects.prefetch_related('metacell')
     serializer_class = serializers.SingleCellSerializer
     filterset_class = filters.SingleCellFilter
@@ -221,7 +265,7 @@ class SingleCellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     tags=["Metacell"]
 )
 class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
-    """ List metacells for a given species. """
+    """ List metacells for a given dataset. """
     queryset = models.Metacell.objects.prefetch_related('type')
     serializer_class = serializers.MetacellSerializer
     filterset_class = filters.MetacellFilter
@@ -237,8 +281,8 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     tags=["Metacell"]
 )
 class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
-    """ List metacell links for a given species. """
-    queryset = models.MetacellLink.objects.prefetch_related('metacell', 'metacell2')
+    """ List metacell links (visualised in projections) for a given dataset. """
+    queryset = models.MetacellLink.objects.all()
     serializer_class = serializers.MetacellLinkSerializer
     filterset_class = filters.MetacellLinkFilter
 
@@ -303,7 +347,7 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
     ]
 )
 class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
-    """ List correlated genes for a given gene and species. """
+    """ List correlated genes for a given gene and dataset. """
     queryset = models.GeneCorrelation.objects.all()
     serializer_class = serializers.CorrelatedGenesSerializer
     filterset_class = filters.CorrelatedGenesFilter
