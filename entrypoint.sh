@@ -6,7 +6,7 @@ python manage.py collectstatic --noinput
 
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
     # Create tables with data models if they do not exist
-    if ! psql -h ${POSTGRES_HOST} -d ${POSTGRES_DB} -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name LIKE '%_species');" | grep -q t; then
+    if ! psql -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name LIKE '%_species');" | grep -q t; then
         python manage.py makemigrations
         python manage.py migrate
     fi
