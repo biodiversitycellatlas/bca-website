@@ -24,15 +24,11 @@ services:
         build: .
         restart: always
         env_file: [.env]
-        # Collect static files and update Django models
-        command: >
-            /bin/bash -c "python manage.py collectstatic --noinput
-            && python manage.py makemigrations
-            && python manage.py migrate
-            && python manage.py runserver 0.0.0.0:8000"
+        command: ["./entrypoint.sh"]
         expose:
             - 8000
         volumes:
+            - ./entrypoint.sh:/usr/src/app/entrypoint.sh
             # Update Django files in real-time
             - .:/usr/src/app
             # Media and static files
@@ -43,7 +39,7 @@ services:
                 condition: service_healthy
 
     db:
-        image: postgres
+        image: postgres:17
         restart: always
         env_file: [.env]
         volumes:
