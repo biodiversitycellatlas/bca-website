@@ -100,6 +100,34 @@ Features:
 
 <p class="mt-3">BCA logo by <a href="https://joanaccarvalho.com" target="_blank">Joana C. Carvalho</a>. Free to use with mandatory attribution. Modification not allowed.</p>
 
+<h2 class="h4" id="colors">Branding colors</h1>
+
+<div class="row row-cols-3 row-cols-md-6 align-items-stretch g-4 py-2 small">
+	<div class="col">
+		{% include './gaudi_color.html' with name="Bold Main Light" hex="#3bbcb2" rgb="59, 188, 178" css="var(--bold-light-color)" %}
+   	</div>
+
+   	<div class="col">
+		 {% include './gaudi_color.html' with name="Bold Main Dark" hex="#239184" rgb="35, 145, 132" css="var(--bold-dark-color)" %}
+   	</div>
+
+   	<div class="col">
+		 {% include './gaudi_color.html' with name="Light Neutral" hex="#fff6ee" rgb="255, 246, 238" css="var(--neutral-color)" %}
+   	</div>
+
+	<div class="col">
+		{% include './gaudi_color.html' with name="Dark Neutral" hex="#000000" rgb="0, 0, 0" css="black" %}
+   	</div>
+
+	<div class="col">
+		{% include './gaudi_color.html' with name="Light Accent" hex="#ffac3e" rgb="255, 172, 62" css="var(--light-accent-color)" %}
+   	</div>
+
+	<div class="col">
+		{% include './gaudi_color.html' with name="Bold Accent" hex="#3ab064" rgb="58, 176, 100" css="var(--bold-accent-color)" %}
+   	</div>
+</div>
+
 <h1 class="h3" id="legal">Legal and privacy information</h1>
 
 <p>Please read our <a href="{% url 'legal' %}">Legal Notice & Privacy Policy</a> and <a href="{% url 'cookies' %}">Cookies policy</a>.</p>
