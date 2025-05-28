@@ -219,6 +219,26 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
+@extend_schema(
+    summary="List ortholog counts",
+    tags=["Gene"]
+)
+class OrthologCountViewSet(BaseReadOnlyModelViewSet):
+    """ List ortholog gene counts per species (ordered by count). """
+    queryset = models.Ortholog.objects.all()
+    serializer_class = serializers.OrthologCountSerializer
+    filterset_class = filters.OrthologCountFilter
+
+    def get_queryset(self):
+        orthogroup = self.request.query_params.get('orthogroup')
+        if orthogroup and not self.queryset.filter(orthogroup=orthogroup).exists():
+            raise NotFound(detail=f"Orthogroup '{orthogroup}' not found.")
+
+        qs = self.queryset.values('species__scientific_name').annotate(
+            count=Count('id')).order_by('-count')
+        return qs
+
+
 class ExpressionPrefetchMixin:
     """ Mixin to prefetch gene expression for single cell and metacell views. """
 

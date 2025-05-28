@@ -129,10 +129,11 @@ class GeneSerializer(serializers.ModelSerializer):
     species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
+    orthogroup = serializers.CharField()
 
     class Meta:
         model = models.Gene
-        fields = ['name', 'description', 'domains', 'genelists', 'species']
+        fields = ['species', 'name', 'description', 'domains', 'genelists', 'orthogroup']
 
     def __init__(self, *args, **kwargs):
         # Do not show 'species' in result if filtered in query params
@@ -331,23 +332,46 @@ class MetacellMarkerSerializer(serializers.ModelSerializer):
 
 
 class OrthologSerializer(serializers.ModelSerializer):
-    species = SpeciesSerializer()
+    species = serializers.CharField()
 
     gene_name        = serializers.CharField(source='gene.name')
     gene_description = serializers.CharField(source='gene.description')
     gene_domains     = serializers.StringRelatedField(source='gene.domains',
                                                       many=True)
-    expression = MetacellGeneExpressionSerializer(source='gene.metacellgeneexpression_set', many=True, required=False)
+    expression = DatasetMetacellGeneExpressionSerializer(
+        source='gene.metacellgeneexpression_set', many=True, required=False)
 
     class Meta:
         model = models.Ortholog
-        exclude = ['id']
+        exclude = ['id', 'gene']
 
     def __init__(self, *args, **kwargs):
         show_expression = kwargs['context']['request'].GET.get('expression', 'false') == 'true'
         if not show_expression:
             self.fields.pop('expression')
         super().__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Split expression by dataset
+        if self.fields.get('expression'):
+            split_by_dataset = {}
+            for item in data['expression']:
+                dataset = item.pop('dataset')
+                split_by_dataset.setdefault(dataset, []).append(item)
+
+            data['expression'] = split_by_dataset
+        return data
+
+
+class OrthologCountSerializer(serializers.ModelSerializer):
+    species = serializers.CharField(source='species__scientific_name')
+    gene_count = serializers.IntegerField(source='count')
+
+    class Meta:
+        model = models.Ortholog
+        fields = ['species', 'gene_count']
 
 
 class AlignRequestSerializer(serializers.Serializer):

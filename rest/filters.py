@@ -62,9 +62,12 @@ class SpeciesChoiceFilter(ChoiceFilter):
         # Optimise query: filter by species_id directly to avoid inner joins
         if value:
             # Build species_id field based on given field_name
-            species_id_field = 'species_id'
-            if self.field_name != 'species':
-                species_id_field = f'{self.field_name}__{species_id_field}'
+            if self.field_name == 'id':
+                species_id_field = 'id'
+            elif self.field_name == 'species':
+                species_id_field = 'species_id'
+            else:
+                species_id_field = f'{self.field_name}__species_id'
 
             # Filter by ID directly
             species_subquery = models.Species.objects.filter(
@@ -219,11 +222,12 @@ class GeneListFilter(FilterSet):
 
 
 class OrthologFilter(FilterSet):
+    orthogroup = CharFilter()
     gene = CharFilter(
         method = 'find_orthologs',
         label = "The <a href='#/operations/genes_list'>gene name</a> for ortholog search. If not defined, returns all orthologs.")
     expression = BooleanFilter(
-        method = skip_param, # used in serializers.py: OrthologSerializer
+        method = skip_param, # used in serializers.OrthologSerializer
         label ='Show metacell gene expression for each gene (default: <kbd>false</kbd>).')
     species = SpeciesChoiceFilter()
 
@@ -236,6 +240,16 @@ class OrthologFilter(FilterSet):
             orthogroup = queryset.filter(gene__name=value).values('orthogroup')[:1]
             return queryset.filter(orthogroup=orthogroup)
         return queryset
+
+
+class OrthologCountFilter(FilterSet):
+    orthogroup = CharFilter(
+        label = "The orthogroup. If not defined, returns counts for orthologs from all orthogroups.")
+    species = SpeciesChoiceFilter()
+
+    class Meta:
+        model = models.Ortholog
+        fields = ['orthogroup', 'species']
 
 
 class SingleCellFilter(FilterSet):
