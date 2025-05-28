@@ -17,7 +17,7 @@ $(function() {
     // Get lists from API
     var url = "{% url 'rest:correlated-list' %}";
     var params = new URLSearchParams({
-        species: '{{species}}',
+        dataset: '{{dataset.slug}}',
         gene: '{{gene}}'
     });
     var apiURL = url + "?" + params.toString();

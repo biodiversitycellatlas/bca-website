@@ -7,12 +7,12 @@ Template for the Cell Atlas pages
 Features:
 - Atlas selection via select element or using URL path parameters, such as
   `/atlas/Homo_sapiens`
-- Warning message (e.g., if selected species is not available in the database)
-- Placeholders shown when no species is selected
+- Warning message (e.g., if selected dataset is not available in the database)
+- Placeholders shown when no dataset is selected
 
 Input:
 - warning: warning message to display
-- icon: the FontAwesome icon to show if no species is selected (e.g., 'question-circle')
+- icon: the FontAwesome icon to show if no dataset is selected (e.g., 'question-circle')
 
 {% endcomment %}
 
@@ -31,7 +31,7 @@ Input:
             <i class="fa fa-{{icon}} fa-4x d-block d-md-none"></i>
             <i class="fa fa-{{icon}} fa-5x d-none d-md-block d-lg-none"></i>
             <i class="fa fa-{{icon}} fa-6x d-none d-lg-block"></i>
-            <p><small>No species selected</small></p>
+            <p><small>No dataset selected</small></p>
         </div>
         <div class="col-8">
             <span class="placeholder" style="width: 290px; max-width: 100%;"></span></br>

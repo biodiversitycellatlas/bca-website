@@ -55,7 +55,7 @@ Input:
 
                         clone.getElementById('single-ortholog-plot').id = gene;
                         container.appendChild(clone);
-                        createExpressionBubblePlot("#" + gene, gene, item.expression);
+                        createExpressionBubblePlot("#" + gene.slug, gene, item.expression);
                     }
                 })
             }

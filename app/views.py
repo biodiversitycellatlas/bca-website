@@ -5,10 +5,36 @@ from django.views.generic.detail import DetailView
 
 from django.db.models import Q
 
-from .models import Species
+from .models import Species, Dataset
 
 import json
 import random
+
+
+def getDatasetDict():
+    ''' Prepare dictionary of datasets. '''
+    dataset_dict = {}
+    for dataset in Dataset.objects.all():
+        # get phylum
+        try:
+            phylum = dataset.species.meta_set.filter(key="phylum").values_list('value', flat=True)[0]
+        except:
+            phylum = "Other phyla"
+
+        # get meta info
+        try:
+            removed_terms = ['species', 'phylum']
+            meta = list(dataset.species.meta_set.exclude(key__in=removed_terms)
+                                                .values_list('value', flat=True))
+        except:
+            meta = list()
+
+        elem = {'dataset': dataset, 'meta': meta}
+        if phylum not in dataset_dict:
+            dataset_dict[phylum] = [elem]
+        else:
+            dataset_dict[phylum].append(elem)
+    return dataset_dict
 
 
 def getSpeciesDict():
@@ -37,9 +63,9 @@ def getSpeciesDict():
     return species_dict
 
 
-def getMetacellDict(species):
-    ''' Prepare dictionary of metacells for a species. '''
-    metacells = species.metacell_set.all()
+def getMetacellDict(dataset):
+    ''' Prepare dictionary of metacells for a dataset. '''
+    metacells = dataset.metacells.all()
 
     # Group by cell type
     types = dict()
@@ -69,12 +95,24 @@ def getSpecies(species):
     return obj
 
 
+def getDataset(dataset):
+    ''' Returns dataset if it exists in the database; returns None otherwise. '''
+    if isinstance(dataset, Dataset):
+        return obj
+
+    try:
+        obj = [d for d in Dataset.objects.all() if dataset == d.slug][0]
+    except:
+        obj = None
+    return obj
+
+
 class IndexView(TemplateView):
     template_name = "app/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species_dict"] = getSpeciesDict()
+        context["dataset_dict"] = getDatasetDict()
         return context
 
 
@@ -86,58 +124,61 @@ class AtlasView(TemplateView):
         context["icon"] = random.choice(
             ["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
             "dove", "fish-fins", "cat", "locust", "tree", "spider", "hippo"])
-        context["species_dict"] = getSpeciesDict()
+        context["dataset_dict"] = getDatasetDict()
 
         query = self.request.GET
-        if query and query.get('species'):
-            species = getSpecies(query['species'])
-            if isinstance(species, Species):
-                context['species'] = species
+        if query and query.get('dataset'):
+            dataset = query['dataset']
+            if isinstance(dataset, Dataset):
+                context['dataset'] = dataset
             else:
-                # Warn that species is not available in the database
+                # Warn that dataset is not available in the database
                 context['warning'] = {
-                    'title': f'Invalid species <code>{query['species']}</code>!',
-                    'description': f"Please check available species in the search box above."
+                    'title': f'Invalid dataset <code>{query['dataset']}</code>!',
+                    'description': f"Please check available datasets in the search box above."
                 }
 
         return context
 
     def get(self, request, *args, **kwargs):
         query = self.request.GET
-        species = request.COOKIES.get('species') or query.get('species')
+        dataset = request.COOKIES.get('dataset') or query.get('dataset')
 
-        if species and isinstance(getSpecies(species), Species):
-            return redirect('atlas_info', species)
+        if dataset and isinstance(dataset, Dataset):
+            return redirect('atlas_info', dataset)
         else:
             return super().get(request, *args, **kwargs)
 
 
 class BaseAtlasView(TemplateView):
     '''
-    Base view for species-specific Cell Atlas pages.
+    Base view for dataset-specific Cell Atlas pages.
 
-    Redirects to standard Atlas view with a warning when passing a species not
+    Redirects to standard Atlas view with a warning when passing a dataset not
     available in the database.
     '''
-    model = Species
+    model = Dataset
     template_name = "app/atlas/info.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context["species"].replace("_", " ")
+        dataset = context["dataset"]
+
         try:
-            context["species"] = Species.objects.filter(scientific_name=species)[0]
+            dataset = getDataset(dataset)
+            context["dataset"] = dataset
+            context["species"] = dataset.species
         except:
-            context["species"] = species
+            context["dataset"] = dataset
             return context
 
-        context["species_dict"] = getSpeciesDict()
+        context["dataset_dict"] = getDatasetDict()
         return context
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        if not isinstance(context["species"], Species):
-            return redirect(reverse('atlas') + '?species=' + context["species"])
+        if not isinstance(context["dataset"], Dataset):
+            return redirect(reverse('atlas') + '?dataset=' + context["dataset"])
         return super().get(*args, **kwargs)
 
 
@@ -150,11 +191,11 @@ class AtlasOverviewView(BaseAtlasView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context['species']
-        if not isinstance(species, Species):
+        dataset = context['dataset']
+        if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(species)
+        context['metacell_dict'] = getMetacellDict(dataset)
 
         # Get URL query parameters
         query = self.request.GET
@@ -167,14 +208,14 @@ class AtlasGeneView(BaseAtlasView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context.get('species')
-        if not isinstance(species, Species):
+        dataset = context.get('dataset')
+        if not isinstance(dataset, Dataset):
             return context
 
         gene = context.get('gene')
         if gene:
             # Fetch information on selected gene
-            obj = species.gene_set.filter(name=gene)
+            obj = dataset.species.genes.filter(name=gene)
             if obj:
                 context['gene'] = obj.first()
             else:
@@ -194,11 +235,11 @@ class AtlasPanelView(BaseAtlasView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context.get('species')
-        if not isinstance(species, Species):
+        dataset = context.get('dataset')
+        if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(species)
+        context['metacell_dict'] = getMetacellDict(dataset)
 
         query = self.request.GET
         context['query'] = query
@@ -210,11 +251,11 @@ class AtlasMarkersView(BaseAtlasView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = context["species"]
-        if not isinstance(species, Species):
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(species)
+        context['metacell_dict'] = getMetacellDict(dataset)
 
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
@@ -223,7 +264,7 @@ class AtlasMarkersView(BaseAtlasView):
             if 'metacells' in query.keys():
                 # get selected metacells
                 metacells = query['metacells'].split(',')
-                selected = list(species.metacell_set.filter(
+                selected = list(dataset.metacells.filter(
                     Q(name__in=metacells) | Q(type__name__in=metacells)
                 ).values_list('name', flat=True).distinct())
                 selected = [int(s) for s in selected]
@@ -271,7 +312,7 @@ class SearchView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species_dict"] = getSpeciesDict()
+        context["dataset_dict"] = getDatasetDict()
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         if query:

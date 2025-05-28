@@ -2,7 +2,7 @@
 
 {% comment %}
 
-Metacell projection ang gene expression heatmap for a given species
+Metacell projection ang gene expression heatmap for a given dataset
 
 Features:
 - Select metacells for further analysis (e.g., listing their markers)
@@ -13,12 +13,13 @@ Features:
     - Copy link to clipboard button
 
 Input:
-- species: Species object from `models.py`
+- dataset: Dataset object from `models.py`
+- species: respective Species object
 - query: query parameters to automatically filter and adjust the plots
 
 {% endcomment %}
 
-{% block title %}{{species}} Overview{% endblock title %}
+{% block title %}{{dataset}} Overview{% endblock title %}
 
 {% block content %}
 

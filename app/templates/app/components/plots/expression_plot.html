@@ -3,12 +3,12 @@
 Gene expression plot
 
 Input:
-- species
+- dataset
 - gene
 
 {% endcomment %}
 
-{% include '../plot_container.html' with id=gene %}
+{% include '../plot_container.html' with id=gene.slug %}
 
 {% load static %}
 <script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
@@ -18,7 +18,7 @@ Input:
     // Create URL to fetch gene expression data
     var url = '{% url 'rest:metacellgeneexpression-list' %}';
     var params = new URLSearchParams({
-        species: '{{species}}',
+        dataset: '{{dataset.slug}}',
         genes: '{{gene}}',
         limit: 0
     });
@@ -28,9 +28,16 @@ Input:
     fetch(apiURL)
         .then(response => response.json())
         .then(data => {
-            createExpressionBubblePlot("#{{gene}}-plot", "{{gene}}", data);
+            if (data.length === 0) {
+                document.getElementById('{{gene.slug}}-plot').innerHTML = "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No <b>{{gene}}</b> expression for <i>{{dataset}}</i>.</p>"
+            } else {
+                createExpressionBubblePlot("#{{gene.slug}}-plot", "{{gene}}", data);
+            }
         })
         .catch(error => {
             console.error('Error fetching data:', error);
+        })
+        .finally(() => {
+            hideSpinner('{{gene.slug}}');
         });
 </script>

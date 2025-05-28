@@ -3,19 +3,19 @@
 Atlas selection dropdown and tab navigation for Cell Atlas
 
 Features:
-- Allows user to search species by nomenclature and metadata (including taxonomic ranks)
+- Allows user to search dataset by species nomenclature and metadata (including taxonomic ranks)
 - Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
-- Upon species selection, the user is redirected to that species page
-- Navigation tabs redirect to different views for the selected species
-- When no species is selected, mockup is shown and navigation tabs are disabled
+- Upon dataset selection, the user is redirected to that dataset page
+- Navigation tabs redirect to different views for the selected dataset
+- When no dataset is selected, mockup is shown and navigation tabs are disabled
 
 Input:
-- species_dict: dictionary of arrays of species grouped by their phylum
+- dataset_dict: dictionary of arrays of dataset grouped by their phylum
 
 {% endcomment %}
 
 <div class="container-xxl">
-    {% include './species.html' %}
+    {% include './dataset.html' %}
 </div>
 
 <!-- Subnavbar to navigate the Cell Atlas -->
@@ -48,12 +48,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name in 'atlas,atlas_info' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name in 'atlas,atlas_info' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_info' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_info' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-dna"></i>
                             Information
@@ -63,12 +63,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_overview' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name == 'atlas_overview' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_overview' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_overview' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-diagram-project"></i>
                             Atlas overview
@@ -78,12 +78,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_panel' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name == 'atlas_panel' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_panel' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_panel' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-solar-panel"></i>
                             Gene panel
@@ -93,12 +93,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_gene' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name == 'atlas_gene' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_gene' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_gene' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-bezier-curve"></i>
                             Gene and orthologs
@@ -112,12 +112,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_markers' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name == 'atlas_markers' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_markers' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_markers' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-list-ol"></i>
                             Cell type markers
@@ -130,12 +130,12 @@ Input:
                     <li class="nav-item">
                         <a class="nav-link p-2
                         {% if url_name == 'atlas_compare' %}active{% endif %}
-                        {% if not species %}disabled{% endif %}"
+                        {% if not dataset %}disabled{% endif %}"
                         href="
                         {% if url_name == 'atlas_compare' %}
                             #top
-                        {% elif species %}
-                            {% url 'atlas_compare' species.slug %}
+                        {% elif dataset %}
+                            {% url 'atlas_compare' dataset.slug %}
                         {% endif %}">
                             <i class="fa fa-scale-unbalanced"></i>
                             Cross-species
@@ -155,8 +155,8 @@ Input:
 <div class="mb-2"></div>
 
 <!-- Set species in cookie -->
-<!--{% if species %}
-<script>document.cookie='species={{species}}';</script>
+<!--{% if dataset %}
+<script>document.cookie='dataset={{dataset}}';</script>
 {% endif %}-->
 
 {% endwith %}

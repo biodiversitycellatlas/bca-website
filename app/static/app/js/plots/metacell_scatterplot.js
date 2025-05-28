@@ -24,7 +24,7 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	  	],
 		"layer": [ {
 			"data": { "name": "sc_data", "values": data['sc_data'] },
-  			"mark": { "type": "circle", "tooltip": {"encoding": "data"} },
+  			"mark": { "type": "circle", "tooltip": {"encoding": "data"}, "invalid": null },
 
   			// Avoid this transform for cells: this changes axis limits
   			// "transform": [ { "filter": "showCells == 'true'" } ],
@@ -72,10 +72,14 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
   				"type": "circle",
   				"stroke": "white",
   				"strokeWidth": 1,
-  				"tooltip": {"encoding": "data"}
+  				"tooltip": {"encoding": "data"},
+  				"invalid": null
   			},
   			"transform": [
-			    { "calculate": "log(datum.fold_change) / log(2)", "as": "log2_fold_change" },
+			    {
+			    	"calculate": "datum.fold_change == null ? null : log(datum.fold_change) / log(2)",
+			    	"as": "log2_fold_change"
+			    },
 			    { "filter": "showMetacells == 'true'" }
 			],
 	  		"encoding": {
@@ -83,6 +87,10 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    		"y": {"field": "y", "type": "quantitative"},
 	    		"size": {"value": 400},
 	    		"fill": {
+	    			"condition": {
+	    				"test": "datum.log2_fold_change == null",
+				        "value": "#F1F7FE"
+				    },
 	    			"title": "Log\u2082 FC",
 	    			"field": "log2_fold_change",
 	    			"type": "quantitative",
@@ -102,7 +110,6 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 	    	}
   		}],
   		"config": {
-  			"mark": { "invalid": null },
 			"style": { "cell": { "stroke": "transparent" } },
 		  	"axis": {
 		  		"domain": false,

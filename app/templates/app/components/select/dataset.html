@@ -1,23 +1,23 @@
 {% comment %}
 
-Species selection
+Dataset selection for Cell Atlas and other components
 
 Features:
-- Allows user to search species by nomenclature and metadata (including taxonomic ranks)
+- Allows user to search dataset by species name and metadata (including taxonomic ranks)
 - Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
-- Upon species selection, the user is redirected to that species page
-- Navigation tabs redirect to different views for the selected species
-- When no species is selected, mockup is shown and navigation tabs are disabled
+- Upon dataset selection, the user is redirected to that dataset page
+- Navigation tabs redirect to different views for the selected dataset
+- When no dataset is selected, mockup is shown and navigation tabs are disabled
 
 Input:
-- species_dict: dictionary of arrays of species grouped by their phylum
-- species: selected species
-- placeholder: text in search box (default: "Search species by nomenclature,
+- dataset_dict: dictionary of arrays of datasets grouped by the species phylum
+- dataset: selected dataset
+- placeholder: text in search box (default: "Search datasets by species nomenclature,
   taxonomic rank, division, ...")
 - redirect: one of 'query', 'arg', 'atlas' or 'none' (default); if 'query',
-  redirect to URL using a query parameter (e.g., '?species=Mus_musculus');
-  if 'arg', redirect using species as an argument; if 'atlas', redirect to
-  selected species in the Cell Atlas
+  redirect to URL using a query parameter (e.g., '?dataset=mus-musculus');
+  if 'arg', redirect using dataset as an argument; if 'atlas', redirect to
+  selected dataset in the Cell Atlas
 - class: additional class for select element
 - optgroup_columns: if 'true', enable the optgroup_columns plugin
 - maxwidth: maximum width of the element
@@ -25,20 +25,20 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="species-select" class="mb-2 {{class}}"
+<select id="dataset-select" class="mb-2 {{class}} small"
 style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px;"
-placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...'}}">
+placeholder="{{placeholder|default:'Search dataset by species nomenclature, taxonomic rank, division, ...'}}">
     <option value=""></option>
-    {% for phylum, species_list in species_dict.items %}
+    {% for phylum, dataset_list in dataset_dict.items %}
         <optgroup label="{{ phylum }}">
-            {% for elem in species_list %}
-                <option value="{{elem.species.slug}}"
+            {% for elem in dataset_list %}
+                <option value="{{elem.dataset.slug}}"
                 data-meta="{{elem.meta|join:','}}"
-                data-image="{{elem.species.image_url}}"
-                data-name="{{elem.species.common_name}}"
-                {% if species == elem.species or species == elem.species.slug %}
+                data-image="{{elem.dataset.species.image_url}}"
+                data-name="{{elem.dataset.species.common_name|default_if_none:''}}"
+                {% if dataset == elem.dataset or dataset == elem.dataset.slug %}
                     selected
-                {%endif%}>{{ elem.species.scientific_name }}</option>
+                {%endif%}>{{ elem.dataset }}</option>
             {% endfor %}
         </optgroup>
     {% endfor %}
@@ -47,13 +47,13 @@ placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic ra
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 $(function () {
-    var $select = $("#species-select");
+    var $select = $("#dataset-select");
     $select.selectize({
         onChange: function(value) {
-            // Jump to species page upon selection
-    	    if (value !== "" && value !== '{{species.slug}}') {
+            // Jump to dataset page upon selection
+    	    if (value !== "" && value !== '{{dataset.slug}}') {
     	        {% if redirect == 'arg' %}
-    	            // Avoid jumping if value is empty or matches current species
+    	            // Avoid jumping if value is empty or matches current dataset
     			    window.location.href =
     			        {% if request.resolver_match.view_name == 'atlas' %}
     			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
@@ -62,7 +62,7 @@ $(function () {
     			        {% endif %}
                 {% elif redirect == 'query' %}
                     var url = new URL(window.location.href);
-    	            url.searchParams.set('species', value)
+    	            url.searchParams.set('dataset', value)
     	            window.location.href = url;
     	        {% elif redirect == 'atlas' %}
     	            window.location.href =
@@ -73,17 +73,17 @@ $(function () {
 		onDropdownOpen: function() {
 		    this.clear();
 		    setTimeout(() => {
-		        var species = '{{species.slug}}';
-                if (species) {
-                    var current = this.getOption(species);
+		        var dataset = '{{dataset.slug}}';
+                if (dataset) {
+                    var current = this.getOption(dataset);
                     this.setActiveOption(current);
                 }
             }, 10);
 		},
 		onBlur: function() {
-		    // Set current species if no value is selected
+		    // Set current dataset if no value is selected
             if (!this.getValue()) {
-                this.setValue('{{species.slug}}');
+                this.setValue('{{dataset.slug}}');
             }
         },
 		onType: function(str) {
@@ -91,15 +91,15 @@ $(function () {
 		},
 		render: {
             item: function (item, escape) {
-                // Display common name if different than species name
+                // Display common name if different than dataset name
                 description = '';
-                if (item.name !== item.text) {
+                if (item.name) {
                     description = ` <span class="text-muted"><small>${item.name}</small></span>`;
                 }
                 return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i>${description}</div>`;
             },
             option: function (item, escape) {
-                // Display common name if different than species name
+                // Display common name if different than dataset name
                 description = '';
                 if (item.name !== item.text) {
                     description = ` <span class="text-muted"><small>${item.name}</small></span>`;
@@ -107,6 +107,7 @@ $(function () {
 
                 // Add metadata (only visible when matching user query)
                 var meta_array = item.meta.split(',');
+
                 badges = '';
                 for(var i = 0; i < meta_array.length; i++) {
                     var elem = meta_array[i];

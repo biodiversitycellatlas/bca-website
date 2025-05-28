@@ -8,15 +8,9 @@ import re
 import hashlib
 
 
-class Species(models.Model):
-    common_name     = models.CharField(
-        max_length=100, unique=True, help_text="Common name used for the species")
-    scientific_name = models.CharField(
-        max_length=100, unique=True, help_text="Scientific name used for the species")
-    description     = models.TextField(
-        blank=True, null=True, help_text="Species description")
-    image_url       = models.URLField(
-        blank=True, null=True, help_text="URL for species image")
+class SlugMixin(models.Model):
+    class Meta:
+        abstract = True
 
     @property
     def slug(self):
@@ -26,7 +20,20 @@ class Species(models.Model):
         Example:
             For 'Trichoplax adhaerens', returns 'trichoplax-adhaerens'.
         """
-        return slugify(self)
+        return slugify(str(self))
+
+
+class Species(SlugMixin):
+    common_name     = models.CharField(
+        max_length=100, null=True,
+        help_text="Common name of the species")
+    scientific_name = models.CharField(
+        max_length=100, unique=True,
+        help_text="Scientific name of the species")
+    description     = models.TextField(
+        blank=True, null=True, help_text="Species description")
+    image_url       = models.URLField(
+        blank=True, null=True, help_text="URL for species image")
 
     @property
     def image_source(self):
@@ -63,13 +70,15 @@ class Source(models.Model):
         return self.name
 
 
-class Dataset(models.Model):
+class Dataset(SlugMixin):
     species = models.ForeignKey(Species, on_delete=models.CASCADE,
                                 related_name="datasets")
     name = models.CharField(
         max_length=255, default=None, null=True, help_text="Name of the dataset")
     description = models.TextField(
         blank=True, null=True, help_text="Description of the dataset")
+    #image_url       = models.URLField(
+    #    blank=True, null=True, help_text="URL for dataset image")
     date_created = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when the dataset was created")
     date_updated = models.DateTimeField(
@@ -172,6 +181,7 @@ class MetacellType(models.Model):
 class MetacellLink(models.Model):
     metacell  = models.ForeignKey('Metacell', related_name='from_links', on_delete=models.CASCADE)
     metacell2 = models.ForeignKey('Metacell', related_name='to_links', on_delete=models.CASCADE)
+    dataset   = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_links')
 
     def __str__(self):
         return f"{self.metacell} - {self.metacell2}"
@@ -195,8 +205,8 @@ class SingleCell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='sc')
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
-    x = models.FloatField()
-    y = models.FloatField()
+    x = models.FloatField(null=True)
+    y = models.FloatField(null=True)
 
     class Meta:
         unique_together = ["name", "dataset"]
@@ -220,7 +230,7 @@ class GeneList(models.Model):
         return str(self.name)
 
 
-class Gene(models.Model):
+class Gene(SlugMixin):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name='genes')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, blank=True, null=True)

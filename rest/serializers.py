@@ -205,9 +205,11 @@ class BaseExpressionSerializer(serializers.ModelSerializer):
 
 
 class SingleCellSerializer(BaseExpressionSerializer):
-    metacell_name  = serializers.CharField(source='metacell.name')
-    metacell_type  = serializers.CharField(source='metacell.type.name')
-    metacell_color = serializers.CharField(source='metacell.type.color')
+    # Default is null for single cells with no metacell
+    metacell_name  = serializers.CharField(source='metacell.name', default=None)
+    metacell_type  = serializers.CharField(source='metacell.type.name', default=None)
+    metacell_color = serializers.CharField(source='metacell.type.color', default=None)
+
 
     class Meta:
         model = models.SingleCell
@@ -283,6 +285,17 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MetacellGeneExpression
         exclude = ['dataset', 'id', 'gene', 'metacell']
+
+class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
+    dataset = serializers.CharField(source='dataset.slug')
+
+    gene_name        = None
+    gene_description = None
+    gene_domains     = None
+
+    class Meta:
+        model = MetacellGeneExpressionSerializer.Meta.model
+        exclude = ['id', 'gene', 'metacell']
 
 
 class CorrelatedGenesSerializer(serializers.ModelSerializer):

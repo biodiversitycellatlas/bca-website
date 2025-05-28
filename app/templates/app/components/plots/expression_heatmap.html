@@ -210,7 +210,7 @@ Input:
     });
 
     <!-- Simplify multiple select data into a single comma-separated value -->
-    function modifyFormQuery (elem, e, id, species, multiple = []) {
+    function modifyFormQuery (elem, e, id, dataset, multiple = []) {
         e.preventDefault();
 
         // Modify form URL
@@ -229,7 +229,7 @@ Input:
             // Process values from user lists as hidden query parameters
             if (param == 'gene_lists') {
                 // Get genes from user lists
-                var lists = getUserLists(`${id}_${param}`, species);
+                var lists = getUserLists(`${id}_${param}`, dataset);
                 let matches = lists.filter(list => values.includes(list.name));
                 var genes = matches.flatMap(list => list.items);
 
@@ -249,7 +249,7 @@ Input:
     }
 
     $('form').on('submit', function(e) {
-        modifyFormQuery(this, e, '{{id}}', '{{species}}',
+        modifyFormQuery(this, e, '{{id}}', '{{dataset.slug}}',
                         ['metacell_lists' {% if type == "gene-lists" %}, 'gene_lists' {% endif %}]);
     });
 </script>
@@ -271,7 +271,7 @@ Input:
         var url = "{% url 'rest:metacellgeneexpression-list' %}";
 
         var params = new URLSearchParams({
-    		species: '{{species}}',
+    		dataset: '{{dataset.slug}}',
     		metacells: $("#metacells").val().join(","),
     		fc_min: $("#fc_min").val(),
     		{% if not query.genes %} n_markers: $("#markers").val(), {% endif %}
@@ -286,7 +286,7 @@ Input:
         fetch(apiURL)
             .then(response => response.json())
             .then(data => {
-                createExpressionHeatmap("#{{id}}-plot", "{{species}}", data)
+                createExpressionHeatmap("#{{id}}-plot", "{{dataset.slug}}", data)
             })
             .catch(error => console.error('Error fetching data:', error));
 

@@ -7,11 +7,11 @@ Input:
 
 {% endcomment %}
 
-<div class="row g-2 mb-4 align-items-end">
+<div id="{{id}}-plot-ui" class="row g-2 mb-4 align-items-end">
     <!-- Toggle visibility -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
-            <label class="col-form-label"><i class="fa fa-eye"></i> Toggle visibility </label>
+            <label class="col-form-label"><i class="fa fa-eye"></i> View options </label>
         </div>
 
         <div class="btn-group" role="group" style="display: flex;">
@@ -70,7 +70,7 @@ Input:
         "mc_links": "{% url 'rest:metacelllink-list' %}",
     };
 
-    var params = new URLSearchParams({ species: '{{species}}', limit: 0 });
+    var params = new URLSearchParams({ dataset: '{{dataset.slug}}', limit: 0 });
     urls['mc_links'] += "?" + params.toString();
 
     {% if gene %}
@@ -86,7 +86,7 @@ Input:
     Promise.all(
         Object.entries(urls).map(([key, url]) =>
             fetch(url)
-                .then(res => res.json())
+                .then(res => res.ok ? res.json() : null)
                 .then(data => ({ key, data }))
         )
     )
@@ -97,10 +97,21 @@ Input:
           return acc;
         }, {});
 
-        createMetacellProjection(
-    	    "#{{id}}-plot", "{{species}}", data,
-    	    color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
-    	    {% if gene %}'{{gene}}'{% else %}null{% endif %});
+        if (!data['sc_data'] && !data['mc_data']) {
+            // Show informative message that no expression data is available
+            plot = document.getElementById('{{id}}-plot')
+            plot.innerHTML = "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No <b>{{gene}}</b> expression for <i>{{dataset}}</i>.</p>"
+            plot.style.removeProperty('aspect-ratio');
+
+            // Remove plot buttons
+            document.getElementById('{{id}}-plot-ui').style.display = 'none';
+        } else {
+            console.log(data['mc_data']);
+            createMetacellProjection(
+    	        "#{{id}}-plot", "{{dataset.slug}}", data,
+    	        color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
+    	        {% if gene %}'{{gene}}'{% else %}null{% endif %});
+        }
     })
     .catch(error => {
         console.error('Error fetching data:', error);
@@ -136,7 +147,7 @@ Input:
 	$('#list_markers').on('click', function(e) {
 	    var metacells = getSelectedMetacells();
 	    if (metacells.length >= 1) {
-	        url = '{% url 'atlas_markers' species.slug %}?metacells=' + metacells;
+	        url = '{% url 'atlas_markers' dataset.slug %}?metacells=' + metacells;
 	        window.location.href = url;
 	    } else {
 	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
