@@ -228,6 +228,10 @@ class Gene(models.Model):
     genelists = models.ManyToManyField(GeneList)
     correlations = models.ManyToManyField('self', through='GeneCorrelation', symmetrical=True)
 
+    @property
+    def orthogroup(self):
+        return getattr(self.ortholog_set.first(), 'orthogroup', None)
+
     def genelist_names(self):
         return [genelist.name for genelist in self.genelists.all()]
     genelist_names.short_description = 'Gene lists'
@@ -297,6 +301,11 @@ class Ortholog(models.Model):
     @property
     def expression(self):
         return self.gene.metacellgeneexpression_set.all()
+
+    class Meta:
+        unique_together = ["gene", "orthogroup"]
+        verbose_name = "single-cell gene expression"
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         return f"{self.orthogroup} {self.gene}"
