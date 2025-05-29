@@ -77,8 +77,8 @@ class Dataset(SlugMixin):
         max_length=255, default=None, null=True, help_text="Name of the dataset")
     description = models.TextField(
         blank=True, null=True, help_text="Description of the dataset")
-    #image_url       = models.URLField(
-    #    blank=True, null=True, help_text="URL for dataset image")
+    image_url = models.URLField(
+        blank=True, null=True, help_text="URL for dataset image")
     date_created = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when the dataset was created")
     date_updated = models.DateTimeField(
