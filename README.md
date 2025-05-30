@@ -14,7 +14,9 @@ This project uses:
 
 ### Initial setup
 
-To setup the project and locally deploy the web app, follow these steps:
+To setup the project and locally deploy the web app, install [Podman Compose][] and [(standalone) Docker Compose][docker-compose].
+
+Next, follow these steps:
 
 ```bash
 # Go to the project directory
@@ -117,6 +119,7 @@ podman compose -f compose.yml -f compose.prod.yml up -d
 
 [Podman Compose]: https://podman-desktop.io/docs/compose
 [Docker Compose]: https://docs.docker.com/compose
+[docker-compose]: https://docs.docker.com/compose/install/standalone/
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
