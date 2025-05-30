@@ -23,22 +23,14 @@ class SlugMixin(models.Model):
         return slugify(str(self))
 
 
-class Species(SlugMixin):
-    common_name     = models.CharField(
-        max_length=100, null=True,
-        help_text="Common name of the species")
-    scientific_name = models.CharField(
-        max_length=100, unique=True,
-        help_text="Scientific name of the species")
-    description     = models.TextField(
-        blank=True, null=True, help_text="Species description")
-    image_url       = models.URLField(
-        blank=True, null=True, help_text="URL for species image")
+class ImageSourceMixin(models.Model):
+    class Meta:
+        abstract = True
 
     @property
     def image_source(self):
         """
-        Get image source based on the domain of the image URL.
+        Extracts the image source domain based on the image URL.
 
         Example:
             For https://test.wikimedia.org/path/img.jpg, returns Wikimedia.
@@ -51,6 +43,19 @@ class Species(SlugMixin):
         if match:
             return match.group(1).capitalize()
         return None
+
+
+class Species(SlugMixin, ImageSourceMixin):
+    common_name     = models.CharField(
+        max_length=100, null=True,
+        help_text="Common name of the species")
+    scientific_name = models.CharField(
+        max_length=100, unique=True,
+        help_text="Scientific name of the species")
+    description     = models.TextField(
+        blank=True, null=True, help_text="Species description")
+    image_url       = models.URLField(
+        blank=True, null=True, help_text="URL for species image")
 
     class Meta:
         verbose_name = "species"
@@ -70,7 +75,7 @@ class Source(models.Model):
         return self.name
 
 
-class Dataset(SlugMixin):
+class Dataset(SlugMixin, ImageSourceMixin):
     species = models.ForeignKey(Species, on_delete=models.CASCADE,
                                 related_name="datasets")
     name = models.CharField(
@@ -94,16 +99,6 @@ class Dataset(SlugMixin):
     # developmental stages
     order = models.PositiveIntegerField(
         default=0, help_text="Order of the dataset (for ordinal sets like developmental stages)")
-
-    @property
-    def slug(self):
-        """
-        Formats the model representation for safe use in URLs.
-
-        Example:
-            For an adult mouse dataset, returns 'mus-musculus-adult'.
-        """
-        return slugify(self)
 
     class Meta:
         unique_together = ('species', 'name')
@@ -156,20 +151,10 @@ class Meta(models.Model):
         return f"{self.value} ({self.key}): {self.species}"
 
 
-class MetacellType(models.Model):
+class MetacellType(SlugMixin):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_types')
     name = models.CharField()
     color = ColorField(default='#AAAAAA')
-
-    @property
-    def slug(self):
-        """
-        Formats the model representation for safe use in URLs.
-
-        Example:
-            For 'Epithelial cells', returns 'epithelial-cells'.
-        """
-        return slugify(self)
 
     class Meta:
         unique_together = ["dataset", "name"]

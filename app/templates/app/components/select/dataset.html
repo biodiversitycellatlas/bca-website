@@ -34,6 +34,7 @@ placeholder="{{placeholder|default:'Search dataset by species nomenclature, taxo
             {% for elem in dataset_list %}
                 <option value="{{elem.dataset.slug}}"
                 data-meta="{{elem.meta|join:','}}"
+                data-image="{{elem.dataset.image_url|default:elem.dataset.species.image_url }}"
                 data-image="{{elem.dataset.species.image_url}}"
                 data-name="{{elem.dataset.species.common_name|default_if_none:''}}"
                 {% if dataset == elem.dataset or dataset == elem.dataset.slug %}

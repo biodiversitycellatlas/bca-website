@@ -114,11 +114,11 @@ Input:
 
             <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
             <script>
-                var gene_url = "{% url 'atlas_gene' species.slug %}";
+                var gene_url = "{% url 'atlas_gene' dataset.slug %}";
                 var url = "{% url 'rest:metacellmarker-list' %}";
 
                 var params = new URLSearchParams({
-            	    species: '{{species}}',
+            	    dataset: '{{dataset.slug}}',
             		metacells: '{{query.metacells}}',
             		fc_min_type: '{{query.fc_min_type|default:'mean'}}',
             		fc_min: '{{query.fc_min|default:2}}',
