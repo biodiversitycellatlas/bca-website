@@ -5,7 +5,27 @@ $('input[type="checkbox"]').each(function() {
 	this.setAttribute('onclick', 'updateCheckboxValue(this);');
 });
 
+/**
+* Generate color scale based on data type and color.
+*
+* @param {Array} data - Array of objects with 'type' and 'color' properties.
+* @returns {Object} scale - Object with 'domain' (unique types) and 'range' (corresponding colors).
+*/
+function generateColorScale(data) {
+    const colors = {};
+    data.forEach(({type, color}) => colors[type] = color);
+
+    const sorted_colors = {};
+    Object.keys(colors).sort().forEach(key => {
+        sorted_colors[key] = colors[key];
+    });
+
+    const scale = { domain: Object.keys(sorted_colors), range: Object.values(sorted_colors) };
+    return scale;
+}
+
 function createMetacellProjection(id, species, data, color_by_metacell_type=true, gene=null) {
+	var metacellColorScale = generateColorScale(data['mc_data']);
     var chart = {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  	"title": {
@@ -127,7 +147,7 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 		// changing the field/type used for colouring
 		chart.layer[0].encoding.color = {
 			"field": "metacell_type",
-			"scale": {"range": {"field": "metacell_color"}},
+			"scale": metacellColorScale,
 			"title": "Cell type"
 		};
 		delete chart.layer[0].transform;
@@ -135,7 +155,7 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 		delete chart.layer[2].encoding.fill;
 		chart.layer[2].encoding.color = {
 			"field": "type",
-			"scale": {"range": {"field": "color"}},
+			"scale": metacellColorScale,
 			"title": "Cell type"
 		};
 	}
