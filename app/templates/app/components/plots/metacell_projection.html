@@ -106,7 +106,6 @@ Input:
             // Remove plot buttons
             document.getElementById('{{id}}-plot-ui').style.display = 'none';
         } else {
-            console.log(data['mc_data']);
             createMetacellProjection(
     	        "#{{id}}-plot", "{{dataset.slug}}", data,
     	        color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
