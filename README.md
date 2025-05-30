@@ -6,7 +6,7 @@ The Biodiversity Cell Atlas is a coordinated international effort aimed at molec
 
 This project uses:
 
-* [Podman Compose][] to manage multiple Podman containers (using [Docker Compose][] backend for compatibility)
+* [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
 * [Django][], a high-level Python web framework setup using [Gunicorn][]
 * [PostgreSQL][], a relational database
 * [Nginx][], a reverse proxy
@@ -14,9 +14,11 @@ This project uses:
 
 ### Initial setup
 
-To setup the project and locally deploy the web app, install [Podman Compose][] and [(standalone) Docker Compose][docker-compose].
+To set up the project and run the web app locally, first install:
+* [Podman][] (using [Podman Desktop][] may be easier)
+* [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
-Next, follow these steps:
+Then, follow these steps:
 
 ```bash
 # Go to the project directory
@@ -117,7 +119,9 @@ podman compose -f compose.yml -f compose.prod.yml up -d
 
 [<img src="app/static/app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.png" width="250" target="_blank" alt="Wellcome Sanger Institute (Sanger)"/>][Sanger]
 
-[Podman Compose]: https://podman-desktop.io/docs/compose
+[Podman]: https://podman.io
+[Podman Compose]: https://docs.podman.io/en/stable/markdown/podman-compose.1.html
+[Podman Desktop]: https://podman-desktop.io
 [Docker Compose]: https://docs.docker.com/compose
 [docker-compose]: https://docs.docker.com/compose/install/standalone/
 [Django]: https://djangoproject.com
