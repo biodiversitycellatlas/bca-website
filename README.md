@@ -15,7 +15,7 @@ This project uses:
 ### Initial setup
 
 To set up the project and run the web app locally, first install:
-* [Podman][] (using [Podman Desktop][] may be easier)
+* [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
 * [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
 Then, follow these steps:
