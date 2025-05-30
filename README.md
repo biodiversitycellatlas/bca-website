@@ -6,15 +6,19 @@ The Biodiversity Cell Atlas is a coordinated international effort aimed at molec
 
 This project uses:
 
-* [Docker Compose][] to manage multiple Docker containers
+* [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
 * [Django][], a high-level Python web framework setup using [Gunicorn][]
 * [PostgreSQL][], a relational database
 * [Nginx][], a reverse proxy
-* [Ghost][], a blog-focused content management system (CMS)
+* [Ghost][], a blog-focused Content Management System (CMS)
 
 ### Initial setup
 
-To setup the project and locally deploy the web app, follow these steps:
+To set up the project and run the web app locally, first install:
+* [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
+* [docker-compose (standalone)][docker-compose] — Docker itself is not required
+
+Then, follow these steps:
 
 ```bash
 # Go to the project directory
@@ -23,15 +27,15 @@ cd bca-website
 # Copy the .env.template to .env
 cp .env.template .env
 
-# Start Docker Compose to locally deploy the web app to localhost:8000
-# - Prepares and downloads all Docker containers and starts the containers
-# - `-d`: starts the Docker containers in detached mode
+# Start Podman Compose to locally deploy the web app
+# - Prepares, downloads and starts all containers
+# - `-d`: starts the containers in detached mode
 # - `--build web`: rebuilds the web image if needed (for instance, new Python
 #   dependencies in `requirements.txt`)
-docker compose up -d --build web
+podman compose up -d --build web
 
 # Create a superuser (only required once for database setup)
-docker compose exec web python manage.py createsuperuser
+podman compose exec web python manage.py createsuperuser
 ```
 
 ### Development
@@ -39,57 +43,72 @@ docker compose exec web python manage.py createsuperuser
 These are some of the commands to use during development:
 
 ```bash
-# Start Docker Compose to locally deploy the web app to localhost:8000
-docker compose up -d --build web
+# Locally deploy the web app to localhost
+podman compose up -d --build web
 
-# Check information about the active Docker Compose containers
-docker compose ps
+# Check information about the active Compose containers
+podman compose ps
 
 # Check container logs
 # - use `-f` to live update log output
 # - add container name to print logs only for that container
-docker compose logs
-docker compose logs -f
-docker compose logs web
+podman compose logs
+podman compose logs -f
+podman compose logs web
 
-# Run a bash shell within the Docker container for the web app
-docker compose exec web bash
+# Run a bash shell within the web app container
+podman compose exec web bash
 
 # Run a Python shell within the context of the web app
 # https://docs.djangoproject.com/en/dev/intro/tutorial02/#playing-with-the-api
-docker compose exec web python manage.py shell
+podman compose exec web python manage.py shell
 
 # Run unit tests: https://docs.djangoproject.com/en/dev/topics/testing/
-docker compose exec web python manage.py test
+podman compose exec web python manage.py test
 
-# Stop and delete all containers and Docker networks
-docker compose down
+# Stop and delete all containers and Compose-related networks
+podman compose down
 ```
 
 The project directory is automatically mounted to the web app container,
-allowing the preview updates in the web app in real-time. However, to apply any
-changes to Django models, you need to run the [`migrate`][migrate] command:
+allowing to preview updates in the web app in real-time, except for
+static files and Django model updates.
+
+#### Update static files
+
+Static files are served by [Nginx][].
+
+If you need to manually update the static files (such as when editing them),
+run the [`collectstatic`][collectstatic] command:
 
 ```bash
-docker compose exec web python manage.py migrate
+podman compose exec web python manage.py collectstatic --noinput
+```
+
+The `collectstatics` command runs automatically when the web app container starts,
+so you can simply run `podman compose restart web`.
+
+#### Update Django models
+
+To apply changes to Django models, run the [`migrate`][migrate] command:
+
+```bash
+podman compose exec web python manage.py migrate
 ```
 
 The `migrate` command runs automatically when the web app container starts in
-development mode. As such, you may simply restart the web app service to apply
-changes to Django models:
-
-```bash
-docker compose restart web
-```
+development mode, so you can simply run `podman compose restart web`.
+The automatic command will not work if there is an issue that requires
+manual intervention.
 
 ### Production
 
-A dedicated Compose file modifies the settings required to deploy the website
-for production:
+A dedicated Compose file (`such as compose.prod.yml`) can be used for production-specific settings:
 
 ``` bash
-# Start Docker Compose to deploy in production mode
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Deploy in production mode
+# Alternatively, set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
+podman compose -f compose.yml -f compose.prod.yml up -d
 ```
 
 ## Contact us
@@ -100,14 +119,20 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 [<img src="app/static/app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.png" width="250" target="_blank" alt="Wellcome Sanger Institute (Sanger)"/>][Sanger]
 
+[Podman]: https://podman.io
+[Podman Compose]: https://docs.podman.io/en/stable/markdown/podman-compose.1.html
+[Podman Desktop]: https://podman-desktop.io
 [Docker Compose]: https://docs.docker.com/compose
+[docker-compose]: https://docs.docker.com/compose/install/standalone/
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
 [Gunicorn]: https://gunicorn.org
 [Ghost]: https://ghost.org
 
+[collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
+
 [CRG]: https://crg.eu
 [EBI]: https://ebi.ac.uk/
 [Sanger]: https://sanger.ac.uk/
