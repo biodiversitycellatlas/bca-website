@@ -106,10 +106,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_url_kwarg = 'dataset'
 
     def get_object(self):
-        (species, dataset) = parse_species_dataset( self.kwargs.get("dataset") )
-        obj = models.Dataset.objects.get(
-            species__scientific_name__iexact=species, name__iexact=dataset)
-        return obj
+        return parse_species_dataset( self.kwargs.get("dataset") )
 
     @extend_schema(
         summary="Retrieve dataset information",

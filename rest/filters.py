@@ -103,12 +103,8 @@ class DatasetChoiceFilter(ChoiceFilter):
             if self.field_name != 'dataset':
                 dataset_id_field = f'{self.field_name}__{dataset_id_field}'
 
-            (species, dataset) = parse_species_dataset(value)
-
-            dataset_subquery = models.Dataset.objects.filter(
-                name__iexact=dataset, species__scientific_name__iexact=species
-            ).values('id')[:1]
-            qs = qs.filter(**{dataset_id_field: Subquery(dataset_subquery)})
+            dataset = parse_species_dataset(value)
+            qs = qs.filter(**{dataset_id_field: dataset.id})
         else:
             qs = super().filter(qs, value)
         return qs
@@ -559,4 +555,4 @@ class MetacellMarkerFilter(FilterSet):
 
     class Meta:
         model = models.Gene
-        fields = ['species']
+        fields = ['dataset']
