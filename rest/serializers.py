@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from django.conf import settings
-from operator import attrgetter
-
-import pandas as pd
-from django.db.models import Count, Sum, Avg, Min, Max, StdDev
+from django.db.models import F, Count, Sum, Avg, Min, Max, StdDev
+from django.contrib.postgres.aggregates import ArrayAgg
 
 from app import models
 from .aggregates import PercentileCont
 from .utils import check_model_exists
+
+from operator import attrgetter
 
 class MetaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,13 +31,15 @@ class SourceSerializer(serializers.ModelSerializer):
 class DatasetSerializer(serializers.ModelSerializer):
     source = SourceSerializer()
     species = serializers.CharField(source='species.scientific_name')
+    species_image_url = serializers.CharField(source='species.image_url')
     slug = serializers.CharField()
 
     class Meta:
         model = models.Dataset
         fields = [
-            'species', 'name', 'slug', 'description', 'source', 'order',
-            'date_created', 'date_updated'
+            'species', 'name', 'slug', 'description',
+            'image_url', 'species_image_url',
+            'source', 'order', 'date_created', 'date_updated'
         ]
 
 class SpeciesSerializer(serializers.ModelSerializer):
@@ -286,6 +288,7 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
         model = models.MetacellGeneExpression
         exclude = ['dataset', 'id', 'gene', 'metacell']
 
+
 class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
     dataset = serializers.CharField(source='dataset.slug')
 
@@ -351,8 +354,10 @@ class OrthologSerializer(serializers.ModelSerializer):
     gene_description = serializers.CharField(source='gene.description')
     gene_domains     = serializers.StringRelatedField(source='gene.domains',
                                                       many=True)
-    expression = DatasetMetacellGeneExpressionSerializer(
-        source='gene.metacellgeneexpression_set', many=True, required=False)
+
+    #expression = DatasetMetacellGeneExpressionSerializer(
+    #    source='gene.metacellgeneexpression_set', many=True, required=False)
+    expression = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = models.Ortholog
@@ -364,17 +369,42 @@ class OrthologSerializer(serializers.ModelSerializer):
             self.fields.pop('expression')
         super().__init__(*args, **kwargs)
 
+    def get_expression(self, obj):
+        # Manually retrieve values for faster performance
+        qs = obj.gene.metacellgeneexpression_set.annotate(
+            metacell_name=F('metacell__name'),
+            metacell_type=F('metacell__type__name'),
+            metacell_color=F('metacell__type__color')
+        ).values(
+            'metacell_name', 'metacell_type', 'metacell_color',
+            'umi_raw', 'umifrac', 'fold_change', 'dataset'
+        )
+        return list(qs)
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
         # Split expression by dataset
+        slugs = {d.id: d.slug for d in models.Dataset.objects.all()}
         if self.fields.get('expression'):
-            split_by_dataset = {}
+            dataset_expr = {}
+            dataset_ids = []
             for item in data['expression']:
                 dataset = item.pop('dataset')
-                split_by_dataset.setdefault(dataset, []).append(item)
+                if dataset not in dataset_ids:
+                    dataset_ids.append(dataset)
+                # Use dataset slug for name
+                slug = slugs[dataset]
+                dataset_expr.setdefault(slug, []).append(item)
 
-            data['expression'] = split_by_dataset
+            # Add dataset information
+            datasets = models.Dataset.objects.filter(id__in=dataset_ids)
+            data['datasets'] = DatasetSerializer(datasets, many=True).data
+
+            # Sort datasets by their order
+            data['datasets'].sort(key=lambda x: x['order'])
+            ordered_keys = [d['slug'] for d in data['datasets']]
+            data['expression'] = {k: dataset_expr[k] for k in ordered_keys}
         return data
 
 

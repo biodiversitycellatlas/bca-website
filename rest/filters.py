@@ -234,7 +234,7 @@ class OrthologFilter(FilterSet):
     def find_orthologs(self, queryset, name, value):
         if value:
             orthogroup = queryset.filter(gene__name=value).values('orthogroup')[:1]
-            return queryset.filter(orthogroup=orthogroup)
+            queryset = queryset.filter(orthogroup=orthogroup)
         return queryset
 
 
