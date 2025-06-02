@@ -13,7 +13,15 @@ Features:
 <div class="container-xxl">
     <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-5 mt-5 border-top">
         <div class="col-6 mb-3">
-            <p class="text-muted">Biodiversity Cell Atlas</br>© 2024-{% now "Y" %}</p>
+            <p class="text-muted">
+                © 2024-{% now "Y" %}</br>
+                <span style="white-space: nowrap;">
+                    Biodiversity Cell Atlas
+                </span></br>
+                <a href="{{FEEDBACK_URL}}" target="_blank">
+                    bca@biodiversitycellatlas.org
+                </a>
+            </p>
             <a href="https://www.crg.eu/" target="_blank">
                 <p><img title="CRG" width="150"
                 src="{% static 'app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png' %}"></i></p>
