@@ -60,10 +60,10 @@ function updateQuery(key, value) {
 				Summary
 			</a>
 			<a class="nav-link p-1
-			{% if query.category == 'species' %}active{% endif %}"
+			{% if query.category == 'datasets' %}active{% endif %}"
 			href="javascript:void(0);"
-			onclick="updateQuery('category', 'species')">
-				Species
+			onclick="updateQuery('category', 'datasets')">
+				Datasets
 			</a>
 			<a class="nav-link p-1
 			{% if query.category == 'genes' %}active{% endif %}"
@@ -172,7 +172,7 @@ function updateQuery(key, value) {
     }
 
     function appendResult(title, title_url, subtitle, subtitle_url,
-                          description, badges, italic_title=false, italic_subtitle=false) {
+                          description, badges) {
         const template  = $('#result-template');
         const container = $('#results');
         let $clone = $(template.html());
@@ -199,14 +199,6 @@ function updateQuery(key, value) {
 		}
 		({ title_mod, subtitle_mod, description_mod } = mods);
 
-        // Italicize title and subtitle
-        if (italic_title) {
-            title_mod = `<i>${title_mod}</i>`;
-        }
-        if (italic_subtitle) {
-            subtitle_mod = `<i>${subtitle_mod}</i>`;
-        }
-
         $clone.find('.result-title')
             .html(title_mod).attr('href', title_url);
         $clone.find('.result-subtitle')
@@ -221,7 +213,7 @@ function updateQuery(key, value) {
         container.append($clone);
     }
 
-	// Fetch data from species and genes API
+	// Fetch data from API
 	var species = '{{query.species}}'.replace('_', ' ');
 	var limit = {{query.limit|default:12}};
 
@@ -232,31 +224,29 @@ function updateQuery(key, value) {
         species: species
     });
 
-    {% if query.category == 'species' %}
-    	speciesURL = new URL(`{% url "rest:species-list" %}`, window.location.href);
-    	speciesURL.search = params;
+    {% if query.category == 'datasets' %}
+    	datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
+    	datasetsURL.search = params;
 
-    	fetch(speciesURL)
+    	fetch(datasetsURL)
     		.then(res => res.json())
     		.then(data => {
     			data.results.forEach(item => {
-    				var title = item.scientific_name;
-    				var subtitle = item.common_name;
-    				if (title == subtitle) {
-    				    subtitle = '';
+    				var title = `<i>${item.species}</i>`;
+    				if (item.name) {
+    					title = `${title} - ${item.name}`;
     				}
+    				var subtitle = item.species_common_name || '';
 
-    				var description = item.description;
-    				var badges = item.meta.map(item => item.value).filter(item =>
-    				    !title.includes(item) &&
-    				    !subtitle.includes(item)
+    				var description = item.species_description;
+    				var badges = item.species_meta.map(item => item.value).filter(item =>
+    				    !title.includes(item) && !subtitle.includes(item)
     				);
 
-                    var slug = title.slug;
-                    var species_url = '{% url "atlas_info" '::species' %}'
-    				    .replace('::species', slug);
-    				appendResult(title, species_url, subtitle, species_url,
-    				             description, badges, italic_title=true);
+                    var dataset_url = '{% url "atlas_info" '::dataset' %}'
+    				    .replace('::dataset', item.slug);
+    				appendResult(title, dataset_url, subtitle, dataset_url,
+    				             description, badges);
     			});
     			$('#results_count').text(`${data.count.toLocaleString()} results`);
     		})
@@ -285,8 +275,7 @@ function updateQuery(key, value) {
     				    .replace('::gene', gene);
 
     				appendResult(gene, gene_url, species_name, species_url,
-    				             description, domains,
-    				             italic_title=false, italic_subtitle=true);
+    				             description, domains);
     			});
     			$('#results_count').text(`${data.count.toLocaleString()} results`);
     		})

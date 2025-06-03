@@ -142,24 +142,26 @@ function displaySearchResults (item, escape) {
         var species = `<span class='text-muted float-end'><small><img src="${item.species.image_url}" style="width: 15px;"> <i>${shortenedName}</i></small></span>`;
 
         var res = `<div class='option'>${item.name} ${desc} ${badges} ${species}</div>`;
-    } else if (group == 'species') {
-        var img = item.image_url ? `<img src="${item.image_url}" style="width: 25px;"> ` : '';
-        var desc = item.common_name === item.scientific_name ? "" :
-            `<span class="text-muted"><small>${item.common_name}</small></span>`;
+    } else if (group == 'dataset') {
+        var imgURL = item.image_url || item.species_image_url;
+        var img  = !imgURL ? '' : `<img src="${imgURL}" style="width: 25px;"> `;
+        var desc = !item.species_common_name ? "" :
+            `<span class="text-muted"><small>${item.species_common_name}</small></span>`;
 
         // Add metadata (only visible when matching user query)
-        var meta_array = item.meta.map(i => i.value);
+        var meta_array = item.species_meta.map(i => i.value);
         badges = '';
         for(var i = 0; i < meta_array.length; i++) {
             var elem = meta_array[i];
+
             // Avoid showing badges identical to displayed names
-            if (elem && !item.scientific_name.includes(elem) && !item.common_name.includes(elem)) {
+            if (elem && !item.species.includes(elem) && !item.species_common_name) {
                 span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
                 badges += ` ${span}<small>${elem}</small></span>`;
             }
         }
-
-        var res = `<div class='option'>${img}<i>${item.scientific_name}</i> ${desc}${badges}</div>`;
+        var dataset_label = !item.name ? '' : `(${item.name})`;
+        var res = `<div class='option'>${img}<i>${item.species}</i> ${item.name}${desc}${badges}</div>`;
     }
     return res;
 }
@@ -196,9 +198,9 @@ $(function () {
 		onDropdownOpen: function() {
 		    this.clear();
 		},
-        valueField: 'name',
-        labelField: 'name',
-        searchField: ['name', 'description', 'domains', 'scientific_name'],
+        valueField: 'slug',
+        labelField: 'slug',
+        searchField: ['species', 'name', 'description', 'domains', 'scientific_name'],
         score: function() {
             // Avoid filtering by returning the same score to all results
             return function() { return 1; };
@@ -206,35 +208,34 @@ $(function () {
         load: function(query, callback) {
             if (!query.length) return callback();
 
-            // Fetch data from species and genes API
+            // Fetch data from API
             params = new URLSearchParams ({
                 q: encodeURIComponent(query),
                 limit: 5
             });
 
-            speciesURL = new URL(`{% url "rest:species-list" %}`, window.location.href);
-            speciesURL.search = params;
+            datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
+            datasetsURL.search = params;
 
             genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
             genesURL.search = params;
 
             // Combine results into optgroups
             Promise.all([
-                fetch(speciesURL).then(res => res.json()),
-                fetch(genesURL).then(res => res.json())
-            ]).then(([species_data, gene_data]) => {
+                fetch(datasetsURL).then(res => res.json())
+                //fetch(genesURL).then(res => res.json())
+            ]).then(([dataset_data, gene_data]) => {
                 const options = [
-                    ...species_data.results.map(item => ({ ...item,
-                        group: 'species', name: item.scientific_name })),
-                    ...gene_data.results.map(item => ({ ...item,
-                        group: 'gene' }))
+                    ...dataset_data.results.map(item => ({ ...item, group: 'dataset' }))
+                    //...gene_data.results.map(item => ({ ...item, group: 'gene' }))
                 ];
-                this.clearOptions()
+                this.clearOptions();
 
                 this.optgroups = {
-                    species: { label: "Species", category: "species", count: species_data.count },
-                    gene:    { label: "Gene",    category: "genes",   count: gene_data.count }
+                    dataset: { label: "Dataset", category: "dataset", count: dataset_data.count },
+                    //gene:    { label: "Gene",    category: "genes",   count: gene_data.count }
                 };
+                console.log(options);
                 callback(options);
             })
             .catch(err => {
@@ -247,24 +248,24 @@ $(function () {
     	        item = this.options[value];
     	        if (item.group == 'gene') {
     	            gene = item.name;
-    	            species = item.species.scientific_name.replace(' ', '_');
+    	            dataset = item.dataset.scientific_name.replace(' ', '_');
     	            window.location.href =
-    	                "{% url 'atlas_gene' '::species' '::gene' %}"
-    	                .replace('::species', species)
+    	                "{% url 'atlas_gene' '::dataset' '::gene' %}"
+    	                .replace('::dataset', dataset)
     	                .replace('::gene', gene);
-    	        } else if (item.group == 'species') {
-    	            // Jump to species
-    	            species = item.scientific_name.replace(' ', '_');
+    	        } else if (item.group == 'dataset') {
+    	            // Jump to dataset
+    	            dataset = item.slug;
     			    window.location.href =
     			        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
     			        {% if atlas %}
-    			            // Jump to same page in atlas with another species
+    			            // Jump to same page in atlas with another dataset
     			            "{% url request.resolver_match.view_name '::arg' %}"
-    			                .replace('::arg', species)
+    			                .replace('::arg', dataset)
     			        {% else %}
     			            // Jump to atlas_info
     			            "{% url 'atlas_info' '::arg' %}"
-    			                .replace('::arg', species)
+    			                .replace('::arg', dataset)
     			        {% endif %};
     	        }
     	    }
