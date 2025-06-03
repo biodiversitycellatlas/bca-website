@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 from django.contrib.postgres.aggregates import ArrayAgg
 
 from . import serializers, filters
-from .utils import parse_species_dataset
+from .utils import parse_species_dataset, get_enum_description, get_path_param
 
 from app import models
 
@@ -17,23 +17,7 @@ import re
 import os
 import subprocess
 import tempfile
-
-
-def get_enum_description(description, enum):
-    """
-    Appends list of enumerated values to the description.
-
-    Args:
-        description (str): The description.
-        enum (dict): Dictionary of choices (keys) and their descriptions (values).
-
-    Returns:
-        str: Updated description with list of enumerated values.
-    """
-    new_description = description + "\n\n"
-    for key, value in enum.items():
-        new_description = new_description + f"* `{key}` - {value}\n"
-    return new_description
+from urllib.parse import unquote_plus
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -42,13 +26,6 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         # Skip the original retrieve behavior
         raise NotImplementedError("This method was not implemented.")
 
-
-def getSpeciesPathParam():
-    return OpenApiParameter(
-        'species', str, OpenApiParameter.PATH,
-        description=filters.SpeciesChoiceFilter().label,
-        enum=[i for (i, k) in filters.SpeciesChoiceFilter().field.choices if i]
-    )
 
 @extend_schema(
     summary="List species",
@@ -69,22 +46,19 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'scientific_name'
     lookup_url_kwarg = 'species'
 
+    def get_object(self):
+        self.kwargs[self.lookup_url_kwarg] = unquote_plus(self.kwargs[self.lookup_url_kwarg])
+        return super().get_object()
+
     @extend_schema(
         summary="Retrieve species information",
         description="Retrieve information for a given species",
         tags=["Species"],
-        parameters=[ getSpeciesPathParam() ]
+        parameters=[ get_path_param('species', filters.SpeciesChoiceFilter) ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-
-def getDatasetPathParam():
-    return OpenApiParameter(
-        'dataset', str, OpenApiParameter.PATH,
-        description=filters.DatasetChoiceFilter().label,
-        enum=[i for (i, k) in filters.DatasetChoiceFilter().field.choices if i]
-    )
 
 @extend_schema(
     summary="List datasets",
@@ -102,7 +76,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Dataset.objects.all()
     serializer_class = serializers.DatasetSerializer
     filterset_class = filters.DatasetFilter
-    lookup_field = 'name'
+    lookup_field = 'slug'
     lookup_url_kwarg = 'dataset'
 
     def get_object(self):
@@ -112,27 +86,30 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         summary="Retrieve dataset information",
         description="Retrieve information for a given dataset",
         tags=["Dataset"],
-        parameters=[ getDatasetPathParam() ]
+        parameters=[ get_path_param('dataset', filters.DatasetChoiceFilter) ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
 
 @extend_schema(
-    summary="List species statistics",
-    tags=["Species"]
+    summary="List dataset statistics",
+    tags=["Dataset"]
 )
 class StatsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Species.objects.all()
+    queryset = models.Dataset.objects.all()
     serializer_class = serializers.StatsSerializer
-    lookup_field = 'scientific_name'
-    lookup_url_kwarg = 'species'
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'dataset'
+
+    def get_object(self):
+        return parse_species_dataset( self.kwargs.get("dataset") )
 
     @extend_schema(
-        summary="Retrieve species statistics",
-        description="Retrieve statistics for a given species",
-        tags=["Species"],
-        parameters=[ getSpeciesPathParam() ]
+        summary="Retrieve dataset statistics",
+        description="Retrieve statistics for a given dataset",
+        tags=["Dataset"],
+        parameters=[ get_path_param('dataset', filters.DatasetChoiceFilter) ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)

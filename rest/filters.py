@@ -51,10 +51,13 @@ class SpeciesChoiceFilter(ChoiceFilter):
             'label',
             "The <a href='#/operations/species_list'>species' scientific name</a>.")
 
-        choices = [
-            (s.scientific_name, s.common_name)
-            for s in models.Species.objects.all()
-        ] if check_model_exists(models.Species) else []
+        choices = []
+        if check_model_exists(models.Species):
+            choices = [(
+                s.scientific_name,
+                s.common_name if s.common_name is not None else s.scientific_name
+            ) for s in models.Species.objects.all()]
+            choices = sorted(choices, key=lambda x: x[0])
         kwargs['choices'] = choices
         super().__init__(*args, **kwargs)
 
@@ -88,10 +91,13 @@ class DatasetChoiceFilter(ChoiceFilter):
             'label',
             "The <a href='#/operations/datasets_list'>dataset's slug</a>.")
 
-        choices = [
-            (d.slug, str(d))
-            for d in models.Dataset.objects.all()
-        ] if check_model_exists(models.Dataset) else []
+        choices = []
+        if check_model_exists(models.Dataset):
+            choices = [
+                (d.slug, str(d))
+                for d in models.Dataset.objects.all()
+            ]
+            choices = sorted(choices, key=lambda x: x[0])
         kwargs['choices'] = choices
         super().__init__(*args, **kwargs)
 
@@ -148,7 +154,10 @@ class SpeciesFilter(QueryFilterSet):
 class DatasetFilter(QueryFilterSet):
     species = SpeciesChoiceFilter()
     q = CharFilter(method = 'query')
-    query_fields = ['name', 'description']
+    query_fields = [
+        'name', 'description',
+        'species__common_name', 'species__scientific_name', 'species__meta__value'
+    ]
 
 
 class GeneFilter(QueryFilterSet):

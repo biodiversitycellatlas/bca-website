@@ -15,7 +15,7 @@ Input:
 
 {% endcomment %}
 
-{% block title %}{{species}} Information{% endblock title %}
+{% block title %}{{dataset}} Information{% endblock title %}
 
 {% block content %}
 
@@ -51,7 +51,7 @@ Input:
                     </tr>
                     <tr>
                         <td><span style="font-weight: 500;">
-                            Last modified
+                            Last update
                         </span></td>
                         <td class="text-end">
                             {{dataset.date_updated|date:"j F Y"}}
@@ -145,12 +145,12 @@ Input:
 <script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
 <script>
     var counts_url = new URL("{% url 'rest:metacellcount-list' %}", window.location.origin);
-    counts_url.searchParams.append('species', '{{species}}');
+    counts_url.searchParams.append('dataset', '{{dataset.slug}}');
     counts_url.searchParams.append('limit', '0');
 
     var urls = {
-        info: "{% url 'rest:species-detail' species %}",
-        stats: "{% url 'rest:stats-detail' species %}",
+        info: "{% url 'rest:species-detail' dataset.slug %}",
+        stats: "{% url 'rest:stats-detail' dataset.slug %}",
         counts: counts_url.toString()
     };
     appendDataMenu('info', urls,
