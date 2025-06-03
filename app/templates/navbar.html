@@ -161,7 +161,7 @@ function displaySearchResults (item, escape) {
             }
         }
         var dataset_label = !item.name ? '' : `(${item.name})`;
-        var res = `<div class='option'>${img}<i>${item.species}</i> ${item.name}${desc}${badges}</div>`;
+        var res = `<div class='option'>${img}<i>${item.species}</i> ${dataset_label} ${desc} ${badges}</div>`;
     }
     return res;
 }
