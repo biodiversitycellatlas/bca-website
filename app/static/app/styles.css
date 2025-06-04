@@ -421,6 +421,17 @@ div.dt-container div.dt-processing > div > div {
     max-height: 50vh;
 }
 
+.selectize-dropdown.plugin-optgroup_columns .optgroup {
+    /* transition: all 0.1s ease;*/
+    /* word-break: break-word; */
+    white-space: nowrap;
+}
+
+.selectize-dropdown.plugin-optgroup_columns .optgroup:has(.active) {
+    min-width: 260px; /* Change width to display more info on selected option */
+    white-space: wrap;
+}
+
 @media (max-width: 959px) {
     .selectize-dropdown.plugin-optgroup_columns {
         .optgroup {
