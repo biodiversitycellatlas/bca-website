@@ -258,7 +258,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellCount
-        exclude = ['materialized_id']
+        exclude = ['id']
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):

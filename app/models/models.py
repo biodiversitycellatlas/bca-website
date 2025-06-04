@@ -186,6 +186,12 @@ class Metacell(models.Model):
         return self.name
 
 
+class MetacellCount(models.Model):
+    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
+    cells = models.IntegerField()
+    umis = models.IntegerField()
+
+
 class SingleCell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='sc')
     name = models.CharField(max_length=100)
