@@ -30,9 +30,8 @@ cp .env.template .env
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
 # - `-d`: starts the containers in detached mode
-# - `--build web`: rebuilds the web image if needed (for instance, new Python
-#   dependencies in `requirements.txt`)
-podman compose up -d --build web
+# - `--build`: rebuilds the web image (for instance, new Python dependencies in `requirements.txt`)
+podman compose up -d --build
 
 # Create a superuser (only required once for database setup)
 podman compose exec web python manage.py createsuperuser
@@ -44,7 +43,7 @@ These are some of the commands to use during development:
 
 ```bash
 # Locally deploy the web app to localhost
-podman compose up -d --build web
+podman compose up -d --build
 
 # Check information about the active Compose containers
 podman compose ps
