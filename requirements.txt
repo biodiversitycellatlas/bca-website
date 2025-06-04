@@ -9,6 +9,8 @@ pandas
 # dev
 django-extensions
 rds2py >= 0.6.1
+psycopg2
+psutil
 
 # REST
 djangorestframework
