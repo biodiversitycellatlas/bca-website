@@ -187,7 +187,8 @@ class Metacell(models.Model):
 
 
 class MetacellCount(models.Model):
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_stats')
+    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='stats')
     cells = models.IntegerField()
     umis = models.IntegerField()
 
