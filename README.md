@@ -102,7 +102,7 @@ manual intervention.
 
 ### Production
 
-A dedicated Compose file (`such as compose.prod.yml`) can be used for production-specific settings:
+A dedicated Compose file (such as `compose.prod.yml`) can be used for production-specific settings:
 
 ``` bash
 # Deploy in production mode
