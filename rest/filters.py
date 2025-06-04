@@ -13,6 +13,7 @@ from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.db.models import (
     Avg,
     Case,
+    Count,
     F,
     FloatField,
     IntegerField,
@@ -195,22 +196,27 @@ class DomainFilter(QueryFilterSet):
     query_fields = ['name']
 
     order_by_gene_count = BooleanFilter(
-        method='order',
+        method=skip_param,
         label="Order results by gene count (ascending).")
-
-    def order(self, queryset, name, value):
-        if value:
-            queryset = queryset.order_by('-gene_count')
-        return queryset
 
     class Meta:
         model = models.Domain
         fields = ['species']
 
     def filter_queryset(self, queryset):
-        # Avoid returning duplicate gene lists because of the species filter
         queryset = super().filter_queryset(queryset)
-        return queryset.distinct()
+
+        # Avoid returning duplicate gene lists because of the species filter
+        queryset = queryset.distinct()
+
+        # Annotate gene count
+        queryset = queryset.annotate(gene_count=Count('gene', distinct=True))
+
+        # Order by gene count
+        order = self.form.cleaned_data.get('order_by_gene_count')
+        if order:
+            queryset = queryset.order_by('-gene_count')
+        return queryset
 
 
 class GeneListFilter(FilterSet):
@@ -491,7 +497,7 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
 
 
 class MetacellMarkerFilter(FilterSet):
-    dataset = DatasetChoiceFilter(field_name='metacellgeneexpression', required=True)
+    dataset = DatasetChoiceFilter(field_name='mge', required=True)
     metacells = CharFilter(
         label = "Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>.",
         method = "select_metacells",
@@ -512,14 +518,14 @@ class MetacellMarkerFilter(FilterSet):
         metacells = value.split(',')
         fg_metacells = (
             # Check by metacell name
-            Q(metacellgeneexpression__metacell__name__in=metacells) |
+            Q(mge__metacell__name__in=metacells) |
             # Check by metacell type
-            Q(metacellgeneexpression__metacell__type__name__in=metacells)
+            Q(mge__metacell__type__name__in=metacells)
         )
         bg_metacells = ~fg_metacells
 
         # Calculate gene's UMI fraction
-        mge_umi = "metacellgeneexpression__umi_raw"
+        mge_umi = "mge__umi_raw"
         queryset = queryset.annotate(
             bg_sum_umi=Sum(mge_umi, filter=bg_metacells),
             fg_sum_umi=Sum(mge_umi, filter=fg_metacells)
@@ -527,7 +533,7 @@ class MetacellMarkerFilter(FilterSet):
             umi_perc=F('fg_sum_umi') / (F('fg_sum_umi') + F('bg_sum_umi')) * 100)
 
         # Calculate median FC per gene
-        mge_fc = "metacellgeneexpression__fold_change"
+        mge_fc = "mge__fold_change"
         queryset = queryset.annotate(
             fg_median_fc=Median(mge_fc, filter=fg_metacells),
             fg_mean_fc=Avg(mge_fc, filter=fg_metacells),

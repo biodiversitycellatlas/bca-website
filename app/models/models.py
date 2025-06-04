@@ -257,8 +257,8 @@ class GeneCorrelation(models.Model):
 
 class MetacellGeneExpression(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='mge')
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='mge')
+    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='mge')
     umi_raw = models.FloatField(blank=True, null=True)
     umifrac = models.FloatField(blank=True, null=True)
     fold_change = models.FloatField(blank=True, null=True)
@@ -274,8 +274,8 @@ class MetacellGeneExpression(models.Model):
 
 class SingleCellGeneExpression(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='scge')
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='scge')
+    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name='scge')
     umi_raw = models.FloatField(blank=True, null=True)
     umifrac = models.FloatField(blank=True, null=True)
 
@@ -295,7 +295,7 @@ class Ortholog(models.Model):
 
     @property
     def expression(self):
-        return self.gene.metacellgeneexpression_set.all()
+        return self.gene.mge.all()
 
     class Meta:
         unique_together = ["gene", "orthogroup"]

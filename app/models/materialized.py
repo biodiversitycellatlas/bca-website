@@ -71,7 +71,7 @@ class MetacellCount(MaterializedModel):
         # Get total number of cells and UMIs per metacell
         metacell = Metacell.objects
         cells = cls.perform_subquery(metacell, Count('singlecell'))
-        umis = cls.perform_subquery(metacell, Sum('metacellgeneexpression__umi_raw'))
+        umis = cls.perform_subquery(metacell, Sum('mge__umi_raw'))
 
         queryset = metacell.annotate(
             metacell_id=F('id'),

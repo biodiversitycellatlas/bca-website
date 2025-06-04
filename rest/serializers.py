@@ -95,8 +95,7 @@ class StatsSerializer(serializers.ModelSerializer):
         return models.MetacellCount.objects.filter(metacell__dataset=obj.id)
 
     def get_cells(self, obj) -> int:
-        res = self.get_metacell_counts(obj).aggregate(Sum('cells')).values()
-        return list(res)[0]
+        return models.SingleCell.objects.filter(dataset=obj.id).count()
 
     def get_metacells(self, obj) -> int:
         return self.get_metacell_counts(obj).count()
@@ -106,7 +105,7 @@ class StatsSerializer(serializers.ModelSerializer):
         return list(res)[0]
 
     def get_genes(self, obj) -> int:
-        return models.Gene.objects.filter(species=obj.id).count()
+        return models.Gene.objects.filter(species__datasets=obj.id).count()
 
     def calculate_stats(self, obj, field):
         counts = self.get_metacell_counts(obj)
@@ -153,10 +152,10 @@ class GeneSerializer(serializers.ModelSerializer):
 
 
 class DomainSerializer(serializers.ModelSerializer):
-    gene_count = serializers.IntegerField(read_only=True)
+    gene_count = serializers.IntegerField(required=False)
 
     class Meta:
-        model = models.GeneList
+        model = models.Domain
         fields = ['name', 'gene_count']
 
 
@@ -216,7 +215,6 @@ class SingleCellSerializer(BaseExpressionSerializer):
     metacell_type  = serializers.CharField(source='metacell.type.name', default=None)
     metacell_color = serializers.CharField(source='metacell.type.color', default=None)
 
-
     class Meta:
         model = models.SingleCell
         exclude = ['id', 'dataset']
@@ -247,7 +245,7 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellLink
-        fields = '__all__'
+        exclude = ['id']
 
 
 class MetacellCountSerializer(serializers.ModelSerializer):
@@ -348,7 +346,7 @@ class MetacellMarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Gene
-        exclude = ['species']
+        exclude = ['species', 'correlations']
 
 
 class OrthologSerializer(serializers.ModelSerializer):
@@ -359,9 +357,8 @@ class OrthologSerializer(serializers.ModelSerializer):
     gene_domains     = serializers.StringRelatedField(source='gene.domains',
                                                       many=True)
 
-    #expression = DatasetMetacellGeneExpressionSerializer(
-    #    source='gene.metacellgeneexpression_set', many=True, required=False)
-    expression = serializers.SerializerMethodField(required=False)
+    expression = DatasetMetacellGeneExpressionSerializer(
+        source='gene.mge', many=True, required=False)
 
     class Meta:
         model = models.Ortholog
@@ -373,39 +370,25 @@ class OrthologSerializer(serializers.ModelSerializer):
             self.fields.pop('expression')
         super().__init__(*args, **kwargs)
 
-    def get_expression(self, obj):
-        # Manually retrieve values for faster performance
-        qs = obj.gene.metacellgeneexpression_set.annotate(
-            metacell_name=F('metacell__name'),
-            metacell_type=F('metacell__type__name'),
-            metacell_color=F('metacell__type__color')
-        ).values(
-            'metacell_name', 'metacell_type', 'metacell_color',
-            'umi_raw', 'umifrac', 'fold_change', 'dataset'
-        )
-        return list(qs)
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
         # Split expression by dataset
-        slugs = {d.id: d.slug for d in models.Dataset.objects.all()}
         if self.fields.get('expression'):
+            all_datasets = {d.slug: d for d in models.Dataset.objects.all()}
+
             dataset_expr = {}
-            dataset_ids = []
+            dataset_dict = {}
             for item in data['expression']:
                 dataset = item.pop('dataset')
-                if dataset not in dataset_ids:
-                    dataset_ids.append(dataset)
-                # Use dataset slug for name
-                slug = slugs[dataset]
-                dataset_expr.setdefault(slug, []).append(item)
+                if dataset not in dataset_dict:
+                    dataset_dict[dataset] = all_datasets[dataset]
+                dataset_expr.setdefault(dataset, []).append(item)
 
             # Add dataset information
-            datasets = models.Dataset.objects.filter(id__in=dataset_ids)
-            data['datasets'] = DatasetSerializer(datasets, many=True).data
+            data['datasets'] = DatasetSerializer(list(dataset_dict.values()), many=True).data
 
-            # Sort datasets by their order
+            ## Sort datasets by their order
             data['datasets'].sort(key=lambda x: x['order'])
             ordered_keys = [d['slug'] for d in data['datasets']]
             data['expression'] = {k: dataset_expr[k] for k in ordered_keys}

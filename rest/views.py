@@ -133,15 +133,6 @@ class DomainViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.DomainFilter
     lookup_field = 'name'
 
-    def get_queryset(self):
-        qs = self.queryset
-
-        species = self.request.query_params.get('species')
-        if species:
-            qs = qs.filter(gene__species__scientific_name=species)
-
-        qs = qs.annotate(gene_count=Count('gene', distinct=True))
-        return qs
 
 @extend_schema(
     summary="List preset lists of genes",
@@ -187,7 +178,9 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
 )
 class OrthologViewSet(BaseReadOnlyModelViewSet):
     """ List gene orthologs. """
-    queryset = models.Ortholog.objects.all()
+    queryset = models.Ortholog.objects.prefetch_related(
+        'gene', 'gene__mge', 'gene__mge__dataset',
+        'gene__mge__metacell', 'gene__mge__metacell__type')
     serializer_class = serializers.OrthologSerializer
     lookup_field = 'orthogroup'
     filterset_class = filters.OrthologFilter
@@ -216,8 +209,8 @@ class OrthologCountViewSet(BaseReadOnlyModelViewSet):
 class ExpressionPrefetchMixin:
     """ Mixin to prefetch gene expression for single cell and metacell views. """
 
-    related_field = 'singlecellgeneexpression'
-    expression_related_name = 'singlecellgeneexpression_set'
+    related_field = 'scge'
+    expression_related_name = 'scge'
     expression_model = models.SingleCellGeneExpression
 
     def get_queryset(self):
@@ -248,7 +241,8 @@ class ExpressionPrefetchMixin:
 )
 class SingleCellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     """ List single cells for a given dataset. """
-    queryset = models.SingleCell.objects.prefetch_related('metacell')
+    queryset = models.SingleCell.objects.prefetch_related(
+        'metacell', 'metacell__type')
     serializer_class = serializers.SingleCellSerializer
     filterset_class = filters.SingleCellFilter
     lookup_field = 'name'
@@ -265,8 +259,8 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     filterset_class = filters.MetacellFilter
     lookup_field = 'name'
 
-    related_field = 'metacellgeneexpression'
-    expression_related_name = 'metacellgeneexpression_set'
+    related_field = 'mge'
+    expression_related_name = 'mge'
     expression_model = models.MetacellGeneExpression
 
 
@@ -276,7 +270,7 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
 )
 class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
     """ List metacell links (visualised in projections) for a given dataset. """
-    queryset = models.MetacellLink.objects.all()
+    queryset = models.MetacellLink.objects.prefetch_related('metacell', 'metacell2')
     serializer_class = serializers.MetacellLinkSerializer
     filterset_class = filters.MetacellLinkFilter
 
@@ -296,7 +290,7 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
 class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
     """ List gene expression data per single cell. """
     queryset = models.SingleCellGeneExpression.objects.prefetch_related(
-        'single_cell', 'gene', 'gene__domains')
+        'single_cell', 'gene', 'gene__domains', 'metacell', 'metacell__type')
     serializer_class = serializers.SingleCellGeneExpressionSerializer
     filterset_class = filters.SingleCellGeneExpressionFilter
 
@@ -322,7 +316,7 @@ class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
 class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
     """ List gene expression data per metacell. """
     queryset = models.MetacellGeneExpression.objects.prefetch_related(
-        'metacell', 'gene', 'gene__domains')
+        'metacell', 'metacell__type', 'gene', 'gene__domains')
     serializer_class = serializers.MetacellGeneExpressionSerializer
     filterset_class = filters.MetacellGeneExpressionFilter
 
@@ -362,7 +356,8 @@ class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
 class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
     """ List gene markers of selected metacells. """
     # Gene as model (easier to perform gene-wise operations)
-    queryset = models.Gene.objects.all()
+    queryset = models.Gene.objects.prefetch_related('domains', 'genelists')
+
     serializer_class = serializers.MetacellMarkerSerializer
     filterset_class = filters.MetacellMarkerFilter
 
@@ -376,7 +371,8 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
     tags=["Metacell"]
 )
 class MetacellCountViewSet(BaseReadOnlyModelViewSet):
-    queryset = models.MetacellCount.objects.prefetch_related('metacell')
+    queryset = models.MetacellCount.objects.prefetch_related(
+        'metacell', 'metacell__type')
     serializer_class = serializers.MetacellCountSerializer
     filterset_class = filters.MetacellCountFilter
 

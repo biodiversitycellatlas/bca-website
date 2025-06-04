@@ -24,7 +24,14 @@ def getDatasetDict():
             dataset_dict[phylum] = [elem]
         else:
             dataset_dict[phylum].append(elem)
-    return dataset_dict
+
+    # Sort dictionary by phyla, species and dataset order
+    sorted_dict = {
+        phylum: sorted(elems, key=lambda x: (
+            str(x['dataset'].species), x['dataset'].order))
+        for phylum, elems in sorted(dataset_dict.items())
+    }
+    return sorted_dict
 
 
 def getSpeciesDict():
@@ -55,7 +62,7 @@ def getSpeciesDict():
 
 def getMetacellDict(dataset):
     ''' Prepare dictionary of metacells for a dataset. '''
-    metacells = dataset.metacells.all()
+    metacells = dataset.metacells.select_related('type')
 
     # Group by cell type
     types = dict()
