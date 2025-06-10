@@ -66,7 +66,7 @@ Input:
         <table class="table table-sm table-striped"
         style="margin: 0 auto; hyphens: auto; word-break: break-word;">
             <tbody>
-                {% for meta in species.meta_set.values %}
+                {% for meta in species.meta_set.all %}
                     <tr>
                         <td><span style="font-weight: 500;">
                             {% if meta.key == "taxon_id" %}
@@ -76,13 +76,12 @@ Input:
                             {% endif %}
                         </span></td>
                         <td class="text-end">
-                            {% if meta.key == "taxon_id" %}
-                                <a target="_blank"
-                                href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/{{meta.value}}">
-                                    {{ meta.value }}
+                            {% if meta.query_url %}
+                                <a target="_blank" href="{{meta.query_url}}">
+                                    {{meta.value}}
                                 </a>
                             {% else %}
-                                {{ meta.value }}
+                                {{meta.value}}
                             {% endif %}
                         </td>
                     </tr>

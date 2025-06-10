@@ -69,6 +69,7 @@ class Source(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
+    query_url = models.URLField(blank=True, null=True)
     version = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
@@ -141,6 +142,16 @@ class Meta(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     key     = models.CharField(max_length=100)
     value   = models.CharField(max_length=100)
+    query_term = models.CharField(max_length=100, null=True,
+                                  help_text="Term to use in query URL")
+    source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
+
+    @property
+    def query_url(self):
+        url = self.source.query_url
+        if url:
+            url = url.replace('{{id}}', self.query_term)
+        return url
 
     class Meta:
         unique_together = ["species", "key", "value"]

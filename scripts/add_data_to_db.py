@@ -90,8 +90,14 @@ def perform_subquery(obj, expr):
 ####### Main functions
 
 def add_taxonomy_metadata(species):
+    (ncbi, _) = models.Source.objects.get_or_create(
+        name='NCBI Taxonomy',
+        description='NCBI Taxonomy Database',
+        url='https://www.ncbi.nlm.nih.gov/',
+        query_url='https://www.ncbi.nlm.nih.gov/datasets/taxonomy/{{id}}')
+
     scientific_name = species.scientific_name
-    # fetch taxonomy ID for this species
+    # Fetch taxonomy ID for this species
     base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
     term = urllib.parse.quote(f"{scientific_name}")
     url = f"{base_url}esearch.fcgi?db=taxonomy&term={term}&retmode=json"
@@ -103,7 +109,7 @@ def add_taxonomy_metadata(species):
     except:
         raise ValueError(f"Taxonomy ID for species '{scientific_name}' not found.")
 
-    # fetch taxonomy details in XML
+    # Fetch taxonomy details in XML
     fetch_url = f"{base_url}efetch.fcgi?db=taxonomy&id={taxid}&retmode=xml"
     with urllib.request.urlopen(fetch_url) as response:
         xml_data = response.read()
@@ -111,17 +117,22 @@ def add_taxonomy_metadata(species):
     tree = ET.ElementTree(ET.fromstring(xml_data))
     root = tree.getroot()
 
-    # parse taxonomy details
-    m_list = [ models.Meta(species=species, key="taxon_id", value=taxid) ]
-    for div in root.findall(".//Division"):
-        m = models.Meta(species=species, key="division", value=div.text)
-        m_list.append(m)
+    # Parse taxonomy details
+    m_list = [ models.Meta(species=species, key="taxon_id", value=taxid,
+                           source=ncbi, query_term=taxid) ]
+
+    m = models.Meta(species=species, key="division",
+                    value=root.find('.//Division').text,
+                    source=ncbi, query_term=root.find('.//ParentTaxId').text)
+    m_list.append(m)
 
     for taxon in root.findall(".//Taxon"):
         rank = taxon.find("Rank").text
         name = taxon.find("ScientificName").text
+        term = taxon.find("TaxId").text
         if rank and name:
-            m = models.Meta(species=species, key=rank, value=name)
+            m = models.Meta(species=species, key=rank, value=name,
+                            source=ncbi, query_term=term)
             m_list.append(m)
     return validate_and_bulk_create(models.Meta, m_list)
 
