@@ -1,7 +1,7 @@
 from .models import Species, Dataset
 import json
 
-def getDatasetDict():
+def get_dataset_dict():
     ''' Prepare dictionary of datasets. '''
     dataset_dict = {}
     for dataset in Dataset.objects.all():
@@ -34,7 +34,7 @@ def getDatasetDict():
     return sorted_dict
 
 
-def getSpeciesDict():
+def get_species_dict():
     ''' Prepare dictionary of species. '''
     species_dict = {}
     for species in Species.objects.all():
@@ -60,7 +60,7 @@ def getSpeciesDict():
     return species_dict
 
 
-def getMetacellDict(dataset):
+def get_metacell_dict(dataset):
     ''' Prepare dictionary of metacells for a dataset. '''
     metacells = dataset.metacells.select_related('type')
 
@@ -74,12 +74,12 @@ def getMetacellDict(dataset):
     return metacell_dict
 
 
-def convertQuerysetToJSON(qs):
+def convert_queryset_to_json(qs):
     ''' Convert Django queryset to JSON. '''
     return json.dumps(list(qs))
 
 
-def getSpecies(species):
+def get_species(species):
     ''' Returns species if it exists in the database; returns None otherwise. '''
     if isinstance(species, Species):
         return obj
@@ -92,7 +92,7 @@ def getSpecies(species):
     return obj
 
 
-def getDataset(dataset):
+def get_dataset(dataset):
     ''' Returns dataset if it exists in the database; returns None otherwise. '''
     if isinstance(dataset, Dataset):
         return obj
@@ -100,5 +100,5 @@ def getDataset(dataset):
     try:
         obj = [d for d in Dataset.objects.all() if dataset == d.slug][0]
     except:
-        obj = None
+        pass
     return obj

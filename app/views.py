@@ -6,7 +6,7 @@ from django.views.generic.detail import DetailView
 from django.db.models import Q
 
 from .models import Dataset
-from .utils import getDatasetDict, getMetacellDict, getDataset
+from .utils import get_dataset_dict, get_metacell_dict, get_dataset
 
 import random
 
@@ -16,7 +16,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["dataset_dict"] = getDatasetDict()
+        context["dataset_dict"] = get_dataset_dict()
         return context
 
 
@@ -28,7 +28,7 @@ class AtlasView(TemplateView):
         context["icon"] = random.choice(
             ["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
             "dove", "fish-fins", "cat", "locust", "tree", "spider", "hippo"])
-        context["dataset_dict"] = getDatasetDict()
+        context["dataset_dict"] = get_dataset_dict()
 
         query = self.request.GET
         if query and query.get('dataset'):
@@ -69,20 +69,23 @@ class BaseAtlasView(TemplateView):
         dataset = context["dataset"]
 
         try:
-            dataset = getDataset(dataset)
+            dataset = get_dataset(dataset)
             context["dataset"] = dataset
             context["species"] = dataset.species
         except:
             context["dataset"] = dataset
             return context
 
-        context["dataset_dict"] = getDatasetDict()
+        context["dataset_dict"] = get_dataset_dict()
         return context
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        if not isinstance(context["dataset"], Dataset):
-            return redirect(reverse('atlas') + '?dataset=' + context["dataset"])
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
+            if dataset is None:
+                dataset = 'invalid'
+            return redirect(reverse('atlas') + '?dataset=' + dataset)
         return super().get(*args, **kwargs)
 
 
@@ -99,7 +102,7 @@ class AtlasOverviewView(BaseAtlasView):
         if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(dataset)
+        context['metacell_dict'] = get_metacell_dict(dataset)
 
         # Get URL query parameters
         query = self.request.GET
@@ -143,7 +146,7 @@ class AtlasPanelView(BaseAtlasView):
         if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(dataset)
+        context['metacell_dict'] = get_metacell_dict(dataset)
 
         query = self.request.GET
         context['query'] = query
@@ -159,7 +162,7 @@ class AtlasMarkersView(BaseAtlasView):
         if not isinstance(dataset, Dataset):
             return context
 
-        context['metacell_dict'] = getMetacellDict(dataset)
+        context['metacell_dict'] = get_metacell_dict(dataset)
 
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
@@ -216,7 +219,7 @@ class SearchView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["dataset_dict"] = getDatasetDict()
+        context["dataset_dict"] = get_dataset_dict()
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         if query:

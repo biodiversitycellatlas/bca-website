@@ -123,7 +123,7 @@ def add_taxonomy_metadata(species):
 
     m = models.Meta(species=species, key="division",
                     value=root.find('.//Division').text,
-                    source=ncbi, query_term=root.find('.//ParentTaxId').text)
+                    source=ncbi)
     m_list.append(m)
 
     for taxon in root.findall(".//Taxon"):
