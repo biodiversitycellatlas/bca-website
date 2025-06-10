@@ -80,9 +80,9 @@ def convert_queryset_to_json(qs):
 
 
 def get_species(species):
-    ''' Returns species if it exists in the database; returns None otherwise. '''
+    ''' Returns species if found in the database, oterhwise returns None. '''
     if isinstance(species, Species):
-        return obj
+        return species
 
     species = species.replace("_", " ")
     try:
@@ -93,12 +93,12 @@ def get_species(species):
 
 
 def get_dataset(dataset):
-    ''' Returns dataset if it exists in the database; returns None otherwise. '''
+    ''' Returns dataset if found in the database, oterhwise returns None. '''
     if isinstance(dataset, Dataset):
         return dataset
 
     try:
         obj = [d for d in Dataset.objects.all() if dataset == d.slug][0]
-        return obj
     except:
-        return None
+        obj = None
+    return obj
