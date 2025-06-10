@@ -148,9 +148,12 @@ class Meta(models.Model):
 
     @property
     def query_url(self):
-        url = self.source.query_url
-        if url:
-            url = url.replace('{{id}}', self.query_term)
+        url  = self.source.query_url
+        term = self.query_term
+        if url and term:
+            url = url.replace('{{id}}', term)
+        else:
+            url = None
         return url
 
     class Meta:
