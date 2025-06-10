@@ -150,12 +150,12 @@ Input:
     counts_url.searchParams.append('limit', '0');
 
     var urls = {
-        info: "{% url 'rest:species-detail' dataset.slug %}",
+        info: "{% url 'rest:dataset-detail' dataset.slug %}",
         stats: "{% url 'rest:stats-detail' dataset.slug %}",
         counts: counts_url.toString()
     };
     appendDataMenu('info', urls,
-                   ['Species info', 'Summary statistics', 'Metacell counts']);
+                   ['Dataset info', 'Summary statistics', 'Metacell counts']);
 
     function animateNumber(id, target) {
         let val = 0;

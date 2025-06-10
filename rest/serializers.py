@@ -11,9 +11,11 @@ from .utils import check_model_exists
 from operator import attrgetter
 
 class MetaSerializer(serializers.ModelSerializer):
+    source = serializers.CharField()
+
     class Meta:
         model = models.Meta
-        fields = ['key', 'value']
+        fields = ['key', 'value', 'source', 'query_url']
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -98,7 +100,7 @@ class StatsSerializer(serializers.ModelSerializer):
         return models.SingleCell.objects.filter(dataset=obj.id).count()
 
     def get_metacells(self, obj) -> int:
-        return self.get_metacell_counts(obj).count()
+        return models.Metacell.objects.filter(dataset=obj.id).count()
 
     def get_umis(self, obj) -> int:
         res = self.get_metacell_counts(obj).aggregate(Sum('umis')).values()

@@ -95,10 +95,10 @@ def get_species(species):
 def get_dataset(dataset):
     ''' Returns dataset if it exists in the database; returns None otherwise. '''
     if isinstance(dataset, Dataset):
-        return obj
+        return dataset
 
     try:
         obj = [d for d in Dataset.objects.all() if dataset == d.slug][0]
+        return obj
     except:
-        pass
-    return obj
+        return None
