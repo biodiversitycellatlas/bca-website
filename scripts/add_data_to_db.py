@@ -235,8 +235,16 @@ def add_single_cells(dataset, mc2d, cellmc):
 def add_genes(species, gene_annot):
     if gene_annot.iloc[0, 0].lower().startswith(('gene', 'v1')):
         gene_annot = gene_annot.iloc[1:].reset_index(drop=True)
-    
-    gene_annot.columns = ["gene", "description", "domains"] + list(gene_annot.columns[3:])
+
+    # Assume the column with more / contains the domains
+    n_slash_col1 = sum(x.count('/') for x in list(gene_annot[1]) if isinstance(x, str))
+    n_slash_col2 = sum(x.count('/') for x in list(gene_annot[2]) if isinstance(x, str))
+
+    if n_slash_col1 > n_slash_col2 and str(species) not in ["Spongilla lacustris"]:
+        col_names = ["gene", "domains", "description"]
+    else:
+        col_names = ["gene", "description", "domains"]
+    gene_annot.columns = col_names + list(gene_annot.columns[3:])
 
     # Split domains by / and ignore certain characters
     gene_annot['domains'] = gene_annot['domains'].apply(
@@ -261,7 +269,6 @@ def add_genes(species, gene_annot):
             if pd.isna(x) or x in ['nan', '-']
             else x.replace('_', ' ')[:400]
     )
-
     
     # Add genes to database
     gene_list = []
@@ -411,12 +418,12 @@ def add_species_data(species_config, dir, r_colors, load, force=False):
     (species, dataset) = add_species(species_name, dataset_name)
 
     # check loading conditions for different components
-    load_metacells = load['metacells']   and (force or not dataset.metacells.exists())
-    load_sc        = load['sc']          and (force or not dataset.sc.exists())
-    load_genes     = load['genes']       and (force or not species.genes.exists())
-    load_mge       = load['metacell_ge'] and (force or not dataset.mge.exists())
-    load_scge      = load['sc_ge']       and (force or not dataset.scge.exists())
-    load_mc_stats  = load['mc_stats']    and (force or not dataset.metacell_stats.exists())
+    load_metacells = load['metacells'] and (force or not dataset.metacells.exists())
+    load_sc        = load['sc']        and (force or not dataset.sc.exists())
+    load_genes     = load['genes']     and (force or not species.genes.exists())
+    load_mge       = load['mge']       and (force or not dataset.mge.exists())
+    load_scge      = load['scge']      and (force or not dataset.scge.exists())
+    load_mc_stats  = load['mc_stats']  and (force or not dataset.metacell_stats.exists())
     
     # avoid common warning of no relevance
     if load_metacells or load_sc:
@@ -514,11 +521,11 @@ def main(data_dir, load, filter=[], exclude=['nvec_old'], force=False):
 
 load = {
     'metacells': True,
-    'mc_stats': True,
     'sc': True,
     'genes': True,
-    'metacell_ge': True,
-    'sc_ge': True,
+    'mge': True,
+    'mc_stats': True,
+    'scge': True,
     'orthologs': True
 }
 
