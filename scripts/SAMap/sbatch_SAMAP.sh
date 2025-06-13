@@ -19,8 +19,8 @@ done
 
 # Custom pairs
 #pairs=(
-#    "mmus+aque_adult"
-#    "smed+spis_larva"
+#    mmus+aque_adult
+#    smed+spis_larva
 #)
 
 # Submit jobs for each pair
