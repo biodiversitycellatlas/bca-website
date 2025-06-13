@@ -28,7 +28,7 @@ for pair in "${pairs[@]}"; do
     d1=${pair%%+*}
     d2=${pair##*+}
     sbatch --job-name="samap_${d1}_${d2}" \
-           --output="logs/samap/${d1}_${d2}_%j.out" \
+           --output="logs/samap/${d1}-${d2}-%j.out" \
            --time=05:00:00 \
            --mem=16G \
            --wrap="source ${CONDA}/etc/profile.d/conda.sh && conda activate SAMap && python run_SAMAP.py samap $d1 $d2"
