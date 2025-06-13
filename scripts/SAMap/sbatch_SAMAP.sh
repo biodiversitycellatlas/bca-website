@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export CONDA=$HOME/.local/miniforge3
+mkdir -p logs/samap
 
 datasets=(
     mmus aque_adult aque_larva cele chem hhon hoi23 hvul
@@ -16,7 +17,11 @@ for ((i=0; i<${#datasets[@]}-1; i++)); do
     done
 done
 
-mkdir -p logs/samap
+# Custom pairs
+#pairs=(
+#    "mmus+aque_adult"
+#    "smed+spis_larva"
+#)
 
 # Submit jobs for each pair
 for pair in "${pairs[@]}"; do
