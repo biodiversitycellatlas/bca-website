@@ -358,6 +358,7 @@ class OrthologSerializer(serializers.ModelSerializer):
     gene_description = serializers.CharField(source='gene.description')
     gene_domains     = serializers.StringRelatedField(source='gene.domains',
                                                       many=True)
+    gene_slug        = serializers.CharField(source='gene.slug')
 
     expression = DatasetMetacellGeneExpressionSerializer(
         source='gene.mge', many=True, required=False)

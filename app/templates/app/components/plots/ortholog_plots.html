@@ -62,7 +62,10 @@ Input:
                     gene = item.gene_name;
                     if (gene != '{{gene}}') {
                         headerClone = document.importNode(header.content, true);
-                        headerClone.getElementById('ortholog-species-img').src = item.datasets[0].species_image_url;
+
+                        if (item.datasets[0]) {
+                            headerClone.getElementById('ortholog-species-img').src = item.datasets[0].species_image_url;
+                        }
                         headerClone.getElementById('ortholog-species').innerText = item.species;
                         container.appendChild(headerClone);
 
@@ -77,11 +80,13 @@ Input:
                             // Dataset info
                             clone.getElementById('ortholog-gene-href').innerText = gene;
                             clone.getElementById('ortholog-gene-href').href = `/atlas/${dataset.slug}/gene/${gene}`;
-                            clone.getElementById('single-ortholog-plot').id = dataset.slug;
+                            clone.getElementById('single-ortholog-plot').id = dataset.slug + "-" + item.gene_slug;
                             container.appendChild(clone);
 
                             // Dataset gene expression plot
-                            createExpressionBubblePlot("#" + dataset.slug, gene, item.expression[dataset.slug]);
+                            createExpressionBubblePlot(
+                                "#" + dataset.slug + "-" + item.gene_slug,
+                                gene, item.expression[dataset.slug]);
                         };
                     }
                 })

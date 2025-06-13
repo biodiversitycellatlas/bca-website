@@ -46,6 +46,9 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 			"data": { "name": "sc_data", "values": data['sc_data'] },
   			"mark": { "type": "circle", "tooltip": {"encoding": "data"}, "invalid": null },
 
+  			// Avoid drawing cells with null coordinates
+  			"transform": [ { "filter": "datum.x != null && datum.y != null" } ],
+
   			// Avoid this transform for cells: this changes axis limits
   			// "transform": [ { "filter": "showCells == 'true'" } ],
 
@@ -150,7 +153,6 @@ function createMetacellProjection(id, species, data, color_by_metacell_type=true
 			"scale": metacellColorScale,
 			"title": "Cell type"
 		};
-		delete chart.layer[0].transform;
 
 		delete chart.layer[2].encoding.fill;
 		chart.layer[2].encoding.color = {

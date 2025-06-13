@@ -224,6 +224,24 @@ class SingleCell(models.Model):
 class Domain(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
+    @property
+    def source(self):
+        return Source.objects.get(name='Pfam')
+
+    @property
+    def query_term(self):
+        return self.name
+
+    @property
+    def query_url(self):
+        url  = self.source.query_url
+        term = self.query_term
+        if url and term:
+            url = url.replace('{{id}}', term)
+        else:
+            url = None
+        return url
+
     def __str__(self):
         return str(self.name)
 

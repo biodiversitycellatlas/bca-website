@@ -48,6 +48,74 @@ Input:
 
 {% if gene %}
     <h1 class="h3 pt-2" id="projection">
+        {{gene}}
+        {% include '../components/button/copy_to_clipboard.html' with id='gene' %}
+        {% include '../components/button/data_download.html' with id='gene' %}
+    </h1>
+
+    <div class="row row-cols-1 row-cols-md-2">
+        <div class="col">
+            <p class="text-muted">
+                <b>Description:</b>
+                {{gene.description|default:"No description available"}}
+            </p>
+        </div>
+
+        <div class="col">
+            <table class="table table-sm table-striped">
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 500; width: 150px;">
+                            Pfam domains
+                        </td>
+                        <td>
+                            {% if gene.domains.all %}
+                                {% for domain in gene.domains.all %}
+                                    <a href="{{domain.query_url}}" target="_blank">
+                                        {{domain}}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight: 500; width: 150px;">
+                            Gene lists
+                        </td>
+                        <td>
+                            {{gene.genelists.all|join:", "|default:'—'}}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight: 500; width: 150px;">
+                            Gene module
+                        </td>
+                        <td>
+                            {{gene.module|default:'—'}}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight: 500; width: 150px;">
+                            Orthogroup
+                        </td>
+                        <td>
+                            {% if gene.orthogroup %}
+                                <a href="#orthologs">{{gene.orthogroup}}</a>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h1 class="h3 pt-2" id="projection">
         Metacell projection
         {% include '../components/button/copy_to_clipboard.html' with id='projection' %}
         {% include '../components/button/data_download.html' with id='projection' %}
