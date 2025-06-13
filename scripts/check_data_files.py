@@ -30,7 +30,7 @@ def check_species_files(species, data):
         return print_error(f"Error: directory {subdir} does not exist!")
 
     for file_type in data[species]:
-        if file_type in ['data_subdir', 'species']:
+        if file_type == 'data_subdir':
             continue
 
         file = os.path.join(subdir, data[species][file_type])
