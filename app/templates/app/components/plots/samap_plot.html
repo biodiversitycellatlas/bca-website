@@ -1,11 +1,9 @@
 {% comment %}
 
-Gene expression heatmap
+SAMap scores plot
 
 Input:
 - id: prefix used in the identifiers of all elements
-- type: gene selection based on top 'markers' per metacell (default) or
-  'gene-lists'
 
 {% endcomment %}
 
@@ -38,11 +36,21 @@ Input:
             </button>
             <div class="dropdown-menu">
                 <div class="mx-4 mb-3" style="width: 250px;">
-                    <label for="markers" class="col-form-label">
-                        <small>SAMap minimum alignment score</small>
-                    </label>
+                    <form novalidate action="#{{id}}">
+                        <label for="markers" class="col-form-label">
+                            <small>SAMap minimum alignment score</small>
+                        </label>
 
-                    <input type="range" class="js-range-slider" id="samap_min" name="samap_min" value="0" step="1" style="opacity: 0;">
+                        <input type="range" class="js-range-slider" id="samap_min"
+                        name="samap_min" value="0" step="1" style="opacity: 0;">
+
+                        <div class="d-flex justify-content-end">
+                            <button id="{{id}}_submit" type="submit"
+                            class="btn btn-primary mt-3">
+                                Apply
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -64,13 +72,31 @@ function updateText (id, from_min_id, suffix = "") {
 $("#samap_min").ionRangeSlider({
     min: 0,
     max: 100,
-    from: {{query.samap|default:5}},
+    from: {{query.samap_min|default:5}},
     step: 1,
     grid: true,
     skin: "round",
     onStart: updateText("#samap_min_value", undefined),
     onChange: updateText("#samap_min_value", undefined),
     onUpdate: updateText("#samap_min_value", undefined)
+});
+
+<!-- Maintain query when changing samap_min -->
+function modifyFormQuery (elem, e) {
+    e.preventDefault();
+
+    // Modify form URL
+    var formData = new FormData(elem);
+    var url = new URL(e.target.action);
+    for (let [key, value] of formData.entries()) {
+        url.searchParams.set(key, value);
+    }
+    console.log(url);
+    window.location.href = url.href;
+}
+
+$('form').on('submit', function(e) {
+    modifyFormQuery(this, e);
 });
 </script>
 
@@ -93,7 +119,7 @@ $("#samap_min").ionRangeSlider({
         var params = new URLSearchParams({
     		dataset2: '{{dataset.slug}}',
     		dataset: '{{query.dataset}}',
-    		threshold: 5,//$("#samap_min").val(),
+    		threshold: $("#samap_min").val(),
     		limit: 0
     	});
     	var apiURL = url + "?" + params.toString();
@@ -112,6 +138,6 @@ $("#samap_min").ionRangeSlider({
 {% else %}
     <p class="text-muted">
         <i class="fa fa-circle-exclamation"></i>
-        Select genes to render heatmap.
+        Select dataset to compare against.
     </p>
 {% endif %}
