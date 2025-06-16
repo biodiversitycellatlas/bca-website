@@ -174,7 +174,7 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(
     summary="List orthologs",
-    tags=["Gene"]
+    tags=["Gene", "Cross-species"]
 )
 class OrthologViewSet(BaseReadOnlyModelViewSet):
     """ List gene orthologs. """
@@ -184,6 +184,19 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     serializer_class = serializers.OrthologSerializer
     lookup_field = 'orthogroup'
     filterset_class = filters.OrthologFilter
+
+
+@extend_schema(
+    summary="List SAMap scores",
+    tags=["Cross-species"]
+)
+class SAMapViewSet(BaseReadOnlyModelViewSet):
+    """ List SAMap alignment scores (in percentage) between cell types of two different datasets. """
+    queryset = models.SAMap.objects.prefetch_related(
+        'metacelltype', 'metacelltype__dataset',
+        'metacelltype2', 'metacelltype2__dataset')
+    serializer_class = serializers.SAMapSerializer
+    filterset_class = filters.SAMapFilter
 
 
 @extend_schema(

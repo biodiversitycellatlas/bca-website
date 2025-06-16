@@ -407,6 +407,23 @@ class OrthologCountSerializer(serializers.ModelSerializer):
         fields = ['species', 'gene_count']
 
 
+class SAMapSerializer(serializers.ModelSerializer):
+    dataset = serializers.CharField(source='metacelltype.dataset.slug')
+    dataset2 = serializers.CharField(source='metacelltype2.dataset.slug')
+    metacell_type = serializers.CharField(source='metacelltype.name')
+    metacell2_type = serializers.CharField(source='metacelltype2.name')
+    metacell_color = serializers.CharField(source='metacelltype.color')
+    metacell2_color = serializers.CharField(source='metacelltype2.color')
+
+    class Meta:
+        model = models.SAMap
+        fields = [
+            'dataset', 'metacell_type', 'metacell_color',
+            'dataset2', 'metacell2_type', 'metacell2_color',
+            'samap'
+        ]
+
+
 class AlignRequestSerializer(serializers.Serializer):
     sequences = serializers.CharField(
         required=True,

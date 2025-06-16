@@ -66,6 +66,11 @@ class BaseAtlasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Get URL query parameters
+        query = self.request.GET
+        context['query'] = query
+
         dataset = context["dataset"]
 
         try:
@@ -103,10 +108,6 @@ class AtlasOverviewView(BaseAtlasView):
             return context
 
         context['metacell_dict'] = get_metacell_dict(dataset)
-
-        # Get URL query parameters
-        query = self.request.GET
-        context['query'] = query
         return context
 
 
@@ -132,9 +133,6 @@ class AtlasGeneView(BaseAtlasView):
                     'title': f'Invalid gene <code>{gene}</code>!',
                     'description': f"Please check available genes in the search box above."
                 }
-
-        query = self.request.GET
-        context['query'] = query
         return context
 
 class AtlasPanelView(BaseAtlasView):
@@ -147,9 +145,6 @@ class AtlasPanelView(BaseAtlasView):
             return context
 
         context['metacell_dict'] = get_metacell_dict(dataset)
-
-        query = self.request.GET
-        context['query'] = query
         return context
 
 

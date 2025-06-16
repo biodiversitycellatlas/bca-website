@@ -9,4 +9,14 @@ Comparison page between multiple species
 {% block title %}{{dataset}} Compare{% endblock title %}
 
 {% block content %}
+
+<!-- Gene expression heatmap -->
+<h1 class="h3 pt-2 mb-3" id="expression">
+    SAMap alignment scores
+    {% include '../components/button/copy_to_clipboard.html' with id='samap' %}
+    {% include '../components/button/data_download.html' with id='samap' %}
+</h1>
+
+{% include '../components/plots/samap_plot.html' with id='samap' %}
+
 {% endblock content %}

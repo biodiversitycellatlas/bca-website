@@ -10,6 +10,7 @@ Features:
 - When no dataset is selected, mockup is shown and navigation tabs are disabled
 
 Input:
+- id: prefix used in the identifiers of all elements
 - dataset_dict: dictionary of arrays of datasets grouped by the species phylum
 - dataset: selected dataset
 - placeholder: text in search box (default: "Search datasets by species,
@@ -25,8 +26,8 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="dataset-select" class="mb-2 {{class}} small"
-style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px;"
+<select id="dataset-select-{{id}}" class="mb-2 {{class}} small"
+style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px; {% if width %}width: {{width}} !important{% endif %}"
 placeholder="{{placeholder|default:'Search dataset by species, taxonomic rank, division, ...'}}">
     <option value=""></option>
     {% for phylum, dataset_list in dataset_dict.items %}
@@ -49,12 +50,12 @@ placeholder="{{placeholder|default:'Search dataset by species, taxonomic rank, d
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 $(function () {
-    var $select = $("#dataset-select");
+    var $select = $("#dataset-select-{{id}}");
     $select.selectize({
         onChange: function(value) {
             // Jump to dataset page upon selection
-    	    if (value !== "" && value !== '{{dataset.slug}}') {
-    	        {% if redirect == 'arg' %}
+	        {% if redirect == 'arg' %}
+	            if (value !== "" && value !== '{{dataset.slug}}') {
     	            // Avoid jumping if value is empty or matches current dataset
     			    window.location.href =
     			        {% if request.resolver_match.view_name == 'atlas' %}
@@ -62,20 +63,29 @@ $(function () {
     			        {% else %}
     			            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
     			        {% endif %}
-                {% elif redirect == 'query' %}
+                }
+            {% elif redirect == 'query' %}
+                if (value !== "" && value !== '{{query.dataset}}') {
                     var url = new URL(window.location.href);
     	            url.searchParams.set('dataset', value)
     	            window.location.href = url;
-    	        {% elif redirect == 'atlas' %}
+    	        }
+	        {% elif redirect == 'atlas' %}
+    	        if (value !== "" && value !== '{{dataset.slug}}') {
     	            window.location.href =
     			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-                {% endif %}
-    		}
+                }
+            {% endif %}
 		},
 		onDropdownOpen: function() {
 		    this.clear();
 		    setTimeout(() => {
-		        var dataset = '{{dataset.slug}}';
+		        var dataset =
+		            {% if redirect == 'query' %}
+		                '{{query.dataset}}'
+		            {% else %}
+		                '{{dataset.slug}}'
+		            {% endif %};
                 if (dataset) {
                     var current = this.getOption(dataset);
                     this.setActiveOption(current);
@@ -85,7 +95,13 @@ $(function () {
 		onBlur: function() {
 		    // Set current dataset if no value is selected
             if (!this.getValue()) {
-                this.setValue('{{dataset.slug}}');
+                this.setValue(
+                    {% if redirect == 'query' %}
+		                '{{query.dataset}}'
+		            {% else %}
+		                '{{dataset.slug}}'
+		            {% endif %}
+                );
             }
         },
 		onType: function(str) {
@@ -102,7 +118,7 @@ $(function () {
                 return `
                     <div class='option'>
                         <span class="text-muted small">
-                            Dataset:
+                            {% if redirect != 'query' %}Dataset:{% endif %}
                         </span>
                         <img src="${item.image}" style="width: 20px;">
                         <i>${item.species}</i> ${dataset} ${description}

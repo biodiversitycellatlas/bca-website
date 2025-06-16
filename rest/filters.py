@@ -102,18 +102,28 @@ class DatasetChoiceFilter(ChoiceFilter):
         kwargs['choices'] = choices
         super().__init__(*args, **kwargs)
 
-    def filter(self, qs, value):
-        # Optimise query: filter by dataset_id directly to avoid inner joins
-        if value:
-            # Build dataset_id field based on given field_name
-            dataset_id_field = 'dataset_id'
-            if self.field_name != 'dataset':
-                dataset_id_field = f'{self.field_name}__{dataset_id_field}'
+    def get_dataset_id_field(self, field):
+        # Build dataset_id field based on given field_name
+        dataset_id_field = 'dataset_id'
+        if field != 'dataset':
+            dataset_id_field = f'{field}__{dataset_id_field}'
+        return dataset_id_field
 
-            dataset = parse_species_dataset(value)
-            qs = qs.filter(**{dataset_id_field: dataset.id})
+    def filter(self, qs, value):
+        if not value:
+            return super().filter(qs, value)
+
+        # Optimise query: filter by dataset_id directly to avoid inner joins
+        dataset = parse_species_dataset(value)
+        if isinstance(self.field_name, (list, tuple)):
+            q = Q()
+            for fname in self.field_name:
+                dataset_id_field = self.get_dataset_id_field(fname)
+                q |= Q(**{dataset_id_field: dataset.id})
+            qs = qs.filter(q)
         else:
-            qs = super().filter(qs, value)
+            dataset_id_field = self.get_dataset_id_field(self.field_name)
+            qs = qs.filter(**{dataset_id_field: dataset.id})
         return qs
 
 
@@ -261,6 +271,35 @@ class OrthologCountFilter(FilterSet):
     class Meta:
         model = models.Ortholog
         fields = ['orthogroup', 'species']
+
+
+class SAMapFilter(FilterSet):
+    dataset = DatasetChoiceFilter(
+        field_name=['metacelltype', 'metacelltype2'], required=True)
+    dataset2 = DatasetChoiceFilter(
+        field_name=['metacelltype', 'metacelltype2'], required=True)
+    threshold = NumberFilter(
+        label = 'Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>',
+        field_name = 'samap', lookup_expr='gte')
+
+    class Meta:
+        model = models.SAMap
+        fields = ['dataset', 'dataset2', 'threshold']
+
+    @property
+    def qs(self):
+        queryset = super().qs
+
+        # Avoid comparing two datasets from the same species
+        d1 = self.form.cleaned_data.get('dataset')
+        d2 = self.form.cleaned_data.get('dataset2')
+
+        if d1 and d2:
+            s1 = parse_species_dataset(d1).species
+            s2 = parse_species_dataset(d2).species
+            if s1 == s2:
+                raise ValidationError("Cannot compare datasets from the same species.")
+        return queryset
 
 
 class SingleCellFilter(FilterSet):

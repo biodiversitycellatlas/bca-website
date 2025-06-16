@@ -64,12 +64,12 @@ def save_SAM_file(dataset, sam_dir):
     (counts_file, cellmc_file, ann_file) = get_config_filepaths(dataset)
     rds = read_rds(counts_file)
 
-    counts = rds.matrix
+    counts = rds.matrix.T
     genes  = np.array(rds.dimnames[0])
     cells  = np.array(rds.dimnames[1])
 
     print(f"Preparing SAM object...")
-    sam = SAM(counts=(counts.T, genes, cells))
+    sam = SAM(counts=(counts, genes, cells))
     sam.preprocess_data()
 
     print("Running SAM...")
@@ -89,11 +89,8 @@ def save_SAM_file(dataset, sam_dir):
     return filename
 
 def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
-    sam1 = SAM()
-    sam1.load_data(f"{sam_dir}/{d1}.h5ad")
-
-    sam2 = SAM()
-    sam2.load_data(f"{sam_dir}/{d2}.h5ad")
+    sam1 = SAM().load_data(f"{sam_dir}/{d1}.h5ad")
+    sam2 = SAM().load_data(f"{sam_dir}/{d2}.h5ad")
 
     # Use species here to get the right alignment map
     s1 = d1.split('_')[0]
@@ -115,6 +112,26 @@ def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
     print("Saving SAMAP results...")
     os.makedirs(samap_dir, exist_ok=True)
     save_samap(sm, f"{samap_dir}/{d1}-{d2}.samap")
+
+    print(f"Saving pairwise scores between cell types from {s1} and {s2}...")
+    # D: highest-scoring alignment scores for each cell type
+	# MappingTable: pairwise mapping scores between cell types
+    D, MappingTable = get_mapping_scores(sm, keys)
+
+    # Keep upper diagonal only
+    mask = np.triu(np.ones(MappingTable.shape), k=1).astype(bool)
+    MappingTable_upper = MappingTable.where(mask)
+
+    # Convert matrix to long format
+    df = MappingTable_upper.reset_index().melt(id_vars='index')
+
+    # Filter zero/missing values and convert to percentage
+    df = df.query("value != 0").dropna()
+    df['value'] = df['value'] * 100
+
+    out_name = f"{os.path.splitext(filename)[0]}_mapping.tsv"
+    df.to_csv(out_name, sep='\t', index=False)
+
     print("Finished!")
 
 if __name__ == "__main__":

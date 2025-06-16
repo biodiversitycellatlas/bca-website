@@ -10,15 +10,17 @@
 *   - metacell_type: cell type from the first dataset
 *   - metacell_color: color for metacell_type
 *   - dataset2: slug of the second dataset
-*   - metacell_type2: cell type from the second dataset
-*   - metacell_color2: color for metacell_type2
+*   - metacell2_type: cell type from the second dataset
+*   - metacell2_color: color for metacell2_type
 *   - samap: SAMap score between the two metacell types
 */
 function createSAMapSankey(id, data) {
     var chart = {
-        "$schema": "https://vega.github.io/schema/vega/v6.json",
-        "width": 250,
-        "height": 400,
+        "$schema": "https://vega.github.io/schema/vega/v5.json",
+        "autosize": {
+            "type": "fit",
+            "contains": "padding"
+        },
         "signals": [{
             "name": "gap",
             "value": 3,
@@ -33,24 +35,64 @@ function createSAMapSankey(id, data) {
             "name": "innerPadding",
             "value": 0.9,
             "description": "Inner padding"
+        },
+        {
+            "name": "width",
+            "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+            "on": [
+                {
+                    "update": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+                    "events": "window:resize"
+                }
+            ]
+        },
+        {
+            "name": "height",
+            "init": "isFinite(containerSize()[1]) ? containerSize()[1] : 200",
+            "on": [
+                {
+                    "update": "isFinite(containerSize()[1]) ? containerSize()[1] : 200",
+                    "events": "window:resize"
+                }
+            ]
         }],
         "data": [{
             "name": "input", "values": data
         }, {
-            "name": "stacks",
+            "name": "input_id",
             "source": "input",
+            "transform": [
+                {
+                    "type": "formula",
+                    "as": "id",
+                    "expr": "[ datum.dataset + '__' + datum.metacell_type, datum.dataset2 + '__' + datum.metacell2_type]"
+                },
+                {
+                    "type": "formula",
+                    "as": "metacell_type_id",
+                    "expr": "datum.dataset + '__' + datum.metacell_type"
+                },
+                {
+                    "type": "formula",
+                    "as": "metacell2_type_id",
+                    "expr": "datum.dataset2 + '__' + datum.metacell2_type"
+                }
+            ]
+        }, {
+            "name": "stacks",
+            "source": "input_id",
             "transform": [{
                 "type": "formula", "as": "end",
-                "expr": "['metacell_type', 'metacell_type2']"
+                "expr": "['metacell_type', 'metacell2_type']"
             }, {
                 "type": "formula", "as": "name",
-                "expr": "[ datum.metacell_type, datum.metacell_type2]"
+                "expr": "[ datum.metacell_type, datum.metacell2_type]"
             }, {
-                "type": "flatten", "fields": ["end", "name"]
+                "type": "flatten", "fields": ["end", "name", "id"]
             }, {
                     "type": "aggregate",
                     "fields": ["samap"],
-                    "groupby": ["end", "name"],
+                    "groupby": ["end", "name", "id"],
                     "ops": ["sum"],
                     "as": ["samap"]
             }, {
@@ -101,16 +143,16 @@ function createSAMapSankey(id, data) {
         },
         {
             "name": "linkTable",
-            "source": "input",
+            "source": "input_id",
             "transform": [{
                 "type": "lookup",
                 "from": "finalTable",
-                "key": "name",
+                "key": "id",
                 "values": ["y0", "stack"],
-                "fields": ["metacell_type", "metacell_type2"],
+                "fields": ["metacell_type_id", "metacell2_type_id"],
                 "as": [
                     "metacell_typeStacky0", "metacell_typeStack",
-                    "metacell_type2Stacky0", "metacell_type2Stack"
+                    "metacell2_typeStacky0", "metacell2_typeStack"
                 ]
             }, {
                 "type": "stack",
@@ -123,12 +165,12 @@ function createSAMapSankey(id, data) {
                 "as": "syc"
             }, {
                 "type": "stack",
-                "groupby": ["metacell_type2"],
+                "groupby": ["metacell2_type"],
                 "field": "samap",
                 "as": ["dyi0", "dyi1"]
             }, {
                 "type": "formula",
-                "expr": "((datum.samap)/2) + datum.dyi0 + datum.metacell_type2Stacky0",
+                "expr": "((datum.samap)/2) + datum.dyi0 + datum.metacell2_typeStacky0",
                 "as": "dyc"
             }, {
                 "type": "linkpath",
@@ -178,9 +220,9 @@ function createSAMapSankey(id, data) {
                     "stroke": {"scale": "color", "field": "name"}
                 },
                 "hover": {
-                    "tooltip": {
-                        "signal": "{'Cell type': datum.name, 'SAMap': format(datum.samap, '.2f')}"
-                    },
+                    //"tooltip": {
+                    //    "signal": "{'Cell type': datum.name, 'SAMap': format(datum.samap, '.2f')}"
+                    //},
                     "fillOpacity": {"value": 1}
                 }
             }
@@ -193,12 +235,12 @@ function createSAMapSankey(id, data) {
                     "strokeWidth": {"field": "strokeWidth"},
                     "path": {"field": "path"},
                     "strokeOpacity": {"signal": "0.3"},
-                    "stroke": {"field": "metacell_type2", "scale": "color"}
+                    "stroke": {"field": "metacell2_type", "scale": "color"}
                 },
                 "hover": {
                     "strokeOpacity": {"value": 1},
                     "tooltip": {
-                        "signal": "{'Cell type 1': datum.metacell_type, 'Cell type 2': datum.metacell_type2, 'SAMap': format(datum.samap, '.2f')}"
+                        "signal": "{'Cell type 1': datum.metacell_type, 'Cell type 2': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}"
                     }
                 }
             }

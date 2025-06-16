@@ -283,9 +283,7 @@ class GeneCorrelation(models.Model):
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
 
     spearman_rho = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
-    spearman_pvalue = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     pearson_r = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
-    pearson_pvalue = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
     class Meta:
         unique_together = ("gene", "gene2")
@@ -315,8 +313,8 @@ class SingleCellGeneExpression(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='scge')
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='scge')
     single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name='scge')
-    umi_raw = models.FloatField(blank=True, null=True)
-    umifrac = models.FloatField(blank=True, null=True)
+    umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
+    umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
     class Meta:
         unique_together = ["gene", "single_cell", "dataset"]
@@ -343,3 +341,17 @@ class Ortholog(models.Model):
 
     def __str__(self):
         return f"{self.orthogroup} {self.gene}"
+
+class SAMap(models.Model):
+    metacelltype = models.ForeignKey(
+        MetacellType, on_delete=models.CASCADE, related_name='samap')
+    metacelltype2 = models.ForeignKey(
+        MetacellType, on_delete=models.CASCADE, related_name='samap2')
+    samap = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        unique_together = ["metacelltype", "metacelltype2"]
+        verbose_name = "SAMAP score"
+
+    def __str__(self):
+        return f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"

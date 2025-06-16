@@ -1,0 +1,117 @@
+{% comment %}
+
+Gene expression heatmap
+
+Input:
+- id: prefix used in the identifiers of all elements
+- type: gene selection based on top 'markers' per metacell (default) or
+  'gene-lists'
+
+{% endcomment %}
+
+<div class="row g-2 mb-4 align-items-start">
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-list-check"></i>
+                Dataset for comparison
+            </label>
+        </div>
+
+        <div class="btn-group" role="group" style="width: 400px;">
+            {% include '../select/dataset.html' with id='samap' redirect='query' placeholder='Search...' prefix='' class='w-100' dataset=query.dataset %}
+        </div>
+    </div>
+
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-filter"></i>
+                SAMap threshold
+            </label>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle"
+            data-bs-toggle="dropdown" aria-expanded="false"
+            data-bs-auto-close="outside">
+                SAMap score ≥ <span id="samap_min_value">5</span> %
+            </button>
+            <div class="dropdown-menu">
+                <div class="mx-4 mb-3" style="width: 250px;">
+                    <label for="markers" class="col-form-label">
+                        <small>SAMap minimum alignment score</small>
+                    </label>
+
+                    <input type="range" class="js-range-slider" id="samap_min" name="samap_min" value="0" step="1" style="opacity: 0;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateText (id, from_min_id, suffix = "") {
+    return function update(data) {
+        $(id).text(data.from + suffix);
+
+        // Update from_min of given ionRangeSlider
+        if (from_min_id && from_min_id !== null) {
+            $(from_min_id).data("ionRangeSlider").update({from_min: data.from})
+        }
+    }
+}
+
+$("#samap_min").ionRangeSlider({
+    min: 0,
+    max: 100,
+    from: {{query.samap|default:5}},
+    step: 1,
+    grid: true,
+    skin: "round",
+    onStart: updateText("#samap_min_value", undefined),
+    onChange: updateText("#samap_min_value", undefined),
+    onUpdate: updateText("#samap_min_value", undefined)
+});
+</script>
+
+<!-- Use column due to vega-lite's bug with containers for concatenated plots -->
+{% if query.dataset %}
+    <div class="row">
+        <div class="col-10 col-sm-11">
+            {% include '../plot_container.html' with id=id ratio='16/9' %}
+        </div>
+    </div>
+
+    {% load static %}
+    <script type="text/javascript"
+    src="{% static 'app/js/plots/samap_sankey_plot.js' %}"></script>
+
+    <script type="text/javascript">
+    $(function() {
+        var url = "{% url 'rest:samap-list' %}";
+
+        var params = new URLSearchParams({
+    		dataset2: '{{dataset.slug}}',
+    		dataset: '{{query.dataset}}',
+    		threshold: 5,//$("#samap_min").val(),
+    		limit: 0
+    	});
+    	var apiURL = url + "?" + params.toString();
+    	console.log(apiURL);
+
+        fetch(apiURL)
+            .then(response => response.json())
+            .then(data => {
+                createSAMapSankey("#{{id}}-plot", data)
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        appendDataMenu('{{id}}', apiURL, 'SAMap scores');
+    });
+    </script>
+{% else %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Select genes to render heatmap.
+    </p>
+{% endif %}
