@@ -90,11 +90,15 @@ function createSAMapSankey(id, data) {
             }, {
                 "type": "flatten", "fields": ["end", "name", "id"]
             }, {
-                    "type": "aggregate",
-                    "fields": ["samap"],
-                    "groupby": ["end", "name", "id"],
-                    "ops": ["sum"],
-                    "as": ["samap"]
+                "type": "formula",
+                "as": "color",
+                "expr": "datum.end === 'metacell_type' ? datum.metacell_color : datum.metacell2_color"
+            }, {
+                "type": "aggregate",
+                "fields": ["samap"],
+                "groupby": ["end", "name", "id", "color"],
+                "ops": ["sum"],
+                "as": ["samap"]
             }, {
                 "type": "formula", "as": "stack",
                 "expr": "datum.end === 'metacell_type' ? 1 : 2"
@@ -198,12 +202,6 @@ function createSAMapSankey(id, data) {
                 "name": "y",
                 "range": "height",
                 "domain": {"data": "finalTable", "field": "y1"}
-            },
-            {
-                "name": "color",
-                "type": "ordinal",
-                "range": {"scheme": "rainbow"},
-                "domain": {"data": "stacks", "field": "name"}
             }
         ],
         "marks": [{
@@ -215,13 +213,13 @@ function createSAMapSankey(id, data) {
                     "width": {"scale": "x", "band": 1},
                     "y": {"scale": "y", "field": "y0"},
                     "y2": {"scale": "y", "field": "y1"},
-                    "fill": {"scale": "color", "field": "name"},
+                    "fill": {"signal": "datum.color"},
                     "fillOpacity": {"value": 0.75},
-                    "stroke": {"scale": "color", "field": "name"}
+                    "stroke": {"signal": "datum.color"}
                 },
                 "hover": {
                     //"tooltip": {
-                    //    "signal": "{'Cell type': datum.name, 'SAMap': format(datum.samap, '.2f')}"
+                    //    "signal": "{'Cell type': datum.name, 'Color': datum.color}"
                     //},
                     "fillOpacity": {"value": 1}
                 }
@@ -235,12 +233,12 @@ function createSAMapSankey(id, data) {
                     "strokeWidth": {"field": "strokeWidth"},
                     "path": {"field": "path"},
                     "strokeOpacity": {"signal": "0.3"},
-                    "stroke": {"field": "metacell2_type", "scale": "color"}
+                    "stroke": {"signal": "datum.metacell2_color"}
                 },
                 "hover": {
                     "strokeOpacity": {"value": 1},
                     "tooltip": {
-                        "signal": "{'Cell type 1': datum.metacell_type, 'Cell type 2': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}"
+                        "signal": "{'Dataset ←': datum.dataset, 'Cell type ←': datum.metacell_type, 'Dataset →': datum.dataset2, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}"
                     }
                 }
             }
