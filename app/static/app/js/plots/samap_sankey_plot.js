@@ -136,7 +136,7 @@ function createSAMapSankey(id, data) {
                 "field": "spacedSamap",
                 "offset": "center"
             }, {
-                "type": "formula", "expr": "datum.samap/2 + datum.y0 - 1",
+                "type": "formula", "expr": "datum.samap/2 + datum.y0 - 8",
                 "as": "yc"
             }]
         },
@@ -265,7 +265,31 @@ function createSAMapSankey(id, data) {
                         "yc": {"scale": "y", "signal": "datum.yc"}
                     }
                 }
-            }]
+            }, {
+                "type": "text",
+                "from": { "data": "input" },
+                "encode": {
+                    "update": {
+                        "x": {"scale": "x", "value": 1, "band": 0.5},
+                        "y": {"value": -15},
+                        "text": {"field": "dataset"},
+                        "align": {"value": "center"},
+                        "fontSize": {"value": 14}
+                    }
+                }
+            }, {
+                "type": "text",
+                "from": { "data": "input" },
+                "encode": {
+                    "update": {
+                        "x": {"scale": "x", "value": 2, "band": 0.5},
+                        "y": {"value": -15},
+                        "text": {"field": "dataset2"},
+                        "align": {"value": "center"},
+                        "fontSize": {"value": 14}
+                    }
+                }
+          }]
         }]
     };
     vegaEmbed(id, chart)
