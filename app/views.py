@@ -184,6 +184,24 @@ class AtlasMarkersView(BaseAtlasView):
 class AtlasCompareView(BaseAtlasView):
     template_name = "app/atlas/compare.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
+            return context
+
+        # Parse URL query parameters and get dataset to compare SAMap scores
+        try:
+            query = self.request.GET
+            if query['dataset']:
+                dataset2 = get_dataset(query['dataset'])
+                context["dataset2"] = dataset2
+                context["species"] = dataset2.species
+        except:
+            pass
+        return context
+
 
 class ComparisonView(TemplateView):
     template_name = "app/comparison.html"

@@ -17,7 +17,7 @@ Input:
         </div>
 
         <div class="btn-group" role="group" style="width: 400px;">
-            {% include '../select/dataset.html' with id='samap' redirect='query' placeholder='Search...' prefix='' class='w-100' dataset=query.dataset %}
+            {% include '../select/dataset.html' with id='samap' redirect='query' placeholder='Search...' prefix='' class='w-100' dataset=dataset2.slug %}
         </div>
     </div>
 
@@ -101,7 +101,7 @@ $('form').on('submit', function(e) {
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
-{% if query.dataset %}
+{% if dataset2 %}
     <div class="row">
         <div class="col-10 col-sm-11">
             {% include '../plot_container.html' with id=id ratio='16/9' %}
@@ -117,8 +117,8 @@ $('form').on('submit', function(e) {
         var url = "{% url 'rest:samap-list' %}";
 
         var params = new URLSearchParams({
-    		dataset2: '{{dataset.slug}}',
-    		dataset: '{{query.dataset}}',
+    		dataset: '{{dataset.slug}}',
+    		dataset2: '{{dataset2.slug}}',
     		threshold: $("#samap_min").val(),
     		limit: 0
     	});
@@ -128,7 +128,7 @@ $('form').on('submit', function(e) {
         fetch(apiURL)
             .then(response => response.json())
             .then(data => {
-                createSAMapSankey("#{{id}}-plot", data)
+                createSAMapSankey("#{{id}}-plot", data, '{{dataset}}', '{{dataset2}}')
             })
             .catch(error => console.error('Error fetching data:', error));
 

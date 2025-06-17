@@ -408,12 +408,12 @@ class OrthologCountSerializer(serializers.ModelSerializer):
 
 
 class SAMapSerializer(serializers.ModelSerializer):
-    dataset = serializers.CharField(source='metacelltype.dataset.slug')
-    dataset2 = serializers.CharField(source='metacelltype2.dataset.slug')
-    metacell_type = serializers.CharField(source='metacelltype.name')
-    metacell2_type = serializers.CharField(source='metacelltype2.name')
-    metacell_color = serializers.CharField(source='metacelltype.color')
-    metacell2_color = serializers.CharField(source='metacelltype2.color')
+    dataset = serializers.SerializerMethodField()
+    dataset2 = serializers.SerializerMethodField()
+    metacell_type = serializers.SerializerMethodField()
+    metacell2_type = serializers.SerializerMethodField()
+    metacell_color = serializers.SerializerMethodField()
+    metacell2_color = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SAMap
@@ -422,6 +422,30 @@ class SAMapSerializer(serializers.ModelSerializer):
             'dataset2', 'metacell2_type', 'metacell2_color',
             'samap'
         ]
+
+    def _get_metacell_types(self, obj):
+        # Swap datasets according to input
+        if getattr(obj, 'order_flag', 0) == 1:
+            return obj.metacelltype2, obj.metacelltype
+        return obj.metacelltype, obj.metacelltype2
+
+    def get_dataset(self, obj):
+        return self._get_metacell_types(obj)[0].dataset.slug
+
+    def get_dataset2(self, obj):
+        return self._get_metacell_types(obj)[1].dataset.slug
+
+    def get_metacell_type(self, obj):
+        return self._get_metacell_types(obj)[0].name
+
+    def get_metacell2_type(self, obj):
+        return self._get_metacell_types(obj)[1].name
+
+    def get_metacell_color(self, obj):
+        return self._get_metacell_types(obj)[0].color
+
+    def get_metacell2_color(self, obj):
+        return self._get_metacell_types(obj)[1].color
 
 
 class AlignRequestSerializer(serializers.Serializer):

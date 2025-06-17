@@ -7,6 +7,7 @@ from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Case, When, Value, IntegerField
 
 from . import serializers, filters
 from .utils import parse_species_dataset, get_enum_description, get_path_param
@@ -197,6 +198,27 @@ class SAMapViewSet(BaseReadOnlyModelViewSet):
         'metacelltype2', 'metacelltype2__dataset')
     serializer_class = serializers.SAMapSerializer
     filterset_class = filters.SAMapFilter
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        dataset_slug = self.request.query_params.get('dataset')
+        dataset2_slug = self.request.query_params.get('dataset2')
+        if not dataset_slug or not dataset2_slug:
+            return queryset
+
+        ds1 = parse_species_dataset(dataset_slug)
+        ds2 = parse_species_dataset(dataset2_slug)
+
+        qs = queryset.annotate(
+            order_flag=Case(
+                When(metacelltype__dataset=ds1, metacelltype2__dataset=ds2, then=Value(0)),
+                When(metacelltype__dataset=ds2, metacelltype2__dataset=ds1, then=Value(1)),
+                default=Value(2),  # fallback
+                output_field=IntegerField()
+            )
+        ).order_by('order_flag')
+        return qs
 
 
 @extend_schema(

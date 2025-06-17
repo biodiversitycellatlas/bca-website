@@ -5,6 +5,8 @@
 * Based on https://github.com/PBI-David/Deneb-Showcase
 *
 * @param {string} id - CSS selector of the target HTML element
+* @param {string} dataset_label - Label to annotate the first dataset
+* @param {string} dataset2_label - Label to annotate the second dataset
 * @param {Array<Object>} data - Array of objects containing:
 *   - dataset: slug of the first dataset
 *   - metacell_type: cell type from the first dataset
@@ -14,7 +16,15 @@
 *   - metacell2_color: color for metacell2_type
 *   - samap: SAMap score between the two metacell types
 */
-function createSAMapSankey(id, data) {
+function createSAMapSankey(id, data, dataset_label, dataset2_label) {
+    // If direction of datasets is reversed, switch labels
+    if (
+        data[0].dataset.toLowerCase().replace(/[^a-z]/g, "") == dataset2_label.toLowerCase().replace(/[^a-z]/g, "") &&
+        data[0].dataset2.toLowerCase().replace(/[^a-z]/g, "") == dataset_label.toLowerCase().replace(/[^a-z]/g, "")
+    ) {
+        [dataset_label, dataset2_label] = [dataset2_label, dataset_label];
+    }
+
     var chart = {
         "$schema": "https://vega.github.io/schema/vega/v5.json",
         "autosize": {
@@ -238,7 +248,7 @@ function createSAMapSankey(id, data) {
                 "hover": {
                     "strokeOpacity": {"value": 1},
                     "tooltip": {
-                        "signal": "{'Dataset ←': datum.dataset, 'Cell type ←': datum.metacell_type, 'Dataset →': datum.dataset2, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}"
+                        "signal": `{'Dataset ←': '${dataset_label}', 'Cell type ←': datum.metacell_type, 'Dataset →': '${dataset2_label}', 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}`
                     }
                 }
             }
@@ -267,26 +277,26 @@ function createSAMapSankey(id, data) {
                 }
             }, {
                 "type": "text",
-                "from": { "data": "input" },
                 "encode": {
                     "update": {
                         "x": {"scale": "x", "value": 1, "band": 0.5},
                         "y": {"value": -15},
-                        "text": {"field": "dataset"},
+                        "text": {"value": dataset_label},
                         "align": {"value": "center"},
-                        "fontSize": {"value": 14}
+                        "fontSize": {"value": 14},
+                        "fontStyle": {"value": "italic"}
                     }
                 }
             }, {
                 "type": "text",
-                "from": { "data": "input" },
                 "encode": {
                     "update": {
                         "x": {"scale": "x", "value": 2, "band": 0.5},
                         "y": {"value": -15},
-                        "text": {"field": "dataset2"},
+                        "text": {"value": dataset2_label},
                         "align": {"value": "center"},
-                        "fontSize": {"value": 14}
+                        "fontSize": {"value": 14},
+                        "fontStyle": {"value": "italic"}
                     }
                 }
           }]
