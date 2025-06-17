@@ -306,9 +306,11 @@ class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
 
 
 class CorrelatedGenesSerializer(serializers.ModelSerializer):
-    name        = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    domains     = serializers.SerializerMethodField()
+    name         = serializers.SerializerMethodField()
+    description  = serializers.SerializerMethodField()
+    domains      = serializers.SerializerMethodField()
+    spearman_rho = serializers.FloatField()
+    pearson_r    = serializers.FloatField()
 
     class Meta:
         model = models.GeneCorrelation
@@ -322,15 +324,15 @@ class CorrelatedGenesSerializer(serializers.ModelSerializer):
         else:
             return obj.gene
 
-    def get_name(self, obj):
+    def get_name(self, obj) -> str:
         gene = self.get_non_selected_gene(obj)
         return gene.name
 
-    def get_description(self, obj):
+    def get_description(self, obj) -> str:
         gene = self.get_non_selected_gene(obj)
         return gene.description
 
-    def get_domains(self, obj):
+    def get_domains(self, obj) -> list[str]:
         gene = self.get_non_selected_gene(obj)
         return [domain.name for domain in gene.domains.all()]
 
@@ -414,6 +416,7 @@ class SAMapSerializer(serializers.ModelSerializer):
     metacell2_type = serializers.SerializerMethodField()
     metacell_color = serializers.SerializerMethodField()
     metacell2_color = serializers.SerializerMethodField()
+    samap = serializers.FloatField()
 
     class Meta:
         model = models.SAMap
@@ -429,22 +432,22 @@ class SAMapSerializer(serializers.ModelSerializer):
             return obj.metacelltype2, obj.metacelltype
         return obj.metacelltype, obj.metacelltype2
 
-    def get_dataset(self, obj):
+    def get_dataset(self, obj) -> str:
         return self._get_metacell_types(obj)[0].dataset.slug
 
-    def get_dataset2(self, obj):
+    def get_dataset2(self, obj) -> str:
         return self._get_metacell_types(obj)[1].dataset.slug
 
-    def get_metacell_type(self, obj):
+    def get_metacell_type(self, obj) -> str:
         return self._get_metacell_types(obj)[0].name
 
-    def get_metacell2_type(self, obj):
+    def get_metacell2_type(self, obj) -> str:
         return self._get_metacell_types(obj)[1].name
 
-    def get_metacell_color(self, obj):
+    def get_metacell_color(self, obj) -> str:
         return self._get_metacell_types(obj)[0].color
 
-    def get_metacell2_color(self, obj):
+    def get_metacell2_color(self, obj) -> str:
         return self._get_metacell_types(obj)[1].color
 
 
