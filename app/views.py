@@ -203,10 +203,6 @@ class AtlasCompareView(BaseAtlasView):
         return context
 
 
-class ComparisonView(TemplateView):
-    template_name = "app/comparison.html"
-
-
 class DownloadsView(TemplateView):
     template_name = "app/downloads.html"
 

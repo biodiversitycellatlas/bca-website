@@ -17,7 +17,6 @@ urlpatterns = [
     path("atlas/<dataset>/markers/", views.AtlasMarkersView.as_view(), name="atlas_markers"),
     path("atlas/<dataset>/compare/", views.AtlasCompareView.as_view(), name="atlas_compare"),
 
-    path("comparison/", views.ComparisonView.as_view(), name="comparison"),
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path("blog/", views.BlogView.as_view(), name="blog"),
 
