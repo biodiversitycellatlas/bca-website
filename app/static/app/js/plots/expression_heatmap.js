@@ -23,12 +23,20 @@ function createExpressionHeatmap(id, species, data) {
 		  	"width": "container",
 		  	"mark": "rect",
 	      	"encoding": {
-	        	"x": {"field": "metacell_name", "axis": {"labels": false, "ticks": false}},
+	        	"x": {
+	        		"field": "metacell_name",
+	        		"axis": {"labels": false, "ticks": false},
+	        		"title": "Metacells"
+	        	},
 	        	"color": {
 	        		"field": "metacell_color", "legend": false,
 	    			"scale": {"range": {"field": "metacell_color"}}
 	    		},
-	        	"tooltip": [ {"field": "metacell_name"}, {"field": "metacell_type"}, {"field": "metacell_color"} ]
+	        	"tooltip": [
+	        		{"field": "metacell_name"},
+	        		{"field": "metacell_type"},
+	        		{"field": "metacell_color"}
+	        	]
 	      	}
 	    }, {
 	    	"width": "container",
@@ -37,12 +45,14 @@ function createExpressionHeatmap(id, species, data) {
 			"encoding": {
 	    		"x": {
 	    			"field": "metacell_name",
-	    			"axis": { "labels": false, "ticks": false }
+	    			"axis": { "labels": false, "ticks": false },
+	    			"title": ""
 	    		},
 	    		"y": {
 	    			"field": "gene_name",
 	    			"axis": { "labels": false, "ticks": false },
-	    			"sort": {"field": "index"}
+	    			"sort": {"field": "index"},
+	    			"title": "Genes"
 	    		},
 	    		"color": {
 	    			"field": "log2_fold_change",
@@ -56,7 +66,11 @@ function createExpressionHeatmap(id, species, data) {
 		  	"width": "container",
 		  	"mark": "rect",
 	      	"encoding": {
-	        	"x": {"field": "metacell_name", "axis": {"labels": false, "ticks": false}},
+	        	"x": {
+	        		"field": "metacell_name",
+	        		"axis": {"labels": false, "ticks": false},
+	        		"title": "Metacells"
+	        	},
 	        	"color": {
 	        		"field": "metacell_color", "legend": false,
 	    			"scale": {"range": {"field": "metacell_color"}}
