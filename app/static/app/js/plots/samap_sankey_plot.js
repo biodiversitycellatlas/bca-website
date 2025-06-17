@@ -18,9 +18,10 @@
 */
 function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     // If direction of datasets is reversed, switch labels
+    const normalize = str => str.toLowerCase().replace(/[^a-z]/g, "");
     if (
-        data[0].dataset.toLowerCase().replace(/[^a-z]/g, "") == dataset2_label.toLowerCase().replace(/[^a-z]/g, "") &&
-        data[0].dataset2.toLowerCase().replace(/[^a-z]/g, "") == dataset_label.toLowerCase().replace(/[^a-z]/g, "")
+        normalize(data[0].dataset) == normalize(dataset2_label) &&
+        normalize(data[0].dataset2) == normalize(dataset_label)
     ) {
         [dataset_label, dataset2_label] = [dataset2_label, dataset_label];
     }
@@ -248,7 +249,7 @@ function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                 "hover": {
                     "strokeOpacity": {"value": 1},
                     "tooltip": {
-                        "signal": `{'Dataset ←': '${dataset_label}', 'Cell type ←': datum.metacell_type, 'Dataset →': '${dataset2_label}', 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}`
+                        "signal": `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}`
                     }
                 }
             }

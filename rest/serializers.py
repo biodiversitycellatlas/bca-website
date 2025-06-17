@@ -219,7 +219,10 @@ class SingleCellSerializer(BaseExpressionSerializer):
 
     class Meta:
         model = models.SingleCell
-        exclude = ['id', 'dataset']
+        fields = [
+            'name', 'x', 'y', 'metacell_name', 'metacell_type', 'metacell_color',
+            'gene_name', 'umifrac', 'umi_raw'
+        ]
 
 
 class MetacellSerializer(BaseExpressionSerializer):
@@ -234,7 +237,10 @@ class MetacellSerializer(BaseExpressionSerializer):
 
     class Meta:
         model = models.Metacell
-        exclude = ['id', 'dataset', 'links']
+        fields = [
+            'name', 'x', 'y', 'type', 'color',
+            'gene_name', 'fold_change', 'umifrac', 'umi_raw'
+        ]
 
 
 class MetacellLinkSerializer(serializers.ModelSerializer):
@@ -247,7 +253,10 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellLink
-        exclude = ['id']
+        fields = [
+            'metacell', 'metacell_x', 'metacell_y',
+            'metacell2', 'metacell2_x', 'metacell2_y'
+        ]
 
 
 class MetacellCountSerializer(serializers.ModelSerializer):
@@ -260,7 +269,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MetacellCount
-        exclude = ['id']
+        fields = ['metacell', 'metacell_type', 'metacell_color', 'cells', 'umis']
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
@@ -273,7 +282,7 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SingleCellGeneExpression
-        exclude = ['dataset']
+        exclude = ['id', 'dataset']
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
@@ -470,13 +479,20 @@ class AlignRequestSerializer(serializers.Serializer):
 class AlignResponseSerializer(serializers.Serializer):
     query = serializers.CharField(help_text="ID of the query sequence")
     target = serializers.CharField(help_text="ID of the hit sequence")
-    identity = serializers.FloatField(help_text="Percentage of identity between query and hit sequences")
+    identity = serializers.FloatField(
+        help_text="Percentage of identity between query and hit sequences")
     length = serializers.IntegerField(help_text="Length of the alignment")
-    mismatch = serializers.IntegerField(help_text="Number of mismatches in the alignment")
-    gaps = serializers.IntegerField(help_text="Number of gaps in the alignment")
-    query_start = serializers.IntegerField(help_text="Start position of the query sequence in the alignment")
-    query_end = serializers.IntegerField(help_text="End position of the query sequence in the alignment")
-    target_start = serializers.IntegerField(help_text="Start position of the hit sequence in the alignment")
-    target_end = serializers.IntegerField(help_text="End position of the hit sequence in the alignment")
+    mismatch = serializers.IntegerField(
+        help_text="Number of mismatches in the alignment")
+    gaps = serializers.IntegerField(
+        help_text="Number of gaps in the alignment")
+    query_start = serializers.IntegerField(
+        help_text="Start position of the query sequence in the alignment")
+    query_end = serializers.IntegerField(
+        help_text="End position of the query sequence in the alignment")
+    target_start = serializers.IntegerField(
+        help_text="Start position of the hit sequence in the alignment")
+    target_end = serializers.IntegerField(
+        help_text="End position of the hit sequence in the alignment")
     e_value = serializers.FloatField(help_text="Statistical significance")
     bit_score = serializers.FloatField(help_text="Alignment quality")
