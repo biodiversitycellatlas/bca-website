@@ -282,8 +282,8 @@ class GeneCorrelation(models.Model):
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
 
-    spearman_rho = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
-    pearson_r = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    spearman = models.DecimalField(max_digits=3, decimal_places=0, blank=True, null=True)
+    pearson  = models.DecimalField(max_digits=3, decimal_places=0, blank=True, null=True)
 
     class Meta:
         unique_together = ("gene", "gene2")

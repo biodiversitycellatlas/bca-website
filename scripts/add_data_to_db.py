@@ -26,6 +26,7 @@ from app import models
 import functools
 import psycopg2
 import psutil
+import io
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
@@ -57,10 +58,12 @@ def validate_and_bulk_create(obj, arr):
 
 
 def batch_raw_insert(cursor, model, cols, batch):
-    import io
     output = io.StringIO()
-    writer = csv.writer(output, delimiter='\t')
-    writer.writerows(batch)
+    if isinstance(batch, pd.DataFrame):
+        batch.to_csv(output, sep='\t', index=False, header=False)
+    else:
+        writer = csv.writer(output, delimiter='\t')
+        writer.writerows(batch)
     output.seek(0)
 
     table = model._meta.db_table
@@ -68,15 +71,7 @@ def batch_raw_insert(cursor, model, cols, batch):
     sql = f"COPY {table} ({columns}) FROM STDIN WITH (FORMAT csv, DELIMITER E'\t')"
     cursor.copy_expert(sql, output)
     cursor.connection.commit()
-#
-#   # Add via raw SQL
-#   placeholders = '(' + ','.join(['%s'] * len(cols)) + ')'
-#
-#   cols = ", ".join(cols)
-#   cols = f"({cols})"
-#
-#   args = ','.join(cursor.mogrify(placeholders, row) for row in batch)
-#   cursor.execute(f"INSERT INTO {table} {cols} VALUES {args} ON CONFLICT DO NOTHING")
+    return cursor
 
 
 def perform_subquery(obj, expr):
@@ -547,10 +542,12 @@ load = {
     'orthologs': True
 }
 
-data_dir = "data/raw"
-#data_dir = "app/static/app/data"
+if __name__ == "__main__":
+    data_dir = "data/raw"
+    #data_dir = "app/static/app/data"
 
-#main(data_dir, load)
-print_memory_usage()
-main(data_dir, load, exclude=['nvec_old', 'dmel'])
-print_memory_usage()
+    #main(data_dir, load)
+    print_memory_usage()
+    main(data_dir, load, exclude=['nvec_old', 'dmel'], filter="mmus")
+
+    print_memory_usage()
