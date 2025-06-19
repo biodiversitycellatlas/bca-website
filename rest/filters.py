@@ -473,16 +473,12 @@ class CorrelatedGenesFilter(QueryFilterSet):
     ordering = OrderingFilter(
         label = "Comma-separated list of attributes to order results.",
         fields=(
-            ('spearman_rho', 'spearman_rho'),
-            ('spearman_pvalue', 'spearman_pvalue'),
-            ('pearson_r', 'pearson_r'),
-            ('pearson_pvalue', 'pearson_pvalue'),
+            ('spearman', 'spearman'),
+            ('pearson', 'pearson')
         ),
         field_labels={
-            'spearman_rho': 'Spearman rho',
-            'spearman_pvalue': 'Spearman p-value',
-            'pearson_r': 'Pearson r',
-            'pearson_pvalue': 'Pearson p-value',
+            'spearman': "Spearman's correlation coefficient",
+            'pearson_r': "Pearson's correlation coefficient"
         }
     )
     q = CharFilter(

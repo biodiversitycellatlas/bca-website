@@ -315,11 +315,11 @@ class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
 
 
 class CorrelatedGenesSerializer(serializers.ModelSerializer):
-    name         = serializers.SerializerMethodField()
-    description  = serializers.SerializerMethodField()
-    domains      = serializers.SerializerMethodField()
-    spearman_rho = serializers.FloatField()
-    pearson_r    = serializers.FloatField()
+    name        = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    domains     = serializers.SerializerMethodField()
+    spearman    = serializers.FloatField()
+    pearson     = serializers.FloatField()
 
     class Meta:
         model = models.GeneCorrelation

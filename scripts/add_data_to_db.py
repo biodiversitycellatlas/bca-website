@@ -330,8 +330,13 @@ def add_metacell_gene_expression(species, dataset, expr, umi, umifrac):
             except:
                 umifrac_value = None
 
+            if str(species) == "Schistosoma mansoni":
+                gene_tmp = gene.replace("Smp_", "Smp-")
+            else:
+                gene_tmp = gene
+
             try:
-                fold_change_value = expr_df.loc[gene, metacell]
+                fold_change_value = expr_df.loc[gene_tmp, metacell]
             except:
                 fold_change_value = None
 
@@ -533,21 +538,21 @@ def main(data_dir, load, filter=[], exclude=['nvec_old'], force=False):
     print('All done!')
 
 load = {
-    'metacells': True,
-    'sc': True,
-    'genes': True,
+    'metacells': False,
+    'sc': False,
+    'genes': False,
     'mge': True,
     'mc_stats': True,
-    'scge': True,
-    'orthologs': True
+    'scge': False,
+    'orthologs': False
 }
 
 if __name__ == "__main__":
     data_dir = "data/raw"
     #data_dir = "app/static/app/data"
-
+    
     #main(data_dir, load)
     print_memory_usage()
-    main(data_dir, load, exclude=['nvec_old', 'dmel'], filter="mmus")
-
+    main(data_dir, load, exclude=['nvec_old', 'dmel'], filter="sman")
+    
     print_memory_usage()
