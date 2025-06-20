@@ -4,7 +4,7 @@ Gene correlation plot
 
 Input:
 - id
-- species
+- dataset
 - gene
 
 {% endcomment %}
@@ -24,7 +24,7 @@ Input:
                     const url = '{% url 'rest:metacellgeneexpression-list' %}';
                     var gene2 = selected[0].name;
                     plotGeneExpressionComparison(
-                        '{{id}}', '{{species}}', '{{gene}}', gene2, url, selected[0]);
+                        '{{id}}', '{{dataset.slug}}', '{{gene}}', gene2, url, selected[0]);
                 }
             }
         });

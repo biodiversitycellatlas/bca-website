@@ -44,10 +44,8 @@ function createGeneTable(id, url='', correlation=false, select='multiple') {
     var order;
     if (correlation) {
         cols = cols.concat([
-            { name: 'pearson_r',       data: 'pearson_r',       title: "Pearson" },
-            { name: 'pearson_pvalue',  data: 'pearson_pvalue',  title: "p-value" },
-            { name: 'spearman_rho',    data: 'spearman_rho',    title: "Spearman" },
-            { name: 'spearman_pvalue', data: 'spearman_pvalue', title: "p-value" }
+            { name: 'pearson', data: 'pearson', title: "Pearson's r" },
+            { name: 'spearman', data: 'spearman', title: "Spearman's rho" }
         ]);
 
         order = { name: 'pearson_r', dir: 'desc' };

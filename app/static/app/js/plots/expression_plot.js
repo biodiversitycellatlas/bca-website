@@ -57,11 +57,11 @@ function createExpressionBubblePlot(id, gene, data) {
     	.catch(console.error);
 }
 
-function plotGeneExpressionComparison (id, species, gene, gene2, url, stats) {
+function plotGeneExpressionComparison (id, dataset, gene, gene2, url, stats) {
     // Create URL to fetch expression data for both genes
     var params = new URLSearchParams({
 	    genes: `${gene},${gene2}`,
-	    species: species,
+	    dataset: dataset,
 	    limit: 0
     });
     var apiURL = url + "?" + params.toString().replace('%2C', ',');
@@ -88,8 +88,8 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
   		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   		"title": {
   		    "text": [
-  		        `Pearson: ${stats.pearson_r} (p = ${stats.pearson_pvalue})`,
-  		        `Spearman: ${stats.spearman_rho} (p = ${stats.spearman_pvalue})`
+  		        `Pearson: ${stats.pearson}`,
+  		        `Spearman: ${stats.spearman}`
   		     ], "fontWeight": "normal", "anchor": "end" },
 	  	"transform": [
 	  	    {"calculate": "toNumber(datum.metacell_name)", "as": "metacell_name"},
