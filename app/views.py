@@ -5,8 +5,8 @@ from django.views.generic.detail import DetailView
 
 from django.db.models import Q
 
-from .models import Dataset
-from .utils import get_dataset_dict, get_metacell_dict, get_dataset
+from .models import Dataset, Species
+from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict
 
 import random
 
@@ -205,6 +205,11 @@ class AtlasCompareView(BaseAtlasView):
 
 class DownloadsView(TemplateView):
     template_name = "app/downloads.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["species_dict"] = Species.objects.all()
+        return context
 
 
 class BlogView(TemplateView):

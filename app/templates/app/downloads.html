@@ -13,7 +13,7 @@ Downloads page
 
 <p>Find the download links for single species data in the table below.</p>
 
-<p>To download data in bulk, we recommend using our <a rel="external" href="#">FTP server</a> or <a href="{% url 'api' %}">REST API</a>.</p>
+<p>To download data in bulk, we recommend using our <a href="{% url 'api' %}">REST API</a>.</p>
 
 <hr/>
 
@@ -22,77 +22,19 @@ Downloads page
         <tr>
             <th>Species</th>
             <th>Common Name</th>
-            <th>Metadata</th>
-            <th>Single cell data</th>
-            <th>Single cell expression</th>
-            <th>Metacell data</th>
-            <th>Gene annotation</th>
+            <th>Proteome</th>
+            <th>DIAMOND database</th>
         </tr>
     </thead>
     <tbody>
+        {% for species in species_dict %}
         <tr>
-            <td>Nematostella vectensis</td>
-            <td>Sea</td>
-            <td>Edinburgh</td>
-            <td>61</td>
-            <td>2011-04-25</td>
-            <td>$320,800</td>
-            <td>
-                <div class="btn-group me-2" role="group">
-                    <a name="data_view_info" type="button" target="_blank" class="btn btn-outline-secondary btn-xs" href="http://localhost:8000/api/v1/species/Caenorhabditis%20elegans/?format=csv">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    <a name="data_download_info" type="button" class="btn btn-outline-secondary btn-xs">
-                        <i class="fa fa-file-arrow-down"></i>
-                    </a>
-                    <a name="data_link_info" type="button" class="btn btn-outline-secondary btn-xs" data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual" data-bs-placement="right" data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
-                        <i class="fa fa-code"></i>
-                    </a>
-                </div>
-            </td>
+            <td>{{species}}</td>
+            <td>{{species.common_name|default_if_none:"–"}}</td>
+            <td>Not yet available</td>
+            <td>Not yet available</td>
         </tr>
-        <tr>
-            <td>Mus musculus</td>
-            <td>Mouse</td>
-            <td>Tokyo</td>
-            <td>63</td>
-            <td>2011-07-25</td>
-            <td>$170,750</td>
-            <td>
-                <div class="btn-group me-2" role="group">
-                    <a name="data_view_info" type="button" target="_blank" class="btn btn-outline-secondary btn-xs" href="http://localhost:8000/api/v1/species/Caenorhabditis%20elegans/?format=csv">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    <a name="data_download_info" type="button" class="btn btn-outline-secondary btn-xs">
-                        <i class="fa fa-file-arrow-down"></i>
-                    </a>
-                    <a name="data_link_info" type="button" class="btn btn-outline-secondary btn-xs" data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual" data-bs-placement="right" data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
-                        <i class="fa fa-code"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Homo sapiens</td>
-            <td>Human</td>
-            <td>New York</td>
-            <td>27</td>
-            <td>2011-01-25</td>
-            <td>$112,000</td>
-            <td>
-                <div class="btn-group me-2" role="group">
-                    <a name="data_view_info" type="button" target="_blank" class="btn btn-outline-secondary btn-xs" href="http://localhost:8000/api/v1/species/Caenorhabditis%20elegans/?format=csv">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    <a name="data_download_info" type="button" class="btn btn-outline-secondary btn-xs">
-                        <i class="fa fa-file-arrow-down"></i>
-                    </a>
-                    <a name="data_link_info" type="button" class="btn btn-outline-secondary btn-xs" data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual" data-bs-placement="right" data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
-                        <i class="fa fa-code"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
+        {% endfor %}
     </tbody>
 </table>
 

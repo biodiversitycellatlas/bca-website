@@ -119,7 +119,7 @@ class File(models.Model):
     species     = models.ForeignKey(Species, on_delete=models.CASCADE,
                                     related_name="files")
     title       = models.CharField(max_length=255, choices=title_choices)
-    file        = models.FileField(upload_to="data/")
+    file        = models.FileField()
     checksum    = models.CharField(max_length=64, editable=False)
 
     def save(self, *args, **kwargs):
