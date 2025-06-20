@@ -3,7 +3,7 @@
 Dataset selection for Cell Atlas and other components
 
 Features:
-- Allows user to search dataset by species name and metadata (including taxonomic ranks)
+- Allows user to search datasets by species and metadata (including taxonomic ranks)
 - Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
 - Upon dataset selection, the user is redirected to that dataset page
 - Navigation tabs redirect to different views for the selected dataset
@@ -28,7 +28,7 @@ Input:
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="dataset-select-{{id}}" class="mb-2 {{class}} small"
 style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px; {% if width %}width: {{width}} !important{% endif %}"
-placeholder="{{placeholder|default:'Search dataset by species, taxonomic rank, division, ...'}}">
+placeholder="{{placeholder|default:'Search datasets by species, taxonomic rank, division, ...'}}">
     <option value=""></option>
     {% for phylum, dataset_list in dataset_dict.items %}
         <optgroup label="{{ phylum }}">
