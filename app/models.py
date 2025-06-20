@@ -259,8 +259,9 @@ class Gene(SlugMixin):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
-    genelists = models.ManyToManyField(GeneList)
-    correlations = models.ManyToManyField('self', through='GeneCorrelation', symmetrical=True)
+    genelists = models.ManyToManyField(GeneList, related_name='genes')
+    correlations = models.ManyToManyField(
+        'self', through='GeneCorrelation', symmetrical=True)
 
     @property
     def orthogroup(self):
@@ -272,6 +273,19 @@ class Gene(SlugMixin):
 
     class Meta:
         unique_together = ["name", "species"]
+
+    def __str__(self):
+        return str(self.name)
+
+
+class GeneModule(models.Model):
+    gene = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name='modules')
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name='gene_modules')
+    name = models.CharField(max_length=100)
+    membership_score = models.DecimalField(
+        max_digits=4, decimal_places=3, blank=True, null=True)
 
     def __str__(self):
         return str(self.name)
