@@ -13,7 +13,7 @@ services:
             - ghost
 
     ghost:
-        image: ghost:5.118-alpine
+        image: ghost:5.125-alpine
         env_file: [.env]
         expose:
             - "2368"
