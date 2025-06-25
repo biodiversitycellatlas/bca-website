@@ -230,7 +230,7 @@ class DomainFilter(QueryFilterSet):
 
 
 class GeneListFilter(FilterSet):
-    species = SpeciesChoiceFilter(field_name="gene")
+    species = SpeciesChoiceFilter(field_name="genes")
 
     class Meta:
         model = models.GeneList
