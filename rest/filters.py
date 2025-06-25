@@ -189,7 +189,7 @@ class GeneFilter(QueryFilterSet):
                 Q(name__in=genes) |
                 Q(domains__name__in=genes) |
                 Q(genelists__name__in=genes)
-            )
+            ).distinct()
         return queryset
 
     class Meta:
