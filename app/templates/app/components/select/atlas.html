@@ -19,7 +19,6 @@ Input:
 </div>
 
 <!-- Subnavbar to navigate the Cell Atlas -->
-{% with request.resolver_match.url_name as url_name %}
 <div class="subnavbar sticky-top py-1">
     <div class="container-xxl">
         <ul class="nav nav-pills small d-md-none">
@@ -45,106 +44,21 @@ Input:
 
             <div class="offcanvas-body">
                 <ul class="nav nav-pills small flex-column flex-md-row">
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name in 'atlas,atlas_info' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name in 'atlas,atlas_info' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_info' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-dna"></i>
-                            Information
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name == 'atlas_overview' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name == 'atlas_overview' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_overview' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-diagram-project"></i>
-                            Atlas overview
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name == 'atlas_panel' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name == 'atlas_panel' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_panel' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-solar-panel"></i>
-                            Gene panel
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name == 'atlas_gene' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name == 'atlas_gene' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_gene' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-bezier-curve"></i>
-                            Gene and orthologs
-                            <i class="fa fa-circle-question"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-title="Visualise gene and ortholog expression"></i>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name == 'atlas_markers' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name == 'atlas_markers' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_markers' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-list-ol"></i>
-                            Cell type markers
-                            <i class="fa fa-circle-question" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-title="Identify genes with specific expression patterns in selected metacells"></i>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2
-                        {% if url_name == 'atlas_compare' %}active{% endif %}
-                        {% if not dataset %}disabled{% endif %}"
-                        href="
-                        {% if url_name == 'atlas_compare' %}
-                            #top
-                        {% elif dataset %}
-                            {% url 'atlas_compare' dataset.slug %}
-                        {% endif %}">
-                            <i class="fa fa-scale-unbalanced"></i>
-                            Cross-species
-                            <i class="fa fa-circle-question"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-title="Compare genes between cell types of different species"></i>
-                        </a>
-                    </li>
+                    {% for link in links %}
+                        <li class="nav-item">
+                            <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"
+                            href="{{ link.href }}">
+                                <i class="fa fa-{{ link.icon }}"></i>
+                                {{ link.name }}
+                                {% if link.tooltip %}
+                                    <i class="fa fa-circle-question"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    data-bs-title="{{ link.tooltip }}"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -158,5 +72,3 @@ Input:
 <!--{% if dataset %}
 <script>document.cookie='dataset={{dataset}}';</script>
 {% endif %}-->
-
-{% endwith %}

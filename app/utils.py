@@ -1,5 +1,9 @@
+from django.urls import reverse
+
 from .models import Species, Dataset
+
 import json
+
 
 def get_dataset_dict():
     ''' Prepare dictionary of datasets. '''
@@ -102,3 +106,61 @@ def get_dataset(dataset):
     except:
         obj = None
     return obj
+
+
+def get_cell_atlas_links(url_name, dataset=None):
+    links = [
+        {
+            'name': 'Information',
+            'icon': 'dna',
+            'url_names': ['atlas', 'atlas_info'],
+            'url_view': 'atlas_info',
+            'tooltip': '',
+        },
+        {
+            'name': 'Atlas overview',
+            'icon': 'diagram-project',
+            'url_names': ['atlas_overview'],
+            'url_view': 'atlas_overview',
+            'tooltip': '',
+        },
+        {
+            'name': 'Gene panel',
+            'icon': 'solar-panel',
+            'url_names': ['atlas_panel'],
+            'url_view': 'atlas_panel',
+            'tooltip': '',
+        },
+        {
+            'name': 'Gene and orthologs',
+            'icon': 'bezier-curve',
+            'url_names': ['atlas_gene'],
+            'url_view': 'atlas_gene',
+            'tooltip': 'Visualise gene and ortholog expression',
+        },
+        {
+            'name': 'Cell type markers',
+            'icon': 'list-ol',
+            'url_names': ['atlas_markers'],
+            'url_view': 'atlas_markers',
+            'tooltip': 'Identify genes with specific expression patterns in selected metacells',
+        },
+        {
+            'name': 'Cross-species',
+            'icon': 'scale-unbalanced',
+            'url_names': ['atlas_compare'],
+            'url_view': 'atlas_compare',
+            'tooltip': 'Compare genes between cell types of different species',
+        },
+    ]
+
+    for link in links:
+        link['active'] = url_name in link['url_names']
+        link['disabled'] = dataset is None
+        if link['active']:
+            link['href'] = '#top'
+        elif dataset is not None:
+            link['href'] = reverse(link['url_view'], args=[dataset.slug])
+        else:
+            link['href'] = '#'
+    return links

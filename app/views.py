@@ -6,7 +6,7 @@ from django.views.generic.detail import DetailView
 from django.db.models import Q
 
 from .models import Dataset, Species, File
-from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict
+from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict, get_cell_atlas_links
 
 import random
 
@@ -23,11 +23,18 @@ class IndexView(TemplateView):
 class AtlasView(TemplateView):
     template_name = "app/atlas/atlas.html"
 
+    def get_species_icon(self, species=None):
+        if species is None:
+            species = [
+                "frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
+                "dove", "fish-fins", "cat", "locust", "tree", "spider", "hippo"
+            ]
+            species = random.choice(species)
+        return species
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["icon"] = random.choice(
-            ["frog", "mosquito", "cow", "otter", "kiwi-bird", "shrimp", "crow",
-            "dove", "fish-fins", "cat", "locust", "tree", "spider", "hippo"])
+        context["icon"] = self.get_species_icon()
         context["dataset_dict"] = get_dataset_dict()
 
         query = self.request.GET
@@ -38,10 +45,13 @@ class AtlasView(TemplateView):
             else:
                 # Warn that dataset is not available in the database
                 context['warning'] = {
-                    'title': f'Invalid dataset <code>{query['dataset']}</code>!',
+                    'title': f'Invalid dataset <code>{dataset}</code>!',
                     'description': f"Please check available datasets in the search box above."
                 }
 
+        # Prepare Cell Atlas links
+        url_name = self.request.resolver_match.url_name
+        context['links'] = get_cell_atlas_links(url_name)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -70,18 +80,20 @@ class BaseAtlasView(TemplateView):
         # Get URL query parameters
         query = self.request.GET
         context['query'] = query
-
         dataset = context["dataset"]
 
-        try:
-            dataset = get_dataset(dataset)
-            context["dataset"] = dataset
-            context["species"] = dataset.species
-        except:
-            context["dataset"] = dataset
-            return context
+        d = get_dataset(dataset)
+        if isinstance(d, Dataset):
+            context["dataset"] = d
+            context["species"] = d.species
+            context["dataset_dict"] = get_dataset_dict()
 
-        context["dataset_dict"] = get_dataset_dict()
+            # Prepare Cell Atlas links
+            url_name = self.request.resolver_match.url_name
+            context["links"] = get_cell_atlas_links(url_name, d)
+        else:
+            context["dataset"] = dataset
+
         return context
 
     def get(self, *args, **kwargs):
