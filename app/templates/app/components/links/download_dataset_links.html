@@ -1,0 +1,24 @@
+{% comment %}
+
+Reusable block for rendering dataset download links in multiple formats
+
+Input:
+- viewname: Django URL name
+- slug: dataset slug
+- suffix: file suffix for download name
+- formats: list of file formats
+- is_detail: whether the view is a 'detail' or 'list' view
+
+{% endcomment %}
+
+{% for ext in formats %}
+    <a
+        {% if is_detail %}
+            href="{% url viewname slug %}?limit=0&format={{ ext }}"
+        {% else %}
+            href="{% url viewname %}?dataset={{ slug }}&limit=0&format={{ ext }}"
+        {% endif %}
+    download="{{ slug }}-{{ suffix }}.{{ ext }}">
+        {{ ext|upper }}
+    </a>{% if not forloop.last %} &middot; {% endif %}
+{% endfor %}

@@ -208,11 +208,15 @@ class DownloadsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["species_dict"] = Species.objects.all()
+        context["species_all"] = Species.objects.all()
+        context["datasets_all"] = Dataset.objects.all()
         return context
 
 
 class FileDownloadView(DetailView):
+    """
+    Downloads the file with specified filename from `File` model.
+    """
     model = File
 
     def render_to_response(self, context, **response_kwargs):

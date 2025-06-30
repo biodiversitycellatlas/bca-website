@@ -17,22 +17,26 @@ Downloads page
 
 <hr/>
 
-<h2 class="h4">Species data</h2>
-
 {% load custom_filters %}
 
-<table id="species" class="display" style="width:100%">
+<!-- Species downloads -->
+<h2 class="h4" id="species">
+    Species data
+    {% include './components/button/copy_to_clipboard.html' with id='species' %}
+</h2>
+
+<table id="species_table" class="display nowrap" style="width:100%">
     <thead>
         <tr>
             <th>Species</th>
-            <th>Common Name</th>
+            <th>Common name</th>
             <th>Proteome</th>
             <th>DIAMOND database</th>
         </tr>
     </thead>
     <tbody>
         {% with file_types="Proteome,DIAMOND" %}
-            {% for species in species_dict %}
+            {% for species in species_all %}
                 <tr>
                     <td>
                         <img width="25px" src="{{ species.image_url }}">
@@ -59,12 +63,58 @@ Downloads page
     </tbody>
 </table>
 
+<hr/>
+
+<!-- Dataset downloads -->
+<h2 class="h4" id="dataset">
+    Dataset data
+    {% include './components/button/copy_to_clipboard.html' with id='dataset' %}
+</h2>
+
+<table id="dataset_table" class="display nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Species</th>
+            <th>Common name</th>
+            <th>Dataset name</th>
+
+            <th>Dataset information</th>
+            <th>Summary statistics</th>
+
+            <th>Single cell data</th>
+            <th>Metacell data</th>
+            <th>Metacell counts</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dataset in datasets_all %}
+            <tr>
+                <td>
+                    <img width="25px" src="{{ dataset.image_url|default_if_none:dataset.species.image_url }}">
+                    <i>{{ dataset.species.scientific_name }}</i>
+                </td>
+                <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
+                <td>{{ dataset.name|default_if_none:"–" }}</td>
+
+                {% load download_links %}
+                <td>{% download_dataset_detail 'rest:dataset-detail' dataset.slug 'dataset-info' %}</td>
+                <td>{% download_dataset_detail 'rest:stats-detail' dataset.slug 'summary-stats' %}</td>
+                <td>{% download_dataset_list 'rest:singlecell-list' dataset.slug 'single-cells' %}</td>
+                <td>{% download_dataset_list 'rest:metacell-list' dataset.slug 'metacells' %}</td>
+                <td>{% download_dataset_list 'rest:metacellcount-list' dataset.slug 'metacell-counts' %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <script>
-$('#species').DataTable( {
+$('#species_table, #dataset_table').DataTable({
     responsive: true,
     pageLength: 25,
+    scrollX: true,
     language: { "search": "" }
-} );
+});
+
 $('.dt-search input').attr("placeholder", "Search table...");
 </script>
 
