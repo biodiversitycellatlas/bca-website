@@ -97,8 +97,9 @@ Input:
                 ({{dataset.name}})
             {% endif %}
 
-            {% include '../components/button/copy_to_clipboard.html' %}
-            {% include '../components/button/data_download.html' with id='info' %}
+            {% load section_buttons %}
+            {% clipboard_button %}
+            {% data_dropdown id='info' %}
         </h1>
 
         <p>{{species.description|default:'No description available.'|safe}}</p>

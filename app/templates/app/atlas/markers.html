@@ -106,8 +106,10 @@ Input:
                     Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
                 </div>
                 <div class="col-auto">
-                    {% include '../components/button/copy_to_clipboard.html' with id='markers' %}
-                    {% include '../components/button/data_download.html' with id='markers' %}
+                    {% load section_buttons %}
+                    {% clipboard_button id='markers' %}
+                    {% data_dropdown id='markers' %}
+
                 </div>
             </div>
             <table id="markers_table" class="display" style="width:100%"></table>

@@ -24,7 +24,8 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
             </span>
 
             <div class="ms-auto d-flex align-items-center">
-                {% include '../button/data_download.html' with id=id %}
+                {% load section_buttons %}
+                {% data_dropdown id %}
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         </div>

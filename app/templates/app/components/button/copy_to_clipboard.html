@@ -1,16 +1,3 @@
-{% comment %}
-
-Button to copy current URL to the clipboard
-
-Feature:
-- Copies current URL (with modified hash based on optional `id` input) to clipboard
-- When clicked, temporarily disable button and show tooltip with success message
-
-Input:
-- id (optional): suffix used to identify elements and hash anchor to append to copied URL
-
-{% endcomment %}
-
 <button type="button" class="btn btn-secondary btn-sm float-end" id="clipboard_{{id}}"
 data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual"
 data-bs-title="<i class='fa fa-circle-check'></i> Copied!">

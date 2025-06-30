@@ -26,8 +26,9 @@ Input:
 <!-- Metacell projection -->
 <h1 class="h3 pt-2 mb-3" id="projection">
     Metacell projection
-    {% include '../components/button/copy_to_clipboard.html' with id='projection' %}
-    {% include '../components/button/data_download.html'  with id='projection' %}
+    {% load section_buttons %}
+    {% clipboard_button id='projection' %}
+    {% data_dropdown id='projection' %}
 </h1>
 
 {% include '../components/plots/metacell_projection.html' with id='projection' %}
@@ -35,8 +36,8 @@ Input:
 <!-- Gene expression heatmap -->
 <h1 class="h3 pt-2 mb-3" id="expression">
     Gene expression heatmap
-    {% include '../components/button/copy_to_clipboard.html' with id='expression' %}
-    {% include '../components/button/data_download.html' with id='expression' %}
+    {% clipboard_button id='expression' %}
+    {% data_dropdown id='expression' %}
 </h1>
 
 {% include '../components/plots/expression_heatmap.html' with id='expression' %}

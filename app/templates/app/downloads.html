@@ -22,7 +22,8 @@ Downloads page
 <!-- Species downloads -->
 <h2 class="h4" id="species">
     Species data
-    {% include './components/button/copy_to_clipboard.html' with id='species' %}
+    {% load section_buttons %}
+    {% clipboard_button id='species' %}
 </h2>
 
 <table id="species_table" class="display nowrap" style="width:100%">
@@ -68,7 +69,7 @@ Downloads page
 <!-- Dataset downloads -->
 <h2 class="h4" id="dataset">
     Dataset data
-    {% include './components/button/copy_to_clipboard.html' with id='dataset' %}
+    {% clipboard_button id='dataset' %}
 </h2>
 
 <table id="dataset_table" class="display nowrap" style="width:100%">
