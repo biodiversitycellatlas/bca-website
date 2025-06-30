@@ -21,7 +21,7 @@ class MetaSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.File
-        fields = ['title', 'file', 'checksum']
+        fields = ['type', 'file', 'checksum']
 
 
 class SourceSerializer(serializers.ModelSerializer):
@@ -470,7 +470,7 @@ class AlignRequestSerializer(serializers.Serializer):
     species = serializers.ChoiceField(
         choices=[
             (s.scientific_name, s.common_name)
-            for s in models.Species.objects.filter(files__title='DIAMOND')
+            for s in models.Species.objects.filter(files__type='DIAMOND')
         ] if check_model_exists(models.Species) else [],
         required=True,
         help_text="The [species' scientific name](#/operations/species_list).")

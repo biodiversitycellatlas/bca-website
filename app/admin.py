@@ -16,7 +16,7 @@ class SpeciesAdmin(admin.ModelAdmin):
 
 
 class FileAdmin(admin.ModelAdmin):
-    list_display = ["title", "species", "file", "checksum"]
+    list_display = ["type", "species", "file", "checksum"]
     list_filter = ["species"]
 
 

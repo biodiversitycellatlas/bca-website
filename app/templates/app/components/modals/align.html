@@ -160,11 +160,6 @@ $("#{{id}}_upload").on("change", function () {
         // Add text to sequence textarea
         const reader = new FileReader();
         reader.onload = function(event) {
-
-        };
-
-
-        reader.onload = function(event) {
             const content = event.target.result;
             const lines = content.split('\n');
 

@@ -473,7 +473,7 @@ class AlignViewSet(viewsets.ViewSet):
         Align query sequences against proteome database from the species.
         """
         s = models.Species.objects.filter(scientific_name=species).first()
-        db = s.files.filter(title='DIAMOND')
+        db = s.files.filter(type='DIAMOND')
 
         if not db.exists():
             raise ValueError(f"{species} does not have a DIAMOND database.")

@@ -19,16 +19,16 @@ dir  = 'data/raw/files'
 def add_file(file_path, species):
     file_path = str(file_path)
     if file_path.endswith('.dmnd'):
-        title = "DIAMOND"
+        type = "DIAMOND"
     elif file_path.endswith('.fasta') or file_path.endswith('.fa'):
-        title = "Proteome"
+        type = "Proteome"
     else:
         return
 
     with open(file_path, 'rb') as f:
         django_file = DjangoFile(f, name=os.path.basename(file_path))
         File.objects.get_or_create(
-            species=species, title=title, defaults={'file': django_file})
+            species=species, type=type, defaults={'file': django_file})
 
     return True
 

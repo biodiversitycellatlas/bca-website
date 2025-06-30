@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from colorfield.fields import ColorField
 import re
 import hashlib
+from pathlib import Path
 
 
 class SlugMixin(models.Model):
@@ -111,16 +112,16 @@ class Dataset(SlugMixin, ImageSourceMixin):
         return name
 
 class File(models.Model):
-    title_choices = {
+    file_types = {
         "Proteome": "Proteome",
         "DIAMOND": "DIAMOND"
     }
 
-    species     = models.ForeignKey(Species, on_delete=models.CASCADE,
-                                    related_name="files")
-    title       = models.CharField(max_length=255, choices=title_choices)
-    file        = models.FileField()
-    checksum    = models.CharField(max_length=64, editable=False)
+    species  = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
+    type     = models.CharField(max_length=255, choices=file_types)
+    file     = models.FileField()
+    checksum = models.CharField(max_length=64, editable=False)
+    slug     = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.file:
@@ -128,14 +129,27 @@ class File(models.Model):
             for chunk in self.file.chunks():
                 hasher.update(chunk)
             self.checksum = hasher.hexdigest()
+
+            if not self.slug:
+                base = f"{self.species.scientific_name}-{self.type}"
+                self.slug = slugify(base)
+
         self.full_clean()
         super().save(*args, **kwargs)
 
+    @property
+    def ext(self):
+        return Path(self.file.name).suffix.lstrip(".")
+
+    @property
+    def filename(self):
+        return f"{self.slug}.{self.ext}"
+
     class Meta:
-        unique_together = ["species", "title"]
+        unique_together = ["species", "type"]
 
     def __str__(self):
-        return f"{self.species.scientific_name} - {self.title}"
+        return f"{self.species.scientific_name} - {self.type}"
 
 
 class Meta(models.Model):

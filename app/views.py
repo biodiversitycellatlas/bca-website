@@ -1,11 +1,11 @@
-from django.http import Http404
+from django.http import FileResponse
 from django.shortcuts import redirect, reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 
 from django.db.models import Q
 
-from .models import Dataset, Species
+from .models import Dataset, Species, File
 from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict
 
 import random
@@ -210,6 +210,17 @@ class DownloadsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["species_dict"] = Species.objects.all()
         return context
+
+
+class FileDownloadView(DetailView):
+    model = File
+
+    def render_to_response(self, context, **response_kwargs):
+        resp = FileResponse(
+            self.object.file.open(),
+            as_attachment=True,
+            filename=self.object.filename)
+        return resp
 
 
 class BlogView(TemplateView):

@@ -17,7 +17,11 @@ Downloads page
 
 <hr/>
 
-<table id="downloads" class="display" style="width:100%">
+<h2 class="h4">Species data</h2>
+
+{% load custom_filters %}
+
+<table id="species" class="display" style="width:100%">
     <thead>
         <tr>
             <th>Species</th>
@@ -27,20 +31,38 @@ Downloads page
         </tr>
     </thead>
     <tbody>
-        {% for species in species_dict %}
-        <tr>
-            <td>{{species}}</td>
-            <td>{{species.common_name|default_if_none:"–"}}</td>
-            <td>Not yet available</td>
-            <td>Not yet available</td>
-        </tr>
-        {% endfor %}
+        {% with file_types="Proteome,DIAMOND" %}
+            {% for species in species_dict %}
+                <tr>
+                    <td>
+                        <img width="25px" src="{{ species.image_url }}">
+                        <i>{{ species }}</i>
+                    </td>
+                    <td>{{ species.common_name|default_if_none:"–" }}</td>
+
+                    {% for file_type in file_types|split:"," %}
+                        {% with file=species.files.all|get_file_type:file_type %}
+                        <td>
+                            {% if file %}
+                                <a href="{% url 'download_file' file.slug %}">
+                                    {{ file.ext.upper }}
+                                </a>
+                            {% else %}
+                                –
+                            {% endif %}
+                        </td>
+                        {% endwith %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endwith %}
     </tbody>
 </table>
 
 <script>
-$('#downloads').DataTable( {
+$('#species').DataTable( {
     responsive: true,
+    pageLength: 25,
     language: { "search": "" }
 } );
 $('.dt-search input').attr("placeholder", "Search table...");
