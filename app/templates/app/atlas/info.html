@@ -67,6 +67,7 @@ Input:
         style="margin: 0 auto; hyphens: auto; word-break: break-word;">
             <tbody>
                 {% for meta in species.meta_set.all %}
+                {% if meta.key != "species" %}
                     <tr>
                         <td><span style="font-weight: 500;">
                             {% if meta.key == "taxon_id" %}
@@ -85,6 +86,7 @@ Input:
                             {% endif %}
                         </td>
                     </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
@@ -92,10 +94,7 @@ Input:
 
     <div class="col-md-8 mt-4 mt-sm-0">
         <h1 class="h3">
-            <i>{{species.scientific_name}}</i>
-            {% if dataset.name %}
-                ({{dataset.name}})
-            {% endif %}
+            {{dataset.html}}
 
             {% load section_buttons %}
             {% clipboard_button %}

@@ -2,6 +2,7 @@ from django.db import models, connection
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.utils.text import slugify
+from django.utils.safestring import mark_safe
 
 from colorfield.fields import ColorField
 import re
@@ -58,6 +59,20 @@ class Species(SlugMixin, ImageSourceMixin):
     image_url       = models.URLField(
         blank=True, null=True, help_text="URL for species image")
 
+    @property
+    def html(self):
+        """ Return HTML representation of the species name. """
+        unspecified = " sp."
+        species =self.scientific_name
+
+        if species.lower().endswith(unspecified):
+            genus = species.replace(unspecified, "")
+            html = f"<i>{genus}</i>{unspecified}"
+        else:
+            html = f"<i>{species}</i>"
+
+        return mark_safe(html)
+
     class Meta:
         verbose_name = "species"
         verbose_name_plural = verbose_name
@@ -101,6 +116,14 @@ class Dataset(SlugMixin, ImageSourceMixin):
     # developmental stages
     order = models.PositiveIntegerField(
         default=0, help_text="Order of the dataset (for ordinal sets like developmental stages)")
+
+    @property
+    def html(self):
+        """ Return HTML representation of the dataset. """
+        html = self.species.html
+        if self.name is not None:
+            html = f"{html} ({self.name})"
+        return mark_safe(html)
 
     class Meta:
         unique_together = ('species', 'name')

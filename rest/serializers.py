@@ -73,11 +73,12 @@ class SummaryStatsSerializer(serializers.ModelSerializer):
     stddev = serializers.FloatField(help_text="Standard deviation.")
 
     class Meta:
-        model = models.Species
+        model = models.Dataset
         fields = ['min', 'q1', 'avg', 'median', 'q3', 'max', 'stddev']
 
 
 class StatsSerializer(serializers.ModelSerializer):
+    species = serializers.CharField(source='species.scientific_name', help_text="Species scientific name.")
     cells = serializers.SerializerMethodField(help_text="Number of cells.")
     metacells = serializers.SerializerMethodField(help_text="Number of metacells.")
     umis = serializers.SerializerMethodField(help_text="Number of unique molecular identifiers (UMIs).")

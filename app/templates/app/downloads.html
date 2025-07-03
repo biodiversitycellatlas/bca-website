@@ -41,7 +41,7 @@ Downloads page
                 <tr>
                     <td>
                         <img width="25px" src="{{ species.image_url }}">
-                        <i>{{ species }}</i>
+                        {{ species.html }}
                     </td>
                     <td>{{ species.common_name|default_if_none:"–" }}</td>
 
@@ -92,7 +92,7 @@ Downloads page
             <tr>
                 <td>
                     <img width="25px" src="{{ dataset.image_url|default_if_none:dataset.species.image_url }}">
-                    <i>{{ dataset.species.scientific_name }}</i>
+                    {{ dataset.species.html }}
                 </td>
                 <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
                 <td>{{ dataset.name|default_if_none:"–" }}</td>
