@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% comment %}
+
+About the project
+
+Features:
+- The page displays the most recent update date of this file using a custom
+  Django tag `{% file_last_modified %}`
+
+{% endcomment %}
+
+{% block title %}About{% endblock title %}
+
+{% block content %}
+
+{% load bca_website_links %}
+
+<h1 class="h3" id="about">About us</h1>
+
+<p>
+	The <a href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a> (BCA)
+	is a coordinated international effort aimed at molecularly characterizing
+	cell types across the eukaryotic tree of life. Our mission is to pave the
+	way for the efficient expansion of cell atlases to hundreds of species.
+</p>
+
+<h1 class="h3" id="contact">Contact us</h1>
+
+<p>
+	Contact us at
+	<a href="{{ FEEDBACK_URL }}" target="_blank">{{BCA_EMAIL}}</a>.
+</p>
+
+<h1 class="h3" id="media">Media kit</h1>
+
+<p>
+	Download our logos, check visual identity colors, and more in the
+	<a href="{% bca_url 'about/#media-kit' %}" target="_blank">
+		main BCA website
+	</a>.
+</p>
+
+<h1 class="h3" id="legal">Legal and privacy information</h1>
+
+<p>Please read our <a href="{% bca_url 'legal' %}">Legal Notice & Privacy Policy</a> and <a href="{% bca_url 'cookies' %}">Cookies policy</a>.</p>
+
+<h1 class="h3" id="licenses">Licenses</h1>
+
+<p>Icons by <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome</a>.</p>
+
+{% load custom_tags %}
+<p style="text-align: right;"><i>
+	Last updated:
+	<b>{% file_last_modified "app/templates/app/about/about.html" "%d %b %Y" %}</b>
+</i></p>
+
+{% endblock content %}

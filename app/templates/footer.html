@@ -10,6 +10,8 @@ Features:
 {% endcomment %}
 
 {% load static %}
+{% load bca_website_links %}
+
 <div class="container-xxl">
     <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-5 mt-5 border-top">
         <div class="mb-4">
@@ -21,7 +23,7 @@ Features:
 
                 <a href="{{FEEDBACK_URL}}" target="_blank"
                 class="d-md-inline-block w-100 text-truncate">
-                    bca@biodiversitycellatlas.org
+                    {{BCA_EMAIL}}
                 </a>
             </p>
             <a href="https://www.crg.eu/" target="_blank">
@@ -65,7 +67,7 @@ Features:
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">Cell atlas</a></li>
                 <li class="nav-item mb-2"><a href="{% url 'downloads' %}" class="nav-link p-0 text-muted">Downloads</a></li>
-                <li class="nav-item mb-2"><a href="{% url 'blog' %}" class="nav-link p-0 text-muted">Blog</a></li>
+                <li class="nav-item mb-2"><a href="{% bca_url 'blog' %}" class="nav-link p-0 text-muted" target="_blank">Blog</a></li>
                 <li class="nav-item mb-2"><a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">REST API</a></li>
             </ul>
         </div>
@@ -74,24 +76,24 @@ Features:
             <h5><a href="{% url 'about' %}#about">About</a></h5>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
-                    <a href="{% url 'about' %}#contact"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% bca_url 'contact' %}"
+                    class="nav-link p-0 text-muted" target="_blank">
                         Contact us
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% url 'about' %}#media"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% bca_url 'about/#media-kit' %}"
+                    class="nav-link p-0 text-muted" target="_blank">
                         Media kit
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% url 'legal' %}" class="nav-link p-0 text-muted">
+                    <a href="{% bca_url 'legal' %}" class="nav-link p-0 text-muted" target="_blank">
                         Legal & privacy
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% url 'cookies' %}" class="nav-link p-0 text-muted">
+                    <a href="{% bca_url 'cookies' %}" class="nav-link p-0 text-muted" target="_blank">
                         Cookies policy
                     </a>
                 </li>

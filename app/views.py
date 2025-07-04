@@ -239,20 +239,8 @@ class FileDownloadView(DetailView):
         return resp
 
 
-class BlogView(TemplateView):
-    template_name = "app/blog.html"
-
-
 class AboutView(TemplateView):
-    template_name = "app/about/about.html"
-
-
-class CookiesView(TemplateView):
-    template_name = "app/about/cookies.html"
-
-
-class LegalView(TemplateView):
-    template_name = "app/about/legal.html"
+    template_name = "app/about.html"
 
 
 class SearchView(TemplateView):

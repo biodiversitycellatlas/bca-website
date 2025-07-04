@@ -20,10 +20,6 @@ urlpatterns = [
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path('downloads/<slug:slug>', views.FileDownloadView.as_view(), name='download_file'),
 
-    path("blog/", views.BlogView.as_view(), name="blog"),
     path("about/", views.AboutView.as_view(), name="about"),
-    path("about/cookies/", views.CookiesView.as_view(), name="cookies"),
-    path("about/legal/", views.LegalView.as_view(), name="legal"),
-
     path("search/", views.SearchView.as_view(), name="search"),
 ]

@@ -39,9 +39,10 @@ Features:
                     </a>
                 </li>
 
+                {% load bca_website_links %}
                 <li class="nav-item">
                     <a class="nav-link {% if url_name == 'blog' %}active{% endif %}"
-                    href="{% url 'blog' %}">
+                    href="{% bca_url 'blog' %}" target="_blank">
                         Blog
                     </a>
                 </li>
