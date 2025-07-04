@@ -51,8 +51,7 @@ Features:
 
 {% load custom_tags %}
 <p style="text-align: right;"><i>
-	Last updated:
-	<b>{% file_last_modified "app/templates/app/about.html" "%d %b %Y" %}</b>
+	Last updated: <b>{% file_last_modified %}</b>
 </i></p>
 
 {% endblock content %}
