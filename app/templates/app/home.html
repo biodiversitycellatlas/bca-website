@@ -15,7 +15,7 @@ Features:
 {% load static %}
 <div class="px-2 text-center">
     <h1 class="display-5 fw-bold text-body-emphasis d-none">
-        The Biodiversity Cell Atlas
+        Biodiversity Cell Atlas: Data Portal
     </h1>
 
     <img title="Biodiversity Cell Atlas" width="500" class="img-fluid"
@@ -23,10 +23,12 @@ Features:
     style="margin: -40px;">
 
     <div class="col-lg-8 mx-auto mt-3 mt-md-0">
-        <p class="lead" style="margin-bottom: -5px;">
+        <p class="lead">
+            <span class="h5 mb-5 pb-5 fw-semibold text-body-emphasis">BCA Data Portal:</span>
+
             {% load bca_website_links %}
-            The <a class="fw-bold" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
-            (BCA) is a coordinated international effort aimed at molecularly characterizing
+            The <a class="fw-bolder" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
+            is a coordinated international effort aimed at molecularly characterizing
             cell types across the eukaryotic tree of life. Our mission is to
             pave the way for the efficient expansion of cell atlases to hundreds
             of species.

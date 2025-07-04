@@ -173,8 +173,8 @@ def sort_API_tags(operation):
     return ['Species', 'Gene', 'Metacell', 'Single cell', 'Sequence alignment']
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Biodiversity Cell Atlas API',
-    'DESCRIPTION': 'Fetch [BCA](/) pre-processed data',
+    'TITLE': 'Biodiversity Cell Atlas: Data Portal API',
+    'DESCRIPTION': 'Fetch pre-processed and processed [BCA](/) data',
 
     'CONTACT': {'name': 'BCA', 'url': '/about'},
     'TOS': '/about/legal',

@@ -1,4 +1,4 @@
-# Biodiversity Cell Atlas web app
+# Biodiversity Cell Atlas website
 
 The Biodiversity Cell Atlas is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species.
 

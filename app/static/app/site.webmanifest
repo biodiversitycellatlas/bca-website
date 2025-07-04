@@ -1,6 +1,6 @@
 {
-  "name": "Biodiversity Cell Atlas",
-  "short_name": "BCA",
+  "name": "Biodiversity Cell Atlas: Data Portal",
+  "short_name": "BCA Data Portal",
   "icons": [
     {
       "src": "/static/app/images/favicons/web-app-manifest-192x192.png",

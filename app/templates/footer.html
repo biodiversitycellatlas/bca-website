@@ -18,13 +18,10 @@ Features:
             <p class="text-muted">
                 © 2024-{% now "Y" %}</br>
                 <span style="white-space: nowrap;">
-                    Biodiversity Cell Atlas
+                    <a href="{{BCA_WEBSITE}}" target="_blank">
+                        Biodiversity Cell Atlas
+                    </a>
                 </span></br>
-
-                <a href="{{FEEDBACK_URL}}" target="_blank"
-                class="d-md-inline-block w-100 text-truncate">
-                    {{BCA_EMAIL}}
-                </a>
             </p>
             <a href="https://www.crg.eu/" target="_blank">
                 <p><img title="CRG" width="150"
@@ -63,12 +60,38 @@ Features:
         </div>
 
         <div class="mb-3">
-            <h5><a href="{% url 'index' %}">BCA</a></h5>
+            <h5><a href="{% url 'index' %}">Data portal</a></h5>
             <ul class="nav flex-column">
-                <li class="nav-item mb-2"><a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">Cell atlas</a></li>
-                <li class="nav-item mb-2"><a href="{% url 'downloads' %}" class="nav-link p-0 text-muted">Downloads</a></li>
-                <li class="nav-item mb-2"><a href="{% bca_url 'blog' %}" class="nav-link p-0 text-muted" target="_blank">Blog</a></li>
-                <li class="nav-item mb-2"><a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">REST API</a></li>
+                <li class="nav-item mb-2">
+                    <a href="{% url 'atlas' %}"
+                    class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-map"></i>
+                        Cell atlas
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{% url 'downloads' %}"
+                    class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-file-arrow-down"></i>
+                        Downloads
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{% bca_url 'blog' %}" target="_blank"
+                    class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-radio"></i>
+                        Blog
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-code"></i>
+                        REST API
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -78,29 +101,41 @@ Features:
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'contact' %}"
                     class="nav-link p-0 text-muted" target="_blank">
+                        <i class="fa fa-fw fa-paper-plane"></i>
                         Contact us
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'about/#media-kit' %}"
                     class="nav-link p-0 text-muted" target="_blank">
+                        <i class="fa fa-fw fa-box"></i>
                         Media kit
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'legal' %}" class="nav-link p-0 text-muted" target="_blank">
+                        <i class="fa fa-fw fa-shield-halved"></i>
                         Legal & privacy
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'cookies' %}" class="nav-link p-0 text-muted" target="_blank">
-                        Cookies policy
+                        <i class="fa fa-fw fa-cookie-bite"></i>
+                        Cookies
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a href="{% url 'about' %}#licenses"
                     class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-file-contract"></i>
                         Licenses
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="https://github.com/biodiversitycellatlas/bca-website"
+                    target="_blank" class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-brands fa-github"></i>
+                        GitHub repository
                     </a>
                 </li>
             </ul>

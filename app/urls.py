@@ -3,8 +3,8 @@ from django.contrib import admin
 
 from . import views
 
-admin.site.site_header = 'BCA website'
-admin.site.site_title = 'BCA website admin'
+admin.site.site_header = 'BCA Data Portal'
+admin.site.site_title = 'BCA Data Portal admin'
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
