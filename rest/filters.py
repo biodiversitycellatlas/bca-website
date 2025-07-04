@@ -349,7 +349,7 @@ class SingleCellGeneExpressionFilter(FilterSet):
                 Q(gene__name__in=genes) |
                 Q(gene__domains__name__in=genes) |
                 Q(gene__genelists__name__in=genes)
-            )
+            ).distinct()
         return queryset
 
     class Meta:
@@ -388,7 +388,7 @@ class MetacellGeneExpressionFilter(FilterSet):
                 Q(gene__name__in=genes) |
                 Q(gene__domains__name__in=genes) |
                 Q(gene__genelists__name__in=genes)
-            )
+            ).distinct()
         return queryset
 
     def filter_metacells(self, queryset, name, value):
@@ -399,7 +399,7 @@ class MetacellGeneExpressionFilter(FilterSet):
                 Q(metacell__name__in=metacells) |
                 Q(metacell__type__name__in=metacells)
             )
-            queryset = queryset.filter(selected)
+            queryset = queryset.filter(selected).distinct()
         return queryset
 
 
@@ -493,7 +493,7 @@ class CorrelatedGenesFilter(QueryFilterSet):
     def filter_gene(self, queryset, name, value):
         if value:
             id = models.Gene.objects.filter(name=value).values_list('id')[0][0]
-            queryset = queryset.filter( Q(gene=id) | Q(gene2=id) )
+            queryset = queryset.filter( Q(gene=id) | Q(gene2=id) ).distinct()
         return queryset
 
     class Meta:
