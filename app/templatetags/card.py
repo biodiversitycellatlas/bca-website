@@ -1,0 +1,67 @@
+"""
+Django template tags for generating download links and download cards.
+"""
+
+from django import template
+from urllib.parse import urlparse, urlunparse
+
+register = template.Library()
+
+def _build_card_context(title, description, img_url=None, img_author=None, img_author_handle=None, img_width=None):
+    """
+    Build card context with optional optimized Unsplash image.
+
+    Args:
+        title (str): Title displayed on card.
+        description (str): Description displayed on card.
+        img_url (str, optional): Image URL to display.
+        img_author (str, optional): Image author name.
+        img_author_handle (str, optional): Image author social handle.
+        img_width (int): Image width.
+
+    Returns:
+        str: rendered HTML with download card.
+    """
+    img_source = None
+    if img_url and 'unsplash' in img_url.lower():
+        # Optimise Unsplash images
+        params = {
+            'crop': 'entropy',
+            'cs': 'tinysrgb',
+            'fit': 'max',
+            'fm': 'webp',
+            'q': '80',
+            'w': '400',
+        }
+        query = '&'.join(f'{k}={v}' for k, v in params.items())
+        parsed = urlparse(img_url)
+        img_url = urlunparse(parsed._replace(query=query))
+        img_source = 'Unsplash'
+
+    return {
+        'title': title,
+        'description': description,
+        'img_url': img_url,
+        'img_author': img_author,
+        'img_author_handle': img_author_handle,
+        'img_source': img_source,
+        'img_width': img_width
+    }
+
+@register.inclusion_tag('app/components/links/card.html')
+def card(title, description, img_url=None, img_author=None, img_author_handle=None, img_width=None):
+    """
+    Render a card with information.
+
+    Args:
+        title (str): Title displayed on card.
+        description (str): Description displayed on card.
+        img_url (str, optional): Image URL to display.
+        img_author (str, optional): Image author name.
+        img_author_handle (str, optional): Image author social handle.
+        img_width (int): Image width.
+
+    Returns:
+        str: rendered HTML with download card.
+    """
+    return _build_card_context(title, description, img_url, img_author, img_author_handle, img_width)

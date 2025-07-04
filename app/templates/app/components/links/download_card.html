@@ -1,46 +1,6 @@
-{% comment %}
+{% extends "app/components/links/card.html" %}
 
-Reusable block for rendering species or dataset download card
-
-{% endcomment %}
-
-{% load download_links %}
-<div class="card download-card h-100" style="max-width: 18rem;">
-    {% if img_url %}
-    <figure class="mb-0" class="d-inline-block" style="position: relative;">
-        <img
-            {% if img_author %}
-                alt="Photo by {{img_author}} ({{img_source|default:'Unsplash'}})"
-            {% endif %}
-            class="card-img-top" src="{{img_url}}">
-
-        {% if img_author %}
-            <figcaption
-            class="w-100 position-absolute text-end bottom-0 py-2 px-4 bg-white bg-opacity-75 opacity-0 small"
-            style="backdrop-filter: blur(4px); transition: opacity 0.3s ease;">
-                Photo by
-                {% if img_source == 'Unsplash' and img_author_handle %}
-                    <a target="_blank" href="https://unsplash.com/{{img_author_handle}}">
-                        {{img_author}}
-                    </a>
-                {% else %}
-                    {{img_author}}
-                {% endif %}
-            </figcaption>
-        {% endif %}
-    </figure>
-    {% endif %}
-
-    <div class="card-body">
-        {% if title %}<h3 class="h5 card-title">{{title}}</h5>{% endif %}
-        {% if description %}<p class="card-text">{{description}}</p>{% endif %}
-        {% download_info type='button' view=view suffix=filename %}
-    </div>
-</div>
-
-<!-- Show figcaption on hover -->
-<style>
-.download-card figure:hover figcaption {
-    opacity: 1 !important;
-}
-</style>
+{% block links %}
+	{% load download_links %}
+    {% download_info type='button' view=view suffix=filename %}
+{% endblock %}

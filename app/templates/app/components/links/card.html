@@ -1,0 +1,39 @@
+<div class="card h-100" {% if img_width %}style="max-width: {{img_width}};"{% endif %}>
+    {% if img_url %}
+    <figure class="mb-0 d-inline-block" style="position: relative;">
+        <img
+            {% if img_author %}
+                alt="Photo by {{ img_author }} ({{ img_source|default:'Unsplash' }})"
+            {% endif %}
+            class="card-img-top" src="{{ img_url }}">
+
+        {% if img_author %}
+        <figcaption
+            class="w-100 position-absolute text-end bottom-0 py-2 px-4 bg-white bg-opacity-75 opacity-0 small"
+            style="backdrop-filter: blur(4px); transition: opacity 0.3s ease;">
+            Photo by
+            {% if img_source == 'Unsplash' and img_author_handle %}
+                <a target="_blank" href="https://unsplash.com/{{ img_author_handle }}">
+                    {{ img_author }}
+                </a>
+            {% else %}
+                {{ img_author }}
+            {% endif %}
+        </figcaption>
+        {% endif %}
+    </figure>
+    {% endif %}
+
+    <div class="card-body">
+        {% if title %}<h3 class="h5 card-title">{{ title }}</h3>{% endif %}
+        {% if description %}<p class="card-text">{{ description }}</p>{% endif %}
+
+        {% block links %}{% endblock %}
+    </div>
+</div>
+
+<style>
+.card figure:hover figcaption {
+    opacity: 1 !important;
+}
+</style>

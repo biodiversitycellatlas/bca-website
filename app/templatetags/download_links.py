@@ -4,6 +4,7 @@ Django template tags for generating download links and download cards.
 
 from django import template
 from urllib.parse import urlparse, urlunparse
+from .card import _build_card_context
 
 register = template.Library()
 
@@ -61,9 +62,9 @@ def download_info(view, suffix, type='link'):
     return _build_download_context(view, suffix, None, type)
 
 @register.inclusion_tag('app/components/links/download_card.html')
-def download_card(view, filename, title, description, img_url=None, img_author=None, img_author_handle=None):
+def download_card(view, filename, title, description, img_url=None, img_author=None, img_author_handle=None, img_width=None):
     """
-    Render a download card with optional optimized Unsplash image.
+    Render a card containing downloadable links.
 
     Args:
         view (str): View name to generate URLs.
@@ -73,34 +74,11 @@ def download_card(view, filename, title, description, img_url=None, img_author=N
         img_url (str, optional): Image URL to display.
         img_author (str, optional): Image author name.
         img_author_handle (str, optional): Image author social handle.
+        img_width (int): Image width.
 
     Returns:
-        str: rendered HTML with download card.
+        str: rendered HTML with card with downloadable data.
     """
-    img_source = None
-    if img_url and 'unsplash' in img_url.lower():
-        # Optimise Unsplash images
-        params = {
-            'crop': 'entropy',
-            'cs': 'tinysrgb',
-            'fit': 'max',
-            'fm': 'webp',
-            'q': '80',
-            'w': '400'
-        }
-
-        query = '&'.join(f'{k}={v}' for k, v in params.items())
-        parsed = urlparse(img_url)
-        img_url = urlunparse(parsed._replace(query=query))
-        img_source = 'Unsplash'
-
-    return {
-        'view': view,
-        'filename': filename,
-        'title': title,
-        'description': description,
-        'img_url': img_url,
-        'img_author': img_author,
-        'img_author_handle': img_author_handle,
-        'img_source': img_source
-    }
+    context = _build_card_context(title, description, img_url, img_author, img_author_handle, img_width)
+    context.update({'view': view, 'filename': filename})
+    return context
