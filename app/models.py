@@ -117,22 +117,20 @@ class Dataset(SlugMixin, ImageSourceMixin):
     order = models.PositiveIntegerField(
         default=0, help_text="Order of the dataset (for ordinal sets like developmental stages)")
 
+    def __label(self, species):
+        dataset = self.name
+        return f"{species} ({dataset})" if dataset else species
+
     @property
     def html(self):
         """ Return HTML representation of the dataset. """
-        html = self.species.html
-        if self.name is not None:
-            html = f"{html} ({self.name})"
-        return mark_safe(html)
+        return mark_safe(self.__label(self.species.html))
 
     class Meta:
         unique_together = ('species', 'name')
 
     def __str__(self):
-        name = self.species.scientific_name
-        if self.name is not None:
-            name = f"{name} – {self.name}"
-        return name
+        return self.__label(self.species.scientific_name)
 
 class File(models.Model):
     file_types = {
@@ -166,7 +164,7 @@ class File(models.Model):
 
     @property
     def filename(self):
-        return f"{self.slug}.{self.ext}"
+        return f"{self}.{self.ext}"
 
     class Meta:
         unique_together = ["species", "type"]

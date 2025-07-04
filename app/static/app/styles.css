@@ -234,7 +234,7 @@ body {
     text-shadow: 0 0 4px var(--card-text-shadow);
 }
 
-.card:hover {
+.news.card:hover {
     transform: scale(1.05);
 }
 

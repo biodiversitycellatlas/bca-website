@@ -33,16 +33,17 @@ class SourceSerializer(serializers.ModelSerializer):
 class DatasetSerializer(serializers.ModelSerializer):
     source = SourceSerializer()
     species = serializers.CharField(source='species.scientific_name')
+    dataset = serializers.CharField(source='name', help_text="Dataset name.")
     species_common_name = serializers.CharField(source='species.common_name')
     species_image_url = serializers.CharField(source='species.image_url')
     species_description = serializers.CharField(source='species.description')
-    species_meta = MetaSerializer(source='species.meta_set', many=True, help_text="Metadata")
+    species_meta = MetaSerializer(source='species.meta_set', many=True, help_text="Species metadata.")
     slug = serializers.CharField()
 
     class Meta:
         model = models.Dataset
         fields = [
-            'species', 'name', 'slug', 'description', 'image_url',
+            'species', 'dataset', 'slug', 'description', 'image_url',
             'source', 'order', 'date_created', 'date_updated',
             'species_common_name', 'species_image_url',
             'species_description', 'species_meta'
@@ -79,6 +80,7 @@ class SummaryStatsSerializer(serializers.ModelSerializer):
 
 class StatsSerializer(serializers.ModelSerializer):
     species = serializers.CharField(source='species.scientific_name', help_text="Species scientific name.")
+    dataset = serializers.CharField(source='name', help_text="Dataset name.")
     cells = serializers.SerializerMethodField(help_text="Number of cells.")
     metacells = serializers.SerializerMethodField(help_text="Number of metacells.")
     umis = serializers.SerializerMethodField(help_text="Number of unique molecular identifiers (UMIs).")
@@ -90,7 +92,7 @@ class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Dataset
         fields = [
-            'species', 'name', 'genes', 'cells', 'metacells',
+            'species', 'dataset', 'genes', 'cells', 'metacells',
             'umis', 'umis_per_metacell', 'cells_per_metacell'
         ]
 

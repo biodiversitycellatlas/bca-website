@@ -1,0 +1,28 @@
+{% comment %}
+
+Reusable block for rendering species or dataset download links in multiple formats
+
+Input:
+- view: Django view name
+- slug: dataset slug (optional)
+- suffix: file suffix for download name
+- formats: list of file formats
+- type: 'button' or 'link' style
+
+{% endcomment %}
+
+{% for ext in formats %}
+    <a
+        {% if type == 'button' %}
+            class="btn btn-primary btn-xs"
+        {% endif %}
+
+        {% if slug %}
+            href="{% url view %}?dataset={{ slug }}&limit=0&format={{ ext }}"
+        {% else %}
+            href="{% url view %}?limit=0&format={{ ext }}"
+        {% endif %}
+    download="{% if slug %}{{ slug }} {% endif %}{{ suffix }}.{{ ext }}">
+        {{ ext|upper }}
+    </a>{% if type|default:'link' == "link" and not forloop.last %} &middot; {% endif %}
+{% endfor %}
