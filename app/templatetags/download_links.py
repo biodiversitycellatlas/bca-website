@@ -1,27 +1,82 @@
+"""
+Django template tags for generating download links and download cards.
+"""
+
 from django import template
 from urllib.parse import urlparse, urlunparse
 
 register = template.Library()
 
-def _build_download_context(view, suffix, slug=None, type='button'):
+def _build_download_context(view, suffix, slug=None, type='link', formats=['csv', 'tsv', 'json']):
+    """
+    Build context dictionary for download links in multiple formats.
+
+    Args:
+        view (str): View name to generate URLs.
+        suffix (str): Suffix for filename.
+        slug (str, optional): Dataset or species slug.
+        formats (list, optional): List of available download formats (default: ['csv', 'tsv', 'json']).
+        type (str, optional): Render as 'link' or 'button' (default: 'link').
+
+    Returns:
+        dict: Context data.
+    """
     return {
         'view': view,
         'slug': slug,
         'suffix': suffix,
-        'formats': ['csv', 'tsv', 'json'],
+        'formats': formats,
         'type': type,
     }
 
 @register.inclusion_tag('app/components/links/download_links.html')
 def download_dataset_data(view, suffix, slug, type='link'):
+    """
+    Render download links for dataset data in multiple formats.
+
+    Args:
+        view (str): View name to generate URLs.
+        suffix (str): Suffix for filename.
+        slug (str): Dataset slug.
+        type (str, optional): Render as 'link' or 'button' (default: 'link').
+
+    Returns:
+        str: rendered HTML with download links.
+    """
     return _build_download_context(view, suffix, slug, type)
 
 @register.inclusion_tag('app/components/links/download_links.html')
 def download_info(view, suffix, type='link'):
+    """
+    Render download links for species or dataset information.
+
+    Args:
+        view (str): View name to generate URLs.
+        suffix (str): Suffix for filename.
+        type (str, optional): Render as 'link' or 'button' (default: 'link').
+
+    Returns:
+        str: rendered HTML with download links.
+    """
     return _build_download_context(view, suffix, None, type)
 
 @register.inclusion_tag('app/components/links/download_card.html')
 def download_card(view, filename, title, description, img_url=None, img_author=None, img_author_handle=None):
+    """
+    Render a download card with optional optimized Unsplash image.
+
+    Args:
+        view (str): View name to generate URLs.
+        filename (str): Filename for download.
+        title (str): Title displayed on card.
+        description (str): Description displayed on card.
+        img_url (str, optional): Image URL to display.
+        img_author (str, optional): Image author name.
+        img_author_handle (str, optional): Image author social handle.
+
+    Returns:
+        str: rendered HTML with download card.
+    """
     img_source = None
     if img_url and 'unsplash' in img_url.lower():
         # Optimise Unsplash images
