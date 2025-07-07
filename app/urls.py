@@ -1,10 +1,6 @@
 from django.urls import path
-from django.contrib import admin
 
 from . import views
-
-admin.site.site_header = 'BCA Data Portal'
-admin.site.site_title = 'BCA Data Portal admin'
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
