@@ -13,15 +13,18 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from .pre_settings import get_DIAMOND_version, get_env
+from .pre_settings import get_env, get_DIAMOND_version, get_latest_git_tag
 
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_WEBSITE = "https://biodiversitycellatlas.org"
 BCA_EMAIL = "bca@biodiversitycellatlas.org"
-GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
-GITHUB_ISSUES_URL = "https://github.com/biodiversitycellatlas/bca-website/issues/new"
 FEEDBACK_URL = get_env('BCA_APP_FEEDBACK_URL', required=True)
+
+GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
+GITHUB_ISSUES_URL = GITHUB_URL + "/issues/new"
+GIT_VERSION = get_latest_git_tag()
+GIT_VERSION_URL = f"{GITHUB_URL}/releases/tag/{GIT_VERSION}"
 
 DIAMOND_VERSION = get_DIAMOND_version()
 

@@ -13,15 +13,24 @@ Features:
 {% load bca_website_links %}
 
 <div class="container-xxl">
-    <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-5 mt-5 border-top">
-        <div class="mb-4">
+    <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-4 mt-4 border-top small">
+        <div class="mb-3">
             <p class="text-muted">
                 © 2024-{% now "Y" %}</br>
+
                 <span style="white-space: nowrap;">
                     <a href="{{BCA_WEBSITE}}" target="_blank">
                         Biodiversity Cell Atlas
                     </a>
                 </span></br>
+
+                Data Portal
+                <span style="white-space: nowrap;">
+                    <a href="{{GIT_VERSION_URL}}" target="_blank">
+                        <i class="fa-brands fa-github"></i>
+                        {{GIT_VERSION}}
+                    </a>
+                </span>
             </p>
             <a href="https://www.crg.eu/" target="_blank">
                 <p><img title="CRG" width="150"
@@ -44,7 +53,7 @@ Features:
         <div class="mb-3 d-none d-md-block"></div>
 
         <div class="mb-3">
-            <h5><a href="#">Cite us</a></h5>
+            <h6><a href="#">Cite us</a></h6>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">
                     White paper coming soon: <b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b>
@@ -60,7 +69,7 @@ Features:
         </div>
 
         <div class="mb-3">
-            <h5><a href="{% url 'index' %}">Data portal</a></h5>
+            <h6><a href="{% url 'index' %}">Data portal</a></h6>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <a href="{% url 'atlas' %}"
@@ -79,24 +88,24 @@ Features:
                 </li>
 
                 <li class="nav-item mb-2">
+                    <a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-code"></i>
+                        REST API
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
                     <a href="{% bca_url 'blog' %}" target="_blank"
                     class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-radio"></i>
                         Blog
                     </a>
                 </li>
-
-                <li class="nav-item mb-2">
-                    <a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">
-                        <i class="fa fa-fw fa-code"></i>
-                        REST API
-                    </a>
-                </li>
             </ul>
         </div>
 
         <div class="mb-3">
-            <h5><a href="{% url 'about' %}#about">About</a></h5>
+            <h6><a href="{% url 'about' %}#about">About</a></h6>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'contact' %}"
@@ -131,14 +140,6 @@ Features:
                         Licenses
                     </a>
                 </li>
-                <li class="nav-item mb-2">
-                    <a href="https://github.com/biodiversitycellatlas/bca-website"
-                    target="_blank" class="nav-link p-0 text-muted">
-                        <i class="fa fa-fw fa-brands fa-github"></i>
-                        GitHub repository
-                    </a>
-                </li>
-            </ul>
         </div>
     </footer>
 </div>

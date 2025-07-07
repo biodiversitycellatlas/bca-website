@@ -5,10 +5,18 @@ Functions to properly setup settings.py.
 import os, subprocess
 
 # Global variables
+def get_command_output(cmd):
+    run = subprocess.run(cmd, shell=True, text=True, capture_output=True)
+    return run.stdout.strip()
+
 def get_DIAMOND_version():
     cmd = "diamond --version | grep -Eo '[0-9.]+'"
-    version = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-    return version.stdout.strip()
+    return get_command_output(cmd)
+
+def get_latest_git_tag():
+    """ Get latest GitHub tag of this project. """
+    cmd = "git describe --tags --abbrev=0"
+    return get_command_output(cmd)
 
 # Parse environmental variables
 def get_env(key, default=None, **kwargs):
