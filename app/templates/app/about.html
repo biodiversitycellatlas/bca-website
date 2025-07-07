@@ -18,7 +18,7 @@ Features:
 
 <h1 class="h3" id="about">About us</h1>
 
-<p>
+<p class="pb-3">
 	The <a href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a> (BCA)
 	is a coordinated international effort aimed at molecularly characterizing
 	cell types across the eukaryotic tree of life. Our mission is to pave the
@@ -26,12 +26,9 @@ Features:
 </p>
 
 {% load card %}
-
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 	<div class="col">
-		{% with "Contact us at <a href='"|add:FEEDBACK_URL|add:"' target='_blank'>"|add:BCA_EMAIL|add:"</a>." as html %}
-		 	{% card title="Contact us" description=html|safe img_url="https://images.unsplash.com/photo-1600633660236-f6f61d5f155d" img_author='Valeriia Miller' img_author_handle='@valeriiamiller' %}
-		{% endwith %}
+		{% card title="Contact us" description=html|safe img_url="https://images.unsplash.com/photo-1600633660236-f6f61d5f155d" img_author='Valeriia Miller' img_author_handle='@valeriiamiller' links=info.contact %}
 	</div>
 
 	<div class="col">
@@ -42,17 +39,11 @@ Features:
 	</div>
 
 	<div class="col">
-		{% bca_url 'legal' as legal_url %}
-		{% bca_url 'cookies' as cookies_url %}
-		{% with "Please read our <a href='"|add:legal_url|add:"'>Legal Notice & Privacy Policy</a> and <a href='"|add:cookies_url|add:"'>Cookies policy</a>." as html %}
-		  	{% card title="Legal and privacy information" description=html|safe img_url="https://images.unsplash.com/photo-1619315601671-0195e0b34db9" img_author='David Cortes' img_author_handle='@daviddcortess' %}
-		{% endwith %}
+		{% card title="Legal and privacy" description=html|safe img_url="https://images.unsplash.com/photo-1619315601671-0195e0b34db9" img_author='David Cortes' img_author_handle='@daviddcortess' links=info.legal %}
 	</div>
 
 	<div class="col">
-		{% with "Icons by <a href='https://fontawesome.com/license/free' target='_blank'>Font Awesome</a>." as html %}
-  			{% card title="Licenses" description=html|safe img_url="https://images.unsplash.com/photo-1703173790565-427b98bfae71" img_author='Daniela Turcanu' img_author_handle='@protopopica' %}
-		{% endwith %}
+  		{% card title="Licenses" description=html|safe img_url="https://images.unsplash.com/photo-1703173790565-427b98bfae71" img_author='Daniela Turcanu' img_author_handle='@protopopica' links=info.licenses %}
 	</div>
 </div>
 

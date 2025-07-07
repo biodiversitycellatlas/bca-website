@@ -2,11 +2,12 @@ from django.http import FileResponse
 from django.shortcuts import redirect, reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-
+from django.conf import settings
 from django.db.models import Q
 
 from .models import Dataset, Species, File
 from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict, get_cell_atlas_links
+from .templatetags.bca_website_links import bca_url
 
 import random
 
@@ -239,8 +240,54 @@ class FileDownloadView(DetailView):
         return resp
 
 
+from django.views.generic import TemplateView
+
 class AboutView(TemplateView):
     template_name = "app/about.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['info'] = {
+            'contact': [
+                {
+                    'url': settings.FEEDBACK_URL,
+                    'icon': 'fa-envelope',
+                    'label': 'Email'
+                }, {
+                    'url': settings.GITHUB_URL,
+                    'icon': 'fa-brands fa-github',
+                    'label': 'Source code'
+                }, {
+                    'url': settings.GITHUB_ISSUES_URL,
+                    'icon': 'fa-bug',
+                    'label': 'Bug reports'
+                }
+            ],
+            'legal': [
+                {
+                    'url': bca_url('legal'),
+                    'icon': 'fa-shield-halved',
+                    'label': 'Legal Notice & Privacy Policy'
+                }, {
+                    'url': bca_url('cookies'),
+                    'icon': 'fa-cookie-bite',
+                    'label': 'Cookies policy'
+                }
+            ],
+            'licenses': [
+                {
+                    'url': 'https://fontawesome.com/license/free',
+                    'icon': 'fa-brands fa-font-awesome',
+                    'label': 'Icons by Font Awesome'
+                },
+                {
+                    'url': 'https://fonts.google.com/specimen/Rubik/license',
+                    'icon': 'fa-book',
+                    'label': 'Rubik font by Google Fonts'
+                }
+            ]
+        }
+        return context
 
 
 class SearchView(TemplateView):

@@ -19,6 +19,8 @@ from .pre_settings import get_DIAMOND_version, get_env
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_WEBSITE = "https://biodiversitycellatlas.org"
 BCA_EMAIL = "bca@biodiversitycellatlas.org"
+GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
+GITHUB_ISSUES_URL = "https://github.com/biodiversitycellatlas/bca-website/issues/new"
 FEEDBACK_URL = get_env('BCA_APP_FEEDBACK_URL', required=True)
 
 DIAMOND_VERSION = get_DIAMOND_version()

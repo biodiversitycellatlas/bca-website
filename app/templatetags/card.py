@@ -7,13 +7,14 @@ from urllib.parse import urlparse, urlunparse
 
 register = template.Library()
 
-def _build_card_context(title, description, img_url=None, img_author=None, img_author_handle=None, img_width=None):
+def _build_card_context(title, description, links=None, img_url=None, img_author=None, img_author_handle=None, img_width=None):
     """
     Build card context with optional optimized Unsplash image.
 
     Args:
         title (str): Title displayed on card.
         description (str): Description displayed on card.
+        links (str, optional): List of links displayed on card.
         img_url (str, optional): Image URL to display.
         img_author (str, optional): Image author name.
         img_author_handle (str, optional): Image author social handle.
@@ -41,6 +42,7 @@ def _build_card_context(title, description, img_url=None, img_author=None, img_a
     return {
         'title': title,
         'description': description,
+        'links': links,
         'img_url': img_url,
         'img_author': img_author,
         'img_author_handle': img_author_handle,
@@ -49,13 +51,14 @@ def _build_card_context(title, description, img_url=None, img_author=None, img_a
     }
 
 @register.inclusion_tag('app/components/links/card.html')
-def card(title, description, img_url=None, img_author=None, img_author_handle=None, img_width=None):
+def card(title, description, links=None, img_url=None, img_author=None, img_author_handle=None, img_width=None):
     """
     Render a card with information.
 
     Args:
         title (str): Title displayed on card.
         description (str): Description displayed on card.
+        links (str, optional): List of links displayed on card.
         img_url (str, optional): Image URL to display.
         img_author (str, optional): Image author name.
         img_author_handle (str, optional): Image author social handle.
@@ -64,4 +67,8 @@ def card(title, description, img_url=None, img_author=None, img_author_handle=No
     Returns:
         str: rendered HTML with download card.
     """
-    return _build_card_context(title, description, img_url, img_author, img_author_handle, img_width)
+    return _build_card_context(title, description, links, img_url, img_author, img_author_handle, img_width)
+
+@register.inclusion_tag('app/components/links/links_list.html')
+def links_list(items):
+    return {'items': items}
