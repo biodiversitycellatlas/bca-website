@@ -55,11 +55,12 @@ function createExpressionHeatmap(id, species, data) {
 	    			"title": "Genes"
 	    		},
 	    		"color": {
-	    			"field": "log2_fold_change",
-	    			//"sort": "descending",
-			      	//"scale": {"scheme": "magma"},
-	    			"type": "quantitative",
-	    			"title": "Log\u2082 FC"
+                    "field": "log2_fold_change",
+                    "type": "quantitative",
+                    "title": "Log\u2082 FC",
+                    "scale": {
+                        "range": ["#F2F2F2", "#FFA500", "#EE4000", "#520c52"]
+                    }
 	    		}
 		  	}
 		}, {
