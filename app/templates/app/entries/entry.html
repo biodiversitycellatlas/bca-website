@@ -24,9 +24,10 @@ Base entry template
 
     <div class="col">
         {% url 'gene_list' as genes_url %}
+        {% url 'gene_list_list' as gene_lists_url %}
         {% url 'gene_module_list' as gene_modules_url %}
         {% url 'orthogroup_list' as orthogroups_url %}
-        {% with title="<a href='"|add:genes_url|add:"'>Genes</a>"|safe description='<ul><li>Gene lists</li><li><a href="'|add:gene_modules_url|add:'">Gene modules</a></li><li>Protein domains</li><li><a href="'|add:orthogroups_url|add:'">Orthogroups</a></li></ul>'|safe %}
+        {% with title="<a href='"|add:genes_url|add:"'>Genes</a>"|safe description='<ul><li><a href="'|add:gene_lists_url|add:'">Gene lists</a></li><li><a href="'|add:gene_modules_url|add:'">Gene modules</a></li><li>Protein domains</li><li><a href="'|add:orthogroups_url|add:'">Orthogroups</a></li></ul>'|safe %}
             {% card title=title description=description img_url="https://images.unsplash.com/photo-1576086265779-619d2f54d96b" img_author='National Cancer Institute' img_author_handle='@nci' %}
         {% endwith %}
     </div>

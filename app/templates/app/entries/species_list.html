@@ -4,7 +4,8 @@
 
 {% block content %}
 
-<h1 class="h3">Species</h1>
+{% load entry_links %}
+{% render_header_counter 'Species' paginator %}
 
 {% if object_list %}
 <style>

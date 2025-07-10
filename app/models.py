@@ -354,6 +354,16 @@ class GeneList(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=400, blank=True, null=True)
 
+    def get_absolute_url(self):
+        return reverse('gene_list_list', args=[self.name])
+
+    def get_html_link(self):
+        url = self.get_absolute_url()
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
     def __str__(self):
         return str(self.name)
 
@@ -416,6 +426,21 @@ class GeneModule(models.Model):
     name = models.CharField(max_length=100)
     membership_score = models.DecimalField(
         max_digits=4, decimal_places=3, blank=True, null=True)
+
+    @property
+    def gene_modules(self):
+        """ Return all gene modules for the same module. """
+        return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
+
+    def get_absolute_url(self):
+        return reverse('gene_module_detail', args=[self.dataset.slug, self.name])
+
+    def get_html_link(self):
+        url = self.get_absolute_url()
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
 
     def __str__(self):
         return str(self.name)

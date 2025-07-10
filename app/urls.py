@@ -25,9 +25,13 @@ urlpatterns = [
     path('entry/gene/<species>/', views.EntryGeneListView.as_view(), name='gene_list'),
     path('entry/gene/<species>/<gene>/', views.EntryGeneDetailView.as_view(), name='gene_detail'),
 
+    path('entry/gene_list/', views.EntryGeneListListView.as_view(), name='gene_list_list'),
+    path('entry/gene_list/<gene_list>/', views.EntryGeneListListView.as_view(), name='gene_list_list'),
+    path('entry/gene_list/<gene_list>/<species>/', views.EntryGeneListDetailView.as_view(), name='gene_list_detail'),
+
     path('entry/gene_modules/', views.EntryGeneModuleListView.as_view(), name='gene_module_list'),
     path('entry/gene_modules/<dataset>/', views.EntryGeneModuleListView.as_view(), name='gene_module_list'),
-    path('entry/gene_modules/<dataset>/<gene>/', views.EntryGeneModuleDetailView.as_view(), name='gene_module_detail'),
+    path('entry/gene_modules/<dataset>/<gene_module>/', views.EntryGeneModuleDetailView.as_view(), name='gene_module_detail'),
 
     path('entry/orthogroup/', views.EntryOrthogroupListView.as_view(), name='orthogroup_list'),
     path('entry/orthogroup/<orthogroup>/', views.EntryOrthogroupDetailView.as_view(), name='orthogroup_detail'),

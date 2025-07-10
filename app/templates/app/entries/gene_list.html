@@ -4,13 +4,8 @@
 
 {% block content %}
 
-<div class="d-flex align-items-center">
-    <h1 class="h3 me-2">Genes</h1>
-
-    {% if species %}
-        <span class="mb-2">{{species.get_html_link}}</span>
-    {% endif %}
-</div>
+{% load entry_links %}
+{% render_header_counter 'Genes' paginator species %}
 
 {% if object_list %}
 <style>td, th { vertical-align: middle; }</style>

@@ -4,13 +4,8 @@
 
 {% block content %}
 
-<div class="d-flex align-items-center">
-    <h1 class="h3 me-2">Gene modules</h1>
-
-    {% if dataset %}
-        <span class="mb-2">{{dataset.get_html_link}}</span>
-    {% endif %}
-</div>
+{% load entry_links %}
+{% render_header_counter 'Gene modules' paginator dataset %}
 
 {% if object_list %}
 <style>td, th { vertical-align: middle; }</style>
@@ -19,8 +14,7 @@
     <thead>
         <tr>
             <th>Gene module</th>
-            <th>Membership score</th>
-
+            <th>Number of genes</th>
             {% if not dataset %}
             <th>Dataset</th>
             <th>Species common name</th>
@@ -30,9 +24,8 @@
     <tbody>
         {% for module in object_list %}
         <tr>
-            <td>{{module.name}}</td>
-            <td>{{module.membership_score}}</td>
-
+            <td>{{module.get_html_link}}</td>
+            <td>{{module.gene_modules.count}}</td>
             {% if not dataset %}
             <td>{{module.dataset.get_gene_modules_html_link}}</td>
             <td>{{module.dataset.species.common_name|default:'—' }}</td>

@@ -4,7 +4,7 @@ from django.views.generic import TemplateView, ListView, DetailView
 from django.conf import settings
 from django.db.models import Q
 
-from .models import Dataset, Species, File, Gene, GeneModule, Ortholog
+from .models import Dataset, Species, File, Gene, GeneList, GeneModule, Ortholog
 from .utils import (
     get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict,
     get_cell_atlas_links, get_species, parse_gene_slug
@@ -243,7 +243,7 @@ class EntryDatasetListView(ListView):
 
 class FilteredListView(ListView):
     """ Allow filtering view by dataset or species. """
-    filter_by = None
+    filter_by = 'dataset'
 
     def get_filter_function(self):
         if self.filter_by == 'dataset':
@@ -284,18 +284,43 @@ class EntryGeneDetailView(DetailView):
     slug_url_kwarg = "gene"
 
 
+class EntryGeneListListView(FilteredListView):
+    model = GeneList
+    paginate_by = 20
+    template_name = 'app/entries/gene_list_list.html'
+    filter_by = 'species'
+
+
+class EntryGeneListDetailView(DetailView):
+    model = GeneList
+    template_name = 'app/entries/gene_list_detail.html'
+    slug_field = "name"
+    slug_url_kwarg = "gene_list"
+
+
 class EntryGeneModuleListView(FilteredListView):
     model = GeneModule
     paginate_by = 20
     template_name = 'app/entries/gene_module_list.html'
-    filter_by = 'dataset'
+
+    def get_queryset(self):
+        return super().get_queryset().distinct('dataset', 'name')
 
 
 class EntryGeneModuleDetailView(DetailView):
     model = GeneModule
     template_name = 'app/entries/gene_module_detail.html'
     slug_field = "name"
-    slug_url_kwarg = "gene"
+    slug_url_kwarg = "gene_module"
+
+    def get_object(self, queryset=None):
+        queryset = queryset or self.get_queryset()
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        dataset = get_dataset(self.kwargs.get("dataset"))
+        return queryset.filter(**{
+            self.slug_field: slug,
+            "dataset": dataset
+        }).first()
 
 
 class EntryOrthogroupListView(ListView):

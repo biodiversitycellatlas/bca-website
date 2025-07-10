@@ -1,0 +1,33 @@
+{% extends "app/entries/entry_list.html" %}
+
+{% block title %}Gene entries{% endblock title %}
+
+{% block content %}
+
+{% load entry_links %}
+{% render_header_counter 'Gene lists' paginator species %}
+
+{% if object_list %}
+<style>td, th { vertical-align: middle; }</style>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Gene</th>
+            <th style="max-width: 400px;">Description</th>
+        </tr>
+      </thead>
+    <tbody>
+        {% for genelist in object_list %}
+        <tr>
+            <td>{{genelist.get_html_link}}</td>
+            <td style="max-width: 400px;">{{ genelist.description|default:'—' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No genes found.</p>
+{% endif %}
+
+{% endblock content %}
