@@ -81,7 +81,9 @@ Dynamic blocks:
     {% endblock subnav %}
 
     <main class="container-xxl" style="overflow-x: clip;">
+        {% block breadcrumb %}{% endblock %}
         {% block content %}{% endblock %}
+        {% block pagination %}{% endblock %}
     </main>
 
     <!-- Enable tooltips and popovers-->

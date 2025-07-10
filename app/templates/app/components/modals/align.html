@@ -16,7 +16,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                 <h1 class="modal-title fs-5">Sequence alignment</h1>
                 <span class="ms-2 me-5">
                     <img class="rounded" src="{{species.image_url}}" style="width: 25px;">
-                    <span class="small">{{species.html}}</span>
+                    <span class="small">{{species.get_html}}</span>
                 </span>
 
                 <div class="ms-auto d-flex align-items-center">
@@ -46,7 +46,7 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                         <span class="form-control-plaintext">
                             <img class="rounded" src="{{species.image_url}}"
                             style="width: 20px;">
-                            {{species.html}}
+                            {{species.get_html}}
                         </span>
                     </div>
                 </div>

@@ -1,12 +1,14 @@
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.shortcuts import redirect, reverse
-from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
+from django.views.generic import TemplateView, ListView, DetailView
 from django.conf import settings
 from django.db.models import Q
 
-from .models import Dataset, Species, File
-from .utils import get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict, get_cell_atlas_links
+from .models import Dataset, Species, File, Gene, GeneModule, Ortholog
+from .utils import (
+    get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict,
+    get_cell_atlas_links, get_species, parse_gene_slug
+)
 from .templatetags.bca_website_links import bca_url
 
 import random
@@ -216,6 +218,107 @@ class AtlasCompareView(BaseAtlasView):
         return context
 
 
+class EntryView(TemplateView):
+    template_name = "app/entries/entry.html"
+
+
+class EntrySpeciesListView(ListView):
+    model = Species
+    paginate_by = 20
+    template_name = 'app/entries/species_list.html'
+
+
+class EntrySpeciesDetailView(DetailView):
+    model = Species
+    template_name = 'app/entries/species_detail.html'
+    slug_field = "scientific_name"
+    slug_url_kwarg = "species"
+
+
+class EntryDatasetListView(ListView):
+    model = Dataset
+    paginate_by = 20
+    template_name = 'app/entries/dataset_list.html'
+
+
+class FilteredListView(ListView):
+    """ Allow filtering view by dataset or species. """
+    filter_by = None
+
+    def get_filter_function(self):
+        if self.filter_by == 'dataset':
+            return get_dataset
+        elif self.filter_by == 'species':
+            return get_species
+        return None
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        value = self.kwargs.get(self.filter_by)
+        func = self.get_filter_function()
+        if value and func:
+            obj = func(value)
+            qs = qs.filter(**{self.filter_by: obj})
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        value = self.kwargs.get(self.filter_by)
+        func = self.get_filter_function()
+        if value and func:
+            context[self.filter_by] = func(value)
+        return context
+
+
+class EntryGeneListView(FilteredListView):
+    model = Gene
+    paginate_by = 20
+    template_name = 'app/entries/gene_list.html'
+    filter_by = 'species'
+
+
+class EntryGeneDetailView(DetailView):
+    model = Gene
+    template_name = 'app/entries/gene_detail.html'
+    slug_field = "name"
+    slug_url_kwarg = "gene"
+
+
+class EntryGeneModuleListView(FilteredListView):
+    model = GeneModule
+    paginate_by = 20
+    template_name = 'app/entries/gene_module_list.html'
+    filter_by = 'dataset'
+
+
+class EntryGeneModuleDetailView(DetailView):
+    model = GeneModule
+    template_name = 'app/entries/gene_module_detail.html'
+    slug_field = "name"
+    slug_url_kwarg = "gene"
+
+
+class EntryOrthogroupListView(ListView):
+    model = Ortholog
+    paginate_by = 20
+    template_name = 'app/entries/orthogroup_list.html'
+
+    def get_queryset(self):
+        return super().get_queryset().order_by('orthogroup').distinct('orthogroup')
+
+
+class EntryOrthogroupDetailView(DetailView):
+    model = Ortholog
+    template_name = 'app/entries/orthogroup_detail.html'
+    slug_field = "orthogroup"
+    slug_url_kwarg = "orthogroup"
+
+    def get_object(self, queryset=None):
+        queryset = queryset or self.get_queryset()
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        return queryset.filter(**{self.slug_field: slug}).first()
+
+
 class DownloadsView(TemplateView):
     template_name = "app/downloads.html"
 
@@ -239,8 +342,6 @@ class FileDownloadView(DetailView):
             filename=self.object.filename)
         return resp
 
-
-from django.views.generic import TemplateView
 
 class AboutView(TemplateView):
     template_name = "app/about.html"

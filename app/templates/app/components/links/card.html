@@ -5,6 +5,7 @@
             {% if img_author %}
                 alt="Photo by {{ img_author }} ({{ img_source|default:'Unsplash' }})"
             {% endif %}
+            style="aspect-ratio: 235 / 157; overflow: hidden; object-fit: cover; object-position: center;"
             class="card-img-top" src="{{ img_url }}">
 
         {% if img_author %}

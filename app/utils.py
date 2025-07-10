@@ -1,6 +1,7 @@
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 
-from .models import Species, Dataset
+from .models import Species, Dataset, Gene
 
 import json
 
@@ -90,9 +91,9 @@ def get_species(species):
 
     species = species.replace("_", " ")
     try:
-        obj = Species.objects.filter(scientific_name=species)[0]
-    except:
-        obj = None
+        obj = Species.objects.get(scientific_name=species)
+    except Species.DoesNotExist:
+        obj = next((s for s in Species.objects.all() if species == s.slug), None)
     return obj
 
 
@@ -101,9 +102,20 @@ def get_dataset(dataset):
     if isinstance(dataset, Dataset):
         return dataset
 
+    obj = next((d for d in Dataset.objects.all() if dataset == d.slug), None)
+    return obj
+
+
+def parse_gene_slug(slug):
+    """ Parse gene slug into Gene object. """
+    species, gene = slug.split('_', 1)
+    species = get_species(species)
+    if species is None:
+        return None
+
     try:
-        obj = [d for d in Dataset.objects.all() if dataset == d.slug][0]
-    except:
+        obj = Gene.objects.get(name=gene, species__scientific_name=species)
+    except Gene.DoesNotExist:
         obj = None
     return obj
 

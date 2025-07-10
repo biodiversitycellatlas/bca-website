@@ -1,0 +1,48 @@
+{% extends "app/entries/entry_list.html" %}
+
+{% block title %}Gene module entries{% endblock title %}
+
+{% block content %}
+
+<div class="d-flex align-items-center">
+    <h1 class="h3 me-2">Gene modules</h1>
+
+    {% if dataset %}
+        <span class="mb-2">{{dataset.get_html_link}}</span>
+    {% endif %}
+</div>
+
+{% if object_list %}
+<style>td, th { vertical-align: middle; }</style>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Gene module</th>
+            <th>Membership score</th>
+
+            {% if not dataset %}
+            <th>Dataset</th>
+            <th>Species common name</th>
+            {% endif %}
+        </tr>
+      </thead>
+    <tbody>
+        {% for module in object_list %}
+        <tr>
+            <td>{{module.name}}</td>
+            <td>{{module.membership_score}}</td>
+
+            {% if not dataset %}
+            <td>{{module.dataset.get_gene_modules_html_link}}</td>
+            <td>{{module.dataset.species.common_name|default:'—' }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No genes found.</p>
+{% endif %}
+
+{% endblock content %}

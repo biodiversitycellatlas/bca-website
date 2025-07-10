@@ -1,0 +1,32 @@
+{% extends "app/entries/entry_list.html" %}
+
+{% block title %}Orthogroup entries{% endblock title %}
+
+{% block content %}
+
+<h1 class="h3">Orthogroups</h1>
+
+{% if object_list %}
+<style>td, th { vertical-align: middle; }</style>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Orthogroup</th>
+            <th>Number of orthologs</th>
+        </tr>
+      </thead>
+    <tbody>
+        {% for orthogroup in object_list %}
+        <tr>
+            <td>{{orthogroup.get_html_link}}</td>
+            <td>{{orthogroup.orthologs.count}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>There are no orthogroups in the database.</p>
+{% endif %}
+
+{% endblock content %}

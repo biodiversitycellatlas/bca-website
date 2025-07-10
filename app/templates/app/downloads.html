@@ -110,8 +110,7 @@ Downloads page
                 {% for species in species_all %}
                     <tr>
                         <td>
-                            <img width="25px" src="{{ species.image_url }}">
-                            {{ species.html }}
+                            {{ species.get_html_link }}
                         </td>
                         <td>{{ species.common_name|default_if_none:"–" }}</td>
 
@@ -167,12 +166,7 @@ Downloads page
         <tbody>
             {% for dataset in datasets_all %}
                 <tr>
-                    <td>
-                        <img width="25px" src="{{ dataset.image_url|default_if_none:dataset.species.image_url }}">
-                        <a href="{% url 'atlas_info' dataset.slug %}">
-                            {{ dataset.html }}
-                        </a>
-                    </td>
+                    <td>{{ dataset.get_html_link }}</td>
                     <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
 
                     <td>{% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}</td>
