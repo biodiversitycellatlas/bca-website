@@ -78,6 +78,9 @@ class Species(SlugMixin, ImageSourceMixin):
     def get_gene_list_url(self):
         return reverse('gene_list', args=[self.slug])
 
+    def get_genelist_list_url(self, genelist):
+        return reverse('gene_list_list', args=[genelist, self.slug])
+
     def get_html(self):
         """ Return HTML representation of the species name. """
         unspecified = " sp."

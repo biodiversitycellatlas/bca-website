@@ -7,7 +7,7 @@ from django.db.models import Q
 from .models import Dataset, Species, File, Gene, GeneList, GeneModule, Ortholog
 from .utils import (
     get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict,
-    get_cell_atlas_links, get_species, parse_gene_slug
+    get_cell_atlas_links, get_species, get_gene_list, parse_gene_slug
 )
 from .templatetags.bca_website_links import bca_url
 
@@ -290,12 +290,24 @@ class EntryGeneListListView(FilteredListView):
     template_name = 'app/entries/gene_list_list.html'
     filter_by = 'species'
 
+    def get_queryset(self):
+        gene_list = self.kwargs.get('gene_list')
+        if gene_list:
+            self.queryset = Gene.objects.filter(
+                genelists=get_gene_list(gene_list))
+        qs = super().get_queryset()
+        return qs
 
-class EntryGeneListDetailView(DetailView):
-    model = GeneList
-    template_name = 'app/entries/gene_list_detail.html'
-    slug_field = "name"
-    slug_url_kwarg = "gene_list"
+    def get_template_names(self):
+        template_name = self.template_name
+        if self.kwargs.get('gene_list'):
+            return ['app/entries/gene_list_detail.html']
+        return [template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
+        return context
 
 
 class EntryGeneModuleListView(FilteredListView):

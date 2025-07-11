@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 
-from .models import Species, Dataset, Gene
+from .models import Species, Dataset, Gene, GeneList
 
 import json
 
@@ -85,7 +85,7 @@ def convert_queryset_to_json(qs):
 
 
 def get_species(species):
-    ''' Returns species if found in the database, oterhwise returns None. '''
+    ''' Returns species if found, oterhwise returns None. '''
     if isinstance(species, Species):
         return species
 
@@ -98,7 +98,7 @@ def get_species(species):
 
 
 def get_dataset(dataset):
-    ''' Returns dataset if found in the database, oterhwise returns None. '''
+    ''' Returns dataset if found, oterhwise returns None. '''
     if isinstance(dataset, Dataset):
         return dataset
 
@@ -116,6 +116,18 @@ def parse_gene_slug(slug):
     try:
         obj = Gene.objects.get(name=gene, species__scientific_name=species)
     except Gene.DoesNotExist:
+        obj = None
+    return obj
+
+
+def get_gene_list(gene_list):
+    ''' Returns gene list if found, oterhwise returns None. '''
+    if isinstance(gene_list, GeneList):
+        return gene_list
+
+    try:
+        obj = GeneList.objects.get(name=gene_list)
+    except GeneList.DoesNotExist:
         obj = None
     return obj
 
