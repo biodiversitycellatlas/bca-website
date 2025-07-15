@@ -4,7 +4,7 @@ from django.views.generic import TemplateView, ListView, DetailView
 from django.conf import settings
 from django.db.models import Q
 
-from .models import Dataset, Species, File, Gene, GeneList, GeneModule, Ortholog
+from .models import Dataset, Species, File, Gene, GeneList, GeneModule, Ortholog, Domain
 from .utils import (
     get_dataset_dict, get_metacell_dict, get_dataset, get_species_dict,
     get_cell_atlas_links, get_species, get_gene_list, parse_gene_slug
@@ -290,23 +290,47 @@ class EntryGeneListListView(FilteredListView):
     template_name = 'app/entries/gene_list_list.html'
     filter_by = 'species'
 
+
+class EntryGeneListDetailView(FilteredListView):
+    model = GeneList
+    paginate_by = 20
+    template_name = 'app/entries/gene_list_detail.html'
+    filter_by = 'species'
+
     def get_queryset(self):
         gene_list = self.kwargs.get('gene_list')
-        if gene_list:
-            self.queryset = Gene.objects.filter(
-                genelists=get_gene_list(gene_list))
+        self.queryset = Gene.objects.filter(genelists=get_gene_list(gene_list))
         qs = super().get_queryset()
         return qs
-
-    def get_template_names(self):
-        template_name = self.template_name
-        if self.kwargs.get('gene_list'):
-            return ['app/entries/gene_list_detail.html']
-        return [template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
+        return context
+
+
+class EntryDomainListView(FilteredListView):
+    model = Domain
+    paginate_by = 20
+    template_name = 'app/entries/domain_list.html'
+    filter_by = 'species'
+
+
+class EntryDomainDetailView(FilteredListView):
+    model = Domain
+    paginate_by = 20
+    template_name = 'app/entries/domain_detail.html'
+    filter_by = 'species'
+
+    def get_queryset(self):
+        domain = self.kwargs.get('domain')
+        self.queryset = Gene.objects.filter(domains__name=domain)
+        qs = super().get_queryset()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["domain"] = self.kwargs.get("domain")
         return context
 
 
@@ -344,16 +368,21 @@ class EntryOrthogroupListView(ListView):
         return super().get_queryset().order_by('orthogroup').distinct('orthogroup')
 
 
-class EntryOrthogroupDetailView(DetailView):
+class EntryOrthogroupDetailView(ListView):
     model = Ortholog
+    paginate_by = 20
     template_name = 'app/entries/orthogroup_detail.html'
-    slug_field = "orthogroup"
-    slug_url_kwarg = "orthogroup"
 
-    def get_object(self, queryset=None):
-        queryset = queryset or self.get_queryset()
-        slug = self.kwargs.get(self.slug_url_kwarg)
-        return queryset.filter(**{self.slug_field: slug}).first()
+    def get_queryset(self):
+        orthogroup = self.kwargs.get('orthogroup')
+        self.queryset = Ortholog.objects.filter(orthogroup=orthogroup)
+        qs = super().get_queryset()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["orthogroup"] = self.kwargs.get("orthogroup")
+        return context
 
 
 class DownloadsView(TemplateView):

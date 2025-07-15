@@ -73,13 +73,19 @@ class Species(SlugMixin, ImageSourceMixin):
         return self.meta_set.filter(key="phylum").first().value
 
     def get_absolute_url(self):
-        return reverse('species_detail', args=[self.scientific_name])
+        return reverse('species_entry', args=[self.scientific_name])
 
     def get_gene_list_url(self):
-        return reverse('gene_list', args=[self.slug])
+        return reverse('gene_entry', args=[self.slug])
+
+    def get_genemodule_list_url(self):
+        return reverse('gene_module_entry', args=[self.slug])
 
     def get_genelist_list_url(self, genelist):
-        return reverse('gene_list_list', args=[genelist, self.slug])
+        return reverse('gene_list_entry', args=[genelist, self.slug])
+
+    def get_domain_list_url(self, domain):
+        return reverse('domain_entry', args=[domain, self.slug])
 
     def get_html(self):
         """ Return HTML representation of the species name. """
@@ -183,7 +189,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
         return reverse('atlas_gene', args=[str(self.slug), str(gene)])
 
     def get_gene_module_list_url(self):
-        return reverse('gene_module_list', args=[self.slug])
+        return reverse('gene_module_entry', args=[self.slug])
 
     class Meta:
         unique_together = ('species', 'name')
@@ -349,6 +355,19 @@ class Domain(models.Model):
             url = None
         return url
 
+    def get_absolute_url(self):
+        return reverse('domain_entry', args=[self.name])
+
+    def get_html_link(self, url=None):
+        url = self.get_absolute_url() if url is None else url
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    class Meta:
+        ordering = ["name"]
+
     def __str__(self):
         return str(self.name)
 
@@ -358,10 +377,10 @@ class GeneList(models.Model):
     description = models.CharField(max_length=400, blank=True, null=True)
 
     def get_absolute_url(self):
-        return reverse('gene_list_list', args=[self.name])
+        return reverse('gene_list_entry', args=[self.name])
 
-    def get_html_link(self):
-        url = self.get_absolute_url()
+    def get_html_link(self, url=None):
+        url = self.get_absolute_url() if url is None else url
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
@@ -393,7 +412,7 @@ class Gene(SlugMixin):
     genelist_names.short_description = 'Gene lists'
 
     def get_absolute_url(self):
-        return reverse('gene_detail', args=[self.species.slug, self.name])
+        return reverse('gene_entry', args=[self.species.slug, self.name])
 
     def get_html_link(self):
         url = self.get_absolute_url()
@@ -412,6 +431,11 @@ class Gene(SlugMixin):
         label = ortholog.orthogroup
 
         html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    def get_domain_html_links(self):
+        domains = self.domains.all()
+        html = ', '.join(d.get_html_link() for d in domains)
         return mark_safe(html)
 
     class Meta:
@@ -436,7 +460,7 @@ class GeneModule(models.Model):
         return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
 
     def get_absolute_url(self):
-        return reverse('gene_module_detail', args=[self.dataset.slug, self.name])
+        return reverse('gene_module_entry', args=[self.dataset.slug, self.name])
 
     def get_html_link(self):
         url = self.get_absolute_url()
@@ -513,7 +537,7 @@ class Ortholog(models.Model):
         return Ortholog.objects.filter(orthogroup=orthogroup)
 
     def get_absolute_url(self):
-        return reverse('orthogroup_detail', args=[self.orthogroup])
+        return reverse('orthogroup_entry', args=[self.orthogroup])
 
     def get_html_link(self):
         # Get a ortholog object based on orthogroup

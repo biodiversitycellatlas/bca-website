@@ -18,16 +18,16 @@ Features:
             <p class="text-muted">
                 © 2024-{% now "Y" %}</br>
 
-                <a class="text-nowrap" href="{{BCA_WEBSITE}}" target="_blank">
+                <a class="text-nowrap" href="{{BCA_WEBSITE|default:'https://biodiversitycellatlas.org'}}" target="_blank">
                     Biodiversity Cell Atlas
                 </a></br>
 
                 <span class="text-nowrap">Data Portal</span></br>
 
                 <a class="text-nowrap"
-                href="{{GIT_VERSION_URL}}" target="_blank">
+                href="{{GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website'}}" target="_blank">
                     <i class="fa-brands fa-github"></i>
-                    {{GIT_VERSION}}
+                    {{GIT_VERSION|default:"GitHub repository"}}
                 </a>
             </p>
             <a href="https://www.crg.eu/" target="_blank">

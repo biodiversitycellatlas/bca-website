@@ -6,7 +6,7 @@
 
 <div class="row pt-2">
     <div class="col-md-4">
-        <h1 class="h3">
+        <h1 class="h3 text-break">
             {{species.get_html}}
             {% if species.common_name %}
                 <div class="small text-muted">{{species.common_name}}</div>
@@ -25,9 +25,7 @@
 
         <h2 class="h4">Species data</h2>
         <ul>
-            <li>
-                <a href="{{species.get_gene_list_url}}">Genes</a>
-            </li>
+            <li><a href="{{species.get_gene_list_url}}">Genes</a></li>
         </ul>
     </div>
 

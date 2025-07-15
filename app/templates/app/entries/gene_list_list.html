@@ -15,6 +15,7 @@
         <tr>
             <th>Gene</th>
             <th style="max-width: 400px;">Description</th>
+            <th>Number of genes</th>
         </tr>
       </thead>
     <tbody>
@@ -22,6 +23,7 @@
         <tr>
             <td>{{genelist.get_html_link}}</td>
             <td style="max-width: 400px;">{{ genelist.description|default:'—' }}</td>
+            <td>{{genelist.genes.count}}</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -6,7 +6,7 @@
 
 <div class="row pt-2">
     <div class="col-md-4">
-        <h1 class="h3"> {{gene}} </h1>
+        <h1 class="h3 text-break"> {{gene}} </h1>
 
         <p><b>Description:</b> {{gene.description|default:'No description available.'|safe}}</p>
 
@@ -45,10 +45,13 @@
                 </tr>
               </thead>
             <tbody>
+                {% load entry_links %}
                 {% for list in gene.genelists.all %}
                 <tr>
-                    <td>{{list.name}}</td>
-                    <td>{{list.description}}</td>
+                    <td>
+                        {% get_genelist_link_by_species list gene.species %}
+                    </td>
+                    <td>{{list.description|default:"—"}}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -70,7 +73,7 @@
             <tbody>
                 {% for module in gene.modules.all %}
                 <tr>
-                    <td>{{module.name}}</td>
+                    <td>{{module.get_html_link}}</td>
                     <td>{{module.membership_score}}</td>
                 </tr>
                 {% endfor %}
@@ -92,7 +95,7 @@
             <tbody>
                 {% for domain in gene.domains.all %}
                 <tr>
-                    <td>{{domain.name}}</td>
+                    <td>{{domain.get_html_link}}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,11 +1,11 @@
 {% extends "app/entries/entry_list.html" %}
 
-{% block title %}{{gene_list}}{% endblock title %}
+{% block title %}{{domain}} domain{% endblock title %}
 
 {% block content %}
 
 {% load entry_links %}
-{% render_header_counter gene_list paginator species %}
+{% render_header_counter domain paginator species %}
 
 {% if object_list %}
 <style>td, th { vertical-align: middle; }</style>
@@ -32,7 +32,7 @@
 
             {% if not species %}
             {% load entry_links %}
-            <td>{% species_genelist_link gene.species gene_list %}</td>
+            <td>{% species_domain_link gene.species domain %}</td>
             <td>{{ gene.species.common_name|default:'—' }}</td>
             {% endif %}
         </tr>
