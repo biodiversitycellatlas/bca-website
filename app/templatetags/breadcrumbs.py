@@ -14,6 +14,8 @@ def breadcrumbs(context):
         url += f"/{segment}"
         if segment == 'entry':
             label = 'BCA database entries'
+        elif segment in ['gene-module', 'gene-list']:
+            label = segment.replace('-', ' ').capitalize()
         elif not any(c.isupper() for c in segment):
             label = segment.capitalize()
         else:
