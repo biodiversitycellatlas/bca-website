@@ -1,0 +1,55 @@
+{% extends "app/entries/entry_list.html" %}
+
+{% block title %}Species entries{% endblock title %}
+
+{% block content %}
+
+{% load entry_links %}
+{% render_header_counter 'Species' paginator %}
+
+{% if object_list %}
+<style>
+    td, th { vertical-align: middle; }
+</style>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Species</th>
+            <th>Common name</th>
+            <th>Division</th>
+            <th>Kingdom</th>
+            <th>Phylum</th>
+            <th>Datasets</th>
+        </tr>
+      </thead>
+    <tbody>
+        {% for species in object_list %}
+        <tr>
+            <td>
+                {{species.get_html_link}}
+            </td>
+            <td>{% if species.common_name %}{{ species.common_name }}{% else %}—{% endif %}</td>
+
+            <td>{{ species.division }}</td>
+            <td>{{ species.kingdom }}</td>
+            <td>{{ species.phylum }}</td>
+
+            <td>
+                {% if species.datasets %}
+                <ul class="mb-0 list-unstyled">
+                    {% for dataset in species.datasets.all %}
+                        <li>{{dataset.get_html_link}}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>There are no species in the database.</p>
+{% endif %}
+
+{% endblock content %}

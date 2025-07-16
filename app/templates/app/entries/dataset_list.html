@@ -1,0 +1,37 @@
+{% extends "app/entries/entry_list.html" %}
+
+{% block title %}Dataset entries{% endblock title %}
+
+{% block content %}
+
+{% load entry_links %}
+{% render_header_counter 'Datasets' paginator %}
+
+{% if object_list %}
+<style>
+    td, th { vertical-align: middle; }
+</style>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Dataset</th>
+            <th>Species common name</th>
+        </tr>
+      </thead>
+    <tbody>
+        {% for dataset in object_list %}
+        <tr>
+            <td>
+                {{dataset.get_html_link}}
+            </td>
+            <td>{% if dataset.species.common_name %}{{ dataset.species.common_name }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>There are no species in the database.</p>
+{% endif %}
+
+{% endblock content %}

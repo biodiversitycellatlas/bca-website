@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.utils.text import slugify
 from django.utils.safestring import mark_safe
+from django.urls import reverse
 
 from colorfield.fields import ColorField
 import re
@@ -60,7 +61,33 @@ class Species(SlugMixin, ImageSourceMixin):
         blank=True, null=True, help_text="URL for species image")
 
     @property
-    def html(self):
+    def division(self):
+        return self.meta_set.filter(key="division").first().value
+
+    @property
+    def kingdom(self):
+        return self.meta_set.filter(key="kingdom").first().value
+
+    @property
+    def phylum(self):
+        return self.meta_set.filter(key="phylum").first().value
+
+    def get_absolute_url(self):
+        return reverse('species_entry', args=[self.scientific_name])
+
+    def get_gene_list_url(self):
+        return reverse('gene_entry', args=[self.slug])
+
+    def get_genemodule_list_url(self):
+        return reverse('gene_module_entry', args=[self.slug])
+
+    def get_genelist_list_url(self, genelist):
+        return reverse('gene_list_entry', args=[genelist, self.slug])
+
+    def get_domain_list_url(self, domain):
+        return reverse('domain_entry', args=[domain, self.slug])
+
+    def get_html(self):
         """ Return HTML representation of the species name. """
         unspecified = " sp."
         species =self.scientific_name
@@ -70,12 +97,27 @@ class Species(SlugMixin, ImageSourceMixin):
             html = f"<i>{genus}</i>{unspecified}"
         else:
             html = f"<i>{species}</i>"
-
         return mark_safe(html)
+
+    def get_html_link(self, url=None):
+        """ Return HTML representation linking to species object. """
+        url = self.get_absolute_url() if url is None else url
+        image_url = self.image_url
+        label = self.get_html()
+
+        html = f'<img width="25px" src="{image_url}"> {label}'
+        html = f'<a href="{url}">{html}</a>'
+        return mark_safe(html)
+
+    def get_genes_html_link(self):
+        """ Return HTML representation linking to list of genes. """
+        url = self.get_gene_list_url()
+        return self.get_html_link(url)
 
     class Meta:
         verbose_name = "species"
         verbose_name_plural = verbose_name
+        ordering = ["scientific_name"]
 
     def __str__(self):
         return self.scientific_name
@@ -121,13 +163,37 @@ class Dataset(SlugMixin, ImageSourceMixin):
         dataset = self.name
         return f"{species} ({dataset})" if dataset else species
 
-    @property
-    def html(self):
+    def get_html(self):
         """ Return HTML representation of the dataset. """
-        return mark_safe(self.__label(self.species.html))
+        return mark_safe(self.__label(self.species.get_html()))
+
+    def get_html_link(self, url=None):
+        """ Return HTML representation linking to the Dataset. """
+        url = self.get_absolute_url() if url is None else url
+        image_url = self.image_url or self.species.image_url
+        label = self.get_html()
+
+        html = f'<img width="25px" src="{image_url}"> {label}'
+        html = f'<a href="{url}">{html}</a>'
+        return mark_safe(html)
+
+    def get_gene_modules_html_link(self):
+        """ Return HTML representation linking to list of gene modules. """
+        url = self.get_gene_module_list_url()
+        return self.get_html_link(url)
+
+    def get_absolute_url(self):
+        return reverse('atlas_info', args=[str(self.slug)])
+
+    def get_gene_url(self, gene):
+        return reverse('atlas_gene', args=[str(self.slug), str(gene)])
+
+    def get_gene_module_list_url(self):
+        return reverse('gene_module_entry', args=[self.slug])
 
     class Meta:
         unique_together = ('species', 'name')
+        ordering = ["species__scientific_name", "order"]
 
     def __str__(self):
         return self.__label(self.species.scientific_name)
@@ -191,13 +257,25 @@ class Meta(models.Model):
             url = None
         return url
 
+    def get_absolute_url(self):
+        return self.query_url
+
+    @property
+    def label(self):
+        label = self.key
+        if label == 'taxon_id':
+            label = 'Taxon ID'
+        else:
+            label = label.capitalize()
+        return label
+
     class Meta:
         unique_together = ["species", "key", "value"]
         verbose_name = "meta"
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f"{self.value} ({self.key}): {self.species}"
+        return f"{self.key.capitalize()}: {self.value}"
 
 
 class MetacellType(SlugMixin):
@@ -277,6 +355,19 @@ class Domain(models.Model):
             url = None
         return url
 
+    def get_absolute_url(self):
+        return reverse('domain_entry', args=[self.name])
+
+    def get_html_link(self, url=None):
+        url = self.get_absolute_url() if url is None else url
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    class Meta:
+        ordering = ["name"]
+
     def __str__(self):
         return str(self.name)
 
@@ -284,6 +375,16 @@ class Domain(models.Model):
 class GeneList(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=400, blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse('gene_list_entry', args=[self.name])
+
+    def get_html_link(self, url=None):
+        url = self.get_absolute_url() if url is None else url
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
 
     def __str__(self):
         return str(self.name)
@@ -302,9 +403,40 @@ class Gene(SlugMixin):
     def orthogroup(self):
         return getattr(self.ortholog_set.first(), 'orthogroup', None)
 
+    @property
+    def slug(self):
+        return slugify(f"{self.species.slug}_{str(self)}")
+
     def genelist_names(self):
         return [genelist.name for genelist in self.genelists.all()]
     genelist_names.short_description = 'Gene lists'
+
+    def get_absolute_url(self):
+        return reverse('gene_entry', args=[self.species.slug, self.name])
+
+    def get_html_link(self):
+        url = self.get_absolute_url()
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    def get_orthogroup_html_link(self):
+        # Get a ortholog object based on orthogroup
+        ortholog = self.ortholog_set.first()
+        if ortholog is None:
+            return ""
+
+        url = ortholog.get_absolute_url()
+        label = ortholog.orthogroup
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    def get_domain_html_links(self):
+        domains = self.domains.all()
+        html = ', '.join(d.get_html_link() for d in domains)
+        return mark_safe(html)
 
     class Meta:
         unique_together = ["name", "species"]
@@ -321,6 +453,21 @@ class GeneModule(models.Model):
     name = models.CharField(max_length=100)
     membership_score = models.DecimalField(
         max_digits=4, decimal_places=3, blank=True, null=True)
+
+    @property
+    def gene_modules(self):
+        """ Return all gene modules for the same module. """
+        return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
+
+    def get_absolute_url(self):
+        return reverse('gene_module_entry', args=[self.dataset.slug, self.name])
+
+    def get_html_link(self):
+        url = self.get_absolute_url()
+        label = self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
 
     def __str__(self):
         return str(self.name)
@@ -383,13 +530,31 @@ class Ortholog(models.Model):
     def expression(self):
         return self.gene.mge.all()
 
+    @property
+    def orthologs(self):
+        """ Return all ortholog genes for this object's orthogroup. """
+        orthogroup = self.orthogroup
+        return Ortholog.objects.filter(orthogroup=orthogroup)
+
+    def get_absolute_url(self):
+        return reverse('orthogroup_entry', args=[self.orthogroup])
+
+    def get_html_link(self):
+        # Get a ortholog object based on orthogroup
+        url = self.get_absolute_url()
+        label = self.orthogroup
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
     class Meta:
         unique_together = ["gene", "orthogroup"]
-        verbose_name = "single-cell gene expression"
-        verbose_name_plural = verbose_name
+        verbose_name = "ortholog"
+        ordering = ["species", "gene"]
 
     def __str__(self):
         return f"{self.orthogroup} {self.gene}"
+
 
 class SAMap(models.Model):
     metacelltype = models.ForeignKey(
