@@ -92,10 +92,10 @@ Input:
 
                     <tr>
                         <td style="font-weight: 500; width: 150px;">
-                            Gene module
+                            Gene modules
                         </td>
                         <td>
-                            {{gene.module|default:'—'}}
+                            {{gene.modules.all|join:", "|default:'—'}}
                         </td>
                     </tr>
 
@@ -104,11 +104,7 @@ Input:
                             Orthogroup
                         </td>
                         <td>
-                            {% if gene.orthogroup %}
-                                <a href="#orthologs">{{gene.orthogroup}}</a>
-                            {% else %}
-                                —
-                            {% endif %}
+                            {{gene.orthogroup_html_link|default:"—"}}
                         </td>
                     </tr>
                 </tbody>

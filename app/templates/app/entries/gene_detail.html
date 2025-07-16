@@ -1,0 +1,110 @@
+{% extends "app/entries/entry.html" %}
+
+{% block title %}{{gene}}{% endblock title %}
+
+{% block content %}
+
+<div class="row pt-2">
+    <div class="col-md-4">
+        <h1 class="h3 text-break"> {{gene}} </h1>
+
+        <p><b>Description:</b> {{gene.description|default:'No description available.'|safe}}</p>
+
+        <hr/>
+
+        <p>{{gene.species.get_html_link}}</p>
+
+        <h2 class="h4">BCA datasets</h2>
+        <ul>
+            {% load entry_links %}
+            {% for dataset in gene.species.datasets.all %}
+                <li>{% dataset_gene_link dataset gene %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-8">
+        <h2 class="h4">Orthogroup</h2>
+
+        <p>
+            {% if gene.orthogroup %}
+                {{gene.get_orthogroup_html_link}}
+            {% else %}
+                No orthogroup.
+            {% endif %}
+        </p>
+
+        <h2 class="h4">Gene lists</h2>
+
+        {% if gene.genelists.all %}
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>List name</th>
+                    <th>Description</th>
+                </tr>
+              </thead>
+            <tbody>
+                {% load entry_links %}
+                {% for list in gene.genelists.all %}
+                <tr>
+                    <td>
+                        {% get_genelist_link_by_species list gene.species %}
+                    </td>
+                    <td>{{list.description|default:"—"}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No gene lists.</p>
+        {% endif %}
+
+        <h2 class="h4">Gene modules</h2>
+
+        {% if gene.modules.all %}
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Membership score</th>
+                </tr>
+              </thead>
+            <tbody>
+                {% for module in gene.modules.all %}
+                <tr>
+                    <td>{{module.get_html_link}}</td>
+                    <td>{{module.membership_score}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No gene modules.</p>
+        {% endif %}
+
+        <h2 class="h4">Protein domains</h2>
+
+        {% if gene.domains.all %}
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                </tr>
+              </thead>
+            <tbody>
+                {% for domain in gene.domains.all %}
+                <tr>
+                    <td>{{domain.get_html_link}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No protein domains.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock content %}

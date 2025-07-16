@@ -38,7 +38,7 @@ placeholder="{{placeholder|default:'Search datasets by species, taxonomic rank, 
                 data-image="{{elem.dataset.image_url|default:elem.dataset.species.image_url}}"
                 data-species="{{elem.dataset.species}}"
                 data-dataset="{{elem.dataset.name|default:''}}"
-                data-label="{{elem.dataset.html}}"
+                data-label="{{elem.dataset.get_html}}"
                 data-name="{{elem.dataset.species.common_name|default_if_none:''}}"
                 {% if dataset == elem.dataset or dataset == elem.dataset.slug %}
                     selected

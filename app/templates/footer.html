@@ -18,19 +18,17 @@ Features:
             <p class="text-muted">
                 © 2024-{% now "Y" %}</br>
 
-                <span style="white-space: nowrap;">
-                    <a href="{{BCA_WEBSITE}}" target="_blank">
-                        Biodiversity Cell Atlas
-                    </a>
-                </span></br>
+                <a class="text-nowrap" href="{{BCA_WEBSITE|default:'https://biodiversitycellatlas.org'}}" target="_blank">
+                    Biodiversity Cell Atlas
+                </a></br>
 
-                Data Portal
-                <span style="white-space: nowrap;">
-                    <a href="{{GIT_VERSION_URL}}" target="_blank">
-                        <i class="fa-brands fa-github"></i>
-                        {{GIT_VERSION}}
-                    </a>
-                </span>
+                <span class="text-nowrap">Data Portal</span></br>
+
+                <a class="text-nowrap"
+                href="{{GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website'}}" target="_blank">
+                    <i class="fa-brands fa-github"></i>
+                    {{GIT_VERSION|default:"GitHub repository"}}
+                </a>
             </p>
             <a href="https://www.crg.eu/" target="_blank">
                 <p><img title="CRG" width="150"
@@ -88,9 +86,18 @@ Features:
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">
+                    <a href="{% url 'rest:index' %}"
+                    class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-code"></i>
                         REST API
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{% url 'entry' %}"
+                    class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-database"></i>
+                        Database entries
                     </a>
                 </li>
 
