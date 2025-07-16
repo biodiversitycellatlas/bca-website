@@ -38,9 +38,10 @@ jobs:
             db:
                 image: postgres:17
                 env:
-                    POSTGRES_DB: ${{ env.POSTGRES_DB }}
-                    POSTGRES_USER: ${{ env.POSTGRES_USER }}
-                    POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+                    POSTGRES_DB: bca_2025_05_15
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: pg_password
+                    POSTGRES_HOST_AUTH_METHOD: trust
                 ports:
                     - 5432:5432
                 options: >-
