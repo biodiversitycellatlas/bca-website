@@ -25,14 +25,14 @@ jobs:
               with:
                   python-version: '3.13'
 
-            - name: Run Django security check
-              run: python manage.py check --deploy
-
             - name: Install dependencies
               run: pip install bandit -r requirements.txt
 
             - name: Run Bandit
               run: bandit -r .
+
+            - name: Run Django security check
+              run: python manage.py check --deploy
 
     trivy:
         name: Trivy (Docker image scan)
