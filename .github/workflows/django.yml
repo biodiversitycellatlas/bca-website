@@ -19,8 +19,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up environment variables
-      run: cp .env.template .env
+    - name: Export .env variables
+      run: |
+        cp .env.template .env
+        set -a
+        source .env
+        env > $GITHUB_ENV
+      shell: bash
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
