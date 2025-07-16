@@ -11,10 +11,18 @@ on:
 jobs:
   run-lint:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          # super-linter needs the full git history
           fetch-depth: 0
 
       - name: Lint Code Base
