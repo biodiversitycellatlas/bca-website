@@ -18,3 +18,4 @@ app/static/app/images/logos/BCA/EPS/*
 .env*
 !.env.template
 /ghost
+.lintr

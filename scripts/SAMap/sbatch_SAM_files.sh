@@ -11,6 +11,6 @@ species_list=(
 
 for species in "${species_list[@]}"; do
     sbatch --job-name="sam_${species}" --time=00:30:00 --mem=16GB \
-    	--output="logs/sam/${species}-%j.out" \
+        --output="logs/sam/${species}-%j.out" \
         --wrap="source ${CONDA}/etc/profile.d/conda.sh && conda activate SAMap && python run_SAMAP.py sam $species"
 done
