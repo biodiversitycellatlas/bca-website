@@ -20,8 +20,14 @@ jobs:
     - name: Set up Docker Compose
       uses: docker/setup-compose-action@v1
 
+    - name: Set up Podman and Podman Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install podman
+        pip3 install podman-compose
+
     - name: Start services
-      run: docker compose up -d
+      run: podman compose up -d
 
     - name: Run tests
-      run: docker compose exec web python manage.py test
+      run: podman compose exec web python manage.py test
