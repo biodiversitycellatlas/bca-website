@@ -23,7 +23,7 @@
         {% for ortholog in object_list %}
         <tr>
             <td>{{ortholog.gene.get_html_link}}</td>
-            <td style="max-width: 400px;">{{ortholog.gene.description}}</td>
+            <td style="max-width: 400px;">{{ortholog.gene.description|default:'—'}}</td>
             <td>{{ortholog.gene.get_domain_html_links}}</td>
             <td>{{ortholog.gene.species.get_html_link}}</td>
             <td>{{ortholog.gene.species.common_name|default:'—'}}</td>

@@ -22,7 +22,7 @@
         {% for each in object.gene_modules %}
         <tr>
             <td>{{each.gene.get_html_link}}</td>
-            <td style="max-width: 400px;">{{each.gene.description}}</td>
+            <td style="max-width: 400px;">{{each.gene.description|default:'—'}}</td>
             <td>{{each.gene.get_domain_html_links}}</td>
             <td>{{each.membership_score}}</td>
         </tr>
