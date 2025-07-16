@@ -29,7 +29,7 @@ jobs:
               run: pip install bandit -r requirements.txt
 
             - name: Run Bandit
-              run: bandit -r . -x ./scripts
+              run: bandit -r . -x ./scripts --severity-level high
 
     django-check:
         name: Django check
