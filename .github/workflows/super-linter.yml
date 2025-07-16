@@ -2,32 +2,32 @@
 name: Lint Code Base
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
 
 permissions:
-  contents: read
-  packages: read
-  # To report GitHub Actions status checks
-  statuses: write
+    contents: read
+    packages: read
+    # To report GitHub Actions status checks
+    statuses: write
 
 jobs:
-  run-lint:
-    runs-on: ubuntu-latest
+    run-lint:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          # super-linter needs the full git history
-          fetch-depth: 0
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  # super-linter needs the full git history
+                  fetch-depth: 0
 
-      - name: Lint Code Base
-        uses: github/super-linter@v7
-        env:
-          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
-          DEFAULT_BRANCH: "main"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Lint Code Base
+              uses: github/super-linter@v7
+              env:
+                  VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
+                  DEFAULT_BRANCH: "main"
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

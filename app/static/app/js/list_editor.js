@@ -8,7 +8,7 @@ function parseID(str) {
 
 function getLocalStorageLists(id) {
     id = parseID(id);
-    return JSON.parse( localStorage.getItem(id) ) || {};
+    return JSON.parse(localStorage.getItem(id)) || {};
 }
 
 function setLocalStorageLists(id, lists) {
@@ -21,11 +21,18 @@ function getUserLists(id, species, name = undefined) {
     if (name === undefined) {
         return lists[species] || [];
     } else {
-        return lists[species].find(item => item.name == name) || [];
+        return lists[species].find((item) => item.name == name) || [];
     }
 }
 
-function setUserList(id, species, name, values, group='Custom lists', color='gray') {
+function setUserList(
+    id,
+    species,
+    name,
+    values,
+    group = "Custom lists",
+    color = "gray",
+) {
     var lists = getLocalStorageLists(id);
 
     // Create species key if not present
@@ -35,7 +42,7 @@ function setUserList(id, species, name, values, group='Custom lists', color='gra
         name: name,
         items: values,
         color: color,
-        group: group
+        group: group,
     });
 
     // Sort by group
@@ -45,7 +52,7 @@ function setUserList(id, species, name, values, group='Custom lists', color='gra
 }
 
 function findUserListIndex(list, name) {
-    return list.findIndex(item => item.name === name);
+    return list.findIndex((item) => item.name === name);
 }
 
 function renameUserList(id, species, name, newName) {
@@ -68,26 +75,30 @@ function removeUserList(id, species, name) {
         lists[species].splice(index, 1);
         setLocalStorageLists(id, lists);
     } else {
-        console.error(`Cannot delete list ${name}: list is not available for ${species}`);
+        console.error(
+            `Cannot delete list ${name}: list is not available for ${species}`,
+        );
     }
 }
 
 function getAllLists(id) {
-    let res = $(`#${id}_options a`).map(function() {
-        return {
-            name: $(this).data('list'),
-            count: $(this).data('count'),
-            color: $(this).data('color'),
-            group: $(this).data('group')
-        };
-    }).get();
+    let res = $(`#${id}_options a`)
+        .map(function () {
+            return {
+                name: $(this).data("list"),
+                count: $(this).data("count"),
+                color: $(this).data("color"),
+                group: $(this).data("group"),
+            };
+        })
+        .get();
     return res;
 }
 
 function getAllListNames(id) {
     // Get names of all rendered lists
     var lists = $(`#${id}_options a`)
-        .map((index, item) => $(item).data('list'))
+        .map((index, item) => $(item).data("list"))
         .get();
     return lists;
 }
@@ -118,8 +129,15 @@ function getAllListNames(id) {
  * }
  * redrawUserLists(id, species, active=[name]);
  */
-function appendUserList(id, species, name, values, group='Custom lists',
-                        color='gray', redraw=true) {
+function appendUserList(
+    id,
+    species,
+    name,
+    values,
+    group = "Custom lists",
+    color = "gray",
+    redraw = true,
+) {
     var lists = getUserLists(id, species);
     var allListNames = getAllListNames(id);
 
@@ -134,7 +152,7 @@ function appendUserList(id, species, name, values, group='Custom lists',
             // Append 2 if there is no index
             index = 2;
         }
-        name += ' ' + index;
+        name += " " + index;
     }
 
     // Assign new values to list
@@ -142,44 +160,44 @@ function appendUserList(id, species, name, values, group='Custom lists',
 
     // Redraw user lists
     if (redraw) {
-        redrawUserLists(id, species, active=[name]);
+        redrawUserLists(id, species, (active = [name]));
     }
     return name;
 }
 
 // Render user group headings and items
-function appendListGroupHeading (id, group) {
+function appendListGroupHeading(id, group) {
     const template = document.getElementById(`${id}_heading`);
     const container = document.getElementById(`${id}_options`);
 
-    const isPreset = group === 'preset';
+    const isPreset = group === "preset";
 
     // Render each list based on template
     var $clone = $(document.importNode(template.content, true));
-    $clone.find(`div`)
-        .text(group)
-        .attr("data-group", group);
+    $clone.find(`div`).text(group).attr("data-group", group);
 
     if (isPreset) {
-        const readonly = '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i><span class="d-none d-lg-inline"> read-only</span></span>';
-        $clone.find(`div`).html('Preset lists' + readonly);
+        const readonly =
+            '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i><span class="d-none d-lg-inline"> read-only</span></span>';
+        $clone.find(`div`).html("Preset lists" + readonly);
     }
 
     container.appendChild($clone[0]);
 }
 
-function appendListGroupItem (id, name, group, count, active=false) {
+function appendListGroupItem(id, name, group, count, active = false) {
     const template = document.getElementById(`${id}_element`);
     const container = document.getElementById(`${id}_options`);
 
     // Render each list based on template
     var $clone = $(document.importNode(template.content, true));
 
-    $clone.find(`.${id}_group_a`)
+    $clone
+        .find(`.${id}_group_a`)
         .attr("data-list", name)
-        .attr("data-group", group || 'preset')
+        .attr("data-group", group || "preset")
         .attr("data-count", count || 0)
-        .attr("data-color", 'orange');
+        .attr("data-color", "orange");
 
     $clone.find(`.${id}_group_title`).text(name);
     $clone.find(`.${id}_group_count`).text(count);
@@ -187,16 +205,16 @@ function appendListGroupItem (id, name, group, count, active=false) {
     container.appendChild($clone[0]);
 
     if (active) {
-        $(container).find('a').removeClass('active');
-        $(container).children('a:last').addClass('active').click();
+        $(container).find("a").removeClass("active");
+        $(container).children("a:last").addClass("active").click();
     }
 }
 
-function drawUserLists (id, species, activeList=[]) {
+function drawUserLists(id, species, activeList = []) {
     // Render all user lists (sorted by group)
     var lists = getUserLists(id, species);
 
-    group = '';
+    group = "";
     for (const index in lists) {
         const elem = lists[index];
         var active = activeList.includes(elem.name);
@@ -205,20 +223,19 @@ function drawUserLists (id, species, activeList=[]) {
             group = elem.group;
         }
         const len = elem.items ? elem.items.length : 0;
-        appendListGroupItem(id, elem.name, elem.group, len, active=active);
-    };
+        appendListGroupItem(id, elem.name, elem.group, len, (active = active));
+    }
 }
-
 
 function clearSearch(id) {
     var search = $(`#${id}_search`);
-    search.val('');
+    search.val("");
 
     // Trigger input event as if the user cleared the search box
-    search[0].dispatchEvent(new Event('input'));
+    search[0].dispatchEvent(new Event("input"));
 }
 
-function redrawUserLists (id, species, activeList=[]) {
+function redrawUserLists(id, species, activeList = []) {
     clearSearch(id);
 
     // Delete all user lists from interface
@@ -229,33 +246,33 @@ function redrawUserLists (id, species, activeList=[]) {
 }
 
 /* Prepare URLs to retrieve gene information for a given list */
-function getGenesFromListURL (url, species, genelist, limit = undefined) {
+function getGenesFromListURL(url, species, genelist, limit = undefined) {
     var params = new URLSearchParams({
-	    species: species,
-	    genes: genelist
-	});
+        species: species,
+        genes: genelist,
+    });
 
-	if (limit !== undefined) {
-	    params.append('limit', limit)
-	}
-	return url + "?" + params.toString();
+    if (limit !== undefined) {
+        params.append("limit", limit);
+    }
+    return url + "?" + params.toString();
 }
 
-function getGenesURL (url, species, genes) {
+function getGenesURL(url, species, genes) {
     var params = new URLSearchParams({
-	    species: species,
-	    genes: genes.join(',')
-	});
-	return url + "?" + params.toString();
+        species: species,
+        genes: genes.join(","),
+    });
+    return url + "?" + params.toString();
 }
 
-async function fetchAllGenesFromList (id, species, apiURL, name, group) {
+async function fetchAllGenesFromList(id, species, apiURL, name, group) {
     var genes;
-    if (group === 'preset') {
-        var url = getGenesFromListURL(apiURL, species, name, limit=0);
+    if (group === "preset") {
+        var url = getGenesFromListURL(apiURL, species, name, (limit = 0));
         const response = await fetch(url);
         const data = await response.json();
-        genes = data.map(item => item.name);
+        genes = data.map((item) => item.name);
     } else {
         genes = getUserLists(id, species, name).items;
     }
@@ -269,33 +286,33 @@ async function fetchAllGenesFromList (id, species, apiURL, name, group) {
  * @param {string} species - Species.
  * @param {string} url - URL to retrieve genes.
  */
-function renderListDetail (id, species, url) {
+function renderListDetail(id, species, url) {
     var table = $(`#${id}_editor_table`).DataTable();
-    table.search('').columns().search(''); // Clear search
+    table.search("").columns().search(""); // Clear search
     table.clear(); // Clear data
 
     // Load data depending on list group
-    var name = $(`#${id}_options`).find(".active").data('list');
-    var group = $(`#${id}_options`).find(".active").data('group');
+    var name = $(`#${id}_options`).find(".active").data("list");
+    var group = $(`#${id}_options`).find(".active").data("group");
 
     var url;
-    if (group === 'preset') {
+    if (group === "preset") {
         url = getGenesFromListURL(url, species, name);
     } else {
         var genes = getUserLists(id, species, name).items;
-        url = genes.length === 0 ? '' : getGenesURL(url, species, genes);
+        url = genes.length === 0 ? "" : getGenesURL(url, species, genes);
     }
-    table.ajax.url(url || '').load();
+    table.ajax.url(url || "").load();
 
     // Update list-specific controls
-    $(`#${id}_controls`).prop('disabled', group === 'preset');
+    $(`#${id}_controls`).prop("disabled", group === "preset");
 }
 
-function createUserListsFromFile (elem, id, species, maxMB = 10) {
+function createUserListsFromFile(elem, id, species, maxMB = 10) {
     const file = elem.files[0];
 
     if (!file) {
-        console.error('Error uploading file: no file selected');
+        console.error("Error uploading file: no file selected");
         return;
     }
 
@@ -308,13 +325,14 @@ function createUserListsFromFile (elem, id, species, maxMB = 10) {
             const lines = content.split("\n");
 
             // Detect delimiter
-            const delimiter = content.indexOf(",") > content.indexOf("\t") ? "," : "\t";
+            const delimiter =
+                content.indexOf(",") > content.indexOf("\t") ? "," : "\t";
 
             const dict = {};
             lines.forEach(function (line) {
                 const columns = line.split(delimiter);
                 if (columns.length > 1) {
-                    let [key, value] = columns.map(str => str.trim());
+                    let [key, value] = columns.map((str) => str.trim());
                     dict[key] ||= [];
                     dict[key].push(value);
                 }
@@ -323,10 +341,16 @@ function createUserListsFromFile (elem, id, species, maxMB = 10) {
             // Append user lists
             var name;
             for (const key in dict) {
-                name = appendUserList(id, species, key, dict[key],
-                                      'Uploaded lists', redraw=false);
+                name = appendUserList(
+                    id,
+                    species,
+                    key,
+                    dict[key],
+                    "Uploaded lists",
+                    (redraw = false),
+                );
             }
-            redrawUserLists(id, species, active=[name]);
+            redrawUserLists(id, species, (active = [name]));
         };
         reader.readAsText(file);
     }
