@@ -16,5 +16,13 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 COPY . .
 
+# Avoid non-root user
+RUN useradd -m bca
+RUN chown -R bca:bca /usr/src/app
+USER bca
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health/ || exit 1
+
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

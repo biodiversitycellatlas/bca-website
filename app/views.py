@@ -1,5 +1,6 @@
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from django.shortcuts import redirect, reverse
+from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.conf import settings
@@ -19,6 +20,11 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
         return context
+
+
+class HealthView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'status': 'ok'})
 
 
 class AtlasView(TemplateView):
