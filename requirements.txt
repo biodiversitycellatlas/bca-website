@@ -1,19 +1,19 @@
-django
-django-colorfield
-psycopg
-gunicorn
+Django==5.2.1
+django-colorfield==0.14.0
+psycopg==3.2.9
+gunicorn==23.0.0
 
-scipy
-pandas
+scipy==1.15.3
+pandas==2.2.3
 
 # dev
-django-extensions
-rds2py >= 0.6.1
-psycopg2
-psutil
+django-extensions==4.1
+rds2py==0.6.1
+psycopg2==3.2.9
+psutil==7.0.0
 
 # REST
-djangorestframework
-markdown
-django-filter
-drf-spectacular
+djangorestframework==3.16.0
+Markdown==3.8
+django-filter==25.1
+drf-spectacular==0.28.0
