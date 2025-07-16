@@ -15,8 +15,8 @@ permissions:
     statuses: write
 
 jobs:
-    run-super-linter:
-        name: Run Super-Linter
+    super-linter:
+        name: Super-Linter
         runs-on: ubuntu-latest
 
         steps:
@@ -33,8 +33,8 @@ jobs:
                   DEFAULT_BRANCH: "main"
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    run-djlint:
-        name: Run djLint
+    djlint:
+        name: djLint
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
