@@ -19,7 +19,7 @@ class IndexView(TemplateView):
 
 class HealthView(View):
     def get(self, request, *args, **kwargs):
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({"status": "ok"})
 
 
 class DownloadsView(TemplateView):
@@ -36,13 +36,13 @@ class FileDownloadView(DetailView):
     """
     Downloads the file with specified filename from `File` model.
     """
+
     model = File
 
     def render_to_response(self, context, **response_kwargs):
         resp = FileResponse(
-            self.object.file.open(),
-            as_attachment=True,
-            filename=self.object.filename)
+            self.object.file.open(), as_attachment=True, filename=self.object.filename
+        )
         return resp
 
 
@@ -51,45 +51,44 @@ class AboutView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['info'] = {
-            'contact': [
+        context["info"] = {
+            "contact": [
+                {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
-                    'url': settings.FEEDBACK_URL,
-                    'icon': 'fa-envelope',
-                    'label': 'Email'
-                }, {
-                    'url': settings.GITHUB_URL,
-                    'icon': 'fa-brands fa-github',
-                    'label': 'Source code'
-                }, {
-                    'url': settings.GITHUB_ISSUES_URL,
-                    'icon': 'fa-bug',
-                    'label': 'Bug reports'
-                }
-            ],
-            'legal': [
-                {
-                    'url': bca_url('legal'),
-                    'icon': 'fa-shield-halved',
-                    'label': 'Legal Notice & Privacy Policy'
-                }, {
-                    'url': bca_url('cookies'),
-                    'icon': 'fa-cookie-bite',
-                    'label': 'Cookies policy'
-                }
-            ],
-            'licenses': [
-                {
-                    'url': 'https://fontawesome.com/license/free',
-                    'icon': 'fa-brands fa-font-awesome',
-                    'label': 'Icons by Font Awesome'
+                    "url": settings.GITHUB_URL,
+                    "icon": "fa-brands fa-github",
+                    "label": "Source code",
                 },
                 {
-                    'url': 'https://fonts.google.com/specimen/Rubik/license',
-                    'icon': 'fa-book',
-                    'label': 'Rubik font by Google Fonts'
-                }
-            ]
+                    "url": settings.GITHUB_ISSUES_URL,
+                    "icon": "fa-bug",
+                    "label": "Bug reports",
+                },
+            ],
+            "legal": [
+                {
+                    "url": bca_url("legal"),
+                    "icon": "fa-shield-halved",
+                    "label": "Legal Notice & Privacy Policy",
+                },
+                {
+                    "url": bca_url("cookies"),
+                    "icon": "fa-cookie-bite",
+                    "label": "Cookies policy",
+                },
+            ],
+            "licenses": [
+                {
+                    "url": "https://fontawesome.com/license/free",
+                    "icon": "fa-brands fa-font-awesome",
+                    "label": "Icons by Font Awesome",
+                },
+                {
+                    "url": "https://fonts.google.com/specimen/Rubik/license",
+                    "icon": "fa-book",
+                    "label": "Rubik font by Google Fonts",
+                },
+            ],
         }
         return context
 
@@ -103,5 +102,5 @@ class SearchView(TemplateView):
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         if query:
-            context['query'] = query
+            context["query"] = query
         return context

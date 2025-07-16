@@ -27,22 +27,26 @@ print = functools.partial(print, flush=True)
 script_name = os.path.basename(__file__)
 
 # Global variables ============================================================
-dir = 'SAMap'
+dir = "SAMap"
 alignment_dir = f"{dir}/blast/"
 sam_dir = f"{dir}/sam/"
 samap_dir = f"{dir}/samap"
-config_file = 'config.yaml'
+config_file = "config.yaml"
 
 # Script ======================================================================
 
+
 def get_config_filepaths(species):
-    with open(config_file, 'r') as f:
+    with open(config_file, "r") as f:
         data = yaml.safe_load(f)
     species_data = data.get(species, {})
-    subdir = species_data.get('data_subdir', '')
+    subdir = species_data.get("data_subdir", "")
 
-    files = [species_data.get(e) for e in ('umicountsc_file', 'cellmc_file', 'ann_file')]
+    files = [
+        species_data.get(e) for e in ("umicountsc_file", "cellmc_file", "ann_file")
+    ]
     return [os.path.join(subdir, f) for f in files]
+
 
 def prepare_cell_types(cellmc_file, ann_file):
     # Get metacell types
@@ -51,13 +55,14 @@ def prepare_cell_types(cellmc_file, ann_file):
 
     # Assign metacell type directly to each cell
     cellmc_rds = read_rds(cellmc_file)
-    cells      = list(cellmc_rds.names)
-    metacells  = list(cellmc_rds)
+    cells = list(cellmc_rds.names)
+    metacells = list(cellmc_rds)
 
     cell_types = {}
     for cell, metacell in zip(cells, metacells):
         cell_types[cell] = metacell_types.get(metacell + 1, None)
     return cell_types
+
 
 def save_SAM_file(dataset, sam_dir):
     print(f"Reading counts matrix for {dataset}...")
@@ -65,8 +70,8 @@ def save_SAM_file(dataset, sam_dir):
     rds = read_rds(counts_file)
 
     counts = rds.matrix.T
-    genes  = np.array(rds.dimnames[0])
-    cells  = np.array(rds.dimnames[1])
+    genes = np.array(rds.dimnames[0])
+    cells = np.array(rds.dimnames[1])
 
     print(f"Preparing SAM object...")
     sam = SAM(counts=(counts, genes, cells))
@@ -77,7 +82,9 @@ def save_SAM_file(dataset, sam_dir):
 
     print("Adding cell types to SAM object...")
     cell_types = prepare_cell_types(cellmc_file, ann_file)
-    cell_types_map = [cell_types.get(cell, "unannotated") for cell in sam.adata.obs.index]
+    cell_types_map = [
+        cell_types.get(cell, "unannotated") for cell in sam.adata.obs.index
+    ]
     sam.adata.obs["cell"] = sam.adata.obs.index
     sam.adata.obs["celltype"] = cell_types_map
 
@@ -88,20 +95,21 @@ def save_SAM_file(dataset, sam_dir):
     print("Finished!")
     return filename
 
+
 def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
     sam1 = SAM().load_data(f"{sam_dir}/{d1}.h5ad")
     sam2 = SAM().load_data(f"{sam_dir}/{d2}.h5ad")
 
     # Use species here to get the right alignment map
-    s1 = d1.split('_')[0]
-    s2 = d2.split('_')[0]
+    s1 = d1.split("_")[0]
+    s2 = d2.split("_")[0]
 
     if s1 == s2:
         print(f"Error: {d1} and {d2} share the same species ({species}), aborting!")
         sys.exit(1)
 
-    params = { s1: sam1,       s2: sam2 }
-    keys   = { s1: 'celltype', s2: 'celltype' }
+    params = {s1: sam1, s2: sam2}
+    keys = {s1: "celltype", s2: "celltype"}
 
     print("Initialising SAMAP...")
     sm = SAMAP(params, keys=keys, f_maps=alignment_dir)
@@ -115,7 +123,7 @@ def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
 
     print(f"Saving pairwise scores between cell types from {s1} and {s2}...")
     # D: highest-scoring alignment scores for each cell type
-	# MappingTable: pairwise mapping scores between cell types
+    # MappingTable: pairwise mapping scores between cell types
     D, MappingTable = get_mapping_scores(sm, keys)
 
     # Keep upper diagonal only
@@ -123,16 +131,17 @@ def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
     MappingTable_upper = MappingTable.where(mask)
 
     # Convert matrix to long format
-    df = MappingTable_upper.reset_index().melt(id_vars='index')
+    df = MappingTable_upper.reset_index().melt(id_vars="index")
 
     # Filter zero/missing values and convert to percentage
     df = df.query("value != 0").dropna()
-    df['value'] = df['value'] * 100
+    df["value"] = df["value"] * 100
 
     out_name = f"{os.path.splitext(filename)[0]}_mapping.tsv"
-    df.to_csv(out_name, sep='\t', index=False)
+    df.to_csv(out_name, sep="\t", index=False)
 
     print("Finished!")
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "sam":

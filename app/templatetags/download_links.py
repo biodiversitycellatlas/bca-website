@@ -3,12 +3,14 @@ Django template tags for generating download links and download cards.
 """
 
 from django import template
-from urllib.parse import urlparse, urlunparse
 from .card import _build_card_context
 
 register = template.Library()
 
-def _build_download_context(view, suffix, slug=None, type='link', formats=['csv', 'tsv', 'json']):
+
+def _build_download_context(
+    view, suffix, slug=None, type="link", formats=["csv", "tsv", "json"]
+):
     """
     Build context dictionary for download links in multiple formats.
 
@@ -23,15 +25,16 @@ def _build_download_context(view, suffix, slug=None, type='link', formats=['csv'
         dict: Context data.
     """
     return {
-        'view': view,
-        'slug': slug,
-        'suffix': suffix,
-        'formats': formats,
-        'type': type,
+        "view": view,
+        "slug": slug,
+        "suffix": suffix,
+        "formats": formats,
+        "type": type,
     }
 
-@register.inclusion_tag('app/components/links/download_links.html')
-def download_dataset_data(view, suffix, slug, type='link'):
+
+@register.inclusion_tag("app/components/links/download_links.html")
+def download_dataset_data(view, suffix, slug, type="link"):
     """
     Render download links for dataset data in multiple formats.
 
@@ -46,8 +49,9 @@ def download_dataset_data(view, suffix, slug, type='link'):
     """
     return _build_download_context(view, suffix, slug, type)
 
-@register.inclusion_tag('app/components/links/download_links.html')
-def download_info(view, suffix, type='link'):
+
+@register.inclusion_tag("app/components/links/download_links.html")
+def download_info(view, suffix, type="link"):
     """
     Render download links for species or dataset information.
 
@@ -61,8 +65,19 @@ def download_info(view, suffix, type='link'):
     """
     return _build_download_context(view, suffix, None, type)
 
-@register.inclusion_tag('app/components/links/download_card.html')
-def download_card(view, filename, title, description, links=None, img_url=None, img_author=None, img_author_handle=None, img_width=None):
+
+@register.inclusion_tag("app/components/links/download_card.html")
+def download_card(
+    view,
+    filename,
+    title,
+    description,
+    links=None,
+    img_url=None,
+    img_author=None,
+    img_author_handle=None,
+    img_width=None,
+):
     """
     Render a card containing downloadable links.
 
@@ -80,6 +95,8 @@ def download_card(view, filename, title, description, links=None, img_url=None, 
     Returns:
         str: rendered HTML with card with downloadable data.
     """
-    context = _build_card_context(title, description, links, img_url, img_author, img_author_handle, img_width)
-    context.update({'view': view, 'filename': filename})
+    context = _build_card_context(
+        title, description, links, img_url, img_author, img_author_handle, img_width
+    )
+    context.update({"view": view, "filename": filename})
     return context
