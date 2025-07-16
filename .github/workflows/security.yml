@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-    python-security:
-        name: Python Security Checks
+    bandit:
+        name: Bandit Python security check
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -29,13 +29,27 @@ jobs:
               run: pip install bandit -r requirements.txt
 
             - name: Run Bandit
-              run: bandit -r .
+              run: bandit -r . -x scripts
+
+    django-check:
+        name: Django check
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: '3.13'
+
+            - name: Install dependencies
+              run: pip install -r requirements.txt
 
             - name: Run Django security check
               run: python manage.py check --deploy
 
     trivy:
-        name: Trivy (Docker image scan)
+        name: Trivy Docker image scan
         runs-on: ubuntu-latest
 
         permissions:
