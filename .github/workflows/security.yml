@@ -38,8 +38,9 @@ jobs:
             db:
                 image: postgres:17
                 env:
-                    POSTGRES_DB: bca_2025_05_15
+                    PGUSER: postgres
                     POSTGRES_USER: postgres
+                    POSTGRES_DB: bca
                     POSTGRES_PASSWORD: pg_password
                     POSTGRES_HOST_AUTH_METHOD: trust
                 ports:
@@ -60,6 +61,7 @@ jobs:
                 set -a
                 source .env
                 env > $GITHUB_ENV
+                printenv | sort
               shell: bash
 
             - uses: actions/setup-python@v5
@@ -71,6 +73,13 @@ jobs:
 
             - name: Run Django security check
               run: python manage.py check --deploy
+              env:
+                POSTGRES_HOST: db
+                POSTGRES_DB: bca
+                PGUSER: postgres
+                POSTGRES_USER: postgres
+                POSTGRES_PASSWORD: pg_password
+                DATABASE_PORT: 5432
 
     trivy:
         name: Trivy Docker image scan
