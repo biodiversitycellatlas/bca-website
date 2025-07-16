@@ -15,32 +15,33 @@ Input:
 - placeholder: placeholder text
 
 {% endcomment %}
-
-<select required name="{{name|default:'metacells'}}" value="" id="metacells"
-multiple placeholder="{{placeholder|default:'Select metacells...'}}">
+<select required
+        name="{{ name|default:'metacells' }}"
+        value=""
+        id="metacells"
+        multiple
+        placeholder="{{ placeholder|default:'Select metacells...' }}">
     <option value=""></option>
     {% for key, value in metacell_dict.items %}
         <optgroup label="{{ key }}">
             {% if key == 'Cell types' %}
                 {% for type, mc in value.items %}
-                    <option value="{{type}}" data-type="cell_types"
-                    data-metacells="{{mc|join:','}}"
-                    data-color="{{type.color}}">
-                        {{type}}
-                    </option>
+                    <option value="{{ type }}"
+                            data-type="cell_types"
+                            data-metacells="{{ mc|join:',' }}"
+                            data-color="{{ type.color }}">{{ type }}</option>
                 {% endfor %}
             {% elif key == 'Metacells' %}
                 {% for mc in value %}
-                    <option value="{{mc.name}}" data-type="metacells"
-                    data-color="{{mc.type.color}}" data-celltype="{{mc.type}}">
-                        {{mc.name}}
-                    </option>
+                    <option value="{{ mc.name }}"
+                            data-type="metacells"
+                            data-color="{{ mc.type.color }}"
+                            data-celltype="{{ mc.type }}">{{ mc.name }}</option>
                 {% endfor %}
             {% endif %}
         </optgroup>
     {% endfor %}
 </select>
-
 <!-- Metacell: selectize.js JavaScript options -->
 <script>
     function convertToRange(str) {

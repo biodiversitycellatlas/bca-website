@@ -10,14 +10,14 @@ Input:
 - ratio: aspect ratio of the plot (default: not defined)
 
 {% endcomment %}
-
-<div id="{{id}}-plot" class="container-xxl"
-style="{% if ratio %}aspect-ratio: {{ratio}};{% endif %}">
-    <div id="{{id}}-spinner" class="loading-state">
+<div id="{{ id }}-plot"
+     class="container-xxl"
+     style="{% if ratio %}aspect-ratio: {{ ratio }};
+            {% endif %}">
+    <div id="{{ id }}-spinner" class="loading-state">
         <div class="loader"></div>
     </div>
 </div>
-
 <script type="text/javascript">
     // Loading spinner functions
     function getSpinner (id) {

@@ -1,21 +1,22 @@
 {% extends "base.html" %}
-
 {% comment %}
 
 Template for 404 Not Found page
 
 {% endcomment %}
-
 {% block content %}
-<div class="container-xxl">
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
-        <div class="col">
-            <img src="https://images.unsplash.com/photo-1500189001820-d65835a662d4?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" width="100%">
-        </div>
-        <div class="col align-self-center">
-            <h1 class="h3">404: page not found!</h1>
-            <p>We cannot find the page you requested... If you think something is wrong, please <a href="{% url 'about' %}#contact"> contact us</a>!</p>
+    <div class="container-xxl">
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+            <div class="col">
+                <img src="https://images.unsplash.com/photo-1500189001820-d65835a662d4?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                     width="100%">
+            </div>
+            <div class="col align-self-center">
+                <h1 class="h3">404: page not found!</h1>
+                <p>
+                    We cannot find the page you requested... If you think something is wrong, please <a href="{% url 'about' %}#contact">contact us</a>!
+                </p>
+            </div>
         </div>
     </div>
-</div>
 {% endblock content %}

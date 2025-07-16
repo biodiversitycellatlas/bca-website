@@ -1,184 +1,167 @@
 {% extends "base.html" %}
-
 {% comment %}
 
 Downloads page
 
 {% endcomment %}
-
-{% block title %}Downloads{% endblock title %}
-
+{% block title %}
+    Downloads
+{% endblock title %}
 {% block subnav %}
-<div class="container-xxl">
-    <h1 class="h3">Data download</h1>
-    <p>
-        Please find the download links for <a href="#species">species</a> and
-        <a href="#dataset">dataset</a> data in the tables below.
-    </p>
-    <p>
-        To download data in bulk, we recommend using the
-        <a href="{% url 'api' %}">REST API</a>.
-    </p>
-</div>
-
-<div class="subnavbar sticky-top py-1">
     <div class="container-xxl">
-        <ul class="nav nav-pills small d-md-none">
-            <li class="nav-item">
-                <a class="nav-link p-2 small" data-bs-toggle="offcanvas"
-                href="#offcanvas" role="button">
-                    <i class="fa fa-ellipsis-vertical fa-fw"></i>
-                    Data download
-                </a>
-            </li>
-        </ul>
-
-        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="offcanvas"
-        aria-labelledby="bdSidebarOffcanvasLabel">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">
-                    Data download
-                </h5>
-                <button type="button" class="btn-close"
-                data-bs-dismiss="offcanvas" aria-label="Close"
-                data-bs-target="#offcanvas"></button>
-            </div>
-
-            <div class="offcanvas-body">
-                <ul id="scrollspy-nav" class="nav nav-pills small flex-column flex-md-row">
-                    <li class="nav-item">
-                        <a class="nav-link p-2" href="#species">
-                            <i class="fa fa-kiwi-bird"></i>
-                            Species data
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2" href="#dataset">
-                            <i class="fa fa-flask"></i>
-                            Dataset data
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link p-2" href="{% url 'api' %}">
-                            <i class="fa fa-code"></i>
-                            REST API
-                        </a>
-                    </li>
-                </ul>
+        <h1 class="h3">Data download</h1>
+        <p>
+            Please find the download links for <a href="#species">species</a> and
+            <a href="#dataset">dataset</a> data in the tables below.
+        </p>
+        <p>
+            To download data in bulk, we recommend using the
+            <a href="{% url 'api' %}">REST API</a>.
+        </p>
+    </div>
+    <div class="subnavbar sticky-top py-1">
+        <div class="container-xxl">
+            <ul class="nav nav-pills small d-md-none">
+                <li class="nav-item">
+                    <a class="nav-link p-2 small"
+                       data-bs-toggle="offcanvas"
+                       href="#offcanvas"
+                       role="button">
+                        <i class="fa fa-ellipsis-vertical fa-fw"></i>
+                        Data download
+                    </a>
+                </li>
+            </ul>
+            <div class="offcanvas-md offcanvas-start"
+                 tabindex="-1"
+                 id="offcanvas"
+                 aria-labelledby="bdSidebarOffcanvasLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">Data download</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="offcanvas"
+                            aria-label="Close"
+                            data-bs-target="#offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul id="scrollspy-nav"
+                        class="nav nav-pills small flex-column flex-md-row">
+                        <li class="nav-item">
+                            <a class="nav-link p-2" href="#species">
+                                <i class="fa fa-kiwi-bird"></i>
+                                Species data
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link p-2" href="#dataset">
+                                <i class="fa fa-flask"></i>
+                                Dataset data
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link p-2" href="{% url 'api' %}">
+                                <i class="fa fa-code"></i>
+                                REST API
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<hr/>
+    <hr />
 {% endblock subnav %}
-
 {% block content %}
-
-{% load custom_filters %}
-{% load download_links %}
-
-<div data-bs-spy="scroll" data-bs-target="#scrollspy-nav" data-bs-root-margin="0px 0px -78%" tabindex="0">
-
-<!-- Species downloads -->
-<div id="species">
-    <h2 class="h4 pt-2">
-        Species data
-        {% load section_buttons %}
-        {% clipboard_button id='species' %}
-    </h2>
-
-    <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
-        <div class="col">
-            {% download_card view='rest:species-list' filename='BCA species - information' title='Species information' description='Details on all BCA species.' img_url="https://images.unsplash.com/photo-1514907283155-ea5f4094c70c" img_author='Shaun Low' img_author_handle='@breadboyshaun' img_width='18rem' %}
-        </div>
-    </div>
-
-    <table id="species_table" class="display nowrap" style="width:100%">
-        <thead>
-            <tr>
-                <th>Species</th>
-                <th>Common name</th>
-                <th>Proteome</th>
-                <th>DIAMOND database</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% with file_types="Proteome,DIAMOND" %}
-                {% for species in species_all %}
+    {% load custom_filters %}
+    {% load download_links %}
+    <div data-bs-spy="scroll"
+         data-bs-target="#scrollspy-nav"
+         data-bs-root-margin="0px 0px -78%"
+         tabindex="0">
+        <!-- Species downloads -->
+        <div id="species">
+            <h2 class="h4 pt-2">
+                Species data
+                {% load section_buttons %}
+                {% clipboard_button id='species' %}
+            </h2>
+            <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
+                <div class="col">
+                    {% download_card view='rest:species-list' filename='BCA species - information' title='Species information' description='Details on all BCA species.' img_url="https://images.unsplash.com/photo-1514907283155-ea5f4094c70c" img_author='Shaun Low' img_author_handle='@breadboyshaun' img_width='18rem' %}
+                </div>
+            </div>
+            <table id="species_table" class="display nowrap" style="width:100%">
+                <thead>
                     <tr>
-                        <td>
-                            {{ species.get_html_link }}
-                        </td>
-                        <td>{{ species.common_name|default_if_none:"–" }}</td>
-
-                        {% for file_type in file_types|split:"," %}
-                            {% with file=species.files.all|get_file_type:file_type %}
-                            <td>
-                                {% if file %}
-                                    <a href="{% url 'download_file' file.slug %}">
-                                        {{ file.ext.upper }}
-                                    </a>
-                                {% else %}
-                                    –
-                                {% endif %}
-                            </td>
-                            {% endwith %}
-                        {% endfor %}
+                        <th>Species</th>
+                        <th>Common name</th>
+                        <th>Proteome</th>
+                        <th>DIAMOND database</th>
                     </tr>
-                {% endfor %}
-            {% endwith %}
-        </tbody>
-    </table>
-</div>
-
-<hr/>
-
-<!-- Dataset downloads -->
-<div id="dataset">
-    <h2 class="h4 pt-2">
-        Dataset data
-        {% clipboard_button id='dataset' %}
-    </h2>
-
-    <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
-        <div class="col">
-            {% download_card view='rest:dataset-list' filename='BCA datasets - information' title='Dataset information' description='Details on all BCA datasets.' img_url="https://images.unsplash.com/photo-1708649290066-5f617003b93f" img_author='NEOM' img_author_handle='@neom' img_width='18rem' %}
+                </thead>
+                <tbody>
+                    {% with file_types="Proteome,DIAMOND" %}
+                        {% for species in species_all %}
+                            <tr>
+                                <td>{{ species.get_html_link }}</td>
+                                <td>{{ species.common_name|default_if_none:"–" }}</td>
+                                {% for file_type in file_types|split:"," %}
+                                    {% with file=species.files.all|get_file_type:file_type %}
+                                        <td>
+                                            {% if file %}
+                                                <a href="{% url 'download_file' file.slug %}">{{ file.ext.upper }}</a>
+                                            {% else %}
+                                                –
+                                            {% endif %}
+                                        </td>
+                                    {% endwith %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endwith %}
+                </tbody>
+            </table>
         </div>
-        <div class="col">
-            {% download_card view='rest:stats-list' filename='BCA datasets - metacell stats' title='Metacell statistics' description='Cells and UMI counts per metacell.' img_url="https://images.unsplash.com/photo-1508138119323-5452bd81d53d" img_author='Mathieu Turle' img_author_handle='@nbmat' img_width='18rem' %}
+        <hr />
+        <!-- Dataset downloads -->
+        <div id="dataset">
+            <h2 class="h4 pt-2">
+                Dataset data
+                {% clipboard_button id='dataset' %}
+            </h2>
+            <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
+                <div class="col">
+                    {% download_card view='rest:dataset-list' filename='BCA datasets - information' title='Dataset information' description='Details on all BCA datasets.' img_url="https://images.unsplash.com/photo-1708649290066-5f617003b93f" img_author='NEOM' img_author_handle='@neom' img_width='18rem' %}
+                </div>
+                <div class="col">
+                    {% download_card view='rest:stats-list' filename='BCA datasets - metacell stats' title='Metacell statistics' description='Cells and UMI counts per metacell.' img_url="https://images.unsplash.com/photo-1508138119323-5452bd81d53d" img_author='Mathieu Turle' img_author_handle='@nbmat' img_width='18rem' %}
+                </div>
+            </div>
+            <table id="dataset_table" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Dataset name</th>
+                        <th>Species common name</th>
+                        <th>Single cell data</th>
+                        <th>Metacell data</th>
+                        <th>Metacell counts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dataset in datasets_all %}
+                        <tr>
+                            <td>{{ dataset.get_html_link }}</td>
+                            <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
+                            <td>{% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}</td>
+                            <td>{% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}</td>
+                            <td>{% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <table id="dataset_table" class="display nowrap" style="width:100%">
-        <thead>
-            <tr>
-                <th>Dataset name</th>
-                <th>Species common name</th>
-
-                <th>Single cell data</th>
-                <th>Metacell data</th>
-                <th>Metacell counts</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for dataset in datasets_all %}
-                <tr>
-                    <td>{{ dataset.get_html_link }}</td>
-                    <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
-
-                    <td>{% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}</td>
-                    <td>{% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}</td>
-                    <td>{% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<script>
+        <script>
 $('#species_table, #dataset_table').DataTable({
     responsive: true,
     pageLength: 25,
@@ -187,7 +170,6 @@ $('#species_table, #dataset_table').DataTable({
 });
 
 $('.dt-search input').attr("placeholder", "Search table...");
-</script>
-
-</div>
+        </script>
+    </div>
 {% endblock content %}

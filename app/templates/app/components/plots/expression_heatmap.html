@@ -8,21 +8,24 @@ Input:
   'gene-lists'
 
 {% endcomment %}
-
 {% if type == 'gene-lists' %}
     {% include '../modals/list_editor.html' with id='expression' type='gene_lists' %}
 {% endif %}
-
-<form novalidate action="#{{id}}">
+<form novalidate action="#{{ id }}">
     <div class="row g-2 mb-4 align-items-start">
         <div class="col-auto">
             {% if type|default:'markers' == 'markers' %}
                 <div class="d-flex justify-content-between align-items-center small">
-                    <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
+                    <label class="col-form-label">
+                        <i class="fa fa-list-check"></i> Genes
+                    </label>
                 </div>
-
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <button type="button"
+                            class="btn btn-outline-primary dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            data-bs-auto-close="outside">
                         <span id="genes_label">5 markers per cluster</span>
                     </button>
                     <div class="dropdown-menu">
@@ -31,103 +34,127 @@ Input:
                                 <label class="col-form-label">
                                     <small>Number of markers per cluster</small>
                                 </label>
-                                <input type="range" class="js-range-slider"
-                                id="markers" name="markers" value="0" step="0.1"
-                                style="opacity: 0;">
+                                <input type="range"
+                                       class="js-range-slider"
+                                       id="markers"
+                                       name="markers"
+                                       value="0"
+                                       step="0.1"
+                                       style="opacity: 0">
                             </div>
                         </div>
                     </div>
                 </div>
             {% elif type == 'gene-lists' %}
                 <div class="d-flex justify-content-between align-items-center small">
-                    <label class="col-form-label"><i class="fa fa-list-check"></i> Genes</label>
-
+                    <label class="col-form-label">
+                        <i class="fa fa-list-check"></i> Genes
+                    </label>
                     <div class="d-flex gap-3">
-                        <a id="clear_selected_genes" href="javascript:void(0);" class="d-block text-end" onclick="$('#{{id}}_gene_selection')[0].selectize.clear();">
-                            Clear selection
-                        </a>
-
-                        <a id="edit_gene_lists" href="javascript:void(0);"
-                        class="d-block text-end" data-bs-toggle="modal"
-                        data-bs-target="#{{id}}_gene_lists_editor">
-                            Edit gene lists...
-                        </a>
+                        <a id="clear_selected_genes"
+                           href="javascript:void(0);"
+                           class="d-block text-end"
+                           onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">Clear selection</a>
+                        <a id="edit_gene_lists"
+                           href="javascript:void(0);"
+                           class="d-block text-end"
+                           data-bs-toggle="modal"
+                           data-bs-target="#{{ id }}_gene_lists_editor">Edit gene lists...</a>
                     </div>
                 </div>
-
                 {% include '../select/gene.html' with id=id name='gene_lists' hash=id limit=10 multiple='true' selected=query.gene_lists class=' ' placeholder='Search genes, gene lists and domains...' width='400px' %}
             {% endif %}
         </div>
-
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
-                <label class="col-form-label"><i class="fa fa-list-check"></i> Metacells</label>
+                <label class="col-form-label">
+                    <i class="fa fa-list-check"></i> Metacells
+                </label>
             </div>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                <button type="button"
+                        class="btn btn-outline-primary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        data-bs-auto-close="outside">
                     <span id="metacells_filter">All metacells</span>
                 </button>
                 <div id="metacell_dropdown" class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
-
                         <div class="d-flex justify-content-between align-items-center small">
-                            <label class="col-form-label">
-                                Filter metacells
-                            </label>
-
-                            <a id="select_all_metacells" href="javascript:void(0);"
-                            class="d-block text-end"
-                            onclick="$('#metacells')[0].selectize.clear();">
-                                Select all metacells
-                            </a>
+                            <label class="col-form-label">Filter metacells</label>
+                            <a id="select_all_metacells"
+                               href="javascript:void(0);"
+                               class="d-block text-end"
+                               onclick="$('#metacells')[0].selectize.clear();">Select all metacells</a>
                         </div>
-
                         {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
-                <label class="col-form-label"><i class="fa fa-filter"></i> Fold-change thresholds</label>
+                <label class="col-form-label">
+                    <i class="fa fa-filter"></i> Fold-change thresholds
+                </label>
             </div>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary dropdown-toggle flat-right-border" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">FC ≥ <span id="fc_min_value">2</span></button>
+                <button type="button"
+                        class="btn btn-outline-primary dropdown-toggle flat-right-border"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        data-bs-auto-close="outside">
+                    FC ≥ <span id="fc_min_value">2</span>
+                </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
                         <label for="markers" class="col-form-label">
                             <small>Minimum fold-change</small>
                         </label>
-
-                        <input type="range" class="js-range-slider" id="fc_min" name="fc_min" value="0" step="0.1" style="opacity: 0;">
+                        <input type="range"
+                               class="js-range-slider"
+                               id="fc_min"
+                               name="fc_min"
+                               value="0"
+                               step="0.1"
+                               style="opacity: 0">
                     </div>
                 </div>
-
-                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Scale log₂ FC ≤ <span id="clip_log2_value">0</span></button>
+                <button type="button"
+                        class="btn btn-outline-primary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        data-bs-auto-close="outside">
+                    Scale log₂ FC ≤ <span id="clip_log2_value">0</span>
+                </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px;">
                         <label for="markers" class="col-form-label">
                             <small>Scale maximum fold-change</small>
                         </label>
-
-                        <input type="range" class="js-range-slider" id="clip_log2" name="clip_log2" value="0" step="0.1" style="opacity: 0;">
-
-                        <p class="mt-3 text-muted small"><i class="fa fa-info-circle"></i> Lower limit of selection depends on minimum fold-change.</p>
+                        <input type="range"
+                               class="js-range-slider"
+                               id="clip_log2"
+                               name="clip_log2"
+                               value="0"
+                               step="0.1"
+                               style="opacity: 0">
+                        <p class="mt-3 text-muted small">
+                            <i class="fa fa-info-circle"></i> Lower limit of selection depends on minimum fold-change.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-auto">
-            <button id="{{id}}_submit" type="submit" class="btn btn-primary"
-            style="margin-top: 35px;">
-                Apply
-            </button>
+            <button id="{{ id }}_submit"
+                    type="submit"
+                    class="btn btn-primary"
+                    style="margin-top: 35px">Apply</button>
         </div>
     </div>
 </form>
-
 <!-- Gene expression heatmap form -->
 <script>
     function toggleSubmitButton(id) {
@@ -253,19 +280,14 @@ Input:
                         ['metacell_lists' {% if type == "gene-lists" %}, 'gene_lists' {% endif %}]);
     });
 </script>
-
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 {% if type|default:'markers' == 'markers' or query.genes %}
     <div class="row">
-        <div class="col-10 col-sm-11">
-            {% include '../plot_container.html' with id=id ratio='16/9' %}
-        </div>
+        <div class="col-10 col-sm-11">{% include '../plot_container.html' with id=id ratio='16/9' %}</div>
     </div>
-
     {% load static %}
     <script type="text/javascript"
-    src="{% static 'app/js/plots/expression_heatmap.js' %}"></script>
-
+            src="{% static 'app/js/plots/expression_heatmap.js' %}"></script>
     <script type="text/javascript">
     $(function() {
         var url = "{% url 'rest:metacellgeneexpression-list' %}";

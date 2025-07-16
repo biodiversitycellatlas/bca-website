@@ -7,34 +7,31 @@ Input:
 - gene
 
 {% endcomment %}
-
 {% include '../plot_container.html' with id='orthologs' %}
 <template id="ortholog-header-template">
     <h2 class="h5 pt-2">
-        <img id="ortholog-species-img" class="rounded" height="24px"
-        style="box-shadow: 0px 0px 2px white !important;">
+        <img id="ortholog-species-img"
+             class="rounded"
+             height="24px"
+             style="box-shadow: 0px 0px 2px white !important">
         <i><span id="ortholog-species">Species</span></i>
     </h2>
 </template>
-
 <template id="ortholog-template">
     <h3 class="h6 pt-2">
         <a id="ortholog-gene-href" href="">
-            <span id="ortholog-gene"> Gene </span>
+            <span id="ortholog-gene">Gene</span>
         </a>
         expression in
         <a id="ortholog-dataset-href" href="">
-            <span id="ortholog-dataset">
-                Dataset
-            </span>
+            <span id="ortholog-dataset">Dataset</span>
         </a>
     </h3>
     <div id="single-ortholog-plot" class="container-xxl"></div>
 </template>
-
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
-
+<script type="text/javascript"
+        src="{% static 'app/js/plots/expression_plot.js' %}"></script>
 <!-- Plot ortholog expression data -->
 <script type="text/javascript">
     // Create URL to fetch ortholog data
@@ -99,4 +96,3 @@ Input:
             hideSpinner('orthologs');
         });
 </script>
-
