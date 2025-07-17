@@ -1,23 +1,23 @@
 /* Theme variables */
 
 :root {
-    --font: 'Rubik', sans-serif;
+    --font: "Rubik", sans-serif;
 
     --bold-dark-color: #239184;
-    --bold-light-color: #3BBCB2;
-    --neutral-color: #FFF6EE;
-    --light-accent-color: #FFAC3E;
-    --bold-accent-color: #3AB064;
+    --bold-light-color: #3bbcb2;
+    --neutral-color: #fff6ee;
+    --light-accent-color: #ffac3e;
+    --bold-accent-color: #3ab064;
 
     --primary-color: var(--bold-dark-color);
     --hover-color: var(--bold-light-color);
-    --hover-border-color: #3BBCB277;
+    --hover-border-color: #3bbcb277;
 
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
 
-    --subnavbar-bg-color: #FFFFFF80;
+    --subnavbar-bg-color: #ffffff80;
     --subnavbar-blur: blur(20px);
 
     --card-text-shadow: var(--navbar-hover-shadow-color);
@@ -25,7 +25,7 @@
     --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
     --dropdown-menu-blur: var(--subnavbar-blur);
 
-    --table-row-color: #3BBCB222;
+    --table-row-color: #3bbcb222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: var(--subnavbar-bg-color);
 }
@@ -40,12 +40,13 @@
 
 /* Navbar (and related fixes) */
 
-html { /* Add padding to avoid navbar overlap when scrolling to URL hashes */
-  scroll-padding-top: 60px;
+html {
+    /* Add padding to avoid navbar overlap when scrolling to URL hashes */
+    scroll-padding-top: 60px;
 }
 
 html:has(.subnavbar) {
-  scroll-padding-top: 96px;
+    scroll-padding-top: 96px;
 }
 
 .navbar {
@@ -93,7 +94,7 @@ html:has(.subnavbar) {
 }
 
 .subnavbar::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -132,7 +133,7 @@ html:has(.subnavbar) {
 }
 
 .nav .nav-link:focus-visible {
-    box-shadow: 0 0 0 .25rem var(--hover-border-color);
+    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
 .nav-pills .nav-link.active {
@@ -148,29 +149,33 @@ body {
 }
 
 .lead {
-    font-size: 1.20rem;
+    font-size: 1.2rem;
 }
 
-.form-control:focus, .sequence-input:has(.sequence-textarea:focus) {
+.form-control:focus,
+.sequence-input:has(.sequence-textarea:focus) {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
-.btn.btn-primary.disabled, .btn.btn-primary:disabled, fieldset:disabled.btn.btn-primary {
+.btn.btn-primary.disabled,
+.btn.btn-primary:disabled,
+fieldset:disabled.btn.btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
-.btn.btn-primary, .btn.btn-outline-primary {
+.btn.btn-primary,
+.btn.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
 .btn-xs {
-    --bs-btn-padding-y: .25rem;
-    --bs-btn-padding-x: .5rem;
-    --bs-btn-font-size: .75rem;
+    --bs-btn-padding-y: 0.25rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 0.75rem;
 }
 
 .btn-primary {
@@ -210,21 +215,22 @@ body {
     background-color: var(--primary-color);
 }
 
-.btn-check+.btn.btn-outline-primary:hover {
+.btn-check + .btn.btn-outline-primary:hover {
     color: var(--hover-color);
 }
 
-.btn-check:checked+.btn.btn-outline-primary {
+.btn-check:checked + .btn.btn-outline-primary {
     background-color: var(--primary-color);
     color: white;
 }
 
-.btn-check:checked+.btn.btn-outline-primary:hover {
+.btn-check:checked + .btn.btn-outline-primary:hover {
     background-color: var(--hover-color);
     color: white;
 }
 
-.dropdown-item.active, .dropdown-item:active {
+.dropdown-item.active,
+.dropdown-item:active {
     background-color: var(--primary-color);
 }
 
@@ -280,7 +286,8 @@ a:hover {
 
     background-color: rgb(var(--bs-light-rgb));
 
-    border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+    border: var(--bs-list-group-border-width) solid
+        var(--bs-list-group-border-color);
 }
 
 .list-group-heading + .list-group-heading,
@@ -302,14 +309,14 @@ a:hover {
 
 .color-bullet {
     color: red;
-    -webkit-text-stroke: .8px white;
-    text-stroke: .8px white;
+    -webkit-text-stroke: 0.8px white;
+    text-stroke: 0.8px white;
     font-size: 0.6em;
     vertical-align: middle;
 }
 
 .search-highlight {
-    background: rgba(255,237,40,.4);
+    background: rgba(255, 237, 40, 0.4);
 }
 
 .sequence-textarea:focus {
@@ -340,23 +347,25 @@ a:hover {
     border-radius: 50%;
     display: inline-block;
     border: 10px solid;
-    border-color: var(--primary-color) var(--hover-color) var(--hover-color) var(--hover-color);
+    border-color: var(--primary-color) var(--hover-color) var(--hover-color)
+        var(--hover-color);
     box-sizing: border-box;
     animation: rotation 1.5s linear infinite;
 }
 
 @keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Tables */
 
-.table td, .table th {
+.table td,
+.table th {
     border-style: none;
     --bs-table-striped-bg: var(--table-row-color);
 }
@@ -386,17 +395,17 @@ div.dt-container div.dt-processing > div > div {
 }
 
 .truncate {
-    max-width:200px;
+    max-width: 200px;
     white-space: nowrap;
     overflow: overlay;
     text-overflow: ellipsis;
 }
 
 .truncate-3 {
-	line-clamp: 3;
-	-webkit-line-clamp: 3;
-	text-overflow: ellipsis;
-	hyphens: auto;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    text-overflow: ellipsis;
+    hyphens: auto;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: overlay;
@@ -408,8 +417,9 @@ div.dt-container div.dt-processing > div > div {
     max-width: 800px;
 }
 
-.atlas-select .highlight { /* Highlight phylum in atlas selection */
-    background: rgba(255,237,40,.4);
+.atlas-select .highlight {
+    /* Highlight phylum in atlas selection */
+    background: rgba(255, 237, 40, 0.4);
     border-radius: 1px;
 }
 
@@ -458,25 +468,25 @@ div.dt-container div.dt-processing > div > div {
 
 .selectize-control::before {
     opacity: 0;
-	-moz-transition: opacity 0.2s;
-	-webkit-transition: opacity 0.2s;
-	transition: opacity 0.2s;
+    -moz-transition: opacity 0.2s;
+    -webkit-transition: opacity 0.2s;
+    transition: opacity 0.2s;
 
-	-webkit-animation: none;
-	animation: none;
+    -webkit-animation: none;
+    animation: none;
 
-	z-index: 2;
-	position: absolute;
-	display: block;
+    z-index: 2;
+    position: absolute;
+    display: block;
 
-	top: 12px;
-	right: 36px;
-	width: 16px;
-	height: 16px;
+    top: 12px;
+    right: 36px;
+    width: 16px;
+    height: 16px;
 
-	/* SVG spinner from https://fontawesome.com/icons/spinner */
-	content: "";
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M304 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1 48 48 0 1 0 142.9 437zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437A48 48 0 1 0 437 369.1 48 48 0 1 0 369.1 437z'/%3E%3C/svg%3E");
+    /* SVG spinner from https://fontawesome.com/icons/spinner */
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M304 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1 48 48 0 1 0 142.9 437zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437A48 48 0 1 0 437 369.1 48 48 0 1 0 369.1 437z'/%3E%3C/svg%3E");
 }
 
 .selectize-input.focus {
@@ -489,9 +499,9 @@ div.dt-container div.dt-processing > div > div {
 }
 
 .selectize-control.loading::before {
-	opacity: 1;
-	-webkit-animation: fa-spin 2s infinite linear;
-	animation: fa-spin 2s infinite linear;
+    opacity: 1;
+    -webkit-animation: fa-spin 2s infinite linear;
+    animation: fa-spin 2s infinite linear;
 }
 
 .selectize-control.multi .selectize-input > div.active {
@@ -544,11 +554,16 @@ div.dt-container div.dt-processing > div > div {
     box-shadow: 0 1px 3px var(--hover-color);
 }
 
-.irs--round .irs-bar, .irs--round .irs-from, .irs--round .irs-to, .irs--round .irs-single {
+.irs--round .irs-bar,
+.irs--round .irs-from,
+.irs--round .irs-to,
+.irs--round .irs-single {
     background-color: var(--primary-color);
 }
 
-.irs--round .irs-from::before, .irs--round .irs-to::before, .irs--round .irs-single::before {
+.irs--round .irs-from::before,
+.irs--round .irs-to::before,
+.irs--round .irs-single::before {
     border-top-color: var(--primary-color);
 }
 

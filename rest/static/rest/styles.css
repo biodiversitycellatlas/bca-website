@@ -1,11 +1,11 @@
 :root {
-	--font-ui: var(--font);
-	--font-prose: var(--font);
-	--color-text-heading: var(--primary-color);
+    --font-ui: var(--font);
+    --font-prose: var(--font);
+    --color-text-heading: var(--primary-color);
 }
 
 html {
-  scroll-padding-top: 0px;
+    scroll-padding-top: 0px;
 }
 
 body {
@@ -21,4 +21,3 @@ body {
 .sl-flex.sl-overflow-y-auto.sl-flex-col.sl-sticky {
     height: 100vh !important;
 }
-
