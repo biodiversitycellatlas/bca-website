@@ -198,11 +198,11 @@ $(function () {
             }
         },
         onFocus: function() {
-		    this.clear();
-		},
-		onDropdownOpen: function() {
-		    this.clear();
-		},
+            this.clear();
+        },
+        onDropdownOpen: function() {
+            this.clear();
+        },
         valueField: 'slug',
         labelField: 'slug',
         searchField: ['species', 'name', 'description', 'domains', 'scientific_name'],
@@ -248,33 +248,33 @@ $(function () {
             });
         },
         onChange: function(value) {
-    	    if (value !== "") {
-    	        item = this.options[value];
-    	        if (item.group == 'gene') {
-    	            gene = item.name;
-    	            dataset = item.dataset.scientific_name.replace(' ', '_');
-    	            window.location.href =
-    	                "{% url 'atlas_gene' '::dataset' '::gene' %}"
-    	                .replace('::dataset', dataset)
-    	                .replace('::gene', gene);
-    	        } else if (item.group == 'dataset') {
-    	            // Jump to dataset
-    	            dataset = item.slug;
-    			    window.location.href =
-    			        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
-    			        {% if atlas %}
-    			            // Jump to same page in atlas with another dataset
-    			            "{% url request.resolver_match.view_name '::arg' %}"
-    			                .replace('::arg', dataset)
-    			        {% else %}
-    			            // Jump to atlas_info
-    			            "{% url 'atlas_info' '::arg' %}"
-    			                .replace('::arg', dataset)
-    			        {% endif %};
-    	        }
-    	    }
-    		return;
-		},
+            if (value !== "") {
+                item = this.options[value];
+                if (item.group == 'gene') {
+                    gene = item.name;
+                    dataset = item.dataset.scientific_name.replace(' ', '_');
+                    window.location.href =
+                        "{% url 'atlas_gene' '::dataset' '::gene' %}"
+                        .replace('::dataset', dataset)
+                        .replace('::gene', gene);
+                } else if (item.group == 'dataset') {
+                    // Jump to dataset
+                    dataset = item.slug;
+                    window.location.href =
+                        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
+                        {% if atlas %}
+                            // Jump to same page in atlas with another dataset
+                            "{% url request.resolver_match.view_name '::arg' %}"
+                                .replace('::arg', dataset)
+                        {% else %}
+                            // Jump to atlas_info
+                            "{% url 'atlas_info' '::arg' %}"
+                                .replace('::arg', dataset)
+                        {% endif %};
+                }
+            }
+            return;
+        },
         optgroupField: 'group'
     });
 

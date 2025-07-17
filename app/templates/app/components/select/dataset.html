@@ -57,60 +57,60 @@ $(function () {
     $select.selectize({
         onChange: function(value) {
             // Jump to dataset page upon selection
-	        {% if redirect == 'arg' %}
-	            if (value !== "" && value !== '{{dataset.slug}}') {
-    	            // Avoid jumping if value is empty or matches current dataset
-    			    window.location.href =
-    			        {% if request.resolver_match.view_name == 'atlas' %}
-    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-    			        {% else %}
-    			            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
-    			        {% endif %}
+            {% if redirect == 'arg' %}
+                if (value !== "" && value !== '{{dataset.slug}}') {
+                    // Avoid jumping if value is empty or matches current dataset
+                    window.location.href =
+                        {% if request.resolver_match.view_name == 'atlas' %}
+                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
+                        {% else %}
+                            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
+                        {% endif %}
                 }
             {% elif redirect == 'query' %}
                 if (value !== "" && value !== '{{query.dataset}}') {
                     var url = new URL(window.location.href);
-    	            url.searchParams.set('dataset', value)
-    	            window.location.href = url;
-    	        }
-	        {% elif redirect == 'atlas' %}
-    	        if (value !== "" && value !== '{{dataset.slug}}') {
-    	            window.location.href =
-    			            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
+                    url.searchParams.set('dataset', value)
+                    window.location.href = url;
+                }
+            {% elif redirect == 'atlas' %}
+                if (value !== "" && value !== '{{dataset.slug}}') {
+                    window.location.href =
+                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
                 }
             {% endif %}
-		},
-		onDropdownOpen: function() {
-		    this.clear();
-		    setTimeout(() => {
-		        var dataset =
-		            {% if redirect == 'query' %}
-		                '{{query.dataset}}'
-		            {% else %}
-		                '{{dataset.slug}}'
-		            {% endif %};
+        },
+        onDropdownOpen: function() {
+            this.clear();
+            setTimeout(() => {
+                var dataset =
+                    {% if redirect == 'query' %}
+                        '{{query.dataset}}'
+                    {% else %}
+                        '{{dataset.slug}}'
+                    {% endif %};
                 if (dataset) {
                     var current = this.getOption(dataset);
                     this.setActiveOption(current);
                 }
             }, 10);
-		},
-		onBlur: function() {
-		    // Set current dataset if no value is selected
+        },
+        onBlur: function() {
+            // Set current dataset if no value is selected
             if (!this.getValue()) {
                 this.setValue(
                     {% if redirect == 'query' %}
-		                '{{query.dataset}}'
-		            {% else %}
-		                '{{dataset.slug}}'
-		            {% endif %}
+                        '{{query.dataset}}'
+                    {% else %}
+                        '{{dataset.slug}}'
+                    {% endif %}
                 );
             }
         },
-		onType: function(str) {
-		    $('.highlight').closest('.species-meta').css('display', 'inline-block');
-		},
-		render: {
+        onType: function(str) {
+            $('.highlight').closest('.species-meta').css('display', 'inline-block');
+        },
+        render: {
             item: function (item, escape) {
                 // Display common name if different than dataset name
                 var description = '';

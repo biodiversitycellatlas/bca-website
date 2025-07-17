@@ -37,9 +37,9 @@ Input:
     // Create URL to fetch ortholog data
     var url = '{% url 'rest:ortholog-list' %}';
     var params = new URLSearchParams({
-	    gene: '{{gene}}',
-	    expression: true,
-	    limit: 0
+        gene: '{{gene}}',
+        expression: true,
+        limit: 0
     });
     var apiURL = url + "?" + params.toString();
     appendDataMenu('orthologs', apiURL, 'Ortholog expression');

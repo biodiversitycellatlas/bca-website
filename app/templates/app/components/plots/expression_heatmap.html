@@ -293,17 +293,17 @@ Input:
         var url = "{% url 'rest:metacellgeneexpression-list' %}";
 
         var params = new URLSearchParams({
-    		dataset: '{{dataset.slug}}',
-    		metacells: $("#metacells").val().join(","),
-    		fc_min: $("#fc_min").val(),
-    		{% if not query.genes %} n_markers: $("#markers").val(), {% endif %}
-    		sort_genes: true,
-    		{% if query.genes %} genes: '{{query.genes}}', {% endif %}
-    		log2: true,
-    		clip_log2: $("#clip_log2").val(),
-    		limit: 0
-    	});
-    	var apiURL = url + "?" + params.toString();
+            dataset: '{{dataset.slug}}',
+            metacells: $("#metacells").val().join(","),
+            fc_min: $("#fc_min").val(),
+            {% if not query.genes %} n_markers: $("#markers").val(), {% endif %}
+            sort_genes: true,
+            {% if query.genes %} genes: '{{query.genes}}', {% endif %}
+            log2: true,
+            clip_log2: $("#clip_log2").val(),
+            limit: 0
+        });
+        var apiURL = url + "?" + params.toString();
 
         fetch(apiURL)
             .then(response => response.json())

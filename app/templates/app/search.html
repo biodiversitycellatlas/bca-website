@@ -35,12 +35,12 @@ function updateQuery(key, value) {
         searchParams.set(key, value);
     } else {
         searchParams.delete(key);
-	}
+    }
 
     searchString = '?' + searchParams.toString();
-	if (window.location.search != searchString) {
-	    window.location.search = searchString;
-	}
+    if (window.location.search != searchString) {
+        window.location.search = searchString;
+    }
 }
     </script>
     {% if query %}
@@ -116,7 +116,7 @@ function updateQuery(key, value) {
     {% endif %}
     <script>
     function highlightMatch(content, query) {
-    	if (content === null) return content;
+        if (content === null) return content;
 
         const regex = new RegExp(`(${query})`, 'gi');
         return content.replace(regex, '<span class="search-highlight">$1</span>');
@@ -143,12 +143,12 @@ function updateQuery(key, value) {
 
         // Add word break lines on underscores
         const mods = { title_mod, subtitle_mod, description_mod };
-		for (const key in mods) {
-			// Regex: ignore HTML code, i.e. text inside brackets <>
-    		mods[key] = (mods[key] || '')
-    			.replace(/(?<!<[^>]*)[_/]/g, match => match + "<wbr>");
-		}
-		({ title_mod, subtitle_mod, description_mod } = mods);
+        for (const key in mods) {
+            // Regex: ignore HTML code, i.e. text inside brackets <>
+            mods[key] = (mods[key] || '')
+                .replace(/(?<!<[^>]*)[_/]/g, match => match + "<wbr>");
+        }
+        ({ title_mod, subtitle_mod, description_mod } = mods);
 
         $clone.find('.result-title')
             .html(title_mod).attr('href', title_url);
@@ -164,9 +164,9 @@ function updateQuery(key, value) {
         container.append($clone);
     }
 
-	// Fetch data from API
-	var species = '{{query.species}}'.replace('_', ' ');
-	var limit = {{query.limit|default:12}};
+    // Fetch data from API
+    var species = '{{query.species}}'.replace('_', ' ');
+    var limit = {{query.limit|default:12}};
 
     var params = new URLSearchParams ({
         q: encodeURIComponent('{{query.q}}'),
@@ -176,61 +176,61 @@ function updateQuery(key, value) {
     });
 
     {% if query.category == 'datasets' %}
-    	datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
-    	datasetsURL.search = params;
+        datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
+        datasetsURL.search = params;
 
-    	fetch(datasetsURL)
-    		.then(res => res.json())
-    		.then(data => {
-    			data.results.forEach(item => {
-    				var title = `<i>${item.species}</i>`;
-    				if (item.name) {
-    					title = `${title} - ${item.name}`;
-    				}
-    				var subtitle = item.species_common_name || '';
+        fetch(datasetsURL)
+            .then(res => res.json())
+            .then(data => {
+                data.results.forEach(item => {
+                    var title = `<i>${item.species}</i>`;
+                    if (item.name) {
+                        title = `${title} - ${item.name}`;
+                    }
+                    var subtitle = item.species_common_name || '';
 
-    				var description = item.species_description;
-    				var badges = item.species_meta.map(item => item.value).filter(item =>
-    				    !title.includes(item) && !subtitle.includes(item)
-    				);
+                    var description = item.species_description;
+                    var badges = item.species_meta.map(item => item.value).filter(item =>
+                        !title.includes(item) && !subtitle.includes(item)
+                    );
 
                     var dataset_url = '{% url "atlas_info" '::dataset' %}'
-    				    .replace('::dataset', item.slug);
-    				appendResult(title, dataset_url, subtitle, dataset_url,
-    				             description, badges);
-    			});
-    			$('#results_count').text(`${data.count.toLocaleString()} results`);
-    		})
-    		.catch(err => {
+                        .replace('::dataset', item.slug);
+                    appendResult(title, dataset_url, subtitle, dataset_url,
+                                 description, badges);
+                });
+                $('#results_count').text(`${data.count.toLocaleString()} results`);
+            })
+            .catch(err => {
                 console.error('Error loading data:', err);
             });
     {% elif query.category == 'genes' %}
-    	genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
-    	genesURL.search = params;
+        genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
+        genesURL.search = params;
 
-    	fetch(genesURL)
-    		.then(res => res.json())
-    		.then(data => {
-    			data.results.forEach(item => {
-    				var gene = item.name;
-    				var species_name = item.species ? item.species.scientific_name : '';
-    				var description = item.description;
-    				var domains = item.domains;
+        fetch(genesURL)
+            .then(res => res.json())
+            .then(data => {
+                data.results.forEach(item => {
+                    var gene = item.name;
+                    var species_name = item.species ? item.species.scientific_name : '';
+                    var description = item.description;
+                    var domains = item.domains;
 
                     var slug = item.species ?
-                    	item.species.scientific_name.slug : species.slug;
-    				var species_url = '{% url "atlas_info" '::species' %}'
-    				    .replace('::species', slug);
-    				var gene_url = '{% url "atlas_gene" '::species' '::gene' %}'
-    				    .replace('::species', slug)
-    				    .replace('::gene', gene);
+                        item.species.scientific_name.slug : species.slug;
+                    var species_url = '{% url "atlas_info" '::species' %}'
+                        .replace('::species', slug);
+                    var gene_url = '{% url "atlas_gene" '::species' '::gene' %}'
+                        .replace('::species', slug)
+                        .replace('::gene', gene);
 
-    				appendResult(gene, gene_url, species_name, species_url,
-    				             description, domains);
-    			});
-    			$('#results_count').text(`${data.count.toLocaleString()} results`);
-    		})
-    		.catch(err => {
+                    appendResult(gene, gene_url, species_name, species_url,
+                                 description, domains);
+                });
+                $('#results_count').text(`${data.count.toLocaleString()} results`);
+            })
+            .catch(err => {
                 console.error('Error loading data:', err);
             });
     {% endif %}
