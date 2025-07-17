@@ -3,14 +3,9 @@
 Entry header with counter
 
 {% endcomment %}
-
 <div class="d-flex align-items-end">
-    <h1 class="h3 text-break me-2">{{title}}</h1>
-
-    {% if object %}
-        <span class="mb-2 me-2">{{object.get_html_link}}</span>
-    {% endif %}
-
+    <h1 class="h3 text-break me-2">{{ title }}</h1>
+    {% if object %}<span class="mb-2 me-2">{{ object.get_html_link }}</span>{% endif %}
     <span class="mb-2 text-muted">
         {{ paginator.count }}
         {{ paginator.count|pluralize:"entry,entries" }}

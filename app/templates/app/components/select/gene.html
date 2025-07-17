@@ -28,16 +28,15 @@ Input:
 - limit: maximum number of genes to fetch from API (default: 50)
 
 {% endcomment %}
-
-<select id="{{id}}_gene_selection" class="{{class|default:'mb-3'}}"
-name="{{name|default:'gene'}}"
-style="width: {{width|default:'100%'}};"
-placeholder="{{placeholder|default:'Search gene...'}}"
-{% if multiple == 'true' %}multiple{% endif %}
-{% if disabled == 'true' %}disabled{% endif %}>
+<select id="{{ id }}_gene_selection"
+        class="{{ class|default:'mb-3' }}"
+        name="{{ name|default:'gene' }}"
+        style="width: {{ width|default:'100%' }}"
+        placeholder="{{ placeholder|default:'Search gene...' }}"
+        {% if multiple == 'true' %}multiple{% endif %}
+        {% if disabled == 'true' %}disabled{% endif %}>
     <option value=""></option>
 </select>
-
 <!-- Species selection: selectize.js JavaScript options -->
 <script>
 function displayGeneInfo (item, escape) {

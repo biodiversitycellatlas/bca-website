@@ -6,122 +6,109 @@ Input:
 - id: prefix of element identifiers
 
 {% endcomment %}
-
-<div class="modal fade" id="{{id}}_alignment" tabindex="-1"
-data-bs-backdrop="static" data-bs-keyboard="false"
-aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
+<div class="modal fade"
+     id="{{ id }}_alignment"
+     tabindex="-1"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     aria-labelledby="{{ id }}_{{ type }}_modal_label"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Sequence alignment</h1>
                 <span class="ms-2 me-5">
-                    <img class="rounded" src="{{species.image_url}}" style="width: 25px;">
-                    <span class="small">{{species.get_html}}</span>
+                    <img class="rounded" src="{{ species.image_url }}" style="width: 25px;">
+                    <span class="small">{{ species.get_html }}</span>
                 </span>
-
                 <div class="ms-auto d-flex align-items-center">
-                    <button type="button" class="btn-close"
-                    data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
             </div>
             <div class="modal-body">
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">
-                        Aligner
-                    </label>
+                    <label class="col-lg-2 col-form-label small">Aligner</label>
                     <div class="col-lg-10">
-                        <a class="form-control-plaintext" target="_blank"
-                        href="https://github.com/bbuchfink/diamond">
+                        <a class="form-control-plaintext"
+                           target="_blank"
+                           href="https://github.com/bbuchfink/diamond">
                             DIAMOND {{ DIAMOND_VERSION }}
                             <i class="fa fa-2xs fa-arrow-up-right-from-square"></i>
                         </a>
                     </div>
                 </div>
-
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">
-                        Proteome
-                    </label>
+                    <label class="col-lg-2 col-form-label small">Proteome</label>
                     <div class="col-lg-10">
                         <span class="form-control-plaintext">
-                            <img class="rounded" src="{{species.image_url}}"
-                            style="width: 20px;">
-                            {{species.get_html}}
+                            <img class="rounded" src="{{ species.image_url }}" style="width: 20px;">
+                            {{ species.get_html }}
                         </span>
                     </div>
                 </div>
-
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">
-                        Type
-                    </label>
+                    <label class="col-lg-2 col-form-label small">Type</label>
                     <div class="col-lg-10">
                         <div class="btn-group btn-group-sm mb-3 w-100" role="group">
-                            <input type="radio" class="btn-check"
-                            name="{{id}}_type" id="{{id}}_type_nucleotides"
-                            autocomplete="off" value="nucleotides">
-                            <label class="btn btn-outline-primary"
-                            for="{{id}}_type_nucleotides">
-                                Nucleotides
-                            </label>
-
-                            <input type="radio" class="btn-check"
-                            name="{{id}}_type" id="{{id}}_type_aminoacids"
-                            autocomplete="off" value="aminoacids" checked>
-                            <label class="btn btn-outline-primary"
-                            for="{{id}}_type_aminoacids">
-                                Amino acids
-                            </label>
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="{{ id }}_type"
+                                   id="{{ id }}_type_nucleotides"
+                                   autocomplete="off"
+                                   value="nucleotides">
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_nucleotides">Nucleotides</label>
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="{{ id }}_type"
+                                   id="{{ id }}_type_aminoacids"
+                                   autocomplete="off"
+                                   value="aminoacids"
+                                   checked>
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_aminoacids">Amino acids</label>
                         </div>
                     </div>
                 </div>
-
                 <div class="row mb-2 small">
-                    <label for="{{id}}_query"
-                    class="col-lg-2 col-form-label small">
-                        Sequences
-                    </label>
+                    <label for="{{ id }}_query" class="col-lg-2 col-form-label small">Sequences</label>
                     <div class="col-lg-10">
                         <div class="sequence-input border border-secondary-subtle rounded">
                             <textarea type="textarea"
-                            id="{{id}}_query" rows=6 required
-                            class="sequence-textarea form-control font-monospace
-                            border-0 rounded-top p-2"
-                            placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})"
-                            ></textarea>
-                            <div class="d-flex justify-content-between
-                            small py-1 px-2 border-top border-secondary-subtle
-                            bg-light rounded-bottom">
-                                <a href="javascript:void(0);"
-                                onclick="$('#{{id}}_upload').click();">
+                                      id="{{id}}_query"
+                                      rows="6"
+                                      required
+                                      class="sequence-textarea form-control font-monospace border-0 rounded-top p-2"
+                                      placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})"></textarea>
+                            <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
+                                <a href="javascript:void(0);" onclick="$('#{{ id }}_upload').click();">
                                     <i class="fa fa-file-lines"></i>
                                     Load from FASTA file...
                                 </a>
                                 <span>
-                                    <span id="{{id}}_count">0</span>
+                                    <span id="{{ id }}_count">0</span>
                                     out of {{ MAX_ALIGNMENT_SEQS }} sequences
                                 </span>
                             </div>
                         </div>
-
-                        <input class="form-control d-none" type="file"
-                        id="{{id}}_upload">
+                        <input class="form-control d-none" type="file" id="{{ id }}_upload">
                     </div>
                 </div>
             </div>
-
-            <div id="{{id}}_alertContainer"></div>
-            <template id="{{id}}_errorTemplate">
+            <div id="{{ id }}_alertContainer"></div>
+            <template id="{{ id }}_errorTemplate">
                 <div role="alert"
-                class="alert alert-danger alert-dismissible fade show m-2">
+                     class="alert alert-danger alert-dismissible fade show m-2">
                     <i class="fa fa-triangle-exclamation"></i>
                     <strong class="alert-title">Title</strong>
                     <span class="alert-description">Description</span>
-                    <button type="button" class="btn-close"
-                    data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"></button>
                 </div>
             </template>
-
             <div class="modal-footer justify-content-between">
                 <p class="text-muted small">
                     <i class="fa fa-info-circle"></i>
@@ -129,14 +116,15 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
                 </p>
                 <span>
                     <button class="btn btn-outline-primary"
-                    href="javascript:void(0);"
-                    data-bs-toggle="modal" data-bs-target="#{{id}}_{{type}}_editor">
-                        Previous results
-                    </button>
-                    <button type="submit" class="btn btn-primary"
-                    id="{{id}}_align_btn" disabled>
-                        <span id="{{id}}_align_spinner"
-                        class="spinner-border spinner-border-sm d-none"></span>
+                            href="javascript:void(0);"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ id }}_{{ type }}_editor">Previous results</button>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="{{ id }}_align_btn"
+                            disabled>
+                        <span id="{{ id }}_align_spinner"
+                              class="spinner-border spinner-border-sm d-none"></span>
                         Align
                     </button>
                 </span>
@@ -144,7 +132,6 @@ aria-labelledby="{{id}}_{{type}}_modal_label" aria-hidden="true">
         </div>
     </div>
 </div>
-
 <script>
 $("#{{id}}_upload").on("change", function () {
     const file = this.files[0];
