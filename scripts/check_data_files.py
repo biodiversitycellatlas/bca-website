@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 # pip install pyyaml rds2py scipy
-import yaml
-import rds2py
 import os
+
+import rds2py
+import yaml
 
 with open("config.yaml", "r") as f:
     data = yaml.safe_load(f)

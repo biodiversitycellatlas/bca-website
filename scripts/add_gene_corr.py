@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 
+import functools
+import math
 import os
+import time
 
 import numpy as np
 import pandas as pd
-
-import math
-import time
-import functools
 import psycopg2
 
 from app import models

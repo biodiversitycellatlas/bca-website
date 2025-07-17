@@ -1,15 +1,11 @@
-from django.db.models import OuterRef, Subquery
-
-
 import csv
-import yaml
+import functools
+import io
 
 import pandas as pd
-
-
-import functools
 import psutil
-import io
+import yaml
+from django.db.models import OuterRef, Subquery
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)

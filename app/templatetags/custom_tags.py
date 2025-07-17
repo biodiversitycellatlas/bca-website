@@ -1,6 +1,7 @@
-from django import template
-from datetime import datetime
 import os
+from datetime import datetime
+
+from django import template
 
 register = template.Library()
 

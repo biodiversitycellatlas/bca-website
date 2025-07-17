@@ -1,13 +1,14 @@
-from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
+from operator import attrgetter
+
 from django.conf import settings
-from django.db.models import Sum, Avg, Min, Max, StdDev
+from django.db.models import Avg, Max, Min, StdDev, Sum
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
 
 from app import models
+
 from .aggregates import PercentileCont
 from .utils import check_model_exists
-
-from operator import attrgetter
 
 
 class MetaSerializer(serializers.ModelSerializer):

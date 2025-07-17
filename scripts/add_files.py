@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import fnmatch
-import os
 import functools
-from scripts.utils import load_config, parse_dataset
+import os
+from pathlib import Path
+
 from django.core.files import File as DjangoFile
+
+from scripts.utils import load_config, parse_dataset
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)

@@ -1,33 +1,16 @@
-from django_filters.rest_framework import (
-    BooleanFilter,
-    CharFilter,
-    ChoiceFilter,
-    FilterSet,
-    NumberFilter,
-    OrderingFilter,
-)
-from django.core.exceptions import ValidationError
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
-from django.db.models import (
-    Avg,
-    Case,
-    Count,
-    F,
-    FloatField,
-    IntegerField,
-    Max,
-    Q,
-    Subquery,
-    Sum,
-    When,
-    Window,
-)
+from django.core.exceptions import ValidationError
+from django.db.models import (Avg, Case, Count, F, FloatField, IntegerField,
+                              Max, Q, Subquery, Sum, When, Window)
 from django.db.models.functions import Cast, Greatest, Log, Rank
-
+from django_filters.rest_framework import (BooleanFilter, CharFilter,
+                                           ChoiceFilter, FilterSet,
+                                           NumberFilter, OrderingFilter)
 
 from app import models
-from .functions import ArrayPosition
+
 from .aggregates import Median
+from .functions import ArrayPosition
 from .utils import check_model_exists, parse_species_dataset
 
 

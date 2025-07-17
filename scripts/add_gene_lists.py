@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-import fnmatch
-import os
 import csv
+import fnmatch
 import functools
+import os
+from pathlib import Path
+
 from scripts.utils import load_config, parse_dataset
 
 # Auto-flush print statements

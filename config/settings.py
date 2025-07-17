@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from .pre_settings import get_env, get_DIAMOND_version, get_latest_git_tag
-
+from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_WEBSITE = "https://biodiversitycellatlas.org"

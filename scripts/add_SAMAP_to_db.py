@@ -1,8 +1,9 @@
-import pandas as pd
-import os
-import yaml
 import functools
+import os
 import re
+
+import pandas as pd
+import yaml
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)

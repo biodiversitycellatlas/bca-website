@@ -1,7 +1,8 @@
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import DetailView, ListView, TemplateView
 
-from ..models import Dataset, Species, Gene, GeneList, GeneModule, Ortholog, Domain
-from ..utils import get_dataset, get_species, get_gene_list
+from ..models import (Dataset, Domain, Gene, GeneList, GeneModule, Ortholog,
+                      Species)
+from ..utils import get_dataset, get_gene_list, get_species
 
 
 class EntryView(TemplateView):

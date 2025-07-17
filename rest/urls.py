@@ -1,11 +1,9 @@
-from drf_spectacular.views import (
-    SpectacularAPIView,
-)
 from django.urls import include, path
-
-from .schema import SpectacularElementsView
+from drf_spectacular.views import SpectacularAPIView
 
 from rest.routers import router
+
+from .schema import SpectacularElementsView
 
 app_name = "rest"
 

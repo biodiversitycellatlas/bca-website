@@ -1,8 +1,8 @@
+import json
+
 from django.urls import reverse
 
-from .models import Species, Dataset, Gene, GeneList
-
-import json
+from .models import Dataset, Gene, GeneList, Species
 
 
 def get_dataset_dict():
