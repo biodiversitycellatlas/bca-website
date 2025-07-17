@@ -21,9 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Switch to non-root user
-RUN useradd -m bca \
-    && chown -R bca:bca /usr/src/app
-USER bca
+#RUN useradd -m bca \
+#    && chown -R bca:bca /usr/src/app
+#USER bca
 
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health/ || exit 1
