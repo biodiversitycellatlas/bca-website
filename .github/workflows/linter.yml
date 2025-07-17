@@ -1,0 +1,51 @@
+---
+name: Linters
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    packages: read
+    # To report GitHub Actions status checks
+    statuses: write
+
+jobs:
+    super-linter:
+        name: Super-Linter
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  # needs full git history
+                  fetch-depth: 0
+
+            - name: Lint Code Base
+              uses: github/super-linter@v7
+              env:
+                  VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
+                  VALIDATE_HTML: false
+                  VALIDATE_HTML_PRETTIER: false
+                  DEFAULT_BRANCH: "main"
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    djlint:
+        name: djLint
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Install djlint
+              run: pip install djlint
+
+            - name: Run djlint
+              run: djlint .
