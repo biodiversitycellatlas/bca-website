@@ -10,6 +10,7 @@ from pathlib import Path
 
 
 class SlugMixin(models.Model):
+
     class Meta:
         abstract = True
 
@@ -25,6 +26,7 @@ class SlugMixin(models.Model):
 
 
 class ImageSourceMixin(models.Model):
+
     class Meta:
         abstract = True
 

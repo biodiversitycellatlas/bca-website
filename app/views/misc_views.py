@@ -18,6 +18,7 @@ class IndexView(TemplateView):
 
 
 class HealthView(View):
+
     def get(self, request, *args, **kwargs):
         return JsonResponse({"status": "ok"})
 

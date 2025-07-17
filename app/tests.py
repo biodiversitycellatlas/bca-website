@@ -4,6 +4,7 @@ from .models import Species, Dataset
 
 
 class SpeciesModelTest(TestCase):
+
     def setUp(self):
         self.human = Species.objects.create(
             common_name="human",
@@ -22,6 +23,7 @@ class SpeciesModelTest(TestCase):
 
 
 class DatasetModelTest(SpeciesModelTest):
+
     def setUp(self):
         super().setUp()
         self.baby = Dataset(species=self.human, name="Baby")

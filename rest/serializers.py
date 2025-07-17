@@ -19,12 +19,14 @@ class MetaSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.File
         fields = ["type", "file", "checksum"]
 
 
 class SourceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.Source
         exclude = ["id"]

@@ -19,6 +19,7 @@ from urllib.parse import unquote_plus
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
+
     @extend_schema(exclude=True)
     def retrieve(self, request, *args, **kwargs):
         # Skip the original retrieve behavior
