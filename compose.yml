@@ -25,6 +25,7 @@ services:
         restart: always
         env_file: [.env]
         command: ["./entrypoint.sh"]
+        user: "${DOCKER_WEB_USER:-bca}"
         expose:
             - 8000
         volumes:
