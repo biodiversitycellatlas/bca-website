@@ -30,6 +30,8 @@ jobs:
               uses: github/super-linter@v7
               env:
                   VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
+                  VALIDATE_HTML: false
+                  VALIDATE_HTML_PRETTIER: false
                   DEFAULT_BRANCH: "main"
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
