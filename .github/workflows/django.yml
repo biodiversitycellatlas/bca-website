@@ -38,3 +38,4 @@ jobs:
 
         - name: Run deployment check
           run: docker compose exec web python manage.py check --deploy
+          if: always()
