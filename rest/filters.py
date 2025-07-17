@@ -3,9 +3,7 @@ from django_filters.rest_framework import (
     CharFilter,
     ChoiceFilter,
     FilterSet,
-    ModelChoiceFilter,
     NumberFilter,
-    NumericRangeFilter,
     OrderingFilter,
 )
 from django.core.exceptions import ValidationError
@@ -18,20 +16,17 @@ from django.db.models import (
     FloatField,
     IntegerField,
     Max,
-    OuterRef,
     Q,
     Subquery,
     Sum,
-    Value,
     When,
     Window,
 )
 from django.db.models.functions import Cast, Greatest, Log, Rank
 
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema_field
 
 from app import models
-from .functions import ArrayToString, ArrayPosition
+from .functions import ArrayPosition
 from .aggregates import Median
 from .utils import check_model_exists, parse_species_dataset
 

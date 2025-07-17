@@ -1,5 +1,4 @@
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 
 from .models import Species, Dataset, Gene, GeneList
 

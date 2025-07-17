@@ -1,4 +1,4 @@
-from django.db.models import Func, Value, CharField, IntegerField
+from django.db.models import Func, CharField, IntegerField
 
 
 class ArrayToString(Func):

@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 
-from django.core.exceptions import ValidationError
-from django.db import connection
 
 import os
 
-from rds2py import read_rds
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr, spearmanr
-from scipy.stats import t
 
 import math
 import time

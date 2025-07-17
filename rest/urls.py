@@ -1,7 +1,5 @@
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularRedocView,
-    SpectacularSwaggerView,
 )
 from django.urls import include, path
 

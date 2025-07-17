@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-from django.core.exceptions import ValidationError
-from django.db.models import F, Count, Avg, Sum, OuterRef, Subquery
+from django.db.models import F, Count, Sum, OuterRef, Subquery
 
 from collections import Counter
 from rds2py import read_rds
-import subprocess
 import time
 
 import csv
@@ -13,7 +11,6 @@ import json
 import xml.etree.ElementTree as ET
 import yaml
 
-import numpy as np
 import pandas as pd
 
 import urllib.request
@@ -523,7 +520,7 @@ def add_species_data(species_config, dir, r_colors, load, force=False):
 
     if load_mc_stats:
         # Requires metacell gene expression data
-        print(f"Adding metacell stats...")
+        print("Adding metacell stats...")
         add_metacell_stats(dataset)
 
     if load_scge:

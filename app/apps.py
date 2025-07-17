@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from django.db.models.signals import post_migrate
 import logging
 
 logger = logging.getLogger(__name__)

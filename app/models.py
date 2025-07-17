@@ -1,6 +1,4 @@
-from django.db import models, connection
-from django.core.exceptions import ValidationError
-from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django.utils.text import slugify
 from django.utils.safestring import mark_safe
 from django.urls import reverse

@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from django.conf import settings
-from django.db.models import F, Count, Sum, Avg, Min, Max, StdDev
-from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Sum, Avg, Min, Max, StdDev
 
 from app import models
 from .aggregates import PercentileCont

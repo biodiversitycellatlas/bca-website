@@ -1,12 +1,10 @@
-from rest_framework import viewsets, pagination
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import OrderingFilter
 from django.db.models import Prefetch, Count
 from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, When, Value, IntegerField
 
 from . import serializers, filters
@@ -14,7 +12,6 @@ from .utils import parse_species_dataset, get_enum_description, get_path_param
 
 from app import models
 
-import re
 import os
 import subprocess
 import tempfile

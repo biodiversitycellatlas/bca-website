@@ -4,7 +4,6 @@ Run SAMAP to perform pairwise comparisons among the specified species.
 """
 
 import functools
-import itertools
 import yaml
 import os
 import sys
@@ -73,7 +72,7 @@ def save_SAM_file(dataset, sam_dir):
     genes = np.array(rds.dimnames[0])
     cells = np.array(rds.dimnames[1])
 
-    print(f"Preparing SAM object...")
+    print("Preparing SAM object...")
     sam = SAM(counts=(counts, genes, cells))
     sam.preprocess_data()
 

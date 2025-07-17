@@ -4,7 +4,7 @@ from django.views.generic import TemplateView, DetailView
 from django.conf import settings
 
 from ..models import Dataset, Species, File
-from ..utils import get_dataset_dict, get_dataset
+from ..utils import get_dataset_dict
 from ..templatetags.bca_website_links import bca_url
 
 

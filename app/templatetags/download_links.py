@@ -3,7 +3,6 @@ Django template tags for generating download links and download cards.
 """
 
 from django import template
-from urllib.parse import urlparse, urlunparse
 from .card import _build_card_context
 
 register = template.Library()

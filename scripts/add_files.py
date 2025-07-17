@@ -3,7 +3,6 @@
 from pathlib import Path
 import fnmatch
 import os
-import csv
 import functools
 from scripts.utils import load_config, parse_dataset
 from django.core.files import File as DjangoFile

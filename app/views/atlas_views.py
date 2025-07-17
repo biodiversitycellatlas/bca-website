@@ -51,7 +51,7 @@ class AtlasView(TemplateView):
                 # Warn that dataset is not available in the database
                 context["warning"] = {
                     "title": f"Invalid dataset <code>{dataset}</code>!",
-                    "description": f"Please check available datasets in the search box above.",
+                    "description": "Please check available datasets in the search box above.",
                 }
 
         # Prepare Cell Atlas links
@@ -149,7 +149,7 @@ class AtlasGeneView(BaseAtlasView):
                 context["gene"] = ""
                 context["warning"] = {
                     "title": f"Invalid gene <code>{gene}</code>!",
-                    "description": f"Please check available genes in the search box above.",
+                    "description": "Please check available genes in the search box above.",
                 }
         return context
 
