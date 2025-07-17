@@ -1,4 +1,4 @@
-name: Security Checks
+name: Docker security scan
 
 on:
     push:
@@ -14,25 +14,8 @@ permissions:
   contents: read
 
 jobs:
-    bandit:
-        name: Bandit Python security check
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: '3.13'
-
-            - name: Install dependencies
-              run: pip install bandit -r requirements.txt
-
-            - name: Run Bandit
-              run: bandit -r . -x ./scripts
-
     trivy:
-        name: Trivy Docker image scan
+        name: Trivy
         runs-on: ubuntu-latest
 
         permissions:
