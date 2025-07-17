@@ -5,6 +5,7 @@ import os
 
 register = template.Library()
 
+
 @register.simple_tag(takes_context=True)
 def file_last_modified(context, filename=None, format="%d %B %Y"):
     """
@@ -29,7 +30,8 @@ def file_last_modified(context, filename=None, format="%d %B %Y"):
     except FileNotFoundError:
         return "Unknown"
 
+
 @register.simple_tag
 def startswith(value, arg):
-    """ Returns true if the value starts with a given string. """
+    """Returns true if the value starts with a given string."""
     return value.startswith(arg)

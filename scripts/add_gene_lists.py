@@ -12,8 +12,8 @@ print = functools.partial(print, flush=True)
 
 ####### Main functions
 
-config = load_config('data/raw/config.yaml')
-data_dir  = 'data/raw'
+config = load_config("data/raw/config.yaml")
+data_dir = "data/raw"
 lists_dir = f"{data_dir}/gene_lists"
 
 gene_list_map = {
@@ -23,16 +23,16 @@ gene_list_map = {
     "sig": "Signalling",
     "rbp": "RNA-binding proteins",
     "tfs": "Transcription factors",
-    "myo": "Myosins"
+    "myo": "Myosins",
 }
 gene_list_map = {
-    acronym: GeneList.objects.get(name=name)
-    for acronym, name in gene_list_map.items()
+    acronym: GeneList.objects.get(name=name) for acronym, name in gene_list_map.items()
 }
+
 
 def update_gene_modules(file_path, species, gene_list):
     with open(file_path) as file_path:
-        reader = csv.DictReader(file_path, delimiter='\t')
+        reader = csv.DictReader(file_path, delimiter="\t")
 
         # Avoid adding same genes to gene list
         existing_genes = set(gene_list.genes.all())
@@ -42,7 +42,7 @@ def update_gene_modules(file_path, species, gene_list):
             gene = list(gene.values())[0]
 
             if gene in existing_genes:
-                    continue
+                continue
 
             try:
                 g = species.genes.get(name=gene)
@@ -54,16 +54,17 @@ def update_gene_modules(file_path, species, gene_list):
         gene_list.genes.add(*g_list)
     return True
 
+
 all_species = Species.objects.all()
 
 tf_files = []
 
 for key in config:
     i = config[key]
-    key = key.split('_')[0] # only need the species part
-    if 'species' not in i.keys():
+    key = key.split("_")[0]  # only need the species part
+    if "species" not in i.keys():
         continue
-    species, dataset = parse_dataset(i['species'])
+    species, dataset = parse_dataset(i["species"])
 
     try:
         species = Species.objects.get(scientific_name=species)
@@ -83,8 +84,8 @@ for key in config:
 
             update_gene_modules(file, species, gene_list)
 
-    if 'tf_annot_file' in i.keys():
-        path = os.path.join(data_dir, i['data_subdir'], i['tf_annot_file'])
+    if "tf_annot_file" in i.keys():
+        path = os.path.join(data_dir, i["data_subdir"], i["tf_annot_file"])
         tf_files.append((species, path))
 
 for f in tf_files:
