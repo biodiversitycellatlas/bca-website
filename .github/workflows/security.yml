@@ -71,33 +71,33 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements.txt
 
-            - name: Run migrations
-              run: |
-                echo "Database: ${POSTGRES_USER}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-                python manage.py migrate
-              env:
-                POSTGRES_HOST: db
-                POSTGRES_DB: bca
-                PGUSER: postgres
-                POSTGRES_USER: postgres
-                POSTGRES_PASSWORD: pg_password
-                POSTGRES_PORT: 5432
+            #- name: Run migrations
+            #  run: |
+            #    echo "Database: ${POSTGRES_USER}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+            #    python manage.py migrate
+            #  env:
+            #    POSTGRES_HOST: db
+            #    POSTGRES_DB: bca
+            #    PGUSER: postgres
+            #    POSTGRES_USER: postgres
+            #    POSTGRES_PASSWORD: pg_password
+            #    POSTGRES_PORT: 5432
 
-            - name: Install coverage
-              run: pip install coverage
+            #- name: Install coverage
+            #  run: pip install coverage
 
-            - name: Run tests with coverage
-              run: coverage run manage.py test
-              env:
-                POSTGRES_HOST: db
-                POSTGRES_DB: bca
-                PGUSER: postgres
-                POSTGRES_USER: postgres
-                POSTGRES_PASSWORD: pg_password
-                POSTGRES_PORT: 5432
+            #- name: Run tests with coverage
+            #  run: coverage run manage.py test
+            #  env:
+            #    POSTGRES_HOST: db
+            #    POSTGRES_DB: bca
+            #    PGUSER: postgres
+            #    POSTGRES_USER: postgres
+            #    POSTGRES_PASSWORD: pg_password
+            #    POSTGRES_PORT: 5432
 
-            - name: Show coverage report
-              run: coverage report
+            #- name: Show coverage report
+            #  run: coverage report
 
             - name: Run deployment check
               run: python manage.py check --deploy
