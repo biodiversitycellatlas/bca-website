@@ -14,6 +14,6 @@ psutil==7.0.0
 
 # REST
 djangorestframework==3.16.0
-Markdown==3.8
+Markdown==3.8.2
 django-filter==25.1
 drf-spectacular==0.28.0
