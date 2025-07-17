@@ -70,7 +70,7 @@ function plotGeneExpressionComparison(id, dataset, gene, gene2, url, stats) {
         dataset: dataset,
         limit: 0,
     });
-    var apiURL = url + "?" + params.toString().replace("%2C", ",");
+    var apiURL = url + "?" + params.toString().replace(/%2C/g, ",");
     updateDataMenu(id, apiURL, "Expression comparison (plot data)");
 
     // Fetch data from the API and create plot
