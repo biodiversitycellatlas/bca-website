@@ -13,22 +13,17 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-        - uses: actions/checkout@v4
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-        - name: Set up .env variables
+        - name: Copy .env file
           run: cp .env.template .env
 
         - name: Set up Docker Compose
           uses: docker/setup-compose-action@v1
 
         - name: Start services
-          run: docker compose up -d
-
-        - name: Run tests
-          run: docker compose exec web python manage.py test
-
-        - name: Run deployment check
-          run: docker compose exec web python manage.py check --deploy
+          run: docker compose up -d --build
 
         - name: Install coverage
           run: docker compose exec web pip install coverage
@@ -37,4 +32,9 @@ jobs:
           run: docker compose exec web coverage run manage.py test
 
         - name: Show coverage report
-          run: docker compose exec web coverage report
+          run: |
+            docker compose exec web coverage report \
+                --skip-covered --fail-under=80
+
+        - name: Run deployment check
+          run: docker compose exec web python manage.py check --deploy
