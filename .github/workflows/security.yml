@@ -55,6 +55,11 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
+            - name: Ensure postgres DB exists
+              run: psql -U postgres -h db -c "CREATE DATABASE postgres;" || echo "Database postgres already exists"
+              env:
+                PGPASSWORD: pg_password
+
             - name: Export .env variables
               run: |
                 cp .env.template .env
