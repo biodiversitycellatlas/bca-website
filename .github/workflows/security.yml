@@ -80,6 +80,7 @@ jobs:
                 POSTGRES_HOST: db
                 POSTGRES_DB: bca
                 PGUSER: postgres
+                POSTGRES_USER: postgres
                 POSTGRES_PASSWORD: pg_password
                 DATABASE_PORT: 5432
 
