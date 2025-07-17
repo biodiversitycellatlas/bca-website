@@ -6,18 +6,18 @@ The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at m
 
 This project uses:
 
-- [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
-- [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
-- [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
-- [PostgreSQL][], a relational database
-- [Nginx][], a reverse proxy
+-   [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
+-   [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
+-   [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
+-   [PostgreSQL][], a relational database
+-   [Nginx][], a reverse proxy
 
 ### Initial setup
 
 To set up the project and run the web app locally, first install:
 
-- [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
-- [docker-compose (standalone)][docker-compose] — Docker itself is not required
+-   [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
+-   [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
 Then, follow these steps:
 
