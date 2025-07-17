@@ -27,7 +27,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Lint Code Base
-              uses: github/super-linter@v7
+              uses: super-linter/super-linter@v7
               env:
                   VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
                   VALIDATE_HTML: false
