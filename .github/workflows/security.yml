@@ -31,8 +31,8 @@ jobs:
             - name: Run Bandit
               run: bandit -r . -x ./scripts --severity-level high
 
-    django-check:
-        name: Django check
+    django-ci:
+        name: Django CI
         runs-on: ubuntu-latest
         services:
             db:
@@ -71,7 +71,22 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements.txt
 
-            - name: Run Django security check
+            - name: Install coverage
+              run: pip install coverage
+
+            - name: Run tests with coverage
+              run: coverage run manage.py test
+              env:
+                POSTGRES_HOST: db
+                POSTGRES_DB: bca
+                PGUSER: postgres
+                POSTGRES_PASSWORD: pg_password
+                DATABASE_PORT: 5432
+
+            - name: Show coverage report
+              run: coverage report
+
+            - name: Run deployment check
               run: python manage.py check --deploy
               env:
                 POSTGRES_HOST: db
