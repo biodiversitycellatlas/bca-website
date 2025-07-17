@@ -15,11 +15,11 @@ List entries - base template
                     <li class="page-item">
                         <a class="page-link"
                            href="?page={{ page_obj.previous_page_number }}"
-                           aria-label="Previous">&laquo;</a>
+                           aria-label="Previous">«</a>
                     </li>
                 {% else %}
                     <li class="page-item disabled">
-                        <span class="page-link">&laquo;</span>
+                        <span class="page-link">«</span>
                     </li>
                 {% endif %}
                 {% for num in paginator.page_range %}
@@ -41,11 +41,11 @@ List entries - base template
                     <li class="page-item">
                         <a class="page-link"
                            href="?page={{ page_obj.next_page_number }}"
-                           aria-label="Next">&raquo;</a>
+                           aria-label="Next">»</a>
                     </li>
                 {% else %}
                     <li class="page-item disabled">
-                        <span class="page-link">&raquo;</span>
+                        <span class="page-link">»</span>
                     </li>
                 {% endif %}
             </ul>
