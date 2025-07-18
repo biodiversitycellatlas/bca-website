@@ -1,22 +1,26 @@
-{% extends "base.html" %}
+{% extends "error_page.html" %}
 {% comment %}
 
-Template for 500 Server Error page
+    Template for 500 Server Error page
 
 {% endcomment %}
-{% block content %}
-    <div class="container-xxl">
-        <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
-            <div class="col">
-                <img src="https://images.unsplash.com/photo-1601580740461-604acd551dfe?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                     width="100%">
-            </div>
-            <div class="col align-self-center">
-                <h1 class="h3">500: server error</h1>
-                <p>
-                    Try to refresh this page or <a href="{% url 'about' %}#contact">contact us</a> if the issue persists.
-                </p>
-            </div>
-        </div>
-    </div>
-{% endblock content %}
+
+{% block title %}500: server error{% endblock %}
+
+{% block description %}
+    Try to refresh this page or
+    <a href="{% url 'about' %}#contact">
+        contact us
+    </a>
+    if the issue persists.
+{% endblock %}
+
+{% block img %}
+    https://images.unsplash.com/photo-1741994561367-3d488663f6da
+{% endblock %}
+
+{% block img_alt %}A close-up of a toad on a white background.{% endblock %}
+
+{% block author %}John Cardamone{% endblock %}
+
+{% block author_url %}https://unsplash.com/@john_cardamone{% endblock %}

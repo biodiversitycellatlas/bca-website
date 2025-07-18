@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
+
     # Cell Atlas
     path("atlas/", views.AtlasView.as_view(), name="atlas"),
     path("atlas/<str:dataset>/", views.AtlasInfoView.as_view(), name="atlas_info"),
@@ -31,6 +32,7 @@ urlpatterns = [
         views.AtlasCompareView.as_view(),
         name="atlas_compare",
     ),
+
     # BCA database entries
     path("entry/", views.EntryView.as_view(), name="entry"),
     path("entry/species/", views.EntrySpeciesListView.as_view(), name="species_entry"),
@@ -102,6 +104,7 @@ urlpatterns = [
         views.EntryOrthogroupDetailView.as_view(),
         name="orthogroup_entry",
     ),
+
     # Other paths
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path(
@@ -110,4 +113,9 @@ urlpatterns = [
     path("about/", views.AboutView.as_view(), name="about"),
     path("search/", views.SearchView.as_view(), name="search"),
     path("health/", views.HealthView.as_view(), name="health"),
+
+    # Error pages
+    path("403/", views.Custom403View.as_view()),
+    path("404/", views.Custom404View.as_view()),
+    path("500/", views.Custom500View.as_view()),
 ]
