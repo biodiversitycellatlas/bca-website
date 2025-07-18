@@ -67,6 +67,13 @@ jobs:
               run: npm install postcss postcss-cli autoprefixer
 
             - name: Run Autoprefixer on all CSS files
+              run: npx postcss **/*.css --use autoprefixer --no-map --replace
+
+            - name: Show Autoprefixer changes
               run: |
-                  find . -name '*.css' \
-                      -exec npx postcss {} --use autoprefixer -o {} \;
+                diff=$(git diff)
+                echo "$diff"
+                if [ -n "$diff" ]; then
+                    echo "::error ::Autoprefixer proposed changes to CSS files, please check the changes."
+                    exit 1
+                fi
