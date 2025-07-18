@@ -1,13 +1,14 @@
 {
-  "extends": ["stylelint-config-standard"],
-  "overrides": [
-    {
-      "extends": ["stylelint-config-recommended-scss"],
-      "files": ["*.scss", "**/*.scss"],
-      "customSyntax": "postcss-scss"
+    "extends": ["stylelint-config-standard"],
+    "overrides": [
+        {
+            "extends": ["stylelint-config-recommended-scss"],
+            "files": ["*.scss", "**/*.scss"],
+            "customSyntax": "postcss-scss"
+        }
+    ],
+    "rules": {
+        "property-no-vendor-prefix": null,
+        "selector-class-pattern": null
     }
-  ],
-  "rules": {
-    "property-no-vendor-prefix": null
-  }
 }
