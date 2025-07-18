@@ -76,7 +76,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+    INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
+
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
