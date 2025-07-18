@@ -22,6 +22,18 @@ class HealthView(View):
         return JsonResponse({"status": "ok"})
 
 
+class Custom403View(TemplateView):
+    template_name = "403.html"
+
+
+class Custom404View(TemplateView):
+    template_name = "404.html"
+
+
+class Custom500View(TemplateView):
+    template_name = "500.html"
+
+
 class DownloadsView(TemplateView):
     template_name = "app/downloads.html"
 

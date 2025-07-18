@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% comment %}
+
+    Template for error page
+
+{% endcomment %}
+{% block content %}
+    <div class="container-xxl">
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+            <div class="col">
+                <figure>
+                    <img src="{% block img %}{% endblock %}?q=80&w=1000&auto=format&fit=crop"
+                         width="100%" height="100%"
+                         alt="{% block img_alt %}{% endblock %}">
+                    <figcaption class="text-center small text-muted">
+                        Photo by
+                        <a href="{% block author_url %}{% endblock %}"
+                           target="_blank">
+                            {% block author %}{% endblock %}
+                        </a>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="col align-self-center">
+                <h1 class="h3">{% block title %}{% endblock %}</h1>
+                <p>{% block description %}{% endblock %}</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
