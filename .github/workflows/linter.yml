@@ -36,7 +36,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     djlint:
-        name: djLint
+        name: djLint (Django)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -49,3 +49,24 @@ jobs:
 
             - name: Run djlint
               run: djlint .
+
+    autoprefix:
+        name: Autoprefixer (CSS)
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: npm install postcss postcss-cli autoprefixer
+
+            - name: Run Autoprefixer on all CSS files
+              run: |
+                  find . -name '*.css' \
+                      -exec npx postcss {} --use autoprefixer -o {} \;
