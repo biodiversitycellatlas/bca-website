@@ -4,7 +4,10 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 from app.utils import get_dataset
 
 def check_model_exists(model):
-    return model._meta.db_table in connection.introspection.table_names()
+    try:
+        return model._meta.db_table in connection.introspection.table_names()
+    except Exception:
+        return False
 
 
 def parse_species_dataset(value):

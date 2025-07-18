@@ -1,27 +1,50 @@
 name: Django CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    django-ci:
+        name: Django Tests
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-    - name: Set up .env variables
-      run: cp .env.template .env
+        - name: Copy .env file
+          run: cp .env.template .env
 
-    - name: Set up Docker Compose
-      uses: docker/setup-compose-action@v1
+        - name: Set up Docker Compose
+          uses: docker/setup-compose-action@v1
 
-    - name: Start services
-      run: docker compose up -d
+        - name: Start services
+          run: DOCKER_WEB_USER=root docker compose up -d --build
 
-    - name: Run tests
-      run: docker compose exec web python manage.py test
+        - name: Install coverage
+          run: |
+            docker compose exec web \
+                pip install coverage
+
+        - name: Run tests with coverage
+          run: |
+            docker compose exec web \
+                coverage run manage.py test
+
+        - name: Show coverage report
+          run: |
+            docker compose exec web \
+                coverage report --skip-covered --fail-under=80
+
+        - name: Run deployment check
+          run: |
+            docker compose exec web \
+                python manage.py check --deploy
+          if: always()

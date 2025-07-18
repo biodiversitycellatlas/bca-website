@@ -1,10 +1,10 @@
-Django==5.2.1
+Django==5.2.2
 django-colorfield==0.14.0
 psycopg==3.2.9
 gunicorn==23.0.0
 
 scipy==1.15.3
-pandas==2.2.3
+pandas==2.3.1
 
 # dev
 django-debug-toolbar==5.2.0
@@ -15,6 +15,6 @@ psutil==7.0.0
 
 # REST
 djangorestframework==3.16.0
-Markdown==3.8
+Markdown==3.8.2
 django-filter==25.1
 drf-spectacular==0.28.0
