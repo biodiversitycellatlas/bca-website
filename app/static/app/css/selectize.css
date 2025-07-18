@@ -1,0 +1,124 @@
+/* Selectize.js */
+
+.atlas-select.home {
+    max-width: 800px;
+}
+
+.atlas-select .highlight {
+    /* Highlight phylum in atlas selection */
+    background: rgb(255 237 40 / 40%);
+    border-radius: 1px;
+}
+
+.atlas-select .selectize-dropdown {
+    z-index: 1030; /* Bigger than Cell Atlas subnavbar */
+}
+
+.atlas-select .selectize-dropdown-content {
+    max-height: 50vh;
+}
+
+.selectize-dropdown.plugin-optgroup_columns .optgroup {
+    /* transition: all 0.1s ease; */
+
+    /* word-break: break-word; */
+    white-space: nowrap;
+}
+
+.selectize-dropdown.plugin-optgroup_columns .optgroup:has(.active) {
+    min-width: 260px; /* Change width to display more info on selected option */
+    white-space: wrap;
+}
+
+@media (width <= 959px) {
+    .selectize-dropdown.plugin-optgroup_columns {
+        .optgroup {
+            border-right: none;
+            float: none;
+        }
+
+        .optgroup-header {
+            border-top: none;
+        }
+    }
+}
+
+.species-meta {
+    display: none;
+}
+
+.species-meta:has(.highlight) {
+    display: inline-block;
+}
+
+.selectize-control::before {
+    opacity: 0;
+    -moz-transition: opacity 0.2s;
+    -webkit-transition: opacity 0.2s;
+    transition: opacity 0.2s;
+    -webkit-animation: none;
+    animation: none;
+    z-index: 2;
+    position: absolute;
+    display: block;
+    top: 12px;
+    right: 36px;
+    width: 16px;
+    height: 16px;
+
+    /* SVG spinner from https://fontawesome.com/icons/spinner */
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M304 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1 48 48 0 1 0 142.9 437zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437A48 48 0 1 0 437 369.1 48 48 0 1 0 369.1 437z'/%3E%3C/svg%3E");
+}
+
+.selectize-input.focus {
+    border: 1px solid #ced4da;
+    box-shadow: none;
+}
+
+.selectize-input:focus-within {
+    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
+.selectize-control.loading::before {
+    opacity: 1;
+    -webkit-animation: fa-spin 2s infinite linear;
+    animation: fa-spin 2s infinite linear;
+}
+
+.selectize-control.multi .selectize-input > div.active {
+    background: var(--primary-color);
+    color: #fff;
+    border: 0 solid transparent;
+}
+
+.selectize-control.multi .selectize-input > div.active span.badge {
+    background: var(--bs-tertiary-color) !important;
+}
+
+.selectize-control .remove {
+    color: var(--hover-color);
+}
+
+.selectize-control div.active .remove {
+    color: white;
+}
+
+.bca-search .selectize-input::after {
+    display: none !important;
+}
+
+.bca-search .selectize-dropdown {
+    width: 400px !important;
+    left: auto !important;
+    right: 0 !important;
+    z-index: 1040;
+}
+
+.bca-search .selectize-dropdown-content {
+    max-height: 80vh;
+}
+
+.bca-search input[type="search"] {
+    width: 100% !important;
+}
