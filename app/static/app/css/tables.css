@@ -1,0 +1,32 @@
+/* Tables */
+
+.table td,
+.table th {
+    border-style: none;
+
+    --bs-table-striped-bg: var(--table-row-color);
+}
+
+/* DataTables */
+
+table.dataTable.display tbody tr:nth-child(odd) > * {
+    background-color: var(--table-row-color);
+    box-shadow: none !important;
+}
+
+table.dataTable .selected {
+    background-color: var(--table-selected-row-color);
+    color: white;
+}
+
+table.dataTable .selected a {
+    color: var(--table-selected-a-color);
+}
+
+table.dataTable .selected a:hover {
+    color: white;
+}
+
+div.dt-container div.dt-processing > div > div {
+    background: var(--primary-color) !important;
+}

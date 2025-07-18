@@ -17,8 +17,8 @@ body {
     padding-right: 30px;
 }
 
-/* Full height sidebar */
 .sl-flex.sl-overflow-y-auto.sl-flex-col.sl-sticky {
+    /* Full height sidebar */
     height: 100vh !important;
 }
 

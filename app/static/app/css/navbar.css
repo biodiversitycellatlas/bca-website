@@ -1,0 +1,88 @@
+/* Navbar */
+
+html {
+    /* Add padding to avoid navbar overlap when scrolling to URL hashes */
+    scroll-padding-top: 60px;
+}
+
+html:has(.subnavbar) {
+    scroll-padding-top: 96px;
+}
+
+.navbar {
+    background: var(--primary-color);
+    box-shadow: var(--navbar-box-shadow);
+    margin-bottom: 20px;
+}
+
+.navbar .navbar-brand {
+    font-weight: 1000;
+    border-radius: 10px;
+    padding: 5px 1px;
+}
+
+.navbar .navbar-brand:focus-visible {
+    outline: none;
+    background: var(--navbar-hover-color);
+    box-shadow: 0 0 0 2px var(--navbar-hover-shadow-color);
+}
+
+.navbar .nav-link {
+    border-radius: 10px;
+    margin: 1px;
+}
+
+.navbar a.nav-link:focus-visible {
+    background: var(--navbar-hover-color);
+    box-shadow: 0 0 0 2px var(--navbar-hover-shadow-color);
+}
+
+.navbar-toggler {
+    border-color: var(--bs-navbar-toggler-icon-bg);
+    border-width: 2px;
+}
+
+/* Subnavbar */
+
+.subnavbar {
+    top: 58px;
+}
+
+.subnavbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--subnavbar-bg-color);
+    backdrop-filter: var(--subnavbar-blur);
+}
+
+.offcanvas-header {
+    margin-top: 58px;
+}
+
+.offcanvas-backdrop.show {
+    background-color: var(--navbar-hover-color);
+    backdrop-filter: var(--subnavbar-blur);
+}
+
+.nav .nav-link {
+    color: var(--primary-color);
+}
+
+.nav .nav-link:hover {
+    color: var(--hover-color);
+}
+
+.nav .nav-link.disabled {
+    color: var(--bs-nav-link-disabled-color);
+}
+
+.nav .nav-link:focus-visible {
+    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
+.nav-pills .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+}
