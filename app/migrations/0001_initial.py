@@ -9,285 +9,748 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Dataset',
+            name="Dataset",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default=None, help_text='Name of the dataset', max_length=255, null=True)),
-                ('description', models.TextField(blank=True, help_text='Description of the dataset', null=True)),
-                ('image_url', models.URLField(blank=True, help_text='URL for dataset image', null=True)),
-                ('date_created', models.DateTimeField(auto_now_add=True, help_text='Timestamp when the dataset was created')),
-                ('date_updated', models.DateTimeField(auto_now=True, help_text='Timestamp when the dataset was last updated')),
-                ('order', models.PositiveIntegerField(default=0, help_text='Order of the dataset (for ordinal sets like developmental stages)')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        default=None,
+                        help_text="Name of the dataset",
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, help_text="Description of the dataset", null=True
+                    ),
+                ),
+                (
+                    "image_url",
+                    models.URLField(
+                        blank=True, help_text="URL for dataset image", null=True
+                    ),
+                ),
+                (
+                    "date_created",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="Timestamp when the dataset was created",
+                    ),
+                ),
+                (
+                    "date_updated",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="Timestamp when the dataset was last updated",
+                    ),
+                ),
+                (
+                    "order",
+                    models.PositiveIntegerField(
+                        default=0,
+                        help_text="Order of the dataset (for ordinal sets like developmental stages)",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Domain',
+            name="Domain",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='GeneList',
+            name="GeneList",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('description', models.CharField(blank=True, max_length=400, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=400, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Source',
+            name="Source",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('url', models.URLField(blank=True, null=True)),
-                ('query_url', models.URLField(blank=True, null=True)),
-                ('version', models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("url", models.URLField(blank=True, null=True)),
+                ("query_url", models.URLField(blank=True, null=True)),
+                ("version", models.CharField(blank=True, max_length=50, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Species',
+            name="Species",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('common_name', models.CharField(help_text='Common name of the species', max_length=100, null=True)),
-                ('scientific_name', models.CharField(help_text='Scientific name of the species', max_length=100, unique=True)),
-                ('description', models.TextField(blank=True, help_text='Species description', null=True)),
-                ('image_url', models.URLField(blank=True, help_text='URL for species image', null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "common_name",
+                    models.CharField(
+                        help_text="Common name of the species",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "scientific_name",
+                    models.CharField(
+                        help_text="Scientific name of the species",
+                        max_length=100,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, help_text="Species description", null=True
+                    ),
+                ),
+                (
+                    "image_url",
+                    models.URLField(
+                        blank=True, help_text="URL for species image", null=True
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'species',
-                'verbose_name_plural': 'species',
+                "verbose_name": "species",
+                "verbose_name_plural": "species",
             },
         ),
         migrations.CreateModel(
-            name='Gene',
+            name="Gene",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.CharField(blank=True, max_length=400, null=True)),
-                ('domains', models.ManyToManyField(to='app.domain')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=400, null=True),
+                ),
+                ("domains", models.ManyToManyField(to="app.domain")),
             ],
         ),
         migrations.CreateModel(
-            name='GeneCorrelation',
+            name="GeneCorrelation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('spearman', models.DecimalField(blank=True, decimal_places=2, max_digits=3, null=True)),
-                ('pearson', models.DecimalField(blank=True, decimal_places=2, max_digits=3, null=True)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='gene_corr', to='app.dataset')),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='gene', to='app.gene')),
-                ('gene2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='gene2', to='app.gene')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "spearman",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=3, null=True
+                    ),
+                ),
+                (
+                    "pearson",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=3, null=True
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="gene_corr",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "gene",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="gene",
+                        to="app.gene",
+                    ),
+                ),
+                (
+                    "gene2",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="gene2",
+                        to="app.gene",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('dataset', 'gene', 'gene2')},
+                "unique_together": {("dataset", "gene", "gene2")},
             },
         ),
         migrations.AddField(
-            model_name='gene',
-            name='correlations',
-            field=models.ManyToManyField(through='app.GeneCorrelation', to='app.gene'),
+            model_name="gene",
+            name="correlations",
+            field=models.ManyToManyField(through="app.GeneCorrelation", to="app.gene"),
         ),
         migrations.AddField(
-            model_name='gene',
-            name='genelists',
-            field=models.ManyToManyField(related_name='genes', to='app.genelist'),
+            model_name="gene",
+            name="genelists",
+            field=models.ManyToManyField(related_name="genes", to="app.genelist"),
         ),
         migrations.CreateModel(
-            name='GeneModule',
+            name="GeneModule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('membership_score', models.DecimalField(blank=True, decimal_places=3, max_digits=4, null=True)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='gene_modules', to='app.dataset')),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules', to='app.gene')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "membership_score",
+                    models.DecimalField(
+                        blank=True, decimal_places=3, max_digits=4, null=True
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="gene_modules",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "gene",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules",
+                        to="app.gene",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Metacell',
+            name="Metacell",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('x', models.FloatField()),
-                ('y', models.FloatField()),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='metacells', to='app.dataset')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("x", models.FloatField()),
+                ("y", models.FloatField()),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="metacells",
+                        to="app.dataset",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MetacellCount',
+            name="MetacellCount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cells', models.IntegerField()),
-                ('umis', models.IntegerField()),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='metacell_stats', to='app.dataset')),
-                ('metacell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stats', to='app.metacell')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cells", models.IntegerField()),
+                ("umis", models.IntegerField()),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="metacell_stats",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "metacell",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stats",
+                        to="app.metacell",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MetacellLink',
+            name="MetacellLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='metacell_links', to='app.dataset')),
-                ('metacell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='from_links', to='app.metacell')),
-                ('metacell2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='to_links', to='app.metacell')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="metacell_links",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "metacell",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="from_links",
+                        to="app.metacell",
+                    ),
+                ),
+                (
+                    "metacell2",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="to_links",
+                        to="app.metacell",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='metacell',
-            name='links',
-            field=models.ManyToManyField(through='app.MetacellLink', to='app.metacell'),
+            model_name="metacell",
+            name="links",
+            field=models.ManyToManyField(through="app.MetacellLink", to="app.metacell"),
         ),
         migrations.CreateModel(
-            name='MetacellType',
+            name="MetacellType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField()),
-                ('color', colorfield.fields.ColorField(default='#AAAAAA', image_field=None, max_length=25, samples=None)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='metacell_types', to='app.dataset')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField()),
+                (
+                    "color",
+                    colorfield.fields.ColorField(
+                        default="#AAAAAA", image_field=None, max_length=25, samples=None
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="metacell_types",
+                        to="app.dataset",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('dataset', 'name')},
+                "unique_together": {("dataset", "name")},
             },
         ),
         migrations.AddField(
-            model_name='metacell',
-            name='type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='app.metacelltype'),
+            model_name="metacell",
+            name="type",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="app.metacelltype",
+            ),
         ),
         migrations.CreateModel(
-            name='SingleCell',
+            name="SingleCell",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('x', models.FloatField(null=True)),
-                ('y', models.FloatField(null=True)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sc', to='app.dataset')),
-                ('metacell', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='app.metacell')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("x", models.FloatField(null=True)),
+                ("y", models.FloatField(null=True)),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sc",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "metacell",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="app.metacell",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('name', 'dataset')},
+                "unique_together": {("name", "dataset")},
             },
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='source',
-            field=models.ForeignKey(blank=True, help_text='Source of the dataset', null=True, on_delete=django.db.models.deletion.SET_NULL, to='app.source'),
+            model_name="dataset",
+            name="source",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Source of the dataset",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="app.source",
+            ),
         ),
         migrations.AddField(
-            model_name='gene',
-            name='species',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='genes', to='app.species'),
+            model_name="gene",
+            name="species",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="genes",
+                to="app.species",
+            ),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='species',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='datasets', to='app.species'),
+            model_name="dataset",
+            name="species",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="datasets",
+                to="app.species",
+            ),
         ),
         migrations.CreateModel(
-            name='MetacellGeneExpression',
+            name="MetacellGeneExpression",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('umi_raw', models.FloatField(blank=True, null=True)),
-                ('umifrac', models.FloatField(blank=True, null=True)),
-                ('fold_change', models.FloatField(blank=True, null=True)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mge', to='app.dataset')),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mge', to='app.gene')),
-                ('metacell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mge', to='app.metacell')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("umi_raw", models.FloatField(blank=True, null=True)),
+                ("umifrac", models.FloatField(blank=True, null=True)),
+                ("fold_change", models.FloatField(blank=True, null=True)),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mge",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "gene",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mge",
+                        to="app.gene",
+                    ),
+                ),
+                (
+                    "metacell",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mge",
+                        to="app.metacell",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'metacell gene expression',
-                'verbose_name_plural': 'metacell gene expression',
-                'unique_together': {('gene', 'metacell', 'dataset')},
+                "verbose_name": "metacell gene expression",
+                "verbose_name_plural": "metacell gene expression",
+                "unique_together": {("gene", "metacell", "dataset")},
             },
         ),
         migrations.AlterUniqueTogether(
-            name='metacell',
-            unique_together={('name', 'dataset')},
+            name="metacell",
+            unique_together={("name", "dataset")},
         ),
         migrations.CreateModel(
-            name='SAMap',
+            name="SAMap",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('samap', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('metacelltype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='samap', to='app.metacelltype')),
-                ('metacelltype2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='samap2', to='app.metacelltype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("samap", models.DecimalField(decimal_places=2, max_digits=5)),
+                (
+                    "metacelltype",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="samap",
+                        to="app.metacelltype",
+                    ),
+                ),
+                (
+                    "metacelltype2",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="samap2",
+                        to="app.metacelltype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'SAMAP score',
-                'unique_together': {('metacelltype', 'metacelltype2')},
+                "verbose_name": "SAMAP score",
+                "unique_together": {("metacelltype", "metacelltype2")},
             },
         ),
         migrations.CreateModel(
-            name='SingleCellGeneExpression',
+            name="SingleCellGeneExpression",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('umi_raw', models.DecimalField(blank=True, decimal_places=0, max_digits=8, null=True)),
-                ('umifrac', models.DecimalField(blank=True, decimal_places=3, max_digits=8, null=True)),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scge', to='app.dataset')),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scge', to='app.gene')),
-                ('single_cell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scge', to='app.singlecell')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "umi_raw",
+                    models.DecimalField(
+                        blank=True, decimal_places=0, max_digits=8, null=True
+                    ),
+                ),
+                (
+                    "umifrac",
+                    models.DecimalField(
+                        blank=True, decimal_places=3, max_digits=8, null=True
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scge",
+                        to="app.dataset",
+                    ),
+                ),
+                (
+                    "gene",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scge",
+                        to="app.gene",
+                    ),
+                ),
+                (
+                    "single_cell",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scge",
+                        to="app.singlecell",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'single-cell gene expression',
-                'verbose_name_plural': 'single-cell gene expression',
-                'unique_together': {('gene', 'single_cell', 'dataset')},
+                "verbose_name": "single-cell gene expression",
+                "verbose_name_plural": "single-cell gene expression",
+                "unique_together": {("gene", "single_cell", "dataset")},
             },
         ),
         migrations.CreateModel(
-            name='Ortholog',
+            name="Ortholog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('orthogroup', models.CharField()),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.gene')),
-                ('species', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='orthologs', to='app.species')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("orthogroup", models.CharField()),
+                (
+                    "gene",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="app.gene"
+                    ),
+                ),
+                (
+                    "species",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="orthologs",
+                        to="app.species",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'single-cell gene expression',
-                'verbose_name_plural': 'single-cell gene expression',
-                'unique_together': {('gene', 'orthogroup')},
+                "verbose_name": "single-cell gene expression",
+                "verbose_name_plural": "single-cell gene expression",
+                "unique_together": {("gene", "orthogroup")},
             },
         ),
         migrations.CreateModel(
-            name='Meta',
+            name="Meta",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=100)),
-                ('value', models.CharField(max_length=100)),
-                ('query_term', models.CharField(help_text='Term to use in query URL', max_length=100, null=True)),
-                ('source', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='app.source')),
-                ('species', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.species')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", models.CharField(max_length=100)),
+                ("value", models.CharField(max_length=100)),
+                (
+                    "query_term",
+                    models.CharField(
+                        help_text="Term to use in query URL", max_length=100, null=True
+                    ),
+                ),
+                (
+                    "source",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="app.source",
+                    ),
+                ),
+                (
+                    "species",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="app.species"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'meta',
-                'verbose_name_plural': 'meta',
-                'unique_together': {('species', 'key', 'value')},
+                "verbose_name": "meta",
+                "verbose_name_plural": "meta",
+                "unique_together": {("species", "key", "value")},
             },
         ),
         migrations.AlterUniqueTogether(
-            name='gene',
-            unique_together={('name', 'species')},
+            name="gene",
+            unique_together={("name", "species")},
         ),
         migrations.CreateModel(
-            name='File',
+            name="File",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('Proteome', 'Proteome'), ('DIAMOND', 'DIAMOND')], max_length=255)),
-                ('file', models.FileField(upload_to='')),
-                ('checksum', models.CharField(editable=False, max_length=64)),
-                ('slug', models.SlugField(blank=True, unique=True)),
-                ('species', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='app.species')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("Proteome", "Proteome"), ("DIAMOND", "DIAMOND")],
+                        max_length=255,
+                    ),
+                ),
+                ("file", models.FileField(upload_to="")),
+                ("checksum", models.CharField(editable=False, max_length=64)),
+                ("slug", models.SlugField(blank=True, unique=True)),
+                (
+                    "species",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="files",
+                        to="app.species",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('species', 'type')},
+                "unique_together": {("species", "type")},
             },
         ),
         migrations.AlterUniqueTogether(
-            name='dataset',
-            unique_together={('species', 'name')},
+            name="dataset",
+            unique_together={("species", "name")},
         ),
     ]
