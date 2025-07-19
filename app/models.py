@@ -1,14 +1,14 @@
-from django.db import models, connection
-from django.core.exceptions import ValidationError
-from django.contrib.postgres.fields import ArrayField
-from django.utils.text import slugify
-from django.utils.safestring import mark_safe
-from django.urls import reverse
+import hashlib
+import re
+from pathlib import Path
 
 from colorfield.fields import ColorField
-import re
-import hashlib
-from pathlib import Path
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.db import connection, models
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 
 
 class SlugMixin(models.Model):

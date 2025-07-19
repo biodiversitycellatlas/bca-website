@@ -2,7 +2,8 @@
 Functions to properly setup settings.py.
 """
 
-import os, subprocess
+import os
+import subprocess
 
 
 # Global variables

@@ -1,5 +1,6 @@
 from django.db import connection
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
+                                   extend_schema)
 
 from app.utils import get_dataset
 

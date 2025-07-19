@@ -1,11 +1,11 @@
+from django.conf import settings
 from django.http import FileResponse, JsonResponse
 from django.views import View
-from django.views.generic import TemplateView, DetailView
-from django.conf import settings
+from django.views.generic import DetailView, TemplateView
 
-from ..models import Dataset, Species, File
-from ..utils import get_dataset_dict, get_dataset
+from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
+from ..utils import get_dataset, get_dataset_dict
 
 
 class IndexView(TemplateView):

@@ -1,6 +1,6 @@
-from django.urls import include, path, reverse
-from django.shortcuts import redirect
 from django.conf import settings
+from django.shortcuts import redirect
+from django.urls import include, path, reverse
 
 urlpatterns = [
     path("", include("app.urls")),

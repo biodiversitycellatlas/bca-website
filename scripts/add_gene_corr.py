@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 
-from django.core.exceptions import ValidationError
-from django.db import connection
-
+import functools
+import math
 import os
+import time
 
-from rds2py import read_rds
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr, spearmanr
-from scipy.stats import t
-
-import math
-import time
-import functools
 import psycopg2
+from django.core.exceptions import ValidationError
+from django.db import connection
+from rds2py import read_rds
+from scipy.stats import pearsonr, spearmanr, t
 
 from app import models
 from scripts.add_data_to_db import batch_raw_insert

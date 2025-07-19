@@ -5,18 +5,18 @@ Run SAMAP to perform pairwise comparisons among the specified species.
 
 import functools
 import itertools
-import yaml
 import os
 import sys
+
+import yaml
 
 try:
     import numpy as np
     import pandas as pd
-
     from rds2py import read_rds
     from samalg import SAM
     from samap.mapping import SAMAP
-    from samap.utils import save_samap, load_samap
+    from samap.utils import load_samap, save_samap
 except ImportError:
     print("Error: Missing dependencies. Did you forget to run `conda activate SAMap`?")
     sys.exit(1)

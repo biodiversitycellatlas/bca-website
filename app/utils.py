@@ -1,9 +1,9 @@
-from django.urls import reverse
-from django.shortcuts import get_object_or_404
-
-from .models import Species, Dataset, Gene, GeneList
-
 import json
+
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+
+from .models import Dataset, Gene, GeneList, Species
 
 
 def get_dataset_dict():

@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
 
-from django.core.exceptions import ValidationError
-from django.db.models import F, Count, Avg, Sum, OuterRef, Subquery
-
-from collections import Counter
-from rds2py import read_rds
+import csv
+import functools
+import io
+import json
+import re
 import subprocess
 import time
-
-import csv
-import json
+import urllib.parse
+import urllib.request
+import warnings
 import xml.etree.ElementTree as ET
-import yaml
+from collections import Counter
 
 import numpy as np
 import pandas as pd
-
-import urllib.request
-import urllib.parse
-import warnings
-import re
+import psutil
+import psycopg2
+import yaml
+from django.core.exceptions import ValidationError
+from django.db.models import Avg, Count, F, OuterRef, Subquery, Sum
+from rds2py import read_rds
 
 from app import models
-
-import functools
-import psycopg2
-import psutil
-import io
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
