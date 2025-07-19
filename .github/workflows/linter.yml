@@ -25,9 +25,6 @@ jobs:
             # Check HTML with djlint
             VALIDATE_HTML: false
             VALIDATE_HTML_PRETTIER: false
-            # Prefer black to pyink (incompatible changes)
-            VALIDATE_BLACK: true
-            VALIDATE_PYINK: false
             DEFAULT_BRANCH: "main"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,7 +36,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Lint files with Super-Linter
-              uses: super-linter/super-linter@v7
+              uses: super-linter/super-linter@v8
               env:
                   FIX_CSS_PRETTIER: true
                   FIX_CSS: true
@@ -54,7 +51,6 @@ jobs:
                   FIX_MARKDOWN_PRETTIER: true
                   FIX_MARKDOWN: true
                   FIX_PYTHON_BLACK: true
-                  FIX_PYTHON_ISORT: true
                   FIX_PYTHON_RUFF: true
                   FIX_SHELL_SHFMT: true
                   FIX_SQLFLUFF: true
@@ -73,7 +69,7 @@ jobs:
                   cleanup: false
 
             - name: Report all Super-Linter issues
-              uses: super-linter/super-linter@v7
+              uses: super-linter/super-linter@v8
 
     djlint:
         name: djlint (Django HTML)
