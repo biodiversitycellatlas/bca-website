@@ -107,13 +107,13 @@ jobs:
             - name: Setup node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: '18'
+                  node-version: "18"
 
             - name: Install dependencies
               run: npm install postcss postcss-cli autoprefixer
 
             - name: Lint CSS files with Autoprefixer
-              run: npx postcss **/*.css --use autoprefixer --no-map --replace
+              run: npx postcss ./**/*.css --use autoprefixer --no-map --replace
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
