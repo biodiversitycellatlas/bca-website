@@ -9,8 +9,10 @@ services:
             - static_files:/static
             - ./data:/data
         depends_on:
-            - web
-            - ghost
+            ghost:
+                condition: service_started
+            web:
+                condition: service_healthy
 
     ghost:
         image: ghost:5.125-alpine
@@ -33,7 +35,7 @@ services:
             # Update Django files in real-time
             - .:/usr/src/app
             # Media and static files
-            - static_files:/usr/src/app/static
+            - static_files:/usr/src/app/static:U
             - ./data:/usr/src/app/data
         depends_on:
             db:
