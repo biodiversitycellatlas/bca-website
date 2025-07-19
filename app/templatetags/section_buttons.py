@@ -3,7 +3,7 @@ from django import template
 register = template.Library()
 
 
-@register.inclusion_tag('app/components/button/data_download.html')
+@register.inclusion_tag("app/components/button/data_download.html")
 def data_dropdown(id):
     """
     Dropdown button to view and download data
@@ -17,11 +17,13 @@ def data_dropdown(id):
     Input:
     - id: suffix to create unique identifiers to all elements
     """
-    return {'id': id}
+    return {"id": id}
 
 
-@register.inclusion_tag('app/components/button/copy_to_clipboard.html', takes_context=True)
-def clipboard_button(context, id='', text=''):
+@register.inclusion_tag(
+    "app/components/button/copy_to_clipboard.html", takes_context=True
+)
+def clipboard_button(context, id="", text=""):
     """
     Button to copy current URL (optionally with hash #id) to clipboard.
 
@@ -30,6 +32,6 @@ def clipboard_button(context, id='', text=''):
     - text (optional): button label (default icon + "Copy link")
     """
     return {
-        'id': id,
-        'text': text,
+        "id": id,
+        "text": text,
     }

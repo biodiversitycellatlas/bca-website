@@ -7,8 +7,9 @@ from django.conf import settings
 
 register = template.Library()
 
+
 @register.simple_tag
 def bca_url(param=None):
-    domain = getattr(settings, 'BCA_WEBSITE')
-    param = param or ''
+    domain = getattr(settings, "BCA_WEBSITE")
+    param = param or ""
     return f"{domain.rstrip('/')}/{param}"

@@ -13,13 +13,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from .pre_settings import get_env, get_DIAMOND_version, get_latest_git_tag
-
+from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_WEBSITE = "https://biodiversitycellatlas.org"
 BCA_EMAIL = "bca@biodiversitycellatlas.org"
-FEEDBACK_URL = get_env('BCA_APP_FEEDBACK_URL', required=True)
+FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GITHUB_ISSUES_URL = GITHUB_URL + "/issues/new"
@@ -29,10 +28,10 @@ GIT_VERSION_URL = f"{GITHUB_URL}/releases/tag/{GIT_VERSION}"
 DIAMOND_VERSION = get_DIAMOND_version()
 
 # Max sequences for alignment
-MAX_ALIGNMENT_SEQS = get_env('BCA_APP_MAX_ALIGNMENT_SEQS', 100, type='int')
+MAX_ALIGNMENT_SEQS = get_env("BCA_APP_MAX_ALIGNMENT_SEQS", 100, type="int")
 
 # Max file upload size in MB
-MAX_FILE_SIZE = get_env('BCA_APP_MAX_FILE_SIZE', 10, type='int')
+MAX_FILE_SIZE = get_env("BCA_APP_MAX_FILE_SIZE", 10, type="int")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,79 +41,79 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env('DJANGO_SECRET_KEY')
+SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env('DJANGO_DEBUG', type='bool')
+DEBUG = get_env("DJANGO_DEBUG", type="bool")
 
-ALLOWED_HOSTS = get_env('DJANGO_ALLOWED_HOSTS', "", type='array')
+ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'app.apps.AppConfig',
-    'rest.apps.RestConfig',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'django_filters',
-    'colorfield',
-    'drf_spectacular',
-    'django_extensions',
+    "app.apps.AppConfig",
+    "rest.apps.RestConfig",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "django_filters",
+    "colorfield",
+    "drf_spectacular",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
     INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'config.context_processors.global_settings',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "config.context_processors.global_settings",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_env('POSTGRES_DB'),
-        'USER': get_env('POSTGRES_USER'),
-        'PASSWORD': get_env('POSTGRES_PASSWORD'),
-        'HOST': get_env('POSTGRES_HOST'),
-        'PORT': get_env('POSTGRES_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": get_env("POSTGRES_DB"),
+        "USER": get_env("POSTGRES_USER"),
+        "PASSWORD": get_env("POSTGRES_PASSWORD"),
+        "HOST": get_env("POSTGRES_HOST"),
+        "PORT": get_env("POSTGRES_PORT"),
     }
 }
 
@@ -124,16 +123,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -141,8 +140,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_I18N = True
 USE_TZ = True
@@ -152,7 +151,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 # https://docs.djangoproject.com/en/5.1/topics/files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = "/data/"
@@ -161,55 +160,54 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "data")
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST settings
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [], # no permissions required
-    'DEFAULT_PERMISSION_CLASSES': [], # no permissions required
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend', ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest.pagination.StandardPagination',
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest.renderers.CSVRenderer',
-        'rest.renderers.TSVRenderer',
+    "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
+    "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest.renderers.CSVRenderer",
+        "rest.renderers.TSVRenderer",
     ],
 }
 
 
 def sort_API_tags(operation):
-    return ['Species', 'Gene', 'Metacell', 'Single cell', 'Sequence alignment']
+    return ["Species", "Gene", "Metacell", "Single cell", "Sequence alignment"]
+
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Biodiversity Cell Atlas: Data Portal API',
-    'DESCRIPTION': 'Fetch pre-processed and processed [BCA](/) data',
-
-    'CONTACT': {'name': 'BCA', 'url': '/about'},
-    'TOS': '/about/legal',
-
-    'VERSION': get_env('BCA_REST_VERSION'),
-    'SERVE_INCLUDE_SCHEMA': False,
-    'SORT_OPERATIONS': sort_API_tags
+    "TITLE": "Biodiversity Cell Atlas: Data Portal API",
+    "DESCRIPTION": "Fetch pre-processed and processed [BCA](/) data",
+    "CONTACT": {"name": "BCA", "url": "/about"},
+    "TOS": "/about/legal",
+    "VERSION": get_env("BCA_REST_VERSION"),
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SORT_OPERATIONS": sort_API_tags,
 }
 
 # Logging in console
 
-if get_env('DJANGO_LOGGING', type='bool'):
+if get_env("DJANGO_LOGGING", type="bool"):
     LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
             },
         },
-        'loggers': {
-            'django.db.backends': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
+        "loggers": {
+            "django.db.backends": {
+                "handlers": ["console"],
+                "level": "DEBUG",
             },
         },
     }

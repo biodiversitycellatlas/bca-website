@@ -6,17 +6,18 @@ The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at m
 
 This project uses:
 
-* [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
-* [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
-* [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
-* [PostgreSQL][], a relational database
-* [Nginx][], a reverse proxy
+- [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
+- [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
+- [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
+- [PostgreSQL][], a relational database
+- [Nginx][], a reverse proxy
 
 ### Initial setup
 
 To set up the project and run the web app locally, first install:
-* [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
-* [docker-compose (standalone)][docker-compose] — Docker itself is not required
+
+- [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
+- [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
 Then, follow these steps:
 
@@ -104,7 +105,7 @@ manual intervention.
 
 A dedicated Compose file (such as `compose.prod.yml`) can be used for production-specific settings:
 
-``` bash
+```bash
 # Deploy in production mode
 # Alternatively, set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
 podman compose -f compose.yml -f compose.prod.yml up -d
@@ -130,13 +131,10 @@ podman compose -f compose.yml -f compose.prod.yml up -d
 [Nginx]: https://nginx.org
 [Gunicorn]: https://gunicorn.org
 [Ghost]: https://ghost.org
-
 [collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
-
 [CRG]: https://crg.eu
 [EBI]: https://ebi.ac.uk/
 [Sanger]: https://sanger.ac.uk/
 [Moore]: https://moore.org
-
 [Biodiversity Cell Atlas]: https://biodiversitycellatlas.org

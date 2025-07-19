@@ -1,4 +1,4 @@
-from django.db.models import Func, Value, CharField, IntegerField
+from django.db.models import CharField, Func, IntegerField, Value
 
 
 class ArrayToString(Func):
@@ -16,14 +16,15 @@ class ArrayToString(Func):
         Gene.objects.annotate(ArrayToString('domains')
         Gene.objects.annotate(ArrayToString('domains', delimiter=';'))
     """
-    function = 'array_to_string'
+
+    function = "array_to_string"
     output_field = CharField()
-    default_alias = 'concatenated'
+    default_alias = "concatenated"
     template = "%(function)s(%(expressions)s, '%(delimiter)s')"
 
     def __init__(self, expression, **extra):
         # Default to comma
-        extra['delimiter'] = extra.get('delimiter', ',')
+        extra["delimiter"] = extra.get("delimiter", ",")
         super().__init__(expression, **extra)
 
 
@@ -45,12 +46,13 @@ class ArrayPosition(Func):
         # Order based on array position
         Gene.objects.order_by(ArrayPosition('name', array=['Tadh_P1002', 'Tadh_P1068']))
     """
-    function = 'array_position'
+
+    function = "array_position"
     output_field = IntegerField()
-    default_alias = 'index'
+    default_alias = "index"
     template = "%(function)s(ARRAY%(array)s, %(expressions)s)"
 
 
 class Correlation(Func):
-    function = 'CORR'
-    template = '%(function)s(%(expressions)s)'
+    function = "CORR"
+    template = "%(function)s(%(expressions)s)"
