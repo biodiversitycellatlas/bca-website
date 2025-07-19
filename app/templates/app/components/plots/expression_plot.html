@@ -7,12 +7,10 @@ Input:
 - gene
 
 {% endcomment %}
-
 {% include '../plot_container.html' with id=gene.slug %}
-
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
-
+<script type="text/javascript"
+        src="{% static 'app/js/plots/expression_plot.js' %}"></script>
 <!-- Plot gene expression data -->
 <script type="text/javascript">
     // Create URL to fetch gene expression data

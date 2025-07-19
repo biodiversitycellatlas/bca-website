@@ -13,48 +13,46 @@ Input:
 - dataset_dict: dictionary of arrays of dataset grouped by their phylum
 
 {% endcomment %}
-
-<div class="container-xxl">
-    {% include './dataset.html' %}
-</div>
-
+<div class="container-xxl">{% include './dataset.html' %}</div>
 <!-- Subnavbar to navigate the Cell Atlas -->
 <div class="subnavbar sticky-top py-1">
     <div class="container-xxl">
         <ul class="nav nav-pills small d-md-none">
             <li class="nav-item">
-                <a class="nav-link p-2 small" data-bs-toggle="offcanvas"
-                href="#offcanvas" role="button">
+                <a class="nav-link p-2 small"
+                   data-bs-toggle="offcanvas"
+                   href="#offcanvas"
+                   role="button">
                     <i class="fa fa-ellipsis-vertical fa-fw"></i>
                     Show Cell Atlas sections
                 </a>
             </li>
         </ul>
-
-        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="offcanvas"
-        aria-labelledby="bdSidebarOffcanvasLabel">
+        <div class="offcanvas-md offcanvas-start"
+             tabindex="-1"
+             id="offcanvas"
+             aria-labelledby="bdSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom">
-                <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">
-                    Cell Atlas
-                </h5>
-                <button type="button" class="btn-close"
-                data-bs-dismiss="offcanvas" aria-label="Close"
-                data-bs-target="#offcanvas"></button>
+                <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">Cell Atlas</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close"
+                        data-bs-target="#offcanvas"></button>
             </div>
-
             <div class="offcanvas-body">
                 <ul class="nav nav-pills small flex-column flex-md-row">
                     {% for link in links %}
                         <li class="nav-item">
                             <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"
-                            href="{{ link.href }}">
+                               href="{{ link.href }}">
                                 <i class="fa fa-{{ link.icon }}"></i>
                                 {{ link.name }}
                                 {% if link.tooltip %}
                                     <i class="fa fa-circle-question"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    data-bs-title="{{ link.tooltip }}"></i>
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="bottom"
+                                       data-bs-title="{{ link.tooltip }}"></i>
                                 {% endif %}
                             </a>
                         </li>
@@ -64,10 +62,8 @@ Input:
         </div>
     </div>
 </div>
-
 <!-- Add some whitespace between subnavbar and content -->
 <div class="mb-2"></div>
-
 <!-- Set species in cookie -->
 <!--{% if dataset %}
 <script>document.cookie='dataset={{dataset}}';</script>

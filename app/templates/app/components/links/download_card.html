@@ -1,6 +1,5 @@
 {% extends "app/components/links/card.html" %}
-
 {% block links %}
-	{% load download_links %}
+    {% load download_links %}
     {% download_info type='button' view=view suffix=filename %}
 {% endblock %}
