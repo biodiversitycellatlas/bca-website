@@ -22,8 +22,12 @@ jobs:
         runs-on: ubuntu-latest
         env:
             VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
+            # Check HTML with djlint
             VALIDATE_HTML: false
             VALIDATE_HTML_PRETTIER: false
+            # Prefer black to pyink (incompatible changes)
+            VALIDATE_BLACK: true
+            VALIDATE_PYINK: false
             DEFAULT_BRANCH: "main"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,12 +49,13 @@ jobs:
               with:
                   tool_name: Super-Linter
                   filter_mode: diff_context
+                  no_cleanup: true
 
             - name: Report all Super-Linter issues
               uses: super-linter/super-linter@v7
 
     djlint:
-        name: djlint (Django)
+        name: djlint (Django HTML)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -61,14 +66,14 @@ jobs:
             - name: Install djlint
               run: pip install djlint
 
-            - name: Lint Django files with djlint
+            - name: Lint HTML files with djlint
               run: djlint . --reformat
               continue-on-error: true
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
               with:
-                  tool_name: djlint (Django)
+                  tool_name: djlint (Django HTML)
                   filter_mode: diff_context
 
             - name: Report all djlint issues
