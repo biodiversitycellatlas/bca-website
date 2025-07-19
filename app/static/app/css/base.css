@@ -2,29 +2,23 @@
 
 :root {
     --font: 'Rubik', sans-serif;
-
     --bold-dark-color: #239184;
     --bold-light-color: #3BBCB2;
     --neutral-color: #FFF6EE;
     --light-accent-color: #FFAC3E;
     --bold-accent-color: #3AB064;
-
     --primary-color: var(--bold-dark-color);
     --hover-color: var(--bold-light-color);
     --hover-border-color: #3BBCB277;
-
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
-
     --subnavbar-bg-color: #FFFFFF80;
     --subnavbar-blur: blur(20px);
-
     --card-text-shadow: var(--navbar-hover-shadow-color);
     --dropdown-menu-color: var(--subnavbar-bg-color);
-    --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
+    --dropdown-menu-shadow: 0 5px 10px 5px #0001;
     --dropdown-menu-blur: var(--subnavbar-blur);
-
     --table-row-color: #3BBCB222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: var(--subnavbar-bg-color);
@@ -110,15 +104,15 @@ body {
     box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
-.btn.btn-primary.disabled, .btn.btn-primary:disabled, fieldset:disabled.btn.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
 .btn.btn-primary, .btn.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+}
+
+.btn.btn-primary.disabled, .btn.btn-primary:disabled, fieldset:disabled.btn.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .btn-xs {
@@ -216,9 +210,7 @@ a:hover {
 .list-group-item.active {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
-
     margin-left: 1px;
-
     position: sticky;
     top: 0;
     bottom: 0;
@@ -233,9 +225,7 @@ a:hover {
     font-weight: 500;
     text-transform: lowercase;
     font-variant: small-caps;
-
     background-color: rgb(var(--bs-light-rgb));
-
     border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
 }
 
@@ -285,6 +275,7 @@ a:hover {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
