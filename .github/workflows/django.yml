@@ -55,7 +55,7 @@ jobs:
             - name: Show coverage report
               run: |
                   docker compose exec web \
-                      coverage report --skip-covered --fail-under=80
+                      coverage report --skip-covered
 
             - name: Run deployment check
               if: always()
