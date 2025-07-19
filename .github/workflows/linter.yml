@@ -36,7 +36,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     djlint:
-        name: djLint (Django)
+        name: djlint (Django)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -48,7 +48,14 @@ jobs:
               run: pip install djlint
 
             - name: Run djlint
-              run: djlint .
+              run: djlint . --reformat
+
+            - name: Suggest changes
+              uses: reviewdog/action-suggester@v1
+              with:
+                  tool_name: djlint (Django)
+                  fail_level: error
+                  filter_mode: diff_context
 
     autoprefix:
         name: Autoprefixer (CSS)
@@ -77,6 +84,6 @@ jobs:
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
               with:
-                  tool_name: autoprefixer
-                  fail_level: 'error'
+                  tool_name: autoprefixer (CSS)
+                  fail_level: error
                   filter_mode: diff_context
