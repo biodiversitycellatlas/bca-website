@@ -53,6 +53,11 @@ jobs:
     autoprefix:
         name: Autoprefixer (CSS)
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            checks: write
+            issues: write
+            pull-requests: write
 
         steps:
             - name: Checkout repository
@@ -69,11 +74,9 @@ jobs:
             - name: Run Autoprefixer on all CSS files
               run: npx postcss **/*.css --use autoprefixer --no-map --replace
 
-            - name: Show Autoprefixer changes
-              run: |
-                diff=$(git diff)
-                echo "$diff"
-                if [ -n "$diff" ]; then
-                    echo "::error ::Autoprefixer proposed changes to CSS files, please check the changes."
-                    exit 1
-                fi
+            - name: Suggest changes
+              uses: reviewdog/action-suggester@v1
+              with:
+                  tool_name: autoprefixer
+                  fail_level: 'error'
+                  filter_mode: diff_context
