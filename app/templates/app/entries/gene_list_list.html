@@ -7,7 +7,7 @@
     {% render_header_counter 'Gene lists' paginator species %}
 {% endblock heading %}
 
-{% endblock header %}
+{% block header %}
     <th>Gene list</th>
     <th style="max-width: 400px;">Description</th>
     <th>Number of genes</th>
@@ -19,6 +19,6 @@
     <td>{{each.genes.count}}</td>
 {% endblock row %}
 
-{% endblock unfound %}
+{% block unfound %}
     No genes found.
 {% endblock unfound %}
