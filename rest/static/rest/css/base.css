@@ -1,11 +1,11 @@
 :root {
-	--font-ui: var(--font);
-	--font-prose: var(--font);
-	--color-text-heading: var(--primary-color);
+    --font-ui: var(--font);
+    --font-prose: var(--font);
+    --color-text-heading: var(--primary-color);
 }
 
 html {
-  scroll-padding-top: 0;
+    scroll-padding-top: 0;
 }
 
 body {
@@ -21,4 +21,3 @@ body {
     /* Full height sidebar */
     height: 100vh !important;
 }
-

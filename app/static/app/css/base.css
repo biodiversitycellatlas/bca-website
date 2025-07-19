@@ -1,25 +1,25 @@
 /* Theme variables */
 
 :root {
-    --font: 'Rubik', sans-serif;
+    --font: "Rubik", sans-serif;
     --bold-dark-color: #239184;
-    --bold-light-color: #3BBCB2;
-    --neutral-color: #FFF6EE;
-    --light-accent-color: #FFAC3E;
-    --bold-accent-color: #3AB064;
+    --bold-light-color: #3bbcb2;
+    --neutral-color: #fff6ee;
+    --light-accent-color: #ffac3e;
+    --bold-accent-color: #3ab064;
     --primary-color: var(--bold-dark-color);
     --hover-color: var(--bold-light-color);
-    --hover-border-color: #3BBCB277;
+    --hover-border-color: #3bbcb277;
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
-    --subnavbar-bg-color: #FFFFFF80;
+    --subnavbar-bg-color: #ffffff80;
     --subnavbar-blur: blur(20px);
     --card-text-shadow: var(--navbar-hover-shadow-color);
     --dropdown-menu-color: var(--subnavbar-bg-color);
     --dropdown-menu-shadow: 0 5px 10px 5px #0001;
     --dropdown-menu-blur: var(--subnavbar-blur);
-    --table-row-color: #3BBCB222;
+    --table-row-color: #3bbcb222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: var(--subnavbar-bg-color);
 }
@@ -32,7 +32,7 @@ body {
 }
 
 .lead {
-    font-size: 1.20rem;
+    font-size: 1.2rem;
 }
 
 .upload-tooltip .tooltip-inner {
@@ -95,7 +95,6 @@ body {
     font-family: "Font Awesome 5 Free";
 } */
 
-
 /* Buttons */
 
 .form-control:focus,
@@ -104,21 +103,24 @@ body {
     box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
-.btn.btn-primary, .btn.btn-outline-primary {
+.btn.btn-primary,
+.btn.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
-.btn.btn-primary.disabled, .btn.btn-primary:disabled, fieldset:disabled.btn.btn-primary {
+.btn.btn-primary.disabled,
+.btn.btn-primary:disabled,
+fieldset:disabled.btn.btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
 .btn-xs {
-    --bs-btn-padding-y: .25rem;
-    --bs-btn-padding-x: .5rem;
-    --bs-btn-font-size: .75rem;
+    --bs-btn-padding-y: 0.25rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 0.75rem;
 }
 
 .btn-primary {
@@ -158,21 +160,22 @@ body {
     background-color: var(--primary-color);
 }
 
-.btn-check+.btn.btn-outline-primary:hover {
+.btn-check + .btn.btn-outline-primary:hover {
     color: var(--hover-color);
 }
 
-.btn-check:checked+.btn.btn-outline-primary {
+.btn-check:checked + .btn.btn-outline-primary {
     background-color: var(--primary-color);
     color: white;
 }
 
-.btn-check:checked+.btn.btn-outline-primary:hover {
+.btn-check:checked + .btn.btn-outline-primary:hover {
     background-color: var(--hover-color);
     color: white;
 }
 
-.dropdown-item.active, .dropdown-item:active {
+.dropdown-item.active,
+.dropdown-item:active {
     background-color: var(--primary-color);
 }
 
@@ -226,7 +229,8 @@ a:hover {
     text-transform: lowercase;
     font-variant: small-caps;
     background-color: rgb(var(--bs-light-rgb));
-    border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+    border: var(--bs-list-group-border-width) solid
+        var(--bs-list-group-border-color);
 }
 
 .list-group-heading + .list-group-heading,
@@ -266,19 +270,20 @@ a:hover {
     border-radius: 50%;
     display: inline-block;
     border: 10px solid;
-    border-color: var(--primary-color) var(--hover-color) var(--hover-color) var(--hover-color);
+    border-color: var(--primary-color) var(--hover-color) var(--hover-color)
+        var(--hover-color);
     box-sizing: border-box;
     animation: rotation 1.5s linear infinite;
 }
 
 @keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
 
-  100% {
-    transform: rotate(360deg);
-  }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Footer */
