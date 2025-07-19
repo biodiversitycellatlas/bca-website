@@ -16,35 +16,47 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-        - name: Copy .env file
-          run: cp .env.template .env
+            - name: Copy .env file
+              run: cp .env.template .env
 
-        - name: Set up Docker Compose
-          uses: docker/setup-compose-action@v1
+            - name: Set up Docker Compose
+              uses: docker/setup-compose-action@v1
 
-        - name: Start services
-          run: DOCKER_WEB_USER=root docker compose up -d --build
+            - name: Start services
+              run: DOCKER_WEB_USER=root docker compose up -d --build
 
-        - name: Install coverage
-          run: |
-            docker compose exec web \
-                pip install coverage
+            - name: Install coverage
+              run: |
+                  docker compose exec web \
+                      pip install coverage
 
-        - name: Run tests with coverage
-          run: |
-            docker compose exec web \
-                coverage run manage.py test
+            - name: Run tests with coverage
+              run: |
+                  docker compose exec web \
+                      coverage run manage.py test
 
-        - name: Show coverage report
-          run: |
-            docker compose exec web \
-                coverage report --skip-covered --fail-under=80
+            - name: Create XML coverage file
+              run: |
+                  docker compose exec web \
+                      coverage xml
+                  docker compose cp \
+                      web:/usr/src/app/coverage.xml coverage.xml
 
-        - name: Run deployment check
-          run: |
-            docker compose exec web \
-                python manage.py check --deploy
-          if: always()
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  files: coverage.xml
+
+            - name: Show coverage report
+              run: |
+                  docker compose exec web \
+                      coverage report --skip-covered --fail-under=80
+
+            - name: Run deployment check
+              if: always()
+              run: |
+                  docker compose exec web \
+                      python manage.py check --deploy
