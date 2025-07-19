@@ -18,3 +18,5 @@ app/static/app/images/logos/BCA/EPS/*
 .env*
 !.env.template
 /ghost
+/node_modules
+package*.json
