@@ -2,29 +2,23 @@
 
 :root {
     --font: 'Rubik', sans-serif;
-
     --bold-dark-color: #239184;
     --bold-light-color: #3BBCB2;
     --neutral-color: #FFF6EE;
     --light-accent-color: #FFAC3E;
     --bold-accent-color: #3AB064;
-
     --primary-color: var(--bold-dark-color);
     --hover-color: var(--bold-light-color);
     --hover-border-color: #3BBCB277;
-
     --navbar-hover-color: #00000030;
     --navbar-hover-shadow-color: #00000080;
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
-
     --subnavbar-bg-color: #FFFFFF80;
     --subnavbar-blur: blur(20px);
-
     --card-text-shadow: var(--navbar-hover-shadow-color);
     --dropdown-menu-color: var(--subnavbar-bg-color);
-    --dropdown-menu-shadow: 0 5px 10px 5px #00000011;
+    --dropdown-menu-shadow: 0 5px 10px 5px #0001;
     --dropdown-menu-blur: var(--subnavbar-blur);
-
     --table-row-color: #3BBCB222;
     --table-selected-row-color: var(--primary-color);
     --table-selected-a-color: var(--subnavbar-bg-color);
@@ -57,13 +51,13 @@ html:has(.subnavbar) {
 .navbar .navbar-brand {
     font-weight: 1000;
     border-radius: 10px;
-    padding: 5px 1px 5px 1px;
+    padding: 5px 1px;
 }
 
 .navbar .navbar-brand:focus-visible {
     outline: none;
     background: var(--navbar-hover-color);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
+    box-shadow: 0 0 0 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar .nav-link {
@@ -73,12 +67,12 @@ html:has(.subnavbar) {
 
 .navbar .nav-link:focus-visible {
     background: var(--navbar-hover-color);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
+    box-shadow: 0 0 0 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar .selectize-input:focus-within {
     border-color: var(--navbar-hover-shadow-color);
-    box-shadow: 0px 0px 0px 2px var(--navbar-hover-shadow-color);
+    box-shadow: 0 0 0 2px var(--navbar-hover-shadow-color);
 }
 
 .navbar-toggler {
@@ -95,10 +89,7 @@ html:has(.subnavbar) {
 .subnavbar::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: -1;
     background-color: var(--subnavbar-bg-color);
     backdrop-filter: var(--subnavbar-blur);
@@ -260,9 +251,7 @@ a:hover {
 .list-group-item.active {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
-
     margin-left: 1px;
-
     position: sticky;
     top: 0;
     bottom: 0;
@@ -277,9 +266,7 @@ a:hover {
     font-weight: 500;
     text-transform: lowercase;
     font-variant: small-caps;
-
     background-color: rgb(var(--bs-light-rgb));
-
     border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
 }
 
@@ -309,7 +296,7 @@ a:hover {
 }
 
 .search-highlight {
-    background: rgba(255,237,40,.4);
+    background: rgb(255 237 40 / 40%);
 }
 
 .sequence-textarea:focus {
@@ -349,6 +336,7 @@ a:hover {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -358,6 +346,7 @@ a:hover {
 
 .table td, .table th {
     border-style: none;
+
     --bs-table-striped-bg: var(--table-row-color);
 }
 
@@ -388,7 +377,7 @@ div.dt-container div.dt-processing > div > div {
 .truncate {
     max-width:200px;
     white-space: nowrap;
-    overflow: overlay;
+    overflow: auto;
     text-overflow: ellipsis;
 }
 
@@ -399,7 +388,7 @@ div.dt-container div.dt-processing > div > div {
 	hyphens: auto;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    overflow: overlay;
+    overflow: auto;
 }
 
 /* Selectize.js */
@@ -409,7 +398,7 @@ div.dt-container div.dt-processing > div > div {
 }
 
 .atlas-select .highlight { /* Highlight phylum in atlas selection */
-    background: rgba(255,237,40,.4);
+    background: rgb(255 237 40 / 40%);
     border-radius: 1px;
 }
 
@@ -422,7 +411,8 @@ div.dt-container div.dt-processing > div > div {
 }
 
 .selectize-dropdown.plugin-optgroup_columns .optgroup {
-    /* transition: all 0.1s ease;*/
+    /* transition: all 0.1s ease; */
+
     /* word-break: break-word; */
     white-space: nowrap;
 }
@@ -432,12 +422,13 @@ div.dt-container div.dt-processing > div > div {
     white-space: wrap;
 }
 
-@media (max-width: 959px) {
+@media (width <= 959px) {
     .selectize-dropdown.plugin-optgroup_columns {
         .optgroup {
             border-right: none;
             float: none;
         }
+
         .optgroup-header {
             border-top: none;
         }
@@ -461,14 +452,11 @@ div.dt-container div.dt-processing > div > div {
 	-moz-transition: opacity 0.2s;
 	-webkit-transition: opacity 0.2s;
 	transition: opacity 0.2s;
-
 	-webkit-animation: none;
 	animation: none;
-
 	z-index: 2;
 	position: absolute;
 	display: block;
-
 	top: 12px;
 	right: 36px;
 	width: 16px;
@@ -558,10 +546,10 @@ div.dt-container div.dt-processing > div > div {
     border-bottom-right-radius: 0;
 }
 
-/*a[rel="external"]:after {
+/* a[rel="external"]:after {
     content: "\00a0\f08e";
     font-family: "Font Awesome 5 Free";
-}*/
+} */
 
 /* Footer */
 
