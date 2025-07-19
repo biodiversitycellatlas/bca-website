@@ -34,7 +34,7 @@ jobs:
                   # needs full git history
                   fetch-depth: 0
 
-            - name: Lint Code Base
+            - name: Lint files with Super-Linter
               uses: super-linter/super-linter@v7
               env:
                   AUTO_FIX: true
@@ -46,7 +46,7 @@ jobs:
                   tool_name: Super-Linter
                   filter_mode: diff_context
 
-            - name: Lint Code Base
+            - name: Report all Super-Linter issues
               uses: super-linter/super-linter@v7
 
     djlint:
@@ -61,7 +61,7 @@ jobs:
             - name: Install djlint
               run: pip install djlint
 
-            - name: Lint files with djlint
+            - name: Lint Django files with djlint
               run: djlint . --reformat
               continue-on-error: true
 
@@ -72,7 +72,7 @@ jobs:
                   filter_mode: diff_context
 
             - name: Report all djlint issues
-              run: djlint . --check
+              run: djlint .
 
     autoprefix:
         name: Autoprefixer (CSS)
@@ -82,7 +82,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Setup Node.js
+            - name: Setup node.js
               uses: actions/setup-node@v4
               with:
                   node-version: '18'
@@ -90,7 +90,7 @@ jobs:
             - name: Install dependencies
               run: npm install postcss postcss-cli autoprefixer
 
-            - name: Run Autoprefixer on all CSS files
+            - name: Lint CSS files with Autoprefixer
               run: npx postcss **/*.css --use autoprefixer --no-map --replace
 
             - name: Suggest changes
