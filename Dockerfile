@@ -32,7 +32,7 @@ USER bca
 RUN set -a && source .env && set +a &&\
   python manage.py collectstatic --noinput
 
-HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8000/health/ || exit 1
 
 EXPOSE 8000
