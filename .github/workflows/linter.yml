@@ -44,8 +44,10 @@ jobs:
                   AUTO_FIX: true
               continue-on-error: true
 
-            - name: Ensure write permissions
-              run: sudo chmod -R u+rwX .
+            - name: Cleanup super-linter output
+              run: |
+                  sudo rm -f github_conf/branch_protection_rules.json
+                  sudo rm -f super-linter-output/super-linter-summary.md
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
