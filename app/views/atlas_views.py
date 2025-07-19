@@ -5,8 +5,12 @@ from django.shortcuts import redirect, reverse
 from django.views.generic import TemplateView
 
 from ..models import Dataset
-from ..utils import (get_cell_atlas_links, get_dataset, get_dataset_dict,
-                     get_metacell_dict)
+from ..utils import (
+    get_cell_atlas_links,
+    get_dataset,
+    get_dataset_dict,
+    get_metacell_dict,
+)
 
 
 class AtlasView(TemplateView):

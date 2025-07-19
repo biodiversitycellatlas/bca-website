@@ -1,15 +1,33 @@
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.core.exceptions import ValidationError
-from django.db.models import (Avg, Case, Count, F, FloatField, IntegerField,
-                              Max, OuterRef, Q, Subquery, Sum, Value, When,
-                              Window)
+from django.db.models import (
+    Avg,
+    Case,
+    Count,
+    F,
+    FloatField,
+    IntegerField,
+    Max,
+    OuterRef,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+    When,
+    Window,
+)
 from django.db.models.functions import Cast, Greatest, Log, Rank
-from django_filters.rest_framework import (BooleanFilter, CharFilter,
-                                           ChoiceFilter, FilterSet,
-                                           ModelChoiceFilter, NumberFilter,
-                                           NumericRangeFilter, OrderingFilter)
-from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
-                                   extend_schema_field)
+from django_filters.rest_framework import (
+    BooleanFilter,
+    CharFilter,
+    ChoiceFilter,
+    FilterSet,
+    ModelChoiceFilter,
+    NumberFilter,
+    NumericRangeFilter,
+    OrderingFilter,
+)
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema_field
 
 from app import models
 
