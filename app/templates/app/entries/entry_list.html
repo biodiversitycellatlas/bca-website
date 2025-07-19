@@ -8,6 +8,30 @@ List entries - base template
 
 {% block title %}Database entries{% endblock title %}
 
+{% block content %}
+    {% block heading %}{% endblock heading %}
+
+    {% if object_list %}
+        <style>td, th { vertical-align: middle; }</style>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    {% block header %}{% endblock header %}
+                </tr>
+              </thead>
+            <tbody>
+                {% for each in object_list %}
+                <tr>
+                    {% block row %}{% endblock row %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>{% block unfound %}No entries found.{% endblock unfound %}</p>
+    {% endif %}
+{% endblock content %}
+
 {% block pagination %}
     {% if is_paginated %}
     	<nav aria-label="Page navigation">

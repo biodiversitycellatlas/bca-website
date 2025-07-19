@@ -1,35 +1,24 @@
 {% extends "app/entries/entry_list.html" %}
 
-{% block title %}Gene entries{% endblock title %}
+{% block title %}Gene list entries{% endblock title %}
 
-{% block content %}
+{% block heading %}
+    {% load entry_links %}
+    {% render_header_counter 'Gene lists' paginator species %}
+{% endblock heading %}
 
-{% load entry_links %}
-{% render_header_counter 'Gene lists' paginator species %}
+{% endblock header %}
+    <th>Gene list</th>
+    <th style="max-width: 400px;">Description</th>
+    <th>Number of genes</th>
+{% endblock header %}
 
-{% if object_list %}
-<style>td, th { vertical-align: middle; }</style>
+{% block row %}
+    <td>{{each.get_html_link}}</td>
+    <td style="max-width: 400px;">{{ each.description|default:'—' }}</td>
+    <td>{{each.genes.count}}</td>
+{% endblock row %}
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Gene</th>
-            <th style="max-width: 400px;">Description</th>
-            <th>Number of genes</th>
-        </tr>
-      </thead>
-    <tbody>
-        {% for genelist in object_list %}
-        <tr>
-            <td>{{genelist.get_html_link}}</td>
-            <td style="max-width: 400px;">{{ genelist.description|default:'—' }}</td>
-            <td>{{genelist.genes.count}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No genes found.</p>
-{% endif %}
-
-{% endblock content %}
+{% endblock unfound %}
+    No genes found.
+{% endblock unfound %}
