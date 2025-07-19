@@ -47,15 +47,18 @@ jobs:
             - name: Install djlint
               run: pip install djlint
 
-            - name: Run djlint
+            - name: Lint files with djlint
               run: djlint . --reformat
+              continue-on-error: true
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
               with:
                   tool_name: djlint (Django)
-                  fail_level: error
                   filter_mode: diff_context
+
+            - name: Report all djlint issues
+              run: djlint . --check
 
     autoprefix:
         name: Autoprefixer (CSS)
