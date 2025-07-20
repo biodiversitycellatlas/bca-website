@@ -1,0 +1,6 @@
+{
+  "threshold": 10,
+  "reporters": ["consoleFull"],
+  "ignore": ["**/__snapshots__/**", "**/node_modules/**", "**/*.svg"],
+  "absolute": true
+}
