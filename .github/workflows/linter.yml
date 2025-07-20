@@ -38,6 +38,8 @@ jobs:
             - name: Lint files with Super-Linter
               uses: super-linter/super-linter@v8
               env:
+                  # Disable first-pass summary
+                  ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
                   FIX_CSS_PRETTIER: true
                   FIX_CSS: true
                   FIX_ENV: true
