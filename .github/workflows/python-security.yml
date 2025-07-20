@@ -12,22 +12,14 @@ on:
     workflow_dispatch:
 
 permissions:
-    contents: read
+    security-events: write
 
 jobs:
     bandit:
         name: Bandit
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
-            - uses: actions/setup-python@v5
+            - name: Run Bandit and upload results to GitHub Security tab
+              uses: PyCQA/bandit-action@v1
               with:
-                  python-version: "3.13"
-
-            - name: Install dependencies
-              run: pip install bandit -r requirements.txt
-
-            - name: Run Bandit
-              run: bandit -r . -x ./scripts
+                  exclude: ".git,./scripts,__pycache__"
