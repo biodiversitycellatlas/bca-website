@@ -9,8 +9,10 @@ services:
             - static_files:/static
             - ./data:/data
         depends_on:
-            - web
-            - ghost
+            ghost:
+                condition: service_started
+            web:
+                condition: service_healthy
 
     ghost:
         image: ghost:5.125-alpine
@@ -44,7 +46,10 @@ services:
         restart: always
         env_file: [.env]
         command: |
-            postgres -c max_wal_size=2GB
+            postgres
+                -c max_wal_size=2GB
+                -c maintenance_work_mem=4GB
+                -c work_mem=64MB
         volumes:
             - db_data:/var/lib/postgresql/data
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d

@@ -20,3 +20,4 @@ app/static/app/images/logos/BCA/EPS/*
 /ghost
 /node_modules
 package*.json
+/pg_backup
