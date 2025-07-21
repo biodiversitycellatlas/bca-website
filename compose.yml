@@ -35,7 +35,7 @@ services:
             # Update Django files in real-time
             - .:/usr/src/app
             # Media and static files
-            - static_files:/usr/src/app/static:U
+            - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
         depends_on:
             db:
