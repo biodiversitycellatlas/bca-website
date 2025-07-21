@@ -1,24 +1,21 @@
 {% extends "app/entries/entry_list.html" %}
-
-{% block title %}Gene list entries{% endblock title %}
-
+{% block title %}
+    Gene list entries
+{% endblock title %}
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Gene lists' paginator species %}
 {% endblock heading %}
-
 {% block header %}
     <th>Gene list</th>
     <th style="max-width: 400px;">Description</th>
     <th>Number of genes</th>
 {% endblock header %}
-
 {% block row %}
-    <td>{{each.get_html_link}}</td>
+    <td>{{ each.get_html_link }}</td>
     <td style="max-width: 400px;">{{ each.description|default:'—' }}</td>
-    <td>{{each.genes.count}}</td>
+    <td>{{ each.genes.count }}</td>
 {% endblock row %}
-
 {% block unfound %}
     No genes found.
 {% endblock unfound %}
