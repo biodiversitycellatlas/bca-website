@@ -11,9 +11,11 @@ Input:
 
 {% endcomment %}
 
-<div id="{{id}}-plot" class="container-xxl"
-style="{% if ratio %}aspect-ratio: {{ratio}};{% endif %}">
-    <div id="{{id}}-spinner" class="loading-state">
+<div id="{{ id }}-plot"
+     class="container-xxl"
+     style="{% if ratio %}aspect-ratio: {{ ratio }};
+            {% endif %}">
+    <div id="{{ id }}-spinner" class="loading-state">
         <div class="loader"></div>
     </div>
 </div>

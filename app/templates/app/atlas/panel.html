@@ -9,18 +9,20 @@ Input:
 
 {% endcomment %}
 
-{% block title %}{{dataset}} {{gene|default:'Gene'}}{% endblock title %}
+{% block title %}
+    {{ dataset }} {{ gene|default:'Gene' }}
+{% endblock title %}
 
 {% block content %}
 
-<!-- Gene expression heatmap -->
-<h1 class="h3 pt-2 mb-3" id="expression">
-    Gene expression heatmap
-    {% load section_buttons %}
-    {% clipboard_button id='expression' %}
-    {% data_dropdown id='expression' %}
-</h1>
+    <!-- Gene expression heatmap -->
+    <h1 class="h3 pt-2 mb-3" id="expression">
+        Gene expression heatmap
+        {% load section_buttons %}
+        {% clipboard_button id='expression' %}
+        {% data_dropdown id='expression' %}
+    </h1>
 
-{% include '../components/plots/expression_heatmap.html' with id='expression' type='gene-lists' %}
+    {% include '../components/plots/expression_heatmap.html' with id='expression' type='gene-lists' %}
 
 {% endblock content %}

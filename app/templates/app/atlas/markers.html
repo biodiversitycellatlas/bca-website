@@ -21,36 +21,54 @@ Input:
 
 {% endcomment %}
 
-{% block title %}{{dataset}} Markers{% endblock title %}
+{% block title %}
+    {{ dataset }} Markers
+{% endblock title %}
 
 {% block content %}
 
-{% load static %}
-{% include '../components/warning_alert.html' %}
+    {% load static %}
+    {% include '../components/warning_alert.html' %}
 
-<div class="row">
-    <div class="col-md-3">
-        <form>
-            <fieldset>
-                <legend class="h5">Cell selection</legend>
-                <div class="mb-3">
-                    <label class="col-form-label" for="metacells">Metacells</label>
-                    {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacells %}
-                </div>
-            </fieldset>
+    <div class="row">
+        <div class="col-md-3">
+            <form>
+                <fieldset>
+                    <legend class="h5">Cell selection</legend>
+                    <div class="mb-3">
+                        <label class="col-form-label" for="metacells">Metacells</label>
+                        {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacells %}
+                    </div>
+                </fieldset>
 
-            <fieldset>
-                <legend class="h5">Fold-change</legend>
-                <div class="mb-3">
-                    <label class="col-form-label" for="fc_min_type">Min. fold-change <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Minimum fold-change for gene filtering"></i></label>
-                    <select class="form-select" name="fc_min_type" id="fc_min_type" aria-label="Select example" value="median">
-                        <option value="mean" {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
-                        <option value="median" {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
-                    </select>
-                </div>
+                <fieldset>
+                    <legend class="h5">Fold-change</legend>
+                    <div class="mb-3">
+                        <label class="col-form-label" for="fc_min_type">
+                            Min. fold-change <i class="fa fa-circle-question"
+    data-bs-toggle="tooltip"
+    data-bs-placement="right"
+    data-bs-title="Minimum fold-change for gene filtering"></i>
+                        </label>
+                        <select class="form-select"
+                                name="fc_min_type"
+                                id="fc_min_type"
+                                aria-label="Select example"
+                                value="median">
+                            <option value="mean"
+                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
+                            <option value="median"
+                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
+                        </select>
+                    </div>
 
-                <input type="range" class="js-range-slider" id="fc_min" name="fc_min" value="{{query.fc_min|default:2}}" step="0.1">
-                <script>
+                    <input type="range"
+                           class="js-range-slider"
+                           id="fc_min"
+                           name="fc_min"
+                           value="{{ query.fc_min|default:2 }}"
+                           step="0.1">
+                    <script>
                     $("#fc_min").ionRangeSlider({
                         min: 0,
                         max: 5,
@@ -59,20 +77,38 @@ Input:
                         grid: false,
                         skin: "round"
                     });
-                </script>
+                    </script>
 
-                <hr>
-                <div class="mb-3">
-                    <label class="col-form-label" for="fc_max_bg_type">Max. fold-change (background) <i class="fa fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Maximum fold-change in non-selected cells"></i></label>
-                    <select class="form-select" id="fc_max_bg_type" name="fc_max_bg_type" aria-label="Select example" onchange="toggleMaxFCslider(this, '#fc_max_bg');">
-                        <option value="ignore" {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>Ignore</option>
-                        <option value="mean" {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
-                        <option value="median" {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
-                    </select>
-                </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label class="col-form-label" for="fc_max_bg_type">
+                            Max. fold-change (background) <i class="fa fa-circle-question"
+    data-bs-toggle="tooltip"
+    data-bs-placement="right"
+    data-bs-title="Maximum fold-change in non-selected cells"></i>
+                        </label>
+                        <select class="form-select"
+                                id="fc_max_bg_type"
+                                name="fc_max_bg_type"
+                                aria-label="Select example"
+                                onchange="toggleMaxFCslider(this, '#fc_max_bg');">
+                            <option value="ignore"
+                                    {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>Ignore</option>
+                            <option value="mean"
+                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
+                            <option value="median"
+                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
+                        </select>
+                    </div>
 
-                <input type="range" class="js-range-slider" id="fc_max_bg" name="fc_max_bg" value="{{query.fc_max_bg|default:3}}" step="0.1" disabled>
-                <script>
+                    <input type="range"
+                           class="js-range-slider"
+                           id="fc_max_bg"
+                           name="fc_max_bg"
+                           value="{{ query.fc_max_bg|default:3 }}"
+                           step="0.1"
+                           disabled>
+                    <script>
                     $("#fc_max_bg").ionRangeSlider({
                         min: 0,
                         max: 5,
@@ -94,28 +130,29 @@ Input:
 
                     // Hide slider depending on value of #fc_max_bg_type
                     toggleMaxFCslider($('#fc_max_bg_type')[0], '#fc_max_bg')
-                </script>
-                <button type="submit" class="btn btn-primary my-3 w-100">List markers</button>
-            </fieldset>
-        </form>
-    </div>
-    <div class="col-md-9">
-        {% if metacells %}
-            <div class="row g-0 d-flex justify-content-end mb-3">
-                <div class="col-auto text-end text-muted form-control-sm">
-                    Selected metacells: <span id="selected_metacells">None</span> <b>({{metacells|length}} in total)</b>
-                </div>
-                <div class="col-auto">
-                    {% load section_buttons %}
-                    {% clipboard_button id='markers' %}
-                    {% data_dropdown id='markers' %}
+                    </script>
+                    <button type="submit" class="btn btn-primary my-3 w-100">List markers</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-md-9">
+            {% if metacells %}
+                <div class="row g-0 d-flex justify-content-end mb-3">
+                    <div class="col-auto text-end text-muted form-control-sm">
+                        Selected metacells: <span id="selected_metacells">None</span> <b>({{ metacells|length }} in total)</b>
+                    </div>
+                    <div class="col-auto">
+                        {% load section_buttons %}
+                        {% clipboard_button id='markers' %}
+                        {% data_dropdown id='markers' %}
 
+                    </div>
                 </div>
-            </div>
-            <table id="markers_table" class="display" style="width:100%"></table>
+                <table id="markers_table" class="display" style="width:100%">
+                </table>
 
-            <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
-            <script>
+                <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
+                <script>
                 var gene_url = "{% url 'atlas_gene' dataset.slug %}";
                 var url = "{% url 'rest:metacellmarker-list' %}";
 
@@ -132,14 +169,14 @@ Input:
 
                 createMarkersTable('markers', apiURL)
                 appendDataMenu('markers', apiURL, 'Metacell markers');
-            </script>
-        {% else %}
-            {% include '../components/mockup/table.html' %}
-        {% endif %}
+                </script>
+            {% else %}
+                {% include '../components/mockup/table.html' %}
+            {% endif %}
+        </div>
     </div>
-</div>
 
-<script>
+    <script>
 function updateMetacellSelectionText(selected) {
     var minimized = convertToRange(selected).replaceAll(',', ', ');
 
@@ -168,6 +205,6 @@ $('form').on('submit', function(e) {
     href = url.href.replaceAll('%2C', ',');
     window.location.href = href;
 });
-</script>
+    </script>
 
 {% endblock content %}

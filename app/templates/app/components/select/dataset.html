@@ -26,23 +26,27 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="dataset-select-{{id}}" class="mb-2 {{class}} small"
-style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px; {% if width %}width: {{width}} !important{% endif %}"
-placeholder="{{placeholder|default:'Search datasets by species, taxonomic rank, division, ...'}}">
+<select id="dataset-select-{{ id }}"
+        class="mb-2 {{ class }} small"
+        style="margin-bottom: 23px !important;
+               visibility: hidden;
+               max-width: 200px;
+               {% if width %}width: {{ width }} !important{% endif %}"
+        placeholder="{{ placeholder|default:'Search datasets by species, taxonomic rank, division, ...' }}">
     <option value=""></option>
     {% for phylum, dataset_list in dataset_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in dataset_list %}
-                <option value="{{elem.dataset.slug}}"
-                data-meta="{{elem.meta|join:','}}"
-                data-image="{{elem.dataset.image_url|default:elem.dataset.species.image_url}}"
-                data-species="{{elem.dataset.species}}"
-                data-dataset="{{elem.dataset.name|default:''}}"
-                data-label="{{elem.dataset.get_html}}"
-                data-name="{{elem.dataset.species.common_name|default_if_none:''}}"
-                {% if dataset == elem.dataset or dataset == elem.dataset.slug %}
-                    selected
-                {%endif%}>{{ elem.dataset }}</option>
+                <option value="{{ elem.dataset.slug }}"
+                        data-meta="{{ elem.meta|join:',' }}"
+                        data-image="{{ elem.dataset.image_url|default:elem.dataset.species.image_url }}"
+                        data-species="{{ elem.dataset.species }}"
+                        data-dataset="{{ elem.dataset.name|default:'' }}"
+                        data-label="{{ elem.dataset.get_html }}"
+                        data-name="{{ elem.dataset.species.common_name|default_if_none:'' }}"
+                        {% if dataset == elem.dataset or dataset == elem.dataset.slug %}selected{% endif %}>
+                    {{ elem.dataset }}
+                </option>
             {% endfor %}
         </optgroup>
     {% endfor %}

@@ -68,7 +68,10 @@ Dynamic blocks:
         <!-- ion-rangeslider -->
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js" integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"
+                integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg=="
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"></script>
         <!-- Selectize.js -->
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css"
@@ -102,17 +105,17 @@ Dynamic blocks:
         {% block subnav %}
             {% comment %}
             Subnavigation bar (e.g., used in Cell Atlas)
-        {% endcomment %}
-    {% endblock subnav %}
+            {% endcomment %}
+        {% endblock subnav %}
 
-    <main class="container-xxl" style="overflow-x: clip;">
-        {% block breadcrumb %}{% endblock %}
-        {% block content %}{% endblock %}
-        {% block pagination %}{% endblock %}
-    </main>
+        <main class="container-xxl" style="overflow-x: clip;">
+            {% block breadcrumb %}{% endblock %}
+            {% block content %}{% endblock %}
+            {% block pagination %}{% endblock %}
+        </main>
 
-    <!-- Enable tooltips and popovers-->
-    <script>
+        <!-- Enable tooltips and popovers-->
+        <script>
     // Allow table elements in tooltips
     bootstrap.Tooltip.Default.allowList.table = [];
     bootstrap.Tooltip.Default.allowList.thead = [];
@@ -125,8 +128,10 @@ Dynamic blocks:
 
     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
     const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
-    </script>
+        </script>
 
-    {% block footer %}{% include 'footer.html' %}{% endblock footer %}
-</body>
+        {% block footer %}
+            {% include 'footer.html' %}
+        {% endblock footer %}
+    </body>
 </html>

@@ -88,7 +88,7 @@ jobs:
               run: pip install djlint
 
             - name: Lint HTML files with djlint
-              run: djlint . --reformat
+              run: djlint . --preserve-blank-lines --reformat
               continue-on-error: true
 
             - name: Suggest changes
@@ -98,7 +98,7 @@ jobs:
                   filter_mode: diff_context
 
             - name: Report all djlint issues
-              run: djlint .
+              run: djlint . --preserve-blank-lines
 
     autoprefix:
         name: Autoprefixer (CSS)

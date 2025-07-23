@@ -1,33 +1,35 @@
 {% extends "app/entries/entry.html" %}
 
-{% block title %}Gene module {{object.name}}{% endblock title %}
+{% block title %}
+    Gene module {{ object.name }}
+{% endblock title %}
 
 {% block content %}
 
-{% load entry_links %}
-{% with title=object.name|stringformat:"s genes" %}
-    {% render_header_counter title object.gene_modules object.dataset %}
-{% endwith %}
+    {% load entry_links %}
+    {% with title=object.name|stringformat:"s genes" %}
+        {% render_header_counter title object.gene_modules object.dataset %}
+    {% endwith %}
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Gene</th>
-            <th style="max-width: 400px;">Description</th>
-            <th>Domains</th>
-            <th>Membership_score</th>
-        </tr>
-      </thead>
-    <tbody>
-        {% for each in object.gene_modules %}
-        <tr>
-            <td>{{each.gene.get_html_link}}</td>
-            <td style="max-width: 400px;">{{each.gene.description|default:'—'}}</td>
-            <td>{{each.gene.get_domain_html_links}}</td>
-            <td>{{each.membership_score}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Gene</th>
+                <th style="max-width: 400px;">Description</th>
+                <th>Domains</th>
+                <th>Membership_score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for each in object.gene_modules %}
+                <tr>
+                    <td>{{ each.gene.get_html_link }}</td>
+                    <td style="max-width: 400px;">{{ each.gene.description|default:'—' }}</td>
+                    <td>{{ each.gene.get_domain_html_links }}</td>
+                    <td>{{ each.membership_score }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock content %}

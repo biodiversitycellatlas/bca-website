@@ -25,20 +25,23 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="species-select" class="mb-2 {{class}}"
-style="margin-bottom: 23px !important; visibility: hidden; max-width: 200px;"
-placeholder="{{placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...'}}">
+<select id="species-select"
+        class="mb-2 {{ class }}"
+        style="margin-bottom: 23px !important;
+               visibility: hidden;
+               max-width: 200px"
+        placeholder="{{ placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...' }}">
     <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}
-                <option value="{{elem.species.slug}}"
-                data-meta="{{elem.meta|join:','}}"
-                data-image="{{elem.species.image_url}}"
-                data-name="{{elem.species.common_name}}"
-                {% if species == elem.species or species == elem.species.slug %}
-                    selected
-                {%endif%}>{{ elem.species.scientific_name }}</option>
+                <option value="{{ elem.species.slug }}"
+                        data-meta="{{ elem.meta|join:',' }}"
+                        data-image="{{ elem.species.image_url }}"
+                        data-name="{{ elem.species.common_name }}"
+                        {% if species == elem.species or species == elem.species.slug %}selected{% endif %}>
+                    {{ elem.species.scientific_name }}
+                </option>
             {% endfor %}
         </optgroup>
     {% endfor %}

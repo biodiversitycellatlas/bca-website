@@ -19,136 +19,122 @@ Input:
 
 {% endcomment %}
 
-{% block title %}{{dataset}} {{gene|default:'Gene'}}{% endblock title %}
+{% block title %}
+    {{ dataset }} {{ gene|default:'Gene' }}
+{% endblock title %}
 
 {% block content %}
 
-{% include '../components/modals/list_editor.html' with id='selection' type='gene_lists' %}
+    {% include '../components/modals/list_editor.html' with id='selection' type='gene_lists' %}
 
-<div class="d-flex justify-content-between align-items-center small">
-    <label class="col-form-label">
-        <i class="fa fa-dna"></i>
-        Gene selection
-    </label>
-    <div class="d-flex gap-3">
-        <a href="javascript:void(0);" data-bs-toggle="modal"
-        data-bs-target="#selection_gene_lists_editor">
-            Select from gene lists...
-        </a>
-        <a href="javascript:void(0);" data-bs-toggle="modal"
-        data-bs-target="#selection_alignment">
-            Select from sequence alignment...
-        </a>
-    </div>
-</div>
-
-{% include '../components/select/gene.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
-
-{% include '../components/warning_alert.html' %}
-
-{% if gene %}
-    <h1 class="h3 pt-2" id="projection">
-        {{gene}}
-        {% load section_buttons %}
-        {% clipboard_button %}
-        {% data_dropdown id='gene' %}
-    </h1>
-
-    <div class="row row-cols-1 row-cols-md-2">
-        <div class="col">
-            <p class="text-muted">
-                <b>Description:</b>
-                {{gene.description|default:"No description available"}}
-            </p>
-        </div>
-
-        <div class="col">
-            <table class="table table-sm table-striped">
-                <tbody>
-                    <tr>
-                        <td style="font-weight: 500; width: 150px;">
-                            Pfam domains
-                        </td>
-                        <td>
-                            {% if gene.domains.all %}
-                                {% for domain in gene.domains.all %}
-                                    <a href="{{domain.query_url}}" target="_blank">
-                                        {{domain}}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-weight: 500; width: 150px;">
-                            Gene lists
-                        </td>
-                        <td>
-                            {{gene.genelists.all|join:", "|default:'—'}}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-weight: 500; width: 150px;">
-                            Gene modules
-                        </td>
-                        <td>
-                            {{gene.modules.all|join:", "|default:'—'}}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-weight: 500; width: 150px;">
-                            Orthogroup
-                        </td>
-                        <td>
-                            {{gene.orthogroup_html_link|default:"—"}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="d-flex justify-content-between align-items-center small">
+        <label class="col-form-label">
+            <i class="fa fa-dna"></i>
+            Gene selection
+        </label>
+        <div class="d-flex gap-3">
+            <a href="javascript:void(0);"
+               data-bs-toggle="modal"
+               data-bs-target="#selection_gene_lists_editor">Select from gene lists...</a>
+            <a href="javascript:void(0);"
+               data-bs-toggle="modal"
+               data-bs-target="#selection_alignment">Select from sequence alignment...</a>
         </div>
     </div>
 
-    <h1 class="h3 pt-2" id="projection">
-        Metacell projection
-        {% clipboard_button id='projection' %}
-        {% data_dropdown id='projection' %}
-    </h1>
-    {% include '../components/plots/metacell_projection.html' with id='projection' %}
+    {% include '../components/select/gene.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
 
-    <h1 class="h3 pt-2" id="expression">
-        Gene expression
-        {% clipboard_button id='expression' %}
-        {% data_dropdown id='expression' %}
-    </h1>
-    {% include '../components/plots/expression_plot.html' with species=species gene=gene %}
+    {% include '../components/warning_alert.html' %}
 
-    <h1 class="h3 pt-2" id="correlation">
-        Gene correlation
-        {% clipboard_button id='correlation' %}
-        {% data_dropdown id='correlation' %}
-    </h1>
-    <div class="row">
-        <div class="col-md-8">
-            {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene %}
+    {% if gene %}
+        <h1 class="h3 pt-2" id="projection">
+            {{ gene }}
+            {% load section_buttons %}
+            {% clipboard_button %}
+            {% data_dropdown id='gene' %}
+        </h1>
+
+        <div class="row row-cols-1 row-cols-md-2">
+            <div class="col">
+                <p class="text-muted">
+                    <b>Description:</b>
+                    {{ gene.description|default:"No description available" }}
+                </p>
+            </div>
+
+            <div class="col">
+                <table class="table table-sm table-striped">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 500; width: 150px;">Pfam domains</td>
+                            <td>
+                                {% if gene.domains.all %}
+                                    {% for domain in gene.domains.all %}
+                                        <a href="{{ domain.query_url }}" target="_blank">{{ domain }}</a>
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight: 500; width: 150px;">Gene lists</td>
+                            <td>{{ gene.genelists.all|join:", "|default:'—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight: 500; width: 150px;">Gene modules</td>
+                            <td>{{ gene.modules.all|join:", "|default:'—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight: 500; width: 150px;">Orthogroup</td>
+                            <td>{{ gene.orthogroup_html_link|default:"—" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="col-md-4" style="padding-top: 80px;">
-            {% include '../components/plots/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene gene2='' %}
+
+        <h1 class="h3 pt-2" id="projection">
+            Metacell projection
+            {% clipboard_button id='projection' %}
+            {% data_dropdown id='projection' %}
+        </h1>
+        {% include '../components/plots/metacell_projection.html' with id='projection' %}
+
+        <h1 class="h3 pt-2" id="expression">
+            Gene expression
+            {% clipboard_button id='expression' %}
+            {% data_dropdown id='expression' %}
+        </h1>
+        {% include '../components/plots/expression_plot.html' with species=species gene=gene %}
+
+        <h1 class="h3 pt-2" id="correlation">
+            Gene correlation
+            {% clipboard_button id='correlation' %}
+            {% data_dropdown id='correlation' %}
+        </h1>
+        <div class="row">
+            <div class="col-md-8">
+                {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene %}
+            </div>
+            <div class="col-md-4" style="padding-top: 80px;">
+                {% include '../components/plots/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene gene2='' %}
+            </div>
         </div>
-    </div>
 
-    <h1 class="h3 pt-2" id="orthologs">
-        Orthologs
-        {% clipboard_button id='orthologs' %}
-        {% data_dropdown id='orthologs' %}
-    </h1>
-    {% include '../components/plots/ortholog_plots.html' with species=species gene=gene %}
+        <h1 class="h3 pt-2" id="orthologs">
+            Orthologs
+            {% clipboard_button id='orthologs' %}
+            {% data_dropdown id='orthologs' %}
+        </h1>
+        {% include '../components/plots/ortholog_plots.html' with species=species gene=gene %}
 
-{% else %}
-    {% include '../components/mockup/barplot.html' %}
-{% endif %}
+    {% else %}
+        {% include '../components/mockup/barplot.html' %}
+    {% endif %}
 
 {% endblock content %}

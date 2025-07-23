@@ -1,57 +1,80 @@
 <button type="button"
-class="btn btn-secondary btn-sm float-end me-2 dropdown-toggle"
-data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+        class="btn btn-secondary btn-sm float-end me-2 dropdown-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        data-bs-auto-close="outside">
     <i class="fa fa-table"></i> Data
 </button>
 
-<ul id="data_dropdown_{{id}}" class="dropdown-menu">
-    <li
-    style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);"
-    class="d-flex justify-content-end">
+<ul id="data_dropdown_{{ id }}" class="dropdown-menu">
+    <li style="font-weight: 400;
+               padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)"
+        class="d-flex justify-content-end">
         <label class="col-form-label-sm me-2">Format</label>
 
         <form>
             <div class="btn-group" role="group">
-                {% with 'csv tsv json' as formats %}{% for format in formats.split %}
-                    <input type="radio" class="btn-check" name="data_format_{{id}}" id="data_format_{{id}}_{{format}}" value="{{format}}" autocomplete="off">
-                    <label class="btn btn-outline-secondary btn-xs" for="data_format_{{id}}_{{format}}">{{format | upper}}</label>
-                {% endfor %}{% endwith %}
+                {% with 'csv tsv json' as formats %}
+                    {% for format in formats.split %}
+                        <input type="radio"
+                               class="btn-check"
+                               name="data_format_{{ id }}"
+                               id="data_format_{{ id }}_{{ format }}"
+                               value="{{ format }}"
+                               autocomplete="off">
+                        <label class="btn btn-outline-secondary btn-xs"
+                               for="data_format_{{ id }}_{{ format }}">{{ format | upper }}</label>
+                    {% endfor %}
+                {% endwith %}
             </div>
         </form>
     </li>
-    <li><hr class="dropdown-divider"></li>
+    <li>
+        <hr class="dropdown-divider">
+    </li>
 
-    <template id="data_template_{{id}}">
-        <li
-        name="data_download_option"
-        style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
-            <label style="font-weight: 600; line-height: 2; font-size: .875rem; color: var(--bs-dropdown-header-color);">Label</label>
+    <template id="data_template_{{ id }}">
+        <li name="data_download_option"
+            style="font-weight: 400;
+                   padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)">
+            <label style="font-weight: 600;
+                          line-height: 2;
+                          font-size: .875rem;
+                          color: var(--bs-dropdown-header-color)">Label</label>
             <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
-                    <a name="data_view_{{id}}"
-                    type="button" target="_blank"
-                    class="btn btn-outline-secondary btn-xs">
+                    <a name="data_view_{{ id }}"
+                       type="button"
+                       target="_blank"
+                       class="btn btn-outline-secondary btn-xs">
                         <i class="fa fa-eye"></i> View
                     </a>
-                    <a name="data_download_{{id}}" type="button"
-                    class="btn btn-outline-secondary btn-xs">
+                    <a name="data_download_{{ id }}"
+                       type="button"
+                       class="btn btn-outline-secondary btn-xs">
                         <i class="fa fa-file-arrow-down"></i> Download
                     </a>
                 </div>
-                <a name="data_link_{{id}}" type="button"
-                class="btn btn-outline-secondary btn-xs"
-                data-bs-toggle="tooltip" data-bs-html="true" data-bs-trigger="manual"
-                data-bs-placement="right"
-                data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
-                    <i class="fa fa-code"></i> Copy <span class="d-none d-sm-inline">API </span>link
+                <a name="data_link_{{ id }}"
+                   type="button"
+                   class="btn btn-outline-secondary btn-xs"
+                   data-bs-toggle="tooltip"
+                   data-bs-html="true"
+                   data-bs-trigger="manual"
+                   data-bs-placement="right"
+                   data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
+                    <i class="fa fa-code"></i> Copy <span class="d-none d-sm-inline">API</span>link
                 </a>
             </div>
         </li>
     </template>
 
-    <li id='data_footer_{{id}}'><hr class="dropdown-divider"></li>
+    <li id='data_footer_{{ id }}'>
+        <hr class="dropdown-divider">
+    </li>
     <li class="text-muted small text-end"
-    style="font-weight: 400; padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
+        style="font-weight: 400;
+               padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)">
         See also:
         <a href="{% url 'downloads' %}">Downloads</a> &#8226;
         <a href="{% url 'rest:index' %}">API documentation</a>

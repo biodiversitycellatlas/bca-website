@@ -8,8 +8,11 @@ Input:
 {% endcomment %}
 
 {% if warning %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-  <i class="fa fa-triangle-exclamation"></i> <strong>{{warning.title|safe}}</strong> {{warning.description|safe}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fa fa-triangle-exclamation"></i> <strong>{{ warning.title|safe }}</strong> {{ warning.description|safe }}
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"></button>
+    </div>
 {% endif %}

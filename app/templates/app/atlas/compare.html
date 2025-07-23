@@ -6,18 +6,20 @@ Comparison page between multiple species
 
 {% endcomment %}
 
-{% block title %}{{dataset}} Compare{% endblock title %}
+{% block title %}
+    {{ dataset }} Compare
+{% endblock title %}
 
 {% block content %}
 
-<!-- Gene expression heatmap -->
-<h1 class="h3 pt-2 mb-3" id="samap">
-    SAMap alignment scores
-    {% load section_buttons %}
-    {% clipboard_button id='samap' %}
-    {% data_dropdown id='samap' %}
-</h1>
+    <!-- Gene expression heatmap -->
+    <h1 class="h3 pt-2 mb-3" id="samap">
+        SAMap alignment scores
+        {% load section_buttons %}
+        {% clipboard_button id='samap' %}
+        {% data_dropdown id='samap' %}
+    </h1>
 
-{% include '../components/plots/samap_plot.html' with id='samap' %}
+    {% include '../components/plots/samap_plot.html' with id='samap' %}
 
 {% endblock content %}
