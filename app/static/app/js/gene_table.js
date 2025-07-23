@@ -1,5 +1,5 @@
 // Link to gene
-function linkGene(data, type, row) {
+function linkGene(data, type) {
     if (type === "display") {
         data = `<a href=${gene_url}${data}>${data}</a>`;
     }
@@ -7,7 +7,7 @@ function linkGene(data, type, row) {
 }
 
 // Round numeric values
-function round(data, type, row) {
+function round(data, type) {
     if (type === "display" || type === "filter") {
         return parseFloat(data).toFixed(2);
     }
@@ -15,7 +15,7 @@ function round(data, type, row) {
 }
 
 // Improve array parsing
-function parseArray(data, type, row) {
+function parseArray(data) {
     if (Array.isArray(data)) {
         return data.join(", ");
     }
