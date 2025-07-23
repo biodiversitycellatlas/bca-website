@@ -504,6 +504,9 @@ class GeneModule(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
+    class Meta:
+        unique_together = ["gene", "dataset"]
+
     def __str__(self):
         return str(self.name)
 
