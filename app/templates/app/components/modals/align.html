@@ -7,6 +7,11 @@ Input:
 
 {% endcomment %}
 
+<style>
+    .w-20px { width: 20px; }
+    .w-25px { width: 25px; }
+</style>
+
 <div class="modal fade"
      id="{{ id }}_alignment"
      tabindex="-1"
@@ -19,7 +24,8 @@ Input:
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Sequence alignment</h1>
                 <span class="ms-2 me-5">
-                    <img class="rounded" src="{{ species.image_url }}" style="width: 25px;">
+                    <img class="rounded w-25px" src="{{ species.image_url }}"
+                         alt="Image of {{ species }}">
                     <span class="small">{{ species.get_html }}</span>
                 </span>
 
@@ -47,7 +53,9 @@ Input:
                     <label class="col-lg-2 col-form-label small">Proteome</label>
                     <div class="col-lg-10">
                         <span class="form-control-plaintext">
-                            <img class="rounded" src="{{ species.image_url }}" style="width: 20px;">
+                            <img class="rounded w-20px"
+                                 src="{{ species.image_url }}"
+                                 alt="Image of {{ species }}">
                             {{ species.get_html }}
                         </span>
                     </div>
