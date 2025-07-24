@@ -12,15 +12,25 @@ Features:
 {% endcomment %}
 
 {% block content %}
+    <style>
+        .m-n40px {
+            margin: -40px;
+        }
+
+        #tree {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+
     {% load static %}
     <div class="px-2 text-center">
         <h1 class="display-5 fw-bold text-body-emphasis d-none">Biodiversity Cell Atlas: Data Portal</h1>
 
         <img title="Biodiversity Cell Atlas"
              width="500"
-             class="img-fluid"
-             src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}"
-             style="margin: -40px">
+             class="img-fluid m-n40px"
+             src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
         <div class="col-lg-8 mx-auto mt-3 mt-md-0">
             <p class="lead">
@@ -36,15 +46,13 @@ Features:
         </div>
     </div>
 
-    <div class="container-fluid d-flex justify-content-center align-items-center pt-5">
+    <div class="container-fluid d-flex justify-content-center align-items-center pt-4">
         {% include 'app/components/select/dataset.html' with redirect='atlas' class='w-100 atlas-select home' optgroup_columns='true' %}
     </div>
 
     <!-- Tree of Life -->
     <div id="tree"
-         class="container d-flex align-items-center justify-content-center"
-         style="height: 1000px;
-                width: 1000px"></div>
+         class="container d-flex align-items-center justify-content-center"></div>
     <script type="text/javascript"
             src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
     <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>

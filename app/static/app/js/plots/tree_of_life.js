@@ -40,12 +40,14 @@ function createTreeOfLife(id, file) {
                 $schema: "https://vega.github.io/schema/vega/v5.json",
                 description: "Tree of life.",
                 width: 1000,
-                height: 1000,
+                height: 600,
                 padding: 5,
                 autosize: "none",
                 signals: [
                     { name: "originX", update: "width / 2" },
                     { name: "originY", update: "height / 2" },
+                    {name: "clusterSize", update: "height / 3"},
+                    {name: "fontSize", value: 11},
                     {
                         name: "extent",
                         description: "initial animation",
@@ -72,7 +74,7 @@ function createTreeOfLife(id, file) {
                             {
                                 type: "tree",
                                 method: "cluster",
-                                size: [1, 280],
+                                size: [1, {signal: "clusterSize"}],
                                 separation: false,
                                 as: ["alpha", "radius", "depth", "children"],
                             },
@@ -176,7 +178,7 @@ function createTreeOfLife(id, file) {
                                 tooltip: {
                                     signal: "datum.name ? {'Species': datum.species, 'Depth': datum.depth} : null",
                                 },
-                                fontSize: { value: 11 },
+                                fontSize: {"signal": "fontSize"},
                                 fontWeight: { value: "normal" },
                                 fill: { scale: "color", field: "depth" },
                                 x: { field: "x" },
@@ -189,7 +191,7 @@ function createTreeOfLife(id, file) {
                                     signal: "datum.leftside ? 'right' : 'left'",
                                 },
                                 href: {
-                                    signal: "'https://en.wikipedia.org/w/index.php?search=' + datum.name",
+                                    signal: "'/entry/species/' + datum.species",
                                 },
                             },
                             hover: {
