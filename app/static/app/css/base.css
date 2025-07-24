@@ -110,6 +110,17 @@ body {
 
 .align-sub {
     vertical-align: sub;
+.background-primary {
+    background: var(--primary-color);
+}
+
+.background-light-accent {
+    background-color: var(--light-accent-color);
+}
+
+.border-light-accent {
+    border-color: var(--light-accent-color);
+}
 }
 
 /* Buttons */
