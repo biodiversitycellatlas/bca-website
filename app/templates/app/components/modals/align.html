@@ -88,10 +88,12 @@ Input:
                                       class="sequence-textarea form-control font-monospace border-0 rounded-top p-2"
                                       placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})"></textarea>
                             <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
-                                <a href="javascript:void(0);" onclick="$('#{{ id }}_upload').click();">
-                                    <i class="fa fa-file-lines"></i>
-                                    Load from FASTA file...
-                                </a>
+                                <button type="button" class="btn btn-link btn-sm" onclick="$('#{{ id }}_upload').click();">
+                                    <span class="small">
+                                        <i class="fa fa-file-lines"></i>
+                                        Load from FASTA file...
+                                    </span>
+                                </button>
                                 <span>
                                     <span id="{{ id }}_count">0</span>
                                     out of {{ MAX_ALIGNMENT_SEQS }} sequences

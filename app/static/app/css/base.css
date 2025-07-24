@@ -8,6 +8,7 @@
     --light-accent-color: #ffac3e;
     --bold-accent-color: #3ab064;
     --primary-color: var(--bold-dark-color);
+
     --hover-color: var(--bold-light-color);
     --hover-border-color: #3bbcb277;
     --navbar-hover-color: #00000030;
@@ -15,6 +16,8 @@
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
     --subnavbar-bg-color: #ffffff80;
     --subnavbar-blur: blur(20px);
+
+    --button-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
     --card-text-shadow: var(--navbar-hover-shadow-color);
     --dropdown-menu-color: var(--subnavbar-bg-color);
     --dropdown-menu-shadow: 0 5px 10px 5px #0001;
@@ -48,10 +51,6 @@ body {
 
 .search-highlight {
     background: rgb(255 237 40 / 40%);
-}
-
-.sequence-textarea:focus {
-    box-shadow: none;
 }
 
 .vega-embed summary {
@@ -90,12 +89,14 @@ body {
     border-bottom-right-radius: 0;
 }
 
+.overflow-x-clip {
+    overflow-x: clip;
+}
+
 /* a[rel="external"]:after {
     content: "\00a0\f08e";
     font-family: "Font Awesome 5 Free";
 } */
-
-/* Buttons */
 
 .form-control:focus,
 .sequence-input:has(.sequence-textarea:focus) {
@@ -103,11 +104,21 @@ body {
     box-shadow: 0 0 0 0.25rem var(--hover-border-color);
 }
 
+.sequence-textarea:focus {
+    box-shadow: none;
+}
+
+.align-sub {
+    vertical-align: sub;
+}
+
+/* Buttons */
+
 .btn.btn-primary,
 .btn.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
-    --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+    --bs-btn-focus-box-shadow: var(--button-box-shadow);
 }
 
 .btn.btn-primary.disabled,
@@ -115,6 +126,10 @@ body {
 fieldset:disabled.btn.btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+}
+
+.btn.btn-link {
+    --bs-btn-color: var(--primary-color);
 }
 
 .btn-xs {
@@ -189,13 +204,27 @@ fieldset:disabled.btn.btn-primary {
     transform: scale(1.05);
 }
 
-a {
+a, .btn.btn-link {
     text-decoration: none;
     color: var(--primary-color);
 }
 
-a:hover {
-    color: var(--hover-color);
+.btn.btn-link.btn-sm {
+    border-bottom: 0;
+    border-top: 0;
+
+    padding-bottom: 0;
+    padding-top: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+a:hover, a:active, .btn-link:hover, .btn-link:active {
+    color: var(--hover-color) !important;
+}
+
+.btn-link:focus-visible {
+    box-shadow: var(--button-box-shadow);
 }
 
 .placeholder {

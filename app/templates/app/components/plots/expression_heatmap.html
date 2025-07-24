@@ -55,16 +55,21 @@ Input:
                     </label>
 
                     <div class="d-flex gap-3">
-                        <a id="clear_selected_genes"
-                           href="javascript:void(0);"
-                           class="d-block text-end"
-                           onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">Clear selection</a>
 
-                        <a id="edit_gene_lists"
-                           href="javascript:void(0);"
-                           class="d-block text-end"
-                           data-bs-toggle="modal"
-                           data-bs-target="#{{ id }}_gene_lists_editor">Edit gene lists...</a>
+                        <button type="button"
+                                id="clear_selected_genes"
+                                class="btn btn-link btn-sm d-block text-end"
+                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">
+                            Clear selection
+                        </button>
+
+                        <button type="button"
+                                id="edit_gene_lists"
+                                class="btn btn-link btn-sm d-block text-end"
+                                data-bs-toggle="modal"
+                                data-bs-target="#{{ id }}_gene_lists_editor">
+                            Edit gene lists...
+                        </button>
                     </div>
                 </div>
 
@@ -91,11 +96,12 @@ Input:
 
                         <div class="d-flex justify-content-between align-items-center small">
                             <label class="col-form-label">Filter metacells</label>
-
-                            <a id="select_all_metacells"
-                               href="javascript:void(0);"
-                               class="d-block text-end"
-                               onclick="$('#metacells')[0].selectize.clear();">Select all metacells</a>
+                            <button type="button"
+                                    id="select_all_metacells"
+                                    class="btn btn-link btn-sm d-block text-end"
+                                    onclick="$('#metacells')[0].selectize.clear();">
+                                Select all metacells
+                            </button>
                         </div>
 
                         {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}

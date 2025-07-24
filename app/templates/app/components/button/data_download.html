@@ -62,21 +62,23 @@
                    data-bs-html="true"
                    data-bs-trigger="manual"
                    data-bs-placement="right"
+                   {# djlint:off H008 #}
                    data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
+                   {# djlint:on #}
                     <i class="fa fa-code"></i> Copy <span class="d-none d-sm-inline">API</span>link
                 </a>
             </div>
         </li>
     </template>
 
-    <li id='data_footer_{{ id }}'>
+    <li id="data_footer_{{ id }}">
         <hr class="dropdown-divider">
     </li>
     <li class="text-muted small text-end"
         style="font-weight: 400;
                padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)">
         See also:
-        <a href="{% url 'downloads' %}">Downloads</a> &#8226;
+        <a href="{% url 'downloads' %}">Downloads</a> •
         <a href="{% url 'rest:index' %}">API documentation</a>
     </li>
 </ul>
