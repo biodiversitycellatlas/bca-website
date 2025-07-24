@@ -24,6 +24,16 @@ Input:
 {% endblock title %}
 
 {% block content %}
+    <style>
+        .gene-info .key {
+            font-weight: 500;
+            width: 150px;
+        }
+
+        .gene-corr {
+            padding-top: 80px;
+        }
+    </style>
 
     {% include '../components/modals/list_editor.html' with id='selection' type='gene_lists' %}
 
@@ -67,10 +77,10 @@ Input:
             </div>
 
             <div class="col">
-                <table class="table table-sm table-striped">
+                <table class="table table-sm table-striped gene-info">
                     <tbody>
                         <tr>
-                            <td style="font-weight: 500; width: 150px;">Pfam domains</td>
+                            <td class="key">Pfam domains</td>
                             <td>
                                 {% if gene.domains.all %}
                                     {% for domain in gene.domains.all %}
@@ -84,17 +94,17 @@ Input:
                         </tr>
 
                         <tr>
-                            <td style="font-weight: 500; width: 150px;">Gene lists</td>
+                            <td class="key">Gene lists</td>
                             <td>{{ gene.genelists.all|join:", "|default:'—' }}</td>
                         </tr>
 
                         <tr>
-                            <td style="font-weight: 500; width: 150px;">Gene modules</td>
+                            <td class="key">Gene modules</td>
                             <td>{{ gene.modules.all|join:", "|default:'—' }}</td>
                         </tr>
 
                         <tr>
-                            <td style="font-weight: 500; width: 150px;">Orthogroup</td>
+                            <td class="key">Orthogroup</td>
                             <td>{{ gene.orthogroup_html_link|default:"—" }}</td>
                         </tr>
                     </tbody>
@@ -125,7 +135,7 @@ Input:
             <div class="col-md-8">
                 {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene %}
             </div>
-            <div class="col-md-4" style="padding-top: 80px;">
+            <div class="col-md-4 gene-corr">
                 {% include '../components/plots/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene gene2='' %}
             </div>
         </div>

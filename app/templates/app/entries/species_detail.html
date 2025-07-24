@@ -14,7 +14,8 @@
             </h1>
 
             <p>
-                <img class="rounded w-100" src="{{ species.image_url }}">
+                <img class="rounded w-100" src="{{ species.image_url }}"
+                     alt="Image of {{species}}">
             </p>
             <p>{{ species.description|default:'No description available.'|safe }}</p>
 

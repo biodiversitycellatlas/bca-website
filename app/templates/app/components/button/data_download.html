@@ -1,3 +1,17 @@
+<style>
+    ul>li {
+        font-weight: 400;
+        padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+    }
+
+    .key-label {
+        font-weight: 600;
+        line-height: 2;
+        font-size: .875rem;
+        color: var(--bs-dropdown-header-color);
+    }
+</style>
+
 <button type="button"
         class="btn btn-secondary btn-sm float-end me-2 dropdown-toggle"
         data-bs-toggle="dropdown"
@@ -7,9 +21,7 @@
 </button>
 
 <ul id="data_dropdown_{{ id }}" class="dropdown-menu">
-    <li style="font-weight: 400;
-               padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)"
-        class="d-flex justify-content-end">
+    <li class="d-flex justify-content-end">
         <label class="col-form-label-sm me-2">Format</label>
 
         <form>
@@ -29,18 +41,12 @@
             </div>
         </form>
     </li>
-    <li>
-        <hr class="dropdown-divider">
-    </li>
+
+    <hr class="dropdown-divider">
 
     <template id="data_template_{{ id }}">
-        <li name="data_download_option"
-            style="font-weight: 400;
-                   padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)">
-            <label style="font-weight: 600;
-                          line-height: 2;
-                          font-size: .875rem;
-                          color: var(--bs-dropdown-header-color)">Label</label>
+        <li name="data_download_option">
+            <label class="key-label">Label</label>
             <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
                     <a name="data_view_{{ id }}"
@@ -71,12 +77,8 @@
         </li>
     </template>
 
-    <li id="data_footer_{{ id }}">
-        <hr class="dropdown-divider">
-    </li>
-    <li class="text-muted small text-end"
-        style="font-weight: 400;
-               padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)">
+    <hr id="data_footer_{{ id }}" class="dropdown-divider">
+    <li class="text-muted small text-end">
         See also:
         <a href="{% url 'downloads' %}">Downloads</a> •
         <a href="{% url 'rest:index' %}">API documentation</a>

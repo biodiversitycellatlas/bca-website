@@ -21,6 +21,17 @@ Input:
 
 {% block content %}
 
+    <style>
+        .key {
+            font-weight: 500;
+        }
+
+        table {
+            hyphens: auto;
+            word-break: break-word;
+        }
+    </style>
+
     {% load static %}
     {% include '../components/warning_alert.html' %}
 
@@ -29,7 +40,8 @@ Input:
 
             <!-- Show image and credits -->
             <img src="{{ dataset.image_url|default:species.image_url }}"
-                 style="width: 100%">
+                 alt="Image of {{dataset.species}}"
+                 class="w-100">
             {% if dataset.image_source or species.image_source %}
                 <span class="small text-secondary"><i>
                     Image credits:
@@ -40,20 +52,17 @@ Input:
 
             <h2 class="h5 mt-4">Dataset information</h2>
 
-            <table class="table table-sm table-striped"
-                   style="margin: 0 auto;
-                          hyphens: auto;
-                          word-break: break-word">
+            <table class="table table-sm table-striped mx-auto">
                 <tbody>
                     <tr>
                         <td>
-                            <span style="font-weight: 500;">Release date</span>
+                            <span class="key">Release date</span>
                         </td>
                         <td class="text-end">{{ dataset.date_created|date:"j F Y" }}</td>
                     </tr>
                     <tr>
                         <td>
-                            <span style="font-weight: 500;">Last update</span>
+                            <span class="key">Last update</span>
                         </td>
                         <td class="text-end">{{ dataset.date_updated|date:"j F Y" }}</td>
                     </tr>
@@ -62,16 +71,13 @@ Input:
 
             <h2 class="h5 mt-4">Metadata</h2>
 
-            <table class="table table-sm table-striped"
-                   style="margin: 0 auto;
-                          hyphens: auto;
-                          word-break: break-word">
+            <table class="table table-sm table-striped mx-auto">
                 <tbody>
                     {% for meta in species.meta_set.all %}
                         {% if meta.key != "species" %}
                             <tr>
                                 <td>
-                                    <span style="font-weight: 500;">
+                                    <span class="key">
                                         {% if meta.key == "taxon_id" %}
                                             NCBI Taxonomy
                                         {% else %}

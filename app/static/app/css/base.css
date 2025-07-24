@@ -238,7 +238,7 @@ a, .btn.btn-link {
 }
 
 a:hover, a:active, .btn-link:hover, .btn-link:active {
-    color: var(--hover-color) !important;
+    color: var(--hover-color);
 }
 
 .btn-link:focus-visible {
