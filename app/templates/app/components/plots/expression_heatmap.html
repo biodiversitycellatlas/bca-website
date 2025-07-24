@@ -68,17 +68,13 @@ Input:
                         <button type="button"
                                 id="clear_selected_genes"
                                 class="btn btn-link btn-sm d-block text-end"
-                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">
-                            Clear selection
-                        </button>
+                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">Clear selection</button>
 
                         <button type="button"
                                 id="edit_gene_lists"
                                 class="btn btn-link btn-sm d-block text-end"
                                 data-bs-toggle="modal"
-                                data-bs-target="#{{ id }}_gene_lists_editor">
-                            Edit gene lists...
-                        </button>
+                                data-bs-target="#{{ id }}_gene_lists_editor">Edit gene lists...</button>
                     </div>
                 </div>
 
@@ -108,9 +104,7 @@ Input:
                             <button type="button"
                                     id="select_all_metacells"
                                     class="btn btn-link btn-sm d-block text-end"
-                                    onclick="$('#metacells')[0].selectize.clear();">
-                                Select all metacells
-                            </button>
+                                    onclick="$('#metacells')[0].selectize.clear();">Select all metacells</button>
                         </div>
 
                         {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
@@ -177,9 +171,7 @@ Input:
         </div>
 
         <div class="col-auto">
-            <button id="{{ id }}_submit"
-                    type="submit"
-                    class="btn btn-primary mt-35px">Apply</button>
+            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-35px">Apply</button>
         </div>
     </div>
 </form>

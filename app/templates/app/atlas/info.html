@@ -40,7 +40,7 @@ Input:
 
             <!-- Show image and credits -->
             <img src="{{ dataset.image_url|default:species.image_url }}"
-                 alt="Image of {{dataset.species}}"
+                 alt="Image of {{ dataset.species }}"
                  class="w-100">
             {% if dataset.image_source or species.image_source %}
                 <span class="small text-secondary"><i>

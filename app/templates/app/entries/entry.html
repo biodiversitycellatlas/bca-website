@@ -50,8 +50,7 @@ Base entry template
     <div class="subnavbar sticky-top py-2">
         <div class="container-xxl">
             {% load breadcrumbs %}
-            <nav class="breadcumb-nav"
-                 aria-label="breadcrumb">
+            <nav class="breadcumb-nav" aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
                     {% breadcrumbs as crumb_list %}
                     {% for label, url in crumb_list %}

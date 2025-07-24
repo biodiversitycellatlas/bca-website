@@ -1,12 +1,12 @@
 <button type="button"
-        class="btn btn-secondary btn-sm float-end"
-        id="clipboard_{{ id }}"
-        data-bs-toggle="tooltip"
-        data-bs-html="true"
-        data-bs-trigger="manual"
-        {# djlint:off H008 #}
-        data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
-        {# djlint:on #}
+    class="btn btn-secondary btn-sm float-end"
+    id="clipboard_{{ id }}"
+    data-bs-toggle="tooltip"
+    data-bs-html="true"
+    data-bs-trigger="manual"
+    {# djlint:off H008 #}
+    data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
+    {# djlint:on #}
     {{ text|default:'<i class="fa fa-chain"></i> Copy link' }}
 </button>
 

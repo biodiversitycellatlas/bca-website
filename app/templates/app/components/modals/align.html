@@ -24,7 +24,8 @@ Input:
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Sequence alignment</h1>
                 <span class="ms-2 me-5">
-                    <img class="rounded w-25px" src="{{ species.image_url }}"
+                    <img class="rounded w-25px"
+                         src="{{ species.image_url }}"
                          alt="Image of {{ species }}">
                     <span class="small">{{ species.get_html }}</span>
                 </span>
@@ -96,7 +97,9 @@ Input:
                                       class="sequence-textarea form-control font-monospace border-0 rounded-top p-2"
                                       placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})"></textarea>
                             <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
-                                <button type="button" class="btn btn-link btn-sm" onclick="$('#{{ id }}_upload').click();">
+                                <button type="button"
+                                        class="btn btn-link btn-sm"
+                                        onclick="$('#{{ id }}_upload').click();">
                                     <span class="small">
                                         <i class="fa fa-file-lines"></i>
                                         Load from FASTA file...

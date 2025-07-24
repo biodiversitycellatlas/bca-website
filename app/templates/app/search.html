@@ -62,15 +62,11 @@ function updateQuery(key, value) {
                             onclick="updateQuery('category')">Summary</button>
                     <button type="button"
                             class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'datasets' %}active{% endif %}"
-                            onclick="updateQuery('category', 'datasets')">
-                        Datasets
-                    </button>
+                            onclick="updateQuery('category', 'datasets')">Datasets</button>
 
                     <button type="button"
                             class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'genes' %}active{% endif %}"
-                            onclick="updateQuery('category', 'genes')">
-                        Genes
-                    </button>
+                            onclick="updateQuery('category', 'genes')">Genes</button>
 
                     <!-- Species selection -->
                     <div class="d-flex justify-content-between mt-3 p-1">
@@ -79,8 +75,8 @@ function updateQuery(key, value) {
                         </span>
 
                         <button type="button"
-                            class="btn btn-link btn-sm"
-                            onclick="updateQuery('species')">Clear</button>
+                                class="btn btn-link btn-sm"
+                                onclick="updateQuery('species')">Clear</button>
                     </div>
                     {% include './components/select/species.html' with redirect='query' placeholder='Search...' species=query.species %}
 
@@ -94,10 +90,8 @@ function updateQuery(key, value) {
                         <a class="nav-link p-1 {% if query.limit == limit %}active{% elif not query.limit and limit == '12' %}active{% endif %}"
                            href="#"
                            role="button"
-                           onclick="event.preventDefault(); updateQuery('limit', {{ limit }})">
-                            {{ limit }}
-                        </a>
-{% endfor %}
+                           onclick="event.preventDefault(); updateQuery('limit', {{ limit }})">{{ limit }}</a>
+                    {% endfor %}
                 </nav>
             </div>
             <div class="col-9 col-lg-10">
@@ -110,8 +104,7 @@ function updateQuery(key, value) {
                                     <a href="#" class="result-title"></a>
                                 </p>
                                 <p class="mb-0 small">
-                                    <a href="#"
-                                       class="result-subtitle text-secondary"></a>
+                                    <a href="#" class="result-subtitle text-secondary"></a>
                                 </p>
                                 <p class="mb-0 truncate-3 small result-description"></p>
                                 <p class="mb-0 small result-badges"></p>
