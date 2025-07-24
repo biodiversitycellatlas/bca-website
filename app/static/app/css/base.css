@@ -27,6 +27,12 @@
     --table-selected-a-color: var(--subnavbar-bg-color);
 }
 
+.selectize-control.multi .selectize-input > div.active {
+    background: var(--primary-color);
+    color: #fff;
+    border: 0 solid transparent;
+}
+
 /* Body */
 
 body {
@@ -108,8 +114,6 @@ body {
     box-shadow: none;
 }
 
-.align-sub {
-    vertical-align: sub;
 .background-primary {
     background: var(--primary-color);
 }
@@ -121,6 +125,9 @@ body {
 .border-light-accent {
     border-color: var(--light-accent-color);
 }
+
+.entry-description {
+    max-width: 400px;
 }
 
 /* Buttons */

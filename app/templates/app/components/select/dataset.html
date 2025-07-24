@@ -22,16 +22,26 @@ Input:
 - class: additional class for select element
 - optgroup_columns: if 'true', enable the optgroup_columns plugin
 - maxwidth: maximum width of the element
+- small: if 'true', make font smaller in all element and dropdown content
 
 {% endcomment %}
 
+<style>
+    #dataset-select-{{ id }} {
+        margin-bottom: 23px !important;
+        visibility: hidden;
+        max-width: 200px;
+        {% if width %} width: {{ width }} !important; {% endif %}
+    }
+
+    .w-20px {
+        width: 20px;
+    }
+</style>
+
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="dataset-select-{{ id }}"
-        class="mb-2 {{ class }} small"
-        style="margin-bottom: 23px !important;
-               visibility: hidden;
-               max-width: 200px;
-               {% if width %}width: {{ width }} !important{% endif %}"
+        class="mb-2 {{ class }} {% if small == 'true' %}small{% endif %}"
         placeholder="{{ placeholder|default:'Search datasets by species, taxonomic rank, division, ...' }}">
     <option value=""></option>
     {% for phylum, dataset_list in dataset_dict.items %}
@@ -125,7 +135,7 @@ $(function () {
                         <span class="text-muted small">
                             {% if redirect != 'query' %}Dataset:{% endif %}
                         </span>
-                        <img src="${item.image}" style="width: 20px;">
+                        <img src="${item.image}" class="w-20px">
                         ${item.label} ${description}
                     </div>`;
             },
@@ -150,7 +160,7 @@ $(function () {
                 var dataset = !item.dataset ? '' : `(${item.dataset})`;
                 var img = item.image === "None" ? "" : item.image;
                 return `<div class='option'>
-                    <img src="${img}" style="width: 20px;">
+                    <img src="${img}" class="w-20px">
                     ${item.label}${description}${badges}
                 </div>`;
             }

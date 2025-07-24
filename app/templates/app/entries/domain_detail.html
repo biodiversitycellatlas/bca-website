@@ -16,7 +16,7 @@
             <thead>
                 <tr>
                     <th>Gene</th>
-                    <th style="max-width: 400px;">Description</th>
+                    <th class="entry-description">Description</th>
                     <th>Domains</th>
 
                     {% if not species %}
@@ -29,7 +29,7 @@
                 {% for gene in object_list %}
                     <tr>
                         <td>{{ gene.get_html_link }}</td>
-                        <td style="max-width: 400px;">{{ gene.description|default:'—' }}</td>
+                        <td class="entry-description">{{ gene.description|default:'—' }}</td>
                         <td>{{ gene.get_domain_html_links|default:'—' }}</td>
 
                         {% if not species %}

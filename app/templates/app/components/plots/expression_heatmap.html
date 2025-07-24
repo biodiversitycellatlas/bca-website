@@ -13,6 +13,16 @@ Input:
     {% include '../modals/list_editor.html' with id='expression' type='gene_lists' %}
 {% endif %}
 
+<style>
+    .w-250px {
+        width: 250px;
+    }
+
+    .mt-35px {
+        margin-top: 35px;
+    }
+</style>
+
 <form novalidate action="#{{ id }}">
     <div class="row g-2 mb-4 align-items-start">
         <div class="col-auto">
@@ -32,18 +42,17 @@ Input:
                         <span id="genes_label">5 markers per cluster</span>
                     </button>
                     <div class="dropdown-menu">
-                        <div class="mx-4 mb-3" style="width: 250px;">
+                        <div class="mx-4 mb-3 w-250px">
                             <div>
                                 <label class="col-form-label">
                                     <small>Number of markers per cluster</small>
                                 </label>
                                 <input type="range"
-                                       class="js-range-slider"
+                                       class="js-range-slider opacity-0"
                                        id="markers"
                                        name="markers"
                                        value="0"
-                                       step="0.1"
-                                       style="opacity: 0">
+                                       step="0.1">
                             </div>
                         </div>
                     </div>
@@ -92,7 +101,7 @@ Input:
                     <span id="metacells_filter">All metacells</span>
                 </button>
                 <div id="metacell_dropdown" class="dropdown-menu">
-                    <div class="mx-4 mb-3" style="width: 250px;">
+                    <div class="mx-4 mb-3 w-250px">
 
                         <div class="d-flex justify-content-between align-items-center small">
                             <label class="col-form-label">Filter metacells</label>
@@ -125,18 +134,17 @@ Input:
                     FC ≥ <span id="fc_min_value">2</span>
                 </button>
                 <div class="dropdown-menu">
-                    <div class="mx-4 mb-3" style="width: 250px;">
+                    <div class="mx-4 mb-3 w-250px">
                         <label for="markers" class="col-form-label">
                             <small>Minimum fold-change</small>
                         </label>
 
                         <input type="range"
-                               class="js-range-slider"
+                               class="js-range-slider opacity-0"
                                id="fc_min"
                                name="fc_min"
                                value="0"
-                               step="0.1"
-                               style="opacity: 0">
+                               step="0.1">
                     </div>
                 </div>
 
@@ -148,18 +156,17 @@ Input:
                     Scale log₂ FC ≤ <span id="clip_log2_value">0</span>
                 </button>
                 <div class="dropdown-menu">
-                    <div class="mx-4 mb-3" style="width: 250px;">
+                    <div class="mx-4 mb-3 w-250px">
                         <label for="markers" class="col-form-label">
                             <small>Scale maximum fold-change</small>
                         </label>
 
                         <input type="range"
-                               class="js-range-slider"
+                               class="js-range-slider opacity-0"
                                id="clip_log2"
                                name="clip_log2"
                                value="0"
-                               step="0.1"
-                               style="opacity: 0">
+                               step="0.1">
 
                         <p class="mt-3 text-muted small">
                             <i class="fa fa-info-circle"></i> Lower limit of selection depends on minimum fold-change.
@@ -172,8 +179,7 @@ Input:
         <div class="col-auto">
             <button id="{{ id }}_submit"
                     type="submit"
-                    class="btn btn-primary"
-                    style="margin-top: 35px">Apply</button>
+                    class="btn btn-primary mt-35px">Apply</button>
         </div>
     </div>
 </form>

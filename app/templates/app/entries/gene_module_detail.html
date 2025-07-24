@@ -15,7 +15,7 @@
         <thead>
             <tr>
                 <th>Gene</th>
-                <th style="max-width: 400px;">Description</th>
+                <th class="entry-description">Description</th>
                 <th>Domains</th>
                 <th>Membership_score</th>
             </tr>
@@ -24,7 +24,7 @@
             {% for each in object.gene_modules %}
                 <tr>
                     <td>{{ each.gene.get_html_link }}</td>
-                    <td style="max-width: 400px;">{{ each.gene.description|default:'—' }}</td>
+                    <td class="entry-description">{{ each.gene.description|default:'—' }}</td>
                     <td>{{ each.gene.get_domain_html_links }}</td>
                     <td>{{ each.membership_score }}</td>
                 </tr>

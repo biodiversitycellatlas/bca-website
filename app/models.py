@@ -452,7 +452,7 @@ class Gene(SlugMixin):
         url = self.get_absolute_url()
         label = self.name
 
-        html = f'<a href="{url}">{label}</a>'
+        html = f'<a class="text-break" href="{url}">{label}</a>'
         return mark_safe(html)
 
     def get_orthogroup_html_link(self):

@@ -11,7 +11,7 @@
 }
 
 .atlas-select .selectize-dropdown {
-    z-index: 1030; /* Bigger than Cell Atlas subnavbar */
+    z-index: 1030; /* higher than subnavbar */
 }
 
 .atlas-select .selectize-dropdown-content {

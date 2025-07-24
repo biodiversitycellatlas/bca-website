@@ -15,7 +15,7 @@
         <thead>
             <tr>
                 <th>Gene</th>
-                <th style="max-width: 400px;">Description</th>
+                <th class="entry-description">Description</th>
                 <th>Domains</th>
                 <th>Species</th>
                 <th>Common name</th>
@@ -25,7 +25,7 @@
             {% for ortholog in object_list %}
                 <tr>
                     <td>{{ ortholog.gene.get_html_link }}</td>
-                    <td style="max-width: 400px;">{{ ortholog.gene.description|default:'—' }}</td>
+                    <td class="entry-description">{{ ortholog.gene.description|default:'—' }}</td>
                     <td>{{ ortholog.gene.get_domain_html_links }}</td>
                     <td>{{ ortholog.gene.species.get_html_link }}</td>
                     <td>{{ ortholog.gene.species.common_name|default:'—' }}</td>
