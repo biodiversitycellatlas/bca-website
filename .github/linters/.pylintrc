@@ -1,0 +1,3 @@
+[MESSAGES CONTROL]
+
+disable=too-many-ancestors,no-member,unused-argument,import-error,too-few-public-methods

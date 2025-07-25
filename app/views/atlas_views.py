@@ -1,3 +1,8 @@
+"""
+Views for Cell Atlas pages, handling dataset-specific info, gene details,
+panels, markers, comparisons, and main atlas landing.
+"""
+
 import random
 
 from django.db.models import Q
@@ -14,9 +19,12 @@ from ..utils import (
 
 
 class AtlasView(TemplateView):
+    """Main Atlas page with random species icon and dataset selection."""
+
     template_name = "app/atlas/atlas.html"
 
     def get_species_icon(self, species=None):
+        """Get species icon name, randomly chosen if not provided."""
         if species is None:
             species = [
                 "frog",
@@ -38,6 +46,7 @@ class AtlasView(TemplateView):
         return species
 
     def get_context_data(self, **kwargs):
+        """Add icon, dataset info, warnings, and links to context."""
         context = super().get_context_data(**kwargs)
         context["icon"] = self.get_species_icon()
         context["dataset_dict"] = get_dataset_dict()
@@ -51,7 +60,7 @@ class AtlasView(TemplateView):
                 # Warn that dataset is not available in the database
                 context["warning"] = {
                     "title": f"Invalid dataset <code>{dataset}</code>!",
-                    "description": f"Please check available datasets in the search box above.",
+                    "description": "Please check available datasets in the search box above.",
                 }
 
         # Prepare Cell Atlas links
@@ -60,27 +69,27 @@ class AtlasView(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
+        """Redirect to dataset-specific atlas page if dataset is provided."""
         query = self.request.GET
         dataset = request.COOKIES.get("dataset") or query.get("dataset")
 
         if dataset and isinstance(dataset, Dataset):
             return redirect("atlas_info", dataset)
-        else:
-            return super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class BaseAtlasView(TemplateView):
     """
     Base view for dataset-specific Cell Atlas pages.
 
-    Redirects to standard Atlas view with a warning when passing a dataset not
-    available in the database.
+    Redirects to standard Atlas view with a warning for invalid datasets.
     """
 
     model = Dataset
     template_name = "app/atlas/info.html"
 
     def get_context_data(self, **kwargs):
+        """Add dataset, species, links, and query to context."""
         context = super().get_context_data(**kwargs)
 
         # Get URL query parameters
@@ -103,6 +112,7 @@ class BaseAtlasView(TemplateView):
         return context
 
     def get(self, *args, **kwargs):
+        """Redirect if dataset is invalid, else proceed normally."""
         context = self.get_context_data(**kwargs)
         dataset = context["dataset"]
         if not isinstance(dataset, Dataset):
@@ -113,13 +123,18 @@ class BaseAtlasView(TemplateView):
 
 
 class AtlasInfoView(BaseAtlasView):
+    """Dataset info page."""
+
     template_name = "app/atlas/info.html"
 
 
 class AtlasOverviewView(BaseAtlasView):
+    """Cell Atlas overview page."""
+
     template_name = "app/atlas/overview.html"
 
     def get_context_data(self, **kwargs):
+        """Add metacell dictionary if dataset is valid."""
         context = super().get_context_data(**kwargs)
         dataset = context["dataset"]
         if not isinstance(dataset, Dataset):
@@ -130,9 +145,12 @@ class AtlasOverviewView(BaseAtlasView):
 
 
 class AtlasGeneView(BaseAtlasView):
+    """Gene detail page within a specific dataset."""
+
     template_name = "app/atlas/gene.html"
 
     def get_context_data(self, **kwargs):
+        """Add gene info or warning if gene invalid."""
         context = super().get_context_data(**kwargs)
         dataset = context.get("dataset")
         if not isinstance(dataset, Dataset):
@@ -149,15 +167,18 @@ class AtlasGeneView(BaseAtlasView):
                 context["gene"] = ""
                 context["warning"] = {
                     "title": f"Invalid gene <code>{gene}</code>!",
-                    "description": f"Please check available genes in the search box above.",
+                    "description": "Please check available genes in the search box above.",
                 }
         return context
 
 
 class AtlasPanelView(BaseAtlasView):
+    """Gene panel page for selected metacells."""
+
     template_name = "app/atlas/panel.html"
 
     def get_context_data(self, **kwargs):
+        """Add metacell dictionary if dataset valid."""
         context = super().get_context_data(**kwargs)
         dataset = context.get("dataset")
         if not isinstance(dataset, Dataset):
@@ -168,9 +189,12 @@ class AtlasPanelView(BaseAtlasView):
 
 
 class AtlasMarkersView(BaseAtlasView):
+    """Cell type markers page."""
+
     template_name = "app/atlas/markers.html"
 
     def get_context_data(self, **kwargs):
+        """Add metacell dictionary, selected metacells, or warnings."""
         context = super().get_context_data(**kwargs)
         dataset = context["dataset"]
         if not isinstance(dataset, Dataset):
@@ -199,15 +223,21 @@ class AtlasMarkersView(BaseAtlasView):
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
-                    "description": f"There is no <code>metacells</code> parameter in your query: <code>{query.urlencode()}</code>",
+                    "description": (
+                        f"Missing <code>metacells</code> in your query: "
+                        f"<code>{query.urlencode()}</code>"
+                    ),
                 }
         return context
 
 
 class AtlasCompareView(BaseAtlasView):
+    """Comparison page between multiple datasets."""
+
     template_name = "app/atlas/compare.html"
 
     def get_context_data(self, **kwargs):
+        """Add second dataset and species for comparison if valid."""
         context = super().get_context_data(**kwargs)
 
         dataset = context["dataset"]
@@ -221,6 +251,6 @@ class AtlasCompareView(BaseAtlasView):
                 dataset2 = get_dataset(query["dataset"])
                 context["dataset2"] = dataset2
                 context["species"] = dataset2.species
-        except:
+        except (KeyError, TypeError, ValueError):
             pass
         return context

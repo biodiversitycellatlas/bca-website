@@ -1,10 +1,14 @@
+"""
+URL routing for the app, including Cell Atlas, database entries,
+downloads, search, health check, and custom error pages.
+"""
+
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-
     # Cell Atlas
     path("atlas/", views.AtlasView.as_view(), name="atlas"),
     path("atlas/<str:dataset>/", views.AtlasInfoView.as_view(), name="atlas_info"),
@@ -32,79 +36,77 @@ urlpatterns = [
         views.AtlasCompareView.as_view(),
         name="atlas_compare",
     ),
-
     # BCA database entries
     path("entry/", views.EntryView.as_view(), name="entry"),
-    path("entry/species/", views.EntrySpeciesListView.as_view(), name="species_entry"),
+    path("entry/species/", views.SpeciesListView.as_view(), name="species_entry"),
     path(
         "entry/species/<str:species>/",
-        views.EntrySpeciesDetailView.as_view(),
+        views.SpeciesDetailView.as_view(),
         name="species_entry",
     ),
-    path("entry/dataset/", views.EntryDatasetListView.as_view(), name="dataset_entry"),
-    path("entry/gene/", views.EntryGeneListView.as_view(), name="gene_entry"),
+    path("entry/dataset/", views.DatasetListView.as_view(), name="dataset_entry"),
+    path("entry/gene/", views.GeneListView.as_view(), name="gene_entry"),
     path(
         "entry/gene/<str:species>/",
-        views.EntryGeneListView.as_view(),
+        views.GeneListView.as_view(),
         name="gene_entry",
     ),
     path(
         "entry/gene/<str:species>/<str:gene>/",
-        views.EntryGeneDetailView.as_view(),
+        views.GeneDetailView.as_view(),
         name="gene_entry",
     ),
     path(
         "entry/gene-list/",
-        views.EntryGeneListListView.as_view(),
+        views.GeneListListView.as_view(),
         name="gene_list_entry",
     ),
     path(
         "entry/gene-list/<str:gene_list>/",
-        views.EntryGeneListDetailView.as_view(),
+        views.GeneListDetailView.as_view(),
         name="gene_list_entry",
     ),
     path(
         "entry/gene-list/<str:gene_list>/<str:species>/",
-        views.EntryGeneListDetailView.as_view(),
+        views.GeneListDetailView.as_view(),
         name="gene_list_entry",
     ),
-    path("entry/domain/", views.EntryDomainListView.as_view(), name="domain_entry"),
+    path("entry/domain/", views.DomainListView.as_view(), name="domain_entry"),
     path(
         "entry/domain/<str:domain>/",
-        views.EntryDomainDetailView.as_view(),
+        views.DomainDetailView.as_view(),
         name="domain_entry",
     ),
     path(
         "entry/domain/<str:domain>/<str:species>/",
-        views.EntryDomainDetailView.as_view(),
+        views.DomainDetailView.as_view(),
         name="domain_entry",
     ),
     path(
         "entry/gene-module/",
-        views.EntryGeneModuleListView.as_view(),
+        views.GeneModuleListView.as_view(),
         name="gene_module_entry",
     ),
     path(
         "entry/gene-module/<str:dataset>/",
-        views.EntryGeneModuleListView.as_view(),
+        views.GeneModuleListView.as_view(),
         name="gene_module_entry",
     ),
     path(
         "entry/gene-module/<str:dataset>/<str:gene_module>/",
-        views.EntryGeneModuleDetailView.as_view(),
+        views.GeneModuleDetailView.as_view(),
         name="gene_module_entry",
     ),
     path(
         "entry/orthogroup/",
-        views.EntryOrthogroupListView.as_view(),
+        views.OrthogroupListView.as_view(),
         name="orthogroup_entry",
     ),
     path(
         "entry/orthogroup/<str:orthogroup>/",
-        views.EntryOrthogroupDetailView.as_view(),
+        views.OrthogroupDetailView.as_view(),
         name="orthogroup_entry",
     ),
-
     # Other paths
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
     path(
@@ -113,7 +115,6 @@ urlpatterns = [
     path("about/", views.AboutView.as_view(), name="about"),
     path("search/", views.SearchView.as_view(), name="search"),
     path("health/", views.HealthView.as_view(), name="health"),
-
     # Error pages
     path("403/", views.Custom403View.as_view()),
     path("404/", views.Custom404View.as_view()),
