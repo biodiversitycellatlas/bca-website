@@ -148,6 +148,7 @@ fieldset:disabled.btn.btn-primary {
 
 .btn.btn-link {
     --bs-btn-color: var(--primary-color);
+    --bs-btn-active-color: var(--hover-color);
 }
 
 .btn-xs {

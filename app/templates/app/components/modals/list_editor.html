@@ -8,6 +8,18 @@ Input:
 
 {% endcomment %}
 
+<style>
+    .list-group {
+        max-height: 500px;
+        overflow-y: auto;
+        margin-left: -1px;
+        padding-right: 1px;
+    }
+
+    .w-450px { width: 450px; }
+    .mt-35px { margin-top: 35px; }
+</style>
+
 {% include './align.html' %}
 
 <div class="modal fade"
@@ -22,10 +34,9 @@ Input:
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="{{ id }}_{{ type }}_editor_label">Gene lists</h1>
                 <span class="ms-2 me-5">
-                    <img class="rounded"
+                    <img class="rounded" width="25px" height="100%"
                          src="{{ species.image_url }}"
-                         alt="Image of {{ species }}"
-                         style="width: 25px">
+                         alt="Image of {{ species }}">
                     <span class="small">{{ species.get_html }}</span>
                 </span>
 
@@ -53,30 +64,25 @@ Input:
                         </div>
 
                         <div id="{{ id }}_{{ type }}_options"
-                             class="list-group"
-                             style="max-height: 500px;
-                                    overflow-y: auto;
-                                    margin-left: -1px;
-                                    padding-right: 1px"></div>
+                             class="list-group"></div>
 
                         <template id="{{ id }}_{{ type }}_heading">
                             <div class="list-group-heading py-0 px-2 d-flex justify-content-between">Preset gene lists</div>
                         </template>
 
                         <template id="{{ id }}_{{ type }}_element">
-                            <a href="javascript:void(0);"
-                               class="list-group-item list-group-item-action {{ id }}_{{ type }}_group_a px-2 py-1"
-                               data-bs-toggle="list">
+                            <button type="button"
+                                    class="list-group-item list-group-item-action {{ id }}_{{ type }}_group_a px-2 py-1"
+                                    data-bs-toggle="list">
                                 <div class="d-grid d-lg-flex w-100 justify-content-between">
                                     <span class="truncate-3">
-                                        <i class="fa fa-circle color-bullet {{ id }}_{{ type }}_group_bullet"
-                                           style="padding-left: 1px"></i>
+                                        <i class="fa fa-circle color-bullet {{ id }}_{{ type }}_group_bullet"></i>
                                         <span class="{{ id }}_{{ type }}_group_title small"></span>
                                     </span>
 
                                     <span class="{{ id }}_{{ type }}_group_count text-body-secondary small">140</span>
                                 </div>
-                            </a>
+                            </button>
                         </template>
 
                         <div class="btn-group mt-3 w-100" role="group">
@@ -87,59 +93,60 @@ Input:
                                 <i class="fa fa-plus"></i> New
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item small"
-                                   href="javascript:void(0);"
-                                   id="{{ id }}_{{ type }}_new_empty">
+                                <button class="dropdown-item small"
+                                        type="button"
+                                        id="{{ id }}_{{ type }}_new_empty">
                                     <i class="fa-regular fa-circle fa-fw"></i>
                                     Empty list
-                                </a>
-                                <a class="dropdown-item small disabled"
-                                   href="javascript:void(0);"
-                                   id="{{ id }}_{{ type }}_new_selected">
+                                </button>
+                                <button class="dropdown-item small disabled"
+                                        type="button"
+                                        id="{{ id }}_{{ type }}_new_selected">
                                     <i class="fa fa-list-check fa-fw"></i>
                                     List with
                                     <span id="{{ id }}_{{ type }}_new_selected_count">0 selected genes</span>
-                                </a>
-                                <a class="dropdown-item small"
-                                   href="javascript:void(0);"
-                                   id="{{ id }}_{{ type }}_new_duplicate">
+                                </button>
+                                <button type="button"
+                                        class="dropdown-item small"
+                                        id="{{ id }}_{{ type }}_new_duplicate">
                                     <i class="fa fa-clone fa-fw"></i>
                                     Duplicate from selected list
-                                </a>
+                                </button>
 
                                 <hr class="dropdown-divider">
 
-                                <a class="dropdown-item small" href="javascript:void(0);">
+                                <button class="dropdown-item small"
+                                        type="button">
                                     <i class="fa fa-shapes fa-fw"></i>
                                     Based on protein domains...
-                                </a>
+                                </button>
 
-                                <a class="dropdown-item small"
-                                   href="javascript:void(0);"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#{{ id }}_alignment">
+                                <button class="dropdown-item small"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#{{ id }}_alignment">
                                     <i class="fa fa-align-center fa-fw"></i>
                                     From sequence alignment...
-                                </a>
+                                </button>
 
-                                <a class="dropdown-item small"
-                                    href="javascript:void(0);"
-                                    onclick="document.getElementById('{{ id }}_{{ type }}_new_upload').click();"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="right"
-                                    data-bs-html="true"
-                                    data-bs-container="body"
-                                    data-bs-custom-class="upload-tooltip"
-                                    {# djlint:off H008 #}
-                                    data-bs-title="Comma- or tab-separated file
-                                    <br>
-                                    with four columns:
-                                    <ul class='text-start'>
-                                        <li>Group of gene list</li>
-                                        <li>Name of gene list</li>
-                                        <li>Colour of gene list (HEX/RGB code or colour name)</li>
-                                        <li>Gene symbol (one per line)</li>
-                                    </ul>
+                                <button class="dropdown-item small"
+                                        type="button"
+                                        onclick="document.getElementById('{{ id }}_{{ type }}_new_upload').click();"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        data-bs-html="true"
+                                        data-bs-container="body"
+                                        data-bs-custom-class="upload-tooltip"
+                                        {# djlint:off H008 #}
+                                        data-bs-title="Comma- or tab-separated file
+                                        <br>
+                                        with four columns:
+                                        <ul class='text-start'>
+                                            <li>Group of gene list</li>
+                                            <li>Name of gene list</li>
+                                            <li>Colour of gene list (HEX/RGB code or colour name)</li>
+                                            <li>Gene symbol (one per line)</li>
+                                        </ul>
                                     <p>
                                         <i class='fa fa-triangle-exclamation'></i> Lines starting with <code>#</code> are ignored.
                                     </p>
@@ -178,27 +185,43 @@ Input:
                                     <input id="{{ id }}_{{ type }}_new_upload"
                                            type="file"
                                            class="form-control form-control-sm d-none">
-                                </a>
+                                </button>
 
                                 {% comment %}
-                            <!-- Boolean operations -->
-                            <hr class="dropdown-divider">
-                            <p class="text-body-secondary small ps-3 mb-0">
-                                Boolean operations
-                            </p>
+                                <!-- Boolean operations -->
+                                <hr class="dropdown-divider">
+                                <p class="text-body-secondary small ps-3 mb-0">
+                                    Boolean operations
+                                </p>
 
-                            <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Create a new list with all genes from selected lists">
-                                <i class="ph-duotone ph-unite"></i> Unite genes
-                            </a>
-                            <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Create a new list with intersecting genes from selected lists">
-                                <i class="ph-duotone ph-intersect"></i> Intersect genes
-                            </a>
-                            <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Create a new list with non-intersecting genes from selected lists">
-                                <i class="ph-duotone ph-exclude"></i> Exclude genes
-                            </a>
-                            <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Create a new list by subtracting genes from selected lists">
-                                <i class="ph-duotone ph-subtract"></i> Subtract genes
-                            </a>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        data-bs-title="Create a new list with all genes from selected lists">
+                                    <i class="ph-duotone ph-unite"></i> Unite genes
+                                </button>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        data-bs-title="Create a new list with intersecting genes from selected lists">
+                                    <i class="ph-duotone ph-intersect"></i> Intersect genes
+                                </button>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        data-bs-title="Create a new list with non-intersecting genes from selected lists">
+                                    <i class="ph-duotone ph-exclude"></i> Exclude genes
+                                </button>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        data-bs-title="Create a new list by subtracting genes from selected lists">
+                                    <i class="ph-duotone ph-subtract"></i> Subtract genes
+                                </button>
                                 {% endcomment %}
 
                                 <hr class="dropdown-divider">
@@ -236,25 +259,24 @@ Input:
                                         Add genes
                                     </button>
                                     <div class="dropdown-menu">
-                                        <div class="mx-4 mb-2" style="width: 450px;">
+                                        <div class="mx-4 mb-2 w-450px">
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="d-flex justify-content-between align-items-center small">
                                                         <label class="col-form-label">Select genes to add</label>
 
-                                                        <a id="select_all_metacells"
-                                                           href="javascript:void(0);"
-                                                           class="d-block text-end"
-                                                           onclick="$('#append_gene_selection')[0].selectize.clear();">
+                                                        <button type="button"
+                                                                class="btn btn-link btn-sm d-block text-end"
+                                                                onclick="$('#append_gene_selection')[0].selectize.clear();">
                                                             Clear selection
-                                                        </a>
+                                                        </button>
                                                     </div>
 
                                                     {% include '../select/gene.html' with id='append' name='gene_lists' hash=id limit=10 multiple='true' selected=query.gene_lists class=' ' placeholder='Search genes, gene lists and domains...' %}
                                                 </div>
 
                                                 <div class="col-auto">
-                                                    <div class="d-flex mb-0" style="margin-top: 35px;">
+                                                    <div class="d-flex mb-0 mt-35px">
                                                         <button id="{{ id }}_{{ type }}_append_btn"
                                                                 type="button"
                                                                 class="btn btn-primary">Add genes</button>
