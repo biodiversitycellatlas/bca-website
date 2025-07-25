@@ -46,8 +46,8 @@ function createTreeOfLife(id, file) {
                 signals: [
                     { name: "originX", update: "width / 2" },
                     { name: "originY", update: "height / 2" },
-                    {name: "clusterSize", update: "height / 3"},
-                    {name: "fontSize", value: 11},
+                    { name: "clusterSize", update: "height / 3" },
+                    { name: "fontSize", value: 11 },
                     {
                         name: "extent",
                         description: "initial animation",
@@ -74,7 +74,7 @@ function createTreeOfLife(id, file) {
                             {
                                 type: "tree",
                                 method: "cluster",
-                                size: [1, {signal: "clusterSize"}],
+                                size: [1, { signal: "clusterSize" }],
                                 separation: false,
                                 as: ["alpha", "radius", "depth", "children"],
                             },
@@ -178,7 +178,7 @@ function createTreeOfLife(id, file) {
                                 tooltip: {
                                     signal: "datum.name ? {'Species': datum.species, 'Depth': datum.depth} : null",
                                 },
-                                fontSize: {"signal": "fontSize"},
+                                fontSize: { signal: "fontSize" },
                                 fontWeight: { value: "normal" },
                                 fill: { scale: "color", field: "depth" },
                                 x: { field: "x" },

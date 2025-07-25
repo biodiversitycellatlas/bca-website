@@ -223,7 +223,8 @@ fieldset:disabled.btn.btn-primary {
     transform: scale(1.05);
 }
 
-a, .btn.btn-link {
+a,
+.btn.btn-link {
     text-decoration: none;
     color: var(--primary-color);
 }
@@ -238,7 +239,10 @@ a, .btn.btn-link {
     padding-right: 2px;
 }
 
-a:hover, a:active, .btn-link:hover, .btn-link:active {
+a:hover,
+a:active,
+.btn-link:hover,
+.btn-link:active {
     color: var(--hover-color);
 }
 
