@@ -20,6 +20,7 @@ from ..utils import (
 
 class AtlasView(TemplateView):
     """Main Atlas page with random species icon and dataset selection."""
+
     template_name = "app/atlas/atlas.html"
 
     def get_species_icon(self, species=None):
@@ -123,11 +124,13 @@ class BaseAtlasView(TemplateView):
 
 class AtlasInfoView(BaseAtlasView):
     """Dataset info page."""
+
     template_name = "app/atlas/info.html"
 
 
 class AtlasOverviewView(BaseAtlasView):
     """Cell Atlas overview page."""
+
     template_name = "app/atlas/overview.html"
 
     def get_context_data(self, **kwargs):
@@ -143,6 +146,7 @@ class AtlasOverviewView(BaseAtlasView):
 
 class AtlasGeneView(BaseAtlasView):
     """Gene detail page within a specific dataset."""
+
     template_name = "app/atlas/gene.html"
 
     def get_context_data(self, **kwargs):
@@ -170,6 +174,7 @@ class AtlasGeneView(BaseAtlasView):
 
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
+
     template_name = "app/atlas/panel.html"
 
     def get_context_data(self, **kwargs):
@@ -185,6 +190,7 @@ class AtlasPanelView(BaseAtlasView):
 
 class AtlasMarkersView(BaseAtlasView):
     """Cell type markers page."""
+
     template_name = "app/atlas/markers.html"
 
     def get_context_data(self, **kwargs):
@@ -227,6 +233,7 @@ class AtlasMarkersView(BaseAtlasView):
 
 class AtlasCompareView(BaseAtlasView):
     """Comparison page between multiple datasets."""
+
     template_name = "app/atlas/compare.html"
 
     def get_context_data(self, **kwargs):

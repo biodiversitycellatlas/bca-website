@@ -8,11 +8,13 @@ from ..utils import get_dataset, get_gene_list, get_species
 
 class EntryView(TemplateView):
     """Landing page for database entries."""
+
     template_name = "app/entries/entry.html"
 
 
 class SpeciesListView(ListView):
     """Display paginated list of all species."""
+
     model = Species
     paginate_by = 20
     template_name = "app/entries/species_list.html"
@@ -20,6 +22,7 @@ class SpeciesListView(ListView):
 
 class SpeciesDetailView(DetailView):
     """Display details for a specific species."""
+
     model = Species
     template_name = "app/entries/species_detail.html"
     slug_field = "scientific_name"
@@ -28,6 +31,7 @@ class SpeciesDetailView(DetailView):
 
 class DatasetListView(ListView):
     """Display paginated list of all datasets."""
+
     model = Dataset
     paginate_by = 20
     template_name = "app/entries/dataset_list.html"
@@ -35,6 +39,7 @@ class DatasetListView(ListView):
 
 class FilteredListView(ListView):
     """Base view for filtering lists by dataset or species."""
+
     filter_by = "dataset"
 
     def __get_filter_function(self):
@@ -67,6 +72,7 @@ class FilteredListView(ListView):
 
 class GeneListView(FilteredListView):
     """Display genes lists filtered by species."""
+
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list.html"
@@ -75,6 +81,7 @@ class GeneListView(FilteredListView):
 
 class GeneDetailView(DetailView):
     """Display details for a specific gene."""
+
     model = Gene
     template_name = "app/entries/gene_detail.html"
     slug_field = "name"
@@ -83,6 +90,7 @@ class GeneDetailView(DetailView):
 
 class GeneListListView(FilteredListView):
     """Display all gene lists for a species."""
+
     model = GeneList
     paginate_by = 20
     template_name = "app/entries/gene_list_list.html"
@@ -91,6 +99,7 @@ class GeneListListView(FilteredListView):
 
 class GeneListDetailView(FilteredListView):
     """Display list of genes in a specific gene list filtered by species."""
+
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list_detail.html"
@@ -111,6 +120,7 @@ class GeneListDetailView(FilteredListView):
 
 class DomainListView(FilteredListView):
     """Display a list of domains, optionally filtered by species."""
+
     model = Domain
     paginate_by = 20
     template_name = "app/entries/domain_list.html"
@@ -119,6 +129,7 @@ class DomainListView(FilteredListView):
 
 class DomainDetailView(FilteredListView):
     """Display list of genes associated with a specific domain and species."""
+
     model = Gene
     paginate_by = 20
     template_name = "app/entries/domain_detail.html"
@@ -139,6 +150,7 @@ class DomainDetailView(FilteredListView):
 
 class GeneModuleListView(FilteredListView):
     """Display distinct gene modules, optionally filtered by dataset."""
+
     model = GeneModule
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
@@ -150,6 +162,7 @@ class GeneModuleListView(FilteredListView):
 
 class GeneModuleDetailView(FilteredListView):
     """Display list of genes for a specific gene module and dataset."""
+
     model = GeneModule
     paginate_by = 20
     template_name = "app/entries/gene_module_detail.html"
@@ -171,6 +184,7 @@ class GeneModuleDetailView(FilteredListView):
 
 class OrthogroupListView(ListView):
     """Display list of unique orthogroups."""
+
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_list.html"
@@ -183,6 +197,7 @@ class OrthogroupListView(ListView):
 
 class OrthogroupDetailView(ListView):
     """Display orthologs within a specific orthogroup."""
+
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_detail.html"

@@ -12,6 +12,7 @@ from ..utils import get_dataset_dict
 
 class IndexView(TemplateView):
     """Homepage."""
+
     template_name = "app/home.html"
 
     def get_context_data(self, **kwargs):
@@ -31,21 +32,25 @@ class HealthView(View):
 
 class Custom403View(TemplateView):
     """Custom 403 Forbidden error page."""
+
     template_name = "403.html"
 
 
 class Custom404View(TemplateView):
     """Custom 404 Not Found error page."""
+
     template_name = "404.html"
 
 
 class Custom500View(TemplateView):
     """Custom 500 Internal Server Error page."""
+
     template_name = "500.html"
 
 
 class DownloadsView(TemplateView):
     """Page displaying downloadable datasets and species files."""
+
     template_name = "app/downloads.html"
 
     def get_context_data(self, **kwargs):
@@ -58,6 +63,7 @@ class DownloadsView(TemplateView):
 
 class FileDownloadView(DetailView):
     """Serve a downloadable file from the File model."""
+
     model = File
 
     def render_to_response(self, context, **response_kwargs):
@@ -70,6 +76,7 @@ class FileDownloadView(DetailView):
 
 class AboutView(TemplateView):
     """About page with contact, legal, and license info."""
+
     template_name = "app/about.html"
 
     def get_context_data(self, **kwargs):
@@ -119,6 +126,7 @@ class AboutView(TemplateView):
 
 class SearchView(TemplateView):
     """Search page for querying cell markers and datasets."""
+
     template_name = "app/search.html"
 
     def get_context_data(self, **kwargs):
