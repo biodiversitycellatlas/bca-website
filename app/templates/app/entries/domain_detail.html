@@ -4,45 +4,34 @@
     {{ domain }} domain
 {% endblock title %}
 
-{% block content %}
-
+{% block heading %}
     {% load entry_links %}
     {% render_header_counter domain paginator species %}
+{% endblock heading %}
 
-    {% if object_list %}
-        <style>td, th { vertical-align: middle; }</style>
+{% block header %}
+    <th>Gene</th>
+    <th class="entry-description">Description</th>
+    <th>Domains</th>
 
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th>Gene</th>
-                    <th class="entry-description">Description</th>
-                    <th>Domains</th>
-
-                    {% if not species %}
-                        <th>Species</th>
-                        <th>Species common name</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for gene in object_list %}
-                    <tr>
-                        <td>{{ gene.get_html_link }}</td>
-                        <td class="entry-description">{{ gene.description|default:'—' }}</td>
-                        <td>{{ gene.get_domain_html_links|default:'—' }}</td>
-
-                        {% if not species %}
-                            {% load entry_links %}
-                            <td>{% species_domain_link gene.species domain %}</td>
-                            <td>{{ gene.species.common_name|default:'—' }}</td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No genes found.</p>
+    {% if not species %}
+    <th>Species</th>
+    <th>Species common name</th>
     {% endif %}
+{% endblock header %}
 
-{% endblock content %}
+{% block row %}
+    <td>{{ each.get_html_link }}</td>
+    <td class="entry-description">{{ each.description|default:'—' }}</td>
+    <td>{{ each.get_domain_html_links|default:'—' }}</td>
+
+    {% if not species %}
+    {% load entry_links %}
+    <td>{% species_domain_link each.species domain %}</td>
+    <td>{{ each.species.common_name|default:'—' }}</td>
+    {% endif %}
+{% endblock row %}
+
+{% block unfound %}
+    No genes found.
+{% endblock unfound %}

@@ -1,15 +1,19 @@
 {% extends "app/entries/entry.html" %}
+
 {% comment %}
 
 List entries - base template
 
 {% endcomment %}
+
 {% block title %}
     Database entries
 {% endblock title %}
+
 {% block content %}
     {% block heading %}
     {% endblock heading %}
+
     {% if object_list %}
         <style>td, th { vertical-align: middle; }</style>
         <table class="table table-sm table-striped">
@@ -36,10 +40,12 @@ List entries - base template
         </p>
     {% endif %}
 {% endblock content %}
+
 {% block pagination %}
     {% if is_paginated %}
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
+
                 {% if page_obj.has_previous %}
                     <li class="page-item">
                         <a class="page-link"
@@ -51,6 +57,7 @@ List entries - base template
                         <span class="page-link">«</span>
                     </li>
                 {% endif %}
+
                 {% for num in paginator.page_range %}
                     {% if num == page_obj.number %}
                         <li class="page-item active">
@@ -66,6 +73,7 @@ List entries - base template
                         </li>
                     {% endif %}
                 {% endfor %}
+
                 {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link"
@@ -77,6 +85,7 @@ List entries - base template
                         <span class="page-link">»</span>
                     </li>
                 {% endif %}
+
             </ul>
         </nav>
     {% endif %}
