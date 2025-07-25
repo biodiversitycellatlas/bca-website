@@ -1,33 +1,35 @@
 {% extends "app/entries/entry_list.html" %}
 
-{% block title %}Domain entries{% endblock title %}
+{% block title %}
+    Domain entries
+{% endblock title %}
 
 {% block content %}
 
-{% load entry_links %}
-{% render_header_counter 'Domains' paginator species %}
+    {% load entry_links %}
+    {% render_header_counter 'Domains' paginator species %}
 
-{% if object_list %}
-<style>td, th { vertical-align: middle; }</style>
+    {% if object_list %}
+        <style>td, th { vertical-align: middle; }</style>
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Domain</th>
-            <th>Number of genes</th>
-        </tr>
-      </thead>
-    <tbody>
-        {% for domain in object_list %}
-        <tr>
-            <td>{{ domain.get_html_link }}</td>
-            <td>{{ domain.gene_set.count |default:'—' }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No domains found.</p>
-{% endif %}
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                    <th>Number of genes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for domain in object_list %}
+                    <tr>
+                        <td>{{ domain.get_html_link }}</td>
+                        <td>{{ domain.gene_set.count |default:'—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No domains found.</p>
+    {% endif %}
 
 {% endblock content %}

@@ -1,46 +1,48 @@
 {% extends "app/entries/entry_list.html" %}
 
-{% block title %}{{gene_list}}{% endblock title %}
+{% block title %}
+    {{ gene_list }}
+{% endblock title %}
 
 {% block content %}
 
-{% load entry_links %}
-{% render_header_counter gene_list paginator species %}
+    {% load entry_links %}
+    {% render_header_counter gene_list paginator species %}
 
-{% if object_list %}
-<style>td, th { vertical-align: middle; }</style>
+    {% if object_list %}
+        <style>td, th { vertical-align: middle; }</style>
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Gene</th>
-            <th style="max-width: 400px;">Description</th>
-            <th>Domains</th>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Gene</th>
+                    <th class="entry-description">Description</th>
+                    <th>Domains</th>
 
-            {% if not species %}
-            <th>Species</th>
-            <th>Species common name</th>
-            {% endif %}
-        </tr>
-      </thead>
-    <tbody>
-        {% for gene in object_list %}
-        <tr>
-            <td>{{gene.get_html_link}}</td>
-            <td style="max-width: 400px;">{{ gene.description|default:'—' }}</td>
-            <td>{{ gene.get_domain_html_links|default:'—' }}</td>
+                    {% if not species %}
+                        <th>Species</th>
+                        <th>Species common name</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for gene in object_list %}
+                    <tr>
+                        <td>{{ gene.get_html_link }}</td>
+                        <td class="entry-description">{{ gene.description|default:'—' }}</td>
+                        <td>{{ gene.get_domain_html_links|default:'—' }}</td>
 
-            {% if not species %}
-            {% load entry_links %}
-            <td>{% species_genelist_link gene.species gene_list %}</td>
-            <td>{{ gene.species.common_name|default:'—' }}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No genes found.</p>
-{% endif %}
+                        {% if not species %}
+                            {% load entry_links %}
+                            <td>{% species_genelist_link gene.species gene_list %}</td>
+                            <td>{{ gene.species.common_name|default:'—' }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No genes found.</p>
+    {% endif %}
 
 {% endblock content %}

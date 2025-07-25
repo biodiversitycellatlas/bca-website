@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>{{ title|default:"Elements" }}</title>
+        <title>{{ title|default:"BCA: Data Portal API" }}</title>
+
+        <meta name="description"
+              content="Programmatic access to Biodiversity Cell Atlas data.">
+        <meta name="keywords"
+              content="API, Biodiversity, Cell Atlas, BCA, Genomics, Data Access, REST, JSON, Documentation">
+
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
         <script src="{{ js_dist }}"></script>
         <link rel="stylesheet" href="{{ css_dist }}">
 
@@ -16,16 +24,22 @@
         <link rel="stylesheet" href="{% static 'rest/css/base.css' %}">
 
         <!-- Favicons -->
-        <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-96x96.png' %}" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="{% static 'app/images/favicons/favicon.svg' %}" />
-        <link rel="shortcut icon" href="{% static 'app/images/favicons/favicon.ico' %}" />
-        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
+        <link rel="icon"
+              type="image/png"
+              href="{% static 'app/images/favicons/favicon-96x96.png' %}"
+              sizes="96x96" />
+        <link rel="icon"
+              type="image/svg+xml"
+              href="{% static 'app/images/favicons/favicon.svg' %}" />
+        <link rel="shortcut icon"
+              href="{% static 'app/images/favicons/favicon.ico' %}" />
+        <link rel="apple-touch-icon"
+              sizes="180x180"
+              href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
         <meta name="apple-mobile-web-app-title" content="BCA" />
         <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
     </head>
     <body>
-        <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash"
-        layout="responsive" hideSchemas="true"
-        logo="{% static 'app/images/favicons/favicon.svg' %}"/>
+        <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash" layout="responsive" hideSchemas="true" logo="{% static 'app/images/favicons/favicon.svg' %}" />
     </body>
 </html>

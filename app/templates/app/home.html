@@ -12,177 +12,213 @@ Features:
 {% endcomment %}
 
 {% block content %}
-{% load static %}
-<div class="px-2 text-center">
-    <h1 class="display-5 fw-bold text-body-emphasis d-none">
-        Biodiversity Cell Atlas: Data Portal
-    </h1>
+    <style>
+        .m-n40px {
+            margin: -40px;
+        }
 
-    <img title="Biodiversity Cell Atlas" width="500" class="img-fluid"
-    src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}"
-    style="margin: -40px;">
+        #tree {
+            height: 600px;
+            width: 100%;
+        }
 
-    <div class="col-lg-8 mx-auto mt-3 mt-md-0">
-        <p class="lead">
-            <span class="h5 mb-5 pb-5 fw-semibold text-body-emphasis">BCA Data Portal:</span>
+        .news.card {
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 800px;
+            clip-path: url(#gaudi1);
+        }
 
-            {% load bca_website_links %}
-            The <a class="fw-bolder" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
-            is a coordinated international effort aimed at molecularly characterizing
-            cell types across the eukaryotic tree of life. Our mission is to
-            pave the way for the efficient expansion of cell atlases to hundreds
-            of species.
-        </p>
+        .news-1 {
+            background-image: url('https://images.unsplash.com/photo-1470165473874-023613603389');
+        }
+
+        .news-2 {
+            background-image: url('https://images.unsplash.com/photo-1535780429486-94a540c2f0f9');
+        }
+
+        .news-3 {
+            background-image: url('https://images.unsplash.com/photo-1523947204020-b03d6498b702');
+        }
+    </style>
+
+    {% load static %}
+    <div class="px-2 text-center">
+        <h1 class="display-5 fw-bold text-body-emphasis d-none">Biodiversity Cell Atlas: Data Portal</h1>
+
+        <img title="Biodiversity Cell Atlas"
+             width="500"
+             height="100%"
+             alt="Biodiversity Cell Atlas logotype"
+             class="img-fluid m-n40px"
+             src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
+
+        <div class="col-lg-8 mx-auto mt-3 mt-md-0">
+            <p class="lead">
+                <span class="h5 mb-5 pb-5 fw-semibold text-body-emphasis">BCA Data Portal:</span>
+
+                {% load bca_website_links %}
+                The <a class="fw-bolder" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
+                is a coordinated international effort aimed at molecularly characterizing
+                cell types across the eukaryotic tree of life. Our mission is to
+                pave the way for the efficient expansion of cell atlases to hundreds
+                of species.
+            </p>
+        </div>
     </div>
-</div>
 
-<div class="container-fluid d-flex justify-content-center align-items-center pt-5">
-    {% include 'app/components/select/dataset.html' with redirect='atlas' class='w-100 atlas-select home' optgroup_columns='true' %}
-</div>
-
-<!-- Tree of Life -->
-<div id="tree" class="container d-flex align-items-center justify-content-center"
-style="height: 1000px; width: 1000px;"></div>
-<script type="text/javascript" src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
-<script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
-
-{% comment %}
-<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute">
-  <defs>
-    <clipPath id="gaudi1" clipPathUnits="objectBoundingBox">
-      <path
-        d="M 0.716 0.221 C 0.794 0.258 0.873 0.295 0.952 0.333 C 0.966 0.34 0.982 0.345 0.991 0.358 C 1.007 0.383 0.997 0.423 0.991 0.45 C 0.974 0.516 0.94 0.547 0.89 0.591 C 0.845 0.633 0.8 0.677 0.752 0.717 C 0.651 0.803 0.582 0.823 0.451 0.843 C 0.371 0.855 0.29 0.869 0.209 0.872 C 0.143 0.873 0.058 0.87 0.025 0.805 C 0 0.757 0.001 0.7 0 0.648 C 0 0.584 0 0.521 0 0.458 C 0 0.346 0 0.234 0 0.122 C 0 0.101 0 0.079 0 0.057 C 0.001 0.039 0.003 0.016 0.023 0.008 C 0.039 0.002 0.056 0.001 0.072 0 C 0.099 -0.001 0.126 0 0.152 0.001 C 0.211 0.005 0.271 0.012 0.325 0.035 C 0.455 0.096 0.585 0.159 0.716 0.221"
-      />
-    </clipPath>
-  </defs>
-</svg>
-{% endcomment %}
-
-<!-- News -->
-<h1 class="h3" id="news">Latest news</h1>
-<div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
-  <div class="col">
-  	<a href="#">
-    <div class="news card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm"
-    style="background-image: url('https://images.unsplash.com/photo-1470165473874-023613603389'); background-repeat: no-repeat; background-position: center center; background-size: 800px; clip-path: url(#gaudi1)">
-      <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
-        <h2 class="h4">New release: scRNA-seq data for <i>Vulpes lagopus</i></h2>
-        <ul class="d-flex list-unstyled mt-auto">
-          <li class="d-flex align-items-center">
-            <span><i class="fa fa-calendar-days"></i> <small>3 days ago</small></span>
-          </li>
-        </ul>
-      </div>
+    <div class="container-fluid d-flex justify-content-center align-items-center pt-4">
+        {% include 'app/components/select/dataset.html' with redirect='atlas' class='w-100 atlas-select home' optgroup_columns='true' %}
     </div>
-    </a>
-  </div>
 
-  <div class="col">
-    <a href="#">
-    <div class="news card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm"
-    style="background-image: url('https://images.unsplash.com/photo-1535780429486-94a540c2f0f9'); background-repeat: no-repeat; background-position: center center; background-size: 800px;">
-      <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
-        <h2 class="h4">On flowering species: new publication</h2>
-        <ul class="d-flex list-unstyled mt-auto">
-          <li class="d-flex align-items-center">
-            <span><i class="fa fa-calendar-days"></i> <small>5 days ago</small></span>
-          </li>
-        </ul>
-      </div>
+    <!-- Tree of Life -->
+    <div id="tree"
+         class="container d-flex align-items-center justify-content-center"></div>
+    <script type="text/javascript"
+            src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
+    <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
+
+    {% comment %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="position-absolute">
+            <defs>
+                <clipPath id="gaudi1" clipPathUnits="objectBoundingBox">
+                    <path d="M 0.716 0.221 C 0.794 0.258 0.873 0.295 0.952 0.333 C 0.966 0.34 0.982 0.345 0.991 0.358 C 1.007 0.383 0.997 0.423 0.991 0.45 C 0.974 0.516 0.94 0.547 0.89 0.591 C 0.845 0.633 0.8 0.677 0.752 0.717 C 0.651 0.803 0.582 0.823 0.451 0.843 C 0.371 0.855 0.29 0.869 0.209 0.872 C 0.143 0.873 0.058 0.87 0.025 0.805 C 0 0.757 0.001 0.7 0 0.648 C 0 0.584 0 0.521 0 0.458 C 0 0.346 0 0.234 0 0.122 C 0 0.101 0 0.079 0 0.057 C 0.001 0.039 0.003 0.016 0.023 0.008 C 0.039 0.002 0.056 0.001 0.072 0 C 0.099 -0.001 0.126 0 0.152 0.001 C 0.211 0.005 0.271 0.012 0.325 0.035 C 0.455 0.096 0.585 0.159 0.716 0.221" />
+                </clipPath>
+            </defs>
+        </svg>
+    {% endcomment %}
+
+    <!-- News -->
+    <h1 class="h3" id="news">Latest news</h1>
+    <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
+        <div class="col">
+            <a href="#">
+                <div class="news news-1 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
+                    <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
+                        <h2 class="h4">
+                            New release: scRNA-seq data for <i>Vulpes lagopus</i>
+                        </h2>
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <li class="d-flex align-items-center">
+                                <span><i class="fa fa-calendar-days"></i> <small>3 days ago</small></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="#">
+                <div class="news news-2 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
+                    <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
+                        <h2 class="h4">On flowering species: new publication</h2>
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <li class="d-flex align-items-center">
+                                <span><i class="fa fa-calendar-days"></i> <small>5 days ago</small></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="#">
+                <div class="news news-3 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
+                    <div class="d-flex flex-column h-100 p-5 text-shadow-1">
+                        <h2 class="h4">Improved resources for cnidarians</h2>
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <li class="d-flex align-items-center">
+                                <span><i class="fa fa-calendar-days"></i> <small>22 Oct 2024</small></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </a>
     </div>
-    </a>
-  </div>
 
-  <div class="col">
-    <a href="#">
-    <div class="news card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm"
-    style="background-image: url('https://images.unsplash.com/photo-1523947204020-b03d6498b702'); background-repeat: no-repeat; background-position: center center; background-size: 800px;">
-      <div class="d-flex flex-column h-100 p-5 text-shadow-1">
-        <h2 class="h4">Improved resources for cnidarians</i></h2>
-        <ul class="d-flex list-unstyled mt-auto">
-          <li class="d-flex align-items-center">
-            <span><i class="fa fa-calendar-days"></i> <small>22 Oct 2024</small></span>
-          </li>
-        </ul>
-      </div>
+    <!-- Publications, meetings and tutorials -->
+    <div class="row row-cols-1 row-cols-lg-3 align-items-stretch  g-4 py-2">
+        <div class="col">
+            <h1 class="h3" id="publications">Publications</h1>
+            <div class="bd-example m-0 border-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="#"><b>On flowering species</b></a>
+                        <br />
+                        <small>
+                            <span class="fa fa-calendar-days"></span> 26 Oct 2024
+                            <span class="fa fa-file-lines ps-1"></span> Plant Cell
+                        </small>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b></a>
+                        <br />
+                        <small>
+                            <span class="fa fa-calendar-days"></span> 7 Jun 2024
+                            <span class="fa fa-file-lines ps-1"></span> Systems Biology
+                        </small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col">
+            <h1 class="h3" id="meetings">BCA in meetings</h1>
+            <div class="bd-example m-0 border-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="#"><b>Barcelona Bioinformatics</b></a>
+                        <br />
+                        <small>
+                            <span class="fa fa-calendar-days"></span> 5 Nov 2024
+                            <span class="fa fa-map-pin ps-1"></span> Barcelona 🇪🇸
+                        </small>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><b>Bio Evo 2024</b></a>
+                        <br />
+                        <small>
+                            <span class="fa fa-calendar-days"></span> 30 Oct 2024
+                            <span class="fa fa-map-pin ps-1"></span> Boston 🇺🇸
+                        </small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col">
+            <h1 class="h3" id="tutorials">Tutorials</h1>
+            <div class="bd-example m-0 border-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="#"><b>How to use the BCA website?</b></a>
+                        <br />
+                        <small>
+                            <span class="fa-brands fa-youtube"></span> 3m40
+                            <span class="fa fa-calendar-days ps-1"></span> 12 Oct 2024
+                        </small>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><b>Downloading BCA data</b></a>
+                        <br />
+                        <small>
+                            <span class="fa-brands fa-youtube"></span> 5m23
+                            <span class="fa fa-calendar-days ps-1"></span> 10 Oct 2024
+                        </small>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><b>Using REST for programmatic access</b></a>
+                        <br />
+                        <small>
+                            <span class="fa fa-list-ol"></span> Text
+                            <span class="fa fa-calendar-days ps-1"></span> 2 Oct 2024
+                        </small>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
-  </a>
-</div>
-
-<!-- Publications, meetings and tutorials -->
-<div class="row row-cols-1 row-cols-lg-3 align-items-stretch  g-4 py-2">
-	<div class="col">
-		<h1 class="h3" id="publications">Publications</h1>
-		<div class="bd-example m-0 border-0">
-		    <ul class="list-group list-group-flush">
-		        <li class="list-group-item">
-		            <a href="#"><b>On flowering species</b></a></br>
-		            <small>
-			      		<span class="fa fa-calendar-days"></span> 26 Oct 2024
-			      		<span class="fa fa-file-lines ps-1"></span> Plant Cell
-			      	</small>
-		        </li>
-		        <li class="list-group-item">
-		            <a href="#"><b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b></a></br>
-		            <small>
-			      		<span class="fa fa-calendar-days"></span> 7 Jun 2024
-			      		<span class="fa fa-file-lines ps-1"></span> Systems Biology
-			      	</small>
-		        </li>
-		    </ul>
-		</div>
-	</div>
-
-	<div class="col">
-	    <h1 class="h3" id="meetings">BCA in meetings</h1>
-		<div class="bd-example m-0 border-0">
-		    <ul class="list-group list-group-flush">
-		        <li class="list-group-item">
-			      	<a href="#"><b>Barcelona Bioinformatics</b></a></br>
-			      	<small>
-			      		<span class="fa fa-calendar-days"></span> 5 Nov 2024
-			      		<span class="fa fa-map-pin ps-1"></span> Barcelona 🇪🇸
-			      	</small>
-			    </li>
-			    <li class="list-group-item">
-			        <a href="#"><b>Bio Evo 2024</b></a></br>
-			        <small>
-			      		<span class="fa fa-calendar-days"></span> 30 Oct 2024
-			      		<span class="fa fa-map-pin ps-1"></span> Boston 🇺🇸
-			      	</small>
-			    </li>
-			</ul>
-	    </div>
-	</div>
-
-	<div class="col">
-		<h1 class="h3" id="tutorials">Tutorials</h1>
-		<div class="bd-example m-0 border-0">
-			<ul class="list-group list-group-flush">
-			    <li class="list-group-item">
-			        <a href="#"><b>How to use the BCA website?</b></a></br>
-			        <small>
-			            <span class="fa-brands fa-youtube"></span> 3m40
-			            <span class="fa fa-calendar-days ps-1"></span> 12 Oct 2024
-			        </small>
-			    </li>
-			    <li class="list-group-item">
-			        <a href="#"><b>Downloading BCA data</b></a></br>
-			        <small>
-			            <span class="fa-brands fa-youtube"></span> 5m23
-			            <span class="fa fa-calendar-days ps-1"></span> 10 Oct 2024
-			        </small>
-			    </li>
-			    <li class="list-group-item">
-			        <a href="#"><b>Using REST for programmatic access</b></a></br>
-			        <small>
-			            <span class="fa fa-list-ol"></span> Text
-			            <span class="fa fa-calendar-days ps-1"></span> 2 Oct 2024
-			        </small>
-			    </li>
-			</ul>
-		</div>
-	</div>
-</div>
 {% endblock content %}

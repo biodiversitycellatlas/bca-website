@@ -7,6 +7,16 @@ Input:
 
 {% endcomment %}
 
+<style>
+    .w-400px {
+        width: 400px;
+    }
+
+    .w-250px {
+        width: 250px;
+    }
+</style>
+
 <div class="row g-2 mb-4 align-items-start">
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -16,7 +26,7 @@ Input:
             </label>
         </div>
 
-        <div class="btn-group" role="group" style="width: 400px;">
+        <div class="btn-group w-400px" role="group">
             {% include '../select/dataset.html' with id='samap' redirect='query' placeholder='Search...' prefix='' class='w-100' dataset=dataset2.slug %}
         </div>
     </div>
@@ -29,26 +39,29 @@ Input:
             </label>
         </div>
         <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-primary dropdown-toggle"
-            data-bs-toggle="dropdown" aria-expanded="false"
-            data-bs-auto-close="outside">
+            <button type="button"
+                    class="btn btn-outline-primary dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-auto-close="outside">
                 SAMap score ≥ <span id="samap_min_value">5</span> %
             </button>
             <div class="dropdown-menu">
-                <div class="mx-4 mb-3" style="width: 250px;">
-                    <form novalidate action="#{{id}}">
+                <div class="mx-4 mb-3 w-250px">
+                    <form novalidate action="#{{ id }}">
                         <label for="markers" class="col-form-label">
                             <small>SAMap minimum alignment score</small>
                         </label>
 
-                        <input type="range" class="js-range-slider" id="samap_min"
-                        name="samap_min" value="0" step="1" style="opacity: 0;">
+                        <input type="range"
+                               class="js-range-slider opacity-0"
+                               id="samap_min"
+                               name="samap_min"
+                               value="0"
+                               step="1">
 
                         <div class="d-flex justify-content-end">
-                            <button id="{{id}}_submit" type="submit"
-                            class="btn btn-primary mt-3">
-                                Apply
-                            </button>
+                            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">Apply</button>
                         </div>
                     </form>
                 </div>
@@ -102,26 +115,24 @@ $('form').on('submit', function(e) {
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 {% if dataset2 %}
     <div class="row">
-        <div class="col-10 col-sm-11">
-            {% include '../plot_container.html' with id=id ratio='16/9' %}
-        </div>
+        <div class="col-10 col-sm-11">{% include '../plot_container.html' with id=id ratio='16/9' %}</div>
     </div>
 
     {% load static %}
     <script type="text/javascript"
-    src="{% static 'app/js/plots/samap_sankey_plot.js' %}"></script>
+            src="{% static 'app/js/plots/samap_sankey_plot.js' %}"></script>
 
     <script type="text/javascript">
     $(function() {
         var url = "{% url 'rest:samap-list' %}";
 
         var params = new URLSearchParams({
-    		dataset: '{{dataset.slug}}',
-    		dataset2: '{{dataset2.slug}}',
-    		threshold: $("#samap_min").val(),
-    		limit: 0
-    	});
-    	var apiURL = url + "?" + params.toString();
+            dataset: '{{dataset.slug}}',
+            dataset2: '{{dataset2.slug}}',
+            threshold: $("#samap_min").val(),
+            limit: 0
+        });
+        var apiURL = url + "?" + params.toString();
 
         fetch(apiURL)
             .then(response => response.json())

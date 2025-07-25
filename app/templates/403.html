@@ -1,16 +1,16 @@
 {% extends "error_page.html" %}
-
 {% comment %}
 
-    Template for 404 Not Found page
+    Template for 403 Permission Denied page
 
 {% endcomment %}
 
-{% block title %}404: page not found{% endblock %}
+{% block title %}403: permission denied{% endblock %}
 
 {% block description %}
-    We cannot find the page you requested... If you think something is wrong,
-    please <a href="{% url 'about' %}#contact">contact us</a>!
+    It seems you do not have permission to access this page...
+    If you think something is wrong, please
+    <a href="{% url 'about' %}#contact">contact us</a>!
 {% endblock %}
 
 {% block img %}https://images.unsplash.com/photo-1500189001820-d65835a662d4{% endblock %}

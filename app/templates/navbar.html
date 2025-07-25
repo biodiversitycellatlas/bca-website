@@ -8,114 +8,142 @@ Features:
 
 {% endcomment %}
 
+<style>
+    .w-220px { width: 220px; }
+    .w-25px { width: 25px; }
+    .w-15px { width: 15px; }
+
+    a.navbar-brand {
+        width: 40px;
+        height: 40px;
+    }
+
+    a.navbar-brand img {
+        position: relative;
+        left: -15%;
+        top: -32%;
+    }
+</style>
+
 {% load static %}
 {% with request.resolver_match.url_name as url_name %}
-<header><nav class="navbar navbar-expand-md fixed-top navbar-dark">
-    <div class="container-xxl">
-        <a class="navbar-brand" href="{% url 'index' %}">
-            <img title="Biodiversity Cell Atlas" width="50"
-            style="margin: -10px;"
-            src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_White.svg' %}">
-        </a>
+    <header>
+        <nav class="navbar navbar-expand-md fixed-top navbar-dark">
+            <div class="container-xxl">
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img title="Biodiversity Cell Atlas"
+                         width="50"
+                         height="50"
+                         alt="Biodiversity Cell Atlas"
+                         src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Seal_Logo_White.svg' %}">
+                </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link {% if 'atlas' in url_name %}active{% endif %}"
-                    href="{% url 'atlas' %}">
-                        Cell Atlas
-                    </a>
-                </li>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link {% if 'atlas' in url_name %}active{% endif %}"
+                               href="{% url 'atlas' %}">Cell Atlas</a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {% if url_name == 'downloads' %}active{% endif %}"
-                    href="{% url 'downloads' %}">
-                        Downloads
-                    </a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if url_name == 'downloads' %}active{% endif %}"
+                               href="{% url 'downloads' %}">Downloads</a>
+                        </li>
 
-                {% load bca_website_links %}
-                <li class="nav-item">
-                    <a class="nav-link {% if url_name == 'blog' %}active{% endif %}"
-                    href="{% bca_url 'blog' %}" target="_blank">
-                        Blog
-                    </a>
-                </li>
+                        {% load bca_website_links %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if url_name == 'blog' %}active{% endif %}"
+                               href="{% bca_url 'blog' %}"
+                               target="_blank">Blog</a>
+                        </li>
 
-                <li class="nav-item nav-right">
-                    <a class="nav-link {% if url_name == 'about' %}active{% endif %}"
-                    href="{% url 'about' %}">
-                        About
-                    </a>
-                </li>
-            </ul>
-            {% comment %}
-            <ul class="navbar-nav">
-                <li class="nav-item d-none d-md-block d-lg-none">
-                    <a class="nav-link" href="#">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                </li>
-            </ul>
-            {% endcomment %}
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown pe-2">
-                    <button class="btn btn-warning"
-                    style="background-color: var(--light-accent-color); border-color: var(--light-accent-color);"
-                    data-bs-toggle="modal" data-bs-target="#demoModal">
-                        <span class="text-black-50">
-                            Demo <span class="d-inline d-md-none d-xl-inline">release</span>
-                        </span>
-                    </button>
-                </li>
-                <li>
-                    <form class="d-block d-flex" role="search">
-                        <input id="bca-search" class="bca-search form-control"
-                        type="search" placeholder="Search the BCA..."
-                        style="width: 220px;" aria-label="Search">
-                    </form>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav></header>
+                        <li class="nav-item nav-right">
+                            <a class="nav-link {% if url_name == 'about' %}active{% endif %}"
+                               href="{% url 'about' %}">About</a>
+                        </li>
+                    </ul>
+                    {% comment %}
+                    <ul class="navbar-nav">
+                        <li class="nav-item d-none d-md-block d-lg-none">
+                            <a class="nav-link" href="#">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                    {% endcomment %}
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown pe-2">
+                            <button class="btn btn-warning background-light-accent border-light-accent"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#demoModal">
+                                <span class="text-black-50">
+                                    Demo <span class="d-inline d-md-none d-xl-inline">release</span>
+                                </span>
+                            </button>
+                        </li>
+                        <li>
+                            <form class="d-block d-flex" role="search">
+                                <input id="bca-search"
+                                       class="bca-search form-control w-220px"
+                                       type="search"
+                                       placeholder="Search the BCA..."
+                                       aria-label="Search">
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
 {% endwith %}
 
-<div class="modal fade" id="demoModal" tabindex="-1"
-aria-labelledby="demoModalLabel" aria-hidden="true">
+<div class="modal fade"
+     id="demoModal"
+     tabindex="-1"
+     aria-labelledby="demoModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"
-            style="background-color: var(--light-accent-color);">
-                <h1 class="modal-title fs-5 text-black-50" id="demoModalLabel">
-                    BCA Demo release
-                </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
+            <div class="modal-header background-light-accent">
+                <h1 class="modal-title fs-5 text-black-50" id="demoModalLabel">BCA Demo release</h1>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>The Biodiversity Cell Atlas: Data Portal and its data are
-                currently available as a <b>demo release</b>.</p>
-                <p>This version allows to explore preliminary data and
-                interact with key features of the platform.</p>
-                <p class="mb-0">Please note that <b>the data and functionalities are still
-                under development and subject to change.</b></p>
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-primary w-100"
-                href="{{ FEEDBACK_URL }}" target="_blank">
-                    <i class="fa fa-comments fa-fw"></i> Share feedback
-                </a>
-            </div>
+                <p>
+                    The Biodiversity Cell Atlas: Data Portal and its data are
+                    currently available as a <b>demo release</b>.
+                </p>
+                <p>
+                    This version allows to explore preliminary data and
+                    interact with key features of the platform.
+                </p>
+                <p class="mb-0">
+                    Please note that <b>the data and functionalities are still
+                under development and subject to change.</b>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-primary w-100"
+               href="{{ FEEDBACK_URL }}"
+               target="_blank">
+                <i class="fa fa-comments fa-fw"></i> Share feedback
+            </a>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -138,12 +166,12 @@ function displaySearchResults (item, escape) {
         shortenedName = item.species.scientific_name.split(' ')
             .map((word, index) => index === 0 ? `${word[0]}.` : word)
             .join(' ');
-        var species = `<span class='text-muted float-end'><small><img src="${item.species.image_url}" style="width: 15px;"> <i>${shortenedName}</i></small></span>`;
+        var species = `<span class='text-muted float-end'><small><img src="${item.species.image_url}" class="w-15px"> <i>${shortenedName}</i></small></span>`;
 
         var res = `<div class='option'>${item.name} ${desc} ${badges} ${species}</div>`;
     } else if (group == 'dataset') {
         var imgURL = item.image_url || item.species_image_url;
-        var img  = !imgURL ? '' : `<img src="${imgURL}" style="width: 25px;"> `;
+        var img  = !imgURL ? '' : `<img src="${imgURL}" class="w-25px"> `;
         var desc = !item.species_common_name ? "" :
             `<span class="text-muted"><small>${item.species_common_name}</small></span>`;
 
@@ -172,13 +200,13 @@ $(function () {
         maxItems: 1,
         render: {
             item: function (item, escape) {
-                return `<div style="color: darkgray;">Search the BCA...</div>`;
+                return `<div>Search the BCA...</div>`;
             },
             option: displaySearchResults,
             optgroup_header: function(data, escape) {
                 var query = this.getTextboxValue();
 
-                count = `<a href="{% url 'search' %}?q=${query}&category=${data.category}"><span class="badge rounded-pill" style="background: var(--primary-color); padding-top: 6px;">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
+                count = `<a href="{% url 'search' %}?q=${query}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
                 content = `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`
                 return content;
             }
@@ -192,11 +220,11 @@ $(function () {
             }
         },
         onFocus: function() {
-		    this.clear();
-		},
-		onDropdownOpen: function() {
-		    this.clear();
-		},
+            this.clear();
+        },
+        onDropdownOpen: function() {
+            this.clear();
+        },
         valueField: 'slug',
         labelField: 'slug',
         searchField: ['species', 'name', 'description', 'domains', 'scientific_name'],
@@ -242,33 +270,33 @@ $(function () {
             });
         },
         onChange: function(value) {
-    	    if (value !== "") {
-    	        item = this.options[value];
-    	        if (item.group == 'gene') {
-    	            gene = item.name;
-    	            dataset = item.dataset.scientific_name.replace(' ', '_');
-    	            window.location.href =
-    	                "{% url 'atlas_gene' '::dataset' '::gene' %}"
-    	                .replace('::dataset', dataset)
-    	                .replace('::gene', gene);
-    	        } else if (item.group == 'dataset') {
-    	            // Jump to dataset
-    	            dataset = item.slug;
-    			    window.location.href =
-    			        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
-    			        {% if atlas %}
-    			            // Jump to same page in atlas with another dataset
-    			            "{% url request.resolver_match.view_name '::arg' %}"
-    			                .replace('::arg', dataset)
-    			        {% else %}
-    			            // Jump to atlas_info
-    			            "{% url 'atlas_info' '::arg' %}"
-    			                .replace('::arg', dataset)
-    			        {% endif %};
-    	        }
-    	    }
-    		return;
-		},
+            if (value !== "") {
+                item = this.options[value];
+                if (item.group == 'gene') {
+                    gene = item.name;
+                    dataset = item.dataset.scientific_name.replace(' ', '_');
+                    window.location.href =
+                        "{% url 'atlas_gene' '::dataset' '::gene' %}"
+                        .replace('::dataset', dataset)
+                        .replace('::gene', gene);
+                } else if (item.group == 'dataset') {
+                    // Jump to dataset
+                    dataset = item.slug;
+                    window.location.href =
+                        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
+                        {% if atlas %}
+                            // Jump to same page in atlas with another dataset
+                            "{% url request.resolver_match.view_name '::arg' %}"
+                                .replace('::arg', dataset)
+                        {% else %}
+                            // Jump to atlas_info
+                            "{% url 'atlas_info' '::arg' %}"
+                                .replace('::arg', dataset)
+                        {% endif %};
+                }
+            }
+            return;
+        },
         optgroupField: 'group'
     });
 

@@ -16,31 +16,69 @@ Input:
 
 {% endcomment %}
 
-{% block title %}Cell Atlas{% endblock title %}
+{% block title %}
+    Cell Atlas
+{% endblock title %}
 
 {% block subnav %}
     {% include '../components/select/atlas.html' with redirect='arg' class='atlas-select' optgroup_columns='true' %}
 {% endblock subnav %}
 
 {% block content %}
-{% include '../components/warning_alert.html' %}
-<div class="container-xxl">
-    <div class="row">
-        <div class="col-4 pt-4 d-flex flex-column align-items-center justify-content-center"
-        style="background-color: lightgray; height: 140px; text-align: center; color: white;">
-            <i class="fa fa-{{icon}} fa-4x d-block d-md-none"></i>
-            <i class="fa fa-{{icon}} fa-5x d-none d-md-block d-lg-none"></i>
-            <i class="fa fa-{{icon}} fa-6x d-none d-lg-block"></i>
-            <p><small>No dataset selected</small></p>
-        </div>
-        <div class="col-8">
-            <span class="placeholder" style="width: 290px; max-width: 100%;"></span></br>
-            <span class="placeholder" style="width: 260px; max-width:  89%;"></span></br>
-            <span class="placeholder" style="width: 280px; max-width:  96%;"></span></br>
-            <span class="placeholder" style="width: 270px; max-width:  93%;"></span></br>
-            <span class="placeholder" style="width: 150px; max-width:  52%;"></span></br>
+    <style>
+        .species-placeholder {
+            background-color: lightgray;
+            height: 140px;
+            text-align: center;
+            color: white;
+        }
+
+        #row1 {
+            width: 290px;
+            max-width: 100%;
+        }
+        #row2 {
+            width: 260px;
+            max-width:  89%;
+        }
+        #row3 {
+            width: 280px;
+            max-width:  96%;
+        }
+        #row4 {
+            width: 270px;
+            max-width:  93%;
+        }
+        #row5 {
+            width: 150px;
+            max-width:  52%;
+        }
+    </style>
+
+    {% include '../components/warning_alert.html' %}
+    <div class="container-xxl">
+        <div class="row">
+            <div class="col-4 pt-4 d-flex flex-column align-items-center justify-content-center species-placeholder">
+                <i class="fa fa-{{ icon }} fa-4x d-block d-md-none"></i>
+                <i class="fa fa-{{ icon }} fa-5x d-none d-md-block d-lg-none"></i>
+                <i class="fa fa-{{ icon }} fa-6x d-none d-lg-block"></i>
+                <p>
+                    <small>No dataset selected</small>
+                </p>
+            </div>
+            <div class="col-8">
+                <span id="row1" class="placeholder"></span>
+                <br />
+                <span id="row2" class="placeholder"></span>
+                <br />
+                <span id="row3" class="placeholder"></span>
+                <br />
+                <span id="row4" class="placeholder"></span>
+                <br />
+                <span id="row5" class="placeholder"></span>
+                <br />
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock content %}

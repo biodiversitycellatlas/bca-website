@@ -16,46 +16,64 @@ Features:
     <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 pt-4 mt-4 border-top small">
         <div class="mb-3">
             <p class="text-muted">
-                © 2024-{% now "Y" %}</br>
-
-                <a class="text-nowrap" href="{{BCA_WEBSITE|default:'https://biodiversitycellatlas.org'}}" target="_blank">
-                    Biodiversity Cell Atlas
-                </a></br>
-
-                <span class="text-nowrap">Data Portal</span></br>
+                © 2024-{% now "Y" %}
+                <br />
 
                 <a class="text-nowrap"
-                href="{{GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website'}}" target="_blank">
+                   href="{{ BCA_WEBSITE|default:'https://biodiversitycellatlas.org' }}"
+                   target="_blank">Biodiversity Cell Atlas</a>
+                <br />
+
+                <span class="text-nowrap">Data Portal</span>
+                <br />
+
+                <a class="text-nowrap"
+                   href="{{ GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website' }}"
+                   target="_blank">
                     <i class="fa-brands fa-github"></i>
-                    {{GIT_VERSION|default:"GitHub repository"}}
+                    {{ GIT_VERSION|default:"GitHub repository" }}
                 </a>
             </p>
             <a href="https://www.crg.eu/" target="_blank">
-                <p><img title="CRG" width="150"
-                src="{% static 'app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png' %}"></i></p>
+                <p>
+                    <img title="CRG"
+                         width="150"
+                         height="100%"
+                         alt="Centre for Genomic Regulation"
+                         src="{% static 'app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png' %}">
+                </p>
             </a>
             {% comment %}
             <a href="https://www.ebi.ac.uk/" target="_blank">
-                <p><img title="EMBL-EBI" width="150"
-                src="{% static 'app/images/logos/EMBL-EBI/EMBL_EBI_Logo_black.svg' %}"></i></p>
+                <p><img title="EMBL-EBI" width="150" src="{% static 'app/images/logos/EMBL-EBI/EMBL_EBI_Logo_black.svg' %}" alt="EMBL European Bioinformatics Institute"></i></p>
             </a>
             <a href="https://www.sanger.ac.uk/" target="_blank">
-                <p><img title="Wellcome Sanger Institute" width="150" src="{% static 'app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.svg' %}"></i></p>
+                <p><img title="Wellcome Sanger Institute" width="150" alt="Wellcome Sanger Institute" src="{% static 'app/images/logos/Sanger/Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Full_Colour.svg' %}"></p>
             </a>
             {% endcomment %}
             <a href="https://www.moore.org/" target="_blank">
-                <p><img title="Gordon and Betty Moore Foundation" width="150" src="{% static 'app/images/logos/Moore/Gordon_and_Betty_Moore_Foundation_logo.svg' %}"></i></p>
+                <p>
+                    <img title="Gordon and Betty Moore Foundation"
+                         width="150"
+                         height="100%"
+                         alt="Gordon and Betty Moore Foundation"
+                         src="{% static 'app/images/logos/Moore/Gordon_and_Betty_Moore_Foundation_logo.svg' %}">
+                </p>
             </a>
         </div>
 
         <div class="mb-3 d-none d-md-block"></div>
 
         <div class="mb-3">
-            <h6><a href="#">Cite us</a></h6>
+            <h6>
+                <a href="#">Cite us</a>
+            </h6>
             <ul class="nav flex-column">
-                <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">
-                    White paper coming soon: <b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b>
-                </span></li>
+                <li class="nav-item mb-2">
+                    <span class="nav-link p-0 text-muted">
+                        White paper coming soon: <b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b>
+                    </span>
+                </li>
                 {% comment %}
                 <li class="nav-item mb-2"><span class="nav-link p-0 text-muted">
                     Darwin <i>et al.</i>,
@@ -67,43 +85,42 @@ Features:
         </div>
 
         <div class="mb-3">
-            <h6><a href="{% url 'index' %}">Data portal</a></h6>
+            <h6>
+                <a href="{% url 'index' %}">Data portal</a>
+            </h6>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
-                    <a href="{% url 'atlas' %}"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% url 'atlas' %}" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-map"></i>
                         Cell atlas
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a href="{% url 'downloads' %}"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% url 'downloads' %}" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-file-arrow-down"></i>
                         Downloads
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a href="{% url 'rest:index' %}"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% url 'rest:index' %}" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-code"></i>
                         REST API
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a href="{% url 'entry' %}"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% url 'entry' %}" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-database"></i>
                         Database entries
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a href="{% bca_url 'blog' %}" target="_blank"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% bca_url 'blog' %}"
+                       target="_blank"
+                       class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-radio"></i>
                         Blog
                     </a>
@@ -112,41 +129,49 @@ Features:
         </div>
 
         <div class="mb-3">
-            <h6><a href="{% url 'about' %}#about">About</a></h6>
+            <h6>
+                <a href="{% url 'about' %}#about">About</a>
+            </h6>
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'contact' %}"
-                    class="nav-link p-0 text-muted" target="_blank">
+                       class="nav-link p-0 text-muted"
+                       target="_blank">
                         <i class="fa fa-fw fa-paper-plane"></i>
                         Contact us
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a href="{% bca_url 'about/#media-kit' %}"
-                    class="nav-link p-0 text-muted" target="_blank">
+                       class="nav-link p-0 text-muted"
+                       target="_blank">
                         <i class="fa fa-fw fa-box"></i>
                         Media kit
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% bca_url 'legal' %}" class="nav-link p-0 text-muted" target="_blank">
+                    <a href="{% bca_url 'legal' %}"
+                       class="nav-link p-0 text-muted"
+                       target="_blank">
                         <i class="fa fa-fw fa-shield-halved"></i>
                         Legal & privacy
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% bca_url 'cookies' %}" class="nav-link p-0 text-muted" target="_blank">
+                    <a href="{% bca_url 'cookies' %}"
+                       class="nav-link p-0 text-muted"
+                       target="_blank">
                         <i class="fa fa-fw fa-cookie-bite"></i>
                         Cookies
                     </a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{% url 'about' %}#licenses"
-                    class="nav-link p-0 text-muted">
+                    <a href="{% url 'about' %}#licenses" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-file-contract"></i>
                         Licenses
                     </a>
                 </li>
+            </ul>
         </div>
     </footer>
 </div>

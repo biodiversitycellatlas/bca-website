@@ -8,11 +8,20 @@ Input:
 
 {% endcomment %}
 
+<style>
+    #ortholog-species-img {
+        box-shadow: 0px 0px 2px white !important
+    }
+</style>
+
 {% include '../plot_container.html' with id='orthologs' %}
 <template id="ortholog-header-template">
     <h2 class="h5 pt-2">
-        <img id="ortholog-species-img" class="rounded" height="24px"
-        style="box-shadow: 0px 0px 2px white !important;">
+        <img id="ortholog-species-img"
+             alt="Image of species"
+             class="rounded"
+             height="24px"
+             width="100%">
         <i><span id="ortholog-species">Species</span></i>
     </h2>
 </template>
@@ -20,29 +29,28 @@ Input:
 <template id="ortholog-template">
     <h3 class="h6 pt-2">
         <a id="ortholog-gene-href" href="">
-            <span id="ortholog-gene"> Gene </span>
+            <span id="ortholog-gene">Gene</span>
         </a>
         expression in
         <a id="ortholog-dataset-href" href="">
-            <span id="ortholog-dataset">
-                Dataset
-            </span>
+            <span id="ortholog-dataset">Dataset</span>
         </a>
     </h3>
     <div id="single-ortholog-plot" class="container-xxl"></div>
 </template>
 
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/plots/expression_plot.js' %}"></script>
+<script type="text/javascript"
+        src="{% static 'app/js/plots/expression_plot.js' %}"></script>
 
 <!-- Plot ortholog expression data -->
 <script type="text/javascript">
     // Create URL to fetch ortholog data
     var url = '{% url 'rest:ortholog-list' %}';
     var params = new URLSearchParams({
-	    gene: '{{gene}}',
-	    expression: true,
-	    limit: 0
+        gene: '{{gene}}',
+        expression: true,
+        limit: 0
     });
     var apiURL = url + "?" + params.toString();
     appendDataMenu('orthologs', apiURL, 'Ortholog expression');
@@ -65,6 +73,7 @@ Input:
 
                         if (item.datasets[0]) {
                             headerClone.getElementById('ortholog-species-img').src = item.datasets[0].species_image_url;
+                            headerClone.getElementById('ortholog-species-img').alt = "Image of " + item.species;
                         }
                         headerClone.getElementById('ortholog-species').innerText = item.species;
                         container.appendChild(headerClone);
@@ -99,4 +108,3 @@ Input:
             hideSpinner('orthologs');
         });
 </script>
-

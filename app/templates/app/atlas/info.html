@@ -15,136 +15,143 @@ Input:
 
 {% endcomment %}
 
-{% block title %}{{dataset}} Information{% endblock title %}
+{% block title %}
+    {{ dataset }} Information
+{% endblock title %}
 
 {% block content %}
 
-{% load static %}
-{% include '../components/warning_alert.html' %}
+    <style>
+        .key {
+            font-weight: 500;
+        }
 
-<div class="row pt-2">
-    <div class="col-md-4">
+        table {
+            hyphens: auto;
+            word-break: break-word;
+        }
+    </style>
 
-        <!-- Show image and credits -->
-        <img src="{{ dataset.image_url|default:species.image_url }}" style="width: 100%;">
-        {% if dataset.image_source or species.image_source %}
-            <span class="small text-secondary"><i>
-                Image credits:
-                <a href="{{dataset.image_url|default:species.image_url}}"
-                target="_blank">
-                    {{dataset.image_source|default:species.image_source}}
-                </a>
-            </i></span>
-        {% endif %}
+    {% load static %}
+    {% include '../components/warning_alert.html' %}
 
-        <h2 class="h5 mt-4">Dataset information</h2>
+    <div class="row pt-2">
+        <div class="col-md-4">
 
-        <table class="table table-sm table-striped"
-        style="margin: 0 auto; hyphens: auto; word-break: break-word;">
-            <tbody>
-                <tr>
-                    <td><span style="font-weight: 500;">
-                        Release date
-                    </span></td>
-                    <td class="text-end">
-                        {{dataset.date_created|date:"j F Y"}}
-                    </td>
-                </tr>
-                <tr>
-                    <td><span style="font-weight: 500;">
-                        Last update
-                    </span></td>
-                    <td class="text-end">
-                        {{dataset.date_updated|date:"j F Y"}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- Show image and credits -->
+            <img src="{{ dataset.image_url|default:species.image_url }}"
+                 alt="Image of {{ dataset.species }}"
+                 width="auto"
+                 height="auto"
+                 class="w-100">
+            {% if dataset.image_source or species.image_source %}
+                <span class="small text-secondary"><i>
+                    Image credits:
+                    <a href="{{ dataset.image_url|default:species.image_url }}"
+                       target="_blank">{{ dataset.image_source|default:species.image_source }}</a>
+                </i></span>
+            {% endif %}
 
-        <h2 class="h5 mt-4">Metadata</h2>
+            <h2 class="h5 mt-4">Dataset information</h2>
 
-        <table class="table table-sm table-striped"
-        style="margin: 0 auto; hyphens: auto; word-break: break-word;">
-            <tbody>
-                {% for meta in species.meta_set.all %}
-                {% if meta.key != "species" %}
+            <table class="table table-sm table-striped mx-auto">
+                <tbody>
                     <tr>
-                        <td><span style="font-weight: 500;">
-                            {% if meta.key == "taxon_id" %}
-                                NCBI Taxonomy
-                            {% else %}
-                                {{ meta.key | capfirst }}
-                            {% endif %}
-                        </span></td>
-                        <td class="text-end">
-                            {% if meta.query_url %}
-                                <a target="_blank" href="{{meta.query_url}}">
-                                    {{meta.value}}
-                                </a>
-                            {% else %}
-                                {{meta.value}}
-                            {% endif %}
+                        <td>
+                            <span class="key">Release date</span>
                         </td>
+                        <td class="text-end">{{ dataset.date_created|date:"j F Y" }}</td>
                     </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                    <tr>
+                        <td>
+                            <span class="key">Last update</span>
+                        </td>
+                        <td class="text-end">{{ dataset.date_updated|date:"j F Y" }}</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    <div class="col-md-8 mt-4 mt-sm-0">
-        <h1 class="h3">
-            {{dataset.get_html}}
+            <h2 class="h5 mt-4">Metadata</h2>
 
-            {% load section_buttons %}
-            {% clipboard_button %}
-            {% data_dropdown id='info' %}
-        </h1>
-
-        <p>{{species.description|default:'No description available.'|safe}}</p>
-
-        <div class="row text-center mt-5">
-            <div class="col-6 col-lg-3">
-                <p id="n_cells" class="h3 mb-0">0</p>
-                <p>cells</p>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <p id="n_metacells" class="h3 mb-0">0</p>
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom"
-                data-bs-title="Groups of cells with highly similar gene expression">
-                    metacells <i class="fa fa-question-circle fa-sm"></i>
-                </a>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <p id="n_umis" class="h3 mb-0">0</p>
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom"
-                data-bs-title="Total number of Unique Molecular Identifiers (UMIs)">
-                    UMIs <i class="fa fa-question-circle fa-sm"></i>
-                </a>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <p id="n_genes" class="h3 mb-0">0</p>
-                <p>genes</p>
-            </div>
+            <table class="table table-sm table-striped mx-auto">
+                <tbody>
+                    {% for meta in species.meta_set.all %}
+                        {% if meta.key != "species" %}
+                            <tr>
+                                <td>
+                                    <span class="key">
+                                        {% if meta.key == "taxon_id" %}
+                                            NCBI Taxonomy
+                                        {% else %}
+                                            {{ meta.key | capfirst }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    {% if meta.query_url %}
+                                        <a target="_blank" href="{{ meta.query_url }}">{{ meta.value }}</a>
+                                    {% else %}
+                                        {{ meta.value }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-        <div class="row mt-3">
-            <div class="col-md-6">
-                {% include '../components/plot_container.html' with id='metacell-cells' ratio='16/9' %}
+        <div class="col-md-8 mt-4 mt-sm-0">
+            <h1 class="h3">
+                {{ dataset.get_html }}
+
+                {% load section_buttons %}
+                {% clipboard_button %}
+                {% data_dropdown id='info' %}
+            </h1>
+
+            <p>{{ species.description|default:'No description available.'|safe }}</p>
+
+            <div class="row text-center mt-5">
+                <div class="col-6 col-lg-3">
+                    <p id="n_cells" class="h3 mb-0">0</p>
+                    <p>cells</p>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <p id="n_metacells" class="h3 mb-0">0</p>
+                    <a data-bs-toggle="tooltip"
+                       data-bs-placement="bottom"
+                       data-bs-title="Groups of cells with highly similar gene expression">
+                        metacells <i class="fa fa-question-circle fa-sm"></i>
+                    </a>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <p id="n_umis" class="h3 mb-0">0</p>
+                    <a data-bs-toggle="tooltip"
+                       data-bs-placement="bottom"
+                       data-bs-title="Total number of Unique Molecular Identifiers (UMIs)">
+                        UMIs <i class="fa fa-question-circle fa-sm"></i>
+                    </a>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <p id="n_genes" class="h3 mb-0">0</p>
+                    <p>genes</p>
+                </div>
             </div>
 
-            <div class="col-md-6">
-                {% include '../components/plot_container.html' with id='metacell-umis' ratio='16/9' %}
+            <div class="row mt-3">
+                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-cells' ratio='16/9' %}</div>
+
+                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-umis' ratio='16/9' %}</div>
             </div>
         </div>
     </div>
-</div>
 
-<script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
-<script>
+    <script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
+    <script>
     var counts_url = new URL("{% url 'rest:metacellcount-list' %}", window.location.origin);
     counts_url.searchParams.append('dataset', '{{dataset.slug}}');
     counts_url.searchParams.append('limit', '0');
@@ -198,6 +205,6 @@ Input:
             })
             .catch(error => console.error('Error:', error))
     });
-</script>
+    </script>
 
 {% endblock content %}

@@ -1,54 +1,54 @@
 #!/usr/bin/env python3
 
-from django.core.exceptions import ValidationError
-from django.db.models import F, Count, Avg, Sum, OuterRef, Subquery
-
-from collections import Counter
-from rds2py import read_rds
+import csv
+import functools
+import io
+import json
+import re
 import subprocess
 import time
-
-import csv
-import json
+import urllib.parse
+import urllib.request
+import warnings
 import xml.etree.ElementTree as ET
-import yaml
+from collections import Counter
 
 import numpy as np
 import pandas as pd
-
-import urllib.request
-import urllib.parse
-import warnings
-import re
+import psutil
+import psycopg2
+import yaml
+from django.core.exceptions import ValidationError
+from django.db.models import Avg, Count, F, OuterRef, Subquery, Sum
+from rds2py import read_rds
 
 from app import models
-
-import functools
-import psycopg2
-import psutil
-import io
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
 ####### Utility functions
 
+
 def print_progress(index, total):
-    perc = int(index/total * 100)
+    perc = int(index / total * 100)
     msg = f"{perc}% ({index} out of {total})"
     print(msg)
     return msg
+
 
 def print_memory_usage(val=" "):
     mem = psutil.virtual_memory()
     mem_used = mem.used / 1024**2
     mem_total = mem.total / 1024**2
     mem_free = mem.available / 1024**2
-    print(f"Memory {val} | Used {mem_used:.2f} MB out of {mem_total:.2f} MB (free: {mem_free:.2f} MB)")
+    print(
+        f"Memory {val} | Used {mem_used:.2f} MB out of {mem_total:.2f} MB (free: {mem_free:.2f} MB)"
+    )
 
 
 def validate_and_bulk_create(obj, arr):
-    #for data in arr:
+    # for data in arr:
     #    try:
     #        data.full_clean()
     #    except ValidationError:
@@ -60,14 +60,14 @@ def validate_and_bulk_create(obj, arr):
 def batch_raw_insert(cursor, model, cols, batch):
     output = io.StringIO()
     if isinstance(batch, pd.DataFrame):
-        batch.to_csv(output, sep='\t', index=False, header=False)
+        batch.to_csv(output, sep="\t", index=False, header=False)
     else:
-        writer = csv.writer(output, delimiter='\t')
+        writer = csv.writer(output, delimiter="\t")
         writer.writerows(batch)
     output.seek(0)
 
     table = model._meta.db_table
-    columns = ', '.join(cols)
+    columns = ", ".join(cols)
     sql = f"COPY {table} ({columns}) FROM STDIN WITH (FORMAT csv, DELIMITER E'\t')"
     cursor.copy_expert(sql, output)
     cursor.connection.commit()
@@ -75,21 +75,23 @@ def batch_raw_insert(cursor, model, cols, batch):
 
 
 def perform_subquery(obj, expr):
-    """ Return subquery for aggregated statistics per object. """
-    subquery = Subquery(obj.filter(id=OuterRef('id')).annotate(
-        expr=expr
-    ).values('expr')[:1])
+    """Return subquery for aggregated statistics per object."""
+    subquery = Subquery(
+        obj.filter(id=OuterRef("id")).annotate(expr=expr).values("expr")[:1]
+    )
     return subquery
 
 
 ####### Main functions
 
+
 def add_taxonomy_metadata(species):
     (ncbi, _) = models.Source.objects.get_or_create(
-        name='NCBI Taxonomy',
-        description='NCBI Taxonomy Database',
-        url='https://www.ncbi.nlm.nih.gov/',
-        query_url='https://www.ncbi.nlm.nih.gov/datasets/taxonomy/{{id}}')
+        name="NCBI Taxonomy",
+        description="NCBI Taxonomy Database",
+        url="https://www.ncbi.nlm.nih.gov/",
+        query_url="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/{{id}}",
+    )
 
     scientific_name = species.scientific_name
     # Fetch taxonomy ID for this species
@@ -100,7 +102,7 @@ def add_taxonomy_metadata(species):
         data = json.load(response)
 
     try:
-        taxid = data['esearchresult']['idlist'][0]
+        taxid = data["esearchresult"]["idlist"][0]
     except:
         raise ValueError(f"Taxonomy ID for species '{scientific_name}' not found.")
 
@@ -113,12 +115,18 @@ def add_taxonomy_metadata(species):
     root = tree.getroot()
 
     # Parse taxonomy details
-    m_list = [ models.Meta(species=species, key="taxon_id", value=taxid,
-                           source=ncbi, query_term=taxid) ]
+    m_list = [
+        models.Meta(
+            species=species, key="taxon_id", value=taxid, source=ncbi, query_term=taxid
+        )
+    ]
 
-    m = models.Meta(species=species, key="division",
-                    value=root.find('.//Division').text,
-                    source=ncbi)
+    m = models.Meta(
+        species=species,
+        key="division",
+        value=root.find(".//Division").text,
+        source=ncbi,
+    )
     m_list.append(m)
 
     for taxon in root.findall(".//Taxon"):
@@ -126,8 +134,9 @@ def add_taxonomy_metadata(species):
         name = taxon.find("ScientificName").text
         term = taxon.find("TaxId").text
         if rank and name:
-            m = models.Meta(species=species, key=rank, value=name,
-                            source=ncbi, query_term=term)
+            m = models.Meta(
+                species=species, key=rank, value=name, source=ncbi, query_term=term
+            )
             m_list.append(m)
     return validate_and_bulk_create(models.Meta, m_list)
 
@@ -142,22 +151,23 @@ def add_species(name, dataset_name):
 
 
 def add_metacells(dataset, mc2d, mc_annot, r_colors):
-    mc_x  = mc2d['attributes']['mc_x']['data'].tolist()
-    mc_y  = mc2d['attributes']['mc_y']['data'].tolist()
-    mc_id = mc2d['attributes']['mc_x']['attributes']['names']['data']
+    mc_x = mc2d["attributes"]["mc_x"]["data"].tolist()
+    mc_y = mc2d["attributes"]["mc_y"]["data"].tolist()
+    mc_id = mc2d["attributes"]["mc_x"]["attributes"]["names"]["data"]
     mc_list = []
     for idx, val in enumerate(mc_x):
         this_id = mc_id[idx]
-        this_annot = mc_annot.loc[mc_annot['metacell'] == int(this_id)]
-        type       = this_annot['cell_type'].values[0]
+        this_annot = mc_annot.loc[mc_annot["metacell"] == int(this_id)]
+        type = this_annot["cell_type"].values[0]
 
         color_key = [key for key in this_annot if "color" in key][0]
-        color     = this_annot[color_key].values[0]
+        color = this_annot[color_key].values[0]
 
-        if not color.startswith('#'):
-            color = r_colors[r_colors['name'] == color]['hex'].values[0]
+        if not color.startswith("#"):
+            color = r_colors[r_colors["name"] == color]["hex"].values[0]
         mct, created = models.MetacellType.objects.get_or_create(
-            dataset=dataset, name=type.replace("_", " "), color=color)
+            dataset=dataset, name=type.replace("_", " "), color=color
+        )
 
         # Avoid adding nan
         x = None if pd.isna(mc_x[idx]) else mc_x[idx]
@@ -170,16 +180,17 @@ def add_metacells(dataset, mc2d, mc_annot, r_colors):
 
 
 def add_metacell_links(dataset, mc2d):
-    links_fr = mc2d['attributes']['graph']['data'][0]['data'].astype(int).tolist()
-    links_to = mc2d['attributes']['graph']['data'][1]['data'].astype(int).tolist()
+    links_fr = mc2d["attributes"]["graph"]["data"][0]["data"].astype(int).tolist()
+    links_to = mc2d["attributes"]["graph"]["data"][1]["data"].astype(int).tolist()
     mc_links_list = []
     for idx, fr in enumerate(links_fr):
         to = links_to[idx]
         if fr != to:
             mc_link = models.MetacellLink(
                 dataset=dataset,
-                metacell =models.Metacell.objects.filter(dataset=dataset, name=fr)[0],
-                metacell2=models.Metacell.objects.filter(dataset=dataset, name=to)[0])
+                metacell=models.Metacell.objects.filter(dataset=dataset, name=fr)[0],
+                metacell2=models.Metacell.objects.filter(dataset=dataset, name=to)[0],
+            )
             mc_links_list.append(mc_link)
 
     return validate_and_bulk_create(models.MetacellLink, mc_links_list)
@@ -188,21 +199,19 @@ def add_metacell_links(dataset, mc2d):
 def add_metacell_stats(dataset):
     mcs = dataset.metacells.all()
 
-    cells = perform_subquery(mcs, Count('singlecell'))
-    umis  = perform_subquery(mcs, Sum('mge__umi_raw'))
+    cells = perform_subquery(mcs, Count("singlecell"))
+    umis = perform_subquery(mcs, Sum("mge__umi_raw"))
 
-    qs = mcs.annotate(
-        metacell_id=F('id'),
-        cells=cells,
-        umis=umis
-    ).values('metacell_id', 'cells', 'umis', 'dataset_id')
+    qs = mcs.annotate(metacell_id=F("id"), cells=cells, umis=umis).values(
+        "metacell_id", "cells", "umis", "dataset_id"
+    )
 
     metacell_count_list = [
         models.MetacellCount(
-            metacell_id=row['metacell_id'],
-            dataset_id=row['dataset_id'],
-            cells=row['cells'],
-            umis=row['umis'],
+            metacell_id=row["metacell_id"],
+            dataset_id=row["dataset_id"],
+            cells=row["cells"],
+            umis=row["umis"],
         )
         for row in qs
     ]
@@ -210,9 +219,9 @@ def add_metacell_stats(dataset):
 
 
 def add_single_cells(dataset, mc2d, cellmc):
-    sc_x  = mc2d['attributes']['sc_x']['data'].tolist()
-    sc_y  = mc2d['attributes']['sc_y']['data'].tolist()
-    sc_id = mc2d['attributes']['sc_x']['attributes']['dimnames']['data'][0]['data']
+    sc_x = mc2d["attributes"]["sc_x"]["data"].tolist()
+    sc_y = mc2d["attributes"]["sc_y"]["data"].tolist()
+    sc_id = mc2d["attributes"]["sc_x"]["attributes"]["dimnames"]["data"][0]["data"]
 
     # Single cell: 2D projection
     sc_x_dict = dict(zip(sc_id, sc_x))
@@ -220,13 +229,14 @@ def add_single_cells(dataset, mc2d, cellmc):
 
     # Cell to metacell assignment
     cell2mc_metacells = cellmc.as_list()
-    cell2mc_cells     = cellmc.names.as_list()
-    cell2mc_metacells = [str(int(num)) if num.is_integer() else str(num) for num in cell2mc_metacells]
-    cell2mc_dict  = dict(zip(cell2mc_cells, cell2mc_metacells))
+    cell2mc_cells = cellmc.names.as_list()
+    cell2mc_metacells = [
+        str(int(num)) if num.is_integer() else str(num) for num in cell2mc_metacells
+    ]
+    cell2mc_dict = dict(zip(cell2mc_cells, cell2mc_metacells))
 
     # Get all metacells
-    mc_dict = {str(obj): obj for obj in
-        models.Metacell.objects.filter(dataset=dataset)}
+    mc_dict = {str(obj): obj for obj in models.Metacell.objects.filter(dataset=dataset)}
 
     sc_list = []
     for name in cell2mc_cells:
@@ -246,12 +256,12 @@ def add_single_cells(dataset, mc2d, cellmc):
 
 
 def add_genes(species, gene_annot):
-    if gene_annot.iloc[0, 0].lower().startswith(('gene', 'v1')):
+    if gene_annot.iloc[0, 0].lower().startswith(("gene", "v1")):
         gene_annot = gene_annot.iloc[1:].reset_index(drop=True)
 
     # Assume the column with more / contains the domains
-    n_slash_col1 = sum(x.count('/') for x in list(gene_annot[1]) if isinstance(x, str))
-    n_slash_col2 = sum(x.count('/') for x in list(gene_annot[2]) if isinstance(x, str))
+    n_slash_col1 = sum(x.count("/") for x in list(gene_annot[1]) if isinstance(x, str))
+    n_slash_col2 = sum(x.count("/") for x in list(gene_annot[2]) if isinstance(x, str))
 
     if n_slash_col1 > n_slash_col2 and str(species) not in ["Spongilla lacustris"]:
         col_names = ["gene", "domains", "description"]
@@ -260,14 +270,21 @@ def add_genes(species, gene_annot):
     gene_annot.columns = col_names + list(gene_annot.columns[3:])
 
     # Split domains by / and ignore certain characters
-    gene_annot['domains'] = gene_annot['domains'].apply(
-        lambda e: list(set(
-            [d for d in str(e).split('/')
-                if pd.notna(e) and d and d not in ['nan', '-', '""'] ])))
+    gene_annot["domains"] = gene_annot["domains"].apply(
+        lambda e: list(
+            set(
+                [
+                    d
+                    for d in str(e).split("/")
+                    if pd.notna(e) and d and d not in ["nan", "-", '""']
+                ]
+            )
+        )
+    )
 
     # Add domains to database
     domain_list = []
-    domains = set(d for sublist in gene_annot['domains'] for d in sublist)
+    domains = set(d for sublist in gene_annot["domains"] for d in sublist)
     for domain in domains:
         domain_list.append(models.Domain(name=domain))
     validate_and_bulk_create(models.Domain, domain_list)
@@ -277,17 +294,16 @@ def add_genes(species, gene_annot):
     domain_map = {d.name: d for d in all_domains}
 
     # Parse gene description (up to 400 characters)
-    gene_annot['description'] = gene_annot['description'].apply(
-        lambda x: None
-            if pd.isna(x) or x in ['nan', '-']
-            else x.replace('_', ' ')[:400]
+    gene_annot["description"] = gene_annot["description"].apply(
+        lambda x: None if pd.isna(x) or x in ["nan", "-"] else x.replace("_", " ")[:400]
     )
 
     # Add genes to database
     gene_list = []
     for index, row in gene_annot.iterrows():
         g = models.Gene(
-            species=species, name=row['gene'], description=row['description'])
+            species=species, name=row["gene"], description=row["description"]
+        )
         gene_list.append(g)
     genes = validate_and_bulk_create(models.Gene, gene_list)
 
@@ -298,9 +314,10 @@ def add_genes(species, gene_annot):
     through_model = models.Gene.domains.through
     relations = []
     for g, (_, row) in zip(genes, gene_annot.iterrows()):
-        for domain_name in row['domains']:
-            relations.append(through_model(
-                gene=gene_map[g.name], domain=domain_map[domain_name]))
+        for domain_name in row["domains"]:
+            relations.append(
+                through_model(gene=gene_map[g.name], domain=domain_map[domain_name])
+            )
     validate_and_bulk_create(through_model, relations)
     return True
 
@@ -341,9 +358,13 @@ def add_metacell_gene_expression(species, dataset, expr, umi, umifrac):
                 fold_change_value = None
 
             mge = models.MetacellGeneExpression(
-                dataset=dataset, gene=gene_dict[gene], metacell=mc_dict[metacell],
+                dataset=dataset,
+                gene=gene_dict[gene],
+                metacell=mc_dict[metacell],
                 fold_change=fold_change_value,
-                umi_raw=umi_value, umifrac=umifrac_value)
+                umi_raw=umi_value,
+                umifrac=umifrac_value,
+            )
             mge_list.append(mge)
 
             # Save to database every 100k iterations (less memory pressure)
@@ -367,13 +388,17 @@ def add_sc_gene_expression(species, dataset, counts):
     genes_dup = [g for g in genes if Counter(genes)[g] > 1]
 
     # Prefetch all metacells and genes into dicts
-    sc_dict = {str(obj): obj.id for obj in models.SingleCell.objects.filter(dataset=dataset)}
-    gene_dict = {str(obj): obj.id for obj in models.Gene.objects.filter(species=species)}
+    sc_dict = {
+        str(obj): obj.id for obj in models.SingleCell.objects.filter(dataset=dataset)
+    }
+    gene_dict = {
+        str(obj): obj.id for obj in models.Gene.objects.filter(species=species)
+    }
     all_genes = gene_dict.keys()
 
     scge_list = []
     n_cols = counts_csc.shape[1]
-    cols = ['umi_raw', 'umifrac', 'dataset_id', 'gene_id', 'single_cell_id']
+    cols = ["umi_raw", "umifrac", "dataset_id", "gene_id", "single_cell_id"]
 
     connection = psycopg2.connect(host=os.environ.get("POSTGRES_HOST"))
 
@@ -394,17 +419,23 @@ def add_sc_gene_expression(species, dataset, counts):
                 if genes[i] in genes_dup:
                     continue
 
-
                 # Calculate umifrac from umi_raw's total count per single cell
                 umifrac = (umi_raw * 10000) / col_sum
 
-                scge = (umi_raw, umifrac, dataset_id,
-                    gene_dict[genes[i]], sc_dict[scs[j]])
+                scge = (
+                    umi_raw,
+                    umifrac,
+                    dataset_id,
+                    gene_dict[genes[i]],
+                    sc_dict[scs[j]],
+                )
                 scge_list.append(scge)
 
                 # Save to database every 100k iterations (less memory pressure)
                 if len(scge_list) >= 100000:
-                    batch_raw_insert(cursor, models.SingleCellGeneExpression, cols, scge_list)
+                    batch_raw_insert(
+                        cursor, models.SingleCellGeneExpression, cols, scge_list
+                    )
                     scge_list = []
                     print_progress(j, n_cols)
 
@@ -414,12 +445,12 @@ def add_sc_gene_expression(species, dataset, counts):
 
     # Print elapsed time
     elapsed = time.time() - start_time
-    print("Wall time:", time.strftime('%Mm:%Ss', time.gmtime(elapsed)))
+    print("Wall time:", time.strftime("%Mm:%Ss", time.gmtime(elapsed)))
     return True
 
 
 def add_species_data(species_config, dir, r_colors, load, force=False):
-    name = species_config['species']
+    name = species_config["species"]
     match = re.match(r"^(.*?)\s*\((.*?)\)$", name)
 
     if match:
@@ -436,23 +467,24 @@ def add_species_data(species_config, dir, r_colors, load, force=False):
     (species, dataset) = add_species(species_name, dataset_name)
 
     # check loading conditions for different components
-    load_metacells = load['metacells'] and (force or not dataset.metacells.exists())
-    load_sc        = load['sc']        and (force or not dataset.sc.exists())
-    load_genes     = load['genes']     and (force or not species.genes.exists())
-    load_mge       = load['mge']       and (force or not dataset.mge.exists())
-    load_scge      = load['scge']      and (force or not dataset.scge.exists())
-    load_mc_stats  = load['mc_stats']  and (force or not dataset.metacell_stats.exists())
+    load_metacells = load["metacells"] and (force or not dataset.metacells.exists())
+    load_sc = load["sc"] and (force or not dataset.sc.exists())
+    load_genes = load["genes"] and (force or not species.genes.exists())
+    load_mge = load["mge"] and (force or not dataset.mge.exists())
+    load_scge = load["scge"] and (force or not dataset.scge.exists())
+    load_mc_stats = load["mc_stats"] and (force or not dataset.metacell_stats.exists())
 
     # avoid common warning of no relevance
     if load_metacells or load_sc:
-        f_mc2d = dir + species_config['mc2d_file']
+        f_mc2d = dir + species_config["mc2d_file"]
         with warnings.catch_warnings():
             warnings.filterwarnings(
-                'ignore', message=".*RDS file contains an unknown class: 'tgMC2D'.*")
+                "ignore", message=".*RDS file contains an unknown class: 'tgMC2D'.*"
+            )
             mc2d = read_rds(f_mc2d)
 
     if load_metacells:
-        f_annot = dir + species_config['ann_file']
+        f_annot = dir + species_config["ann_file"]
         print(f"Adding metacells from {f_mc2d} and {f_annot}...")
         mc_annot = pd.read_csv(f_annot, sep="\t")
         add_metacells(dataset, mc2d, mc_annot, r_colors)
@@ -461,23 +493,25 @@ def add_species_data(species_config, dir, r_colors, load, force=False):
         add_metacell_links(dataset, mc2d)
 
     if load_sc:
-        f_cellmc = dir + species_config['cellmc_file']
+        f_cellmc = dir + species_config["cellmc_file"]
         print(f"Adding single cells from {f_mc2d} and {f_cellmc}...")
         cellmc = read_rds(f_cellmc)
         add_single_cells(dataset, mc2d, cellmc)
 
     if load_genes:
-        f = dir + species_config['gene_annot_file']
+        f = dir + species_config["gene_annot_file"]
         print(f"Adding genes from {f}...")
         gene_annot = pd.read_csv(f, sep="\t", header=None)
         add_genes(species, gene_annot)
 
     if load_mge:
-        f_fc = dir + species_config['mcfp_file']
-        f_umi = dir + species_config['umicount_file']
-        f_umifrac = dir + species_config['umifrac_file']
+        f_fc = dir + species_config["mcfp_file"]
+        f_umi = dir + species_config["umicount_file"]
+        f_umifrac = dir + species_config["umifrac_file"]
 
-        print(f"Adding gene expression per metacell from {f_fc}, {f_umi} and {f_umifrac}...")
+        print(
+            f"Adding gene expression per metacell from {f_fc}, {f_umi} and {f_umifrac}..."
+        )
         fc = read_rds(f_fc)
         umi = read_rds(f_umi)
         umifrac = read_rds(f_umifrac)
@@ -489,10 +523,11 @@ def add_species_data(species_config, dir, r_colors, load, force=False):
         add_metacell_stats(dataset)
 
     if load_scge:
-        f = dir + species_config['umicountsc_file']
+        f = dir + species_config["umicountsc_file"]
         print(f"Adding gene expression per single cell from {f}...")
         counts = read_rds(f)
         add_sc_gene_expression(species, dataset, counts)
+
 
 def addOrthologGroups(data_dir):
     print("Loading orthologous groups...")
@@ -507,12 +542,16 @@ def addOrthologGroups(data_dir):
         (group, genes) = row
         for gene in genes.split(" "):
             if gene in gene_dict:
-                og = models.Ortholog(orthogroup=group, gene=gene_dict[gene], species_id=gene_dict[gene].species_id)
+                og = models.Ortholog(
+                    orthogroup=group,
+                    gene=gene_dict[gene],
+                    species_id=gene_dict[gene].species_id,
+                )
                 og_list.append(og)
     return validate_and_bulk_create(models.Ortholog, og_list)
 
 
-def main(data_dir, load, filter=[], exclude=['nvec_old'], force=False):
+def main(data_dir, load, filter=[], exclude=["nvec_old"], force=False):
     r_colors_file = f"{data_dir}/R_colors.tsv"
     r_colors = pd.read_csv(r_colors_file, sep="\t")
 
@@ -521,7 +560,7 @@ def main(data_dir, load, filter=[], exclude=['nvec_old'], force=False):
         data = yaml.safe_load(file)
 
     for key, species_config in data.items():
-        if key in exclude or key == 'default':
+        if key in exclude or key == "default":
             continue
 
         if filter != [] and key not in filter:
@@ -532,27 +571,28 @@ def main(data_dir, load, filter=[], exclude=['nvec_old'], force=False):
         print(f"Processing species {species_config['species']} [{key}]...")
         add_species_data(species_config, species_dir, r_colors, load, force)
 
-    if load['orthologs']:
+    if load["orthologs"]:
         addOrthologGroups(data_dir)
 
-    print('All done!')
+    print("All done!")
+
 
 load = {
-    'metacells': False,
-    'sc': False,
-    'genes': False,
-    'mge': True,
-    'mc_stats': True,
-    'scge': False,
-    'orthologs': False
+    "metacells": False,
+    "sc": False,
+    "genes": False,
+    "mge": True,
+    "mc_stats": True,
+    "scge": False,
+    "orthologs": False,
 }
 
 if __name__ == "__main__":
     data_dir = "data/raw"
-    #data_dir = "app/static/app/data"
-    
-    #main(data_dir, load)
+    # data_dir = "app/static/app/data"
+
+    # main(data_dir, load)
     print_memory_usage()
-    main(data_dir, load, exclude=['nvec_old', 'dmel'], filter="sman")
-    
+    main(data_dir, load, exclude=["nvec_old", "dmel"], filter="sman")
+
     print_memory_usage()

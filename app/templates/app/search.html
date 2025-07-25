@@ -6,148 +6,121 @@ Search page
 
 {% endcomment %}
 
-{% block title %}Search{% endblock title %}
+{% block title %}
+    Search
+{% endblock title %}
 
 {% block content %}
 
-<h1 class="h3 pt-2 mb-3">
-    Search results
-</h1>
+    <h1 class="h3 pt-2 mb-3">Search results</h1>
 
-<div class="row mb-5">
-    <div class="col-6">
-        <form class="input-group">
-    	  	<input id="search" type="text" class="form-control"
-    	  	placeholder="Search the BCA..."
-    	  	aria-label="Search" name="q" value="{{query.q}}">
-    	  	<button class="btn btn-primary" type="submit">
-    	  		<i class="fa fa-magnifying-glass"></i> Search
-    	  	</button>
-        </form>
+    <div class="row mb-5">
+        <div class="col-6">
+            <form class="input-group">
+                <input id="search"
+                       type="text"
+                       class="form-control"
+                       placeholder="Search the BCA..."
+                       aria-label="Search"
+                       name="q"
+                       value="{{ query.q }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fa fa-magnifying-glass"></i> Search
+                </button>
+            </form>
+        </div>
+        <div class="col-auto d-flex align-items-center pb-1">
+            <span id="results_count" class="form-text"></span>
+        </div>
     </div>
-    <div class="col-auto">
-        <span id="results_count" class="form-text" style="vertical-align: sub;"></span>
-    </div>
-</div>
 
-<script>
+    <script>
 function updateQuery(key, value) {
     var searchParams = new URLSearchParams(window.location.search);
     if (value) {
         searchParams.set(key, value);
     } else {
         searchParams.delete(key);
-	}
+    }
 
     searchString = '?' + searchParams.toString();
-	if (window.location.search != searchString) {
-	    window.location.search = searchString;
-	}
+    if (window.location.search != searchString) {
+        window.location.search = searchString;
+    }
 }
-</script>
+    </script>
 
-{% if query %}
-<div class="row">
-	<div class="col-3 col-lg-2 small">
-		<nav class="nav nav-pills flex-column">
-			<!-- Category selection -->
-			<span class="fw-semibold p-1"><i class="fa fa-layer-group fa-fw"></i> Category</span>
+    {% if query %}
+        <div class="row">
+            <div class="col-3 col-lg-2 small">
+                <nav class="nav nav-pills flex-column">
+                    <!-- Category selection -->
+                    <span class="fw-semibold p-1"><i class="fa fa-layer-group fa-fw"></i> Category</span>
 
-			<a class="nav-link p-1
-			{% if not query.category %}active{% endif %}"
-			aria-current="page" href="javascript:void(0);"
-			onclick="updateQuery('category')">
-				Summary
-			</a>
-			<a class="nav-link p-1
-			{% if query.category == 'datasets' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('category', 'datasets')">
-				Datasets
-			</a>
-			<a class="nav-link p-1
-			{% if query.category == 'genes' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('category', 'genes')">
-				Genes
-			</a>
+                    <button type="button"
+                            class="btn btn-link btn-sm text-start nav-link p-1 {% if not query.category %}active{% endif %}"
+                            onclick="updateQuery('category')">Summary</button>
+                    <button type="button"
+                            class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'datasets' %}active{% endif %}"
+                            onclick="updateQuery('category', 'datasets')">Datasets</button>
 
-			<!-- Species selection -->
-			<div class="d-flex justify-content-between mt-3 p-1">
-				<span class="fw-semibold">
-					<i class="fa fa-kiwi-bird fa-fw"></i> Species
-				</span>
-				<a class="disabled" href="javascript:void(0);" onclick="updateQuery('species')">
-					Clear
-				</a>
-			</div>
-			{% include './components/select/species.html' with redirect='query' placeholder='Search...' species=query.species %}
+                    <button type="button"
+                            class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'genes' %}active{% endif %}"
+                            onclick="updateQuery('category', 'genes')">Genes</button>
 
-			<!-- Results per page -->
-			<span class="fw-semibold mt-3 p-1">
-				<i class="fa fa-grip fa-fw"></i> Results per page
-			</span>
+                    <!-- Species selection -->
+                    <div class="d-flex justify-content-between mt-3 p-1">
+                        <span class="fw-semibold">
+                            <i class="fa fa-kiwi-bird fa-fw"></i> Species
+                        </span>
 
-			<a class="nav-link p-1
-			{% if not query.limit or query.limit == '12' %}active{% endif %}"
-			aria-current="page" href="javascript:void(0);"
-			onclick="updateQuery('limit', 12)">
-				12
-			</a>
-			<a class="nav-link p-1
-			{% if query.limit == '24' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('limit', 24)">
-				24
-			</a>
-			<a class="nav-link p-1
-			{% if query.limit == '36' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('limit', 36)">
-				36
-			</a>
-			<a class="nav-link p-1
-			{% if query.limit == '48' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('limit', 48)">
-				48
-			</a>
-			<a class="nav-link p-1
-			{% if query.limit == '60' %}active{% endif %}"
-			href="javascript:void(0);"
-			onclick="updateQuery('limit', 60)">
-				60
-			</a>
-		</nav>
-	</div>
-	<div class="col-9 col-lg-10">
-		<div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
-		id="results">
-			<template id="result-template">
-				<div class="col mb-4">
-					<div>
-						<p class="mb-0 fw-semibold small">
-							<a href="#" class="result-title"></a>
-						</p>
-						<p class="mb-0 small">
-							<a href="#" style="color: gray;"
-							class="result-subtitle"></a>
-						</p>
-						<p class="mb-0 truncate-3 small result-description"></p>
-						<p class="mb-0 small result-badges"></p>
-					</div>
-				</div>
-			</template>
-		</div>
-	</div>
-</div>
-{% else %}
-	{% include './components/mockup/search.html' %}
-{% endif %}
+                        <button type="button"
+                                class="btn btn-link btn-sm"
+                                onclick="updateQuery('species')">Clear</button>
+                    </div>
+                    {% include './components/select/species.html' with redirect='query' placeholder='Search...' species=query.species %}
 
-<script>
+                    <!-- Results per page -->
+                    <span class="fw-semibold mt-3 p-1">
+                        <i class="fa fa-grip fa-fw"></i> Results per page
+                    </span>
+
+                    {% load custom_filters %}
+                    {% for limit in "12,24,36,48,60"|split %}
+                        <a class="nav-link p-1 {% if query.limit == limit %}active{% elif not query.limit and limit == '12' %}active{% endif %}"
+                           href="#"
+                           role="button"
+                           onclick="event.preventDefault(); updateQuery('limit', {{ limit }})">{{ limit }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+            <div class="col-9 col-lg-10">
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
+                     id="results">
+                    <template id="result-template">
+                        <div class="col mb-4">
+                            <div>
+                                <p class="mb-0 fw-semibold small">
+                                    <a href="#" class="result-title"></a>
+                                </p>
+                                <p class="mb-0 small">
+                                    <a href="#" class="result-subtitle text-secondary"></a>
+                                </p>
+                                <p class="mb-0 truncate-3 small result-description"></p>
+                                <p class="mb-0 small result-badges"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% include './components/mockup/search.html' %}
+    {% endif %}
+
+    <script>
     function highlightMatch(content, query) {
-    	if (content === null) return content;
+        if (content === null) return content;
 
         const regex = new RegExp(`(${query})`, 'gi');
         return content.replace(regex, '<span class="search-highlight">$1</span>');
@@ -174,12 +147,12 @@ function updateQuery(key, value) {
 
         // Add word break lines on underscores
         const mods = { title_mod, subtitle_mod, description_mod };
-		for (const key in mods) {
-			// Regex: ignore HTML code, i.e. text inside brackets <>
-    		mods[key] = (mods[key] || '')
-    			.replace(/(?<!<[^>]*)[_/]/g, match => match + "<wbr>");
-		}
-		({ title_mod, subtitle_mod, description_mod } = mods);
+        for (const key in mods) {
+            // Regex: ignore HTML code, i.e. text inside brackets <>
+            mods[key] = (mods[key] || '')
+                .replace(/(?<!<[^>]*)[_/]/g, match => match + "<wbr>");
+        }
+        ({ title_mod, subtitle_mod, description_mod } = mods);
 
         $clone.find('.result-title')
             .html(title_mod).attr('href', title_url);
@@ -195,9 +168,9 @@ function updateQuery(key, value) {
         container.append($clone);
     }
 
-	// Fetch data from API
-	var species = '{{query.species}}'.replace('_', ' ');
-	var limit = {{query.limit|default:12}};
+    // Fetch data from API
+    var species = '{{query.species}}'.replace('_', ' ');
+    var limit = {{query.limit|default:12}};
 
     var params = new URLSearchParams ({
         q: encodeURIComponent('{{query.q}}'),
@@ -207,61 +180,61 @@ function updateQuery(key, value) {
     });
 
     {% if query.category == 'datasets' %}
-    	datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
-    	datasetsURL.search = params;
+        datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
+        datasetsURL.search = params;
 
-    	fetch(datasetsURL)
-    		.then(res => res.json())
-    		.then(data => {
-    			data.results.forEach(item => {
-    				var title = `<i>${item.species}</i>`;
-    				if (item.name) {
-    					title = `${title} - ${item.name}`;
-    				}
-    				var subtitle = item.species_common_name || '';
+        fetch(datasetsURL)
+            .then(res => res.json())
+            .then(data => {
+                data.results.forEach(item => {
+                    var title = `<i>${item.species}</i>`;
+                    if (item.name) {
+                        title = `${title} - ${item.name}`;
+                    }
+                    var subtitle = item.species_common_name || '';
 
-    				var description = item.species_description;
-    				var badges = item.species_meta.map(item => item.value).filter(item =>
-    				    !title.includes(item) && !subtitle.includes(item)
-    				);
+                    var description = item.species_description;
+                    var badges = item.species_meta.map(item => item.value).filter(item =>
+                        !title.includes(item) && !subtitle.includes(item)
+                    );
 
                     var dataset_url = '{% url "atlas_info" '::dataset' %}'
-    				    .replace('::dataset', item.slug);
-    				appendResult(title, dataset_url, subtitle, dataset_url,
-    				             description, badges);
-    			});
-    			$('#results_count').text(`${data.count.toLocaleString()} results`);
-    		})
-    		.catch(err => {
+                        .replace('::dataset', item.slug);
+                    appendResult(title, dataset_url, subtitle, dataset_url,
+                                 description, badges);
+                });
+                $('#results_count').text(`${data.count.toLocaleString()} results`);
+            })
+            .catch(err => {
                 console.error('Error loading data:', err);
             });
     {% elif query.category == 'genes' %}
-    	genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
-    	genesURL.search = params;
+        genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
+        genesURL.search = params;
 
-    	fetch(genesURL)
-    		.then(res => res.json())
-    		.then(data => {
-    			data.results.forEach(item => {
-    				var gene = item.name;
-    				var species_name = item.species ? item.species.scientific_name : '';
-    				var description = item.description;
-    				var domains = item.domains;
+        fetch(genesURL)
+            .then(res => res.json())
+            .then(data => {
+                data.results.forEach(item => {
+                    var gene = item.name;
+                    var species_name = item.species ? item.species.scientific_name : '';
+                    var description = item.description;
+                    var domains = item.domains;
 
                     var slug = item.species ?
-                    	item.species.scientific_name.slug : species.slug;
-    				var species_url = '{% url "atlas_info" '::species' %}'
-    				    .replace('::species', slug);
-    				var gene_url = '{% url "atlas_gene" '::species' '::gene' %}'
-    				    .replace('::species', slug)
-    				    .replace('::gene', gene);
+                        item.species.scientific_name.slug : species.slug;
+                    var species_url = '{% url "atlas_info" '::species' %}'
+                        .replace('::species', slug);
+                    var gene_url = '{% url "atlas_gene" '::species' '::gene' %}'
+                        .replace('::species', slug)
+                        .replace('::gene', gene);
 
-    				appendResult(gene, gene_url, species_name, species_url,
-    				             description, domains);
-    			});
-    			$('#results_count').text(`${data.count.toLocaleString()} results`);
-    		})
-    		.catch(err => {
+                    appendResult(gene, gene_url, species_name, species_url,
+                                 description, domains);
+                });
+                $('#results_count').text(`${data.count.toLocaleString()} results`);
+            })
+            .catch(err => {
                 console.error('Error loading data:', err);
             });
     {% endif %}
@@ -271,28 +244,34 @@ function updateQuery(key, value) {
         event.preventDefault();
         updateQuery('q', event.target.q.value);
     });
-</script>
+    </script>
 
 {% endblock content %}
 
 {% block pagination %}
-{% if query %}
-<nav aria-label="Page navigation example">
-  	<ul class="pagination justify-content-center">
-    	<li class="page-item disabled">
-      		<a class="page-link" href="#" aria-label="Previous">
-        		<span aria-hidden="true">&laquo;</span>
-      		</a>
-    	</li>
-    	<li class="page-item"><a class="page-link" href="#">1</a></li>
-    	<li class="page-item"><a class="page-link" href="#">2</a></li>
-    	<li class="page-item"><a class="page-link" href="#">3</a></li>
-    	<li class="page-item">
-      		<a class="page-link" href="#" aria-label="Next">
-        		<span aria-hidden="true">&raquo;</span>
-      		</a>
-    	</li>
- 	</ul>
-</nav>
-{% endif %}
+    {% if query %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">«</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">»</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
 {% endblock pagination %}

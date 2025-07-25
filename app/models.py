@@ -1,14 +1,14 @@
-from django.db import models, connection
-from django.core.exceptions import ValidationError
-from django.contrib.postgres.fields import ArrayField
-from django.utils.text import slugify
-from django.utils.safestring import mark_safe
-from django.urls import reverse
+import hashlib
+import re
+from pathlib import Path
 
 from colorfield.fields import ColorField
-import re
-import hashlib
-from pathlib import Path
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.db import connection, models
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 
 
 class SlugMixin(models.Model):
@@ -41,7 +41,7 @@ class ImageSourceMixin(models.Model):
         if not self.image_url:
             return None
 
-        regex = r'https?://(?:[a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+)\.'
+        regex = r"https?://(?:[a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+)\."
         match = re.match(regex, self.image_url)
         if match:
             return match.group(1).capitalize()
@@ -49,16 +49,18 @@ class ImageSourceMixin(models.Model):
 
 
 class Species(SlugMixin, ImageSourceMixin):
-    common_name     = models.CharField(
-        max_length=100, null=True,
-        help_text="Common name of the species")
+    common_name = models.CharField(
+        max_length=100, null=True, help_text="Common name of the species"
+    )
     scientific_name = models.CharField(
-        max_length=100, unique=True,
-        help_text="Scientific name of the species")
-    description     = models.TextField(
-        blank=True, null=True, help_text="Species description")
-    image_url       = models.URLField(
-        blank=True, null=True, help_text="URL for species image")
+        max_length=100, unique=True, help_text="Scientific name of the species"
+    )
+    description = models.TextField(
+        blank=True, null=True, help_text="Species description"
+    )
+    image_url = models.URLField(
+        blank=True, null=True, help_text="URL for species image"
+    )
 
     @property
     def division(self):
@@ -73,24 +75,24 @@ class Species(SlugMixin, ImageSourceMixin):
         return self.meta_set.filter(key="phylum").first().value
 
     def get_absolute_url(self):
-        return reverse('species_entry', args=[self.scientific_name])
+        return reverse("species_entry", args=[self.scientific_name])
 
     def get_gene_list_url(self):
-        return reverse('gene_entry', args=[self.slug])
+        return reverse("gene_entry", args=[self.slug])
 
     def get_genemodule_list_url(self):
-        return reverse('gene_module_entry', args=[self.slug])
+        return reverse("gene_module_entry", args=[self.slug])
 
     def get_genelist_list_url(self, genelist):
-        return reverse('gene_list_entry', args=[genelist, self.slug])
+        return reverse("gene_list_entry", args=[genelist, self.slug])
 
     def get_domain_list_url(self, domain):
-        return reverse('domain_entry', args=[domain, self.slug])
+        return reverse("domain_entry", args=[domain, self.slug])
 
     def get_html(self):
-        """ Return HTML representation of the species name. """
+        """Return HTML representation of the species name."""
         unspecified = " sp."
-        species =self.scientific_name
+        species = self.scientific_name
 
         if species.lower().endswith(unspecified):
             genus = species.replace(unspecified, "")
@@ -100,7 +102,7 @@ class Species(SlugMixin, ImageSourceMixin):
         return mark_safe(html)
 
     def get_html_link(self, url=None):
-        """ Return HTML representation linking to species object. """
+        """Return HTML representation linking to species object."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.image_url
         label = self.get_html()
@@ -110,7 +112,7 @@ class Species(SlugMixin, ImageSourceMixin):
         return mark_safe(html)
 
     def get_genes_html_link(self):
-        """ Return HTML representation linking to list of genes. """
+        """Return HTML representation linking to list of genes."""
         url = self.get_gene_list_url()
         return self.get_html_link(url)
 
@@ -135,40 +137,52 @@ class Source(models.Model):
 
 
 class Dataset(SlugMixin, ImageSourceMixin):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE,
-                                related_name="datasets")
+    species = models.ForeignKey(
+        Species, on_delete=models.CASCADE, related_name="datasets"
+    )
     name = models.CharField(
-        max_length=255, default=None, null=True, help_text="Name of the dataset")
+        max_length=255, default=None, null=True, help_text="Name of the dataset"
+    )
     description = models.TextField(
-        blank=True, null=True, help_text="Description of the dataset")
+        blank=True, null=True, help_text="Description of the dataset"
+    )
     image_url = models.URLField(
-        blank=True, null=True, help_text="URL for dataset image")
+        blank=True, null=True, help_text="URL for dataset image"
+    )
     date_created = models.DateTimeField(
-        auto_now_add=True, help_text="Timestamp when the dataset was created")
+        auto_now_add=True, help_text="Timestamp when the dataset was created"
+    )
     date_updated = models.DateTimeField(
-        auto_now=True, help_text="Timestamp when the dataset was last updated")
+        auto_now=True, help_text="Timestamp when the dataset was last updated"
+    )
 
     source = models.ForeignKey(
-        Source, on_delete=models.SET_NULL, null=True, blank=True,
-        help_text="Source of the dataset")
-    #version = models.CharField(max_length=50, blank=True, null=True)
-    #is_public = models.BooleanField(default=True)
+        Source,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Source of the dataset",
+    )
+    # version = models.CharField(max_length=50, blank=True, null=True)
+    # is_public = models.BooleanField(default=True)
 
     # Dataset order: only required if revelant, such as in the case of
     # developmental stages
     order = models.PositiveIntegerField(
-        default=0, help_text="Order of the dataset (for ordinal sets like developmental stages)")
+        default=0,
+        help_text="Order of the dataset (for ordinal sets like developmental stages)",
+    )
 
     def __label(self, species):
         dataset = self.name
         return f"{species} ({dataset})" if dataset else species
 
     def get_html(self):
-        """ Return HTML representation of the dataset. """
+        """Return HTML representation of the dataset."""
         return mark_safe(self.__label(self.species.get_html()))
 
     def get_html_link(self, url=None):
-        """ Return HTML representation linking to the Dataset. """
+        """Return HTML representation linking to the Dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.image_url or self.species.image_url
         label = self.get_html()
@@ -178,37 +192,35 @@ class Dataset(SlugMixin, ImageSourceMixin):
         return mark_safe(html)
 
     def get_gene_modules_html_link(self):
-        """ Return HTML representation linking to list of gene modules. """
+        """Return HTML representation linking to list of gene modules."""
         url = self.get_gene_module_list_url()
         return self.get_html_link(url)
 
     def get_absolute_url(self):
-        return reverse('atlas_info', args=[str(self.slug)])
+        return reverse("atlas_info", args=[str(self.slug)])
 
     def get_gene_url(self, gene):
-        return reverse('atlas_gene', args=[str(self.slug), str(gene)])
+        return reverse("atlas_gene", args=[str(self.slug), str(gene)])
 
     def get_gene_module_list_url(self):
-        return reverse('gene_module_entry', args=[self.slug])
+        return reverse("gene_module_entry", args=[self.slug])
 
     class Meta:
-        unique_together = ('species', 'name')
+        unique_together = ("species", "name")
         ordering = ["species__scientific_name", "order"]
 
     def __str__(self):
         return self.__label(self.species.scientific_name)
 
-class File(models.Model):
-    file_types = {
-        "Proteome": "Proteome",
-        "DIAMOND": "DIAMOND"
-    }
 
-    species  = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    type     = models.CharField(max_length=255, choices=file_types)
-    file     = models.FileField()
+class File(models.Model):
+    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
+    type = models.CharField(max_length=255, choices=file_types)
+    file = models.FileField()
     checksum = models.CharField(max_length=64, editable=False)
-    slug     = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.file:
@@ -241,18 +253,19 @@ class File(models.Model):
 
 class Meta(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
-    key     = models.CharField(max_length=100)
-    value   = models.CharField(max_length=100)
-    query_term = models.CharField(max_length=100, null=True,
-                                  help_text="Term to use in query URL")
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=100)
+    query_term = models.CharField(
+        max_length=100, null=True, help_text="Term to use in query URL"
+    )
     source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
 
     @property
     def query_url(self):
-        url  = self.source.query_url
+        url = self.source.query_url
         term = self.query_term
         if url and term:
-            url = url.replace('{{id}}', term)
+            url = url.replace("{{id}}", term)
         else:
             url = None
         return url
@@ -263,8 +276,8 @@ class Meta(models.Model):
     @property
     def label(self):
         label = self.key
-        if label == 'taxon_id':
-            label = 'Taxon ID'
+        if label == "taxon_id":
+            label = "Taxon ID"
         else:
             label = label.capitalize()
         return label
@@ -279,9 +292,11 @@ class Meta(models.Model):
 
 
 class MetacellType(SlugMixin):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_types')
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_types"
+    )
     name = models.CharField()
-    color = ColorField(default='#AAAAAA')
+    color = ColorField(default="#AAAAAA")
 
     class Meta:
         unique_together = ["dataset", "name"]
@@ -291,20 +306,31 @@ class MetacellType(SlugMixin):
 
 
 class MetacellLink(models.Model):
-    metacell  = models.ForeignKey('Metacell', related_name='from_links', on_delete=models.CASCADE)
-    metacell2 = models.ForeignKey('Metacell', related_name='to_links', on_delete=models.CASCADE)
-    dataset   = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_links')
+    metacell = models.ForeignKey(
+        "Metacell", related_name="from_links", on_delete=models.CASCADE
+    )
+    metacell2 = models.ForeignKey(
+        "Metacell", related_name="to_links", on_delete=models.CASCADE
+    )
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_links"
+    )
 
     def __str__(self):
         return f"{self.metacell} - {self.metacell2}"
 
+
 class Metacell(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacells')
-    type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacells"
+    )
+    type = models.ForeignKey(
+        MetacellType, on_delete=models.SET_NULL, blank=True, null=True
+    )
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
-    links = models.ManyToManyField('self', through='MetacellLink', symmetrical=True)
+    links = models.ManyToManyField("self", through="MetacellLink", symmetrical=True)
 
     class Meta:
         unique_together = ["name", "dataset"]
@@ -314,16 +340,22 @@ class Metacell(models.Model):
 
 
 class MetacellCount(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='metacell_stats')
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='stats')
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_stats"
+    )
+    metacell = models.ForeignKey(
+        Metacell, on_delete=models.CASCADE, related_name="stats"
+    )
     cells = models.IntegerField()
     umis = models.IntegerField()
 
 
 class SingleCell(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='sc')
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
-    metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
+    metacell = models.ForeignKey(
+        Metacell, on_delete=models.SET_NULL, blank=True, null=True
+    )
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
 
@@ -339,7 +371,7 @@ class Domain(models.Model):
 
     @property
     def source(self):
-        return Source.objects.get(name='Pfam')
+        return Source.objects.get(name="Pfam")
 
     @property
     def query_term(self):
@@ -347,16 +379,16 @@ class Domain(models.Model):
 
     @property
     def query_url(self):
-        url  = self.source.query_url
+        url = self.source.query_url
         term = self.query_term
         if url and term:
-            url = url.replace('{{id}}', term)
+            url = url.replace("{{id}}", term)
         else:
             url = None
         return url
 
     def get_absolute_url(self):
-        return reverse('domain_entry', args=[self.name])
+        return reverse("domain_entry", args=[self.name])
 
     def get_html_link(self, url=None):
         url = self.get_absolute_url() if url is None else url
@@ -377,7 +409,7 @@ class GeneList(models.Model):
     description = models.CharField(max_length=400, blank=True, null=True)
 
     def get_absolute_url(self):
-        return reverse('gene_list_entry', args=[self.name])
+        return reverse("gene_list_entry", args=[self.name])
 
     def get_html_link(self, url=None):
         url = self.get_absolute_url() if url is None else url
@@ -391,17 +423,18 @@ class GeneList(models.Model):
 
 
 class Gene(SlugMixin):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name='genes')
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="genes")
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
-    genelists = models.ManyToManyField(GeneList, related_name='genes')
+    genelists = models.ManyToManyField(GeneList, related_name="genes")
     correlations = models.ManyToManyField(
-        'self', through='GeneCorrelation', symmetrical=True)
+        "self", through="GeneCorrelation", symmetrical=True
+    )
 
     @property
     def orthogroup(self):
-        return getattr(self.ortholog_set.first(), 'orthogroup', None)
+        return getattr(self.ortholog_set.first(), "orthogroup", None)
 
     @property
     def slug(self):
@@ -409,16 +442,17 @@ class Gene(SlugMixin):
 
     def genelist_names(self):
         return [genelist.name for genelist in self.genelists.all()]
-    genelist_names.short_description = 'Gene lists'
+
+    genelist_names.short_description = "Gene lists"
 
     def get_absolute_url(self):
-        return reverse('gene_entry', args=[self.species.slug, self.name])
+        return reverse("gene_entry", args=[self.species.slug, self.name])
 
     def get_html_link(self):
         url = self.get_absolute_url()
         label = self.name
 
-        html = f'<a href="{url}">{label}</a>'
+        html = f'<a class="text-break" href="{url}">{label}</a>'
         return mark_safe(html)
 
     def get_orthogroup_html_link(self):
@@ -435,7 +469,7 @@ class Gene(SlugMixin):
 
     def get_domain_html_links(self):
         domains = self.domains.all()
-        html = ', '.join(d.get_html_link() for d in domains)
+        html = ", ".join(d.get_html_link() for d in domains)
         return mark_safe(html)
 
     class Meta:
@@ -446,21 +480,22 @@ class Gene(SlugMixin):
 
 
 class GeneModule(models.Model):
-    gene = models.ForeignKey(
-        Gene, on_delete=models.CASCADE, related_name='modules')
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="modules")
     dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name='gene_modules')
+        Dataset, on_delete=models.CASCADE, related_name="gene_modules"
+    )
     name = models.CharField(max_length=100)
     membership_score = models.DecimalField(
-        max_digits=4, decimal_places=3, blank=True, null=True)
+        max_digits=4, decimal_places=3, blank=True, null=True
+    )
 
     @property
     def gene_modules(self):
-        """ Return all gene modules for the same module. """
+        """Return all gene modules for the same module."""
         return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
 
     def get_absolute_url(self):
-        return reverse('gene_module_entry', args=[self.dataset.slug, self.name])
+        return reverse("gene_module_entry", args=[self.dataset.slug, self.name])
 
     def get_html_link(self):
         url = self.get_absolute_url()
@@ -477,12 +512,16 @@ class GeneModule(models.Model):
 
 
 class GeneCorrelation(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='gene_corr')
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene')
-    gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='gene2')
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="gene_corr"
+    )
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene")
+    gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene2")
 
-    spearman = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-    pearson  = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+    spearman = models.DecimalField(
+        max_digits=3, decimal_places=2, blank=True, null=True
+    )
+    pearson = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     class Meta:
         unique_together = ("dataset", "gene", "gene2")
@@ -492,9 +531,9 @@ class GeneCorrelation(models.Model):
 
 
 class MetacellGeneExpression(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='mge')
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='mge')
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name='mge')
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="mge")
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="mge")
+    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name="mge")
     umi_raw = models.FloatField(blank=True, null=True)
     umifrac = models.FloatField(blank=True, null=True)
     fold_change = models.FloatField(blank=True, null=True)
@@ -509,9 +548,11 @@ class MetacellGeneExpression(models.Model):
 
 
 class SingleCellGeneExpression(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='scge')
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name='scge')
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name='scge')
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
+    single_cell = models.ForeignKey(
+        SingleCell, on_delete=models.CASCADE, related_name="scge"
+    )
     umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
@@ -525,7 +566,9 @@ class SingleCellGeneExpression(models.Model):
 
 
 class Ortholog(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name='orthologs')
+    species = models.ForeignKey(
+        Species, on_delete=models.CASCADE, related_name="orthologs"
+    )
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     orthogroup = models.CharField()
 
@@ -535,12 +578,12 @@ class Ortholog(models.Model):
 
     @property
     def orthologs(self):
-        """ Return all ortholog genes for this object's orthogroup. """
+        """Return all ortholog genes for this object's orthogroup."""
         orthogroup = self.orthogroup
         return Ortholog.objects.filter(orthogroup=orthogroup)
 
     def get_absolute_url(self):
-        return reverse('orthogroup_entry', args=[self.orthogroup])
+        return reverse("orthogroup_entry", args=[self.orthogroup])
 
     def get_html_link(self):
         # Get a ortholog object based on orthogroup
@@ -561,9 +604,11 @@ class Ortholog(models.Model):
 
 class SAMap(models.Model):
     metacelltype = models.ForeignKey(
-        MetacellType, on_delete=models.CASCADE, related_name='samap')
+        MetacellType, on_delete=models.CASCADE, related_name="samap"
+    )
     metacelltype2 = models.ForeignKey(
-        MetacellType, on_delete=models.CASCADE, related_name='samap2')
+        MetacellType, on_delete=models.CASCADE, related_name="samap2"
+    )
     samap = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:

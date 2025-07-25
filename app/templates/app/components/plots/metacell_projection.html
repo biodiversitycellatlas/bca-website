@@ -7,25 +7,42 @@ Input:
 
 {% endcomment %}
 
-<div id="{{id}}-plot-ui" class="row g-2 mb-4 align-items-end">
+<div id="{{ id }}-plot-ui" class="row g-2 mb-4 align-items-end">
     <!-- Toggle visibility -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
-            <label class="col-form-label"><i class="fa fa-eye"></i> View options </label>
+            <label class="col-form-label">
+                <i class="fa fa-eye"></i> View options
+            </label>
         </div>
 
-        <div class="btn-group" role="group" style="display: flex;">
-          <input type="checkbox" class="btn-check" id="{{id}}-cells" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="{{id}}-cells">Cells</label>
+        <div class="btn-group d-flex" role="group">
+            <input type="checkbox"
+                   class="btn-check"
+                   id="{{ id }}-cells"
+                   autocomplete="off"
+                   checked>
+            <label class="btn btn-outline-primary" for="{{ id }}-cells">Cells</label>
 
-          <input type="checkbox" class="btn-check" id="{{id}}-metacells" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="{{id}}-metacells">Metacells</label>
+            <input type="checkbox"
+                   class="btn-check"
+                   id="{{ id }}-metacells"
+                   autocomplete="off"
+                   checked>
+            <label class="btn btn-outline-primary" for="{{ id }}-metacells">Metacells</label>
 
-          <input type="checkbox" class="btn-check" id="{{id}}-labels" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="{{id}}-labels">Labels</label>
+            <input type="checkbox"
+                   class="btn-check"
+                   id="{{ id }}-labels"
+                   autocomplete="off"
+                   checked>
+            <label class="btn btn-outline-primary" for="{{ id }}-labels">Labels</label>
 
-          <input type="checkbox" class="btn-check" id="{{id}}-links" autocomplete="off">
-          <label class="btn btn-outline-primary" for="{{id}}-links">Links</label>
+            <input type="checkbox"
+                   class="btn-check"
+                   id="{{ id }}-links"
+                   autocomplete="off">
+            <label class="btn btn-outline-primary" for="{{ id }}-links">Links</label>
         </div>
     </div>
 
@@ -47,12 +64,15 @@ Input:
     <!-- Metacell selection -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
-            <label class="col-form-label"><i class="fa fa-object-group"></i> Metacell selection </label>
+            <label class="col-form-label">
+                <i class="fa fa-object-group"></i> Metacell selection
+            </label>
             <i class="fa fa-circle-question"
-               data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
                data-bs-title="Click and drag in the plot to select metacells"></i>
         </div>
-        <div class="btn-group" role="group" style="display: flex;">
+        <div class="btn-group d-flex" role="group">
             <button type="button" class="btn btn-outline-primary" id="list_markers">List markers</button>
             <button type="button" class="btn btn-outline-primary" id="filter_heatmap">Filter heatmap</button>
         </div>
@@ -62,7 +82,8 @@ Input:
 {% include '../plot_container.html' with id=id ratio='16/9' %}
 
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/plots/metacell_scatterplot.js' %}"></script>
+<script type="text/javascript"
+        src="{% static 'app/js/plots/metacell_scatterplot.js' %}"></script>
 <script type="text/javascript">
     var urls = {
         "sc_data": "{% url 'rest:singlecell-list' %}",
@@ -74,14 +95,14 @@ Input:
     urls['mc_links'] += "?" + params.toString();
 
     {% if gene %}
-	    params.append('gene', '{{gene}}');
-	{% endif %}
+        params.append('gene', '{{gene}}');
+    {% endif %}
 
-	urls['sc_data'] += "?" + params.toString();
-	urls['mc_data'] += "?" + params.toString();
+    urls['sc_data'] += "?" + params.toString();
+    urls['mc_data'] += "?" + params.toString();
 
-	appendDataMenu('{{id}}', urls,
-	               ['Single-cell data', 'Metacell data', 'Metacell links']);
+    appendDataMenu('{{id}}', urls,
+                   ['Single-cell data', 'Metacell data', 'Metacell links']);
 
     Promise.all(
         Object.entries(urls).map(([key, url]) =>
@@ -107,9 +128,9 @@ Input:
             document.getElementById('{{id}}-plot-ui').style.display = 'none';
         } else {
             createMetacellProjection(
-    	        "#{{id}}-plot", "{{dataset.slug}}", data,
-    	        color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
-    	        {% if gene %}'{{gene}}'{% else %}null{% endif %});
+                "#{{id}}-plot", "{{dataset.slug}}", data,
+                color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
+                {% if gene %}'{{gene}}'{% else %}null{% endif %});
         }
     })
     .catch(error => {
@@ -143,25 +164,25 @@ Input:
         return metacells;
     }
 
-	$('#list_markers').on('click', function(e) {
-	    var metacells = getSelectedMetacells();
-	    if (metacells.length >= 1) {
-	        url = '{% url 'atlas_markers' dataset.slug %}?metacells=' + metacells;
-	        window.location.href = url;
-	    } else {
-	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
-	    }
-	});
+    $('#list_markers').on('click', function(e) {
+        var metacells = getSelectedMetacells();
+        if (metacells.length >= 1) {
+            url = '{% url 'atlas_markers' dataset.slug %}?metacells=' + metacells;
+            window.location.href = url;
+        } else {
+            alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+        }
+    });
 
-	$('#filter_heatmap').on('click', function(e) {
-	    var metacells = getSelectedMetacells();
-	    if (metacells.length >= 1) {
-	        url = new URL(window.location.href);
-	        url.searchParams.set('metacells', metacells)
-	        url.hash = "expression";
-	        window.location.href = url;
-	    } else {
-	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
-	    }
-	});
+    $('#filter_heatmap').on('click', function(e) {
+        var metacells = getSelectedMetacells();
+        if (metacells.length >= 1) {
+            url = new URL(window.location.href);
+            url.searchParams.set('metacells', metacells)
+            url.hash = "expression";
+            window.location.href = url;
+        } else {
+            alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+        }
+    });
 </script>

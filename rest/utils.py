@@ -1,7 +1,8 @@
 from django.db import connection
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 
 from app.utils import get_dataset
+
 
 def check_model_exists(model):
     try:
@@ -11,10 +12,10 @@ def check_model_exists(model):
 
 
 def parse_species_dataset(value):
-	dataset = get_dataset(value)
-	if not dataset:
-		raise ValueError(f'Cannot find dataset for {value}')
-	return dataset
+    dataset = get_dataset(value)
+    if not dataset:
+        raise ValueError(f"Cannot find dataset for {value}")
+    return dataset
 
 
 def get_enum_description(description, enum):
@@ -37,7 +38,9 @@ def get_enum_description(description, enum):
 def get_path_param(name, filter_cls):
     f = filter_cls()
     return OpenApiParameter(
-        name, str, OpenApiParameter.PATH,
-        description=get_enum_description(f.label, dict(f.extra['choices'])),
-        enum=[i for (i, _) in f.field.choices if i]
+        name,
+        str,
+        OpenApiParameter.PATH,
+        description=get_enum_description(f.label, dict(f.extra["choices"])),
+        enum=[i for (i, _) in f.field.choices if i],
     )

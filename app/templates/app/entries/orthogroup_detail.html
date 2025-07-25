@@ -1,45 +1,47 @@
 {% extends "app/entries/entry_list.html" %}
 
-{% block title %}{{orthogroup}}{% endblock title %}
+{% block title %}
+    {{ orthogroup }}
+{% endblock title %}
 
 {% block content %}
 
-{% load entry_links %}
-{% with title=orthogroup|stringformat:"s orthologs" %}
-    {% render_header_counter title paginator %}
-{% endwith %}
+    {% load entry_links %}
+    {% with title=orthogroup|stringformat:"s orthologs" %}
+        {% render_header_counter title paginator %}
+    {% endwith %}
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Gene</th>
-            <th style="max-width: 400px;">Description</th>
-            <th>Domains</th>
-            <th>Species</th>
-            <th>Common name</th>
-        </tr>
-      </thead>
-    <tbody>
-        {% for ortholog in object_list %}
-        <tr>
-            <td>{{ortholog.gene.get_html_link}}</td>
-            <td style="max-width: 400px;">{{ortholog.gene.description|default:'—'}}</td>
-            <td>{{ortholog.gene.get_domain_html_links}}</td>
-            <td>{{ortholog.gene.species.get_html_link}}</td>
-            <td>{{ortholog.gene.species.common_name|default:'—'}}</td>
-            <td>
-                {% with gene.get_absolute_url as url %}
-                {% if url %}
-                    <a href="{{url}}" target="_blank">{{gene.value}}</a>
-                {% else %}
-                    {{gene.value}}
-                {% endif %}
-                {% endwith %}
-            </td>
-            <td>{{gene.source}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Gene</th>
+                <th class="entry-description">Description</th>
+                <th>Domains</th>
+                <th>Species</th>
+                <th>Common name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ortholog in object_list %}
+                <tr>
+                    <td>{{ ortholog.gene.get_html_link }}</td>
+                    <td class="entry-description">{{ ortholog.gene.description|default:'—' }}</td>
+                    <td>{{ ortholog.gene.get_domain_html_links }}</td>
+                    <td>{{ ortholog.gene.species.get_html_link }}</td>
+                    <td>{{ ortholog.gene.species.common_name|default:'—' }}</td>
+                    <td>
+                        {% with gene.get_absolute_url as url %}
+                            {% if url %}
+                                <a href="{{ url }}" target="_blank">{{ gene.value }}</a>
+                            {% else %}
+                                {{ gene.value }}
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>{{ gene.source }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock content %}
