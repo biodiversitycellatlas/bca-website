@@ -127,12 +127,12 @@ $('form').on('submit', function(e) {
         var url = "{% url 'rest:samap-list' %}";
 
         var params = new URLSearchParams({
-    		dataset: '{{dataset.slug}}',
-    		dataset2: '{{dataset2.slug}}',
-    		threshold: $("#samap_min").val(),
-    		limit: 0
-    	});
-    	var apiURL = url + "?" + params.toString();
+            dataset: '{{dataset.slug}}',
+            dataset2: '{{dataset2.slug}}',
+            threshold: $("#samap_min").val(),
+            limit: 0
+        });
+        var apiURL = url + "?" + params.toString();
 
         fetch(apiURL)
             .then(response => response.json())

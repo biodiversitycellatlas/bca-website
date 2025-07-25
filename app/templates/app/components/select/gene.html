@@ -85,26 +85,26 @@ $(function () {
 
         onChange: function(value) {
             // Avoid jumping if value is empty or matches current gene
-    	    if (value !== "" && value !== '{{gene}}') {
-    	        {% if redirect == 'arg' %}
-    	            window.location.href = "{% url request.resolver_match.url_name dataset.slug '::arg' %}".replace('::arg', value);
-			    {% elif redirect == 'query' %}
+            if (value !== "" && value !== '{{gene}}') {
+                {% if redirect == 'arg' %}
+                    window.location.href = "{% url request.resolver_match.url_name dataset.slug '::arg' %}".replace('::arg', value);
+                {% elif redirect == 'query' %}
                     var url = new URL(window.location.href);
-    	            url.searchParams.set('gene', value)
-    	            if ('{{hash}}' !== '') {
-    	                url.hash = '#{{hash}}';
-    	            }
-    	            window.location.href = url;
-			    {% endif %}
-    		}
-		},
+                    url.searchParams.set('gene', value)
+                    if ('{{hash}}' !== '') {
+                        url.hash = '#{{hash}}';
+                    }
+                    window.location.href = url;
+                {% endif %}
+            }
+        },
 
-		{% if multiple != 'true' %}
-    		onDropdownOpen: function($dropdown) {
-    		    this.clear();
-    		},
-    		onBlur: function() {
-    		    // Set current gene if no value is selected
+        {% if multiple != 'true' %}
+            onDropdownOpen: function($dropdown) {
+                this.clear();
+            },
+            onBlur: function() {
+                // Set current gene if no value is selected
                 if (!this.getValue()) {
                     this.setValue('{{gene}}');
                 }

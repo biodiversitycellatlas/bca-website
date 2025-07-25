@@ -157,15 +157,15 @@ Input:
                 var url = "{% url 'rest:metacellmarker-list' %}";
 
                 var params = new URLSearchParams({
-            	    dataset: '{{dataset.slug}}',
-            		metacells: '{{query.metacells}}',
-            		fc_min_type: '{{query.fc_min_type|default:'mean'}}',
-            		fc_min: '{{query.fc_min|default:2}}',
-            		fc_max_bg_type: '{{query.fc_max_bg_type|default:'ignore'}}',
-            		fc_max_bg: '{{query.fc_max_bg|default:3}}',
-            		limit: 0
-            	});
-            	var apiURL = url + "?" + params.toString();
+                    dataset: '{{dataset.slug}}',
+                    metacells: '{{query.metacells}}',
+                    fc_min_type: '{{query.fc_min_type|default:'mean'}}',
+                    fc_min: '{{query.fc_min|default:2}}',
+                    fc_max_bg_type: '{{query.fc_max_bg_type|default:'ignore'}}',
+                    fc_max_bg: '{{query.fc_max_bg|default:3}}',
+                    limit: 0
+                });
+                var apiURL = url + "?" + params.toString();
 
                 createMarkersTable('markers', apiURL)
                 appendDataMenu('markers', apiURL, 'Metacell markers');

@@ -95,14 +95,14 @@ Input:
     urls['mc_links'] += "?" + params.toString();
 
     {% if gene %}
-	    params.append('gene', '{{gene}}');
-	{% endif %}
+        params.append('gene', '{{gene}}');
+    {% endif %}
 
-	urls['sc_data'] += "?" + params.toString();
-	urls['mc_data'] += "?" + params.toString();
+    urls['sc_data'] += "?" + params.toString();
+    urls['mc_data'] += "?" + params.toString();
 
-	appendDataMenu('{{id}}', urls,
-	               ['Single-cell data', 'Metacell data', 'Metacell links']);
+    appendDataMenu('{{id}}', urls,
+                   ['Single-cell data', 'Metacell data', 'Metacell links']);
 
     Promise.all(
         Object.entries(urls).map(([key, url]) =>
@@ -128,9 +128,9 @@ Input:
             document.getElementById('{{id}}-plot-ui').style.display = 'none';
         } else {
             createMetacellProjection(
-    	        "#{{id}}-plot", "{{dataset.slug}}", data,
-    	        color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
-    	        {% if gene %}'{{gene}}'{% else %}null{% endif %});
+                "#{{id}}-plot", "{{dataset.slug}}", data,
+                color_by_metacell_type={% if gene%}false{% else %}true{% endif %},
+                {% if gene %}'{{gene}}'{% else %}null{% endif %});
         }
     })
     .catch(error => {
@@ -164,25 +164,25 @@ Input:
         return metacells;
     }
 
-	$('#list_markers').on('click', function(e) {
-	    var metacells = getSelectedMetacells();
-	    if (metacells.length >= 1) {
-	        url = '{% url 'atlas_markers' dataset.slug %}?metacells=' + metacells;
-	        window.location.href = url;
-	    } else {
-	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
-	    }
-	});
+    $('#list_markers').on('click', function(e) {
+        var metacells = getSelectedMetacells();
+        if (metacells.length >= 1) {
+            url = '{% url 'atlas_markers' dataset.slug %}?metacells=' + metacells;
+            window.location.href = url;
+        } else {
+            alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+        }
+    });
 
-	$('#filter_heatmap').on('click', function(e) {
-	    var metacells = getSelectedMetacells();
-	    if (metacells.length >= 1) {
-	        url = new URL(window.location.href);
-	        url.searchParams.set('metacells', metacells)
-	        url.hash = "expression";
-	        window.location.href = url;
-	    } else {
-	        alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
-	    }
-	});
+    $('#filter_heatmap').on('click', function(e) {
+        var metacells = getSelectedMetacells();
+        if (metacells.length >= 1) {
+            url = new URL(window.location.href);
+            url.searchParams.set('metacells', metacells)
+            url.hash = "expression";
+            window.location.href = url;
+        } else {
+            alert('No metacells selected.\n\nClick and drag to select metacells in the scatterplot.');
+        }
+    });
 </script>
