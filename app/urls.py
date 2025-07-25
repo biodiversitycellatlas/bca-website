@@ -1,3 +1,8 @@
+"""
+URL routing for the app, including Cell Atlas, database entries,
+downloads, search, health check, and custom error pages.
+"""
+
 from django.urls import path
 
 from . import views

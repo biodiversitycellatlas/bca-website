@@ -21,14 +21,15 @@ jobs:
         name: Super-Linter
         runs-on: ubuntu-latest
         env:
+            DEFAULT_BRANCH: "main"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
             # Avoid checking migrations
             FILTER_REGEX_EXCLUDE: "(^|/)migrations/"
             # Check HTML with djlint
             VALIDATE_HTML: false
             VALIDATE_HTML_PRETTIER: false
-            DEFAULT_BRANCH: "main"
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            PYTHON_PYLINT_CONFIG_FILE: ".pylintrc"
 
         steps:
             - name: Checkout code
