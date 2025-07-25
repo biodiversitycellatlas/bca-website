@@ -97,11 +97,13 @@ class GeneListDetailView(FilteredListView):
     filter_by = "species"
 
     def get_queryset(self):
+        """Filter queryset by gene list."""
         qs = super().get_queryset()
         gene_list = self.kwargs.get("gene_list")
         return qs.filter(genelists=get_gene_list(gene_list))
 
     def get_context_data(self, **kwargs):
+        """Add gene list to context."""
         context = super().get_context_data(**kwargs)
         context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
         return context
@@ -123,11 +125,13 @@ class DomainDetailView(FilteredListView):
     filter_by = "species"
 
     def get_queryset(self):
+        """Filter queryset by domain."""
         qs = super().get_queryset()
         domain = self.kwargs.get("domain")
         return qs.filter(domains__name=domain)
 
     def get_context_data(self, **kwargs):
+        """Add domain to context."""
         context = super().get_context_data(**kwargs)
         context["domain"] = self.kwargs.get("domain")
         return context
@@ -140,6 +144,7 @@ class GeneModuleListView(FilteredListView):
     template_name = "app/entries/gene_module_list.html"
 
     def get_queryset(self):
+        """Return unique queryset items based on dataset and gene module name."""
         return super().get_queryset().distinct("dataset", "name")
 
 
@@ -150,12 +155,14 @@ class GeneModuleDetailView(FilteredListView):
     template_name = "app/entries/gene_module_detail.html"
 
     def get_queryset(self):
+        """Filter queryset by gene module and dataset."""
         qs = super().get_queryset()
         module = self.kwargs.get("gene_module")
         dataset = get_dataset(self.kwargs.get("dataset"))
         return qs.filter(name=module, dataset=dataset)
 
     def get_context_data(self, **kwargs):
+        """Add module and dataset to context."""
         context = super().get_context_data(**kwargs)
         context["module"] = self.kwargs.get("gene_module")
         context["dataset"] = get_dataset(self.kwargs.get("dataset"))
@@ -181,11 +188,13 @@ class OrthogroupDetailView(ListView):
     template_name = "app/entries/orthogroup_detail.html"
 
     def get_queryset(self):
+        """Filter queryset by orthogroup."""
         qs = super().get_queryset()
         orthogroup = self.kwargs.get("orthogroup")
         return qs.filter(orthogroup=orthogroup)
 
     def get_context_data(self, **kwargs):
+        """Add orthogroup to context."""
         context = super().get_context_data(**kwargs)
         context["orthogroup"] = self.kwargs.get("orthogroup")
         return context

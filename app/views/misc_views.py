@@ -15,6 +15,7 @@ class IndexView(TemplateView):
     template_name = "app/home.html"
 
     def get_context_data(self, **kwargs):
+        """Add dataset dictionary to context."""
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
         return context
