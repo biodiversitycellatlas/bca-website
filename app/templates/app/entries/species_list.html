@@ -27,13 +27,11 @@
     <td>{{ each.phylum }}</td>
 
     <td>
-    {% if each.datasets %}
-        <ul class="mb-0 list-unstyled">
-        {% for dataset in each.datasets.all %}
-            <li>{{ dataset.get_html_link }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+        {% if each.datasets %}
+            <ul class="mb-0 list-unstyled">
+                {% for dataset in each.datasets.all %}<li>{{ dataset.get_html_link }}</li>{% endfor %}
+            </ul>
+        {% endif %}
     </td>
 {% endblock row %}
 

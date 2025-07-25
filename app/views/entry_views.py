@@ -1,3 +1,5 @@
+"""Views for displaying database entries."""
+
 from django.views.generic import DetailView, ListView, TemplateView
 
 from ..models import Dataset, Domain, Gene, GeneList, GeneModule, Ortholog, Species
@@ -5,16 +7,19 @@ from ..utils import get_dataset, get_gene_list, get_species
 
 
 class EntryView(TemplateView):
+    """Landing page for database entries."""
     template_name = "app/entries/entry.html"
 
 
 class SpeciesListView(ListView):
+    """Display paginated list of all species."""
     model = Species
     paginate_by = 20
     template_name = "app/entries/species_list.html"
 
 
 class SpeciesDetailView(DetailView):
+    """Display details for a specific species."""
     model = Species
     template_name = "app/entries/species_detail.html"
     slug_field = "scientific_name"
@@ -22,42 +27,46 @@ class SpeciesDetailView(DetailView):
 
 
 class DatasetListView(ListView):
+    """Display paginated list of all datasets."""
     model = Dataset
     paginate_by = 20
     template_name = "app/entries/dataset_list.html"
 
 
 class FilteredListView(ListView):
-    """Allow filtering view by dataset or species."""
-
+    """Base view for filtering lists by dataset or species."""
     filter_by = "dataset"
 
-    def get_filter_function(self):
+    def __get_filter_function(self):
+        """Get function to retrieve the appropriate filter."""
         if self.filter_by == "dataset":
             return get_dataset
-        elif self.filter_by == "species":
+        if self.filter_by == "species":
             return get_species
         return None
 
     def get_queryset(self):
+        """Get queryset filtered by dataset or species in URL."""
         qs = super().get_queryset()
         value = self.kwargs.get(self.filter_by)
-        func = self.get_filter_function()
+        func = self.__get_filter_function()
         if value and func:
             obj = func(value)
             qs = qs.filter(**{self.filter_by: obj})
         return qs
 
     def get_context_data(self, **kwargs):
+        """Add dataset or species to the context."""
         context = super().get_context_data(**kwargs)
         value = self.kwargs.get(self.filter_by)
-        func = self.get_filter_function()
+        func = self.__get_filter_function()
         if value and func:
             context[self.filter_by] = func(value)
         return context
 
 
 class GeneListView(FilteredListView):
+    """Display genes lists filtered by species."""
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list.html"
@@ -65,6 +74,7 @@ class GeneListView(FilteredListView):
 
 
 class GeneDetailView(DetailView):
+    """Display details for a specific gene."""
     model = Gene
     template_name = "app/entries/gene_detail.html"
     slug_field = "name"
@@ -72,6 +82,7 @@ class GeneDetailView(DetailView):
 
 
 class GeneListListView(FilteredListView):
+    """Display all gene lists for a species."""
     model = GeneList
     paginate_by = 20
     template_name = "app/entries/gene_list_list.html"
@@ -79,6 +90,7 @@ class GeneListListView(FilteredListView):
 
 
 class GeneListDetailView(FilteredListView):
+    """Display list of genes in a specific gene list filtered by species."""
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list_detail.html"
@@ -96,6 +108,7 @@ class GeneListDetailView(FilteredListView):
 
 
 class DomainListView(FilteredListView):
+    """Display a list of domains, optionally filtered by species."""
     model = Domain
     paginate_by = 20
     template_name = "app/entries/domain_list.html"
@@ -103,6 +116,7 @@ class DomainListView(FilteredListView):
 
 
 class DomainDetailView(FilteredListView):
+    """Display list of genes associated with a specific domain and species."""
     model = Gene
     paginate_by = 20
     template_name = "app/entries/domain_detail.html"
@@ -120,6 +134,7 @@ class DomainDetailView(FilteredListView):
 
 
 class GeneModuleListView(FilteredListView):
+    """Display distinct gene modules, optionally filtered by dataset."""
     model = GeneModule
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
@@ -129,6 +144,7 @@ class GeneModuleListView(FilteredListView):
 
 
 class GeneModuleDetailView(FilteredListView):
+    """Display list of genes for a specific gene module and dataset."""
     model = GeneModule
     paginate_by = 20
     template_name = "app/entries/gene_module_detail.html"
@@ -147,16 +163,19 @@ class GeneModuleDetailView(FilteredListView):
 
 
 class OrthogroupListView(ListView):
+    """Display list of unique orthogroups."""
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_list.html"
 
     def get_queryset(self):
+        """Return distinct orthogroups ordered by name."""
         qs = super().get_queryset()
         return qs.order_by("orthogroup").distinct("orthogroup")
 
 
 class OrthogroupDetailView(ListView):
+    """Display orthologs within a specific orthogroup."""
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_detail.html"
