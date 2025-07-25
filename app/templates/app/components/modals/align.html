@@ -22,7 +22,8 @@ Input:
                     <img class="rounded"
                          src="{{ species.image_url }}"
                          alt="Image of {{ species }}"
-                         width="25px" height="100%">
+                         width="25px"
+                         height="100%">
                     <span class="small">{{ species.get_html }}</span>
                 </span>
 
@@ -50,7 +51,9 @@ Input:
                     <label class="col-lg-2 col-form-label small">Proteome</label>
                     <div class="col-lg-10">
                         <span class="form-control-plaintext">
-                            <img class="rounded" width="20px" height="100%"
+                            <img class="rounded"
+                                 width="20px"
+                                 height="100%"
                                  src="{{ species.image_url }}"
                                  alt="Image of {{ species }}">
                             {{ species.get_html }}
