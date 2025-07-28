@@ -56,9 +56,17 @@ Input:
                                 aria-label="Select example"
                                 value="median">
                             <option value="mean"
-                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
+                                    {% if query.fc_max_bg_type == 'mean' %}
+                                        selected
+                                    {% endif %}>
+                                Mean
+                            </option>
                             <option value="median"
-                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
+                                    {% if query.fc_max_bg_type == 'median' %}
+                                        selected
+                                    {% endif %}>
+                                Median
+                            </option>
                         </select>
                     </div>
 
@@ -142,7 +150,7 @@ Input:
                         Selected metacells: <span id="selected_metacells">None</span> <b>({{ metacells|length }} in total)</b>
                     </div>
                     <div class="col-auto">
-                        {% load section_buttons %}
+                        {% load headings %}
                         {% clipboard_button id='markers' %}
                         {% data_dropdown id='markers' %}
 
