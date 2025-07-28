@@ -4,32 +4,21 @@
     Orthogroup entries
 {% endblock title %}
 
-{% block content %}
-
+{% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Orthogroups' paginator %}
+{% endblock heading %}
 
-    {% if object_list %}
-        <style>td, th { vertical-align: middle; }</style>
+{% block header %}
+    <th>Orthogroup</th>
+    <th>Number of orthologs</th>
+{% endblock header %}
 
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th>Orthogroup</th>
-                    <th>Number of orthologs</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for orthogroup in object_list %}
-                    <tr>
-                        <td>{{ orthogroup.get_html_link }}</td>
-                        <td>{{ orthogroup.orthologs.count }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>There are no orthogroups in the database.</p>
-    {% endif %}
+{% block row %}
+    <td>{{ each.get_html_link }}</td>
+    <td>{{ each.orthologs.count }}</td>
+{% endblock row %}
 
-{% endblock content %}
+{% block unfound %}
+    No orthogroups found.
+{% endblock unfound %}

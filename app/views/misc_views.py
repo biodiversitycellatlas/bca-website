@@ -1,3 +1,5 @@
+"""Miscellaneous views for health checks, downloads, errors, and static pages."""
+
 from django.conf import settings
 from django.http import FileResponse, JsonResponse
 from django.views import View
@@ -5,39 +7,54 @@ from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
-from ..utils import get_dataset, get_dataset_dict
+from ..utils import get_dataset_dict
 
 
 class IndexView(TemplateView):
+    """Homepage."""
+
     template_name = "app/home.html"
 
     def get_context_data(self, **kwargs):
+        """Add dataset dictionary to context."""
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
         return context
 
 
 class HealthView(View):
+    """Health check endpoint."""
+
     def get(self, request, *args, **kwargs):
+        """Return a 200 OK status in JSON."""
         return JsonResponse({"status": "ok"})
 
 
 class Custom403View(TemplateView):
+    """Custom 403 Forbidden error page."""
+
     template_name = "403.html"
 
 
 class Custom404View(TemplateView):
+    """Custom 404 Not Found error page."""
+
     template_name = "404.html"
 
 
 class Custom500View(TemplateView):
+    """Custom 500 Internal Server Error page."""
+
     template_name = "500.html"
 
 
 class DownloadsView(TemplateView):
+    """Page displaying downloadable datasets and species files."""
+
     template_name = "app/downloads.html"
 
     def get_context_data(self, **kwargs):
+        """Add all species and datasets to context."""
         context = super().get_context_data(**kwargs)
         context["species_all"] = Species.objects.all()
         context["datasets_all"] = Dataset.objects.all()
@@ -45,13 +62,12 @@ class DownloadsView(TemplateView):
 
 
 class FileDownloadView(DetailView):
-    """
-    Downloads the file with specified filename from `File` model.
-    """
+    """Serve a downloadable file from the File model."""
 
     model = File
 
     def render_to_response(self, context, **response_kwargs):
+        """Return file as attachment with original filename."""
         resp = FileResponse(
             self.object.file.open(), as_attachment=True, filename=self.object.filename
         )
@@ -59,9 +75,12 @@ class FileDownloadView(DetailView):
 
 
 class AboutView(TemplateView):
+    """About page with contact, legal, and license info."""
+
     template_name = "app/about.html"
 
     def get_context_data(self, **kwargs):
+        """Add structured info sections to context."""
         context = super().get_context_data(**kwargs)
         context["info"] = {
             "contact": [
@@ -106,12 +125,15 @@ class AboutView(TemplateView):
 
 
 class SearchView(TemplateView):
+    """Search page for querying cell markers and datasets."""
+
     template_name = "app/search.html"
 
     def get_context_data(self, **kwargs):
+        """Add dataset dictionary and search query to context."""
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
-        # Get URL query parameters and prepare table with cell markers
+
         query = self.request.GET
         if query:
             context["query"] = query

@@ -1,3 +1,5 @@
+"""Views for displaying database entries."""
+
 from django.views.generic import DetailView, ListView, TemplateView
 
 from ..models import Dataset, Domain, Gene, GeneList, GeneModule, Ortholog, Species
@@ -5,165 +7,209 @@ from ..utils import get_dataset, get_gene_list, get_species
 
 
 class EntryView(TemplateView):
+    """Landing page for database entries."""
+
     template_name = "app/entries/entry.html"
 
 
-class EntrySpeciesListView(ListView):
+class SpeciesListView(ListView):
+    """Display paginated list of all species."""
+
     model = Species
     paginate_by = 20
     template_name = "app/entries/species_list.html"
 
 
-class EntrySpeciesDetailView(DetailView):
+class SpeciesDetailView(DetailView):
+    """Display details for a specific species."""
+
     model = Species
     template_name = "app/entries/species_detail.html"
     slug_field = "scientific_name"
     slug_url_kwarg = "species"
 
 
-class EntryDatasetListView(ListView):
+class DatasetListView(ListView):
+    """Display paginated list of all datasets."""
+
     model = Dataset
     paginate_by = 20
     template_name = "app/entries/dataset_list.html"
 
 
 class FilteredListView(ListView):
-    """Allow filtering view by dataset or species."""
+    """Base view for filtering lists by dataset or species."""
 
     filter_by = "dataset"
 
-    def get_filter_function(self):
+    def __get_filter_function(self):
+        """Get function to retrieve the appropriate filter."""
         if self.filter_by == "dataset":
             return get_dataset
-        elif self.filter_by == "species":
+        if self.filter_by == "species":
             return get_species
         return None
 
     def get_queryset(self):
+        """Get queryset filtered by dataset or species in URL."""
         qs = super().get_queryset()
         value = self.kwargs.get(self.filter_by)
-        func = self.get_filter_function()
+        func = self.__get_filter_function()
         if value and func:
             obj = func(value)
             qs = qs.filter(**{self.filter_by: obj})
         return qs
 
     def get_context_data(self, **kwargs):
+        """Add dataset or species to the context."""
         context = super().get_context_data(**kwargs)
         value = self.kwargs.get(self.filter_by)
-        func = self.get_filter_function()
+        func = self.__get_filter_function()
         if value and func:
             context[self.filter_by] = func(value)
         return context
 
 
-class EntryGeneListView(FilteredListView):
+class GeneListView(FilteredListView):
+    """Display genes lists filtered by species."""
+
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list.html"
     filter_by = "species"
 
 
-class EntryGeneDetailView(DetailView):
+class GeneDetailView(DetailView):
+    """Display details for a specific gene."""
+
     model = Gene
     template_name = "app/entries/gene_detail.html"
     slug_field = "name"
     slug_url_kwarg = "gene"
 
 
-class EntryGeneListListView(FilteredListView):
+class GeneListListView(FilteredListView):
+    """Display all gene lists for a species."""
+
     model = GeneList
     paginate_by = 20
     template_name = "app/entries/gene_list_list.html"
     filter_by = "species"
 
 
-class EntryGeneListDetailView(FilteredListView):
-    model = GeneList
+class GeneListDetailView(FilteredListView):
+    """Display list of genes in a specific gene list filtered by species."""
+
+    model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list_detail.html"
     filter_by = "species"
 
     def get_queryset(self):
-        gene_list = self.kwargs.get("gene_list")
-        self.queryset = Gene.objects.filter(genelists=get_gene_list(gene_list))
+        """Filter queryset by gene list."""
         qs = super().get_queryset()
-        return qs
+        gene_list = self.kwargs.get("gene_list")
+        return qs.filter(genelists=get_gene_list(gene_list))
 
     def get_context_data(self, **kwargs):
+        """Add gene list to context."""
         context = super().get_context_data(**kwargs)
         context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
         return context
 
 
-class EntryDomainListView(FilteredListView):
+class DomainListView(FilteredListView):
+    """Display a list of domains, optionally filtered by species."""
+
     model = Domain
     paginate_by = 20
     template_name = "app/entries/domain_list.html"
     filter_by = "species"
 
 
-class EntryDomainDetailView(FilteredListView):
-    model = Domain
+class DomainDetailView(FilteredListView):
+    """Display list of genes associated with a specific domain and species."""
+
+    model = Gene
     paginate_by = 20
     template_name = "app/entries/domain_detail.html"
     filter_by = "species"
 
     def get_queryset(self):
-        domain = self.kwargs.get("domain")
-        self.queryset = Gene.objects.filter(domains__name=domain)
+        """Filter queryset by domain."""
         qs = super().get_queryset()
-        return qs
+        domain = self.kwargs.get("domain")
+        return qs.filter(domains__name=domain)
 
     def get_context_data(self, **kwargs):
+        """Add domain to context."""
         context = super().get_context_data(**kwargs)
         context["domain"] = self.kwargs.get("domain")
         return context
 
 
-class EntryGeneModuleListView(FilteredListView):
+class GeneModuleListView(FilteredListView):
+    """Display distinct gene modules, optionally filtered by dataset."""
+
     model = GeneModule
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
 
     def get_queryset(self):
+        """Return unique queryset items based on dataset and gene module name."""
         return super().get_queryset().distinct("dataset", "name")
 
 
-class EntryGeneModuleDetailView(DetailView):
+class GeneModuleDetailView(FilteredListView):
+    """Display list of genes for a specific gene module and dataset."""
+
     model = GeneModule
+    paginate_by = 20
     template_name = "app/entries/gene_module_detail.html"
-    slug_field = "name"
-    slug_url_kwarg = "gene_module"
 
-    def get_object(self, queryset=None):
-        queryset = queryset or self.get_queryset()
-        slug = self.kwargs.get(self.slug_url_kwarg)
+    def get_queryset(self):
+        """Filter queryset by gene module and dataset."""
+        qs = super().get_queryset()
+        module = self.kwargs.get("gene_module")
         dataset = get_dataset(self.kwargs.get("dataset"))
-        return queryset.filter(**{self.slug_field: slug, "dataset": dataset}).first()
+        return qs.filter(name=module, dataset=dataset)
+
+    def get_context_data(self, **kwargs):
+        """Add module and dataset to context."""
+        context = super().get_context_data(**kwargs)
+        context["module"] = self.kwargs.get("gene_module")
+        context["dataset"] = get_dataset(self.kwargs.get("dataset"))
+        return context
 
 
-class EntryOrthogroupListView(ListView):
+class OrthogroupListView(ListView):
+    """Display list of unique orthogroups."""
+
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_list.html"
 
     def get_queryset(self):
-        return super().get_queryset().order_by("orthogroup").distinct("orthogroup")
+        """Return distinct orthogroups ordered by name."""
+        qs = super().get_queryset()
+        return qs.order_by("orthogroup").distinct("orthogroup")
 
 
-class EntryOrthogroupDetailView(ListView):
+class OrthogroupDetailView(ListView):
+    """Display orthologs within a specific orthogroup."""
+
     model = Ortholog
     paginate_by = 20
     template_name = "app/entries/orthogroup_detail.html"
 
     def get_queryset(self):
-        orthogroup = self.kwargs.get("orthogroup")
-        self.queryset = Ortholog.objects.filter(orthogroup=orthogroup)
+        """Filter queryset by orthogroup."""
         qs = super().get_queryset()
-        return qs
+        orthogroup = self.kwargs.get("orthogroup")
+        return qs.filter(orthogroup=orthogroup)
 
     def get_context_data(self, **kwargs):
+        """Add orthogroup to context."""
         context = super().get_context_data(**kwargs)
         context["orthogroup"] = self.kwargs.get("orthogroup")
         return context

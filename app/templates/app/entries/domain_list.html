@@ -4,32 +4,21 @@
     Domain entries
 {% endblock title %}
 
-{% block content %}
-
+{% block heading %}
     {% load entry_links %}
-    {% render_header_counter 'Domains' paginator species %}
+    {% render_header_counter 'Domains' paginator %}
+{% endblock heading %}
 
-    {% if object_list %}
-        <style>td, th { vertical-align: middle; }</style>
+{% block header %}
+    <th>Domain</th>
+    <th>Number of genes</th>
+{% endblock header %}
 
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th>Domain</th>
-                    <th>Number of genes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for domain in object_list %}
-                    <tr>
-                        <td>{{ domain.get_html_link }}</td>
-                        <td>{{ domain.gene_set.count |default:'—' }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No domains found.</p>
-    {% endif %}
+{% block row %}
+    <td>{{ each.get_html_link }}</td>
+    <td>{{ each.gene_set.count |default:'—' }}</td>
+{% endblock row %}
 
-{% endblock content %}
+{% block unfound %}
+    No domains found.
+{% endblock unfound %}
