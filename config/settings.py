@@ -17,8 +17,11 @@ from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_WEBSITE = "https://biodiversitycellatlas.org"
+BCA_DOMAIN = "biodiversitycellatlas.org"
 BCA_EMAIL = "bca@biodiversitycellatlas.org"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
+
+PLAUSIBLE_WEBSITE = "https://stats.biodiversitycellatlas.org"
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GITHUB_ISSUES_URL = GITHUB_URL + "/issues/new"

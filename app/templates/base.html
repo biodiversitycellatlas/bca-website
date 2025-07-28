@@ -103,6 +103,8 @@ Dynamic blocks:
         <link rel="stylesheet" href="{% static 'app/css/selectize.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/slider.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/tables.css' %}">
+        {# Plausible Tracking Snippet #}
+        {% include 'tracking.html' %}
     </head>
     <body>
         {% block navbar %}

@@ -1,0 +1,11 @@
+{% comment %}
+Tracking template
+{% endcomment %}
+{% if PLAUSIBLE_WEBSITE %}
+    <script defer data-domain="{{ BCA_DOMAIN }}" src="https://{{ PLAUSIBLE_WEBSITE }}/js/script.js"></script>
+{% endif %}
+<!-- <a class="text-nowrap" -->
+<!--    href="{{ BCA_WEBSITE|default:'https://biodiversitycellatlas.org' }}" -->
+<!--    target="_blank">Biodiversity Cell Atlas</a> -->
+<!-- <br /> -->
+
