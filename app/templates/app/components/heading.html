@@ -1,15 +1,18 @@
-<{{ tag|default:"h1" }} class="{{ h_class }} d-flex flex-wrap pt-2 mb-3"
-{% if id %}id={{ id }}{% endif %}>
-    <span>{{ title|safe }}</span>
-    <div class="d-flex ms-auto gap-2">
-        {% load headings %}
+<{{ tag|default:"h1" }}
+{% if id %}id={{ id }}{% endif %}
+class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
 
-        {% if clipboard_button %}
-            {% clipboard_button id %}
-        {% endif %}
+<span>{{ title|safe }}</span>
+<div class="d-flex ms-auto gap-2">
+    {% load headings %}
 
-        {% if data_dropdown %}
-            {% data_dropdown id %}
-        {% endif %}
-    </div>
+    {% if clipboard_button %}
+        {% clipboard_button id %}
+    {% endif %}
+
+    {% if data_dropdown %}
+        {% data_dropdown id %}
+    {% endif %}
+</div>
+
 </{{ tag|default:"h1" }}>

@@ -56,17 +56,9 @@ Input:
                                 aria-label="Select example"
                                 value="median">
                             <option value="mean"
-                                    {% if query.fc_max_bg_type == 'mean' %}
-                                        selected
-                                    {% endif %}>
-                                Mean
-                            </option>
+                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
                             <option value="median"
-                                    {% if query.fc_max_bg_type == 'median' %}
-                                        selected
-                                    {% endif %}>
-                                Median
-                            </option>
+                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
                         </select>
                     </div>
 
