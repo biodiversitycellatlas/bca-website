@@ -14,15 +14,8 @@ Input:
 {% endblock title %}
 
 {% block content %}
-
     <!-- Gene expression heatmap -->
-    <h1 class="h3 pt-2 mb-3" id="expression">
-        Gene expression heatmap
-        {% load section_buttons %}
-        {% clipboard_button id='expression' %}
-        {% data_dropdown id='expression' %}
-    </h1>
-
+    {% load headings %}
+    {% h1 "Gene expression heatmap" id="expression" %}
     {% include '../components/plots/expression_heatmap.html' with id='expression' type='gene-lists' %}
-
 {% endblock content %}
