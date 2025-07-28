@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+
 @register.inclusion_tag("app/components/buttons/data_download.html")
 def data_dropdown(id):
     """
@@ -37,7 +38,10 @@ def clipboard_button(context, id="", text=""):
         "text": text,
     }
 
-def _render_heading(context, title, id=None, tag="h1", clipboard_button=True, data_dropdown=True):
+
+def _render_heading(
+    context, title, id=None, tag="h1", clipboard_button=True, data_dropdown=True
+):
     """
     Heading to show copy link and data dropdown buttons
 
@@ -49,12 +53,12 @@ def _render_heading(context, title, id=None, tag="h1", clipboard_button=True, da
     - data_dropdown: show 'data' dropwdown button (default: True)
     """
 
-    if tag == 'h1':
-        h_class = 'h3'
-    elif tag == 'h2':
-        h_class = 'h4'
+    if tag == "h1":
+        h_class = "h3"
+    elif tag == "h2":
+        h_class = "h4"
     else:
-        h_class = 'h5'
+        h_class = "h5"
 
     return {
         "title": title,
@@ -65,9 +69,11 @@ def _render_heading(context, title, id=None, tag="h1", clipboard_button=True, da
         "data_dropdown": data_dropdown,
     }
 
+
 @register.inclusion_tag("app/components/heading.html", takes_context=True)
 def h1(context, title, id=None, clipboard_button=True, data_dropdown=True):
     return _render_heading(context, title, id, "h1", clipboard_button, data_dropdown)
+
 
 @register.inclusion_tag("app/components/heading.html", takes_context=True)
 def h2(context, title, id=None, clipboard_button=True, data_dropdown=True):
