@@ -102,13 +102,8 @@ Input:
         </div>
 
         <div class="col-md-8 mt-4 mt-sm-0">
-            <h1 class="h3">
-                {{ dataset.get_html }}
-
-                {% load section_buttons %}
-                {% clipboard_button %}
-                {% data_dropdown id='info' %}
-            </h1>
+            {% load headings %}
+            {% h1 dataset.get_html id="info" %}
 
             <p>{{ species.description|default:'No description available.'|safe }}</p>
 

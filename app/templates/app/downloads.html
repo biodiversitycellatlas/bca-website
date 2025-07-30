@@ -94,11 +94,8 @@ Downloads page
 
         <!-- Species downloads -->
         <div id="species">
-            <h2 class="h4 pt-2">
-                Species data
-                {% load section_buttons %}
-                {% clipboard_button id='species' %}
-            </h2>
+            {% load headings %}
+            {% h2 "Species data" id='species' data_dropdown=False %}
 
             <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
                 <div class="col">
@@ -144,10 +141,7 @@ Downloads page
 
         <!-- Dataset downloads -->
         <div id="dataset">
-            <h2 class="h4 pt-2">
-                Dataset data
-                {% clipboard_button id='dataset' %}
-            </h2>
+            {% h2 "Dataset data" id='dataset' data_dropdown=False %}
 
             <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
                 <div class="col">

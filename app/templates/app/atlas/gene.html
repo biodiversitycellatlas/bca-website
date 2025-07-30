@@ -59,12 +59,8 @@ Input:
     {% include '../components/warning_alert.html' %}
 
     {% if gene %}
-        <h1 class="h3 pt-2" id="projection">
-            {{ gene }}
-            {% load section_buttons %}
-            {% clipboard_button %}
-            {% data_dropdown id='gene' %}
-        </h1>
+        {% load headings %}
+        {% h1 gene.get_html_link id="gene" %}
 
         <div class="row row-cols-1 row-cols-md-2">
             <div class="col">
@@ -110,25 +106,13 @@ Input:
             </div>
         </div>
 
-        <h1 class="h3 pt-2" id="projection">
-            Metacell projection
-            {% clipboard_button id='projection' %}
-            {% data_dropdown id='projection' %}
-        </h1>
+        {% h1 "Metacell projection" id="projection" %}
         {% include '../components/plots/metacell_projection.html' with id='projection' %}
 
-        <h1 class="h3 pt-2" id="expression">
-            Gene expression
-            {% clipboard_button id='expression' %}
-            {% data_dropdown id='expression' %}
-        </h1>
+        {% h1 "Gene expression" id="expression" %}
         {% include '../components/plots/expression_plot.html' with species=species gene=gene %}
 
-        <h1 class="h3 pt-2" id="correlation">
-            Gene correlation
-            {% clipboard_button id='correlation' %}
-            {% data_dropdown id='correlation' %}
-        </h1>
+        {% h1 "Gene correlation" id="correlation" %}
         <div class="row">
             <div class="col-md-8">
                 {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene %}
@@ -138,11 +122,7 @@ Input:
             </div>
         </div>
 
-        <h1 class="h3 pt-2" id="orthologs">
-            Orthologs
-            {% clipboard_button id='orthologs' %}
-            {% data_dropdown id='orthologs' %}
-        </h1>
+        {% h1 "Orthologs" id="orthologs" %}
         {% include '../components/plots/ortholog_plots.html' with species=species gene=gene %}
 
     {% else %}

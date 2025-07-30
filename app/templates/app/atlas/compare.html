@@ -11,15 +11,7 @@ Comparison page between multiple species
 {% endblock title %}
 
 {% block content %}
-
-    <!-- Gene expression heatmap -->
-    <h1 class="h3 pt-2 mb-3" id="samap">
-        SAMap alignment scores
-        {% load section_buttons %}
-        {% clipboard_button id='samap' %}
-        {% data_dropdown id='samap' %}
-    </h1>
-
+    {% load headings %}
+    {% h1 "SAMap alignment scores" id="samap" %}
     {% include '../components/plots/samap_plot.html' with id='samap' %}
-
 {% endblock content %}
