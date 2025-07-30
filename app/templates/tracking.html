@@ -2,10 +2,6 @@
 Tracking template
 {% endcomment %}
 {% if PLAUSIBLE_WEBSITE %}
-    <script defer data-domain="{{ BCA_DOMAIN }}" src="https://{{ PLAUSIBLE_WEBSITE }}/js/script.js"></script>
+    <script defer data-domain="{{ BCA_DOMAIN }}" src="{{ PLAUSIBLE_SCRIPT }}"></script>
+    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 {% endif %}
-<!-- <a class="text-nowrap" -->
-<!--    href="{{ BCA_WEBSITE|default:'https://biodiversitycellatlas.org' }}" -->
-<!--    target="_blank">Biodiversity Cell Atlas</a> -->
-<!-- <br /> -->
-
