@@ -17,7 +17,7 @@ app/static/app/images/logos/BCA/EPS/*
 # Environment
 .env*
 !.env.template
-/ghost
 /node_modules
 package*.json
 /pg_backup
+/source

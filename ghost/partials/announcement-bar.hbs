@@ -1,0 +1,129 @@
+<style>
+    .gh-announcement-bar,.gh-announcement-bar * {
+        box-sizing: border-box !important;
+    }
+
+    .gh-announcement-bar {
+        position:relative;
+        z-index:90;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:12px 48px;
+        min-height:48px;
+        font-size:15px;
+        line-height:23px;
+        text-align:center;
+    }
+
+    .gh-announcement-bar.light {
+        background-color: #eeeeeecc;
+        backdrop-filter: blur(6px);
+        color: #15171a;
+    }
+
+    .gh-announcement-bar.accent {
+        background-color: var(--ghost-accent-color);
+        color: #fff;
+    }
+
+    .gh-announcement-bar.dark {
+        background-color: #15171a;
+        color: #fff;
+    }
+
+    .gh-announcement-bar *:not(path) {
+        all:unset
+    }
+
+    .gh-announcement-bar strong {
+        font-weight:700
+    }
+
+    .gh-announcement-bar :is(i,em) {
+        font-style:italic
+    }
+
+    .gh-announcement-bar a {
+        color:#fff;
+        font-weight:700;
+        text-decoration:underline;
+        cursor:pointer;
+    }
+
+    .gh-announcement-bar.light a {
+        color: var(--ghost-accent-color)!important;
+    }
+
+    .gh-announcement-bar button {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -16px;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        background-color: transparent;
+        border: 0;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .gh-announcement-bar.light button{
+        color: #888;
+    }
+
+    .gh-announcement-bar svg{
+        width: 10px;
+        height: 10px;
+        fill: currentColor;
+    }
+</style>
+
+<div id="announcement-bar-root" style="position: sticky; top: 0px; z-index: 9999;">
+    <div class="gh-announcement-bar light">
+        <div class="gh-announcement-bar-content">
+            <p dir="ltr">
+                <span>Try our </span>
+                <a href="https://portal.biodiversitycellatlas.org" rel="noreferrer">BCA Data Portal</a>
+                <span> demo and share your feedback!</span>
+            </p>
+        </div>
+        <button aria-label="close" onclick="hideAnnouncementBar(true)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 height="16" width="16">
+                <path stroke-linecap="round" fill="currentColor"
+                 stroke-width="0.4" stroke="#000000" stroke-linejoin="round"
+                 d="M.44,21.44a1.49,1.49,0,0,0,0,2.12,1.5,1.5,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.5,1.5,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12L14.3,12.18a.25.25,0,0,1,0-.36l9.26-9.26A1.5,1.5,0,0,0,21.44.44L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.5,1.5,0,0,0,.44,2.56L9.7,11.82a.25.25,0,0,1,0,.36Z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+    /**
+     * Hides the announcement bar.
+     * @param {boolean} persist - whether to save the dismissal in localStorage
+     */
+    function hideAnnouncementBar(persist = false) {
+        const bar = document.getElementById('announcement-bar-root');
+        if (bar) bar.style.display = 'none';
+        if (persist) localStorage.setItem('announcement-closed', Date.now());
+    }
+
+    /**
+     * Hide the announcement bar if closed within the last 7 days.
+     */
+    (function checkAnnouncementBar() {
+        const closed = new Date(parseInt(localStorage.getItem('announcement-closed')));
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 7);
+
+        if (closed > cutoff) {
+            hideAnnouncementBar();
+        }
+    })();
+</script>
