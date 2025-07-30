@@ -1,7 +1,7 @@
 {% comment %}
 Tracking template
 {% endcomment %}
-{% if PLAUSIBLE_WEBSITE %}
+{% if PLAUSIBLE_SCRIPT %}
     <script defer data-domain="{{ BCA_DOMAIN }}" src="{{ PLAUSIBLE_SCRIPT }}"></script>
     <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 {% endif %}
