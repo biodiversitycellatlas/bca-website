@@ -26,12 +26,11 @@ jobs:
             VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
             PYTHON_PYLINT_CONFIG_FILE: ".pylintrc"
             # Avoid checking migrations
-            FILTER_REGEX_EXCLUDE: "(^|/)migrations/|__init__\.py$"
+            FILTER_REGEX_EXCLUDE: "(^|/)migrations/|__init__\\.py$"
             # Check HTML with djlint
             VALIDATE_HTML: false
             VALIDATE_HTML_PRETTIER: false
             VALIDATE_PYTHON_MYPY: false
-            PYTHON_PYLINT_CONFIG_FILE: ".pylintrc"
 
         steps:
             - name: Checkout code
