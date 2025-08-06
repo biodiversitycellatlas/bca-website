@@ -1,16 +1,13 @@
 # Get postgreSQL client from official Docker image
 FROM postgres:17.5 AS postgres
 
+# Get diamond aligner from biocontainers
+FROM buchfink/diamond:version2.1.12 AS diamond
+
 # Serve website
 FROM python:3.13
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Install dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-            diamond-aligner=2.1.3-1 \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 COPY requirements.txt ./
@@ -18,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy binaries and dependencies
+COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
 COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
 RUN ldconfig
