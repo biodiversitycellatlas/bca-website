@@ -14,10 +14,11 @@ run_django_migrations() {
 has_table() {
     table="%_$1"
 
-    psql -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc \
-    "SELECT EXISTS (
-        SELECT 1 FROM information_schema.tables WHERE table_name LIKE '${table}'
-    );" | grep -q t
+    psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -tAc \
+        "SELECT EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_name LIKE '${table}'
+        );" | grep -q t
 }
 
 # Check whether the environment is production
