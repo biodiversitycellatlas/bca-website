@@ -1,8 +1,12 @@
+# Stage 1: Get postgreSQL client
+FROM postgres:17.5 as postgres
+
+# Stage 2: Serve website
 FROM python:3.13
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install diamond-aligner
+# Install dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
             diamond-aligner=2.1.3-1 \
@@ -12,6 +16,11 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
+
+# Copy psql binary and dependencies
+COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
+COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
+RUN ldconfig
 
 # Switch to non-root user
 RUN useradd -m bca \
