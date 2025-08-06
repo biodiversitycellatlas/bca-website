@@ -2,10 +2,9 @@
 
 # Check for --fix flag
 for arg in "$@"; do
-  if [ "$arg" == "--fix" ]; then
-    FIX_ENV+=("--env-file" ".github/super-linter-fix.env")
-    break
-  fi
+    if [ "$arg" == "fix" ]; then
+        FIX_ENV="--env-file .github/super-linter-fix.env"
+    fi
 done
 
 podman run \
