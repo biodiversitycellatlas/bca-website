@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# Check for --fix flag
+# Default env files
+ENV_FILES=(--env-file ".github/super-linter.env")
+
+# Check for 'fix' argument
 for arg in "$@"; do
     if [ "$arg" == "fix" ]; then
-        FIX_ENV="--env-file .github/super-linter-fix.env"
+        ENV_FILES+=(--env-file ".github/super-linter-fix.env")
     fi
 done
 
@@ -12,7 +15,6 @@ podman run \
     -e LOG_LEVEL=WARN \
     -e SAVE_SUPER_LINTER_SUMMARY=true \
     -e SAVE_SUPER_LINTER_OUTPUT=true \
-    --env-file ".github/super-linter.env" \
-    ${FIX_ENV} \
-    -v $(pwd):/tmp/lint \
+    "${ENV_FILES[@]}" \
+    -v "$(pwd)":/tmp/lint \
     ghcr.io/super-linter/super-linter:latest
