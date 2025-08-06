@@ -22,14 +22,14 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Load super-linter configuration
-              run: grep -v "^#" .github/super-linter.env >> "$GITHUB_ENV"
-
             - name: Checkout code
               uses: actions/checkout@v4
               with:
                   # needs full git history
                   fetch-depth: 0
+
+            - name: Load super-linter configuration
+              run: grep -v "^#" .github/super-linter.env >> "$GITHUB_ENV"
 
             - name: Report all Super-Linter issues
               uses: super-linter/super-linter@v8
@@ -42,15 +42,15 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Load super-linter configuration
-              run: |
-                  grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
-
             - name: Checkout code
               uses: actions/checkout@v4
               with:
                   # needs full git history
                   fetch-depth: 0
+
+            - name: Load super-linter configuration
+              run: |
+                  grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
 
             - name: Lint files with Super-Linter
               uses: super-linter/super-linter@v8
