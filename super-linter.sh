@@ -1,14 +1,33 @@
 #!/bin/bash
-set -e
+
+# Defaults
+ENV_FILES=(--env-file ".github/super-linter.env")
+VALIDATE_ALL_CODEBASE=false
+MODE=""
 
 YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
 RESET='\033[0m'
 
+# Parse Super-Linter version to use from GitHub Actions
+get_linter_version() {
+    local version
+    local file
+    file=.github/workflows/linter.yml
+    version=$(grep -oE "uses:\s*super-linter/super-linter@v[0-9]+" "${file}" | head -n1 | cut -d@ -f2)
+
+    if [[ -z "$version" ]]; then
+        echo "❌ Could not determine Super-Linter version from ${file}" >&2
+        exit 1
+    fi
+
+    echo "$version"
+}
+
 # Usage function
 usage() {
     echo
-    echo -e "${YELLOW}✨ Run Super-linter in check or fix mode ✨${RESET}"
+    echo -e "${YELLOW}✨ Run Super-Linter $(get_linter_version) in check or fix mode ✨${RESET}"
     echo
     echo -e "${YELLOW}Usage:${RESET} $0 <check|fix> [--all]"
     echo
@@ -26,11 +45,6 @@ usage() {
     echo
     exit 1
 }
-
-# Defaults
-ENV_FILES=(--env-file ".github/super-linter.env")
-VALIDATE_ALL_CODEBASE=false
-MODE=""
 
 # Parse args
 for arg in "$@"; do
@@ -68,9 +82,10 @@ podman run \
     -e SAVE_SUPER_LINTER_OUTPUT=true \
     -e VALIDATE_ALL_CODEBASE="$VALIDATE_ALL_CODEBASE" \
     -v "$(pwd)":/tmp/lint \
-    ghcr.io/super-linter/super-linter:latest
+    --platform linux/amd64 \
+    ghcr.io/super-linter/super-linter:$(get_linter_version)
 
 echo
-echo -e "✨ ${YELLOW}Super-linter has finished!${RESET} ✨"
+echo -e "✨ ${YELLOW}Super-Linter has finished!${RESET} ✨"
 echo
 cat super-linter-output/super-linter-summary.md
