@@ -4,7 +4,13 @@
 ENV_FILES=(--env-file ".github/super-linter.env")
 VALIDATE_ALL_CODEBASE=false
 MODE=""
+LOG_LEVEL="WARN"
 
+# Valid log levels
+VALID_LOG_LEVELS=(WARN INFO DEBUG ERROR NOTICE)
+
+# Colors
+RED='\033[0;31m'
 YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
 RESET='\033[0m'
@@ -29,15 +35,16 @@ usage() {
     echo
     echo -e "${YELLOW}✨ Run Super-Linter $(get_linter_version) in check or fix mode ✨${RESET}"
     echo
-    echo -e "${YELLOW}Usage:${RESET} $0 <check|fix> [--all]"
+    echo -e "${YELLOW}Usage:${RESET} $0 <check|fix> [--all] [--log-level=LEVEL]"
     echo
     echo -e "${YELLOW}Required:${RESET}"
-    echo -e "  ${CYAN}check${RESET}       Lint and report issues only (no changes made)"
-    echo -e "  ${CYAN}fix${RESET}         Lint and auto-fix issues where possible"
+    echo -e "  ${CYAN}check${RESET}                 Lint and report issues only (no changes made)"
+    echo -e "  ${CYAN}fix${RESET}                   Lint and auto-fix issues where possible"
     echo
     echo -e "${YELLOW}Optional:${RESET}"
-    echo -e "  ${CYAN}--changed${RESET}   Lint changed files (default)"
-    echo -e "  ${CYAN}--all${RESET}       Lint full codebase"
+    echo -e "  ${CYAN}--changed${RESET}             Lint changed files (default)"
+    echo -e "  ${CYAN}--all${RESET}                 Lint full codebase"
+    echo -e "  ${CYAN}--log-level=${RESET}LEVEL     Set log level: ${CYAN}${VALID_LOG_LEVELS[*]}${RESET}"
     echo
     echo -e "${YELLOW}Examples:${RESET}"
     echo -e "  $0 check"
@@ -58,6 +65,14 @@ for arg in "$@"; do
     --changed)
         VALIDATE_ALL_CODEBASE=false
         ;;
+    --log-level=*)
+        LOG_LEVEL="${arg#*=}"
+        if [[ ! " ${VALID_LOG_LEVELS[*]} " =~ ${LOG_LEVEL} ]]; then
+            echo -e "❌ Invalid log level ${RED}$LOG_LEVEL${RESET}!"
+            echo -e "Accepted values are: ${CYAN}${VALID_LOG_LEVELS[*]}${RESET}"
+            exit 1
+        fi
+        ;;
     fix)
         MODE="fix"
         ENV_FILES+=(--env-file ".github/super-linter-fix.env")
@@ -77,13 +92,13 @@ done
 podman run \
     "${ENV_FILES[@]}" \
     -e RUN_LOCAL=true \
-    -e LOG_LEVEL=WARN \
+    -e LOG_LEVEL="$LOG_LEVEL" \
     -e SAVE_SUPER_LINTER_SUMMARY=true \
     -e SAVE_SUPER_LINTER_OUTPUT=true \
     -e VALIDATE_ALL_CODEBASE="$VALIDATE_ALL_CODEBASE" \
     -v "$(pwd)":/tmp/lint \
     --platform linux/amd64 \
-    ghcr.io/super-linter/super-linter:$(get_linter_version)
+    ghcr.io/super-linter/super-linter:"$(get_linter_version)"
 
 # Print summary results
 echo
