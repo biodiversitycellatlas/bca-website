@@ -1,10 +1,11 @@
 from django import template
 from django.urls import resolve
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
 
-@register.simple_tag(takes_context=True)
+@register.inclusion_tag("app/components/links/breadcrumbs.html", takes_context=True)
 def breadcrumbs(context):
     request = context["request"]
     path = request.path.strip("/").split("/")
@@ -22,4 +23,5 @@ def breadcrumbs(context):
         else:
             label = segment
         crumbs.append((label, url))
-    return crumbs
+
+    return {"crumbs": crumbs}

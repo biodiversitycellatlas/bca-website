@@ -17,3 +17,12 @@ Reference: documentation, tutorials, etc.
     </div>
 
 {% endblock %}
+
+{% block subnav %}
+    <div class="subnavbar sticky-top py-2">
+        <div class="container-xxl">
+            {% load breadcrumbs %}
+            {% breadcrumbs %}
+        </div>
+    </div>
+{% endblock subnav %}
