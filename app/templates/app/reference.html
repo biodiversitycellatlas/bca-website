@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% comment %}
+
+Reference: documentation, tutorials, etc.
+
+{% endcomment %}
+
+{% block content %}
+
+    <style>
+        {{ pygments_css|safe }}
+    </style>
+
+    <div class="markdown-content">
+        {{ content|safe }}
+    </div>
+
+{% endblock %}

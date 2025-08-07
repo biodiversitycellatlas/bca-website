@@ -60,6 +60,11 @@ Features:
                                href="{% url 'downloads' %}">Downloads</a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link {% if url_name == 'reference' %}active{% endif %}"
+                               href="{% url 'reference' %}">Reference</a>
+                        </li>
+
                         {% load bca_website_links %}
                         <li class="nav-item">
                             <a class="nav-link {% if url_name == 'blog' %}active{% endif %}"

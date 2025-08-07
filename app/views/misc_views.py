@@ -7,7 +7,9 @@ from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
-from ..utils import get_dataset_dict
+from ..utils import get_dataset_dict, render_markdown, get_pygments_css
+
+import os
 
 
 class IndexView(TemplateView):
@@ -121,6 +123,28 @@ class AboutView(TemplateView):
                 },
             ],
         }
+        return context
+
+
+class ReferenceView(TemplateView):
+    """Reference pages rendered from Markdown files."""
+
+    template_name = "app/reference.html"
+    reference_dir = "app/reference"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page = kwargs.get('page', 'index')
+        file_path = os.path.join(self.reference_dir, f"{page}.md")
+
+        if not os.path.exists(file_path):
+            context['content'] = "<h1 class='h3'>Page not found</h1>"
+        else:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                md_content = f.read()
+            context['content'] = render_markdown(md_content)
+            context['pygments_css'] = get_pygments_css()
+
         return context
 
 
