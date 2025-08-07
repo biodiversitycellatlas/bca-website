@@ -1,7 +1,7 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
 from django.conf import settings
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
 
@@ -137,13 +137,13 @@ class ReferenceView(TemplateView):
         page = kwargs.get('page', 'index')
         file_path = os.path.join(self.reference_dir, f"{page}.md")
 
-        if not os.path.exists(file_path):
-            context['content'] = "<h1 class='h3'>Page not found</h1>"
-        else:
+        if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as f:
                 md_content = f.read()
             context['content'] = render_markdown(md_content)
             context['pygments_css'] = get_pygments_css()
+        else:
+            raise Http404()
 
         return context
 
