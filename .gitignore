@@ -17,8 +17,11 @@ app/static/app/images/logos/BCA/EPS/*
 # Environment
 .env*
 !.env.template
-/node_modules
-package*.json
 /pg_backup
 /source
+
+# Linters
 /super-linter-output
+.lintr
+/node_modules
+package*.json

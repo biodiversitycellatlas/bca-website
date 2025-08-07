@@ -46,7 +46,7 @@ usage() {
     exit 1
 }
 
-# Parse args
+# Parse arguments
 for arg in "$@"; do
     case "$arg" in
     --help)
@@ -85,6 +85,7 @@ podman run \
     --platform linux/amd64 \
     ghcr.io/super-linter/super-linter:$(get_linter_version)
 
+# Print summary results
 echo
 echo -e "✨ ${YELLOW}Super-Linter has finished!${RESET} ✨"
 echo
