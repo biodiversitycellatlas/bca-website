@@ -134,14 +134,14 @@ class ReferenceView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        page = kwargs.get('page', 'index')
+        page = kwargs.get("page", "index")
         file_path = os.path.join(self.reference_dir, f"{page}.md")
 
         if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 md_content = f.read()
-            context['content'] = render_markdown(md_content)
-            context['pygments_css'] = get_pygments_css()
+            context["content"] = render_markdown(md_content)
+            context["pygments_css"] = get_pygments_css()
         else:
             raise Http404()
 

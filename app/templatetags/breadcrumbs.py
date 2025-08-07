@@ -1,6 +1,4 @@
 from django import template
-from django.urls import resolve
-from django.utils.safestring import mark_safe
 
 register = template.Library()
 

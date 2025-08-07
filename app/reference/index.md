@@ -26,10 +26,10 @@ Use the navigation menu[^1] to browse topics.
 
 ### Table
 
-First Header  | Second Header
-------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
+| First Header | Second Header |
+| ------------ | ------------- |
+| Content Cell | Content Cell  |
+| Content Cell | Content Cell  |
 
 #### Code
 

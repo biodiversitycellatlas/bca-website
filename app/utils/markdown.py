@@ -2,7 +2,10 @@ from django.utils.text import slugify
 
 import mistune
 from mistune.directives import (
-    RSTDirective, FencedDirective, Admonition, TableOfContents
+    RSTDirective,
+    FencedDirective,
+    Admonition,
+    TableOfContents,
 )
 
 from pygments import highlight
@@ -17,7 +20,7 @@ class MarkdownRenderer(mistune.HTMLRenderer):
     def block_code(self, code, info=None):
         """Add syntax highlight in code blocks."""
 
-        block = '<pre><code>' + mistune.escape(code) + '</code></pre>'
+        block = "<pre><code>" + mistune.escape(code) + "</code></pre>"
         if info:
             try:
                 lexer = get_lexer_by_name(info, stripall=True)
@@ -44,21 +47,32 @@ class CustomTOC(TableOfContents):
 
     def generate_heading_id(self, token, index):
         """Custom heading ID generator."""
-        return slugify(token['text'])
+        return slugify(token["text"])
 
 
 def render_markdown(content):
     """Render Markdown content."""
 
     plugins = [
-        'table', 'strikethrough', 'footnotes', 'url', 'task_lists',
-        'def_list', 'abbr', 'mark', 'insert', 'superscript', 'subscript',
-        'math', 'spoiler',
+        "table",
+        "strikethrough",
+        "footnotes",
+        "url",
+        "task_lists",
+        "def_list",
+        "abbr",
+        "mark",
+        "insert",
+        "superscript",
+        "subscript",
+        "math",
+        "spoiler",
         FencedDirective([Admonition()]),
         RSTDirective([CustomTOC()]),
     ]
     markdown = mistune.create_markdown(renderer=MarkdownRenderer(), plugins=plugins)
     return markdown(content)
+
 
 def get_pygments_css(arg=".highlight"):
     """Get CSS style definitions from pygments."""
