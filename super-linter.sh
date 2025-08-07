@@ -35,25 +35,25 @@ MODE=""
 # Parse args
 for arg in "$@"; do
     case "$arg" in
-        --help)
-            usage
-            ;;
-        --all)
-            VALIDATE_ALL_CODEBASE=true
-            ;;
-        --changed)
-            VALIDATE_ALL_CODEBASE=false
-            ;;
-        fix)
-            MODE="fix"
-            ENV_FILES+=(--env-file ".github/super-linter-fix.env")
-            ;;
-        check)
-            MODE="check"
-            ;;
-        *)
-            usage
-            ;;
+    --help)
+        usage
+        ;;
+    --all)
+        VALIDATE_ALL_CODEBASE=true
+        ;;
+    --changed)
+        VALIDATE_ALL_CODEBASE=false
+        ;;
+    fix)
+        MODE="fix"
+        ENV_FILES+=(--env-file ".github/super-linter-fix.env")
+        ;;
+    check)
+        MODE="check"
+        ;;
+    *)
+        usage
+        ;;
     esac
 done
 
