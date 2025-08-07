@@ -304,6 +304,11 @@ class MetacellType(SlugMixin):
     def __str__(self):
         return self.name
 
+    def __lt__(self, other):
+        if isinstance(other, MetacellType):
+            return self.name < other.name
+        return NotImplemented
+
 
 class MetacellLink(models.Model):
     metacell = models.ForeignKey(

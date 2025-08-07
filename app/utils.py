@@ -84,6 +84,7 @@ def get_metacell_dict(dataset):
     types = dict()
     for obj in metacells:
         types.setdefault(obj.type, []).append(obj)
+    types = dict(sorted(types.items()))
 
     # Return metacells by cell types and all together
     metacell_dict = {"Cell types": types, "Metacells": list(metacells)}
