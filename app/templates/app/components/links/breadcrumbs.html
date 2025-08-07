@@ -8,9 +8,7 @@
     <ol class="breadcrumb mb-0">
         {% for label, url in crumbs %}
             {% if forloop.last %}
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{ label }}
-                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ label }}</li>
             {% else %}
                 <li class="breadcrumb-item">
                     <a href="{{ url }}">{{ label }}</a>

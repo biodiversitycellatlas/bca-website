@@ -8,13 +8,9 @@ Reference: documentation, tutorials, etc.
 
 {% block content %}
 
-    <style>
-        {{ pygments_css|safe }}
-    </style>
+    <style>{{ pygments_css|safe }}</style>
 
-    <div class="markdown-content">
-        {{ content|safe }}
-    </div>
+    <div class="markdown-content">{{ content|safe }}</div>
 
 {% endblock %}
 
