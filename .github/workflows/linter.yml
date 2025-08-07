@@ -18,19 +18,8 @@ permissions:
 
 jobs:
     super-linter:
-        name: Super-Linter
+        name: Super-Linter (check)
         runs-on: ubuntu-latest
-        env:
-            DEFAULT_BRANCH: "main"
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
-            PYTHON_PYLINT_CONFIG_FILE: ".pylintrc"
-            # Avoid checking migrations
-            FILTER_REGEX_EXCLUDE: "(^|/)migrations/|__init__\\.py$"
-            # Check HTML with djlint
-            VALIDATE_HTML: false
-            VALIDATE_HTML_PRETTIER: false
-            VALIDATE_PYTHON_MYPY: false
 
         steps:
             - name: Checkout code
@@ -39,33 +28,38 @@ jobs:
                   # needs full git history
                   fetch-depth: 0
 
-            - name: Lint files with Super-Linter
+            - name: Load super-linter configuration
+              run: grep -v "^#" .github/super-linter.env >> "$GITHUB_ENV"
+
+            - name: Report all Super-Linter issues
               uses: super-linter/super-linter@v8
               env:
-                  # Disable first-pass summary
-                  ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
-                  FIX_CSS_PRETTIER: true
-                  FIX_CSS: true
-                  FIX_ENV: true
-                  #FIX_GRAPHQL_PRETTIER: true
-                  FIX_JAVASCRIPT_ES: true
-                  FIX_JAVASCRIPT_PRETTIER: true
-                  FIX_JSON_PRETTIER: true
-                  FIX_JSON: true
-                  FIX_JSONC: true
-                  FIX_JSONC_PRETTIER: true
-                  FIX_MARKDOWN_PRETTIER: true
-                  FIX_MARKDOWN: true
-                  FIX_PYTHON_BLACK: true
-                  FIX_PYTHON_RUFF: true
-                  FIX_SHELL_SHFMT: true
-                  FIX_SQLFLUFF: true
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
+
+    super-linter-fix:
+        name: Super-Linter (fix)
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  # needs full git history
+                  fetch-depth: 0
+
+            - name: Load super-linter configuration
+              run: grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
+
+            - name: Lint files with Super-Linter
+              uses: super-linter/super-linter@v8
               continue-on-error: true
 
             - name: Cleanup Super-Linter output
               run: |
-                  sudo rm -f github_conf/branch_protection_rules.json
-                  sudo rm -f super-linter-output/super-linter-summary.md
+                  sudo rm -f \
+                      github_conf/branch_protection_rules.json \
+                      super-linter-output/super-linter-summary.md
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
@@ -73,9 +67,6 @@ jobs:
                   tool_name: Super-Linter
                   filter_mode: diff_context
                   cleanup: false
-
-            - name: Report all Super-Linter issues
-              uses: super-linter/super-linter@v8
 
     djlint:
         name: djlint (Django HTML)
