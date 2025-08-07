@@ -1,9 +1,10 @@
+"""Misc utility functions."""
+
 import json
 
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from .models import Dataset, Gene, GeneList, Species
+from ..models import Dataset, Gene, GeneList, Species
 
 
 def get_dataset_dict():
@@ -15,7 +16,7 @@ def get_dataset_dict():
             phylum = dataset.species.meta_set.filter(key="phylum").values_list(
                 "value", flat=True
             )[0]
-        except:
+        except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
@@ -26,8 +27,8 @@ def get_dataset_dict():
                     "value", flat=True
                 )
             )
-        except:
-            meta = list()
+        except (AttributeError, IndexError):
+            meta = []
 
         elem = {"dataset": dataset, "meta": meta}
         if phylum not in dataset_dict:
@@ -54,7 +55,7 @@ def get_species_dict():
             phylum = species.meta_set.filter(key="phylum").values_list(
                 "value", flat=True
             )[0]
-        except:
+        except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
@@ -65,8 +66,8 @@ def get_species_dict():
                     "value", flat=True
                 )
             )
-        except:
-            meta = list()
+        except (AttributeError, IndexError):
+            meta = []
 
         elem = {"species": species, "meta": meta}
         if phylum not in species_dict:
@@ -81,7 +82,7 @@ def get_metacell_dict(dataset):
     metacells = dataset.metacells.select_related("type")
 
     # Group by cell type
-    types = dict()
+    types = {}
     for obj in metacells:
         types.setdefault(obj.type, []).append(obj)
 
@@ -144,6 +145,7 @@ def get_gene_list(gene_list):
 
 
 def get_cell_atlas_links(url_name, dataset=None):
+    """Returns links to Cell Atlas navigation bar."""
     links = [
         {
             "name": "Information",

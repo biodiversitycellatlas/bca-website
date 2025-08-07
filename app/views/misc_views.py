@@ -1,13 +1,15 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
+import os
+
 from django.conf import settings
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
-from ..utils import get_dataset_dict
+from ..utils import get_dataset_dict, render_markdown, get_pygments_css
 
 
 class IndexView(TemplateView):
@@ -121,6 +123,29 @@ class AboutView(TemplateView):
                 },
             ],
         }
+        return context
+
+
+class ReferenceView(TemplateView):
+    """Reference pages rendered from Markdown files."""
+
+    template_name = "app/reference.html"
+    reference_dir = "app/reference"
+
+    def get_context_data(self, **kwargs):
+        """Render HTML from Markdown files."""
+        context = super().get_context_data(**kwargs)
+        page = kwargs.get("page", "index")
+        file_path = os.path.join(self.reference_dir, f"{page}.md")
+
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8") as f:
+                md_content = f.read()
+            context["content"] = render_markdown(md_content)
+            context["pygments_css"] = get_pygments_css()
+        else:
+            raise Http404()
+
         return context
 
 

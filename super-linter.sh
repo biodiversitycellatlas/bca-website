@@ -89,6 +89,8 @@ done
 # Ensure mode is set
 [[ -z "$MODE" ]] && usage
 
+echo "${ENV_FILES[@]}"
+
 podman run \
     "${ENV_FILES[@]}" \
     -e RUN_LOCAL=true \
