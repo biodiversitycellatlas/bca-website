@@ -49,8 +49,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Load super-linter configuration
-              run: |
-                  grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
+              run: grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
 
             - name: Lint files with Super-Linter
               uses: super-linter/super-linter@v8
@@ -58,8 +57,9 @@ jobs:
 
             - name: Cleanup Super-Linter output
               run: |
-                  sudo rm -f github_conf/branch_protection_rules.json
-                  sudo rm -f super-linter-output/super-linter-summary.md
+                  sudo rm -f \
+                      github_conf/branch_protection_rules.json \
+                      super-linter-output/super-linter-summary.md
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1
@@ -67,12 +67,6 @@ jobs:
                   tool_name: Super-Linter
                   filter_mode: diff_context
                   cleanup: false
-
-            - name: Report all Super-Linter issues
-              uses: super-linter/super-linter@v8
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
 
     djlint:
         name: djlint (Django HTML)
