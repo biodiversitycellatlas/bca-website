@@ -1,3 +1,5 @@
+"""Utilities to render Markdown files as HTML."""
+
 from django.utils.text import slugify
 
 import mistune

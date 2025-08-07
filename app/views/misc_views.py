@@ -1,5 +1,7 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
+import os
+
 from django.conf import settings
 from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
@@ -8,8 +10,6 @@ from django.views.generic import DetailView, TemplateView
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
 from ..utils import get_dataset_dict, render_markdown, get_pygments_css
-
-import os
 
 
 class IndexView(TemplateView):
@@ -133,6 +133,7 @@ class ReferenceView(TemplateView):
     reference_dir = "app/reference"
 
     def get_context_data(self, **kwargs):
+        """Render HTML from Markdown files."""
         context = super().get_context_data(**kwargs)
         page = kwargs.get("page", "index")
         file_path = os.path.join(self.reference_dir, f"{page}.md")

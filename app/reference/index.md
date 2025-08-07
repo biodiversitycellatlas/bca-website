@@ -10,7 +10,7 @@ Welcome to the **Reference** documentation.
 
 ## Installation
 
-1. Clone the repo
+1. Clone the repository
 2. ~~Install dependencies~~ just run Docker
 3. Run the server
 

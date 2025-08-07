@@ -1,3 +1,5 @@
+"""Sticky navigation bar with breadcrumbs."""
+
 from django import template
 
 register = template.Library()
@@ -5,12 +7,14 @@ register = template.Library()
 
 @register.inclusion_tag("app/components/links/breadcrumbs.html", takes_context=True)
 def breadcrumbs(context):
+    """Create a breadcrumb navigation bar."""
+
     request = context["request"]
     path = request.path.strip("/").split("/")
     crumbs = []
     url = ""
 
-    for i, segment in enumerate(path):
+    for segment in path:
         url += f"/{segment}"
         if segment == "entry":
             label = "BCA database entries"
