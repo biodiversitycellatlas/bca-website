@@ -18,9 +18,6 @@ from pathlib import Path
 
 # Defaults
 ENV_FILES = [".github/super-linter.env"]
-VALIDATE_ALL_CODEBASE = False
-MODE = None
-LOG_LEVEL = "WARN"
 VALID_LOG_LEVELS = {"WARN", "INFO", "DEBUG", "ERROR", "NOTICE"}
 
 # Colors
@@ -30,12 +27,14 @@ CYAN = '\033[1;36m'
 RESET = '\033[0m'
 
 def get_linter_version():
+    """Get Super-Linter version from GitHub Actions workflows."""
+
     file = Path(".github/workflows/linter.yml")
     if not file.exists():
         print(f"{RED}❌ Could not find {file}{RESET}", file=sys.stderr)
         sys.exit(1)
 
-    with file.open() as f:
+    with file.open(encoding="utf-8") as f:
         for line in f:
             m = re.search(r"uses:\s*super-linter/super-linter@v(\d+)", line)
             if m:
@@ -46,8 +45,10 @@ def get_linter_version():
     sys.exit(1)
 
 def usage():
+    """Script usage instructions."""
+
     print(f"""
-✨ {YELLOW} Run Super-Linter {get_linter_version()} in check or fix mode {RESET} ✨
+✨ {YELLOW}Run Super-Linter {get_linter_version()} in check or fix mode{RESET} ✨
 
 {YELLOW}Usage:{RESET} {sys.argv[0]} <check|fix> [--all] [--log-level=LEVEL]
 
@@ -67,22 +68,40 @@ def usage():
     sys.exit(1)
 
 def parse_env_file(file):
-    vars = {}
+    """
+    Parse environment variables from a file.
+
+    Args:
+        file (str or Path): Path to the environment file.
+
+    Returns:
+        dict: Environment variables as key-value pairs.
+    """
+
+    env_vars = {}
     path = Path(file)
     if not path.exists():
-        return vars
-    with path.open() as f:
+        return env_vars
+    with path.open(encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             key, val = line.split("=", 1)
-            vars[key.strip()] = val.strip()
-    return vars
+            env_vars[key.strip()] = val.strip()
+    return env_vars
 
-def disable_validators(env_files, mode=None):
-    if mode is None:
-        return None
+def disable_validators(env_files):
+    """
+    Disable all linters.
+
+    Args:
+        env_files (list): List of environment file paths.
+        mode (str, optional): Mode to determine if disabling should occur. Defaults to None.
+
+    Returns:
+        dict: Environment variables with validators disabled.
+    """
 
     env = {}
     for file in env_files:
@@ -98,86 +117,114 @@ def disable_validators(env_files, mode=None):
     return env
 
 def enable_validator(key, env_vars, mode=None):
+    """
+    Enable a specific validator and (if mode='fix') its fix option.
+
+    Args:
+        key (str): Validator key (e.g., "PYTHON_PYLINT").
+        env_vars (dict): Environment variables dictionary to update.
+        mode (str, optional): Current mode, enables FIX if "fix".
+
+    Returns:
+        dict: Updated environment variables with validator enabled.
+    """
     env_vars["VALIDATE_" + key] = "true"
     if mode is not None and mode == "fix":
         env_vars["FIX_" + key] = "true"
     return env_vars
 
-def main():
-    global MODE, VALIDATE_ALL_CODEBASE, LOG_LEVEL
+def parse_args(args):
+    """
+    Parse command-line arguments to set variables for Super-Linter run.
 
-    args = sys.argv[1:]
-    positional = [a for a in args if not a.startswith("--")]
-    options = [a for a in args if a.startswith("--")]
+    Args:
+        args (list): List of command-line arguments.
 
-    # Sort: positional first, then options
-    sorted_args = positional + options
+    Returns:
+        tuple: (env_files (list), env_vars (dict)) for environment configuration.
+    """
 
+    mode = None
+    validate_all_codebase = False
+    log_level = "WARN"
     env_files = ENV_FILES.copy()
     env_vars = {}
 
+    validator_flags = {
+        "--pylint"  : "PYTHON_PYLINT",
+        "--black"   : "PYTHON_BLACK",
+        "--flake8"  : "PYTHON_FLAKE8",
+        "--ruff"    : "PYTHON_RUFF",
+    }
+
+    positional = [a for a in args if not a.startswith("--")]
+    options = [a for a in args if a.startswith("--")]
+    sorted_args = positional + options
+
     for arg in sorted_args:
         if arg == "fix":
-            MODE = "fix"
+            mode = "fix"
             env_files.append(".github/super-linter-fix.env")
         elif arg == "check":
-            MODE = "check"
+            mode = "check"
         elif arg == "--all":
-            VALIDATE_ALL_CODEBASE = True
+            validate_all_codebase = True
         elif arg == "--changed":
-            VALIDATE_ALL_CODEBASE = False
+            validate_all_codebase = False
         elif arg.startswith("--log-level="):
-            level = arg.split("=",1)[1].upper()
+            level = arg.split("=", 1)[1].upper()
             if level not in VALID_LOG_LEVELS:
                 print(f"❌ Invalid log level {RED}{level}{RESET}!")
                 print(f"Accepted values are: {CYAN}{' '.join(VALID_LOG_LEVELS)}{RESET}")
                 sys.exit(1)
-            LOG_LEVEL = level
+            log_level = level
         elif arg == "--help":
             usage()
-        elif arg == "--pylint":
-            env_vars = disable_validators(env_files, mode=MODE)
-            env_vars = enable_validator("PYTHON_PYLINT", env_vars, mode=MODE)
-            env_files = []
-        elif arg == "--black":
-            env_vars = disable_validators(env_files, mode=MODE)
-            env_vars = enable_validator("PYTHON_BLACK", env_vars, mode=MODE)
-            env_files = []
-        elif arg == "--flake8":
-            env_vars = disable_validators(env_files, mode=MODE)
-            env_vars = enable_validator("PYTHON_FLAKE8", env_vars, mode=MODE)
-            env_files = []
-        elif arg == "--ruff":
-            env_vars = disable_validators(env_files, mode=MODE)
-            env_vars = enable_validator("PYTHON_RUFF", env_vars, mode=MODE)
+        elif arg in validator_flags:
+            env_vars = disable_validators(env_files)
+            env_vars = enable_validator(validator_flags[arg], env_vars, mode=mode)
             env_files = []
         else:
             usage()
 
-    if not MODE:
+    if not mode:
         usage()
 
-    # Compose environment variables for podman
+    # Add fixed environment variables
+    env_vars.update({
+        "RUN_LOCAL": "true",
+        "LOG_LEVEL": log_level,
+        "SAVE_SUPER_LINTER_SUMMARY": "true",
+        "SAVE_SUPER_LINTER_OUTPUT": "true",
+        "VALIDATE_ALL_CODEBASE": "true" if validate_all_codebase else "false",
+    })
+
+    return env_files, env_vars
+
+
+def run_linters(env_files, env_vars):
+    """
+    Build and execute the Podman command to run Super-Linter.
+
+    Args:
+        env_files (list): List of environment file paths.
+        env_vars (dict): Dictionary of environment variables.
+
+    Prints:
+        Full Podman command and contents of the Super-Linter summary file.
+    """
+
+
     env_list = []
-    # Add environment files vars if still used
+
     if env_files:
         for file in env_files:
             env_list.extend([f"--env-file={file}"])
 
-    # Add explicit env vars from env_vars dict
     for k, v in env_vars.items():
         env_list.append(f"-e {k}={v}")
 
-    # Add fixed env vars
-    env_list.extend([
-        "-e RUN_LOCAL=true",
-        f"-e LOG_LEVEL={LOG_LEVEL}",
-        "-e SAVE_SUPER_LINTER_SUMMARY=true",
-        "-e SAVE_SUPER_LINTER_OUTPUT=true",
-        f"-e VALIDATE_ALL_CODEBASE={'true' if VALIDATE_ALL_CODEBASE else 'false'}"
-    ])
-
-    podman_cmd = [
+    cmd = [
         "podman", "run",
         *env_list,
         "-v", f"{os.getcwd()}:/tmp/lint",
@@ -185,11 +232,11 @@ def main():
         f"ghcr.io/super-linter/super-linter:{get_linter_version()}"
     ]
 
-    print(f"\n✨{YELLOW} Super-Linter command running {RESET}✨")
-    print("" + CYAN + " ".join(podman_cmd) + RESET + "\n")
+    print(f"\n✨{YELLOW} Running Super-Linter command {RESET}✨")
+    print(CYAN + " ".join(cmd) + RESET + "\n")
 
     try:
-        subprocess.run(podman_cmd, check=True)
+        subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError:
         pass  # ignore error
 
@@ -197,7 +244,15 @@ def main():
 
     summary_file = Path("super-linter-output/super-linter-summary.md")
     if summary_file.exists():
-        print(summary_file.read_text())
+        print(summary_file.read_text(encoding="utf-8"))
+
+
+def main():
+    """Prepare environment, run Super-Linter via Podman, and print summary."""
+    args = sys.argv[1:]
+    env_files, env_vars = parse_args(args)
+    run_linters(env_files, env_vars)
+
 
 if __name__ == "__main__":
     main()
