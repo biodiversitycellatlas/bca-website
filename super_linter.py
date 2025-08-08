@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+"""
+Run Super-Linter via Podman with flexible environment and mode options.
+
+Supports 'check' and 'fix' modes, selective validators and log levels.
+
+Usage:
+  super-linter.py <check|fix> [--all] [--log-level=LEVEL] [--pylint|--black|--flake8|--ruff]
+
+Reads .github/super-linter.env and .github/super-linter-fix.env as needed.
+"""
+
 import os
 import sys
 import re
