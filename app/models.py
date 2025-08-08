@@ -16,6 +16,7 @@ class SlugMixin(models.Model):
 
     class Meta:
         """Meta options."""
+
         abstract = True
 
     @property
@@ -31,8 +32,10 @@ class SlugMixin(models.Model):
 
 class ImageSourceMixin(models.Model):
     """Abstract model mixin for models that have an image source field."""
+
     class Meta:
         """Meta options."""
+
         abstract = True
 
     @property
@@ -133,6 +136,7 @@ class Species(SlugMixin, ImageSourceMixin):
 
     class Meta:
         """Meta options."""
+
         verbose_name = "species"
         verbose_name_plural = verbose_name
         ordering = ["scientific_name"]
@@ -233,6 +237,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
 
     class Meta:
         """Meta options."""
+
         unique_together = ("species", "name")
         ordering = ["species__scientific_name", "order"]
 
@@ -243,6 +248,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
 
 class File(models.Model):
     """File model for a species."""
+
     file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
@@ -278,6 +284,7 @@ class File(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["species", "type"]
 
     def __str__(self):
@@ -323,6 +330,7 @@ class Meta(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["species", "key", "value"]
         verbose_name = "meta"
         verbose_name_plural = verbose_name
@@ -343,6 +351,7 @@ class MetacellType(SlugMixin):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["dataset", "name"]
 
     def __str__(self):
@@ -390,6 +399,7 @@ class Metacell(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["name", "dataset"]
 
     def __str__(self):
@@ -423,6 +433,7 @@ class SingleCell(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["name", "dataset"]
 
     def __str__(self):
@@ -470,6 +481,7 @@ class Domain(models.Model):
 
     class Meta:
         """Meta options."""
+
         ordering = ["name"]
 
     def __str__(self):
@@ -561,6 +573,7 @@ class Gene(SlugMixin):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["name", "species"]
 
     def __str__(self):
@@ -599,6 +612,7 @@ class GeneModule(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["gene", "dataset"]
 
     def __str__(self):
@@ -622,6 +636,7 @@ class GeneCorrelation(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ("dataset", "gene", "gene2")
 
     def __str__(self):
@@ -641,6 +656,7 @@ class MetacellGeneExpression(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["gene", "metacell", "dataset"]
         verbose_name = "metacell gene expression"
         verbose_name_plural = verbose_name
@@ -663,6 +679,7 @@ class SingleCellGeneExpression(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["gene", "single_cell", "dataset"]
         verbose_name = "single-cell gene expression"
         verbose_name_plural = verbose_name
@@ -707,6 +724,7 @@ class Ortholog(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["gene", "orthogroup"]
         verbose_name = "ortholog"
         ordering = ["species", "gene"]
@@ -729,6 +747,7 @@ class SAMap(models.Model):
 
     class Meta:
         """Meta options."""
+
         unique_together = ["metacelltype", "metacelltype2"]
         verbose_name = "SAMAP score"
 
