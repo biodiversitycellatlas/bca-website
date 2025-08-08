@@ -5,7 +5,7 @@ Run Super-Linter via Podman with flexible environment and mode options.
 Supports 'check' and 'fix' modes, selective validators and log levels.
 
 Usage:
-  super-linter.py <check|fix> [--all] [--log-level=LEVEL] [--pylint|--black|--flake8|--ruff]
+  super-linter.py <check|fix> [--all] [--log-level=LEVEL] [linters]
 
 Reads .github/super-linter.env and .github/super-linter-fix.env as needed.
 """
@@ -64,6 +64,17 @@ def usage():
   {CYAN}--changed{RESET}             Lint changed files (default)
   {CYAN}--all{RESET}                 Lint full codebase
   {CYAN}--log-level=LEVEL{RESET}     Set log level: {', '.join(VALID_LOG_LEVELS)}
+
+{YELLOW}Validator flags:{RESET}
+  {CYAN}--py, --python{RESET}        Enable all Python linters
+  {CYAN}--pylint{RESET}              Enable Pylint
+  {CYAN}--black{RESET}               Enable Black
+  {CYAN}--flake8{RESET}              Enable Flake8
+  {CYAN}--ruff{RESET}                Enable Ruff
+
+  {CYAN}--js, --javascript{RESET}    Enable all JavaScript linters
+  {CYAN}--javascript-prettier{RESET} Enable JavaScript Prettier
+  {CYAN}--javascript-es{RESET}       Enable JavaScript ES
 
 {YELLOW}Examples:{RESET}
   {CYAN}{sys.argv[0]} check{RESET}
@@ -124,21 +135,22 @@ def disable_validators(env_files):
     return env
 
 
-def enable_validator(key, env_vars, mode=None):
+def enable_validator(keys, env_vars, mode=None):
     """
     Enable a specific validator and (if mode='fix') its fix option.
 
     Args:
-        key (str): Validator key (e.g., "PYTHON_PYLINT").
+        key (list): List of validator keys (e.g., ["PYTHON_PYLINT"]).
         env_vars (dict): Environment variables dictionary to update.
         mode (str, optional): Current mode, enables FIX if "fix".
 
     Returns:
         dict: Updated environment variables with validator enabled.
     """
-    env_vars["VALIDATE_" + key] = "true"
-    if mode is not None and mode == "fix":
-        env_vars["FIX_" + key] = "true"
+    for key in keys:
+        env_vars["VALIDATE_" + key] = "true"
+        if mode == "fix":
+            env_vars["FIX_" + key] = "true"
     return env_vars
 
 
@@ -160,16 +172,24 @@ def parse_args(args):
     env_vars = {}
 
     validator_flags = {
-        "--pylint": "PYTHON_PYLINT",
-        "--black": "PYTHON_BLACK",
-        "--flake8": "PYTHON_FLAKE8",
-        "--ruff": "PYTHON_RUFF",
+        "--py": ["PYTHON_PYLINT", "PYTHON_BLACK", "PYTHON_FLAKE8", "PYTHON_RUFF"],
+        "--python": ["PYTHON_PYLINT", "PYTHON_BLACK", "PYTHON_FLAKE8", "PYTHON_RUFF"],
+        "--pylint": ["PYTHON_PYLINT"],
+        "--black": ["PYTHON_BLACK"],
+        "--flake8": ["PYTHON_FLAKE8"],
+        "--ruff": ["PYTHON_RUFF"],
+
+        "--js": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
+        "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
+        "--javascript-es": ["JAVASCRIPT_ES"],
+        "--javascript-prettier": ["JAVASCRIPT_PRETTIER"],
     }
 
     positional = [a for a in args if not a.startswith("--")]
     options = [a for a in args if a.startswith("--")]
     sorted_args = positional + options
 
+    validators_disabled = False
     for arg in sorted_args:
         if arg == "fix":
             mode = "fix"
@@ -190,7 +210,9 @@ def parse_args(args):
         elif arg == "--help":
             usage()
         elif arg in validator_flags:
-            env_vars = disable_validators(env_files)
+            if not validators_disabled:
+                env_vars = disable_validators(env_files)
+                validators_disabled = True
             env_vars = enable_validator(validator_flags[arg], env_vars, mode=mode)
             env_files = []
         else:
