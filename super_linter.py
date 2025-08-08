@@ -21,10 +21,11 @@ ENV_FILES = [".github/super-linter.env"]
 VALID_LOG_LEVELS = {"WARN", "INFO", "DEBUG", "ERROR", "NOTICE"}
 
 # Colors
-RED = '\033[0;31m'
-YELLOW = '\033[1;33m'
-CYAN = '\033[1;36m'
-RESET = '\033[0m'
+RED = "\033[0;31m"
+YELLOW = "\033[1;33m"
+CYAN = "\033[1;36m"
+RESET = "\033[0m"
+
 
 def get_linter_version():
     """Get Super-Linter version from GitHub Actions workflows."""
@@ -41,13 +42,16 @@ def get_linter_version():
                 return f"v{m.group(1)}"
     print(
         f"{RED}❌ Could not determine Super-Linter version from {file}{RESET}",
-        file=sys.stderr)
+        file=sys.stderr,
+    )
     sys.exit(1)
+
 
 def usage():
     """Script usage instructions."""
 
-    print(f"""
+    print(
+        f"""
 ✨ {YELLOW}Run Super-Linter {get_linter_version()} in check or fix mode{RESET} ✨
 
 {YELLOW}Usage:{RESET} {sys.argv[0]} <check|fix> [--all] [--log-level=LEVEL]
@@ -64,8 +68,10 @@ def usage():
 {YELLOW}Examples:{RESET}
   {CYAN}{sys.argv[0]} check{RESET}
   {CYAN}{sys.argv[0]} fix --all{RESET}
-""")
+"""
+    )
     sys.exit(1)
+
 
 def parse_env_file(file):
     """
@@ -90,6 +96,7 @@ def parse_env_file(file):
             key, val = line.split("=", 1)
             env_vars[key.strip()] = val.strip()
     return env_vars
+
 
 def disable_validators(env_files):
     """
@@ -116,6 +123,7 @@ def disable_validators(env_files):
 
     return env
 
+
 def enable_validator(key, env_vars, mode=None):
     """
     Enable a specific validator and (if mode='fix') its fix option.
@@ -132,6 +140,7 @@ def enable_validator(key, env_vars, mode=None):
     if mode is not None and mode == "fix":
         env_vars["FIX_" + key] = "true"
     return env_vars
+
 
 def parse_args(args):
     """
@@ -151,10 +160,10 @@ def parse_args(args):
     env_vars = {}
 
     validator_flags = {
-        "--pylint"  : "PYTHON_PYLINT",
-        "--black"   : "PYTHON_BLACK",
-        "--flake8"  : "PYTHON_FLAKE8",
-        "--ruff"    : "PYTHON_RUFF",
+        "--pylint": "PYTHON_PYLINT",
+        "--black": "PYTHON_BLACK",
+        "--flake8": "PYTHON_FLAKE8",
+        "--ruff": "PYTHON_RUFF",
     }
 
     positional = [a for a in args if not a.startswith("--")]
@@ -191,13 +200,15 @@ def parse_args(args):
         usage()
 
     # Add fixed environment variables
-    env_vars.update({
-        "RUN_LOCAL": "true",
-        "LOG_LEVEL": log_level,
-        "SAVE_SUPER_LINTER_SUMMARY": "true",
-        "SAVE_SUPER_LINTER_OUTPUT": "true",
-        "VALIDATE_ALL_CODEBASE": "true" if validate_all_codebase else "false",
-    })
+    env_vars.update(
+        {
+            "RUN_LOCAL": "true",
+            "LOG_LEVEL": log_level,
+            "SAVE_SUPER_LINTER_SUMMARY": "true",
+            "SAVE_SUPER_LINTER_OUTPUT": "true",
+            "VALIDATE_ALL_CODEBASE": "true" if validate_all_codebase else "false",
+        }
+    )
 
     return env_files, env_vars
 
@@ -214,7 +225,6 @@ def run_linters(env_files, env_vars):
         Full Podman command and contents of the Super-Linter summary file.
     """
 
-
     env_list = []
 
     if env_files:
@@ -225,11 +235,14 @@ def run_linters(env_files, env_vars):
         env_list.append(f"-e {k}={v}")
 
     cmd = [
-        "podman", "run",
+        "podman",
+        "run",
         *env_list,
-        "-v", f"{os.getcwd()}:/tmp/lint",
-        "--platform", "linux/amd64",
-        f"ghcr.io/super-linter/super-linter:{get_linter_version()}"
+        "-v",
+        f"{os.getcwd()}:/tmp/lint",
+        "--platform",
+        "linux/amd64",
+        f"ghcr.io/super-linter/super-linter:{get_linter_version()}",
     ]
 
     print(f"\n✨{YELLOW} Running Super-Linter command {RESET}✨")
