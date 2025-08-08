@@ -6,6 +6,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def breadcrumbs(context):
+    """Generate breadcrumb links from the current request path."""
     request = context["request"]
     path = request.path.strip("/").split("/")
     crumbs = []
