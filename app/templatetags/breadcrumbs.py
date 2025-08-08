@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.inclusion_tag("app/components/links/breadcrumbs.html", takes_context=True)
 def breadcrumbs(context):
-    """Create a breadcrumb navigation bar."""
+    """Generate breadcrumb links from the current request path."""
 
     request = context["request"]
     path = request.path.strip("/").split("/")
