@@ -2,6 +2,8 @@
  * Cell Atlas selectize element.
  */
 
+/* global $ */
+
 /**
  * Toggles the 'plugin-optgroup_columns' class on 'atlas-select' based on the
  * current window width.
@@ -11,9 +13,9 @@
 export function toggleAtlasSelectColumnView(width = 960) {
     function toggleClassBasedOnWidth() {
         if ($(window).width() <= width) {
-            $('.atlas-select').removeClass('plugin-optgroup_columns');
+            $(".atlas-select").removeClass("plugin-optgroup_columns");
         } else {
-            $('.atlas-select').addClass('plugin-optgroup_columns');
+            $(".atlas-select").addClass("plugin-optgroup_columns");
         }
     }
     toggleClassBasedOnWidth();
