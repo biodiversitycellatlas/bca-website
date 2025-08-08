@@ -1,4 +1,6 @@
-function flatten(obj) {
+/* global vegaEmbed */
+
+export function flatten(obj) {
     let id = 0;
     return _flatten2(obj);
 
@@ -23,7 +25,7 @@ function flatten(obj) {
     }
 }
 
-async function readNewickJSON(file) {
+export async function readNewickJSON(file) {
     let obj;
 
     const res = await fetch(file);
@@ -31,7 +33,7 @@ async function readNewickJSON(file) {
     return flatten(obj);
 }
 
-function createTreeOfLife(id, file) {
+export function createTreeOfLife(id, file) {
     fetch(file)
         .then((res) => res.json())
         .then((obj) => flatten(obj))
