@@ -151,178 +151,28 @@ Features:
 </div>
 </div>
 
-<script>
-function displaySearchResults (item, escape) {
-    var group = item.group;
+<script type="module">
+    import { toggleAtlasSelectColumnView } from "{% static 'app/js/select/atlas.js' %}";
+    toggleAtlasSelectColumnView();
 
-    if (group == 'gene') {
-        badges = '';
-        var domains_array = item.domains;
-        for(var i = 0; i < domains_array.length; i++) {
-            if (domains_array[i] !== '') {
-                span = '<span class="badge rounded-pill text-bg-secondary">';
-                badges += ` ${span}<small>${domains_array[i]}</small></span>`;
-            }
+    import { initSearch } from "{% static 'app/js/search/init.js' %}";
+    initSearch({
+        urls: {
+            search: "{% url 'search' %}",
+            datasetList: "{% url 'rest:dataset-list' %}",
+            geneList: "{% url 'rest:gene-list' %}",
+            atlasGene: "{% url 'atlas_gene' 'dataset_placeholder' 'gene_placeholder' %}",
+
+            {% load custom_tags %}
+            {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
+            atlasView:
+                {% if atlas %}
+                    "{% url request.resolver_match.view_name 'dataset_placeholder' %}"
+                {% else %}
+                    "{% url 'atlas_info' 'dataset_placeholder' %}"
+                {% endif %}
         }
-
-        var desc = item.description === null ? "" :
-            `<span class="text-muted"><small>${item.description}</small></span>`;
-
-        shortenedName = item.species.scientific_name.split(' ')
-            .map((word, index) => index === 0 ? `${word[0]}.` : word)
-            .join(' ');
-        var species = `<span class='text-muted float-end'><small><img src="${item.species.image_url}" class="w-15px"> <i>${shortenedName}</i></small></span>`;
-
-        var res = `<div class='option'>${item.name} ${desc} ${badges} ${species}</div>`;
-    } else if (group == 'dataset') {
-        var imgURL = item.image_url || item.species_image_url;
-        var img  = !imgURL ? '' : `<img src="${imgURL}" class="w-25px"> `;
-        var desc = !item.species_common_name ? "" :
-            `<span class="text-muted"><small>${item.species_common_name}</small></span>`;
-
-        // Add metadata (only visible when matching user query)
-        var meta_array = item.species_meta.map(i => i.value);
-        badges = '';
-        for(var i = 0; i < meta_array.length; i++) {
-            var elem = meta_array[i];
-
-            // Avoid showing badges identical to displayed names
-            if (elem && !item.species.includes(elem) && !item.species_common_name) {
-                span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
-                badges += ` ${span}<small>${elem}</small></span>`;
-            }
-        }
-        var dataset_label = !item.name ? '' : `(${item.name})`;
-        var res = `<div class='option'>${img}<i>${item.species}</i> ${dataset_label} ${desc} ${badges}</div>`;
-    }
-    return res;
-}
-
-// Search box functionality
-{% load custom_tags %}
-$(function () {
-    $("#bca-search").selectize({
-        maxItems: 1,
-        render: {
-            item: function (item, escape) {
-                return `<div>Search the BCA...</div>`;
-            },
-            option: displaySearchResults,
-            optgroup_header: function(data, escape) {
-                var query = this.getTextboxValue();
-
-                count = `<a href="{% url 'search' %}?q=${query}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
-                content = `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`
-                return content;
-            }
-        },
-        onType: function(str) {
-            if (str === "") {
-                // clear all options if input is cleared
-                this.clearOptions();
-                this.clear();
-                this.close();
-            }
-        },
-        onFocus: function() {
-            this.clear();
-        },
-        onDropdownOpen: function() {
-            this.clear();
-        },
-        valueField: 'slug',
-        labelField: 'slug',
-        searchField: ['species', 'name', 'description', 'domains', 'scientific_name'],
-        score: function() {
-            // Avoid filtering by returning the same score to all results
-            return function() { return 1; };
-        },
-        load: function(query, callback) {
-            if (!query.length) return callback();
-
-            // Fetch data from API
-            params = new URLSearchParams ({
-                q: encodeURIComponent(query),
-                limit: 5
-            });
-
-            datasetsURL = new URL(`{% url "rest:dataset-list" %}`, window.location.href);
-            datasetsURL.search = params;
-
-            genesURL = new URL(`{% url "rest:gene-list" %}`, window.location.href);
-            genesURL.search = params;
-
-            // Combine results into optgroups
-            Promise.all([
-                fetch(datasetsURL).then(res => res.json())
-                //fetch(genesURL).then(res => res.json())
-            ]).then(([dataset_data, gene_data]) => {
-                const options = [
-                    ...dataset_data.results.map(item => ({ ...item, group: 'dataset' }))
-                    //...gene_data.results.map(item => ({ ...item, group: 'gene' }))
-                ];
-                this.clearOptions();
-
-                this.optgroups = {
-                    dataset: { label: "Dataset", category: "dataset", count: dataset_data.count },
-                    //gene:    { label: "Gene",    category: "genes",   count: gene_data.count }
-                };
-                callback(options);
-            })
-            .catch(err => {
-                console.error('Error loading data:', err);
-                callback();
-            });
-        },
-        onChange: function(value) {
-            if (value !== "") {
-                item = this.options[value];
-                if (item.group == 'gene') {
-                    gene = item.name;
-                    dataset = item.dataset.scientific_name.replace(' ', '_');
-                    window.location.href =
-                        "{% url 'atlas_gene' '::dataset' '::gene' %}"
-                        .replace('::dataset', dataset)
-                        .replace('::gene', gene);
-                } else if (item.group == 'dataset') {
-                    // Jump to dataset
-                    dataset = item.slug;
-                    window.location.href =
-                        {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
-                        {% if atlas %}
-                            // Jump to same page in atlas with another dataset
-                            "{% url request.resolver_match.view_name '::arg' %}"
-                                .replace('::arg', dataset)
-                        {% else %}
-                            // Jump to atlas_info
-                            "{% url 'atlas_info' '::arg' %}"
-                                .replace('::arg', dataset)
-                        {% endif %};
-                }
-            }
-            return;
-        },
-        optgroupField: 'group'
     });
 
-    function toggleClassBasedOnWidth() {
-        if ($(window).width() <= 960) {
-            $('.atlas-select').removeClass('plugin-optgroup_columns');
-        } else {
-            $('.atlas-select').addClass('plugin-optgroup_columns');
-        }
-    }
 
-    // Run on initial load and when resizing window
-    toggleClassBasedOnWidth();
-    $(window).resize(function() { toggleClassBasedOnWidth(); });
-});
-
-// Jump to search bar when pressing the keyboard shortcut: / (slash)
-document.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && !e.ctrlKey && !e.altKey) {
-    e.preventDefault();
-    $("#bca-search")[0].selectize.focus();
-  }
-});
 </script>

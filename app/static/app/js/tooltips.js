@@ -25,5 +25,4 @@ export function enableTooltipsAndPopovers() {
     popoverTriggerList.forEach((el) => new bootstrap.Popover(el));
 }
 
-// call it immediately
 enableTooltipsAndPopovers();
