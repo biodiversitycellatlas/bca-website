@@ -74,9 +74,10 @@ Features:
     <!-- Tree of Life -->
     <div id="tree"
          class="container d-flex align-items-center justify-content-center"></div>
-    <script type="text/javascript"
-            src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
-    <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
+    <script type="module">
+        import { createTreeOfLife } from "{% static 'app/js/plots/tree_of_life.js' %}";
+        createTreeOfLife("#tree", "{% static 'app/life.json' %}");
+    </script>
 
     {% comment %}
         <svg xmlns="http://www.w3.org/2000/svg" class="position-absolute">
