@@ -114,18 +114,12 @@ Search page
             loadSearchResults
         } from "{% static 'app/js/search/results_page.js' %}";
 
-        var urls = {
-            dataset_list: "{% url 'rest:dataset-list' %}",
-            gene_list: "{% url 'rest:gene-list' %}",
-            atlas: "{% url 'atlas_info' 'dataset_placeholder' %}",
-            atlas_gene: "{% url 'atlas_gene' 'dataset_placeholder' 'gene_placeholder' %}",
-        };
         var species = "{{query.species}}",
             query = "{{query.q}}",
             limit = {{query.limit|default:12}},
             offset = {{query.offset|default:0}},
             category = "{{query.category}}";
-        loadSearchResults(urls, species, query, limit, offset, category);
+        loadSearchResults(species, query, limit, offset, category);
         initFormHandler();
     </script>
 

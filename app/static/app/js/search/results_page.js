@@ -1,5 +1,6 @@
 /* global $ */
-// import { displaySearchResults } from "./dropdown.js";
+
+import { getDataPortalUrl } from "../utils.js";
 
 export function updateQuery(key, value) {
     var searchParams = new URLSearchParams(window.location.search);
@@ -64,7 +65,7 @@ function appendResult(title, title_url, subtitle, subtitle_url,
     container.append($clone);
 }
 
-export function loadSearchResults(urls, species, query="", limit=12, offset=0, category='datasets') {
+export function loadSearchResults(species, query="", limit=12, offset=0, category='datasets') {
     // Fetch data from API
     var params = new URLSearchParams ({
         q: encodeURIComponent(query),
@@ -74,7 +75,8 @@ export function loadSearchResults(urls, species, query="", limit=12, offset=0, c
     });
 
     if (category === "datasets") {
-        var datasetsURL = new URL(urls.dataset_list, window.location.href);
+        var datasetsURL = new URL(
+            getDataPortalUrl('dataset_list'), window.location.href);
         datasetsURL.search = params;
 
         fetch(datasetsURL)
@@ -92,7 +94,7 @@ export function loadSearchResults(urls, species, query="", limit=12, offset=0, c
                         !title.includes(item) && !subtitle.includes(item)
                     );
 
-                    var dataset_url = urls.atlas.replace("dataset_placeholder", item.slug);
+                    var dataset_url = getDataPortalUrl('atlas', item.slug);
                     appendResult(title, dataset_url, subtitle, dataset_url,
                                  description, badges);
                 });
@@ -102,7 +104,7 @@ export function loadSearchResults(urls, species, query="", limit=12, offset=0, c
                 console.error('Error loading data:', err);
             });
     } else if (category === "genes") {
-        var genesURL = new URL(urls.gene_list, window.location.href);
+        var genesURL = new URL(getDataPortalUrl("gene_list"), window.location.href);
         genesURL.search = params;
 
         fetch(genesURL)
@@ -116,11 +118,8 @@ export function loadSearchResults(urls, species, query="", limit=12, offset=0, c
 
                     var slug = item.species ?
                         item.species.scientific_name.slug : species.slug;
-                    var species_url = urls.atlas.replace("dataset_placeholder", slug);
-                    var gene_url = urls.atlas_gene
-                        .replace('dataset_placeholder', slug)
-                        .replace('gene_placeholder', gene);
-
+                    var species_url = getDataPortalUrl("atlas", slug);
+                    var gene_url = getDataPortalUrl("atlas_gene", dataset=slug, gene=gene);
                     appendResult(gene, gene_url, species_name, species_url,
                                  description, domains);
                 });

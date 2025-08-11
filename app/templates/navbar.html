@@ -156,23 +156,5 @@ Features:
     toggleAtlasSelectColumnView();
 
     import { initSearch } from "{% static 'app/js/search/init.js' %}";
-    initSearch({
-        urls: {
-            search: "{% url 'search' %}",
-            datasetList: "{% url 'rest:dataset-list' %}",
-            geneList: "{% url 'rest:gene-list' %}",
-            atlasGene: "{% url 'atlas_gene' 'dataset_placeholder' 'gene_placeholder' %}",
-
-            {% load custom_tags %}
-            {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
-            atlasView:
-                {% if atlas %}
-                    "{% url request.resolver_match.view_name 'dataset_placeholder' %}"
-                {% else %}
-                    "{% url 'atlas_info' 'dataset_placeholder' %}"
-                {% endif %}
-        }
-    });
-
-
+    initSearch();
 </script>

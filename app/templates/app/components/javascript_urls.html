@@ -1,0 +1,23 @@
+{% comment %}
+
+Prepare URLs to be used in JavaScript scripts
+
+{% endcomment %}
+
+{% load custom_tags %}
+{% startswith request.resolver_match.view_name 'atlas_' as atlas %}
+<script>
+    window.urls = {
+        search: "{% url 'search' %}",
+        dataset_list: "{% url 'rest:dataset-list' %}",
+        gene_list: "{% url 'rest:gene-list' %}",
+        atlas:
+            {% if atlas %}
+                "{% url request.resolver_match.view_name 'DATASET_PLACEHOLDER' %}"
+            {% else %}
+                "{% url 'atlas_info' 'DATASET_PLACEHOLDER' %}"
+            {% endif %},
+        atlas_info: "{% url 'atlas_info' 'DATASET_PLACEHOLDER' %}",
+        atlas_gene: "{% url 'atlas_gene' 'DATASET_PLACEHOLDER' 'GENE_PLACEHOLDER' %}",
+        };
+</script>

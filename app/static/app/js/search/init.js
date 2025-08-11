@@ -1,7 +1,8 @@
 /* global $ */
 import { displaySearchResults } from "./dropdown.js";
+import { getDataPortalUrl } from "../utils.js";
 
-export function initSearch({ urls }) {
+export function initSearch() {
     $("#bca-search").selectize({
         maxItems: 1,
         onType: function (str) {
@@ -38,7 +39,8 @@ export function initSearch({ urls }) {
             option: displaySearchResults,
             optgroup_header: function (data) {
                 let query = this.getTextboxValue();
-                let count = `<a href="${urls.search}?q=${encodeURIComponent(query)}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
+                let search = getDataPortalUrl("search");
+                let count = `<a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
                 return `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`;
             },
         },
@@ -46,7 +48,8 @@ export function initSearch({ urls }) {
             if (!query.length) return callback();
 
             let params = new URLSearchParams({ q: query, limit: 5 });
-            let datasetsURL = new URL(urls.datasetList, window.location.href);
+            let datasetsURL = new URL(
+                getDataPortalUrl("dataset_list"), window.location.href);
             datasetsURL.search = params;
 
             Promise.all([fetch(datasetsURL).then((res) => res.json())])
@@ -79,16 +82,11 @@ export function initSearch({ urls }) {
             if (item.group === "gene") {
                 let gene = item.name;
                 let dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = urls.atlasGene
-                    .replace("dataset_placeholder", dataset)
-                    .replace("gene_placeholder", gene);
+                window.location.href = getDataPortalUrl("atlas_gene", dataset, gene);
             } else if (item.group === "dataset") {
                 let dataset = item.slug;
-                window.location.href = urls.atlasView.replace(
-                    "dataset_placeholder",
-                    dataset,
-                );
-            }
+                window.location.href = getDataPortalUrl("atlas", dataset);
+           }
         },
         optgroupField: "group",
     });
