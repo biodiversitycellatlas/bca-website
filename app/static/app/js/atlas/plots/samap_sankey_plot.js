@@ -1,3 +1,5 @@
+export let viewSAMapSankey;
+
 /**
  * Renders a Sankey diagram to compare SAMap scores between metacell types from
  * two species
@@ -16,7 +18,7 @@
  *   - metacell2_color: color for metacell2_type
  *   - samap: SAMap score between the two metacell types
  */
-function createSAMapSankey(id, data, dataset_label, dataset2_label) {
+export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     // If direction of datasets is reversed, switch labels
     const normalize = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
     if (
