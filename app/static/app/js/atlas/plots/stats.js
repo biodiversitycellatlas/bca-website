@@ -1,3 +1,7 @@
+/* global vegaEmbed */
+
+export let viewStats;
+
 function prepareStatsSpecPerParam(param, label = param, counts = true) {
     var plot = [
         {
@@ -137,7 +141,7 @@ function prepareStatsSpecPerParam(param, label = param, counts = true) {
     return plot;
 }
 
-function createStatsPlot(id, data, param, title, label = param, counts = true) {
+export function createStatsPlot(id, data, param, title, label=param, counts=true) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         title: { text: title },
