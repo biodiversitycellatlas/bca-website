@@ -1,4 +1,8 @@
-function createExpressionHeatmap(id, species, data) {
+/* global vegaEmbed */
+
+export let viewExpressionHeatmap;
+
+export function createExpressionHeatmap(id, species, data) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         height: "container",
@@ -104,3 +108,4 @@ function createExpressionHeatmap(id, species, data) {
         })
         .catch(console.error);
 }
+

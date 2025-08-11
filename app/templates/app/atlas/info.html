@@ -145,7 +145,7 @@ Input:
         </div>
     </div>
     <script type="module">
-        import { loadDatasetStats, renderStatsPlots } from "{% static 'app/js/atlas/info.js' %}";
+        import { loadDatasetStats, renderStatsPlots } from "{% static 'app/js/atlas/stats.js' %}";
         loadDatasetStats("{{dataset.slug}}");
         renderStatsPlots("{{dataset.slug}}");
     </script>
