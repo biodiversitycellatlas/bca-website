@@ -178,7 +178,6 @@ def parse_args(args):
         "--black": ["PYTHON_BLACK"],
         "--flake8": ["PYTHON_FLAKE8"],
         "--ruff": ["PYTHON_RUFF"],
-
         "--js": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
         "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
         "--javascript-es": ["JAVASCRIPT_ES"],
