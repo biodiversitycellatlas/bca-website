@@ -49,7 +49,7 @@ export function initSearch() {
 
             let params = new URLSearchParams({ q: query, limit: 5 });
             let datasetsURL = new URL(
-                getDataPortalUrl("dataset_list"), window.location.href);
+                getDataPortalUrl("rest:dataset-list"), window.location.href);
             datasetsURL.search = params;
 
             Promise.all([fetch(datasetsURL).then((res) => res.json())])
@@ -67,7 +67,6 @@ export function initSearch() {
                             count: dataset_data.count,
                         },
                     };
-                    console.log(options);
                     callback(options);
                 })
                 .catch((err) => {

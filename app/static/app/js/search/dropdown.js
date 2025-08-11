@@ -1,5 +1,4 @@
 export function displaySearchResults(item, escape) {
-    console.log("here", item, escape);
     let group = item.group;
     let res = "";
 

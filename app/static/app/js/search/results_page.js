@@ -76,7 +76,7 @@ export function loadSearchResults(species, query="", limit=12, offset=0, categor
 
     if (category === "datasets") {
         var datasetsURL = new URL(
-            getDataPortalUrl('dataset_list'), window.location.href);
+            getDataPortalUrl('rest:dataset-list'), window.location.href);
         datasetsURL.search = params;
 
         fetch(datasetsURL)

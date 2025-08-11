@@ -146,60 +146,10 @@ Input:
     </div>
 
     <script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
-    <script>
-    var counts_url = new URL("{% url 'rest:metacellcount-list' %}", window.location.origin);
-    counts_url.searchParams.append('dataset', '{{dataset.slug}}');
-    counts_url.searchParams.append('limit', '0');
-
-    var urls = {
-        info: "{% url 'rest:dataset-detail' dataset.slug %}",
-        stats: "{% url 'rest:stats-detail' dataset.slug %}",
-        counts: counts_url.toString()
-    };
-    appendDataMenu('info', urls,
-                   ['Dataset information', 'Summary statistics', 'Metacell counts']);
-
-    function animateNumber(id, target) {
-        let val = 0;
-
-        // Increment value at a fixed interval
-        const time = 15;
-        const duration = 250;
-        const increment = Math.max( Math.floor(target / (duration / time)), 1 );
-
-        const interval = setInterval(function() {
-            val += increment;
-            if (val >= target) {
-                val = target;
-                clearInterval(interval);
-            }
-            $(id).text(val.toLocaleString());
-        }, time);
-    }
-
-    fetch(urls.stats)
-        .then(response => response.json())
-        .then(data => {
-            animateNumber('#n_cells', data.cells);
-            animateNumber('#n_metacells', data.metacells);
-            animateNumber('#n_umis', data.umis);
-            animateNumber('#n_genes', data.genes);
-        })
-        .catch(error => console.error('Error:', error))
-
-    $(function() {
-        fetch(urls.counts)
-            .then(response => response.json())
-            .then(data => {
-                createStatsPlot(
-                    '#metacell-cells-plot', data, 'cells',
-                    'Cells per metacell', 'Cell count');
-                createStatsPlot(
-                    '#metacell-umis-plot', data, 'umis',
-                    'UMIs per metacell', 'UMI count');
-            })
-            .catch(error => console.error('Error:', error))
-    });
+    <script type="module">
+        import { loadDatasetStats, renderStatsPlots } from "{% static 'app/js/atlas/info.js' %}";
+        loadDatasetStats("{{dataset.slug}}");
+        renderStatsPlots("{{dataset.slug}}");
     </script>
 
 {% endblock content %}

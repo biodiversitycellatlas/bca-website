@@ -7,10 +7,10 @@ Prepare URLs to be used in JavaScript scripts
 {% load custom_tags %}
 {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
 <script>
-    window.urls = {
+    window.APP_URLS = {
         search: "{% url 'search' %}",
-        dataset_list: "{% url 'rest:dataset-list' %}",
-        gene_list: "{% url 'rest:gene-list' %}",
+
+        // Atlas views
         atlas:
             {% if atlas %}
                 "{% url request.resolver_match.view_name 'DATASET_PLACEHOLDER' %}"
@@ -19,5 +19,12 @@ Prepare URLs to be used in JavaScript scripts
             {% endif %},
         atlas_info: "{% url 'atlas_info' 'DATASET_PLACEHOLDER' %}",
         atlas_gene: "{% url 'atlas_gene' 'DATASET_PLACEHOLDER' 'GENE_PLACEHOLDER' %}",
-        };
+
+        // REST data
+        "rest:dataset-list": "{% url 'rest:dataset-list' %}",
+        "rest:gene-list": "{% url 'rest:gene-list' %}",
+        "rest:dataset-detail": "{% url 'rest:dataset-detail' 'DATASET_PLACEHOLDER' %}",
+        "rest:stats-detail": "{% url 'rest:stats-detail' 'DATASET_PLACEHOLDER' %}",
+        "rest:metacellcount-list": "{% url 'rest:metacellcount-list' %}"
+    };
 </script>
