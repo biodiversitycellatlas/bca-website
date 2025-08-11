@@ -1,6 +1,6 @@
 /* global $ */
 import { displaySearchResults } from "./dropdown.js";
-import { getDataPortalUrl } from "../utils.js";
+import { getDataPortalUrl } from "../utils/utils.js";
 
 export function initSearch() {
     $("#bca-search").selectize({

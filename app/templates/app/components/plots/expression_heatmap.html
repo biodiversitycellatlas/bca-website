@@ -182,10 +182,11 @@ Input:
 <script type="module">
     import {
         handleFormSubmit,
-        initRangeSlider,
         initSubmitButtonToggler,
         initMetacellSelectionLabelUpdater
     } from "{% static 'app/js/atlas/expression_panel.js' %}";
+
+    import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
     $(function() {
         initMetacellSelectionLabelUpdater();

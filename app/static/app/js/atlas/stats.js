@@ -1,4 +1,4 @@
-import { getDataPortalUrl } from "../utils.js";
+import { getDataPortalUrl } from "../utils/utils.js";
 import { createStatsPlot } from "./plots/stats_plot.js";
 
 /**
