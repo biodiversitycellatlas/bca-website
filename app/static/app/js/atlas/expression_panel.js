@@ -15,9 +15,9 @@ export function loadExpressionData(id, dataset, genes=null) {
     });
 
     if (genes) {
-        params.genes = genes;
+        params.append("genes", genes);
     } else {
-        params.n_markers = $("#markers").val();
+        params.append("n_markers", $("#markers").val());
     }
 
     var apiURL = url + "?" + params.toString();
