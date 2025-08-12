@@ -15,7 +15,8 @@ function updateText(id, from_min_id, suffix="") {
 
 export function initRangeSlider(selector, opts, textArgs) {
     const baseOpts = { grid: true, skin: "round" };
-    const cb = updateText(...textArgs);
+    let cb;
+    if (textArgs) cb = updateText(...textArgs);
     $(selector).ionRangeSlider({
         ...baseOpts,
         ...opts,

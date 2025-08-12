@@ -1,6 +1,16 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createMarkersTable } from "./tables/markers_table.js";
 
+export function toggleMaxFCslider(elem, id) {
+    let slider = $(id).data("ionRangeSlider");
+    let html = slider["result"]["slider"];
+    if (elem.value == 'ignore') {
+        slider.update({ disable: true });
+    } else {
+        slider.update({ disable: false });
+    }
+}
+
 export function handleFormSubmit() {
     // Simplify multiple select data into a single comma-separated value
     $('form').on('submit', function(e) {
