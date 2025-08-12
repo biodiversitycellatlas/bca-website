@@ -1,11 +1,4 @@
-/* Update values of all checkboxes for vega */
-function updateCheckboxValue(el) {
-    el.value = el.checked;
-}
-$('input[type="checkbox"]').each(function () {
-    this.value = this.checked;
-    this.setAttribute("onclick", "updateCheckboxValue(this);");
-});
+export let viewMetacellProjection;
 
 /**
  * Generate color scale based on data type and color.
@@ -31,7 +24,7 @@ function generateColorScale(data) {
     return scale;
 }
 
-function createMetacellProjection(
+export function createMetacellProjection(
     id,
     species,
     data,
