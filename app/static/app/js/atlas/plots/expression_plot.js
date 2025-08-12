@@ -1,4 +1,4 @@
-function createExpressionBubblePlot(id, gene, data) {
+export function createExpressionBubblePlot(id, gene, data) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
@@ -57,45 +57,10 @@ function createExpressionBubblePlot(id, gene, data) {
         },
     };
     vegaEmbed(id, chart)
-        .then((res) => {
-            viewExpression = res.view;
-        })
         .catch(console.error);
 }
 
-function plotGeneExpressionComparison(id, dataset, gene, gene2, url, stats) {
-    // Create URL to fetch expression data for both genes
-    var params = new URLSearchParams({
-        genes: `${gene},${gene2}`,
-        dataset: dataset,
-        limit: 0,
-    });
-    var apiURL = url + "?" + params.toString().replaceAll("%2C", ",");
-    updateDataMenu(id, apiURL, "Expression comparison (plot data)");
-
-    // Fetch data from the API and create plot
-    clearContainer(id);
-    showSpinner(id);
-    fetch(apiURL)
-        .then((response) => response.json())
-        .then((data) => {
-            createExpressionComparisonPlot(
-                `#${id}-plot`,
-                gene,
-                gene2,
-                data,
-                stats,
-            );
-        })
-        .catch((error) => {
-            console.error("Error fetching data:", error);
-        })
-        .finally(() => {
-            hideSpinner(id);
-        });
-}
-
-function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
+export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         title: {
@@ -174,8 +139,5 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
         ],
     };
     vegaEmbed(id, chart)
-        .then((res) => {
-            viewExpression = res.view;
-        })
         .catch(console.error);
 }
