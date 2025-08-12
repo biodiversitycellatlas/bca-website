@@ -109,7 +109,8 @@ Input:
                                     onclick="$('#metacells')[0].selectize.clear();">Select all metacells</button>
                         </div>
 
-                        {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists placeholder="All metacells selected" name='metacell_lists' %}
+                        {% load custom_filters %}
+                        {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="All metacells selected" name='metacell_lists' %}
                     </div>
                 </div>
             </div>
@@ -213,7 +214,7 @@ Input:
         ["#fc_min_value", "#clip_log2"]
     );
 
-    handleFormSubmit("{{type}}");
+    handleFormSubmit("{{id}}", "{{dataset.slug}}", "{{type}}");
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
@@ -224,7 +225,9 @@ Input:
 
     <script type="module">
         import { loadExpressionData } from "{% static 'app/js/atlas/expression_panel.js' %}";
-        loadExpressionData("{{id}}", "{{dataset.slug}}", "{{query.genes}}");
+        $(function() {
+            loadExpressionData("{{id}}", "{{dataset.slug}}", "{{query.genes}}");
+        });
     </script>
 {% elif type == 'gene-lists' and not query.genes %}
     <p class="text-muted">

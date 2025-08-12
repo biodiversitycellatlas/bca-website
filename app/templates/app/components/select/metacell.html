@@ -12,6 +12,7 @@ Input:
 - name: form field name (default: 'metacells')
 - metacell_dict: dictionary of metacells
 - selected: selected metacells
+- selected2: selected metacells (backup for )
 - placeholder: placeholder text
 
 {% endcomment %}
@@ -74,8 +75,10 @@ Input:
             multiple: true,
             plugins: ['remove_button'],
             onInitialize: function() {
-                var metacell_values = '{{ selected }}'.split(',');
-                this.setValue(metacell_values);
+                {% if selected or selected2 %}
+                    var metacell_values = '{{ selected|default:selected2 }}'.split(',');
+                    this.setValue(metacell_values);
+                {% endif %}
             },
             searchField: ['text', 'celltype'],
             render: {

@@ -2,9 +2,9 @@ import { getDataPortalUrl } from "../utils/urls.js";
 import { createExpressionHeatmap } from "./plots/expression_heatmap.js";
 
 export function loadExpressionData(id, dataset, genes=null) {
-    var url = getDataPortalUrl("rest:metacellgeneexpression-list");
+    let url = getDataPortalUrl("rest:metacellgeneexpression-list");
 
-    var params = new URLSearchParams({
+    let params = new URLSearchParams({
         dataset: dataset,
         metacells: $("#metacells").val().join(","),
         fc_min: $("#fc_min").val(),
@@ -20,7 +20,7 @@ export function loadExpressionData(id, dataset, genes=null) {
         params.append("n_markers", $("#markers").val());
     }
 
-    var apiURL = url + "?" + params.toString();
+    let apiURL = url + "?" + params.toString();
 
     fetch(apiURL)
         .then(response => response.json())
@@ -46,28 +46,28 @@ function modifyFormQuery (elem, e, id, dataset, multiple = []) {
     e.preventDefault();
 
     // Modify form URL
-    var formData = new FormData(elem);
-    var url = new URL(e.target.action);
+    let formData = new FormData(elem);
+    let url = new URL(e.target.action);
     for (let [key, value] of formData.entries()) {
         url.searchParams.set(key, value);
     }
 
     // Get values
-    for (var i in multiple) {
-        var param = multiple[i];
-        var values = formData.getAll(param);
+    for (let i in multiple) {
+        let param = multiple[i];
+        let values = formData.getAll(param);
         url.searchParams.set(param, values.join(','));
 
         // Process values from user lists as hidden query parameters
         if (param == 'gene_lists') {
             // Get genes from user lists
-            var lists = getUserLists(`${id}_${param}`, dataset);
+            let lists = getUserLists(`${id}_${param}`, dataset);
             let matches = lists.filter(list => values.includes(list.name));
-            var genes = matches.flatMap(list => list.items);
+            let genes = matches.flatMap(list => list.items);
 
             // Get remaining lists
-            var names = matches.flatMap(list => list.name);
-            var diff = values.filter(value => !names.includes(value));
+            let names = matches.flatMap(list => list.name);
+            let diff = values.filter(value => !names.includes(value));
             genes = diff.concat(genes);
 
             // Set query parameter
@@ -85,17 +85,17 @@ function modifyFormQuery (elem, e, id, dataset, multiple = []) {
  *
  * @param {string} type - Form type, e.g. "gene-lists" to enable extra processing.
  */
-export function handleFormSubmit(type) {
+export function handleFormSubmit(id, dataset, type) {
     $('form').on('submit', function(e) {
-        var multiple = ['metacell_lists'];
+        let multiple = ['metacell_lists'];
         if (type === "gene-lists") multiple.push('gene_lists');
-        modifyFormQuery(this, e, '{{id}}', '{{dataset.slug}}', multiple);
+        modifyFormQuery(this, e, id, dataset, multiple);
     });
 }
 
 function toggleSubmitButton(id) {
-    var elem = $(`#${id}_gene_selection`)[0].selectize;
-    var isEmpty = elem.items.length === 0;
+    let elem = $(`#${id}_gene_selection`)[0].selectize;
+    let isEmpty = elem.items.length === 0;
     $(`#${id}_submit`).prop('disabled', isEmpty);
 }
 
@@ -108,18 +108,18 @@ export function initSubmitButtonToggler(id) {
 }
 
 function updateMetacellSelectionLabel (count) {
-    var label = count > 0 ? 'Selected metacells' : 'All metacells';
+    let label = count > 0 ? 'Selected metacells' : 'All metacells';
     $('#metacells_filter').text(label);
 }
 
 export function initMetacellSelectionLabelUpdater() {
     // Change metacell selection label
     const metacell_selectize = $('#metacells')[0].selectize;
-    var count = metacell_selectize.items.length;
+    let count = metacell_selectize.items.length;
     updateMetacellSelectionLabel(count);
 
     metacell_selectize.on('change', function() {
-        var count = this.items.length;
+        let count = this.items.length;
         updateMetacellSelectionLabel(count);
     });
 }
