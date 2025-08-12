@@ -150,61 +150,27 @@ Input:
                 </div>
                 <table id="markers_table" class="display w-100">
                 </table>
-
-                <script type="text/javascript" src="{% static 'app/js/markers_table.js' %}"></script>
-                <script>
-                var gene_url = "{% url 'atlas_gene' dataset.slug %}";
-                var url = "{% url 'rest:metacellmarker-list' %}";
-
-                var params = new URLSearchParams({
-                    dataset: '{{dataset.slug}}',
-                    metacells: '{{query.metacells}}',
-                    fc_min_type: '{{query.fc_min_type|default:'mean'}}',
-                    fc_min: '{{query.fc_min|default:2}}',
-                    fc_max_bg_type: '{{query.fc_max_bg_type|default:'ignore'}}',
-                    fc_max_bg: '{{query.fc_max_bg|default:3}}',
-                    limit: 0
-                });
-                var apiURL = url + "?" + params.toString();
-
-                createMarkersTable('markers', apiURL)
-                appendDataMenu('markers', apiURL, 'Metacell markers');
-                </script>
             {% else %}
                 {% include '../components/mockup/table.html' %}
             {% endif %}
         </div>
     </div>
 
-    <script>
-function updateMetacellSelectionText(selected) {
-    var minimized = convertToRange(selected).replaceAll(',', ', ');
-
-    underline = 'style="-webkit-text-decoration: underline dotted; text-decoration: underline dotted;"';
-    tooltip   = `data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="${selected}"`;
-    $('#selected_metacells').html(`<span ${underline} ${tooltip}>${minimized}</span>`);
-}
-updateMetacellSelectionText("{{metacells|join:', '}}");
-
-<!-- Simplify multiple select data into a single comma-separated value -->
-$('form').on('submit', function(e) {
-    e.preventDefault();
-
-    // Get values
-    var formData = new FormData(this);
-    var values = formData.getAll('metacells').join(',');
-
-    // Modify form URL
-    var url = new URL(e.target.action);
-    for (let [key, value] of formData.entries()) {
-        url.searchParams.set(key, value);
-    }
-    url.searchParams.set('metacells', values);
-
-    // Maintain commas in query params
-    href = url.href.replaceAll('%2C', ',');
-    window.location.href = href;
-});
+    <script type="module">
+        import { handleFormSubmit, updateMetacellSelectionLabel, loadMarkersData }
+            from "{% static 'app/js/atlas/markers.js' %}";
+        handleFormSubmit();
+        updateMetacellSelectionLabel("{{metacells|join:', '}}");
+        {% if metacells %}
+            loadMarkersData(
+                "{{dataset.slug}}",
+                "{{query.metacells}}",
+                "{{query.fc_min_type|default:'mean'}}",
+                "{{query.fc_min|default:2}}",
+                "{{query.fc_max_bg_type|default:'ignore'}}",
+                "{{query.fc_max_bg|default:3}}",
+            );
+        {% endif %}
     </script>
 
 {% endblock content %}

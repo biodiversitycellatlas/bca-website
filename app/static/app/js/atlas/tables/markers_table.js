@@ -1,9 +1,15 @@
-// Link to gene
-function linkGene(data, type, row) {
-    if (type === "display") {
-        data = `<a href=${gene_url}${data}>${data}</a>`;
+import { getDataPortalUrl } from "../../utils/urls.js";
+
+function makeLinkGene(dataset) {
+    return function linkGene(data, type, row) {
+        if (type === "display") {
+            let url = getDataPortalUrl("atlas_gene", dataset, data);
+            if (url) {
+                data = `<a href=${url}>${data}</a>`;
+            }
+        }
+        return data;
     }
-    return data;
 }
 
 // Round numeric values
@@ -23,7 +29,8 @@ function parseArray(data, type, row) {
 }
 
 // Create DataTable
-function createMarkersTable(id, url) {
+export function createMarkersTable(id, dataset, url) {
+    let linkGene = makeLinkGene(dataset);
     $(`#${id}_table`).dataTable({
         ajax: {
             url: url,
