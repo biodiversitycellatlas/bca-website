@@ -20,8 +20,7 @@ Input:
         <img id="ortholog-species-img"
              alt="Image of species"
              class="rounded"
-             height="24px"
-             width="100%">
+             height="24px">
         <i><span id="ortholog-species">Species</span></i>
     </h2>
 </template>
@@ -40,71 +39,8 @@ Input:
 </template>
 
 {% load static %}
-<script type="text/javascript"
-        src="{% static 'app/js/plots/expression_plot.js' %}"></script>
-
-<!-- Plot ortholog expression data -->
-<script type="text/javascript">
+<script type="module">
     // Create URL to fetch ortholog data
-    var url = '{% url 'rest:ortholog-list' %}';
-    var params = new URLSearchParams({
-        gene: '{{gene}}',
-        expression: true,
-        limit: 0
-    });
-    var apiURL = url + "?" + params.toString();
-    appendDataMenu('orthologs', apiURL, 'Ortholog expression');
-
-    // Fetch data from the API and create plots
-    const header    = document.getElementById('ortholog-header-template');
-    const template  = document.getElementById('ortholog-template');
-    const container = document.getElementById('orthologs-plot');
-
-    fetch(apiURL)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                container.innerHTML = "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No orthologs found.</p>"
-            } else {
-                data.forEach(item => {
-                    gene = item.gene_name;
-                    if (gene != '{{gene}}') {
-                        headerClone = document.importNode(header.content, true);
-
-                        if (item.datasets[0]) {
-                            headerClone.getElementById('ortholog-species-img').src = item.datasets[0].species_image_url;
-                            headerClone.getElementById('ortholog-species-img').alt = "Image of " + item.species;
-                        }
-                        headerClone.getElementById('ortholog-species').innerText = item.species;
-                        container.appendChild(headerClone);
-
-                        for (const d in item.datasets) {
-                            const dataset = item.datasets[d];
-
-                            // Header info
-                            clone = document.importNode(template.content, true);
-                            clone.getElementById('ortholog-dataset').innerHTML = dataset.name || `<i>${item.species}</i>`;
-                            clone.getElementById('ortholog-dataset-href').href = `/atlas/${dataset.slug}`;
-
-                            // Dataset info
-                            clone.getElementById('ortholog-gene-href').innerText = gene;
-                            clone.getElementById('ortholog-gene-href').href = `/atlas/${dataset.slug}/gene/${gene}`;
-                            clone.getElementById('single-ortholog-plot').id = dataset.slug + "-" + item.gene_slug;
-                            container.appendChild(clone);
-
-                            // Dataset gene expression plot
-                            createExpressionBubblePlot(
-                                "#" + dataset.slug + "-" + item.gene_slug,
-                                gene, item.expression[dataset.slug]);
-                        };
-                    }
-                })
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        })
-        .finally(() => {
-            hideSpinner('orthologs');
-        });
+    import { loadOrthologExpression } from "{% static 'app/js/atlas/expression_ortholog.js' %}";
+    loadOrthologExpression("{{gene}}");
 </script>
