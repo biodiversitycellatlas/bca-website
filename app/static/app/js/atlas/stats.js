@@ -1,4 +1,4 @@
-import { getDataPortalUrl } from "../utils/utils.js";
+import { getDataPortalUrl } from "../utils/urls.js";
 import { createStatsPlot } from "./plots/stats_plot.js";
 
 /**
@@ -49,7 +49,7 @@ export function loadDatasetStats(dataset) {
 }
 
 export function renderStatsPlots(dataset) {
-    var url = getDataPortalUrl("rest:metacellcount-list", dataset);
+    var url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
     fetch(url)
         .then(response => response.json())
         .then(data => {

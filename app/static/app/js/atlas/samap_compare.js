@@ -1,4 +1,4 @@
-import { getDataPortalUrl } from "../utils/utils.js";
+import { getDataPortalUrl } from "../utils/urls.js";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.js";
 
 /**

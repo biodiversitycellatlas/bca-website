@@ -1,4 +1,4 @@
-import { getDataPortalUrl } from "../utils/utils.js";
+import { getDataPortalUrl } from "../utils/urls.js";
 import { createExpressionHeatmap } from "./plots/expression_heatmap.js";
 
 export function loadExpressionData(id, dataset, genes=null) {

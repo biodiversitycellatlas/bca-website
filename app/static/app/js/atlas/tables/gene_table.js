@@ -27,8 +27,32 @@ function getSelectedRows(id) {
     return $(`#${id}`).DataTable().select.cumulative().rows.slice();
 }
 
+function buildDataQuery(data) {
+    var ordering;
+    if (data.order && data.order[0]) {
+        const o = data.order[0];
+        ordering = (o.dir == "desc" ? "-" : "") + o.name;
+    }
+
+    var params = {
+        offset: data.start,
+        limit: data.length,
+        q: data.search.value,
+        ordering: ordering,
+    };
+    return params;
+}
+
+function filterData(data) {
+    var json = jQuery.parseJSON(data);
+    json.recordsTotal = json.count;
+    json.recordsFiltered = json.count;
+    json.data = json.list;
+    return JSON.stringify(json);
+}
+
 // Create DataTable
-function createGeneTable(
+export function createGeneTable(
     id,
     url = "",
     correlation = false,
@@ -71,7 +95,7 @@ function createGeneTable(
     }
 
     // Gene selection mode
-    var selectMode, selectLayout;
+    var selectMode, selectLayout, selectParam;
     if (select == "multiple") {
         selectParam = true;
     } else if (select == "single") {
@@ -84,28 +108,8 @@ function createGeneTable(
     $(`#${id}`).dataTable({
         ajax: {
             url: url,
-            data: function (data) {
-                var ordering;
-                if (data.order && data.order[0]) {
-                    const o = data.order[0];
-                    ordering = (o.dir == "desc" ? "-" : "") + o.name;
-                }
-
-                var params = {
-                    offset: data.start,
-                    limit: data.length,
-                    q: data.search.value,
-                    ordering: ordering,
-                };
-                return params;
-            },
-            dataFilter: function (data) {
-                var json = jQuery.parseJSON(data);
-                json.recordsTotal = json.count;
-                json.recordsFiltered = json.count;
-                json.data = json.list;
-                return JSON.stringify(json);
-            },
+            data: buildDataQuery,
+            dataFilter: filterData,
             dataSrc: function (json) {
                 return json.results;
             },

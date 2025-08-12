@@ -1,6 +1,6 @@
 /* global $ */
 
-import { getDataPortalUrl } from "../utils/utils.js";
+import { getDataPortalUrl } from "../utils/urls.js";
 
 export function updateQuery(key, value) {
     var searchParams = new URLSearchParams(window.location.search);
