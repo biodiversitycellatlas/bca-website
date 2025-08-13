@@ -1,3 +1,5 @@
+import { escapeString } from "../../utils/utils.js";
+
 export function createExpressionBubblePlot(id, gene, data) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -61,6 +63,9 @@ export function createExpressionBubblePlot(id, gene, data) {
 }
 
 export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
+    let escapedGene = escapeString(gene),
+        escapedGene2 = escapeString(gene2);
+
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         title: {
@@ -78,10 +83,10 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
             },
             {
                 joinaggregate: [
-                    { op: "min", field: gene, as: "xMin" },
-                    { op: "max", field: gene, as: "xMax" },
-                    { op: "min", field: gene2, as: "yMin" },
-                    { op: "max", field: gene2, as: "yMax" },
+                    { op: "min", field: escapedGene, as: "xMin" },
+                    { op: "max", field: escapedGene, as: "xMax" },
+                    { op: "min", field: escapedGene2, as: "yMin" },
+                    { op: "max", field: escapedGene2, as: "yMax" },
                 ],
             },
             { calculate: "min(datum.xMin, datum.yMin)", as: "min" },
@@ -91,7 +96,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
         width: "container",
         encoding: {
             x: {
-                field: gene,
+                field: escapedGene,
                 type: "quantitative",
                 title: gene + " fold-change",
                 scale: {
@@ -101,7 +106,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                 },
             },
             y: {
-                field: gene2,
+                field: escapedGene2,
                 type: "quantitative",
                 title: gene2 + " fold-change",
                 scale: {
@@ -120,7 +125,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                     strokeWidth: 1.5,
                     clip: true,
                 },
-                transform: [{ regression: gene, on: gene2 }],
+                transform: [{ regression: escapedGene, on: escapedGene2 }],
             },
             {
                 mark: { type: "circle", tooltip: { content: "data" } },

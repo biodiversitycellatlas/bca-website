@@ -13,3 +13,36 @@ export function highlightMatch(content, query) {
     return content.replace(regex, "<span class='search-highlight'>$1</span>");
 }
 
+/**
+ * Converts string into URL-friendly slug.
+ *
+ * @param {string} text - Text to slugify.
+ * @returns {string} Slugified text.
+ *
+ * @example
+ * slugify("Hello World!") // returns "hello-world"
+ */
+export function slugify(text) {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[\s.]+/g, "-")    // Replace spaces and dots with -
+        .replace(/[^\w\-]+/g, "")   // Remove all non-word chars
+        .replace(/\-\-+/g, "-");    // Replace multiple - with single -
+}
+
+/**
+ * Escapes special characters in a string.
+ *
+ * @param {string} text - Text to escape.
+ * @returns {string} Escaped string.
+ *
+ * @example
+ * escapeRegex("file.name") // returns "file\\.name"
+ */
+export function escapeString(text) {
+    return text
+        .toString()
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Double backslash
+}
