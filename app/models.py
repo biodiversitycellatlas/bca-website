@@ -74,6 +74,10 @@ class Species(SlugMixin, ImageSourceMixin):
     def phylum(self):
         return self.meta_set.filter(key="phylum").first().value
 
+    @property
+    def proteome(self):
+        return self.files.get(type="Proteome")
+
     def get_absolute_url(self):
         return reverse("species_entry", args=[self.scientific_name])
 
@@ -106,9 +110,13 @@ class Species(SlugMixin, ImageSourceMixin):
         url = self.get_absolute_url() if url is None else url
         image_url = self.image_url
         label = self.get_html()
-
-        html = f'<img width="25px" src="{image_url}"> {label}'
-        html = f'<a href="{url}">{html}</a>'
+        html = f"""
+            <a class="d-flex align-items-center gap-1" href="{url}">
+                <img class="rounded" alt="Image of {self.scientific_name}"
+                     width="25px" src="{image_url}">
+                {label}
+            </a>
+        """
         return mark_safe(html)
 
     def get_genes_html_link(self):

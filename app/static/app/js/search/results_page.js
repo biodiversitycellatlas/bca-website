@@ -1,6 +1,7 @@
 /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
+import { highlightMatch } from "../utils/utils.js";
 
 export function updateQuery(key, value) {
     var searchParams = new URLSearchParams(window.location.search);
@@ -14,13 +15,6 @@ export function updateQuery(key, value) {
     if (window.location.search != searchString) {
         window.location.search = searchString;
     }
-}
-
-function highlightMatch(content, query) {
-    if (content === null) return content;
-
-    const regex = new RegExp(`(${query})`, 'gi');
-    return content.replace(regex, '<span class="search-highlight">$1</span>');
 }
 
 function appendResult(title, title_url, subtitle, subtitle_url,

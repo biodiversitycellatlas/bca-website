@@ -1,32 +1,4 @@
-import { getDataPortalUrl } from "../../utils/urls.js";
-
-function makeLinkGene(dataset) {
-    return function linkGene(data, type, row) {
-        if (type === "display") {
-            let url = getDataPortalUrl("atlas_gene", dataset, data);
-            if (url) {
-                data = `<a href=${url}>${data}</a>`;
-            }
-        }
-        return data;
-    }
-}
-
-// Round numeric values
-function round(data, type, row) {
-    if (type === "display" || type === "filter") {
-        return parseFloat(data).toFixed(2);
-    }
-    return data;
-}
-
-// Improve array parsing
-function parseArray(data, type, row) {
-    if (Array.isArray(data)) {
-        return data.join(", ");
-    }
-    return data;
-}
+import { makeLinkGene, round, parseArray } from "./utils.js";
 
 // Create DataTable
 export function createMarkersTable(id, dataset, url) {

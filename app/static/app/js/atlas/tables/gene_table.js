@@ -1,31 +1,4 @@
-// Link to gene
-function linkGene(data, type) {
-    if (type === "display") {
-        data = `<a href=${gene_url}${data}>${data}</a>`;
-    }
-    return data;
-}
-
-// Round numeric values
-function round(data, type) {
-    if (type === "display" || type === "filter") {
-        return parseFloat(data).toFixed(2);
-    }
-    return data;
-}
-
-// Improve array parsing
-function parseArray(data) {
-    if (Array.isArray(data)) {
-        return data.join(", ");
-    }
-    return data;
-}
-
-// Get selected rows
-function getSelectedRows(id) {
-    return $(`#${id}`).DataTable().select.cumulative().rows.slice();
-}
+import { makeLinkGene, parseArray, getSelectedRows } from "./utils.js";
 
 function buildDataQuery(data) {
     var ordering;
@@ -54,10 +27,12 @@ function filterData(data) {
 // Create DataTable
 export function createGeneTable(
     id,
+    dataset,
     url = "",
     correlation = false,
     select = "multiple",
 ) {
+    let linkGene = makeLinkGene(dataset);
     // Columns to display
     var cols = [
         {

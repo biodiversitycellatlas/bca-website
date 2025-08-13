@@ -1,3 +1,8 @@
+import { getDataPortalUrl } from "../../utils/urls.js";
+import { highlightMatch } from "../../utils/utils.js";
+import { createGeneTable } from "../tables/gene_table.js";
+import { getSelectedRows } from "../tables/utils.js";
+
 // Functions to get, set and append user lists
 function parseID(str) {
     if (str.includes("gene_list")) {
@@ -16,7 +21,7 @@ function setLocalStorageLists(id, lists) {
     localStorage.setItem(id, JSON.stringify(lists));
 }
 
-function getUserLists(id, species, name = undefined) {
+export function getUserLists(id, species, name = undefined) {
     var lists = getLocalStorageLists(id);
     if (name === undefined) {
         return lists[species] || [];
@@ -81,7 +86,7 @@ function removeUserList(id, species, name) {
     }
 }
 
-function getAllLists(id) {
+export function getAllLists(id) {
     let res = $(`#${id}_options a`)
         .map(function () {
             return {
@@ -129,7 +134,7 @@ function getAllListNames(id) {
  * }
  * redrawUserLists(id, species, active=[name]);
  */
-function appendUserList(
+export function appendUserList(
     id,
     species,
     name,
@@ -159,10 +164,12 @@ function appendUserList(
     setUserList(id, species, name, values, group, color);
 
     // Redraw user lists
-    if (redraw) {
-        redrawUserLists(id, species, (active = [name]));
-    }
+    if (redraw) redrawUserLists(id, species, ([name]));
     return name;
+}
+
+function getSelectedList(id) {
+    return $(`#${id}_options button.active`);
 }
 
 // Render user group headings and items
@@ -212,30 +219,30 @@ function appendListGroupItem(id, name, group, count, active = false) {
 
 function drawUserLists(id, species, activeList = []) {
     // Render all user lists (sorted by group)
-    var lists = getUserLists(id, species);
+    let lists = getUserLists(id, species);
 
-    group = "";
+    let group = "";
     for (const index in lists) {
         const elem = lists[index];
-        var active = activeList.includes(elem.name);
+        let active = activeList.includes(elem.name);
         if (elem.group != group) {
             appendListGroupHeading(id, elem.group);
             group = elem.group;
         }
         const len = elem.items ? elem.items.length : 0;
-        appendListGroupItem(id, elem.name, elem.group, len, (active = active));
+        appendListGroupItem(id, elem.name, elem.group, len, (active));
     }
 }
 
 function clearSearch(id) {
-    var search = $(`#${id}_search`);
+    let search = $(`#${id}_search`);
     search.val("");
 
     // Trigger input event as if the user cleared the search box
-    search[0].dispatchEvent(new Event("input"));
+    if (search.length) search[0].dispatchEvent(new Event("input"));
 }
 
-function redrawUserLists(id, species, activeList = []) {
+export function redrawUserLists(id, species, activeList = []) {
     clearSearch(id);
 
     // Delete all user lists from interface
@@ -269,7 +276,7 @@ function getGenesURL(url, species, genes) {
 async function fetchAllGenesFromList(id, species, apiURL, name, group) {
     var genes;
     if (group === "preset") {
-        var url = getGenesFromListURL(apiURL, species, name, (limit = 0));
+        var url = getGenesFromListURL(apiURL, species, name, 0);
         const response = await fetch(url);
         const data = await response.json();
         genes = data.map((item) => item.name);
@@ -279,14 +286,29 @@ async function fetchAllGenesFromList(id, species, apiURL, name, group) {
     return genes;
 }
 
+export function renderActiveList(id, species) {
+    // Get data and render table for active group list
+    let previousActiveList = null;
+
+    // Trigger data rendering on any change to .active class
+    $(`#${id}_options`).on("click keyup", ".active", function (event) {
+        // Prevent event triggering if element was previously active
+        if ( previousActiveList && previousActiveList.is($(this)) ) {
+            event.preventDefault();
+            return;
+        }
+        previousActiveList = $(this);
+        renderListDetail(id, species);
+    });
+}
+
 /**
  * Renders details for a selected list.
  *
  * @param {string} id - Identifier.
  * @param {string} species - Species.
- * @param {string} url - URL to retrieve genes.
  */
-function renderListDetail(id, species, url) {
+function renderListDetail(id, species) {
     var table = $(`#${id}_editor_table`).DataTable();
     table.search("").columns().search(""); // Clear search
     table.clear(); // Clear data
@@ -295,7 +317,7 @@ function renderListDetail(id, species, url) {
     var name = $(`#${id}_options`).find(".active").data("list");
     var group = $(`#${id}_options`).find(".active").data("group");
 
-    var url;
+    let url = getDataPortalUrl("rest:gene-list");
     if (group === "preset") {
         url = getGenesFromListURL(url, species, name);
     } else {
@@ -350,10 +372,158 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
                     (redraw = false),
                 );
             }
-            redrawUserLists(id, species, (active = [name]));
+            redrawUserLists(id, species, ([name]));
         };
         reader.readAsText(file);
     }
     // Clear selection to allow uploading the same file again
     $(elem).val("");
+}
+
+// Get lists from API
+export function loadGeneLists(id, species, dataset) {
+    let url = getDataPortalUrl("rest:genelist-list", null, null, null, { species: species });
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            appendListGroupHeading(id, "preset");
+            data.results.forEach((item, index) => {
+
+                appendListGroupItem(id, item.name, item.type,
+                                    item.gene_count);
+            });
+            drawUserLists(id, species);
+        })
+        .then(data => {
+            // Create gene table
+            createGeneTable(`${id}_editor_table`, dataset);
+            // Update interface based on selection
+            var table = $(`#${id}_editor_table`).DataTable();
+            table.on("select deselect", function(e, dt, type, indexes) {
+                if (type === "row") {
+                    const len = getSelectedRows(`${id}_editor_table`).length;
+                    var label = `${len} selected gene` + (len === 1 ? "" : "s");
+                    $(`#${id}_new_selected_count`).text(label);
+
+                    // Disable element if no rows are selected
+                    if (len === 0) {
+                        $(`#${id}_new_selected`).addClass("disabled");
+                    } else {
+                        $(`#${id}_new_selected`).removeClass("disabled");
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+        });
+}
+
+export function loadMenuActions(id, species, maxFileSize) {
+    // Menu action: New list
+    $(`#${id}_new_empty`).on("click", function(e) {
+        appendUserList(id, species, "Empty list", []);
+    });
+
+    $(`#${id}_new_selected`).on("click", function(e) {
+        const selected = getSelectedRows(`${id}_editor_table`);
+        appendUserList(id, species, "Selected genes", selected);
+    });
+
+    // Menu action: Reset
+    $(`#${id}_reset`).on("click", function(e) {
+        if (confirm(`Do you want to reset all user gene lists for ${species}?`)) {
+            resetUserLists(id, species);
+            redrawUserLists(id, species);
+
+            // Select the first item in the list if no element is selected
+            if ($(`#${id}_options`).find("a.active").length === 0) {
+                $(`#${id}_options a`).first().addClass('active').click();
+            }
+        }
+    });
+
+    // Menu action: Rename
+    $(`#${id}_rename_btn`).on("click", function(e) {
+        var activeItem = $(`#${id}_options`).find("a.active");
+        var oldName = activeItem.find(`.${id}_group_title`).text();
+
+        var newName = prompt("Rename list:", oldName);
+        if (newName === '') {
+            // Avoid empty list name
+            alert('The name of a list cannot be empty.');
+            return;
+        } else if (newName === null) {
+            // Cancel rename
+            return;
+        }
+
+        // Avoid duplicated name
+        var all_names = $(`#${id}_options`)
+            .find(`a .${id}_group_title`)
+            .map((i, el) => $(el).text()).get();
+
+        if (all_names.includes(newName)) {
+            alert('This list name is already in use.');
+            return;
+        }
+
+        renameUserList(id, species, oldName, newName);
+        redrawUserLists(id, species, [newName]);
+    });
+
+    // Menu action: Remove
+    $(`#${id}_remove`).on("click", function(e) {
+        var activeItem = $(`#${id}_options`).find("a.active");
+        var name = activeItem.find(`.${id}_group_title`).text();
+
+        if (confirm(`Do you want to remove the following list: ${name}?`)) {
+            removeUserList(id, species, name);
+            redrawUserLists(id, species);
+
+            // Select the first item in the list if no element is selected
+            if ($(`#${id}_options`).find("a.active").length === 0) {
+                $(`#${id}_options a`).first().addClass("active").click();
+            }
+        }
+    });
+
+    // Menu action: duplicate
+    $(`#${id}_new_duplicate`).on("click", function(e) {
+        let activeItem = getSelectedList(id);
+        let name = activeItem.data("list");
+        let group = activeItem.data("group");
+        console.log(name, group);
+
+        let url = getDataPortalUrl("rest:gene-list");
+        fetchAllGenesFromList(id, species, url, name, group)
+            .then(genes => {
+                appendUserList(id, species, name, genes);
+            })
+            .catch(error => {
+                console.error("Error fetching genes:", error);
+            });
+    });
+
+    // Menu action: upload file containing lists
+    $(`#${id}_new_upload`).on("change", function () {
+        createUserListsFromFile (this, id, species, maxFileSize);
+    });
+
+    // Filter by list name
+    $(`#${id}_search`).on("input search", function () {
+        const query = this.value.toLowerCase(); // lowercase comparison
+
+        // Hide lists that do not match query value
+        var elems = $(`#${id}_options a`);
+        elems.each(function() {
+            const title = $(this).find(`.${id}_group_title`);
+            if (title.text().toLowerCase().includes(query)) {
+                $(this).removeClass("d-none");
+            } else {
+                $(this).addClass("d-none");
+            }
+            title.html(highlightMatch(title.text(), query));
+        });
+    });
 }

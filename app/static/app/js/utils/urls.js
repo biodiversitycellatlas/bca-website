@@ -61,8 +61,10 @@ export function getDataPortalUrl(view, dataset=null, gene=null, limit=null, extr
         "rest:ortholog-list",
     ].includes(view)) {
         url = prepareUrlParams(url, dataset, gene, limit, extraParams);
-    } else if (["rest:metacellgeneexpression-list"].includes(view)){
+    } else if (["rest:metacellgeneexpression-list"].includes(view) && gene !== null) {
         url = prepareUrlParams(url, dataset, [gene], limit, extraParams);
+    } else if (["rest:genelist-list"].includes(view)){
+        url = prepareUrlParams(url, null, null, limit, extraParams);
     } else {
         if (dataset) url = url.replace('DATASET_PLACEHOLDER', dataset);
         if (gene) url = url.replace('GENE_PLACEHOLDER', gene);
