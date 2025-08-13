@@ -33,6 +33,18 @@
                     <a href="{{ species.get_gene_list_url }}">Genes</a>
                 </li>
             </ul>
+
+            <h2 class="h4">Files</h2>
+
+            <ul>
+                {% for file in species.files.all %}
+                    <li>
+                        <a href="{% url 'download_file' file.slug %}">
+                            {{ file.type }} ({{ file.ext.upper }})
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="col-md-8">
