@@ -5,5 +5,5 @@ export function loadGeneCorrelationTable(id, dataset, gene) {
     // Get lists from API
     var corrURL = getDataPortalUrl("rest:correlated-list", dataset, gene);
     appendDataMenu(id, corrURL, 'Correlation table (current page)');
-    createGeneTable(`${id}_table`, corrURL, true, 'single');
+    createGeneTable(`${id}_table`, dataset, corrURL, true, 'single');
 }
