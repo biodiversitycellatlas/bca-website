@@ -1,6 +1,6 @@
 services:
     nginx:
-        image: nginx:1.27
+        image: nginx:1.29
         ports:
             - "${WEB_PORT:-8080}:80"
         volumes:
