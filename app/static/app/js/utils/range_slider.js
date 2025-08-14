@@ -2,6 +2,8 @@
  * Utility functions for range sliders.
  */
 
+/* global $ */
+
 /**
  * Update text content and ionRangeSlider settings.
  *

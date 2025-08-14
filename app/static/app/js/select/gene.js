@@ -10,23 +10,33 @@ import { getAllLists } from "../atlas/modals/list_editor.js";
 function displayGeneInfo(item, escape) {
     if (item.group && item.group !== "genes") {
         // Display gene lists
-        return `<div class='option'>${item.name} <span class="text-muted small">${item.count} genes</span></div>`;
+        return `
+            <div class='option'>
+                ${escape(item.name)}
+                <span class="text-muted small">${escape(item.count)} genes</span>
+            </div>
+        `;
     } else {
         var domains_array = item.domains;
         let badges = "";
         for (var i = 0; i < domains_array.length; i++) {
             if (domains_array[i] !== "") {
-                let span =
-                    '<span class="badge rounded-pill text-bg-secondary">';
-                badges += ` ${span}<small>${domains_array[i]}</small></span>`;
+                badges = `
+                    <span class="badge rounded-pill text-bg-secondary">
+                        <small>${domains_array[i]}</small>
+                    </span>
+                `;
             }
         }
 
         var desc =
             item.description === null
                 ? ""
-                : `<span class="text-muted small">${item.description}</span>`;
-        return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
+                : `
+                    <span class="text-muted small">
+                        ${escape(item.description)}
+                    </span>`;
+        return `<div class='option'>${escape(item.name)} ${desc} ${badges}</div>`;
     }
 }
 
@@ -34,9 +44,13 @@ function displayGeneName(item, escape) {
     let badges = "";
     if (item.group && item.group !== "genes") {
         // Show count as a badge
-        badges = ` <span class="badge rounded-pill text-bg-secondary"><small>${item.count}</small></span>`;
+        badges = `
+            <span class="badge rounded-pill text-bg-secondary">
+                <small>${escape(item.count)}</small>
+            </span>
+        `;
     }
-    return `<div class='option'>${item.name}${badges}</div>`;
+    return `<div class='option'>${escape(item.name)}${badges}</div>`;
 }
 
 function prependGeneLists(id, selectize, callback, genes, domains) {
@@ -154,7 +168,7 @@ export function initGeneSelectize(
         ...(multiple && { optgroupField: "group" }),
 
         ...(!multiple && {
-            onDropdownOpen: function ($dropdown) {
+            onDropdownOpen: function () {
                 this.clear();
             },
             onBlur: function () {
@@ -163,7 +177,7 @@ export function initGeneSelectize(
                     this.setValue(gene.name);
                 }
             },
-            onType: function (str) {
+            onType: function () {
                 // Clear available options to avoid selection while loading more data
                 this.clearOptions();
             },

@@ -1,5 +1,7 @@
 import { makeLinkGene, round, parseArray } from "./utils.js";
 
+/* global $ */
+
 // Create DataTable
 export function createMarkersTable(id, dataset, url) {
     let linkGene = makeLinkGene(dataset);

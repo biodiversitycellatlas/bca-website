@@ -89,6 +89,7 @@ class Species(SlugMixin, ImageSourceMixin):
 
     @property
     def proteome(self):
+        """Return proteome file."""
         return self.files.get(type="Proteome")
 
     def get_absolute_url(self):

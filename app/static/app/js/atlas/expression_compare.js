@@ -1,6 +1,8 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.js";
 
+/* global $ */
+
 export function plotGeneExpressionComparison(id, dataset, gene) {
     $(`#${id}_table`)
         .DataTable()

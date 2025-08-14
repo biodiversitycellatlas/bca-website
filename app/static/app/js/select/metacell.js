@@ -4,7 +4,7 @@
 
 /* global $ */
 
-function convertToRange(str) {
+export function convertToRange(str) {
     // Sort numeric values
     const numbers = str
         .split(",")
@@ -30,48 +30,54 @@ function convertToRange(str) {
     return ranges.join(",");
 }
 
+function createColorCircle(color) {
+    let circle = `<i class="fa fa-circle color-bullet pe-1" style="color: ${color};"></i>`;
+    return circle;
+}
+
 export function initMetacellSelectize(selected, selected2) {
     $("#metacells").selectize({
         multiple: true,
         plugins: ["remove_button"],
         onInitialize: function () {
             if (selected || selected2) {
-                var metacell_values = (selected || selected2).split(",");
+                let metacell_values = (selected || selected2).split(",");
                 this.setValue(metacell_values);
             }
         },
         searchField: ["text", "celltype"],
         render: {
             item: function (item, escape) {
-                var metacells;
-                var text;
-                var span_class = "badge rounded-pill text-bg-secondary";
+                let metacells,
+                    text,
+                    span_class = "badge rounded-pill text-bg-secondary";
                 if (item.type == "metacells") {
-                    metacells = item.text;
+                    metacells = escape(item.text);
                     text = "";
                 } else {
                     metacells = item.metacells;
-                    text = item.text.replaceAll("_", " ");
+                    text = escape(item.text.replaceAll("_", " "));
+                    text = createColorCircle(escape(item.color)) + text;
                     span_class += " ms-1";
                 }
 
-                var badge = "";
+                let badge = "";
                 if (metacells) {
-                    metacells = convertToRange(String(metacells));
+                    metacells = convertToRange(escape(metacells));
                     badge = `<span class="${span_class}">${metacells}</span>`;
                 }
                 return `<div class='item'>${text}${badge}</div>`;
             },
             option: function (item, escape) {
-                var extra = "";
-                var text = item.text;
-                var circle = `<i class="fa fa-circle color-bullet" style="color: ${item.color};"></i> `;
+                let extra = "",
+                    text = escape(item.text),
+                    circle = createColorCircle(escape(item.color));
                 if (item.metacells) {
                     text = circle + text;
-                    var metacells = convertToRange(String(item.metacells));
+                    let metacells = convertToRange(escape(item.metacells));
                     extra = `Metacells: ${metacells}`;
                 } else {
-                    var type = item.celltype;
+                    let type = escape(item.celltype);
                     extra = circle + type;
                 }
                 extra =

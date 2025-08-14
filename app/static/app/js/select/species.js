@@ -2,9 +2,59 @@
  * Dataset dropdown UI selectize element.
  */
 
-import { getDataPortalUrl } from "../utils/urls.js";
-
 /* global $ */
+
+function renderOption(item, escape) {
+    // Display common name if different than species name
+    let description = "";
+    if (item.name) {
+        console.log(item.name);
+        description = `
+            <span class="text-muted">
+                <small>${escape(item.name)}</small>
+            </span>
+        `;
+    }
+
+    // Add metadata (only visible when matching user query)
+    let meta_array = escape(item.meta).split(",");
+    let badges = "";
+    for (let i = 0; i < meta_array.length; i++) {
+        let elem = meta_array[i];
+        if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
+            badges = `
+                <span class="species-meta badge rounded-pill text-bg-secondary">
+                    <small>${meta_array[i]}</small>
+                </span>
+            `;
+        }
+    }
+    let img = item.image === "None" ? "" : escape(item.image);
+    return `
+        <div class='option'>
+            <img src="${img}" style="width: 20px;">
+            ${item.label} ${description}${badges}
+        </div>
+    `;
+}
+
+function renderItem(item, escape) {
+    // Display common name if different than species name
+    let description = "";
+    if (item.name) {
+        description = `
+            <span class="text-muted">
+                <small>${escape(item.name)}</small>
+            </span>
+        `;
+    }
+    return `
+        <div class='option'>
+            <img src="${escape(item.image)}" style="width: 20px;">
+            ${item.label} ${description}
+        </div>
+    `;
+}
 
 /**
  * Initializes a Selectize dropdown for species selection.
@@ -26,7 +76,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
         onChange: function (value) {
             // Jump to species page upon selection
             if (redirect && value !== "" && value !== species) {
-                var url = new URL(window.location.href);
+                let url = new URL(window.location.href);
                 url.searchParams.set("species", value);
                 window.location.href = url;
             }
@@ -35,7 +85,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
             this.clear();
             setTimeout(() => {
                 if (species) {
-                    var current = this.getOption(species);
+                    let current = this.getOption(species);
                     this.setActiveOption(current);
                 }
             }, 10);
@@ -51,41 +101,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
                 .closest(".species-meta")
                 .css("display", "inline-block");
         },
-        render: {
-            item: function (item, escape) {
-                // Display common name if different than species name
-                let description = "";
-                if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-                return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i>${description}</div>`;
-            },
-            option: function (item, escape) {
-                // Display common name if different than species name
-                let description = "";
-                if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-
-                // Add metadata (only visible when matching user query)
-                var meta_array = item.meta.split(",");
-                let badges = "";
-                for (var i = 0; i < meta_array.length; i++) {
-                    var elem = meta_array[i];
-                    if (
-                        elem &&
-                        !item.name.includes(elem) &&
-                        !item.text.includes(elem)
-                    ) {
-                        let span =
-                            '<span class="species-meta badge rounded-pill text-bg-secondary">';
-                        badges += ` ${span}<small>${meta_array[i]}</small></span>`;
-                    }
-                }
-                var img = item.image === "None" ? "" : item.image;
-                return `<div class='option'><img src="${img}" style="width: 20px;"> <i>${item.text}</i>${description}${badges}</div>`;
-            },
-        },
+        render: { item: renderItem, option: renderOption },
         searchField: ["text", "meta", "optgroup", "name"],
         plugins: {
             ...(optgroup_columns && {

@@ -1,6 +1,8 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.js";
 
+/* global $ */
+
 /**
  * Navigate to new URL query parameters based on form data.
  * Maintains query when changing only one value.

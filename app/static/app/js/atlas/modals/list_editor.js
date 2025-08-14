@@ -1,7 +1,13 @@
+/**
+ * Dataset selectize element.
+ */
+
 import { getDataPortalUrl } from "../../utils/urls.js";
 import { highlightMatch } from "../../utils/utils.js";
 import { createGeneTable } from "../tables/gene_table.js";
 import { getSelectedRows } from "../tables/utils.js";
+
+/* global $ */
 
 // Functions to get, set and append user lists
 function parseID(str) {
@@ -61,8 +67,8 @@ function findUserListIndex(list, name) {
 }
 
 function renameUserList(id, species, name, newName) {
-    var lists = getLocalStorageLists(id);
-    var index = findUserListIndex(lists[species], name);
+    let lists = getLocalStorageLists(id);
+    let index = findUserListIndex(lists[species], name);
     lists[species][index].name = newName;
     setLocalStorageLists(id, lists);
 }
@@ -74,9 +80,9 @@ function resetUserLists(id, species) {
 }
 
 function removeUserList(id, species, name) {
-    var lists = getLocalStorageLists(id);
+    let lists = getLocalStorageLists(id);
     if (species in lists) {
-        var index = findUserListIndex(lists[species], name);
+        let index = findUserListIndex(lists[species], name);
         lists[species].splice(index, 1);
         setLocalStorageLists(id, lists);
     } else {
@@ -394,12 +400,12 @@ export function loadGeneLists(id, species, dataset) {
             });
             drawUserLists(id, species);
         })
-        .then((data) => {
+        .then(() => {
             // Create gene table
             createGeneTable(`${id}_editor_table`, dataset);
             // Update interface based on selection
             var table = $(`#${id}_editor_table`).DataTable();
-            table.on("select deselect", function (e, dt, type, indexes) {
+            table.on("select deselect", function (e, dt, type) {
                 if (type === "row") {
                     const len = getSelectedRows(`${id}_editor_table`).length;
                     var label = `${len} selected gene` + (len === 1 ? "" : "s");
@@ -421,17 +427,17 @@ export function loadGeneLists(id, species, dataset) {
 
 export function loadMenuActions(id, species, maxFileSize) {
     // Menu action: New list
-    $(`#${id}_new_empty`).on("click", function (e) {
+    $(`#${id}_new_empty`).on("click", function () {
         appendUserList(id, species, "Empty list", []);
     });
 
-    $(`#${id}_new_selected`).on("click", function (e) {
+    $(`#${id}_new_selected`).on("click", function () {
         const selected = getSelectedRows(`${id}_editor_table`);
         appendUserList(id, species, "Selected genes", selected);
     });
 
     // Menu action: Reset
-    $(`#${id}_reset`).on("click", function (e) {
+    $(`#${id}_reset`).on("click", function () {
         if (
             confirm(`Do you want to reset all user gene lists for ${species}?`)
         ) {
@@ -446,7 +452,7 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Menu action: Rename
-    $(`#${id}_rename_btn`).on("click", function (e) {
+    $(`#${id}_rename_btn`).on("click", function () {
         var activeItem = $(`#${id}_options`).find("a.active");
         var oldName = activeItem.find(`.${id}_group_title`).text();
 
@@ -476,7 +482,7 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Menu action: Remove
-    $(`#${id}_remove`).on("click", function (e) {
+    $(`#${id}_remove`).on("click", function () {
         var activeItem = $(`#${id}_options`).find("a.active");
         var name = activeItem.find(`.${id}_group_title`).text();
 
@@ -492,7 +498,7 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Menu action: duplicate
-    $(`#${id}_new_duplicate`).on("click", function (e) {
+    $(`#${id}_new_duplicate`).on("click", function () {
         let activeItem = getSelectedList(id);
         let name = activeItem.data("list");
         let group = activeItem.data("group");

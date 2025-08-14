@@ -1,6 +1,8 @@
 import { getDataPortalUrl } from "../../utils/urls.js";
 import { appendUserList, redrawUserLists } from "./list_editor.js";
 
+/* global $ */
+
 export function uploadSequenceFile(id, maxMB, maxSeqs) {
     $(`#${id}_upload`).on("change", function () {
         const file = this.files[0];
@@ -128,7 +130,7 @@ export function alignSequence(id, species, type) {
                 }, {});
 
                 let name;
-                for (key in result) {
+                for (let key in result) {
                     name = key + " alignment";
                     name = appendUserList(
                         id + type,
@@ -152,6 +154,6 @@ export function alignSequence(id, species, type) {
             .catch((error) => {
                 setErrorMessage(id, "Error!", error);
             })
-            .finally((f) => stopLoadingState(id));
+            .finally(() => stopLoadingState(id));
     });
 }

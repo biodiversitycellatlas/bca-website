@@ -1,9 +1,11 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createMarkersTable } from "./tables/markers_table.js";
+import { convertToRange } from "../select/metacell.js";
+
+/* global $ */
 
 export function toggleMaxFCslider(elem, id) {
     let slider = $(id).data("ionRangeSlider");
-    let html = slider["result"]["slider"];
     if (elem.value == "ignore") {
         slider.update({ disable: true });
     } else {

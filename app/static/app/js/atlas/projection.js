@@ -4,6 +4,8 @@ import {
     viewMetacellProjection,
 } from "./plots/metacell_scatterplot.js";
 
+/* global $ */
+
 function toggleGeneSelectize(id) {
     $('input[name="color_by"]').change(function () {
         let elem = $(`#${id}_gene_selection`)[0].selectize;

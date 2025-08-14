@@ -38,7 +38,8 @@ Input:
                 <option value="{{ elem.species.slug }}"
                         data-meta="{{ elem.meta|join:',' }}"
                         data-image="{{ elem.species.image_url }}"
-                        data-name="{{ elem.species.common_name }}"
+                        data-label="{{ elem.species.get_html }}"
+                        data-name="{{ elem.species.common_name|default_if_none:'' }}"
                         {% if species == elem.species or species == elem.species.slug %}selected{% endif %}>
                     {{ elem.species.scientific_name }}
                 </option>

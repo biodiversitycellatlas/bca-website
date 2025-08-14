@@ -13,6 +13,6 @@ Input:
 
 {% load static %}
 <script type="module">
-	import { loadGeneCorrelationTable } from "{% static 'app/js/atlas/correlation_table.js' %}";
-	loadGeneCorrelationTable("{{id}}", "{{dataset.slug}}", "{{gene}}");
+    import { loadGeneCorrelationTable } from "{% static 'app/js/atlas/correlation_table.js' %}";
+    loadGeneCorrelationTable("{{id}}", "{{dataset.slug}}", "{{gene}}");
 </script>

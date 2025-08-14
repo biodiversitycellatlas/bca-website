@@ -1,5 +1,7 @@
 export let viewSAMapSankey;
 
+/* global vegaEmbed */
+
 /**
  * Renders a Sankey diagram to compare SAMap scores between metacell types from
  * two species

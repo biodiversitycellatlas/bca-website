@@ -73,15 +73,19 @@ export function initDatasetSelectize(
                 // Display common name if different than dataset name
                 let description = "";
                 if (item.name) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
+                    description = `
+                        <span class="text-muted">
+                            <small>${escape(item.name)}</small>
+                        </span>
+                    `;
                 }
-                let dataset = !item.dataset ? "" : `(${item.dataset})`;
+                let dataset = !item.dataset ? "" : `(${escape(item.dataset)})`;
                 return `
                     <div class='option'>
                         <span class="text-muted small">
                             ${redirect !== "query" ? "Dataset:" : ""}
                         </span>
-                        <img src="${item.image}" class="w-20px">
+                        <img src="${escape(item.image)}" class="w-20px">
                         ${item.label} ${description}
                     </div>`;
             },
@@ -89,7 +93,11 @@ export function initDatasetSelectize(
                 // Display common name if different than dataset name
                 let description = "";
                 if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
+                    description = `
+                        <span class="text-muted">
+                            <small>${escape(item.name)}</small>
+                        </span>
+                    `;
                 }
 
                 // Add metadata (only visible when matching user query)
@@ -108,8 +116,8 @@ export function initDatasetSelectize(
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
-                let dataset = !item.dataset ? "" : `(${item.dataset})`;
-                let img = item.image === "None" ? "" : item.image;
+                let dataset = !item.dataset ? "" : `(${escape(item.dataset)})`;
+                let img = item.image === "None" ? "" : escape(item.image);
                 return `<div class='option'>
                     <img src="${img}" class="w-20px">
                     ${item.label}${description}${badges}
