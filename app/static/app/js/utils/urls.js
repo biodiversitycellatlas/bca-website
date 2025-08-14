@@ -32,7 +32,9 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams={}) {
             }
         }
     }
-    return url.toString();
+    url = url.toString().replaceAll("%2C", ",");
+    console.log(url);
+    return url;
 }
 
 /**
