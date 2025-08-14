@@ -39,9 +39,7 @@
             <ul>
                 {% for file in species.files.all %}
                     <li>
-                        <a href="{% url 'download_file' file.slug %}">
-                            {{ file.type }} ({{ file.ext.upper }})
-                        </a>
+                        <a href="{% url 'download_file' file.slug %}">{{ file.type }} ({{ file.ext.upper }})</a>
                     </li>
                 {% endfor %}
             </ul>
