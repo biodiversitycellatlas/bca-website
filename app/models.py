@@ -3,9 +3,7 @@ import re
 from pathlib import Path
 
 from colorfield.fields import ColorField
-from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
-from django.db import connection, models
+from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -624,4 +622,7 @@ class SAMap(models.Model):
         verbose_name = "SAMAP score"
 
     def __str__(self):
-        return f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"
+        return (
+            f"{self.metacelltype} ({self.metacelltype.dataset}) vs "
+            f"{self.metacelltype2} ({self.metacelltype2.dataset})"
+        )

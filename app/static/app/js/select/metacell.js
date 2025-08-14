@@ -6,7 +6,10 @@
 
 function convertToRange(str) {
     // Sort numeric values
-    const numbers = str.split(',').map(Number).sort((a, b) => a - b);
+    const numbers = str
+        .split(",")
+        .map(Number)
+        .sort((a, b) => a - b);
     let ranges = [];
     let start = numbers[0];
     let end = numbers[0];
@@ -24,14 +27,14 @@ function convertToRange(str) {
     // Add the last range
     ranges.push(start === end ? `${start}` : `${start}-${end}`);
 
-    return ranges.join(',');
+    return ranges.join(",");
 }
 
 export function initMetacellSelectize(selected, selected2) {
     $("#metacells").selectize({
         multiple: true,
         plugins: ["remove_button"],
-        onInitialize: function() {
+        onInitialize: function () {
             if (selected || selected2) {
                 var metacell_values = (selected || selected2).split(",");
                 this.setValue(metacell_values);
@@ -45,10 +48,10 @@ export function initMetacellSelectize(selected, selected2) {
                 var span_class = "badge rounded-pill text-bg-secondary";
                 if (item.type == "metacells") {
                     metacells = item.text;
-                    text      = "";
+                    text = "";
                 } else {
                     metacells = item.metacells;
-                    text      = item.text.replaceAll("_"," ");
+                    text = item.text.replaceAll("_", " ");
                     span_class += " ms-1";
                 }
 
@@ -60,7 +63,7 @@ export function initMetacellSelectize(selected, selected2) {
                 return `<div class='item'>${text}${badge}</div>`;
             },
             option: function (item, escape) {
-                var extra = '';
+                var extra = "";
                 var text = item.text;
                 var circle = `<i class="fa fa-circle color-bullet" style="color: ${item.color};"></i> `;
                 if (item.metacells) {
@@ -71,10 +74,13 @@ export function initMetacellSelectize(selected, selected2) {
                     var type = item.celltype;
                     extra = circle + type;
                 }
-                extra = `<span class="float-end text-muted small"><small>` + extra + `</small></span>`;
-                text = text.replaceAll('_',' ');
+                extra =
+                    `<span class="float-end text-muted small"><small>` +
+                    extra +
+                    `</small></span>`;
+                text = text.replaceAll("_", " ");
                 return `<div class='option'>${text}${extra}</div>`;
-            }
+            },
         },
     });
 }

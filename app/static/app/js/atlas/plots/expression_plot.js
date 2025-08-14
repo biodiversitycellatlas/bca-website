@@ -58,8 +58,7 @@ export function createExpressionBubblePlot(id, gene, data) {
             tickStep: 1,
         },
     };
-    vegaEmbed(id, chart)
-        .catch(console.error);
+    vegaEmbed(id, chart).catch(console.error);
 }
 
 export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
@@ -143,6 +142,5 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
             },
         ],
     };
-    vegaEmbed(id, chart)
-        .catch(console.error);
+    vegaEmbed(id, chart).catch(console.error);
 }

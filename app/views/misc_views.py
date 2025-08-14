@@ -10,7 +10,10 @@ from django.views.generic import DetailView, TemplateView
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
 from ..utils import (
-    get_dataset_dict, get_species_dict, render_markdown, get_pygments_css
+    get_dataset_dict,
+    get_species_dict,
+    render_markdown,
+    get_pygments_css,
 )
 
 

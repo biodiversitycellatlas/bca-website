@@ -23,15 +23,15 @@ import { getDataPortalUrl } from "../utils/urls.js";
  */
 export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
     $("#species-select").selectize({
-        onChange: function(value) {
+        onChange: function (value) {
             // Jump to species page upon selection
             if (redirect && value !== "" && value !== species) {
                 var url = new URL(window.location.href);
-                url.searchParams.set('species', value)
+                url.searchParams.set("species", value);
                 window.location.href = url;
             }
         },
-        onDropdownOpen: function() {
+        onDropdownOpen: function () {
             this.clear();
             setTimeout(() => {
                 if (species) {
@@ -40,19 +40,21 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
                 }
             }, 10);
         },
-        onBlur: function() {
+        onBlur: function () {
             // Set current species if no value is selected
             if (!this.getValue()) {
                 this.setValue(species);
             }
         },
-        onType: function(str) {
-            $('.highlight').closest('.species-meta').css('display', 'inline-block');
+        onType: function (str) {
+            $(".highlight")
+                .closest(".species-meta")
+                .css("display", "inline-block");
         },
         render: {
             item: function (item, escape) {
                 // Display common name if different than species name
-                let description = '';
+                let description = "";
                 if (item.name !== item.text) {
                     description = ` <span class="text-muted"><small>${item.name}</small></span>`;
                 }
@@ -60,33 +62,38 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
             },
             option: function (item, escape) {
                 // Display common name if different than species name
-                let description = '';
+                let description = "";
                 if (item.name !== item.text) {
                     description = ` <span class="text-muted"><small>${item.name}</small></span>`;
                 }
 
                 // Add metadata (only visible when matching user query)
-                var meta_array = item.meta.split(',');
-                let badges = '';
-                for(var i = 0; i < meta_array.length; i++) {
+                var meta_array = item.meta.split(",");
+                let badges = "";
+                for (var i = 0; i < meta_array.length; i++) {
                     var elem = meta_array[i];
-                    if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
-                        let span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
+                    if (
+                        elem &&
+                        !item.name.includes(elem) &&
+                        !item.text.includes(elem)
+                    ) {
+                        let span =
+                            '<span class="species-meta badge rounded-pill text-bg-secondary">';
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
                 var img = item.image === "None" ? "" : item.image;
                 return `<div class='option'><img src="${img}" style="width: 20px;"> <i>${item.text}</i>${description}${badges}</div>`;
-            }
+            },
         },
-        searchField: ['text', 'meta', 'optgroup', 'name'],
+        searchField: ["text", "meta", "optgroup", "name"],
         plugins: {
             ...(optgroup_columns && {
                 optgroup_columns: {
                     equalizeWidth: false,
-                    equalizeHeight: false
-                }
-            })
-        }
+                    equalizeHeight: false,
+                },
+            }),
+        },
     });
 }

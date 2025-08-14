@@ -27,9 +27,9 @@ export function slugify(text) {
         .toString()
         .toLowerCase()
         .trim()
-        .replace(/[\s.]+/g, "-")    // Replace spaces and dots with -
-        .replace(/[^\w\-]+/g, "")   // Remove all non-word chars
-        .replace(/\-\-+/g, "-");    // Replace multiple - with single -
+        .replace(/[\s.]+/g, "-") // Replace spaces and dots with -
+        .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+        .replace(/\-\-+/g, "-"); // Replace multiple - with single -
 }
 
 /**
@@ -42,7 +42,5 @@ export function slugify(text) {
  * escapeRegex("file.name") // returns "file\\.name"
  */
 export function escapeString(text) {
-    return text
-        .toString()
-        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Double backslash
+    return text.toString().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Double backslash
 }

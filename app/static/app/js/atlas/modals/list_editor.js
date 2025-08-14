@@ -164,7 +164,7 @@ export function appendUserList(
     setUserList(id, species, name, values, group, color);
 
     // Redraw user lists
-    if (redraw) redrawUserLists(id, species, ([name]));
+    if (redraw) redrawUserLists(id, species, [name]);
     return name;
 }
 
@@ -230,7 +230,7 @@ function drawUserLists(id, species, activeList = []) {
             group = elem.group;
         }
         const len = elem.items ? elem.items.length : 0;
-        appendListGroupItem(id, elem.name, elem.group, len, (active));
+        appendListGroupItem(id, elem.name, elem.group, len, active);
     }
 }
 
@@ -293,7 +293,7 @@ export function renderActiveList(id, species) {
     // Trigger data rendering on any change to .active class
     $(`#${id}_options`).on("click keyup", ".active", function (event) {
         // Prevent event triggering if element was previously active
-        if ( previousActiveList && previousActiveList.is($(this)) ) {
+        if (previousActiveList && previousActiveList.is($(this))) {
             event.preventDefault();
             return;
         }
@@ -372,7 +372,7 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
                     (redraw = false),
                 );
             }
-            redrawUserLists(id, species, ([name]));
+            redrawUserLists(id, species, [name]);
         };
         reader.readAsText(file);
     }
@@ -382,24 +382,24 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
 
 // Get lists from API
 export function loadGeneLists(id, species, dataset) {
-    let url = getDataPortalUrl("rest:genelist-list", null, null, null, { species: species });
+    let url = getDataPortalUrl("rest:genelist-list", null, null, null, {
+        species: species,
+    });
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             appendListGroupHeading(id, "preset");
             data.results.forEach((item, index) => {
-
-                appendListGroupItem(id, item.name, item.type,
-                                    item.gene_count);
+                appendListGroupItem(id, item.name, item.type, item.gene_count);
             });
             drawUserLists(id, species);
         })
-        .then(data => {
+        .then((data) => {
             // Create gene table
             createGeneTable(`${id}_editor_table`, dataset);
             // Update interface based on selection
             var table = $(`#${id}_editor_table`).DataTable();
-            table.on("select deselect", function(e, dt, type, indexes) {
+            table.on("select deselect", function (e, dt, type, indexes) {
                 if (type === "row") {
                     const len = getSelectedRows(`${id}_editor_table`).length;
                     var label = `${len} selected gene` + (len === 1 ? "" : "s");
@@ -414,44 +414,46 @@ export function loadGeneLists(id, species, dataset) {
                 }
             });
         })
-        .catch(error => {
+        .catch((error) => {
             console.error("Error fetching data:", error);
         });
 }
 
 export function loadMenuActions(id, species, maxFileSize) {
     // Menu action: New list
-    $(`#${id}_new_empty`).on("click", function(e) {
+    $(`#${id}_new_empty`).on("click", function (e) {
         appendUserList(id, species, "Empty list", []);
     });
 
-    $(`#${id}_new_selected`).on("click", function(e) {
+    $(`#${id}_new_selected`).on("click", function (e) {
         const selected = getSelectedRows(`${id}_editor_table`);
         appendUserList(id, species, "Selected genes", selected);
     });
 
     // Menu action: Reset
-    $(`#${id}_reset`).on("click", function(e) {
-        if (confirm(`Do you want to reset all user gene lists for ${species}?`)) {
+    $(`#${id}_reset`).on("click", function (e) {
+        if (
+            confirm(`Do you want to reset all user gene lists for ${species}?`)
+        ) {
             resetUserLists(id, species);
             redrawUserLists(id, species);
 
             // Select the first item in the list if no element is selected
             if ($(`#${id}_options`).find("a.active").length === 0) {
-                $(`#${id}_options a`).first().addClass('active').click();
+                $(`#${id}_options a`).first().addClass("active").click();
             }
         }
     });
 
     // Menu action: Rename
-    $(`#${id}_rename_btn`).on("click", function(e) {
+    $(`#${id}_rename_btn`).on("click", function (e) {
         var activeItem = $(`#${id}_options`).find("a.active");
         var oldName = activeItem.find(`.${id}_group_title`).text();
 
         var newName = prompt("Rename list:", oldName);
-        if (newName === '') {
+        if (newName === "") {
             // Avoid empty list name
-            alert('The name of a list cannot be empty.');
+            alert("The name of a list cannot be empty.");
             return;
         } else if (newName === null) {
             // Cancel rename
@@ -461,10 +463,11 @@ export function loadMenuActions(id, species, maxFileSize) {
         // Avoid duplicated name
         var all_names = $(`#${id}_options`)
             .find(`a .${id}_group_title`)
-            .map((i, el) => $(el).text()).get();
+            .map((i, el) => $(el).text())
+            .get();
 
         if (all_names.includes(newName)) {
-            alert('This list name is already in use.');
+            alert("This list name is already in use.");
             return;
         }
 
@@ -473,7 +476,7 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Menu action: Remove
-    $(`#${id}_remove`).on("click", function(e) {
+    $(`#${id}_remove`).on("click", function (e) {
         var activeItem = $(`#${id}_options`).find("a.active");
         var name = activeItem.find(`.${id}_group_title`).text();
 
@@ -489,7 +492,7 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Menu action: duplicate
-    $(`#${id}_new_duplicate`).on("click", function(e) {
+    $(`#${id}_new_duplicate`).on("click", function (e) {
         let activeItem = getSelectedList(id);
         let name = activeItem.data("list");
         let group = activeItem.data("group");
@@ -497,17 +500,17 @@ export function loadMenuActions(id, species, maxFileSize) {
 
         let url = getDataPortalUrl("rest:gene-list");
         fetchAllGenesFromList(id, species, url, name, group)
-            .then(genes => {
+            .then((genes) => {
                 appendUserList(id, species, name, genes);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error fetching genes:", error);
             });
     });
 
     // Menu action: upload file containing lists
     $(`#${id}_new_upload`).on("change", function () {
-        createUserListsFromFile (this, id, species, maxFileSize);
+        createUserListsFromFile(this, id, species, maxFileSize);
     });
 
     // Filter by list name
@@ -516,7 +519,7 @@ export function loadMenuActions(id, species, maxFileSize) {
 
         // Hide lists that do not match query value
         var elems = $(`#${id}_options a`);
-        elems.each(function() {
+        elems.each(function () {
             const title = $(this).find(`.${id}_group_title`);
             if (title.text().toLowerCase().includes(query)) {
                 $(this).removeClass("d-none");

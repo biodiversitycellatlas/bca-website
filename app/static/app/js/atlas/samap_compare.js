@@ -8,7 +8,7 @@ import { createSAMapSankey } from "./plots/samap_sankey_plot.js";
  * @param {HTMLFormElement} elem - The form element being submitted.
  * @param {Event} e - The submit event.
  */
-function modifyFormQuery (elem, e) {
+function modifyFormQuery(elem, e) {
     e.preventDefault();
 
     // Modify form URL
@@ -24,7 +24,7 @@ function modifyFormQuery (elem, e) {
  * When submitting form, modify query params.
  */
 export function handleFormSubmit() {
-    $('form').on('submit', function(e) {
+    $("form").on("submit", function (e) {
         modifyFormQuery(this, e);
     });
 }
@@ -34,26 +34,26 @@ export function loadSAMapData(id, label, dataset, label2, dataset2) {
         dataset: dataset,
         dataset2: dataset2,
         threshold: $("#samap_min").val(),
-        limit: 0
+        limit: 0,
     });
     var apiURL = getDataPortalUrl("rest:samap-list") + "?" + params.toString();
 
     fetch(apiURL)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             if (data.length) {
                 createSAMapSankey(`#${id}-plot`, data, label, label2);
             } else {
                 $(`#${id}-plot`).html(
                     '<p class="text-muted"><i class="fa fa-circle-exclamation"></i>',
-                    'No data available for the selected datasets.</p>'
+                    "No data available for the selected datasets.</p>",
                 );
             }
         })
-        .catch(error => console.error('Error fetching data:', error))
+        .catch((error) => console.error("Error fetching data:", error))
         .finally(() => {
             hideSpinner(id);
         });
 
-    appendDataMenu(id, apiURL, 'SAMap scores');
+    appendDataMenu(id, apiURL, "SAMap scores");
 }

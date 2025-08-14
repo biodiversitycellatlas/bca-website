@@ -23,10 +23,16 @@ import { getDataPortalUrl } from "../utils/urls.js";
  *   "query" : update `dataset` query parameter in current URL.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
  */
-export function initDatasetSelectize(id, dataset, query, redirect, optgroup_columns) {
+export function initDatasetSelectize(
+    id,
+    dataset,
+    query,
+    redirect,
+    optgroup_columns,
+) {
     let $select = $(`#dataset-select-${id}`);
     $select.selectize({
-        onChange: function(value) {
+        onChange: function (value) {
             // Jump to dataset page upon selection
             if (redirect == "arg") {
                 if (value !== "" && value !== dataset) {
@@ -36,29 +42,31 @@ export function initDatasetSelectize(id, dataset, query, redirect, optgroup_colu
             } else if (redirect == "query") {
                 if (value !== "" && value !== query) {
                     let url = new URL(window.location.href);
-                    url.searchParams.set("dataset", value)
+                    url.searchParams.set("dataset", value);
                     window.location.href = url;
                 }
             }
         },
-        onDropdownOpen: function() {
+        onDropdownOpen: function () {
             this.clear();
             setTimeout(() => {
-                dataset = redirect == 'query' ? query : dataset;
+                dataset = redirect == "query" ? query : dataset;
                 if (dataset) {
                     let current = this.getOption(dataset);
                     this.setActiveOption(current);
                 }
             }, 10);
         },
-        onBlur: function() {
+        onBlur: function () {
             // Set current dataset if no value is selected
             if (!this.getValue()) {
-                this.setValue(redirect == 'query' ? query : dataset);
+                this.setValue(redirect == "query" ? query : dataset);
             }
         },
-        onType: function(str) {
-            $('.highlight').closest('.species-meta').css('display', 'inline-block');
+        onType: function (str) {
+            $(".highlight")
+                .closest(".species-meta")
+                .css("display", "inline-block");
         },
         render: {
             item: function (item, escape) {
@@ -71,7 +79,7 @@ export function initDatasetSelectize(id, dataset, query, redirect, optgroup_colu
                 return `
                     <div class='option'>
                         <span class="text-muted small">
-                            ${redirect !== 'query' ? 'Dataset:' : ''}
+                            ${redirect !== "query" ? "Dataset:" : ""}
                         </span>
                         <img src="${item.image}" class="w-20px">
                         ${item.label} ${description}
@@ -85,13 +93,18 @@ export function initDatasetSelectize(id, dataset, query, redirect, optgroup_colu
                 }
 
                 // Add metadata (only visible when matching user query)
-                let meta_array = item.meta.split(',');
+                let meta_array = item.meta.split(",");
 
                 let badges = "";
-                for(let i = 0; i < meta_array.length; i++) {
+                for (let i = 0; i < meta_array.length; i++) {
                     let elem = meta_array[i];
-                    if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
-                        let span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
+                    if (
+                        elem &&
+                        !item.name.includes(elem) &&
+                        !item.text.includes(elem)
+                    ) {
+                        let span =
+                            '<span class="species-meta badge rounded-pill text-bg-secondary">';
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
@@ -101,16 +114,16 @@ export function initDatasetSelectize(id, dataset, query, redirect, optgroup_colu
                     <img src="${img}" class="w-20px">
                     ${item.label}${description}${badges}
                 </div>`;
-            }
+            },
         },
-        searchField: ['text', 'meta', 'optgroup', 'name'],
+        searchField: ["text", "meta", "optgroup", "name"],
         plugins: {
             ...(optgroup_columns && {
                 optgroup_columns: {
                     equalizeWidth: false,
-                    equalizeHeight: false
-                }
-            })
-        }
+                    equalizeHeight: false,
+                },
+            }),
+        },
     });
 }

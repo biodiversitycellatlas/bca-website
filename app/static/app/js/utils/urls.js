@@ -12,17 +12,17 @@
  * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
  * @returns {string} The URL string with appended query parameters.
  */
-function prepareUrlParams(url, dataset, gene, limit, extraParams={}) {
+function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
     url = new URL(url, window.location.origin);
-    if (dataset) url.searchParams.append('dataset', dataset);
+    if (dataset) url.searchParams.append("dataset", dataset);
     if (gene !== null) {
         if (Array.isArray(gene)) {
-            url.searchParams.append('genes', gene[[0]]);
+            url.searchParams.append("genes", gene[[0]]);
         } else {
-            url.searchParams.append('gene', gene);
+            url.searchParams.append("gene", gene);
         }
     }
-    if (limit !== null) url.searchParams.append('limit', limit);
+    if (limit !== null) url.searchParams.append("limit", limit);
 
     // Append extra parameters
     if (Object.keys(extraParams).length > 0) {
@@ -50,26 +50,37 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams={}) {
  * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
  * @returns {string} Constructed URL.
  */
-export function getDataPortalUrl(view, dataset=null, gene=null, limit=null, extraParams={}) {
+export function getDataPortalUrl(
+    view,
+    dataset = null,
+    gene = null,
+    limit = null,
+    extraParams = {},
+) {
     let url = window.APP_URLS[view];
     if (!url) throw new Error(`URL for view "${view}" not found in APP_URLS.`);
 
-    if ([
-        "rest:metacellcount-list",
-        "rest:correlated-list",
-        "rest:singlecell-list",
-        "rest:metacell-list",
-        "rest:metacelllink-list",
-        "rest:ortholog-list",
-    ].includes(view)) {
+    if (
+        [
+            "rest:metacellcount-list",
+            "rest:correlated-list",
+            "rest:singlecell-list",
+            "rest:metacell-list",
+            "rest:metacelllink-list",
+            "rest:ortholog-list",
+        ].includes(view)
+    ) {
         url = prepareUrlParams(url, dataset, gene, limit, extraParams);
-    } else if (["rest:metacellgeneexpression-list"].includes(view) && gene !== null) {
+    } else if (
+        ["rest:metacellgeneexpression-list"].includes(view) &&
+        gene !== null
+    ) {
         url = prepareUrlParams(url, dataset, [gene], limit, extraParams);
-    } else if (["rest:genelist-list"].includes(view)){
+    } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
     } else {
-        if (dataset) url = url.replace('DATASET_PLACEHOLDER', dataset);
-        if (gene) url = url.replace('GENE_PLACEHOLDER', gene);
+        if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
+        if (gene) url = url.replace("GENE_PLACEHOLDER", gene);
     }
     return url;
 }

@@ -13,9 +13,9 @@ function animateNumber(id, target) {
     // Increment value at a fixed interval
     const time = 15;
     const duration = 250;
-    const increment = Math.max( Math.floor(target / (duration / time)), 1 );
+    const increment = Math.max(Math.floor(target / (duration / time)), 1);
 
-    const interval = setInterval(function() {
+    const interval = setInterval(function () {
         val += increment;
         if (val >= target) {
             val = target;
@@ -32,33 +32,42 @@ export function loadDatasetStats(dataset) {
         counts: getDataPortalUrl("rest:metacellcount-list", dataset),
     };
 
-    appendDataMenu(
-        "info", urls,
-        ['Dataset information', 'Summary statistics', 'Metacell counts']
-    );
+    appendDataMenu("info", urls, [
+        "Dataset information",
+        "Summary statistics",
+        "Metacell counts",
+    ]);
 
     fetch(urls.stats)
-        .then(response => response.json())
-        .then(data => {
-            animateNumber('#n_cells', data.cells);
-            animateNumber('#n_metacells', data.metacells);
-            animateNumber('#n_umis', data.umis);
-            animateNumber('#n_genes', data.genes);
+        .then((response) => response.json())
+        .then((data) => {
+            animateNumber("#n_cells", data.cells);
+            animateNumber("#n_metacells", data.metacells);
+            animateNumber("#n_umis", data.umis);
+            animateNumber("#n_genes", data.genes);
         })
-        .catch(error => console.error('Error:', error))
+        .catch((error) => console.error("Error:", error));
 }
 
 export function renderStatsPlots(dataset) {
     var url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             createStatsPlot(
-                '#metacell-cells-plot', data, 'cells',
-                'Cells per metacell', 'Cell count');
+                "#metacell-cells-plot",
+                data,
+                "cells",
+                "Cells per metacell",
+                "Cell count",
+            );
             createStatsPlot(
-                '#metacell-umis-plot', data, 'umis',
-                'UMIs per metacell', 'UMI count');
+                "#metacell-umis-plot",
+                data,
+                "umis",
+                "UMIs per metacell",
+                "UMI count",
+            );
         })
-        .catch(error => console.error('Error:', error))
+        .catch((error) => console.error("Error:", error));
 }

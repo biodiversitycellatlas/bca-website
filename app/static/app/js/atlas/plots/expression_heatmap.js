@@ -108,4 +108,3 @@ export function createExpressionHeatmap(id, species, data) {
         })
         .catch(console.error);
 }
-

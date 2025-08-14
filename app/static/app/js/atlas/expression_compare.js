@@ -2,16 +2,23 @@ import { getDataPortalUrl } from "../utils/urls.js";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.js";
 
 export function plotGeneExpressionComparison(id, dataset, gene) {
-    $(`#${id}_table`).DataTable().on('select', function(e, dt, type, indexes) {
-        if (type === 'row') {
-            let selected = dt.rows({ selected: true }).data();
-            if (selected && selected.length > 0) {
-                let gene2 = selected[0].name;
-                loadExpressionComparison(
-                    id, dataset, gene, gene2, selected[0]);
+    $(`#${id}_table`)
+        .DataTable()
+        .on("select", function (e, dt, type, indexes) {
+            if (type === "row") {
+                let selected = dt.rows({ selected: true }).data();
+                if (selected && selected.length > 0) {
+                    let gene2 = selected[0].name;
+                    loadExpressionComparison(
+                        id,
+                        dataset,
+                        gene,
+                        gene2,
+                        selected[0],
+                    );
+                }
             }
-        }
-    });
+        });
 
     // Hide spinner if gene correlation table is empty
     hideSpinner(id);
@@ -20,7 +27,11 @@ export function plotGeneExpressionComparison(id, dataset, gene) {
 function loadExpressionComparison(id, dataset, gene, gene2, stats) {
     // Create URL to fetch expression data for both genes
     let apiURL = getDataPortalUrl(
-        "rest:metacellgeneexpression-list", dataset, `${gene},${gene2}`, 0);
+        "rest:metacellgeneexpression-list",
+        dataset,
+        `${gene},${gene2}`,
+        0,
+    );
     apiURL = apiURL.replaceAll("%2C", ",");
     updateDataMenu(id, apiURL, "Expression comparison (plot data)");
 

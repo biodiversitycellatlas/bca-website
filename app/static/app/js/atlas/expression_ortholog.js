@@ -7,10 +7,12 @@ function processOrtholog(baseGene, header, template, container, item) {
         let headerClone = document.importNode(header.content, true);
 
         if (item.datasets && item.datasets[0]) {
-            headerClone.getElementById('ortholog-species-img').src = item.datasets[0].species_image_url;
-            headerClone.getElementById('ortholog-species-img').alt = "Image of " + item.species;
+            headerClone.getElementById("ortholog-species-img").src =
+                item.datasets[0].species_image_url;
+            headerClone.getElementById("ortholog-species-img").alt =
+                "Image of " + item.species;
         }
-        headerClone.getElementById('ortholog-species').innerText = item.species;
+        headerClone.getElementById("ortholog-species").innerText = item.species;
         container.appendChild(headerClone);
 
         for (const d in item.datasets) {
@@ -18,46 +20,57 @@ function processOrtholog(baseGene, header, template, container, item) {
 
             // Header info
             let clone = document.importNode(template.content, true);
-            clone.getElementById('ortholog-dataset').innerHTML = dataset.name || `<i>${item.species}</i>`;
-            clone.getElementById('ortholog-dataset-href').href = `/atlas/${dataset.slug}`;
+            clone.getElementById("ortholog-dataset").innerHTML =
+                dataset.name || `<i>${item.species}</i>`;
+            clone.getElementById("ortholog-dataset-href").href =
+                `/atlas/${dataset.slug}`;
 
             // Dataset info
-            clone.getElementById('ortholog-gene-href').innerText = gene;
-            clone.getElementById('ortholog-gene-href').href = `/atlas/${dataset.slug}/gene/${gene}`;
-            clone.getElementById('single-ortholog-plot').id = dataset.slug + "-" + item.gene_slug;
+            clone.getElementById("ortholog-gene-href").innerText = gene;
+            clone.getElementById("ortholog-gene-href").href =
+                `/atlas/${dataset.slug}/gene/${gene}`;
+            clone.getElementById("single-ortholog-plot").id =
+                dataset.slug + "-" + item.gene_slug;
             container.appendChild(clone);
 
             // Dataset gene expression plot
             createExpressionBubblePlot(
                 "#" + dataset.slug + "-" + item.gene_slug,
-                gene, item.expression[dataset.slug]);
-        };
+                gene,
+                item.expression[dataset.slug],
+            );
+        }
     }
 }
 
 export function loadOrthologExpression(gene) {
-    let apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, { expression: true });
+    let apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, {
+        expression: true,
+    });
     console.log(apiURL);
-    appendDataMenu('orthologs', apiURL, 'Ortholog expression');
+    appendDataMenu("orthologs", apiURL, "Ortholog expression");
 
     // Fetch data from the API and create plots
-    const header    = document.getElementById('ortholog-header-template');
-    const template  = document.getElementById('ortholog-template');
-    const container = document.getElementById('orthologs-plot');
+    const header = document.getElementById("ortholog-header-template");
+    const template = document.getElementById("ortholog-template");
+    const container = document.getElementById("orthologs-plot");
 
     fetch(apiURL)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             if (data.length === 0) {
-                container.innerHTML = "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No orthologs found.</p>"
+                container.innerHTML =
+                    "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No orthologs found.</p>";
             } else {
-                data.forEach(item => processOrtholog(gene, header, template, container, item));
+                data.forEach((item) =>
+                    processOrtholog(gene, header, template, container, item),
+                );
             }
         })
-        .catch(error => {
-            console.error('Error fetching data:', error);
+        .catch((error) => {
+            console.error("Error fetching data:", error);
         })
         .finally(() => {
-            hideSpinner('orthologs');
+            hideSpinner("orthologs");
         });
 }

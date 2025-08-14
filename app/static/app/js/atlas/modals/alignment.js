@@ -1,32 +1,36 @@
 import { getDataPortalUrl } from "../../utils/urls.js";
-import { appendUserList, redrawUserLists } from "./list_editor.js"
+import { appendUserList, redrawUserLists } from "./list_editor.js";
 
 export function uploadSequenceFile(id, maxMB, maxSeqs) {
     $(`#${id}_upload`).on("change", function () {
         const file = this.files[0];
 
         if (!file) {
-            console.error('Error uploading file: no file selected');
+            console.error("Error uploading file: no file selected");
             return;
         } else if (file.size > maxMB * 1024 * 1024) {
             alert(`Size limit of ${maxMB} MB exceeded.`);
         } else {
             // Add text to sequence textarea
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = function (event) {
                 const content = event.target.result;
-                const lines = content.split('\n');
+                const lines = content.split("\n");
 
                 // Count number of sequences in FASTA file
-                const count = lines.filter(line => line.startsWith('>')).length;
+                const count = lines.filter((line) =>
+                    line.startsWith(">"),
+                ).length;
 
                 if (count > maxSeqs) {
-                    alert(`The uploaded file has ${count} sequences. Only files with up to ${maxSeqs} sequences are allowed.`);
+                    alert(
+                        `The uploaded file has ${count} sequences. Only files with up to ${maxSeqs} sequences are allowed.`,
+                    );
                 } else {
                     $(`#${id}_query`).val(content);
 
                     // Update sequence count in status bar
-                    $(`#${id}_query`)[0].dispatchEvent(new Event('input'));
+                    $(`#${id}_query`)[0].dispatchEvent(new Event("input"));
                 }
             };
 
@@ -38,11 +42,11 @@ export function uploadSequenceFile(id, maxMB, maxSeqs) {
 }
 
 export function highlightSequenceText(id, maxSeqs) {
-    $(`#${id}_query`).on("input", function() {
+    $(`#${id}_query`).on("input", function () {
         let text = $(this).val();
         let matches = text.match(/^>/gm);
-        let isEmptyText = text.trim() === '';
-        let count = matches ? matches.length : (isEmptyText ? 0 : 1);
+        let isEmptyText = text.trim() === "";
+        let count = matches ? matches.length : isEmptyText ? 0 : 1;
 
         let text_color,
             disabled,
@@ -90,54 +94,64 @@ function clearMessages(id) {
 }
 
 export function alignSequence(id, species, type) {
-    $(`#${id}_align_btn`).on("click", function() {
+    $(`#${id}_align_btn`).on("click", function () {
         startLoadingState(id);
 
         let url = getDataPortalUrl("rest:align-list");
         fetch(url, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
                 sequences: $(`#${id}_query`).val(),
                 type: $(`input[name="${id}_type"]:checked`).val(),
-                species: species
+                species: species,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                clearMessages(id);
+                if (data && data.length === 0) {
+                    setErrorMessage(
+                        id,
+                        "Error!",
+                        "No alignment found for this query.",
+                    );
+                    return;
+                }
+
+                const result = data.reduce((acc, { query, target }) => {
+                    acc[query] ||= [];
+                    acc[query].push(target);
+                    return acc;
+                }, {});
+
+                let name;
+                for (key in result) {
+                    name = key + " alignment";
+                    name = appendUserList(
+                        id + type,
+                        species,
+                        name,
+                        result[key],
+                        "Alignment results",
+                        "gray",
+                        false,
+                    );
+                }
+                redrawUserLists(id, species, [name]);
+
+                $(`#${id}_alignment`).modal("hide");
+                $(`#${id}_${type}_editor`).modal("show");
+
+                // Clean form state
+                $(`#${id}_query`).val("");
+                $(`#${id}_align_btn`).prop("disabled", true);
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            clearMessages(id);
-            if (data && data.length === 0) {
-                setErrorMessage(id, 'Error!',
-                                'No alignment found for this query.');
-                return;
-            }
-
-            const result = data.reduce((acc, { query, target }) => {
-                acc[query] ||= [];
-                acc[query].push(target);
-                return acc;
-            }, {});
-
-            let name;
-            for (key in result) {
-                name = key + ' alignment';
-                name = appendUserList(id + type, species, name, result[key],
-                                      "Alignment results", "gray", false);
-            }
-            redrawUserLists(id, species, [name]);
-
-            $(`#${id}_alignment`).modal('hide');
-            $(`#${id}_${type}_editor`).modal('show');
-
-            // Clean form state
-            $(`#${id}_query`).val("");
-            $(`#${id}_align_btn`).prop('disabled', true);
-        })
-        .catch(error => {
-            setErrorMessage(id, 'Error!', error);
-        })
-        .finally(f => stopLoadingState(id));
+            .catch((error) => {
+                setErrorMessage(id, "Error!", error);
+            })
+            .finally((f) => stopLoadingState(id));
     });
 }

@@ -9,7 +9,7 @@ export function makeLinkGene(dataset) {
             }
         }
         return data;
-    }
+    };
 }
 
 // Round numeric values

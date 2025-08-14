@@ -49,7 +49,9 @@ export function initSearch() {
 
             let params = new URLSearchParams({ q: query, limit: 5 });
             let datasetsURL = new URL(
-                getDataPortalUrl("rest:dataset-list"), window.location.href);
+                getDataPortalUrl("rest:dataset-list"),
+                window.location.href,
+            );
             datasetsURL.search = params;
 
             Promise.all([fetch(datasetsURL).then((res) => res.json())])
@@ -81,11 +83,15 @@ export function initSearch() {
             if (item.group === "gene") {
                 let gene = item.name;
                 let dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = getDataPortalUrl("atlas_gene", dataset, gene);
+                window.location.href = getDataPortalUrl(
+                    "atlas_gene",
+                    dataset,
+                    gene,
+                );
             } else if (item.group === "dataset") {
                 let dataset = item.slug;
                 window.location.href = getDataPortalUrl("atlas", dataset);
-           }
+            }
         },
         optgroupField: "group",
     });

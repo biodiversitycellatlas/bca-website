@@ -10,15 +10,17 @@
  * @param {string} [suffix=""] - Optional suffix appended to the displayed text.
  * @returns {function} - A callback function that takes a `data` object with a `from` property.
  */
-function updateText(id, from_min_id, suffix="") {
+function updateText(id, from_min_id, suffix = "") {
     return function update(data) {
         $(id).text(data.from + suffix);
 
         // Update from_min of given ionRangeSlider
         if (from_min_id && from_min_id !== null) {
-            $(from_min_id).data("ionRangeSlider").update({from_min: data.from})
+            $(from_min_id)
+                .data("ionRangeSlider")
+                .update({ from_min: data.from });
         }
-    }
+    };
 }
 
 /**
@@ -38,6 +40,6 @@ export function initRangeSlider(selector, opts, textArgs) {
         ...opts,
         onStart: cb,
         onChange: cb,
-        onUpdate: cb
+        onUpdate: cb,
     });
 }
