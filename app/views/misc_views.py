@@ -9,7 +9,9 @@ from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
 from ..templatetags.bca_website_links import bca_url
-from ..utils import get_dataset_dict, render_markdown, get_pygments_css
+from ..utils import (
+    get_dataset_dict, get_species_dict, render_markdown, get_pygments_css
+)
 
 
 class IndexView(TemplateView):
@@ -157,7 +159,7 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add dataset dictionary and search query to context."""
         context = super().get_context_data(**kwargs)
-        context["dataset_dict"] = get_dataset_dict()
+        context["species_dict"] = get_species_dict()
 
         query = self.request.GET
         if query:

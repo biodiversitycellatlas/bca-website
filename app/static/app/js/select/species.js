@@ -1,0 +1,92 @@
+/**
+ * Dataset dropdown UI selectize element.
+ */
+
+import { getDataPortalUrl } from "../utils/urls.js";
+
+/* global $ */
+
+/**
+ * Initializes a Selectize dropdown for species selection.
+ *
+ * Features:
+ * - By default, redirects to a new dataset page on selection.
+ * - Renders items and options with metadata and images.
+ * - Highlights matching dataset in dropdown when opened.
+ * - Resets selection to current dataset if dropdown loses focus without a value.
+ *
+ * @param {string} id - Unique identifier suffix for the dataset select element (DOM id format: `dataset-select-{id}`).
+ * @param {string} dataset - Currently active dataset name.
+ * @param {string} query - Current query parameter value for dataset (used when `redirect` is `"query"`).
+ * @param {boolean} redirect - Redirect to selected species or not.
+ * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
+ */
+export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
+    $("#species-select").selectize({
+        onChange: function(value) {
+            // Jump to species page upon selection
+            if (redirect && value !== "" && value !== species) {
+                var url = new URL(window.location.href);
+                url.searchParams.set('species', value)
+                window.location.href = url;
+            }
+        },
+        onDropdownOpen: function() {
+            this.clear();
+            setTimeout(() => {
+                if (species) {
+                    var current = this.getOption(species);
+                    this.setActiveOption(current);
+                }
+            }, 10);
+        },
+        onBlur: function() {
+            // Set current species if no value is selected
+            if (!this.getValue()) {
+                this.setValue(species);
+            }
+        },
+        onType: function(str) {
+            $('.highlight').closest('.species-meta').css('display', 'inline-block');
+        },
+        render: {
+            item: function (item, escape) {
+                // Display common name if different than species name
+                let description = '';
+                if (item.name !== item.text) {
+                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
+                }
+                return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i>${description}</div>`;
+            },
+            option: function (item, escape) {
+                // Display common name if different than species name
+                let description = '';
+                if (item.name !== item.text) {
+                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
+                }
+
+                // Add metadata (only visible when matching user query)
+                var meta_array = item.meta.split(',');
+                let badges = '';
+                for(var i = 0; i < meta_array.length; i++) {
+                    var elem = meta_array[i];
+                    if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
+                        let span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
+                        badges += ` ${span}<small>${meta_array[i]}</small></span>`;
+                    }
+                }
+                var img = item.image === "None" ? "" : item.image;
+                return `<div class='option'><img src="${img}" style="width: 20px;"> <i>${item.text}</i>${description}${badges}</div>`;
+            }
+        },
+        searchField: ['text', 'meta', 'optgroup', 'name'],
+        plugins: {
+            ...(optgroup_columns && {
+                optgroup_columns: {
+                    equalizeWidth: false,
+                    equalizeHeight: false
+                }
+            })
+        }
+    });
+}
