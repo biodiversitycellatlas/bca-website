@@ -13,14 +13,14 @@ function handleCopyURL(id, elem) {
     navigator.clipboard.writeText(url.href);
     clipboard.tooltip("show");
 
-    setTimeout(function() {
+    setTimeout(function () {
         clipboard.tooltip("hide");
         clipboard.prop("disabled", false);
     }, 1500);
 }
 
 export function initClipboardButton(id) {
-    $(`#clipboard_${id}`).on("click", function() {
+    $(`#clipboard_${id}`).on("click", function () {
         handleCopyURL(id, this);
     });
 }

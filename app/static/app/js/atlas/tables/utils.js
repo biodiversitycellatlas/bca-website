@@ -2,7 +2,6 @@
 
 import { getDataPortalUrl } from "../../utils/urls.js";
 
-
 export function makeLinkGene(dataset) {
     return function linkGene(data, type, row) {
         if (type === "display") {
