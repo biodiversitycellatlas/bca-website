@@ -2,7 +2,7 @@
  * Visualize SAMap comparisons between datasets.
  */
 
- /* global $ */
+/* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";

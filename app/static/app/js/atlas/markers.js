@@ -24,7 +24,6 @@ export function toggleMaxFCslider(elem, id) {
     }
 }
 
-
 /**
  * Simplify multiple select values into a comma-separated string
  * and update form submission.

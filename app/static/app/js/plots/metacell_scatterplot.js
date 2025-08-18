@@ -2,7 +2,7 @@
  * Metacell projection scatterplot.
  */
 
- /* global vegaEmbed */
+/* global vegaEmbed */
 
 export let viewMetacellProjection;
 

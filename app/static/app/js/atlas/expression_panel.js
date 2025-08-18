@@ -128,7 +128,6 @@ export function initSubmitButtonToggler(id) {
     });
 }
 
-
 function updateMetacellSelectionLabel(count) {
     let label = count > 0 ? "Selected metacells" : "All metacells";
     $("#metacells_filter").text(label);

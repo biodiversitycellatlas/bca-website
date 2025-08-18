@@ -3,7 +3,7 @@
  *
  */
 
- /* global $ */
+/* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { highlightMatch } from "../utils/utils.js";

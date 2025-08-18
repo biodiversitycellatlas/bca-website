@@ -2,7 +2,7 @@
  * Dataset statistics and plots.
  */
 
- /* global $ */
+/* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createStatsPlot } from "../plots/stats_plot.js";
