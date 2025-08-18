@@ -1,3 +1,7 @@
+/**
+ * Visualize Metacell projection.
+ */
+
 /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
@@ -8,6 +12,12 @@ import {
     viewMetacellProjection,
 } from "../plots/metacell_scatterplot.js";
 
+/**
+ * Toggle gene selection input.
+ * Updates URL if a gene is currently selected.
+ *
+ * @param {string} id - HTML element ID prefix for the gene selectize input
+ */
 function toggleGeneSelectize(id) {
     $('input[name="color_by"]').change(function () {
         let elem = $(`#${id}_gene_selection`)[0].selectize;
@@ -22,7 +32,9 @@ function toggleGeneSelectize(id) {
     });
 }
 
-/* Update values of all checkboxes for vega */
+/**
+ * Initialize all checkboxes so their value reflects their checked state.
+ */
 function initCheckboxSelect() {
     $('input[type="checkbox"]').each(function () {
         this.value = this.checked;
@@ -30,6 +42,11 @@ function initCheckboxSelect() {
     });
 }
 
+/**
+ * Returns selected metacells in the brush.
+ *
+ * @returns {string[]} Array of selected metacell names
+ */
 function getSelectedMetacells() {
     let view = viewMetacellProjection;
 
@@ -56,6 +73,12 @@ function getSelectedMetacells() {
     return metacells;
 }
 
+/**
+ * Navigates to the given URL with selected metacells.
+ * Raise alert if no metacells are selected.
+ *
+ * @param {string|URL} url - URL containing METACELL_PLACEHOLDER
+ */
 function handleSelectedMetacell(url) {
     let metacells = getSelectedMetacells();
     if (metacells.length >= 1) {
@@ -68,6 +91,11 @@ function handleSelectedMetacell(url) {
     }
 }
 
+/**
+ * List markers for selected metacells.
+ *
+ * @param {string} dataset - Name of the dataset to fetch markers for
+ */
 function listMarkers(dataset) {
     $("#list_markers").on("click", function () {
         let url =
@@ -77,6 +105,9 @@ function listMarkers(dataset) {
     });
 }
 
+/**
+ * Filter the heatmap by selected metacells.
+ */
 function filterHeatmap() {
     $("#filter_heatmap").on("click", function () {
         let url = new URL(window.location.href);
@@ -86,7 +117,16 @@ function filterHeatmap() {
     });
 }
 
-export function loadProjection(id, dataset, label, gene) {
+/**
+ * Load and render a metacell projection plot with optional gene coloring.
+ * Also sets up interactivity like marker listing and heatmap filtering.
+ *
+ * @param {string} id - HTML element ID prefix for the plot
+ * @param {string} dataset - Dataset name
+ * @param {string} label - Label for dataset in the UI
+ * @param {string|null} gene - Gene to color by (or null for metacell type)
+ */
+export function initProjection(id, dataset, label, gene) {
     initCheckboxSelect();
     toggleGeneSelectize("{{id}}"); // Toggle state of gene selectize element
     listMarkers(dataset);

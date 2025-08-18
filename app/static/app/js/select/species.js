@@ -4,6 +4,13 @@
 
 /* global $ */
 
+/**
+ * Render a dropdown option for a species.
+ *
+ * @param {Object} item - Species item object with properties: label, name, meta, image, text.
+ * @param {Function} escape - Escaping function for HTML content.
+ * @returns {string} HTML string for the option element.
+ */
 function renderOption(item, escape) {
     // Display common name if different than species name
     let description = "";
@@ -37,6 +44,13 @@ function renderOption(item, escape) {
     `;
 }
 
+/**
+ * Render a selected item in the dropdown.
+ *
+ * @param {Object} item - Species item object.
+ * @param {Function} escape - Escaping function for HTML content.
+ * @returns {string} HTML string for the selected item.
+ */
 function renderItem(item, escape) {
     // Display common name if different than species name
     let description = "";

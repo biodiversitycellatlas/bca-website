@@ -89,8 +89,8 @@ Input:
     </div>
 
     <script type="module">
-        import { loadSAMapData } from "{% static 'app/js/atlas/samap_compare.js' %}";
-        loadSAMapData('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
+        import { initSAMap } from "{% static 'app/js/atlas/samap_compare.js' %}";
+        initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
     </script>
 {% else %}
     <p class="text-muted">

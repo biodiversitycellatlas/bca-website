@@ -1,8 +1,21 @@
+/**
+ * Load and visualize ortholog gene expression.
+ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
 import { createExpressionBubblePlot } from "../plots/expression_plot.js";
 import { hideSpinner } from "../plots/plot_container.js";
 
+/**
+ * Render expression plots for each corresponding ortholog.
+ *
+ * @param {string} baseGene - Reference gene used to exclude itself from orthologs.
+ * @param {HTMLTemplateElement} header - Template for ortholog species header.
+ * @param {HTMLTemplateElement} template - Template for ortholog dataset and plot.
+ * @param {HTMLElement} container - Container element to append ortholog plots.
+ * @param {Object} item - Ortholog data object, including gene name, species, datasets, and expression.
+ */
 function processOrtholog(baseGene, header, template, container, item) {
     let gene = item.gene_name;
     if (gene != baseGene) {
@@ -45,6 +58,11 @@ function processOrtholog(baseGene, header, template, container, item) {
     }
 }
 
+/**
+ * Render expression plots for orthologs of a given gene.
+ *
+ * @param {string} gene - Reference gene.
+ */
 export function loadOrthologExpression(gene) {
     let apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, {
         expression: true,

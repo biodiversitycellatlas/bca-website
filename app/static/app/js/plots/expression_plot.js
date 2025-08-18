@@ -1,7 +1,18 @@
+/**
+ * Gene expression visualizations.
+ */
+
 /* global vegaEmbed */
 
 import { escapeString } from "../../utils/utils.js";
 
+/**
+ * Render bubble plot showing expression levels of a single gene across metacells.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the gene to visualize.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ */
 export function createExpressionBubblePlot(id, gene, data) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
@@ -63,6 +74,16 @@ export function createExpressionBubblePlot(id, gene, data) {
     vegaEmbed(id, chart).catch(console.error);
 }
 
+/**
+ * Render comparison scatter plot of two genes' expression across metacells
+ * with regression line and correlation stats.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the first gene.
+ * @param {string} gene2 - Name of the second gene.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ * @param {Object} stats - Object containing correlation statistics (pearson, spearman).
+ */
 export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     let escapedGene = escapeString(gene),
         escapedGene2 = escapeString(gene2);

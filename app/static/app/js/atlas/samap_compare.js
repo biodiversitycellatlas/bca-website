@@ -1,4 +1,8 @@
-/* global $ */
+/**
+ * Visualize SAMap comparisons between datasets.
+ */
+
+ /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
@@ -33,7 +37,17 @@ export function handleFormSubmit() {
     });
 }
 
-export function loadSAMapData(id, label, dataset, label2, dataset2) {
+/**
+ * Fetch and display a SAMap comparison between two datasets.
+ * Renders a Sankey plot showing cell-type correspondences.
+ *
+ * @param {string} id - HTML element ID prefix for the plot container
+ * @param {string} label - Label for the first dataset
+ * @param {string} dataset - Name of the first dataset
+ * @param {string} label2 - Label for the second dataset
+ * @param {string} dataset2 - Name of the second dataset
+ */
+export function initSAMap(id, label, dataset, label2, dataset2) {
     var params = new URLSearchParams({
         dataset: dataset,
         dataset2: dataset2,

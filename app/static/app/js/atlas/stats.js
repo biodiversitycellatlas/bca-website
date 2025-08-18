@@ -1,4 +1,8 @@
-/* global $ */
+/**
+ * Dataset statistics and plots.
+ */
+
+ /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createStatsPlot } from "../plots/stats_plot.js";
@@ -28,6 +32,11 @@ function animateNumber(id, target) {
     }, time);
 }
 
+/**
+ * Fetch dataset statistics and update numeric counters on the page.
+ *
+ * @param {string} dataset - Dataset name.
+ */
 export function loadDatasetStats(dataset) {
     var urls = {
         info: getDataPortalUrl("rest:dataset-detail", dataset),
@@ -52,6 +61,11 @@ export function loadDatasetStats(dataset) {
         .catch((error) => console.error("Error:", error));
 }
 
+/**
+ * Render per-metacell statistics plots.
+ *
+ * @param {string} dataset - Dataset name.
+ */
 export function renderStatsPlots(dataset) {
     var url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
     fetch(url)

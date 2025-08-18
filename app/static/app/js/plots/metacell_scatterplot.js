@@ -1,4 +1,8 @@
-/* global vegaEmbed */
+/**
+ * Metacell projection scatterplot.
+ */
+
+ /* global vegaEmbed */
 
 export let viewMetacellProjection;
 
@@ -26,6 +30,15 @@ function generateColorScale(data) {
     return scale;
 }
 
+/**
+ * Create metacell projection chart.
+ *
+ * @param {string} id - CSS selector for target element.
+ * @param {string} species - Species name.
+ * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_links`.
+ * @param {boolean} [color_by_metacell_type=true] - Color points by metacell type.
+ * @param {string|null} [gene=null] - Optional gene name for subtitle.
+ */
 export function createMetacellProjection(
     id,
     species,

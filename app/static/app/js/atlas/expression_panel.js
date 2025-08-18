@@ -1,3 +1,7 @@
+/**
+ * Gene panel expression page.
+ */
+
 /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
@@ -5,6 +9,14 @@ import { appendDataMenu } from "../buttons/data_dropdown.js";
 import { createExpressionHeatmap } from "../plots/expression_heatmap.js";
 import { getUserLists } from "./modals/list_editor.js";
 
+/**
+ * Fetch expression data for the given dataset and optional gene list,
+ * then create a heatmap plot and update the data menu.
+ *
+ * @param {string} id - Container ID for the heatmap plot.
+ * @param {string} dataset - Dataset slug to fetch expression data for.
+ * @param {string|null} genes - Optional comma-separated list of gene names to include.
+ */
 export function loadExpressionData(id, dataset, genes = null) {
     let url = getDataPortalUrl("rest:metacellgeneexpression-list");
 
@@ -103,6 +115,11 @@ function toggleSubmitButton(id) {
     $(`#${id}_submit`).prop("disabled", isEmpty);
 }
 
+/**
+ * Toggle the gene selection submit button based on current selection.
+ *
+ * @param {string} id - Element identifier.
+ */
 export function initSubmitButtonToggler(id) {
     // Enable/disable submit button
     toggleSubmitButton(id);
@@ -111,11 +128,15 @@ export function initSubmitButtonToggler(id) {
     });
 }
 
+
 function updateMetacellSelectionLabel(count) {
     let label = count > 0 ? "Selected metacells" : "All metacells";
     $("#metacells_filter").text(label);
 }
 
+/**
+ * Update label based on number of selected metacells.
+ */
 export function initMetacellSelectionLabelUpdater() {
     // Change metacell selection label
     const metacell_selectize = $("#metacells")[0].selectize;

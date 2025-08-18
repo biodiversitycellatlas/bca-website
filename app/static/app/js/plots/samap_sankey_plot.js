@@ -1,3 +1,7 @@
+/**
+ * SAMap sankey plot
+ */
+
 export let viewSAMapSankey;
 
 /* global vegaEmbed */

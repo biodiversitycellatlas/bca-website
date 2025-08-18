@@ -1,9 +1,20 @@
+/**
+ * Visualize single-gene expression data.
+ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
 import { hideSpinner } from "../plots/plot_container.js";
 import { createExpressionBubblePlot } from "../plots/expression_plot.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
 
-// Create URL to fetch gene expression data
+/**
+ * Load gene expression data and create plot.
+ *
+ * @param {string} dataset - Dataset slug.
+ * @param {string} datasetLabel - Dataset label.
+ * @param {string} gene - Gene identifier used for the plot container ID.
+ * @param {string} geneLabel - Gene name.
+ */
 export function loadGeneExpression(dataset, datasetLabel, gene, geneLabel) {
     let url = getDataPortalUrl(
         "rest:metacellgeneexpression-list",

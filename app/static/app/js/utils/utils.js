@@ -1,4 +1,8 @@
 /**
+ * Utility functions.
+ */
+
+/**
  * Highlights all occurrences of a query within a given text.
  * Wraps matches in a <span> with class 'search-highlight'.
  *

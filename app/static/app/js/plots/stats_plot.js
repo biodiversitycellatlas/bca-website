@@ -1,7 +1,19 @@
+/**
+ * Stats plotting
+ */
+
 /* global vegaEmbed */
 
 export let viewStats;
 
+/**
+ * Prepare a layered plot specification for a single parameter.
+ *
+ * @param {string} param - Data field to plot
+ * @param {string} [label=param] - Axis label
+ * @param {boolean} [counts=true] - Whether to use counts in density calculation
+ * @returns {Array} Array of Vega-Lite layer specifications
+ */
 function prepareStatsSpecPerParam(param, label = param, counts = true) {
     var plot = [
         {
@@ -141,6 +153,16 @@ function prepareStatsSpecPerParam(param, label = param, counts = true) {
     return plot;
 }
 
+/**
+ * Create plots to summarise statistics.
+ *
+ * @param {string} id - DOM element ID for the chart
+ * @param {Array} data - Array of data objects
+ * @param {string} param - Data field to plot
+ * @param {string} title - Plot title
+ * @param {string} [label=param] - Axis label
+ * @param {boolean} [counts=true] - Whether to use counts in density calculation
+ */
 export function createStatsPlot(
     id,
     data,

@@ -128,7 +128,7 @@ Input:
         initRangeSlider("#fc_min", { min: 0, max: 5, from: {{query.fc_min|default:2}}, step: 0.1 });
         initRangeSlider("#fc_max_bg", { min: 0, max: 5, from: {{query.fc_max_bg|default:3}}, step: 0.1 });
 
-        import { handleFormSubmit, updateMetacellSelectionLabel, loadMarkersData, toggleMaxFCslider }
+        import { handleFormSubmit, updateMetacellSelectionLabel, initMarkersTable, toggleMaxFCslider }
             from "{% static 'app/js/atlas/markers.js' %}";
 
         // Hide slider depending on value of #fc_max_bg_type
@@ -138,7 +138,7 @@ Input:
         handleFormSubmit();
         updateMetacellSelectionLabel("{{metacells|join:', '}}");
         {% if metacells %}
-            loadMarkersData(
+            initMarkersTable(
                 "{{dataset.slug}}",
                 "{{query.metacells}}",
                 "{{query.fc_min_type|default:'mean'}}",

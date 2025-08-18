@@ -1,8 +1,19 @@
-/* global $ */
+/**
+ * Search results page.
+ *
+ */
+
+ /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { highlightMatch } from "../utils/utils.js";
 
+/**
+ * Update the URL query parameter.
+ *
+ * @param {string} key - Query parameter name.
+ * @param {string} value - New value (removes if empty).
+ */
 export function updateQuery(key, value) {
     let searchParams = new URLSearchParams(window.location.search);
     if (value) {
@@ -17,6 +28,16 @@ export function updateQuery(key, value) {
     }
 }
 
+/**
+ * Append a search result to the results container.
+ *
+ * @param {string} title - Main title of the result.
+ * @param {string} title_url - URL for the title link.
+ * @param {string} subtitle - Subtitle text.
+ * @param {string} subtitle_url - URL for the subtitle link.
+ * @param {string} description - Description text.
+ * @param {array} badges - Array of badge strings.
+ */
 function appendResult(
     title,
     title_url,
@@ -68,6 +89,16 @@ function appendResult(
     container.append($clone);
 }
 
+/**
+ * Load search results from API and display them.
+ * Supports datasets and genes.
+ *
+ * @param {string} species - Species filter.
+ * @param {string} query - Search query.
+ * @param {number} limit - Max number of results.
+ * @param {number} offset - Pagination offset.
+ * @param {string} category - "datasets" or "genes".
+ */
 export function loadSearchResults(
     species,
     query = "",
@@ -168,6 +199,9 @@ export function loadSearchResults(
     }
 }
 
+/**
+ * Update query param and reload results when submitting form.
+ */
 export function initFormHandler() {
     // Modify form before submission to only modify query
     $("form").on("submit", function (event) {

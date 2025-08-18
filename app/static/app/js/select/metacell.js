@@ -4,6 +4,12 @@
 
 /* global $ */
 
+/**
+ * Convert a comma-separated list of numbers into ranges.
+ *
+ * @param {string} str - Comma-separated numeric string (e.g., "1,2,3,5").
+ * @returns {string} Comma-separated ranges (e.g., "1-3,5").
+ */
 export function convertToRange(str) {
     // Sort numeric values
     const numbers = str
@@ -30,11 +36,23 @@ export function convertToRange(str) {
     return ranges.join(",");
 }
 
+/**
+ * Create an HTML string for a colored circle icon.
+ *
+ * @param {string} color - CSS color string.
+ * @returns {string} HTML string for a colored circle.
+ */
 function createColorCircle(color) {
     let circle = `<i class="fa fa-circle color-bullet pe-1" style="color: ${color};"></i>`;
     return circle;
 }
 
+/**
+ * Initialize a Selectize dropdown for metacells.
+ *
+ * @param {string} selected - Comma-separated pre-selected metacell values.
+ * @param {string} selected2 - Alternative comma-separated pre-selected metacell values.
+ */
 export function initMetacellSelectize(selected, selected2) {
     $("#metacells").selectize({
         multiple: true,

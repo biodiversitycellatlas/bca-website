@@ -1,7 +1,18 @@
+/**
+ * Gene expression heatmaps.
+ */
+
 /* global vegaEmbed */
 
 export let viewExpressionHeatmap;
 
+/**
+ * Render heatmap of gene expression for a given species and dataset.
+ *
+ * @param {string} id - DOM element ID where the heatmap will be embedded.
+ * @param {string} species - Species name (used for metadata or future extensions).
+ * @param {Array} data - Array of objects containing metacell and gene expression data.
+ */
 export function createExpressionHeatmap(id, species, data) {
     var chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",

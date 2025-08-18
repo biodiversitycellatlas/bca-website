@@ -1,17 +1,28 @@
 /**
- * Utility functions for range sliders.
+ * Dropdown to view, download and copy links to data.
  */
 
 /* global $ */
 
-// Get current link to data from view button
+/**
+ * Get the current URL from a data view button.
+ *
+ * @param {string} id - Data menu identifier.
+ * @param {number} index - Index of the view button.
+ * @returns {URL} URL object for the data view.
+ */
 function getDataURL(id, index) {
     let url = $(`a[name="data_view_${id}"]`)[index].href;
     url = new URL(url, window.location.href);
     return url;
 }
 
-// Download data from URL as a file
+/**
+ * Download data from the specified view button URL.
+ *
+ * @param {string} id - Data menu identifier.
+ * @param {number} index - Index of the download button.
+ */
 function downloadData(id, index) {
     // Disable download button and change icon to spinner
     const button = $(`a[name="data_download_${id}"]`)[index];
@@ -40,7 +51,12 @@ function downloadData(id, index) {
         });
 }
 
-// Copy API URL to clipboard
+/**
+ * Copy the API URL for a data view button to the clipboard.
+ *
+ * @param {string} id - Data menu identifier.
+ * @param {number} index - Index of the link button.
+ */
 function copyDataLink(id, index) {
     const btn = $(`a[name="data_link_${id}"]`).eq(index);
     btn.addClass("disabled");
@@ -55,7 +71,11 @@ function copyDataLink(id, index) {
     }, 500);
 }
 
-// Update data formats of all elements
+/**
+ * Update all data links to use the specified format.
+ *
+ * @param {string} format - Data format (such as 'csv', 'tsv', 'json').
+ */
 function updateDataFormat(format) {
     // Change all view buttons to the same format
     const view_btns = $(`a[name*="data_view"]`);
@@ -67,6 +87,11 @@ function updateDataFormat(format) {
     localStorage.setItem("data_format", format);
 }
 
+/**
+ * Apply saved data format selection or default to 'csv'.
+ *
+ * @param {string} id - Identifier for the data menu.
+ */
 function setSavedFormat(id) {
     // Get valid formats
     let valid = $(`input[name="data_format_${id}"]`)
@@ -84,6 +109,11 @@ function setSavedFormat(id) {
     updateDataFormat(format);
 }
 
+/**
+ * Initialize data format radio buttons and update links on change.
+ *
+ * @param {string} id - Identifier for the data menu.
+ */
 export function initDataFormatSelector(id) {
     setSavedFormat(id);
 
@@ -96,6 +126,14 @@ export function initDataFormatSelector(id) {
     });
 }
 
+/**
+ * Update the href of a dropdown menu link.
+ *
+ * @param {string} id - Identifier for the data menu.
+ * @param {HTMLElement} elem - Dropdown list item element.
+ * @param {string} url - New URL to assign.
+ * @returns {HTMLElement} The updated element.
+ */
 function updateDataMenuLink(id, elem, url) {
     // View data
     elem.querySelector(`a[name="data_view_${id}"]`).href = url;
@@ -103,7 +141,7 @@ function updateDataMenuLink(id, elem, url) {
 }
 
 /**
- * Append menu to data dropdown.
+ * Populate dropdown menu.
  *
  * @param {string} id - The prefix identifier of the HTML elements.
  * @param {string|Object} urls - String of single URL dictionary where keys
@@ -172,6 +210,13 @@ export function appendDataMenu(id, urls, labels) {
     }
 }
 
+/**
+ * Update an existing data dropdown menu item or append it if not present.
+ *
+ * @param {string} id - Data menu identifier.
+ * @param {string} url - URL to assign to the menu item.
+ * @param {string} label - Label identifying the menu item to update.
+ */
 export function updateDataMenu(id, url, label) {
     let li = $(
         `ul[id="data_dropdown_${id}"] > li[name="data_download_option"] > label:contains("${label}")`,

@@ -1,3 +1,7 @@
+/**
+ * Create interactive gene tables using DataTables.
+ */
+
 /* global $, jQuery */
 
 import { makeLinkGene, parseArray } from "./utils.js";
@@ -26,7 +30,16 @@ function filterData(data) {
     return JSON.stringify(json);
 }
 
-// Create DataTable
+/**
+ * Initialize a DataTable for displaying gene information.
+ * Supports optional correlation columns and selection modes.
+ *
+ * @param {string} id - Table element ID.
+ * @param {Object} dataset - Dataset reference used for linking genes.
+ * @param {string} [url=""] - Data source URL for AJAX loading.
+ * @param {boolean} [correlation=false] - Whether to include correlation columns.
+ * @param {string} [select="multiple"] - Selection mode: "multiple", "single", or "none".
+ */
 export function createGeneTable(
     id,
     dataset,

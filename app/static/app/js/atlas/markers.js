@@ -1,3 +1,7 @@
+/**
+ * Metacell markers page.
+ */
+
 /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
@@ -5,6 +9,12 @@ import { createMarkersTable } from "./tables/markers_table.js";
 import { convertToRange } from "../select/metacell.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
 
+/**
+ * Toggle maximum fold-change slider based on selection.
+ *
+ * @param {HTMLSelectElement} elem - Select element controlling the slider.
+ * @param {string} id - Selector for the ionRangeSlider element.
+ */
 export function toggleMaxFCslider(elem, id) {
     let slider = $(id).data("ionRangeSlider");
     if (elem.value == "ignore") {
@@ -14,6 +24,11 @@ export function toggleMaxFCslider(elem, id) {
     }
 }
 
+
+/**
+ * Simplify multiple select values into a comma-separated string
+ * and update form submission.
+ */
 export function handleFormSubmit() {
     // Simplify multiple select data into a single comma-separated value
     $("form").on("submit", function (e) {
@@ -36,6 +51,14 @@ export function handleFormSubmit() {
     });
 }
 
+/**
+ * Update the metacell selection label with a shortened, comma-separated label
+ * and a tooltip showing full selection.
+ *
+ * Example: label shows "1-4, 7, 9-11" if selected = "1,2,3,4,7,9,10,11".
+ *
+ * @param {string} selected - Comma-separated list of selected metacells.
+ */
 export function updateMetacellSelectionLabel(selected) {
     let minimized = convertToRange(selected).replaceAll(",", ", ");
     let underline =
@@ -46,7 +69,17 @@ export function updateMetacellSelectionLabel(selected) {
     );
 }
 
-export function loadMarkersData(
+/**
+ * Fetch marker data for selected metacells and create the markers table.
+ *
+ * @param {string} dataset - Dataset slug.
+ * @param {string} metacells - Comma-separated list of selected metacells.
+ * @param {string} fc_min_type - Type of minimum fold-change filtering.
+ * @param {number} fc_min - Minimum fold-change value.
+ * @param {string} fc_max_bg_type - Type of maximum background fold-change filtering.
+ * @param {number} fc_max_bg - Maximum background fold-change value.
+ */
+export function initMarkersTable(
     dataset,
     metacells,
     fc_min_type,

@@ -1,8 +1,18 @@
+/**
+ * Create interactive DataTables for gene markers.
+ */
+
 /* global $ */
 
 import { makeLinkGene, round, parseArray } from "./utils.js";
 
-// Create DataTable
+/**
+ * Initialize a DataTable for displaying marker gene information.
+ *
+ * @param {string} id - HTML element ID to attach the table.
+ * @param {Object} dataset - Dataset reference for linking genes.
+ * @param {string} url - URL to fetch gene marker data.
+ */
 export function createMarkersTable(id, dataset, url) {
     let linkGene = makeLinkGene(dataset);
     $(`#${id}_table`).dataTable({

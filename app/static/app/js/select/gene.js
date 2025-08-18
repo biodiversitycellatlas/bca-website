@@ -7,6 +7,13 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { getAllLists } from "../atlas/modals/list_editor.js";
 
+/**
+ * Display gene info in dropdown with description and domains.
+ *
+ * @param {object} item - Gene or gene list object.
+ * @param {function} escape - Escape function from Selectize.
+ * @returns {string} HTML for dropdown option.
+ */
 function displayGeneInfo(item, escape) {
     if (item.group && item.group !== "genes") {
         // Display gene lists
@@ -40,6 +47,13 @@ function displayGeneInfo(item, escape) {
     }
 }
 
+/**
+ * Display only the gene name (and count badge for gene lists).
+ *
+ * @param {object} item - Gene or gene list object.
+ * @param {function} escape - Escape function from Selectize.
+ * @returns {string} HTML for dropdown option.
+ */
 function displayGeneName(item, escape) {
     let badges = "";
     if (item.group && item.group !== "genes") {
@@ -53,6 +67,15 @@ function displayGeneName(item, escape) {
     return `<div class='option'>${escape(item.name)}${badges}</div>`;
 }
 
+/**
+ * Prepend gene lists and domains to Selectize options.
+ *
+ * @param {string} id - Element ID prefix.
+ * @param {object} selectize - Selectize instance.
+ * @param {function} callback - Function to call with options.
+ * @param {array} genes - Array of gene objects.
+ * @param {array} domains - Array of domain objects.
+ */
 function prependGeneLists(id, selectize, callback, genes, domains) {
     let res = getAllLists(`${id}_gene_lists`)
         .concat(
@@ -66,6 +89,14 @@ function prependGeneLists(id, selectize, callback, genes, domains) {
     callback(res);
 }
 
+/**
+ * Add a default gene to Selectize and set it as current.
+ *
+ * @param {string} id - Element ID prefix.
+ * @param {string} name - Gene name.
+ * @param {string} description - Gene description.
+ * @param {array} domains - Array of gene domains.
+ */
 function setDefaultGene(id, name, description, domains) {
     let geneOptions = {
         name: name,
@@ -78,6 +109,12 @@ function setDefaultGene(id, name, description, domains) {
     selectize.setValue(name);
 }
 
+/**
+ * Initialize Selectize with pre-selected genes and add optgroups.
+ *
+ * @param {string} id - Element ID prefix.
+ * @param {string} selected - Comma-separated selected gene names.
+ */
 function initGeneSelectizeValues(id, selected) {
     // Run only once
     let hasRun = false;
@@ -133,6 +170,20 @@ function initGeneSelectizeValues(id, selected) {
     });
 }
 
+/**
+ * Initialize the gene Selectize element.
+ *
+ * @param {string} id - Element ID prefix.
+ * @param {string} hash - Optional hash for URL updates.
+ * @param {string} redirect - "arg" or "query" redirect mode.
+ * @param {string} species - Species name.
+ * @param {string} dataset - Dataset name.
+ * @param {object} gene - Current gene object.
+ * @param {string} selected - Pre-selected genes (comma-separated).
+ * @param {number} limit - Maximum results to load from server.
+ * @param {boolean} multiple - Allow multiple selection.
+ * @param {boolean} display - Toggle detailed info display.
+ */
 export function initGeneSelectize(
     id,
     hash,
@@ -235,7 +286,8 @@ export function initGeneSelectize(
                 });
         },
     });
-    if (gene.name)
+    if (gene.name) {
         setDefaultGene(id, gene.name, gene.description, gene.domains);
+    }
     if (multiple) initGeneSelectizeValues(id, selected);
 }

@@ -9,7 +9,9 @@ import { getSelectedRows } from "../tables/utils.js";
 
 /* global $ */
 
-// Functions to get, set and append user lists
+/**
+ * Normalizes list identifier.
+ */
 function parseID(str) {
     if (str.includes("gene_list")) {
         return "gene_list";
@@ -17,16 +19,30 @@ function parseID(str) {
     return "list";
 }
 
+/**
+ * Retrieves stored lists from localStorage.
+ */
 function getLocalStorageLists(id) {
     id = parseID(id);
     return JSON.parse(localStorage.getItem(id)) || {};
 }
 
+/**
+ * Saves lists to localStorage.
+ */
 function setLocalStorageLists(id, lists) {
     id = parseID(id);
     localStorage.setItem(id, JSON.stringify(lists));
 }
 
+/**
+ * Retrieve user lists for a given species from localStorage.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} [name] - Optional list name to retrieve.
+ * @returns {Array|Object} Matching list(s).
+ */
 export function getUserLists(id, species, name = undefined) {
     var lists = getLocalStorageLists(id);
     if (name === undefined) {
@@ -36,6 +52,16 @@ export function getUserLists(id, species, name = undefined) {
     }
 }
 
+/**
+ * Store a new user list under the given species.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} name - List name.
+ * @param {Array} values - Array of items to store.
+ * @param {string} [group='Custom lists'] - Group name.
+ * @param {string} [color='gray'] - Display color.
+ */
 function setUserList(
     id,
     species,
@@ -62,10 +88,21 @@ function setUserList(
     setLocalStorageLists(id, lists);
 }
 
+/**
+ * Find the index of a user list by name.
+ */
 function findUserListIndex(list, name) {
     return list.findIndex((item) => item.name === name);
 }
 
+/**
+ * Rename user list.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} name - Current list name.
+ * @param {string} newName - New list name.
+ */
 function renameUserList(id, species, name, newName) {
     let lists = getLocalStorageLists(id);
     let index = findUserListIndex(lists[species], name);
@@ -73,12 +110,25 @@ function renameUserList(id, species, name, newName) {
     setLocalStorageLists(id, lists);
 }
 
+/**
+ * Remove all user lists for a species from localStorage.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ */
 function resetUserLists(id, species) {
     var lists = getLocalStorageLists(id);
     delete lists[species];
     setLocalStorageLists(id, lists);
 }
 
+/**
+ * Delete a specific user list for a species.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} name - Name of the list to remove.
+ */
 function removeUserList(id, species, name) {
     let lists = getLocalStorageLists(id);
     if (species in lists) {
@@ -92,6 +142,12 @@ function removeUserList(id, species, name) {
     }
 }
 
+/**
+ * Collect all (database and user-created lists) lists from the DOM.
+ *
+ * @param {string} id - Base identifier.
+ * @returns {Array<Object>} List metadata (name, count, color, group).
+ */
 export function getAllLists(id) {
     let res = $(`#${id}_options a`)
         .map(function () {
@@ -106,6 +162,12 @@ export function getAllLists(id) {
     return res;
 }
 
+/**
+ * Get names of all rendered lists from the DOM.
+ *
+ * @param {string} id - Base identifier.
+ * @returns {Array<string>} Names of lists.
+ */
 function getAllListNames(id) {
     // Get names of all rendered lists
     var lists = $(`#${id}_options a`)
@@ -174,11 +236,22 @@ export function appendUserList(
     return name;
 }
 
+/**
+ * Return the currently active list DOM element.
+ *
+ * @param {string} id - Base identifier.
+ * @returns {jQuery} Active list element.
+ */
 function getSelectedList(id) {
     return $(`#${id}_options button.active`);
 }
 
-// Render user group headings and items
+/**
+ * Render a group heading in the list panel.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} group - Group name.
+ */
 function appendListGroupHeading(id, group) {
     const template = document.getElementById(`${id}_heading`);
     const container = document.getElementById(`${id}_options`);
@@ -198,6 +271,15 @@ function appendListGroupHeading(id, group) {
     container.appendChild($clone[0]);
 }
 
+/**
+ * Render a list item under the given group.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} name - List name.
+ * @param {string} group - Group name.
+ * @param {number} count - Number of items in the list.
+ * @param {boolean} [active=false] - Whether the item is active.
+ */
 function appendListGroupItem(id, name, group, count, active = false) {
     const template = document.getElementById(`${id}_element`);
     const container = document.getElementById(`${id}_options`);
@@ -223,6 +305,13 @@ function appendListGroupItem(id, name, group, count, active = false) {
     }
 }
 
+/**
+ * Render all user lists grouped by category.
+ *
+ * @param {string} id - Base identifier for UI elements.
+ * @param {string} species - Species identifier.
+ * @param {Array<string>} [activeList=[]] - Lists to mark active.
+ */
 function drawUserLists(id, species, activeList = []) {
     // Render all user lists (sorted by group)
     let lists = getUserLists(id, species);
@@ -240,6 +329,11 @@ function drawUserLists(id, species, activeList = []) {
     }
 }
 
+/**
+ * Clear the search box.
+ *
+ * @param {string} id - Base identifier.
+ */
 function clearSearch(id) {
     let search = $(`#${id}_search`);
     search.val("");
@@ -248,6 +342,14 @@ function clearSearch(id) {
     if (search.length) search[0].dispatchEvent(new Event("input"));
 }
 
+/**
+ * Refresh the displayed user lists in the UI.
+ * Clears search, removes current lists, and redraws.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {Array<string>} [activeList=[]] - Lists to mark active.
+ */
 export function redrawUserLists(id, species, activeList = []) {
     clearSearch(id);
 
@@ -258,7 +360,15 @@ export function redrawUserLists(id, species, activeList = []) {
     drawUserLists(id, species, activeList);
 }
 
-/* Prepare URLs to retrieve gene information for a given list */
+/**
+ * Construct a URL for fetching genes in a given list.
+ *
+ * @param {string} url - Base API endpoint.
+ * @param {string} species - Species identifier.
+ * @param {string} genelist - Name of the gene list.
+ * @param {number} [limit] - Optional limit on results.
+ * @returns {string} Full request URL.
+ */
 function getGenesFromListURL(url, species, genelist, limit = undefined) {
     var params = new URLSearchParams({
         species: species,
@@ -271,6 +381,14 @@ function getGenesFromListURL(url, species, genelist, limit = undefined) {
     return url + "?" + params.toString();
 }
 
+/**
+ * Construct a URL for fetching a set of genes.
+ *
+ * @param {string} url - Base API endpoint.
+ * @param {string} species - Species identifier.
+ * @param {Array<string>} genes - Gene names.
+ * @returns {string} Full request URL.
+ */
 function getGenesURL(url, species, genes) {
     var params = new URLSearchParams({
         species: species,
@@ -279,6 +397,16 @@ function getGenesURL(url, species, genes) {
     return url + "?" + params.toString();
 }
 
+/**
+ * Fetch information on all genes from a specific list.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {string} apiURL - API endpoint.
+ * @param {string} name - List name.
+ * @param {string} group - List group.
+ * @returns {Promise<Array<string>>} Gene names.
+ */
 async function fetchAllGenesFromList(id, species, apiURL, name, group) {
     var genes;
     if (group === "preset") {
@@ -292,6 +420,12 @@ async function fetchAllGenesFromList(id, species, apiURL, name, group) {
     return genes;
 }
 
+/**
+ * Render list details when the active list changes.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ */
 export function renderActiveList(id, species) {
     // Get data and render table for active group list
     let previousActiveList = null;
@@ -336,6 +470,14 @@ function renderListDetail(id, species) {
     $(`#${id}_controls`).prop("disabled", group === "preset");
 }
 
+/**
+ * Create user lists from uploaded file.
+ *
+ * @param {HTMLElement} elem - File input element.
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {number} [maxMB=10] - Maximum file size allowed in MB.
+ */
 function createUserListsFromFile(elem, id, species, maxMB = 10) {
     const file = elem.files[0];
 
@@ -386,7 +528,13 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
     $(elem).val("");
 }
 
-// Get lists from API
+/**
+ * Load and render preset gene lists.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {Object} dataset - Dataset reference for table creation.
+ */
 export function loadGeneLists(id, species, dataset) {
     let url = getDataPortalUrl("rest:genelist-list", null, null, null, {
         species: species,
@@ -425,6 +573,13 @@ export function loadGeneLists(id, species, dataset) {
         });
 }
 
+/**
+ * Attach UI actions for managing gene lists.
+ *
+ * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
+ * @param {number} maxFileSize - Maximum upload size in MB.
+ */
 export function loadMenuActions(id, species, maxFileSize) {
     // Menu action: New list
     $(`#${id}_new_empty`).on("click", function () {

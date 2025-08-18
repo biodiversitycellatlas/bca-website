@@ -1,8 +1,20 @@
+/**
+ * Sequence alignment functions.
+ */
+
 import { getDataPortalUrl } from "../../utils/urls.js";
 import { appendUserList, redrawUserLists } from "./list_editor.js";
 
 /* global $ */
 
+/**
+ * File upload for FASTA sequences.
+ * Validates file size and sequence count, then populates the input textarea.
+ *
+ * @param {string} id - Base element identifier.
+ * @param {number} maxMB - Maximum file size in MB.
+ * @param {number} maxSeqs - Maximum number of sequences.
+ */
 export function uploadSequenceFile(id, maxMB, maxSeqs) {
     $(`#${id}_upload`).on("change", function () {
         const file = this.files[0];
@@ -43,6 +55,13 @@ export function uploadSequenceFile(id, maxMB, maxSeqs) {
     });
 }
 
+/**
+ * Monitors sequence text input and updates text input.
+ * Updates number of sequences and highlights errors.
+ *
+ * @param {string} id - Base element identifier.
+ * @param {number} maxSeqs - Maximum number of sequences.
+ */
 export function highlightSequenceText(id, maxSeqs) {
     $(`#${id}_query`).on("input", function () {
         let text = $(this).val();
@@ -79,6 +98,14 @@ function stopLoadingState(id) {
     $(`#${id}_align_spinner`).addClass("d-none");
 }
 
+/**
+ * Renders an error alert using an HTML template.
+ * Clears existing messages before showing the new one.
+ *
+ * @param {string} id - Base element ID.
+ * @param {string} title - Error title.
+ * @param {string} description - Detailed message.
+ */
 function setErrorMessage(id, title, description) {
     clearMessages(id);
 
@@ -91,10 +118,21 @@ function setErrorMessage(id, title, description) {
     document.getElementById(`${id}_alertContainer`).appendChild(clone);
 }
 
+/**
+ * Removes all alerts from the container.
+ */
 function clearMessages(id) {
     $(`#${id}_alertContainer`).empty();
 }
 
+/**
+ * Triggers sequence alignment via a REST API call.
+ * Results are summarised into custom gene lists.
+ *
+ * @param {string} id - Base element ID.
+ * @param {string} species - Target species.
+ * @param {string} type - Alignment type (nucleotide or protein).
+ */
 export function alignSequence(id, species, type) {
     $(`#${id}_align_btn`).on("click", function () {
         startLoadingState(id);

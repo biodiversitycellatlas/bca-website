@@ -1,3 +1,7 @@
+/**
+ * Plot gene expression comparisons.
+ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
 import { updateDataMenu } from "../buttons/data_dropdown.js";
 import { createExpressionComparisonPlot } from "../plots/expression_plot.js";
@@ -9,6 +13,13 @@ import {
 
 /* global $ */
 
+/**
+ * Plot expression comparison for the selected gene against a reference gene.
+ *
+ * @param {string} id - Table container ID.
+ * @param {Object} dataset - Dataset reference.
+ * @param {string} gene - Reference gene name for comparison.
+ */
 export function plotGeneExpressionComparison(id, dataset, gene) {
     $(`#${id}_table`)
         .DataTable()
@@ -32,6 +43,15 @@ export function plotGeneExpressionComparison(id, dataset, gene) {
     hideSpinner(id);
 }
 
+/**
+ * Fetch expression data for two genes and render a comparison plot.
+ *
+ * @param {string} id - Plot container ID.
+ * @param {Object} dataset - Dataset reference.
+ * @param {string} gene - First gene.
+ * @param {string} gene2 - Second gene (selected gene).
+ * @param {Object} stats - Metadata or statistics for the selected gene.
+ */
 function loadExpressionComparison(id, dataset, gene, gene2, stats) {
     // Create URL to fetch expression data for both genes
     let apiURL = getDataPortalUrl(
