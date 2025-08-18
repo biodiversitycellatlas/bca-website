@@ -1,15 +1,15 @@
 # Get postgreSQL client from official Docker image
-FROM postgres:17.5 AS postgres
+FROM postgres:17.5-trixie AS postgres
 
 # Serve website
-FROM python:3.13
+FROM python:3.13.7-trixie
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-            diamond-aligner=2.1.3-1 \
+            diamond-aligner=2.1.11-2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
