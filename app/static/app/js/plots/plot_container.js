@@ -1,3 +1,5 @@
+/* global $ */
+
 // Loading spinner functions
 function getSpinner(id) {
     return document.getElementById(id + "-spinner");
