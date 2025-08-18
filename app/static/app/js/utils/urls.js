@@ -33,7 +33,6 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
         }
     }
     url = url.toString().replaceAll("%2C", ",");
-    console.log(url);
     return url;
 }
 

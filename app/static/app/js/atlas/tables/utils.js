@@ -1,6 +1,7 @@
+/* global $ */
+
 import { getDataPortalUrl } from "../../utils/urls.js";
 
-/* global $ */
 
 export function makeLinkGene(dataset) {
     return function linkGene(data, type, row) {

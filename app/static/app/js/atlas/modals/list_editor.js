@@ -502,7 +502,6 @@ export function loadMenuActions(id, species, maxFileSize) {
         let activeItem = getSelectedList(id);
         let name = activeItem.data("list");
         let group = activeItem.data("group");
-        console.log(name, group);
 
         let url = getDataPortalUrl("rest:gene-list");
         fetchAllGenesFromList(id, species, url, name, group)

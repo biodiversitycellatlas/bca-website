@@ -2,9 +2,9 @@
  * Dataset dropdown UI selectize element.
  */
 
-import { getDataPortalUrl } from "../utils/urls.js";
-
 /* global $ */
+
+import { getDataPortalUrl } from "../utils/urls.js";
 
 /**
  * Initializes a Selectize dropdown for dataset selection.
@@ -30,8 +30,7 @@ export function initDatasetSelectize(
     redirect,
     optgroup_columns,
 ) {
-    let $select = $(`#dataset-select-${id}`);
-    $select.selectize({
+    $(`#dataset-select-${id}`).selectize({
         onChange: function (value) {
             // Jump to dataset page upon selection
             if (redirect == "arg") {

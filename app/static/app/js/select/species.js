@@ -8,7 +8,6 @@ function renderOption(item, escape) {
     // Display common name if different than species name
     let description = "";
     if (item.name) {
-        console.log(item.name);
         description = `
             <span class="text-muted">
                 <small>${escape(item.name)}</small>

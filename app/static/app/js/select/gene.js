@@ -104,7 +104,6 @@ function initGeneSelectizeValues(id, selected) {
             selectize.addOption(missingValuesArray);
 
             selectize.setValue(values);
-            console.log(values);
             hasRun = true;
         }
 
@@ -203,7 +202,6 @@ export function initGeneSelectize(
                     limit: limit,
                 },
             });
-            console.log("genes", genes);
 
             const domains = multiple
                 ? $.ajax({
@@ -216,7 +214,6 @@ export function initGeneSelectize(
                       },
                   })
                 : undefined;
-            console.log("domains", genes);
 
             Promise.all([genes, domains])
                 .then((data) => {

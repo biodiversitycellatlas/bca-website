@@ -1,6 +1,6 @@
-import { makeLinkGene, round, parseArray } from "./utils.js";
-
 /* global $ */
+
+import { makeLinkGene, round, parseArray } from "./utils.js";
 
 // Create DataTable
 export function createMarkersTable(id, dataset, url) {
