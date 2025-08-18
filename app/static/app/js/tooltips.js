@@ -5,7 +5,11 @@
 
 /* global bootstrap */
 
-// tooltips.js
+/**
+ * Initialize Bootstrap tooltips and popovers across the page.
+ *
+ * Extends the default Bootstrap tooltip allowList to permit table elements.
+ */
 export function enableTooltipsAndPopovers() {
     // Allow table elements in tooltips
     bootstrap.Tooltip.Default.allowList.table = [];
@@ -24,5 +28,3 @@ export function enableTooltipsAndPopovers() {
     );
     popoverTriggerList.forEach((el) => new bootstrap.Popover(el));
 }
-
-enableTooltipsAndPopovers();

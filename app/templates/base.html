@@ -138,7 +138,10 @@ Dynamic blocks:
         {% endblock footer %}
 
         <!-- Enable tooltips and popovers-->
-        <script type="module" src="{% static 'app/js/tooltips.js' %}"></script>
+        <script type="module">
+            import { enableTooltipsAndPopovers } from "{% static 'app/js/tooltips.js' %}";
+            enableTooltipsAndPopovers();
+        </script>
         {% include 'app/components/javascript_urls.html' %}
     </body>
 </html>
