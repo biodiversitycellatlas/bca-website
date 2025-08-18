@@ -1,4 +1,6 @@
-import { makeLinkGene, parseArray, getSelectedRows } from "./utils.js";
+/* global $, jQuery */
+
+import { makeLinkGene, parseArray } from "./utils.js";
 
 function buildDataQuery(data) {
     var ordering;
@@ -70,7 +72,7 @@ export function createGeneTable(
     }
 
     // Gene selection mode
-    var selectMode, selectLayout, selectParam;
+    var selectLayout, selectParam;
     if (select == "multiple") {
         selectParam = true;
     } else if (select == "single") {
@@ -119,7 +121,7 @@ export function createGeneTable(
         },
         columns: cols,
         order: order,
-        createdCell: function (td, cellData, rowData, row, col) {
+        createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);
             }

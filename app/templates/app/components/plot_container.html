@@ -19,30 +19,3 @@ Input:
         <div class="loader"></div>
     </div>
 </div>
-
-<script type="text/javascript">
-    // Loading spinner functions
-    function getSpinner (id) {
-        return document.getElementById(id + '-spinner');
-    }
-
-    function hideSpinner (id) {
-        var spinner = getSpinner(id);
-        if (spinner !== null) {
-            spinner.style.display = 'none';
-        }
-    }
-
-    function showSpinner (id) {
-        var spinner = getSpinner(id);
-        if (spinner !== null) {
-            spinner.style.display = 'flex';
-        }
-    }
-
-    // Reset container with a plot to show spinner
-    function clearContainer (id) {
-        $("#" + id + "-plot").html(
-            `<div id="${id}-spinner" class="loading-state"><div class="loader"></div></div>`);
-    }
-</script>

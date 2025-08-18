@@ -3,7 +3,7 @@
 import { getDataPortalUrl } from "../../utils/urls.js";
 
 export function makeLinkGene(dataset) {
-    return function linkGene(data, type, row) {
+    return function linkGene(data, type) {
         if (type === "display") {
             let url = getDataPortalUrl("atlas_gene", dataset, data);
             if (url) {
@@ -15,7 +15,7 @@ export function makeLinkGene(dataset) {
 }
 
 // Round numeric values
-export function round(data, type, row) {
+export function round(data, type) {
     if (type === "display" || type === "filter") {
         return parseFloat(data).toFixed(2);
     }
@@ -23,7 +23,7 @@ export function round(data, type, row) {
 }
 
 // Improve array parsing
-export function parseArray(data, type, row) {
+export function parseArray(data) {
     if (Array.isArray(data)) {
         return data.join(", ");
     }

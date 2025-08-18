@@ -2,10 +2,11 @@
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
+import { hideSpinner } from "../plots/plot_container.js";
 import {
     createMetacellProjection,
     viewMetacellProjection,
-} from "./plots/metacell_scatterplot.js";
+} from "../plots/metacell_scatterplot.js";
 
 function toggleGeneSelectize(id) {
     $('input[name="color_by"]').change(function () {
@@ -68,7 +69,7 @@ function handleSelectedMetacell(url) {
 }
 
 function listMarkers(dataset) {
-    $("#list_markers").on("click", function (e) {
+    $("#list_markers").on("click", function () {
         let url =
             getDataPortalUrl("atlas_markers", dataset) +
             "?metacells=METACELL_PLACEHOLDER";
@@ -77,7 +78,7 @@ function listMarkers(dataset) {
 }
 
 function filterHeatmap() {
-    $("#filter_heatmap").on("click", function (e) {
+    $("#filter_heatmap").on("click", function () {
         let url = new URL(window.location.href);
         url.searchParams.set("metacells", "METACELL_PLACEHOLDER");
         url.hash = "expression";

@@ -1,3 +1,5 @@
+/* global vegaEmbed */
+
 export let viewMetacellProjection;
 
 /**

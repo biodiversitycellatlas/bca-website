@@ -34,7 +34,7 @@ export function createMarkersTable(id, dataset, url) {
             { data: "fg_median_fc", title: "Median FC", render: round },
         ],
         order: [[5, "des"]],
-        createdCell: function (td, cellData, rowData, row, col) {
+        createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);
             }

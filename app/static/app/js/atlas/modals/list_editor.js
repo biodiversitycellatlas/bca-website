@@ -149,8 +149,8 @@ export function appendUserList(
     color = "gray",
     redraw = true,
 ) {
-    var lists = getUserLists(id, species);
-    var allListNames = getAllListNames(id);
+    let allListNames = getAllListNames(id);
+    let index;
 
     // Ensure new list name is unique
     while (allListNames.includes(name)) {
@@ -375,7 +375,7 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
                     key,
                     dict[key],
                     "Uploaded lists",
-                    (redraw = false),
+                    false,
                 );
             }
             redrawUserLists(id, species, [name]);
@@ -395,7 +395,7 @@ export function loadGeneLists(id, species, dataset) {
         .then((response) => response.json())
         .then((data) => {
             appendListGroupHeading(id, "preset");
-            data.results.forEach((item, index) => {
+            data.results.forEach((item) => {
                 appendListGroupItem(id, item.name, item.type, item.gene_count);
             });
             drawUserLists(id, species);

@@ -1,3 +1,5 @@
+/* global vegaEmbed */
+
 import { escapeString } from "../../utils/utils.js";
 
 export function createExpressionBubblePlot(id, gene, data) {

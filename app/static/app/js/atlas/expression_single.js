@@ -1,5 +1,6 @@
 import { getDataPortalUrl } from "../utils/urls.js";
-import { createExpressionBubblePlot } from "./plots/expression_plot.js";
+import { hideSpinner } from "../plots/plot_container.js";
+import { createExpressionBubblePlot } from "../plots/expression_plot.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
 
 // Create URL to fetch gene expression data

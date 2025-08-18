@@ -2,6 +2,8 @@
  * Clipboard functions.
  */
 
+/* global $ */
+
 function handleCopyURL(id, elem) {
     var clipboard = $(elem);
     clipboard.prop("disabled", true);

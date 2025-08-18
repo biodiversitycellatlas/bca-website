@@ -1,13 +1,18 @@
 import { getDataPortalUrl } from "../utils/urls.js";
-import { createExpressionComparisonPlot } from "./plots/expression_plot.js";
 import { updateDataMenu } from "../buttons/data_dropdown.js";
+import { createExpressionComparisonPlot } from "../plots/expression_plot.js";
+import {
+    showSpinner,
+    hideSpinner,
+    clearContainer,
+} from "../plots/plot_container.js";
 
 /* global $ */
 
 export function plotGeneExpressionComparison(id, dataset, gene) {
     $(`#${id}_table`)
         .DataTable()
-        .on("select", function (e, dt, type, indexes) {
+        .on("select", function (e, dt, type) {
             if (type === "row") {
                 let selected = dt.rows({ selected: true }).data();
                 if (selected && selected.length > 0) {

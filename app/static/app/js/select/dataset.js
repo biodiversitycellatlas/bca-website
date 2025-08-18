@@ -62,7 +62,7 @@ export function initDatasetSelectize(
                 this.setValue(redirect == "query" ? query : dataset);
             }
         },
-        onType: function (str) {
+        onType: function () {
             $(".highlight")
                 .closest(".species-meta")
                 .css("display", "inline-block");
@@ -78,7 +78,6 @@ export function initDatasetSelectize(
                         </span>
                     `;
                 }
-                let dataset = !item.dataset ? "" : `(${escape(item.dataset)})`;
                 return `
                     <div class='option'>
                         <span class="text-muted small">
@@ -115,7 +114,6 @@ export function initDatasetSelectize(
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
-                let dataset = !item.dataset ? "" : `(${escape(item.dataset)})`;
                 let img = item.image === "None" ? "" : escape(item.image);
                 return `<div class='option'>
                     <img src="${img}" class="w-20px">

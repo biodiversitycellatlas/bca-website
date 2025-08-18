@@ -95,7 +95,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
                 this.setValue(species);
             }
         },
-        onType: function (str) {
+        onType: function () {
             $(".highlight")
                 .closest(".species-meta")
                 .css("display", "inline-block");
