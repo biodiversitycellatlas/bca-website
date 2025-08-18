@@ -1,7 +1,8 @@
+/* global $ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.js";
-
-/* global $ */
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 
 /**
  * Navigate to new URL query parameters based on form data.

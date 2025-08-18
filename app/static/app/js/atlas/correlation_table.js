@@ -1,5 +1,6 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createGeneTable } from "./tables/gene_table.js";
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 
 export function loadGeneCorrelationTable(id, dataset, gene) {
     // Get lists from API

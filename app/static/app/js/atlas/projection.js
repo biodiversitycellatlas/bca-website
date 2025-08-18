@@ -1,10 +1,11 @@
+/* global $ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 import {
     createMetacellProjection,
     viewMetacellProjection,
 } from "./plots/metacell_scatterplot.js";
-
-/* global $ */
 
 function toggleGeneSelectize(id) {
     $('input[name="color_by"]').change(function () {

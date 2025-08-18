@@ -1,4 +1,5 @@
 import { getDataPortalUrl } from "../utils/urls.js";
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 import { createExpressionBubblePlot } from "./plots/expression_plot.js";
 
 function processOrtholog(baseGene, header, template, container, item) {
@@ -47,7 +48,6 @@ export function loadOrthologExpression(gene) {
     let apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, {
         expression: true,
     });
-    console.log(apiURL);
     appendDataMenu("orthologs", apiURL, "Ortholog expression");
 
     // Fetch data from the API and create plots

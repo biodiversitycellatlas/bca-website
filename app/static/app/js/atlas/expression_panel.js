@@ -1,8 +1,9 @@
+/* global $ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 import { createExpressionHeatmap } from "./plots/expression_heatmap.js";
 import { getUserLists } from "./modals/list_editor.js";
-
-/* global $ */
 
 export function loadExpressionData(id, dataset, genes = null) {
     let url = getDataPortalUrl("rest:metacellgeneexpression-list");

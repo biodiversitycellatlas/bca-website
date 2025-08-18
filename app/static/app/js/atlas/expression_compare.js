@@ -1,5 +1,6 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.js";
+import { updateDataMenu } from "../buttons/data_dropdown.js";
 
 /* global $ */
 

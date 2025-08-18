@@ -1,8 +1,9 @@
+/* global $ */
+
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createMarkersTable } from "./tables/markers_table.js";
 import { convertToRange } from "../select/metacell.js";
-
-/* global $ */
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 
 export function toggleMaxFCslider(elem, id) {
     let slider = $(id).data("ionRangeSlider");

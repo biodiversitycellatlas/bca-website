@@ -1,5 +1,6 @@
 import { getDataPortalUrl } from "../utils/urls.js";
 import { createStatsPlot } from "./plots/stats_plot.js";
+import { appendDataMenu } from "../buttons/data_dropdown.js";
 
 /**
  * Animate number incrementing from 0 up to the target value.
