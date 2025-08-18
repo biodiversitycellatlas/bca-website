@@ -33,7 +33,7 @@ export function createMetacellProjection(
 ) {
     var metacellColorScale = generateColorScale(data["mc_data"]);
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
             text: {
                 expr: "data('sc_data').length + ' cells, ' + data('mc_data').length + ' metacells'",

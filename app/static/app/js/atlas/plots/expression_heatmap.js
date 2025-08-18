@@ -4,7 +4,7 @@ export let viewExpressionHeatmap;
 
 export function createExpressionHeatmap(id, species, data) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },
         transform: [

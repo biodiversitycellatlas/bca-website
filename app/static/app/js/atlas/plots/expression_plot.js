@@ -2,7 +2,7 @@ import { escapeString } from "../../utils/utils.js";
 
 export function createExpressionBubblePlot(id, gene, data) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
         transform: [
             { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
@@ -66,7 +66,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
         escapedGene2 = escapeString(gene2);
 
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
             text: [`Pearson: ${stats.pearson}`, `Spearman: ${stats.spearman}`],
             fontWeight: "normal",

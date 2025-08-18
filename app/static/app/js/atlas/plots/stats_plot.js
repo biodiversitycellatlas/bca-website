@@ -150,7 +150,7 @@ export function createStatsPlot(
     counts = true,
 ) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: { text: title },
         data: { name: "data", values: data },
         width: "container",

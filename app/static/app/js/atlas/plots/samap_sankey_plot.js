@@ -31,7 +31,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     }
 
     var chart = {
-        $schema: "https://vega.github.io/schema/vega/v5.json",
+        $schema: "https://vega.github.io/schema/vega/v6.json",
         autosize: {
             type: "fit",
             contains: "padding",
