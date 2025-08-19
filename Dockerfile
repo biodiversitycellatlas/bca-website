@@ -1,5 +1,5 @@
 # Get postgreSQL client from official Docker image
-FROM postgres:17.5-trixie AS postgres
+FROM postgres:17.6-trixie AS postgres
 
 # Serve website
 FROM python:3.13.7-trixie
