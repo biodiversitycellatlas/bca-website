@@ -94,7 +94,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
     datasets = DatasetSerializer(
         many=True, help_text="Available datasets for the species"
     )
-    html_link = serializers.CharField(source="get_html_link")
+    html = serializers.CharField(source="get_html_link")
 
     class Meta:
         """Meta configuration."""
