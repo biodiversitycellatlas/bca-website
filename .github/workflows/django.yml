@@ -20,8 +20,10 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v5
 
-            - name: Copy .env file
-              run: cp .env.template .env
+            - name: Prepare .env file
+              run: |
+                 cp .env.template .env
+                 echo "ENVIRONMENT=prod" >> .env
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v1
