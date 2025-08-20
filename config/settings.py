@@ -45,23 +45,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
+DEBUG = get_env("DJANGO_DEBUG", type="bool")
 SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
 if get_env("ENVIRONMENT") == "prod":
     # Production environment
     DEBUG = False
+
+    # Avoid using insecure key
+    if SECRET_KEY.startswith("django-insecure"):
+        SECRET_KEY = secrets.token_hex(50)
+
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 30
-
-    if SECRET_KEY.starts_with("django-insecure"):
-        SECRET_KEY = secrets.token_hex(50)  # avoid using insecure key
-else:
-    DEBUG = get_env("DJANGO_DEBUG", type="bool")
-
-ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
-
 
 # Application definition
 
