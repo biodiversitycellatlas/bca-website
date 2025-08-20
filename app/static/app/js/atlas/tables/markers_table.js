@@ -1,29 +1,20 @@
-// Link to gene
-function linkGene(data, type, row) {
-    if (type === "display") {
-        data = `<a href=${gene_url}${data}>${data}</a>`;
-    }
-    return data;
-}
+/**
+ * Create interactive DataTables for gene markers.
+ */
 
-// Round numeric values
-function round(data, type, row) {
-    if (type === "display" || type === "filter") {
-        return parseFloat(data).toFixed(2);
-    }
-    return data;
-}
+/* global $ */
 
-// Improve array parsing
-function parseArray(data, type, row) {
-    if (Array.isArray(data)) {
-        return data.join(", ");
-    }
-    return data;
-}
+import { makeLinkGene, round, parseArray } from "./utils.js";
 
-// Create DataTable
-function createMarkersTable(id, url) {
+/**
+ * Initialize a DataTable for displaying marker gene information.
+ *
+ * @param {string} id - HTML element ID to attach the table.
+ * @param {Object} dataset - Dataset reference for linking genes.
+ * @param {string} url - URL to fetch gene marker data.
+ */
+export function createMarkersTable(id, dataset, url) {
+    let linkGene = makeLinkGene(dataset);
     $(`#${id}_table`).dataTable({
         ajax: {
             url: url,
@@ -53,7 +44,7 @@ function createMarkersTable(id, url) {
             { data: "fg_median_fc", title: "Median FC", render: round },
         ],
         order: [[5, "des"]],
-        createdCell: function (td, cellData, rowData, row, col) {
+        createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);
             }

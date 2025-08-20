@@ -18,14 +18,7 @@ Input:
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Sequence alignment</h1>
-                <span class="ms-2 me-5">
-                    <img class="rounded"
-                         src="{{ species.image_url }}"
-                         alt="Image of {{ species }}"
-                         width="25px"
-                         height="100%">
-                    <span class="small">{{ species.get_html }}</span>
-                </span>
+                <span class="ms-2 me-5 small">{{ species.get_html_link }}</span>
 
                 <div class="ms-auto d-flex align-items-center">
                     <button type="button"
@@ -57,6 +50,7 @@ Input:
                                  src="{{ species.image_url }}"
                                  alt="Image of {{ species }}">
                             {{ species.get_html }}
+                            <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">{{ species.proteome.ext|upper }}</a>
                         </span>
                     </div>
                 </div>
@@ -154,145 +148,15 @@ Input:
     </div>
 </div>
 
-<script>
-$("#{{id}}_upload").on("change", function () {
-    const file = this.files[0];
-    const maxMB = {{ MAX_FILE_SIZE }};
-    const maxSeqs = {{ MAX_ALIGNMENT_SEQS }};
+<script type="module">
+    {% load static %}
+    import { uploadSequenceFile, highlightSequenceText, alignSequence }
+        from "{% static 'app/js/atlas/modals/alignment.js' %}";
 
-    if (!file) {
-        console.error('Error uploading file: no file selected');
-        return;
-    } else if (file.size > maxMB * 1024 * 1024) {
-        alert(`Size limit of ${maxMB} MB exceeded.`);
-    } else {
-        // Add text to sequence textarea
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const content = event.target.result;
-            const lines = content.split('\n');
-
-            // Count number of sequences in FASTA file
-            const count = lines.filter(line => line.startsWith('>')).length;
-
-            if (count > maxSeqs) {
-                alert(`The uploaded file has ${count} sequences. Only files with up to ${maxSeqs} sequences are allowed.`);
-            } else {
-                $("#{{id}}_query").val(content);
-
-                // Update sequence count in status bar
-                $("#{{id}}_query")[0].dispatchEvent(new Event('input'));
-            }
-        };
-
-        reader.readAsText(file);
-    }
-    // Clear selection to allow uploading the same file again
-    $(this).val("");
-});
-
-$("#{{id}}_query").on("input", function() {
-    const limit = {{ MAX_ALIGNMENT_SEQS }};
-
-    let text = $(this).val();
-    let matches = text.match(/^>/gm);
-    var isEmptyText = text.trim() === '';
-    var count = matches ? matches.length : (isEmptyText ? 0 : 1);
-
-    var count_label = $("#{{id}}_count");
-    count_label.text(count);
-    if (count > limit) {
-        text_color = 'var(--bs-danger)';
-        disabled = true;
-    } else if (isEmptyText) {
-        text_color = '';
-        disabled = true;
-    } else {
-        text_color = '';
-        disabled = false;
-    }
-
-    count_label.css('color', text_color);
-    $('#{{id}}_align_btn').prop('disabled', disabled);
-});
-
-function startLoadingState(id) {
-    $(`#${id}_align_btn`).prop('disabled', true);
-    $(`#${id}_align_spinner`).removeClass('d-none');
-}
-
-function stopLoadingState(id) {
-    $(`#${id}_align_spinner`).addClass('d-none');
-}
-
-function setErrorMessage(id, title, description) {
-    clearMessages(id);
-
-    const template = document.getElementById(`${id}_errorTemplate`);
-    const clone = template.content.cloneNode(true);
-
-    clone.querySelector('.alert-title').textContent = title;
-    clone.querySelector('.alert-description').textContent = description;
-
-    document.getElementById(`${id}_alertContainer`).appendChild(clone);
-}
-
-function clearMessages(id) {
-    $(`#${id}_alertContainer`).empty();
-}
-
-$("#{{id}}_align_btn").on("click", function() {
-    startLoadingState('{{id}}');
-
-    var url = '{% url 'rest:align-list' %}';
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            sequences: $('#{{id}}_query').val(),
-            type: $('input[name="{{id}}_type"]:checked').val(),
-            species: '{{species}}'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        clearMessages('{{id}}');
-        if (data && data.length === 0) {
-            setErrorMessage('{{id}}', 'Error!',
-                            'No alignments found for this query.');
-            return;
-        }
-
-        const result = data.reduce((acc, { query, target }) => {
-            acc[query] ||= [];
-            acc[query].push(target);
-            return acc;
-        }, {});
-
-        const id = '{{id}}_{{type}}';
-        const species = '{{species}}';
-
-        var name;
-        for (key in result) {
-            name = key + ' alignment';
-            name = appendUserList(id, species, name, result[key],
-                                  group="Alignment results", color='gray',
-                                  redraw=false);
-        }
-        redrawUserLists(id, species, active=[name]);
-
-        $('#{{id}}_alignment').modal('hide');
-        $('#{{id}}_{{type}}_editor').modal('show');
-
-        // Clean form state
-        $('#{{id}}_query').val('');
-        $('#{{id}}_align_btn').prop('disabled', true);
-    })
-    .catch(error => {
-        setErrorMessage('{{id}}', 'Error!', error);
-    })
-    .finally(f => stopLoadingState('{{id}}'));
-});
+    const id = "{{id}}",
+          maxMB = {{ MAX_FILE_SIZE }},
+          maxSeqs = {{ MAX_ALIGNMENT_SEQS }};
+    uploadSequenceFile(id, maxMB, maxSeqs);
+    highlightSequenceText(id, maxSeqs);
+    alignSequence(id, "{{species}}", "{{type}}");
 </script>

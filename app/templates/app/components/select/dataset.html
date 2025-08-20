@@ -1,28 +1,26 @@
 {% comment %}
 
-Dataset selection for Cell Atlas and other components
+Dataset selection element for Cell Atlas and related components.
 
 Features:
-- Allows user to search datasets by species and metadata (including taxonomic ranks)
-- Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
-- Upon dataset selection, the user is redirected to that dataset page
-- Navigation tabs redirect to different views for the selected dataset
-- When no dataset is selected, mockup is shown and navigation tabs are disabled
+- Search and select datasets by species or metadata (e.g., taxonomic rank)
+- Hide dropdown until styled to prevent FOUC
+- Redirect to selected dataset page
+- Disable navigation tabs when no dataset is selected
+- Show mockup when no dataset is active
 
 Input:
-- id: prefix used in the identifiers of all elements
-- dataset_dict: dictionary of arrays of datasets grouped by the species phylum
-- dataset: selected dataset
-- placeholder: text in search box (default: "Search datasets by species,
-  taxonomic rank, division, ...")
-- redirect: one of 'query', 'arg', 'atlas' or 'none' (default); if 'query',
-  redirect to URL using a query parameter (e.g., '?dataset=mus-musculus');
-  if 'arg', redirect using dataset as an argument; if 'atlas', redirect to
-  selected dataset in the Cell Atlas
-- class: additional class for select element
-- optgroup_columns: if 'true', enable the optgroup_columns plugin
-- maxwidth: maximum width of the element
-- small: if 'true', make font smaller in all element and dropdown content
+- id (string)              : prefix for all element selectors
+- dataset_dict (dict)      : datasets grouped by species phylum
+- dataset (string|object)  : selected dataset
+- placeholder (string)     : search box placeholder text
+- redirect (string)        : "arg" (default), "query", or "none"
+    - "arg"   : redirect using dataset as an argument
+    - "query" : redirect using a query parameter (e.g., '?dataset=mus-musculus')
+- class (string)           : extra classes for <select>
+- optgroup_columns (bool)  : enable optgroup_columns plugin if "true"
+- maxwidth (int)           : max width in pixels
+- small (bool)             : use smaller font size if "true"
 
 {% endcomment %}
 
@@ -63,117 +61,13 @@ Input:
 </select>
 
 <!-- Species selection: selectize.js JavaScript options -->
-<script>
-$(function () {
-    var $select = $("#dataset-select-{{id}}");
-    $select.selectize({
-        onChange: function(value) {
-            // Jump to dataset page upon selection
-            {% if redirect == 'arg' %}
-                if (value !== "" && value !== '{{dataset.slug}}') {
-                    // Avoid jumping if value is empty or matches current dataset
-                    window.location.href =
-                        {% if request.resolver_match.view_name == 'atlas' %}
-                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-                        {% else %}
-                            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
-                        {% endif %}
-                }
-            {% elif redirect == 'query' %}
-                if (value !== "" && value !== '{{query.dataset}}') {
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('dataset', value)
-                    window.location.href = url;
-                }
-            {% elif redirect == 'atlas' %}
-                if (value !== "" && value !== '{{dataset.slug}}') {
-                    window.location.href =
-                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-                }
-            {% endif %}
-        },
-        onDropdownOpen: function() {
-            this.clear();
-            setTimeout(() => {
-                var dataset =
-                    {% if redirect == 'query' %}
-                        '{{query.dataset}}'
-                    {% else %}
-                        '{{dataset.slug}}'
-                    {% endif %};
-                if (dataset) {
-                    var current = this.getOption(dataset);
-                    this.setActiveOption(current);
-                }
-            }, 10);
-        },
-        onBlur: function() {
-            // Set current dataset if no value is selected
-            if (!this.getValue()) {
-                this.setValue(
-                    {% if redirect == 'query' %}
-                        '{{query.dataset}}'
-                    {% else %}
-                        '{{dataset.slug}}'
-                    {% endif %}
-                );
-            }
-        },
-        onType: function(str) {
-            $('.highlight').closest('.species-meta').css('display', 'inline-block');
-        },
-        render: {
-            item: function (item, escape) {
-                // Display common name if different than dataset name
-                var description = '';
-                if (item.name) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-                var dataset = !item.dataset ? '' : `(${item.dataset})`;
-                return `
-                    <div class='option'>
-                        <span class="text-muted small">
-                            {% if redirect != 'query' %}Dataset:{% endif %}
-                        </span>
-                        <img src="${item.image}" class="w-20px">
-                        ${item.label} ${description}
-                    </div>`;
-            },
-            option: function (item, escape) {
-                // Display common name if different than dataset name
-                description = '';
-                if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-
-                // Add metadata (only visible when matching user query)
-                var meta_array = item.meta.split(',');
-
-                badges = '';
-                for(var i = 0; i < meta_array.length; i++) {
-                    var elem = meta_array[i];
-                    if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
-                        span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
-                        badges += ` ${span}<small>${meta_array[i]}</small></span>`;
-                    }
-                }
-                var dataset = !item.dataset ? '' : `(${item.dataset})`;
-                var img = item.image === "None" ? "" : item.image;
-                return `<div class='option'>
-                    <img src="${img}" class="w-20px">
-                    ${item.label}${description}${badges}
-                </div>`;
-            }
-        },
-        searchField: ['text', 'meta', 'optgroup', 'name'],
-        plugins: {
-            {% if optgroup_columns == 'true' %}
-                optgroup_columns: {
-                    equalizeWidth: false,
-                    equalizeHeight: false
-                }
-            {% endif %}
-        }
-    });
-});
+<script type="module">
+    {% load static %}
+    import { initDatasetSelectize } from "{% static 'app/js/select/dataset.js' %}";
+    let id = "{{id}}",
+        dataset = "{{dataset.slug}}",
+        query = "{{query.dataset}}",
+        redirect = "{{redirect}}",
+        optgroup_columns = "{{optgroup_columns}}" === "true";
+    initDatasetSelectize(id, dataset, query, redirect, optgroup_columns);
 </script>

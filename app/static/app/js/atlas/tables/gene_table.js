@@ -1,39 +1,53 @@
-// Link to gene
-function linkGene(data, type) {
-    if (type === "display") {
-        data = `<a href=${gene_url}${data}>${data}</a>`;
+/**
+ * Create interactive gene tables using DataTables.
+ */
+
+/* global $, jQuery */
+
+import { makeLinkGene, parseArray } from "./utils.js";
+
+function buildDataQuery(data) {
+    var ordering;
+    if (data.order && data.order[0]) {
+        const o = data.order[0];
+        ordering = (o.dir == "desc" ? "-" : "") + o.name;
     }
-    return data;
+
+    var params = {
+        offset: data.start,
+        limit: data.length,
+        q: data.search.value,
+        ordering: ordering,
+    };
+    return params;
 }
 
-// Round numeric values
-function round(data, type) {
-    if (type === "display" || type === "filter") {
-        return parseFloat(data).toFixed(2);
-    }
-    return data;
+function filterData(data) {
+    var json = jQuery.parseJSON(data);
+    json.recordsTotal = json.count;
+    json.recordsFiltered = json.count;
+    json.data = json.list;
+    return JSON.stringify(json);
 }
 
-// Improve array parsing
-function parseArray(data) {
-    if (Array.isArray(data)) {
-        return data.join(", ");
-    }
-    return data;
-}
-
-// Get selected rows
-function getSelectedRows(id) {
-    return $(`#${id}`).DataTable().select.cumulative().rows.slice();
-}
-
-// Create DataTable
-function createGeneTable(
+/**
+ * Initialize a DataTable for displaying gene information.
+ * Supports optional correlation columns and selection modes.
+ *
+ * @param {string} id - Table element ID.
+ * @param {Object} dataset - Dataset reference used for linking genes.
+ * @param {string} [url=""] - Data source URL for AJAX loading.
+ * @param {boolean} [correlation=false] - Whether to include correlation columns.
+ * @param {string} [select="multiple"] - Selection mode: "multiple", "single", or "none".
+ */
+export function createGeneTable(
     id,
+    dataset,
     url = "",
     correlation = false,
     select = "multiple",
 ) {
+    let linkGene = makeLinkGene(dataset);
     // Columns to display
     var cols = [
         {
@@ -71,7 +85,7 @@ function createGeneTable(
     }
 
     // Gene selection mode
-    var selectMode, selectLayout;
+    var selectLayout, selectParam;
     if (select == "multiple") {
         selectParam = true;
     } else if (select == "single") {
@@ -84,28 +98,8 @@ function createGeneTable(
     $(`#${id}`).dataTable({
         ajax: {
             url: url,
-            data: function (data) {
-                var ordering;
-                if (data.order && data.order[0]) {
-                    const o = data.order[0];
-                    ordering = (o.dir == "desc" ? "-" : "") + o.name;
-                }
-
-                var params = {
-                    offset: data.start,
-                    limit: data.length,
-                    q: data.search.value,
-                    ordering: ordering,
-                };
-                return params;
-            },
-            dataFilter: function (data) {
-                var json = jQuery.parseJSON(data);
-                json.recordsTotal = json.count;
-                json.recordsFiltered = json.count;
-                json.data = json.list;
-                return JSON.stringify(json);
-            },
+            data: buildDataQuery,
+            dataFilter: filterData,
             dataSrc: function (json) {
                 return json.results;
             },
@@ -140,7 +134,7 @@ function createGeneTable(
         },
         columns: cols,
         order: order,
-        createdCell: function (td, cellData, rowData, row, col) {
+        createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);
             }
