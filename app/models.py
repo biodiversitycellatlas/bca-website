@@ -9,6 +9,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from typing import Optional
 
 
 class SlugMixin(models.Model):
@@ -60,16 +61,16 @@ class Species(SlugMixin, ImageSourceMixin):
     """Species model."""
 
     common_name = models.CharField(
-        max_length=100, null=True, help_text="Common name of the species"
+        max_length=100, null=True, help_text="Common name of the species."
     )
     scientific_name = models.CharField(
-        max_length=100, unique=True, help_text="Scientific name of the species"
+        max_length=100, unique=True, help_text="Scientific name of the species."
     )
     description = models.TextField(
-        blank=True, null=True, help_text="Species description"
+        blank=True, null=True, help_text="Species description."
     )
     image_url = models.URLField(
-        blank=True, null=True, help_text="URL for species image"
+        blank=True, null=True, help_text="URL for species image."
     )
 
     @property
@@ -156,13 +157,13 @@ class Species(SlugMixin, ImageSourceMixin):
 
 
 class Source(models.Model):
-    """Data source with metadata."""
+    """Data source."""
 
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    query_url = models.URLField(blank=True, null=True)
-    version = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True, help_text="Source name.")
+    description = models.TextField(blank=True, null=True, help_text="Source description.")
+    url = models.URLField(blank=True, null=True, help_text="Source URL.")
+    query_url = models.URLField(blank=True, null=True, help_text="Source query URL.")
+    version = models.CharField(max_length=50, blank=True, null=True, help_text="Source version.")
 
     def __str__(self):
         """String representation."""
@@ -176,19 +177,19 @@ class Dataset(SlugMixin, ImageSourceMixin):
         Species, on_delete=models.CASCADE, related_name="datasets"
     )
     name = models.CharField(
-        max_length=255, default=None, null=True, help_text="Name of the dataset"
+        max_length=255, default=None, null=True, help_text="Name of the dataset."
     )
     description = models.TextField(
-        blank=True, null=True, help_text="Description of the dataset"
+        blank=True, null=True, help_text="Description of the dataset."
     )
     image_url = models.URLField(
-        blank=True, null=True, help_text="URL for dataset image"
+        blank=True, null=True, help_text="URL for dataset image."
     )
     date_created = models.DateTimeField(
-        auto_now_add=True, help_text="Timestamp when the dataset was created"
+        auto_now_add=True, help_text="Timestamp when the dataset was created."
     )
     date_updated = models.DateTimeField(
-        auto_now=True, help_text="Timestamp when the dataset was last updated"
+        auto_now=True, help_text="Timestamp when the dataset was last updated."
     )
 
     source = models.ForeignKey(
@@ -196,7 +197,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Source of the dataset",
+        help_text="Source of the dataset.",
     )
     # version = models.CharField(max_length=50, blank=True, null=True)
     # is_public = models.BooleanField(default=True)
@@ -205,7 +206,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
     # developmental stages
     order = models.PositiveIntegerField(
         default=0,
-        help_text="Order of the dataset (for ordinal sets like developmental stages)",
+        help_text="Order of the dataset (for ordinal sets like developmental stages).",
     )
 
     def __label(self, species):
@@ -266,9 +267,11 @@ class File(models.Model):
     file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    type = models.CharField(max_length=255, choices=file_types)
-    file = models.FileField()
-    checksum = models.CharField(max_length=64, editable=False)
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+    file = models.FileField(help_text="File.")
+    checksum = models.CharField(
+        max_length=64, editable=False, help_text="SHA256 digest."
+    )
     slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -310,15 +313,17 @@ class Meta(models.Model):
     """Metadata model for a species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
-    key = models.CharField(max_length=100)
-    value = models.CharField(max_length=100)
+    key = models.CharField(max_length=100, help_text="Metadata key.")
+    value = models.CharField(max_length=100, help_text="Metadata value.")
     query_term = models.CharField(
-        max_length=100, null=True, help_text="Term to use in query URL"
+        max_length=100, null=True, help_text="Term to use in query URL."
     )
-    source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
+    source = models.ForeignKey(
+        Source, on_delete=models.SET_NULL, null=True
+    )
 
     @property
-    def query_url(self):
+    def query_url(self) -> Optional[str]:
         """Build query URL."""
         url = self.source.query_url
         term = self.query_term
