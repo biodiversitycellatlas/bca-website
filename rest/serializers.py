@@ -36,12 +36,14 @@ class DatasetSerializer(serializers.ModelSerializer):
     source = SourceSerializer()
     species = serializers.CharField(source="species.scientific_name")
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
+    dataset_html = serializers.CharField(source="get_html_link")
     species_common_name = serializers.CharField(source="species.common_name")
     species_image_url = serializers.CharField(source="species.image_url")
     species_description = serializers.CharField(source="species.description")
     species_meta = MetaSerializer(
         source="species.meta_set", many=True, help_text="Species metadata."
     )
+    species_html = serializers.CharField(source="species.get_html_link")
     slug = serializers.CharField()
 
     class Meta:
@@ -50,6 +52,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "species",
             "dataset",
             "slug",
+            "dataset_html",
             "description",
             "image_url",
             "source",
@@ -57,6 +60,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "date_created",
             "date_updated",
             "species_common_name",
+            "species_html",
             "species_image_url",
             "species_description",
             "species_meta",
@@ -69,12 +73,14 @@ class SpeciesSerializer(serializers.ModelSerializer):
     datasets = DatasetSerializer(
         many=True, help_text="Available datasets for the species"
     )
+    html_link = serializers.CharField(source="get_html_link")
 
     class Meta:
         model = models.Species
         fields = [
             "common_name",
             "scientific_name",
+            "html",
             "description",
             "image_url",
             "meta",

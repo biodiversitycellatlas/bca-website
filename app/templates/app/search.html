@@ -113,7 +113,7 @@ Search page
         window.updateQuery = updateQuery;
 
         let species = "{{query.species}}",
-            query = "{{query.q}}",
+            query = "{{query.q|escape}}",
             limit = {{query.limit|default:12}},
             offset = {{query.offset|default:0}},
             category = "{{query.category}}";

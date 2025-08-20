@@ -13,8 +13,15 @@
 export function highlightMatch(content, query) {
     if (content === null) return content;
 
-    const regex = new RegExp(`(${query})`, "gi");
+    const regex = new RegExp(`(?<!<)(${query})(?![^<>]*>)`, "gi");
     return content.replace(regex, "<span class='search-highlight'>$1</span>");
+}
+
+export function addWordBreakOpportunities(content, query) {
+    if (content === null) return content;
+
+    const regex = new RegExp(`(?<!<)(${query})(?![^<>]*>)`, "gi");
+    return content.replace(regex, "$1<wbr>");
 }
 
 /**

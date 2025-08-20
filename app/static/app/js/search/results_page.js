@@ -6,7 +6,7 @@
 /* global $ */
 
 import { getDataPortalUrl } from "../utils/urls.js";
-import { highlightMatch } from "../utils/utils.js";
+import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.js";
 
 /**
  * Update the URL query parameter.
@@ -67,10 +67,7 @@ function appendResult(
     const mods = { title_mod, subtitle_mod, description_mod };
     for (const key in mods) {
         // Regex: ignore HTML code, i.e. text inside brackets <>
-        mods[key] = (mods[key] || "").replace(
-            /(?<!<[^>]*)[_/]/g,
-            (match) => match + "<wbr>",
-        );
+        mods[key] = addWordBreakOpportunities(mods[key] || "", "_/");
     }
     ({ title_mod, subtitle_mod, description_mod } = mods);
 
@@ -82,7 +79,7 @@ function appendResult(
     $clone.find(".result-description").html(description_mod);
 
     badges = badges
-        .map((item) => `<span class="badge bg-secondary">${item}</span>`)
+        .map((item) => `<span class="badge bg-secondary species-meta">${item}</span>`)
         .join(" ");
     $clone.find(".result-badges").html(badges);
 
@@ -125,7 +122,7 @@ export function loadSearchResults(
             .then((res) => res.json())
             .then((data) => {
                 data.results.forEach((item) => {
-                    let title = `<i>${item.species}</i>`;
+                    let title = `${item.dataset_html}`;
                     if (item.name) {
                         title = `${title} - ${item.name}`;
                     }

@@ -133,7 +133,7 @@ class Species(SlugMixin, ImageSourceMixin):
             <a class="d-flex align-items-center gap-1" href="{url}">
                 <img class="rounded" alt="Image of {self.scientific_name}"
                      width="25px" src="{image_url}">
-                {label}
+                <span>{label}</span>
             </a>
         """
         return mark_safe(html)
@@ -223,8 +223,13 @@ class Dataset(SlugMixin, ImageSourceMixin):
         image_url = self.image_url or self.species.image_url
         label = self.get_html()
 
-        html = f'<img width="25px" src="{image_url}"> {label}'
-        html = f'<a href="{url}">{html}</a>'
+        html = f"""
+            <a class="d-flex align-items-center gap-1" href="{url}">
+                <img class="rounded" alt="Image of {self.__label}"
+                     width="25px" src="{image_url}">
+                <span>{label}</span>
+            </a>
+        """
         return mark_safe(html)
 
     def get_gene_modules_html_link(self):

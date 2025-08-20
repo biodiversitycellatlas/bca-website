@@ -52,7 +52,7 @@
     display: none;
 }
 
-.species-meta:has(.highlight) {
+.species-meta:has(:is(.highlight, .search-highlight)) {
     display: inline-block;
 }
 
