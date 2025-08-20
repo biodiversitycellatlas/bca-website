@@ -56,7 +56,7 @@ if get_env("ENVIRONMENT") == "prod":
     SECURE_HSTS_SECONDS = 30
 
     if SECRET_KEY.starts_with("django-insecure"):
-        SECRET_KEY = secrets.token_hex(50) # avoid using insecure key
+        SECRET_KEY = secrets.token_hex(50)  # avoid using insecure key
 else:
     DEBUG = get_env("DJANGO_DEBUG", type="bool")
 
@@ -192,7 +192,9 @@ REST_FRAMEWORK = {
 }
 
 
-def sort_API_tags(operation):
+def sort_api_tags(operation):
+    """Sort API tags."""
+
     return ["Species", "Gene", "Metacell", "Single cell", "Sequence alignment"]
 
 
@@ -203,7 +205,7 @@ SPECTACULAR_SETTINGS = {
     "TOS": "/about/legal",
     "VERSION": get_env("BCA_REST_VERSION"),
     "SERVE_INCLUDE_SCHEMA": False,
-    "SORT_OPERATIONS": sort_API_tags,
+    "SORT_OPERATIONS": sort_api_tags,
 }
 
 # Logging in console
