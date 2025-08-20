@@ -56,8 +56,7 @@ class DatasetSerializer(serializers.ModelSerializer):
     )
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
     dataset_html = serializers.CharField(
-        source="get_html_link",
-        help_text="HTML representation of the dataset."
+        source="get_html_link", help_text="HTML representation of the dataset."
     )
     species_common_name = serializers.CharField(source="species.common_name")
     species_image_url = serializers.CharField(source="species.image_url")

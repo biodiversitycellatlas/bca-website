@@ -4,12 +4,12 @@ import hashlib
 import re
 from pathlib import Path
 
+from typing import Optional
 from colorfield.fields import ColorField
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from typing import Optional
 
 
 class SlugMixin(models.Model):
@@ -160,10 +160,14 @@ class Source(models.Model):
     """Data source."""
 
     name = models.CharField(max_length=255, unique=True, help_text="Source name.")
-    description = models.TextField(blank=True, null=True, help_text="Source description.")
+    description = models.TextField(
+        blank=True, null=True, help_text="Source description."
+    )
     url = models.URLField(blank=True, null=True, help_text="Source URL.")
     query_url = models.URLField(blank=True, null=True, help_text="Source query URL.")
-    version = models.CharField(max_length=50, blank=True, null=True, help_text="Source version.")
+    version = models.CharField(
+        max_length=50, blank=True, null=True, help_text="Source version."
+    )
 
     def __str__(self):
         """String representation."""
@@ -318,9 +322,7 @@ class Meta(models.Model):
     query_term = models.CharField(
         max_length=100, null=True, help_text="Term to use in query URL."
     )
-    source = models.ForeignKey(
-        Source, on_delete=models.SET_NULL, null=True
-    )
+    source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
 
     @property
     def query_url(self) -> Optional[str]:
