@@ -18,7 +18,7 @@ from .utils import check_model_exists
 class MetaSerializer(serializers.ModelSerializer):
     """Species metadata serializer."""
 
-    source = serializers.CharField()
+    source = serializers.CharField(help_text="Metadata source.")
 
     class Meta:
         """Meta configuration."""
@@ -51,9 +51,13 @@ class DatasetSerializer(serializers.ModelSerializer):
     """Dataset serializer."""
 
     source = SourceSerializer()
-    species = serializers.CharField(source="species.scientific_name")
+    species = serializers.CharField(
+        source="species.scientific_name", help_text="Species name."
+    )
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
-    dataset_html = serializers.CharField(source="get_html_link")
+    dataset_html = serializers.CharField(
+        source="get_html_link", help_text="HTML representation of the dataset."
+    )
     species_common_name = serializers.CharField(source="species.common_name")
     species_image_url = serializers.CharField(source="species.image_url")
     species_description = serializers.CharField(source="species.description")
@@ -61,7 +65,7 @@ class DatasetSerializer(serializers.ModelSerializer):
         source="species.meta_set", many=True, help_text="Species metadata."
     )
     species_html = serializers.CharField(source="species.get_html_link")
-    slug = serializers.CharField()
+    slug = serializers.CharField(help_text="Dataset slug.")
 
     class Meta:
         """Meta configuration."""
@@ -89,10 +93,10 @@ class DatasetSerializer(serializers.ModelSerializer):
 class SpeciesSerializer(serializers.ModelSerializer):
     """Serializer for Species model."""
 
-    meta = MetaSerializer(source="meta_set", many=True, help_text="Metadata")
-    files = FileSerializer(many=True, help_text="Supporting files")
+    meta = MetaSerializer(source="meta_set", many=True, help_text="Species metadata.")
+    files = FileSerializer(many=True, help_text="Supporting files.")
     datasets = DatasetSerializer(
-        many=True, help_text="Available datasets for the species"
+        many=True, help_text="Available datasets for the species."
     )
     html = serializers.CharField(source="get_html_link")
 
@@ -691,27 +695,27 @@ class AlignRequestSerializer(serializers.Serializer):
 class AlignResponseSerializer(serializers.Serializer):
     """Serializer for sequence alignment response."""
 
-    query = serializers.CharField(help_text="ID of the query sequence")
-    target = serializers.CharField(help_text="ID of the hit sequence")
+    query = serializers.CharField(help_text="ID of the query sequence.")
+    target = serializers.CharField(help_text="ID of the hit sequence.")
     identity = serializers.FloatField(
-        help_text="Percentage of identity between query and hit sequences"
+        help_text="Percentage of identity between query and hit sequences."
     )
-    length = serializers.IntegerField(help_text="Length of the alignment")
+    length = serializers.IntegerField(help_text="Length of the alignment.")
     mismatch = serializers.IntegerField(
-        help_text="Number of mismatches in the alignment"
+        help_text="Number of mismatches in the alignment."
     )
-    gaps = serializers.IntegerField(help_text="Number of gaps in the alignment")
+    gaps = serializers.IntegerField(help_text="Number of gaps in the alignment.")
     query_start = serializers.IntegerField(
-        help_text="Start position of the query sequence in the alignment"
+        help_text="Start position of the query sequence in the alignment."
     )
     query_end = serializers.IntegerField(
-        help_text="End position of the query sequence in the alignment"
+        help_text="End position of the query sequence in the alignment."
     )
     target_start = serializers.IntegerField(
-        help_text="Start position of the hit sequence in the alignment"
+        help_text="Start position of the hit sequence in the alignment."
     )
     target_end = serializers.IntegerField(
-        help_text="End position of the hit sequence in the alignment"
+        help_text="End position of the hit sequence in the alignment."
     )
-    e_value = serializers.FloatField(help_text="Statistical significance")
-    bit_score = serializers.FloatField(help_text="Alignment quality")
+    e_value = serializers.FloatField(help_text="Statistical significance.")
+    bit_score = serializers.FloatField(help_text="Alignment quality.")
