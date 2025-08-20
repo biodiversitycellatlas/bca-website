@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import secrets
 
 from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
 
@@ -44,14 +45,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
+DEBUG = get_env("DJANGO_DEBUG", type="bool")
 SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env("DJANGO_DEBUG", type="bool")
+if get_env("ENVIRONMENT") == "prod":
+    # Production environment
+    DEBUG = False
 
-ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
+    # Avoid using insecure key
+    if SECRET_KEY.startswith("django-insecure"):
+        SECRET_KEY = secrets.token_hex(50)
 
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 30
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # Application definition
 
@@ -182,7 +193,9 @@ REST_FRAMEWORK = {
 }
 
 
-def sort_API_tags(operation):
+def sort_api_tags(operation):
+    """Sort API tags."""
+
     return ["Species", "Gene", "Metacell", "Single cell", "Sequence alignment"]
 
 
@@ -193,7 +206,7 @@ SPECTACULAR_SETTINGS = {
     "TOS": "/about/legal",
     "VERSION": get_env("BCA_REST_VERSION"),
     "SERVE_INCLUDE_SCHEMA": False,
-    "SORT_OPERATIONS": sort_API_tags,
+    "SORT_OPERATIONS": sort_api_tags,
 }
 
 # Logging in console
