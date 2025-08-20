@@ -1,8 +1,11 @@
+"""
+REST API serializers.
+"""
+
 from operator import attrgetter
 
 from django.conf import settings
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Avg, Count, F, Max, Min, StdDev, Sum
+from django.db.models import Avg, Max, Min, StdDev, Sum
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -13,26 +16,40 @@ from .utils import check_model_exists
 
 
 class MetaSerializer(serializers.ModelSerializer):
+    """Species metadata serializer."""
+
     source = serializers.CharField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Meta
         fields = ["key", "value", "source", "query_url"]
 
 
 class FileSerializer(serializers.ModelSerializer):
+    """Species file serializer."""
+
     class Meta:
+        """Meta configuration."""
+
         model = models.File
         fields = ["type", "file", "checksum"]
 
 
 class SourceSerializer(serializers.ModelSerializer):
+    """Source serializer."""
+
     class Meta:
+        """Meta configuration."""
+
         model = models.Source
         exclude = ["id"]
 
 
 class DatasetSerializer(serializers.ModelSerializer):
+    """Dataset serializer."""
+
     source = SourceSerializer()
     species = serializers.CharField(source="species.scientific_name")
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
@@ -47,6 +64,8 @@ class DatasetSerializer(serializers.ModelSerializer):
     slug = serializers.CharField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Dataset
         fields = [
             "species",
@@ -68,6 +87,8 @@ class DatasetSerializer(serializers.ModelSerializer):
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
+    """Serializer for Species model."""
+
     meta = MetaSerializer(source="meta_set", many=True, help_text="Metadata")
     files = FileSerializer(many=True, help_text="Supporting files")
     datasets = DatasetSerializer(
@@ -76,6 +97,8 @@ class SpeciesSerializer(serializers.ModelSerializer):
     html_link = serializers.CharField(source="get_html_link")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Species
         fields = [
             "common_name",
@@ -90,7 +113,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
 
 class SummaryStatsSerializer(serializers.ModelSerializer):
-    """Summary statistics."""
+    """Serializer for summary statistics model."""
 
     min = serializers.FloatField(help_text="Minimum value.")
     q1 = serializers.FloatField(help_text="First quartile (Q1) value.")
@@ -101,11 +124,15 @@ class SummaryStatsSerializer(serializers.ModelSerializer):
     stddev = serializers.FloatField(help_text="Standard deviation.")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Dataset
         fields = ["min", "q1", "avg", "median", "q3", "max", "stddev"]
 
 
 class StatsSerializer(serializers.ModelSerializer):
+    """Statistics serializer."""
+
     species = serializers.CharField(
         source="species.scientific_name", help_text="Species scientific name."
     )
@@ -121,6 +148,8 @@ class StatsSerializer(serializers.ModelSerializer):
     cells_per_metacell = serializers.SerializerMethodField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Dataset
         fields = [
             "species",
@@ -134,22 +163,28 @@ class StatsSerializer(serializers.ModelSerializer):
         ]
 
     def get_metacell_counts(self, obj):
+        """Return metacell counts for the dataset."""
         return models.MetacellCount.objects.filter(metacell__dataset=obj.id)
 
     def get_cells(self, obj) -> int:
+        """Return number of single cells in the dataset."""
         return models.SingleCell.objects.filter(dataset=obj.id).count()
 
     def get_metacells(self, obj) -> int:
+        """Return number of metacells in the dataset."""
         return models.Metacell.objects.filter(dataset=obj.id).count()
 
     def get_umis(self, obj) -> int:
+        """Return sum of UMIs in the dataset."""
         res = self.get_metacell_counts(obj).aggregate(Sum("umis")).values()
         return list(res)[0]
 
     def get_genes(self, obj) -> int:
+        """Return total number of genes in the dataset."""
         return models.Gene.objects.filter(species__datasets=obj.id).count()
 
     def calculate_stats(self, obj, field):
+        """Calculate statistical summary for a given field."""
         counts = self.get_metacell_counts(obj)
 
         stats = counts.aggregate(
@@ -165,20 +200,26 @@ class StatsSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(SummaryStatsSerializer)
     def get_cells_per_metacell(self, obj) -> int:
+        """Return statistical summary of cells per metacell."""
         return self.calculate_stats(obj, "cells")
 
     @extend_schema_field(SummaryStatsSerializer)
     def get_umis_per_metacell(self, obj) -> int:
+        """Return statistical summary of UMIs per metacell."""
         return self.calculate_stats(obj, "umis")
 
 
 class GeneSerializer(serializers.ModelSerializer):
+    """Gene serializer."""
+
     species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
     orthogroup = serializers.CharField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Gene
         fields = [
             "species",
@@ -190,6 +231,8 @@ class GeneSerializer(serializers.ModelSerializer):
         ]
 
     def __init__(self, *args, **kwargs):
+        """Object initializer."""
+
         # Do not show 'species' in result if filtered in query params
         if "context" in kwargs and "request" in kwargs["context"]:
             species = kwargs["context"]["request"].GET.get("species", None)
@@ -201,17 +244,25 @@ class GeneSerializer(serializers.ModelSerializer):
 
 
 class DomainSerializer(serializers.ModelSerializer):
+    """Protein domain serializer."""
+
     gene_count = serializers.IntegerField(required=False)
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Domain
         fields = ["name", "gene_count"]
 
 
 class GeneListSerializer(serializers.ModelSerializer):
+    """Gene list serializer."""
+
     gene_count = serializers.SerializerMethodField(required=False)
 
     def get_gene_count(self, obj) -> int:
+        """Return number of genes in gene list."""
+
         genes = obj.genes
         species = self.context.get("request").query_params.get("species", None)
         if species:
@@ -219,6 +270,8 @@ class GeneListSerializer(serializers.ModelSerializer):
         return genes.count()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.GeneList
         fields = ["name", "description", "gene_count"]
 
@@ -233,6 +286,8 @@ class BaseExpressionSerializer(serializers.ModelSerializer):
     umifrac = serializers.SerializerMethodField(required=False)
 
     def __init__(self, *args, **kwargs):
+        """Object initializer."""
+
         super().__init__(*args, **kwargs)
         request = self.context.get("request")
         if not (request and request.query_params.get("gene")):
@@ -241,31 +296,40 @@ class BaseExpressionSerializer(serializers.ModelSerializer):
 
     def get_expression_value(self, obj, field):
         """Retrieve field from gene expression data (e.g., umi_raw)."""
+
         gene = self.context["request"].GET.get("gene")
         if gene and obj.gene_expression:
             return attrgetter(field)(obj.gene_expression[0])
         return None
 
     def get_gene_name(self, obj):
+        """Return gene name."""
         return self.context["request"].GET.get("gene")
 
     def get_umi_raw(self, obj):
+        """Return raw UMI."""
         return self.get_expression_value(obj, "umi_raw")
 
     def get_umifrac(self, obj):
+        """Return UMI fraction."""
         return self.get_expression_value(obj, "umifrac")
 
     def get_fold_change(self, obj):
+        """Return fold-change value."""
         return self.get_expression_value(obj, "fold_change")
 
 
 class SingleCellSerializer(BaseExpressionSerializer):
+    """Single cell serializer."""
+
     # Default is null for single cells with no metacell
     metacell_name = serializers.CharField(source="metacell.name", default=None)
     metacell_type = serializers.CharField(source="metacell.type.name", default=None)
     metacell_color = serializers.CharField(source="metacell.type.color", default=None)
 
     class Meta:
+        """Meta configuration."""
+
         model = models.SingleCell
         fields = [
             "name",
@@ -281,7 +345,7 @@ class SingleCellSerializer(BaseExpressionSerializer):
 
 
 class MetacellSerializer(BaseExpressionSerializer):
-    """Metacell information."""
+    """Metacell serializer."""
 
     type = serializers.CharField(
         source="type.name", help_text="Metacell type.", required=False
@@ -294,6 +358,8 @@ class MetacellSerializer(BaseExpressionSerializer):
     fold_change = serializers.SerializerMethodField(required=False)
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Metacell
         fields = [
             "name",
@@ -309,6 +375,8 @@ class MetacellSerializer(BaseExpressionSerializer):
 
 
 class MetacellLinkSerializer(serializers.ModelSerializer):
+    """Metacell link serializer."""
+
     metacell = serializers.CharField(source="metacell.name")
     metacell_x = serializers.FloatField(source="metacell.x")
     metacell_y = serializers.FloatField(source="metacell.y")
@@ -317,6 +385,8 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
     metacell2_y = serializers.FloatField(source="metacell2.y")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.MetacellLink
         fields = [
             "metacell",
@@ -329,6 +399,8 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
 
 
 class MetacellCountSerializer(serializers.ModelSerializer):
+    """Metacell count serializer."""
+
     metacell = serializers.CharField(source="metacell.name")
     metacell_type = serializers.CharField(source="metacell.type.name")
     metacell_color = serializers.CharField(source="metacell.type.color")
@@ -337,11 +409,15 @@ class MetacellCountSerializer(serializers.ModelSerializer):
     umis = serializers.IntegerField(help_text="UMI count.")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.MetacellCount
         fields = ["metacell", "metacell_type", "metacell_color", "cells", "umis"]
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
+    """Serializer for gene expression per single cell."""
+
     gene_name = serializers.CharField(source="gene.name")
     gene_description = serializers.CharField(source="gene.description")
     gene_domains = serializers.StringRelatedField(source="gene.domains", many=True)
@@ -349,11 +425,15 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
     single_cell_name = serializers.CharField(source="single_cell.name")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.SingleCellGeneExpression
         exclude = ["id", "dataset"]
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
+    """Serializer for gene expression per metacell."""
+
     log2_fold_change = serializers.FloatField(required=False)
 
     gene_name = serializers.CharField(source="gene.name")
@@ -365,11 +445,15 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     metacell_color = serializers.CharField(source="metacell.type.color")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.MetacellGeneExpression
         exclude = ["dataset", "id", "gene", "metacell"]
 
 
 class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
+    """Serializer for gene expression per metacell (returned per dataset)."""
+
     dataset = serializers.CharField(source="dataset.slug")
 
     gene_name = None
@@ -377,11 +461,15 @@ class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
     gene_domains = None
 
     class Meta:
+        """Meta configuration."""
+
         model = MetacellGeneExpressionSerializer.Meta.model
         exclude = ["id", "gene", "metacell"]
 
 
 class CorrelatedGenesSerializer(serializers.ModelSerializer):
+    """Serializer for correlated genes."""
+
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     domains = serializers.SerializerMethodField()
@@ -389,31 +477,40 @@ class CorrelatedGenesSerializer(serializers.ModelSerializer):
     pearson = serializers.FloatField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.GeneCorrelation
         exclude = ["dataset", "id", "gene", "gene2"]
 
     def get_non_selected_gene(self, obj):
-        input = self.context["request"].query_params.get("gene")
+        """Return non-selected gene."""
+
+        selected = self.context["request"].query_params.get("gene")
         # Return the gene that was not selected in the input
-        if obj.gene.name == input:
-            return obj.gene2
-        else:
-            return obj.gene
+        return obj.gene2 if obj.gene.name == selected else obj.gene
 
     def get_name(self, obj) -> str:
+        """Return gene name from non-selected gene."""
+
         gene = self.get_non_selected_gene(obj)
         return gene.name
 
     def get_description(self, obj) -> str:
+        """Return gene description from non-selected gene."""
+
         gene = self.get_non_selected_gene(obj)
         return gene.description
 
     def get_domains(self, obj) -> list[str]:
+        """Return domains from non-selected gene."""
+
         gene = self.get_non_selected_gene(obj)
         return [domain.name for domain in gene.domains.all()]
 
 
 class MetacellMarkerSerializer(serializers.ModelSerializer):
+    """Serializer for metacell markers."""
+
     # Parse name of domains and gene lists
     domains = serializers.StringRelatedField(many=True)
     genelists = serializers.StringRelatedField(many=True)
@@ -425,11 +522,15 @@ class MetacellMarkerSerializer(serializers.ModelSerializer):
     fg_median_fc = serializers.FloatField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Gene
         exclude = ["species", "correlations"]
 
 
 class OrthologSerializer(serializers.ModelSerializer):
+    """Ortholog gene serializer."""
+
     species = serializers.CharField()
 
     gene_name = serializers.CharField(source="gene.name")
@@ -442,10 +543,14 @@ class OrthologSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Ortholog
         exclude = ["id", "gene"]
 
     def __init__(self, *args, **kwargs):
+        """Object initializer."""
+
         show_expression = (
             kwargs["context"]["request"].GET.get("expression", "false") == "true"
         )
@@ -454,6 +559,7 @@ class OrthologSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
+        """Return object representation."""
         data = super().to_representation(instance)
 
         # Split expression by dataset
@@ -473,7 +579,7 @@ class OrthologSerializer(serializers.ModelSerializer):
                 list(dataset_dict.values()), many=True
             ).data
 
-            ## Sort datasets by their order
+            # Sort datasets by their order
             data["datasets"].sort(key=lambda x: x["order"])
             ordered_keys = [d["slug"] for d in data["datasets"]]
             data["expression"] = {k: dataset_expr[k] for k in ordered_keys}
@@ -481,15 +587,21 @@ class OrthologSerializer(serializers.ModelSerializer):
 
 
 class OrthologCountSerializer(serializers.ModelSerializer):
+    """Serializer for ortholog count."""
+
     species = serializers.CharField(source="species__scientific_name")
     gene_count = serializers.IntegerField(source="count")
 
     class Meta:
+        """Meta configuration."""
+
         model = models.Ortholog
         fields = ["species", "gene_count"]
 
 
 class SAMapSerializer(serializers.ModelSerializer):
+    """Serializer for SAMap scores."""
+
     dataset = serializers.SerializerMethodField()
     dataset2 = serializers.SerializerMethodField()
     metacell_type = serializers.SerializerMethodField()
@@ -499,6 +611,8 @@ class SAMapSerializer(serializers.ModelSerializer):
     samap = serializers.FloatField()
 
     class Meta:
+        """Meta configuration."""
+
         model = models.SAMap
         fields = [
             "dataset",
@@ -511,39 +625,54 @@ class SAMapSerializer(serializers.ModelSerializer):
         ]
 
     def _get_metacell_types(self, obj):
+        """Return metacell types."""
         # Swap datasets according to input
         if getattr(obj, "order_flag", 0) == 1:
             return obj.metacelltype2, obj.metacelltype
         return obj.metacelltype, obj.metacelltype2
 
     def get_dataset(self, obj) -> str:
+        """Return dataset for metacell 1."""
         return self._get_metacell_types(obj)[0].dataset.slug
 
     def get_dataset2(self, obj) -> str:
+        """Return dataset for metacell 2."""
         return self._get_metacell_types(obj)[1].dataset.slug
 
     def get_metacell_type(self, obj) -> str:
+        """Return metacell type for metacell 1."""
         return self._get_metacell_types(obj)[0].name
 
     def get_metacell2_type(self, obj) -> str:
+        """Return metacell type for metacell 2."""
         return self._get_metacell_types(obj)[1].name
 
     def get_metacell_color(self, obj) -> str:
+        """Return metacell color for metacell 1."""
         return self._get_metacell_types(obj)[0].color
 
     def get_metacell2_color(self, obj) -> str:
+        """Return metacell color for metacell 2."""
         return self._get_metacell_types(obj)[1].color
 
 
 class AlignRequestSerializer(serializers.Serializer):
+    """Serializer for sequence alignment request."""
+
     sequences = serializers.CharField(
         required=True,
-        help_text=f"The FASTA sequences to query (maximum of {settings.MAX_ALIGNMENT_SEQS} sequences).",
+        help_text=(
+            "The FASTA sequences to query "
+            f"(maximum of {settings.MAX_ALIGNMENT_SEQS} sequences)."
+        ),
     )
     type = serializers.ChoiceField(
         choices=("aminoacids", "nucleotides"),
         required=True,
-        help_text="The monomers used in the sequences: either <kbd>aminoacids</kbd> for proteins (default) or <kbd>nucleotides</kbd> for DNA/RNA.",
+        help_text=(
+            "The monomers used in the sequences: either <kbd>aminoacids</kbd> "
+            "for proteins (default) or <kbd>nucleotides</kbd> for DNA/RNA."
+        ),
     )
     species = serializers.ChoiceField(
         choices=(
@@ -560,6 +689,8 @@ class AlignRequestSerializer(serializers.Serializer):
 
 
 class AlignResponseSerializer(serializers.Serializer):
+    """Serializer for sequence alignment response."""
+
     query = serializers.CharField(help_text="ID of the query sequence")
     target = serializers.CharField(help_text="ID of the hit sequence")
     identity = serializers.FloatField(

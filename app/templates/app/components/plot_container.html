@@ -15,9 +15,8 @@ Input:
 
 <div id="{{ id }}-plot"
      class="container-xxl"
-     style="{% if ratio %}aspect-ratio: {{ ratio }};{% endif %}
-            {% if width %}width: {{ width }};{% endif %}
-            {% if height %}height: {{ height }};{% endif %}">
+     style="{% if ratio %}aspect-ratio: {{ ratio }};
+            {% endif %} {% if width %}width: {{ width }};{% endif %} {% if height %}height: {{ height }};{% endif %}">
     <div id="{{ id }}-spinner" class="loading-state">
         <div class="loader"></div>
     </div>

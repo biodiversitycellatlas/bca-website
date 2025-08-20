@@ -79,7 +79,10 @@ function appendResult(
     $clone.find(".result-description").html(description_mod);
 
     badges = badges
-        .map((item) => `<span class="badge bg-secondary species-meta">${item}</span>`)
+        .map(
+            (item) =>
+                `<span class="badge bg-secondary species-meta">${item}</span>`,
+        )
         .join(" ");
     $clone.find(".result-badges").html(badges);
 

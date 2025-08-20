@@ -17,6 +17,14 @@ export function highlightMatch(content, query) {
     return content.replace(regex, "<span class='search-highlight'>$1</span>");
 }
 
+/**
+ * Inserts word break opportunities (`<wbr>`) after occurrences of a query string
+ * within the provided content, ignoring matches inside HTML tags.
+ *
+ * @param {string|null} content - The text content in which to insert `<wbr>` tags.
+ * @param {string} query - The substring to match and add word break opportunities after.
+ * @returns {string|null} - The modified content with `<wbr>` inserted, or the original content if null.
+ */
 export function addWordBreakOpportunities(content, query) {
     if (content === null) return content;
 
