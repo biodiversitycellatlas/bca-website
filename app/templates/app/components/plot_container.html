@@ -7,14 +7,17 @@ Features:
 
 Input:
 - id: prefix used in the identifiers of all elements
-- ratio: aspect ratio of the plot (default: not defined)
+- ratio: plot aspect ratio (default: not defined)
+- height: plot height (default: not defined)
+- width: plot width (default: not defined)
 
 {% endcomment %}
 
 <div id="{{ id }}-plot"
      class="container-xxl"
-     style="{% if ratio %}aspect-ratio: {{ ratio }};
-            {% endif %}">
+     style="{% if ratio %}aspect-ratio: {{ ratio }};{% endif %}
+            {% if width %}width: {{ width }};{% endif %}
+            {% if height %}height: {{ height }};{% endif %}">
     <div id="{{ id }}-spinner" class="loading-state">
         <div class="loader"></div>
     </div>

@@ -176,6 +176,7 @@ export function createStatsPlot(
         title: { text: title },
         data: { name: "data", values: data },
         width: "container",
+        height: "container",
         layer: prepareStatsSpecPerParam(param, label, counts),
         config: {
             style: { cell: { stroke: "transparent" } },
