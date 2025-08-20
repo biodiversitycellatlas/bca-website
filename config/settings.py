@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import secrets
 
 from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
 
@@ -44,11 +45,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env("DJANGO_DEBUG", type="bool")
+if get_env("ENVIRONMENT") == "prod":
+    # Production environment
+    DEBUG = False
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 30
+
+    if SECRET_KEY.starts_with("django-insecure"):
+        SECRET_KEY = secrets.token_hex(50) # avoid using insecure key
+else:
+    DEBUG = get_env("DJANGO_DEBUG", type="bool")
 
 ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
 
