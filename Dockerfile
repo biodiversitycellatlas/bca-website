@@ -1,5 +1,8 @@
-# Get postgreSQL client from official Docker image
+# Get postgreSQL client
 FROM postgres:17.5-trixie AS postgres
+
+# Get bun
+FROM oven/bun:1.2.20-slim AS bun
 
 # Serve website
 FROM python:3.13.7-trixie
@@ -18,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy binaries and dependencies
+COPY --from=bun /usr/local/bin/bun /usr/bin/
 COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
 COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
 RUN ldconfig

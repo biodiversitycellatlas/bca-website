@@ -151,7 +151,7 @@ Input:
 <script type="module">
     {% load static %}
     import { uploadSequenceFile, highlightSequenceText, alignSequence }
-        from "{% static 'app/js/atlas/modals/alignment.js' %}";
+        from "{% static 'app/js/modals/alignment.js' %}";
 
     const id = "{{id}}",
           maxMB = {{ MAX_FILE_SIZE }},
