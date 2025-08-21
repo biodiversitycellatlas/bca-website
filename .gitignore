@@ -24,3 +24,5 @@ app/static/app/images/logos/BCA/EPS/*
 /super-linter-output
 .lintr
 /node_modules
+/app/static/app/assets
+/app/static/app/js
