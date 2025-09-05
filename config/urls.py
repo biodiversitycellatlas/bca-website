@@ -10,6 +10,7 @@ urlpatterns = [
         lambda request: redirect(reverse("rest:index"), permanent=False),
         name="api",
     ),
+    path("", include('django_prometheus.urls')),
 ]
 
 if settings.DEBUG:
