@@ -11,34 +11,8 @@ Input:
 {% include '../plot_container.html' with id=gene.slug %}
 
 {% load static %}
-<script type="text/javascript"
-        src="{% static 'app/js/plots/expression_plot.js' %}"></script>
-
 <!-- Plot gene expression data -->
-<script type="text/javascript">
-    // Create URL to fetch gene expression data
-    var url = '{% url 'rest:metacellgeneexpression-list' %}';
-    var params = new URLSearchParams({
-        dataset: '{{dataset.slug}}',
-        genes: '{{gene}}',
-        limit: 0
-    });
-    var apiURL = url + "?" + params.toString();
-    appendDataMenu('expression', apiURL, '{{gene}} expression');
-
-    fetch(apiURL)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                document.getElementById('{{gene.slug}}-plot').innerHTML = "<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No <b>{{gene}}</b> expression for <i>{{dataset}}</i>.</p>"
-            } else {
-                createExpressionBubblePlot("#{{gene.slug}}-plot", "{{gene}}", data);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        })
-        .finally(() => {
-            hideSpinner('{{gene.slug}}');
-        });
+<script type="module">
+    import { loadGeneExpression } from "{% static 'app/js/atlas/expression_single.js' %}";
+    loadGeneExpression("{{dataset.slug}}", "{{dataset}}", "{{gene.slug}}", "{{gene}}");
 </script>

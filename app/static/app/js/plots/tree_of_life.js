@@ -1,16 +1,25 @@
-function flatten(obj) {
+/**
+ * Tree of Life visualization
+ */
+
+/* global vegaEmbed */
+
+/**
+ * Flatten a hierarchical tree object into an array suitable for Vega.
+ *
+ * @param {Object} obj - Hierarchical tree object
+ * @returns {Array} Flattened array with nodes containing id, parent, name, and size
+ */
+export function flatten(obj) {
     let id = 0;
     return _flatten2(obj);
 
     function _flatten2(obj, array = [], parentID = null) {
         let node = {};
         node.id = id++;
-        if (parentID !== null) {
-            node.parent = parentID;
-        }
-        if (obj.length) {
-            node.size = obj.length;
-        }
+        if (parentID !== null) node.parent = parentID;
+        if (obj.length) node.size = obj.length;
+
         if (obj.children) {
             for (let child of obj.children) {
                 _flatten2(child, array, node.id);
@@ -18,12 +27,19 @@ function flatten(obj) {
         } else {
             node.name = obj.name;
         }
+
         array.push(node);
         return array;
     }
 }
 
-async function readNewickJSON(file) {
+/**
+ * Fetch and parse a Newick JSON file, then flatten it.
+ *
+ * @param {string} file - URL or path to the JSON file
+ * @returns {Promise<Array>} Flattened array of tree nodes
+ */
+export async function readNewickJSON(file) {
     let obj;
 
     const res = await fetch(file);
@@ -31,13 +47,19 @@ async function readNewickJSON(file) {
     return flatten(obj);
 }
 
-function createTreeOfLife(id, file) {
+/**
+ * Create an interactive radial tree of life plot.
+ *
+ * @param {string} id - DOM element ID where the chart will be rendered
+ * @param {string} file - URL or path to the Newick JSON file
+ */
+export function createTreeOfLife(id, file) {
     fetch(file)
         .then((res) => res.json())
         .then((obj) => flatten(obj))
         .then((data) => {
             var chart = {
-                $schema: "https://vega.github.io/schema/vega/v5.json",
+                $schema: "https://vega.github.io/schema/vega/v6.json",
                 description: "Tree of life.",
                 width: 1000,
                 height: 600,

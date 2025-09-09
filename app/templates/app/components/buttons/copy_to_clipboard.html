@@ -10,30 +10,8 @@
     {{ text|default:'<i class="fa fa-chain"></i> Copy link' }}
 </button>
 
-<script>
-// Show tooltip on click and auto-hide after some time
-$('#clipboard_{{id}}').on('click', function(e) {
-    var clipboard = $(this);
-    clipboard.prop("disabled", true);
-
-    url = new URL(window.location.href);
-    if ('{{id}}' !== '') {
-        url.hash = '#{{id}}';
-    }
-    navigator.clipboard.writeText(url.href);
-    clipboard.tooltip('show');
-
-    setTimeout(function() {
-        clipboard.tooltip('hide');
-        clipboard.prop("disabled", false);
-    }, 1500);
-});
-
-// Hide tooltip (almost) immediately on mouse hover out
-//$('#clipboard_{{id}}').on('mouseleave', function(e) {
-//    var clipboard = $(this);
-//    setTimeout(function() {
-//        clipboard.tooltip('hide');
-//    }, 1000);
-//});
+<script type="module">
+    {% load static %}
+    import { initClipboardButton } from "{% static 'app/js/buttons/clipboard.js' %}";
+    initClipboardButton("{{id}}");
 </script>

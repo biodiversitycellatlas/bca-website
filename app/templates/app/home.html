@@ -68,15 +68,16 @@ Features:
     </div>
 
     <div class="container-fluid d-flex justify-content-center align-items-center pt-4">
-        {% include 'app/components/select/dataset.html' with redirect='atlas' class='w-100 atlas-select home' optgroup_columns='true' %}
+        {% include 'app/components/select/dataset.html' with redirect='arg' class='w-100 atlas-select home' %}
     </div>
 
     <!-- Tree of Life -->
     <div id="tree"
          class="container d-flex align-items-center justify-content-center"></div>
-    <script type="text/javascript"
-            src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
-    <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
+    <script type="module">
+        import { createTreeOfLife } from "{% static 'app/js/plots/tree_of_life.js' %}";
+        createTreeOfLife("#tree", "{% static 'app/life.json' %}");
+    </script>
 
     {% comment %}
         <svg xmlns="http://www.w3.org/2000/svg" class="position-absolute">

@@ -18,6 +18,11 @@
     max-height: 50vh;
 }
 
+.selectize-dropdown .selected {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
 .selectize-dropdown.plugin-optgroup_columns .optgroup {
     /* transition: all 0.1s ease; */
 
@@ -47,7 +52,7 @@
     display: none;
 }
 
-.species-meta:has(.highlight) {
+.species-meta:has(:is(.highlight, .search-highlight)) {
     display: inline-block;
 }
 
