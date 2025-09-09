@@ -10,6 +10,9 @@ djangorestframework==3.16.1
 django-filter==25.1
 drf-spectacular==0.28.0
 
+# Monitoring
+django-prometheus==2.4.1
+
 # dev
 django-debug-toolbar==5.2.0
 django-extensions==4.1
