@@ -1,3 +1,7 @@
+"""
+Global URL configuration.
+"""
+
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import include, path, reverse
@@ -10,7 +14,7 @@ urlpatterns = [
         lambda request: redirect(reverse("rest:index"), permanent=False),
         name="api",
     ),
-    path("", include('django_prometheus.urls')),
+    path("", include("django_prometheus.urls")),
 ]
 
 if settings.DEBUG:
