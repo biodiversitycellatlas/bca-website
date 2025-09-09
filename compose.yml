@@ -13,7 +13,7 @@ services:
             - web
 
     ghost:
-        image: ghost:5.125-alpine
+        image: ghost:6.0-alpine
         env_file: [.env]
         expose:
             - "2368"
@@ -23,6 +23,7 @@ services:
             - ./ghost/partials/announcement-bar.hbs:/var/lib/ghost/content/themes/source/partials/announcement-bar.hbs
             - ./ghost/partials/components/footer.hbs:/var/lib/ghost/content/themes/source/partials/components/footer.hbs
             - ./ghost/partials/components/post-list.hbs:/var/lib/ghost/content/themes/source/partials/components/post-list.hbs
+            - ./ghost/partials/components/tracking.hbs:/var/lib/ghost/content/themes/source/partials/components/tracking.hbs
 
     web:
         build: .
