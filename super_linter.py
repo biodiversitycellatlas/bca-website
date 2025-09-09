@@ -72,6 +72,9 @@ def usage():
   {CYAN}--flake8{RESET}              Enable Flake8
   {CYAN}--ruff{RESET}                Enable Ruff
 
+  {CYAN}--gh, --github{RESET}        Enable all GitHub Actions linters
+  {CYAN}--zizmor{RESET}              Enable Zizmor
+
   {CYAN}--js, --javascript{RESET}    Enable all JavaScript linters
   {CYAN}--javascript-prettier{RESET} Enable JavaScript Prettier
   {CYAN}--javascript-es{RESET}       Enable JavaScript ES
@@ -178,11 +181,16 @@ def parse_args(args):
         "--black": ["PYTHON_BLACK"],
         "--flake8": ["PYTHON_FLAKE8"],
         "--ruff": ["PYTHON_RUFF"],
-        "--js": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
+        "--github": ["GITHUB_ACTIONS", "GITHUB_ACTIONS_ZIZMOR"],
+        "--zizmor": ["GITHUB_ACTIONS_ZIZMOR"],
         "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
         "--javascript-es": ["JAVASCRIPT_ES"],
         "--javascript-prettier": ["JAVASCRIPT_PRETTIER"],
     }
+
+    # shortcuts
+    validator_flags["--js"] = validator_flags["--javascript"]
+    validator_flags["--gh"] = validator_flags["--github"]
 
     positional = [a for a in args if not a.startswith("--")]
     options = [a for a in args if a.startswith("--")]
@@ -256,6 +264,7 @@ def run_linters(env_files, env_vars):
         env_list.append(f"-e {k}={v}")
 
     cmd = [
+        "time",
         "podman",
         "run",
         *env_list,
@@ -263,6 +272,8 @@ def run_linters(env_files, env_vars):
         f"{os.getcwd()}:/tmp/lint",
         "--platform",
         "linux/amd64",
+        "--pull",
+        "newer",
         f"ghcr.io/super-linter/super-linter:{get_linter_version()}",
     ]
 
