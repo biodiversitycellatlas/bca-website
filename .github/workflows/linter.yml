@@ -11,15 +11,13 @@ on:
 permissions:
     contents: read
     packages: read
-    checks: write
-    issues: write
-    statuses: write
-    pull-requests: write
 
 jobs:
     super-linter:
         name: Super-Linter (check)
         runs-on: ubuntu-latest
+        permissions:
+            checks: write
 
         steps:
             - name: Checkout code
@@ -27,6 +25,7 @@ jobs:
               with:
                   # needs full git history
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: Load super-linter configuration
               run: grep -v "^#" .github/super-linter.env >> "$GITHUB_ENV"
@@ -40,6 +39,8 @@ jobs:
     super-linter-fix:
         name: Super-Linter (fix)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
 
         steps:
             - name: Checkout code
@@ -47,6 +48,7 @@ jobs:
               with:
                   # needs full git history
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: Load super-linter configuration
               run: grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
@@ -71,11 +73,15 @@ jobs:
     djlint:
         name: djlint (Django HTML)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v5
               with:
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: Install djlint
               run: pip install djlint
@@ -96,10 +102,14 @@ jobs:
     autoprefix:
         name: Autoprefixer (CSS)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
+              with:
+                  persist-credentials: false
 
             - name: Setup node.js
               uses: actions/setup-node@v4
