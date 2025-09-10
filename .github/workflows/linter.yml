@@ -11,15 +11,13 @@ on:
 permissions:
     contents: read
     packages: read
-    checks: write
-    issues: write
-    statuses: write
-    pull-requests: write
 
 jobs:
     super-linter:
         name: Super-Linter (check)
         runs-on: ubuntu-latest
+        permissions:
+            checks: write
 
         steps:
             - name: Checkout code
@@ -41,6 +39,8 @@ jobs:
     super-linter-fix:
         name: Super-Linter (fix)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
 
         steps:
             - name: Checkout code
@@ -73,6 +73,9 @@ jobs:
     djlint:
         name: djlint (Django HTML)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v5
@@ -99,6 +102,8 @@ jobs:
     autoprefix:
         name: Autoprefixer (CSS)
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
 
         steps:
             - name: Checkout repository
