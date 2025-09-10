@@ -109,7 +109,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v5
               with:
-                persist-credentials: false
+                  persist-credentials: false
 
             - name: Setup node.js
               uses: actions/setup-node@v4
