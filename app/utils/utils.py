@@ -163,7 +163,7 @@ def get_cell_atlas_links(url_name, dataset=None):
             "tooltip": "",
         },
         {
-            "name": "Gene panel",
+            "name": "Gene lists",
             "icon": "solar-panel",
             "url_names": ["atlas_panel"],
             "url_view": "atlas_panel",
