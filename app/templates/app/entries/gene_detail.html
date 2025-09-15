@@ -19,7 +19,7 @@
             <p>{{ gene.species.get_html_link }}</p>
 
             <h2 class="h4">BCA datasets</h2>
-            <ul>
+            <ul class="list-unstyled">
                 {% load entry_links %}
                 {% for dataset in gene.species.datasets.all %}
                     <li>{% dataset_gene_link dataset gene %}</li>
