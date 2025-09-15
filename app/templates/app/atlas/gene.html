@@ -50,7 +50,7 @@ Input:
             <button type="button"
                     class="btn btn-link btn-sm"
                     data-bs-toggle="modal"
-                    data-bs-target="#selection_alignment">Select from sequence alignment...</button>
+                    data-bs-target="#selection_alignment">Select from sequence search...</button>
         </div>
     </div>
 
@@ -112,7 +112,7 @@ Input:
         {% h1 "Gene expression" id="expression" %}
         {% include '../components/plots/expression_plot.html' with species=species gene=gene %}
 
-        {% h1 "Gene correlation" id="correlation" %}
+        {% h1 "Correlated genes" id="correlation" %}
         <div class="row">
             <div class="col-md-8">
                 {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene %}
