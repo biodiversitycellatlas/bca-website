@@ -169,6 +169,16 @@ class Source(models.Model):
         max_length=50, blank=True, null=True, help_text="Source version."
     )
 
+    def get_html_link(self):
+        """Return HTML representation linking to the Source URL."""
+
+        html = f"""
+            <a href="{self.url}" target="_blank">
+                <span>{self.name}</span>
+            </a>
+        """
+        return mark_safe(html)
+
     def __str__(self):
         """String representation."""
         return self.name
