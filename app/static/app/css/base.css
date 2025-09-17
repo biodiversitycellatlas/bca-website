@@ -224,6 +224,10 @@ fieldset:disabled.btn.btn-primary {
     transform: scale(1.05);
 }
 
+.text-shadow {
+	text-shadow: 0 0 4px var(--card-text-shadow);
+}
+
 a,
 .btn.btn-link {
     text-decoration: none;

@@ -127,6 +127,72 @@ class AtlasInfoView(BaseAtlasView):
 
     template_name = "app/atlas/info.html"
 
+    def get_context_data(self, **kwargs):
+        """Add quality control metrics."""
+
+        context = super().get_context_data(**kwargs)
+        context["qc_metrics"] = [
+        	{
+        		"title": "Mapping and read quality",
+        		"description": "Alignment, error rates, and sequencing performance.",
+        		"img_url": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797",
+        		"img_author": "Javier Miranda",
+        		"img_author_handle": "nuvaproductions",
+        		"values": [
+	        		{
+	        			"label": "Bases of quality ≥ Q30",
+	        			"value": "70%",
+	        			"helptip": "Percentage of bases with Phred quality score ≥ 30 (high-confidence reads)",
+	        		},
+	        		{ "label": "Uniquely mapped reads", "value": "88%" },
+	        		{ "label": "Multi-mapped reads", "value": "6%" },
+	        		{ "label": "Unmapped reads", "value": "2%" },
+	        		{ "label": "Number of cells", "value": "2,070" },
+	        		{
+	        			"label": "UMI cutoff for cell calling",
+	        			"value": "700",
+	        			"helptip": "UMI count threshold to consider a cell as valid"
+	        		},
+	        		{
+	        			"label": "Saturation",
+	        			"value": "88%",
+	        			"helptip": "Higher values suggest better sampling"
+	        		},
+	        		{
+	        			"label": "Reads for 70% saturation",
+	        			"value": "7,002",
+	        			"helptip": "Number of reads to reach 70% of saturation"
+	        		},
+	        	]
+        	}, {
+        		"title": "Noise and contamination",
+        		"description": "Background signals, technical artifacts, and cross-contamination.",
+        		"img_url": "https://images.unsplash.com/photo-1535127022272-dbe7ee35cf33",
+        		"img_author": "Michael Schiffer",
+        		"img_author_handle": "michael_schiffer_design",
+        		"values": [
+	        		{ "label": "UMIs in non-cell barcodes", "value": "13%" },
+	        		{ "label": "Intronic reads", "value": "7%" },
+	        		{ "label": "rRNA in unique reads", "value": "16%" },
+	        		{ "label": "mtDNA in unique reads", "value": "6%" },
+	        		{ "label": "mtDNA in multi-mapped reads", "value": "1%" },
+	        	],
+	       	}, {
+	       		"title": "Cell metrics",
+	       		"description": "Gene counts, cell quality, and data consistency.",
+	       		"img_url": "https://images.unsplash.com/photo-1631556097152-c39479bbff93",
+	       		"img_author": "National Cancer Institute",
+        		"img_author_handle": "nci",
+	        	"values": [
+	        		{ "label": "Mean reads per cell", "value": "70" },
+	        		{ "label": "Median UMI counts per cell", "value": "88" },
+	        		{ "label": "Median genes per cell", "value": "5,080" },
+	        		{ "label": "Total genes", "value": "20,585" },
+	        	]
+	       	}
+        ]
+        return context
+
 
 class AtlasOverviewView(BaseAtlasView):
     """Cell Atlas overview page."""
