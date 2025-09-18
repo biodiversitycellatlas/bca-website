@@ -5,11 +5,9 @@
 {% endblock title %}
 
 {% block content %}
-
+	<h1 class="h3 text-break">{{ gene }}</h1>
     <div class="row pt-2">
         <div class="col-md-4">
-            <h1 class="h3 text-break">{{ gene }}</h1>
-
             <p>
                 <b>Description:</b> {{ gene.description|default:'No description available.'|safe }}
             </p>
