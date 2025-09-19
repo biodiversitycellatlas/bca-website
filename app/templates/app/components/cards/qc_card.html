@@ -26,9 +26,7 @@ Input:
              style="background-image: url('{{ img_url }}?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
                     background-position:center;
                     background-size:cover">
-            <h3 class="h6 card-title text-shadow">
-                {{ title }}
-            </h5>
+            <h3 class="h6 card-title text-shadow">{{ title }}</h3>
             <p class="card-text text-shadow mb-4">{{ description }}</p>
 
             <figcaption class="w-100 position-absolute text-end text-dark bottom-0 start-0 py-2 px-4 bg-white bg-opacity-75 opacity-0 small">
@@ -49,10 +47,10 @@ Input:
                     <span class="float-end text-secondary">{{ metric.value }}</span>
                 </li>
             {% empty %}
-            	<li class="list-group-item text-secondary">
-            		<i class="fa fa-warning"></i>
-            		No metrics available
-            	</li>
+                <li class="list-group-item text-secondary">
+                    <i class="fa fa-warning"></i>
+                    No metrics available
+                </li>
             {% endfor %}
         </ul>
     </div>

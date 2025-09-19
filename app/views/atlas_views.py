@@ -132,30 +132,35 @@ class AtlasInfoView(BaseAtlasView):
 
         context = super().get_context_data(**kwargs)
 
-        qc_values = context["dataset"].qc.annotate(
-            name=F("metric__name"),
-            description=F("metric__description")
-        ).values("name", "description", "value")
+        qc_values = (
+            context["dataset"]
+            .qc.annotate(name=F("metric__name"), description=F("metric__description"))
+            .values("name", "description", "value")
+        )
 
-        qc_metrics = [{
-    		"title": "Mapping and read quality",
-    		"description": "Alignment, error rates, and sequencing performance.",
-    		"img_url": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797",
-    		"img_author": "Javier Miranda",
-    		"img_author_handle": "nuvaproductions"
-    	}, {
-    		"title": "Noise and contamination",
-    		"description": "Background signals, technical artifacts, and cross-contamination.",
-    		"img_url": "https://images.unsplash.com/photo-1535127022272-dbe7ee35cf33",
-    		"img_author": "Michael Schiffer",
-    		"img_author_handle": "michael_schiffer_design"
-       	}, {
-       		"title": "Cell metrics",
-       		"description": "Gene counts, cell quality, and data consistency.",
-       		"img_url": "https://images.unsplash.com/photo-1631556097152-c39479bbff93",
-       		"img_author": "National Cancer Institute",
-    		"img_author_handle": "nci"
-       	}]
+        qc_metrics = [
+            {
+                "title": "Mapping and read quality",
+                "description": "Alignment, error rates, and sequencing performance.",
+                "img_url": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797",
+                "img_author": "Javier Miranda",
+                "img_author_handle": "nuvaproductions",
+            },
+            {
+                "title": "Noise and contamination",
+                "description": "Background signals, technical artifacts, and cross-contamination.",
+                "img_url": "https://images.unsplash.com/photo-1535127022272-dbe7ee35cf33",
+                "img_author": "Michael Schiffer",
+                "img_author_handle": "michael_schiffer_design",
+            },
+            {
+                "title": "Cell metrics",
+                "description": "Gene counts, cell quality, and data consistency.",
+                "img_url": "https://images.unsplash.com/photo-1631556097152-c39479bbff93",
+                "img_author": "National Cancer Institute",
+                "img_author_handle": "nci",
+            },
+        ]
 
         for each in qc_metrics:
             each["values"] = qc_values.filter(metric__type=each["title"])

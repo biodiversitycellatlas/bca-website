@@ -17,7 +17,7 @@ def _build_card_context(
     img_author=None,
     img_author_handle=None,
     img_width=None,
-    metrics=None
+    metrics=None,
 ):
     """
     Build card context with optional optimized Unsplash image.
@@ -90,7 +90,14 @@ def card(
         str: rendered HTML with download card.
     """
     return _build_card_context(
-        title, description, links, img_url, img_author, img_author_handle, img_width, metrics=None
+        title,
+        description,
+        links,
+        img_url,
+        img_author,
+        img_author_handle,
+        img_width,
+        metrics=None,
     )
 
 
@@ -124,6 +131,10 @@ def qc_card(
         str: rendered HTML with card.
     """
     return _build_card_context(
-        title, description, metrics=metrics,
-        img_url=img_url, img_author=img_author, img_author_handle=img_author_handle
+        title,
+        description,
+        metrics=metrics,
+        img_url=img_url,
+        img_author=img_author,
+        img_author_handle=img_author_handle,
     )
