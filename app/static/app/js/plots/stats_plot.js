@@ -183,7 +183,7 @@ export function createStatsPlot(
             axis: { grid: false },
         },
     };
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewStats = res.view;
         })

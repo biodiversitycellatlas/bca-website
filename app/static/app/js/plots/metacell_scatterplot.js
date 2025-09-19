@@ -201,7 +201,7 @@ export function createMetacellProjection(
         };
     }
 
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewMetacellProjection = res.view;
         })

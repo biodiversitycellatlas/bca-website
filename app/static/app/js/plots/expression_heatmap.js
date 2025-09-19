@@ -113,7 +113,7 @@ export function createExpressionHeatmap(id, species, data) {
         ],
         config: { view: { stroke: "transparent" } },
     };
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewExpressionHeatmap = res.view;
         })
