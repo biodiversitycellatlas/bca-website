@@ -9,35 +9,12 @@ from django import template
 register = template.Library()
 
 
-def _build_card_context(
-    title,
-    description,
-    links=None,
-    img_url=None,
-    img_author=None,
-    img_author_handle=None,
-    img_width=None,
-    metrics=None,
-):
-    """
-    Build card context with optional optimized Unsplash image.
+def _optimise_img_url(**kwargs):
+    """Optimise URL query parameters depending on image source."""
 
-    Args:
-        title (str): Title displayed on card.
-        description (str): Description displayed on card.
-        links (list, optional): List of links displayed on card.
-        img_url (str, optional): Image URL to display.
-        img_author (str, optional): Image author name.
-        img_author_handle (str, optional): Image author social handle.
-        img_width (int): Image width.
-        metrics (list, optional): Quality control metrics.
-
-    Returns:
-        str: rendered HTML with download card.
-    """
+    img_url = kwargs.get("img_url")
     img_source = None
     if img_url and "unsplash" in img_url.lower():
-        # Optimise Unsplash images
         params = {
             "crop": "entropy",
             "cs": "tinysrgb",
@@ -51,90 +28,86 @@ def _build_card_context(
         img_url = urlunparse(parsed._replace(query=query))
         img_source = "Unsplash"
 
-    return {
-        "title": title,
-        "description": description,
-        "links": links,
-        "img_url": img_url,
-        "img_author": img_author,
-        "img_author_handle": img_author_handle,
-        "img_source": img_source,
-        "img_width": img_width,
-        "metrics": metrics,
-    }
+    return {**kwargs, "img_url": img_url, "img_source": img_source}
 
 
-@register.inclusion_tag("app/components/links/card.html")
-def card(
-    title,
-    description,
-    links=None,
-    img_url=None,
-    img_author=None,
-    img_author_handle=None,
-    img_width=None,
-):
+def _build_card_context(title, description, **kwargs):
     """
-    Render a card with information.
+    Build card context with optional optimized Unsplash image.
 
     Args:
         title (str): Title displayed on card.
         description (str): Description displayed on card.
-        links (str, optional): List of links displayed on card.
-        img_url (str, optional): Image URL to display.
-        img_author (str, optional): Image author name.
-        img_author_handle (str, optional): Image author social handle.
-        img_width (int): Image width.
+        **kwargs:
+            - img_url (str, optional): Image URL to display.
+            - img_author (str, optional): Image author name.
+            - img_author_handle (str, optional): Image author social handle.
+            - img_width (int or str, optional): Image width.
 
     Returns:
         str: rendered HTML with download card.
     """
-    return _build_card_context(
-        title,
-        description,
-        links,
-        img_url,
-        img_author,
-        img_author_handle,
-        img_width,
-        metrics=None,
-    )
+    img = _optimise_img_url(**kwargs)
+    return {"title": title, "description": description, **kwargs, **img}
 
 
 @register.inclusion_tag("app/components/links/links_list.html")
 def links_list(items):
+    """List of links to be used in a card."""
     return {"items": items}
 
 
-@register.inclusion_tag("app/components/cards/qc_card.html")
-def qc_card(
-    title,
-    description,
-    img_url=None,
-    img_author=None,
-    img_author_handle=None,
-    img_width=None,
-    metrics=None,
-):
+@register.inclusion_tag("app/components/links/card.html")
+def card(title, description, links, **kwargs):
     """
     Render a card with information.
 
     Args:
         title (str): Title displayed on card.
         description (str): Description displayed on card.
-        metrics (list, optional): List of quality control metrics displayed on card.
-        img_url (str, optional): Image URL to display.
-        img_author (str, optional): Image author name.
-        img_author_handle (str, optional): Image author social handle.
+        links (str): List of links displayed on card.
+        **kwargs (optional): Image arguments (see `_build_card_context`).
+
+    Returns:
+        str: rendered HTML with download card.
+    """
+    kwargs["links"] = links
+    return _build_card_context(title, description, **kwargs)
+
+
+@register.inclusion_tag("app/components/links/download_card.html")
+def download_card(title, description, view, filename, **kwargs):
+    """
+    Render a card containing downloadable links.
+
+    Args:
+        title (str): Title displayed on card.
+        description (str): Description displayed on card.
+        view (str): View name to generate URLs.
+        filename (str): Filename for download.
+        **kwargs (optional): Image arguments (see `_build_card_context`).
+
+    Returns:
+        str: rendered HTML with card with downloadable data.
+    """
+    kwargs["view"] = view
+    kwargs["filename"] = filename
+    return _build_card_context(title, description, **kwargs)
+
+
+@register.inclusion_tag("app/components/cards/qc_card.html")
+def qc_card(title, description, metrics, **kwargs):
+    """
+    Render a card with information.
+
+    Args:
+        title (str): Title displayed on card.
+        description (str): Description displayed on card.
+        metrics (list): Quality control metrics.
+        **kwargs (optional): Image arguments (see `_build_card_context`).
 
     Returns:
         str: rendered HTML with card.
     """
-    return _build_card_context(
-        title,
-        description,
-        metrics=metrics,
-        img_url=img_url,
-        img_author=img_author,
-        img_author_handle=img_author_handle,
-    )
+    kwargs["metrics"] = metrics
+    return _build_card_context(title, description, **kwargs)
