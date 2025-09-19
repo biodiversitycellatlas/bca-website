@@ -131,6 +131,16 @@ Input:
 
                 <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-umis' height='270px' %}</div>
             </div>
+
+            {% load headings %}
+            {% h2 "Quality control metrics" id="qc" %}
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 small">
+                {% load cards %}
+                {% for item in qc_metrics %}
+                    {% qc_card title=item.title description=item.description img_url=item.img_url img_author=item.img_author img_author_handle=item.img_author_handle metrics=item.values %}
+                {% endfor %}
+            </div>
         </div>
     </div>
     <script type="module">

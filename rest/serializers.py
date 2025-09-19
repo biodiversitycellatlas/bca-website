@@ -134,6 +134,26 @@ class SummaryStatsSerializer(serializers.ModelSerializer):
         fields = ["min", "q1", "avg", "median", "q3", "max", "stddev"]
 
 
+class DatasetQualityControlSerializer(serializers.ModelSerializer):
+    """Dataset quality control serializer."""
+
+    type = serializers.CharField(
+        source="metric.type", help_text="Quality control type."
+    )
+    metric = serializers.CharField(
+        source="metric.name", help_text="Quality control metric."
+    )
+    description = serializers.CharField(
+        source="metric.description", help_text="Quality control description."
+    )
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.DatasetQualityControl
+        fields = ["type", "metric", "description", "value"]
+
+
 class StatsSerializer(serializers.ModelSerializer):
     """Statistics serializer."""
 
@@ -148,8 +168,16 @@ class StatsSerializer(serializers.ModelSerializer):
     )
     genes = serializers.SerializerMethodField(help_text="Number of genes.")
 
-    umis_per_metacell = serializers.SerializerMethodField()
-    cells_per_metacell = serializers.SerializerMethodField()
+    umis_per_metacell = serializers.SerializerMethodField(
+        help_text="Summary statistics on UMIs per metacell."
+    )
+    cells_per_metacell = serializers.SerializerMethodField(
+        help_text="Summary statistics on cells per metacell."
+    )
+
+    qc_metrics = DatasetQualityControlSerializer(
+        source="qc.all", many=True, help_text="Quality control metrics."
+    )
 
     class Meta:
         """Meta configuration."""
@@ -164,6 +192,7 @@ class StatsSerializer(serializers.ModelSerializer):
             "umis",
             "umis_per_metacell",
             "cells_per_metacell",
+            "qc_metrics",
         ]
 
     def get_metacell_counts(self, obj):

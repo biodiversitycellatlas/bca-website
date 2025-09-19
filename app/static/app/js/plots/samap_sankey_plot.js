@@ -360,7 +360,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
             },
         ],
     };
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewSAMapSankey = res.view;
         })

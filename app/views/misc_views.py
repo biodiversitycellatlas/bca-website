@@ -117,13 +117,18 @@ class AboutView(TemplateView):
             ],
             "licenses": [
                 {
+                    "url": "https://github.com/biodiversitycellatlas/bca-website/blob/main/LICENSE",
+                    "icon": "fa-kiwi-bird",
+                    "label": "BCA website",
+                },
+                {
                     "url": "https://fontawesome.com/license/free",
                     "icon": "fa-brands fa-font-awesome",
                     "label": "Icons by Font Awesome",
                 },
                 {
                     "url": "https://fonts.google.com/specimen/Rubik/license",
-                    "icon": "fa-book",
+                    "icon": "fa-pen-nib",
                     "label": "Rubik font by Google Fonts",
                 },
             ],

@@ -169,6 +169,16 @@ class Source(models.Model):
         max_length=50, blank=True, null=True, help_text="Source version."
     )
 
+    def get_html_link(self):
+        """Return HTML representation linking to the Source URL."""
+
+        html = f"""
+            <a href="{self.url}" target="_blank">
+                <span>{self.name}</span>
+            </a>
+        """
+        return mark_safe(html)
+
     def __str__(self):
         """String representation."""
         return self.name
@@ -263,6 +273,42 @@ class Dataset(SlugMixin, ImageSourceMixin):
     def __str__(self):
         """String representation."""
         return self.__label(self.species.scientific_name)
+
+
+class QualityControl(models.Model):
+    """Quality control metrics."""
+
+    type = models.CharField(max_length=100, help_text="Type of quality control.")
+    name = models.CharField(
+        max_length=100, help_text="Name of quality control metric.", unique=True
+    )
+    description = models.CharField(max_length=255, help_text="Description.", null=True)
+    datasets = models.ManyToManyField(
+        Dataset, through="DatasetQualityControl", related_name="qc_terms"
+    )
+
+    def __str__(self):
+        """String representation."""
+        return self.name
+
+
+class DatasetQualityControl(models.Model):
+    """Quality control values for a dataset."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="qc")
+    metric = models.ForeignKey(QualityControl, on_delete=models.CASCADE)
+    value = models.CharField(
+        max_length=100, null=True, help_text="Quality control value."
+    )
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ("dataset", "metric")
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset}, {self.metric}: {self.value or 'NA'}"
 
 
 class File(models.Model):
