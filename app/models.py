@@ -275,6 +275,34 @@ class Dataset(SlugMixin, ImageSourceMixin):
         return self.__label(self.species.scientific_name)
 
 
+class QualityControl(models.Model):
+    """Quality control metrics."""
+
+    type = models.CharField(max_length=100, help_text="Type of quality control.")
+    name = models.CharField(max_length=100, help_text="Name of quality control metric.", unique=True)
+    description = models.CharField(max_length=255, help_text="Description.", null=True)
+    datasets = models.ManyToManyField(Dataset, through='DatasetQualityControl', related_name="qc_terms")
+
+    def __str__(self):
+        """String representation."""
+        return self.name
+
+
+class DatasetQualityControl(models.Model):
+    """Quality control values for a dataset."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="qc")
+    metric = models.ForeignKey(QualityControl, on_delete=models.CASCADE)
+    value = models.CharField(max_length=100, null=True, help_text="Quality control value.")
+
+    class Meta:
+        unique_together = ('dataset', 'metric')
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset}, {self.metric}: {self.value or 'NA'}"
+
+
 class File(models.Model):
     """File model for a species."""
 

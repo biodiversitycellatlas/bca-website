@@ -105,6 +105,10 @@ class DatasetChoiceFilter(ChoiceFilter):
         super().__init__(*args, **kwargs)
 
     def get_dataset_id_field(self, field):
+        object = self.model.__name__
+        if object == "Dataset":
+    	    return "id"
+
         # Build dataset_id field based on given field_name
         dataset_id_field = "dataset_id"
         if field != "dataset":

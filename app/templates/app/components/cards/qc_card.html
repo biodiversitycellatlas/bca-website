@@ -22,7 +22,7 @@ Input:
 
 <div>
     <div class="card">
-        <div class="card-body text-white text-bg-dark position-relative {% if metrics %}card-img-top{% else %}card-img{% endif %}"
+        <div class="card-body text-white text-bg-dark position-relative card-img-top"
              style="background-image: url('{{ img_url }}?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
                     background-position:center;
                     background-size:cover">
@@ -41,16 +41,19 @@ Input:
             </figcaption>
         </div>
 
-        {% if metrics %}
-            <ul class="list-group list-group-flush">
-                {% for metric in metrics %}
-                    <li class="list-group-item"
-                        {% if metric.helptip %} data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ metric.helptip }}" {% endif %}>
-                        <span {% if metric.helptip %}class="text-decoration-underline" style="text-decoration-style: dotted;"{% endif %}>{{ metric.label }}</span>
-                        <span class="float-end text-secondary">{{ metric.value }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        <ul class="list-group list-group-flush">
+            {% for metric in metrics %}
+                <li class="list-group-item"
+                    {% if metric.description %} data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ metric.description }}" {% endif %}>
+                    <span {% if metric.description %}class="text-decoration-underline" style="text-decoration-style: dotted;"{% endif %}>{{ metric.name }}</span>
+                    <span class="float-end text-secondary">{{ metric.value }}</span>
+                </li>
+            {% empty %}
+            	<li class="list-group-item text-secondary">
+            		<i class="fa fa-warning"></i>
+            		No metrics available
+            	</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
