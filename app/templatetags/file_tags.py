@@ -1,21 +1,28 @@
+"""Custom Django template filters and tags for manipulating files."""
+
 import os
 from datetime import datetime
 
 from django import template
-from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 
 
+@register.filter
+def get_file_type(queryset, key):
+    """Returns the first file in a queryset with a given file type."""
+    return queryset.filter(type=key).first()
+
+
 @register.simple_tag(takes_context=True)
-def file_last_modified(context, filename=None, format="%d %B %Y"):
+def file_last_modified(context, filename=None, date_format="%d %B %Y"):
     """
     Returns the last modified date of a given file or the current template.
 
     Args:
         context (dict): Template context.
         filename (str, optional): Path of file to check (default: current template).
-        format (str): Timestamp format (default: "%d %B %Y").
+        date_format (str): Date format (default: "%d %B %Y").
 
     Returns:
         str: Last modified date of the file (or "Unknown" if file is not found).
@@ -27,12 +34,6 @@ def file_last_modified(context, filename=None, format="%d %B %Y"):
 
     try:
         timestamp = os.path.getmtime(filename)
-        return datetime.fromtimestamp(timestamp).strftime(format)
+        return datetime.fromtimestamp(timestamp).strftime(date_format)
     except FileNotFoundError:
         return "Unknown"
-
-
-@register.simple_tag
-def startswith(value, arg):
-    """Returns true if the value starts with a given string."""
-    return value.startswith(arg)

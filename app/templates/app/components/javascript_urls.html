@@ -4,7 +4,7 @@ Prepare URLs to be used in JavaScript scripts
 
 {% endcomment %}
 
-{% load custom_tags %}
+{% load string_extras %}
 {% startswith request.resolver_match.view_name 'atlas_' as atlas %}
 <script>
     window.APP_URLS = {

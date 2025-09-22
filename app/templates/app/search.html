@@ -69,7 +69,7 @@ Search page
                         <i class="fa fa-grip fa-fw"></i> Results per page
                     </span>
 
-                    {% load custom_filters %}
+                    {% load string_extras %}
                     {% for limit in "12,24,36,48,60"|split %}
                         <a class="nav-link p-1 {% if query.limit == limit %}active{% elif not query.limit and limit == '12' %}active{% endif %}"
                            href="#"

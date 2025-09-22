@@ -28,7 +28,7 @@ function animateNumber(id, target) {
             val = target;
             clearInterval(interval);
         }
-        $(id).text(val.toLocaleString());
+        $(id).text(val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
     }, time);
 }
 
