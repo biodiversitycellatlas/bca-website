@@ -57,7 +57,9 @@
 
     {{> "components/navigation" navigationLayout=@custom.navigation_layout}}
 
-    {{> "announcement-bar"}}
+    {{> "announcement-bar" id="banner-1" style="accent" prefix="The" text="BCA White Paper" link="https://www.nature.com/articles/s41586-025-09312-4" suffix="is out now!"}}
+
+    {{> "announcement-bar" id="banner-2" style="light" prefix="Try our" text="BCA Data Portal" link="https://portal.biodiversitycellatlas.org" suffix="demo and share your feedback."}}
 
     {{{body}}}
 
