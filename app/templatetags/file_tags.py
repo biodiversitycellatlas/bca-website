@@ -2,9 +2,13 @@ import os
 from datetime import datetime
 
 from django import template
-from django.template.defaultfilters import stringfilter
 
 register = template.Library()
+
+
+@register.filter
+def get_file_type(queryset, key):
+    return queryset.filter(type=key).first()
 
 
 @register.simple_tag(takes_context=True)
@@ -30,9 +34,3 @@ def file_last_modified(context, filename=None, format="%d %B %Y"):
         return datetime.fromtimestamp(timestamp).strftime(format)
     except FileNotFoundError:
         return "Unknown"
-
-
-@register.simple_tag
-def startswith(value, arg):
-    """Returns true if the value starts with a given string."""
-    return value.startswith(arg)

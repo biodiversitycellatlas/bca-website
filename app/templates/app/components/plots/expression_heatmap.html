@@ -109,7 +109,7 @@ Input:
                                     onclick="$('#metacells')[0].selectize.clear();">Select all metacells</button>
                         </div>
 
-                        {% load custom_filters %}
+                        {% load string_extras %}
                         {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="All metacells selected" name='metacell_lists' %}
                     </div>
                 </div>
