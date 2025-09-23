@@ -8,7 +8,7 @@ This project uses:
 
 - [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
 - [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
-    - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
+  - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
 - [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
