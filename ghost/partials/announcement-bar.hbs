@@ -1,5 +1,4 @@
 <style>
-
     .gh-announcement-bar,
     .gh-announcement-bar * {
         box-sizing: border-box !important;
@@ -16,17 +15,16 @@
         font-size: 15px;
         line-height: 23px;
         text-align: center;
+        backdrop-filter: blur(6px);
     }
 
     .gh-announcement-bar.light {
         background-color: #eeeeeecc;
-        backdrop-filter: blur(6px);
         color: #15171a;
     }
 
     .gh-announcement-bar.accent {
         background-color: #ffac3e;
-        backdrop-filter: blur(6px);
         color: #15171a;
     }
 
@@ -86,49 +84,43 @@
         height: 10px;
         fill: currentColor;
     }
-
 </style>
 
-<div id="{{id}}" style="position: sticky; top: 0; z-index: 9999;">
-    <div class="gh-announcement-bar {{style}}">
-        <div class="gh-announcement-bar-content">
-            <p dir="ltr">
-                {{#if prefix}}
-                    <span>
-                        {{prefix}}
-                    </span>
-                {{/if}}
-                {{#link href=link target="_blank"~}}
-                    {{text}}
-                {{~/link}}
-                {{#if suffix}}
-                    <span>
-                        {{suffix}}
-                    </span>
-                {{/if}}
-            </p>
-        </div>
-        <button
-            aria-label="close"
-            onclick="hideAnnouncementBar('{{id}}', true)"
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                height="16"
-                width="16"
-            >
-                <path
-                    stroke-linecap="round"
-                    fill="currentColor"
-                    stroke-width="0.4"
-                    stroke="#000"
-                    stroke-linejoin="round"
-                    d="M.44,21.44a1.49,1.49,0,0,0,0,2.12,1.5,1.5,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.5,1.5,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12L14.3,12.18a.25.25,0,0,1,0-.36l9.26-9.26A1.5,1.5,0,0,0,21.44.44L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.5,1.5,0,0,0,.44,2.56L9.7,11.82a.25.25,0,0,1,0,.36Z"
-                ></path>
-            </svg>
-        </button>
+<div id="{{id}}" class="gh-announcement-bar {{style}}">
+    <div class="gh-announcement-bar-content">
+        <p dir="ltr">
+            {{#if prefix}}
+                <span>
+                    {{prefix}}
+                </span>
+            {{/if}}
+            {{#link href=link target="_blank"~}}
+                {{text}}
+            {{~/link}}
+            {{#if suffix}}
+                <span>
+                    {{suffix}}
+                </span>
+            {{/if}}
+        </p>
     </div>
+    <button aria-label="close" onclick="hideAnnouncementBar('{{id}}', true)">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            height="16"
+            width="16"
+        >
+            <path
+                stroke-linecap="round"
+                fill="currentColor"
+                stroke-width="0.4"
+                stroke="#000"
+                stroke-linejoin="round"
+                d="M.44,21.44a1.49,1.49,0,0,0,0,2.12,1.5,1.5,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.5,1.5,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12L14.3,12.18a.25.25,0,0,1,0-.36l9.26-9.26A1.5,1.5,0,0,0,21.44.44L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.5,1.5,0,0,0,.44,2.56L9.7,11.82a.25.25,0,0,1,0,.36Z"
+            ></path>
+        </svg>
+    </button>
 </div>
 
 <script>
