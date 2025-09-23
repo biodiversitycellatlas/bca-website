@@ -25,6 +25,14 @@ services:
             - ./ghost/partials/components/post-list.hbs:/var/lib/ghost/content/themes/source/partials/components/post-list.hbs
             - ./ghost/partials/components/tracking.hbs:/var/lib/ghost/content/themes/source/partials/components/tracking.hbs
 
+    mailpit:
+        image: axllent/mailpit:v1.27
+        container_name: mailpit
+        restart: unless-stopped
+        ports:
+            - "1025:1025" # SMTP
+            - "8025:8025" # Web UI
+
     web:
         build: .
         user: "${DOCKER_WEB_USER:-bca}"

@@ -8,6 +8,7 @@ This project uses:
 
 - [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
 - [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
+    - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
 - [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
@@ -106,10 +107,18 @@ manual intervention.
 A dedicated Compose file (such as `compose.prod.yml`) can be used for production-specific settings:
 
 ```bash
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
 # Deploy in production mode
-# Alternatively, set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
-podman compose -f compose.yml -f compose.prod.yml up -d
+podman compose -d
 ```
+
+## Ghost
+
+The main website is built with the [Ghost][] blogging platform. Base templates
+in the [`ghost/`](ghost) folder modify the default theme.
+
+Transactional emails (like those sent to reset passwords and create new user
+accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
 
 ## Contact us
 
@@ -131,6 +140,7 @@ podman compose -f compose.yml -f compose.prod.yml up -d
 [Nginx]: https://nginx.org
 [Gunicorn]: https://gunicorn.org
 [Ghost]: https://ghost.org
+[Mailpit]: https://mailpit.axllent.org
 [collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
 [CRG]: https://crg.eu
