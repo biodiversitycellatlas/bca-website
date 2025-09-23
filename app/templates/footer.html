@@ -71,7 +71,8 @@ Features:
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <span class="nav-link p-0 text-muted">
-                        White paper coming soon: <b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b>
+                        White paper: <a href="https://www.nature.com/articles/s41586-025-09312-4"
+    target="_blank">The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</a>
                     </span>
                 </li>
                 {% comment %}
@@ -110,12 +111,14 @@ Features:
                     </a>
                 </li>
 
+                {% comment %}
                 <li class="nav-item mb-2">
                     <a href="{% url 'reference' %}" class="nav-link p-0 text-muted">
                         <i class="fa fa-fw fa-graduation-cap"></i>
                         Reference
                     </a>
                 </li>
+                {% endcomment %}
 
                 <li class="nav-item mb-2">
                     <a href="{% url 'entry' %}" class="nav-link p-0 text-muted">

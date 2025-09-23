@@ -58,7 +58,7 @@ def links_list(items):
 
 
 @register.inclusion_tag("app/components/links/card.html")
-def card(title, description, links, **kwargs):
+def card(title, description, links=None, **kwargs):
     """
     Render a card with information.
 
@@ -71,7 +71,8 @@ def card(title, description, links, **kwargs):
     Returns:
         str: rendered HTML with download card.
     """
-    kwargs["links"] = links
+    if links is not None:
+        kwargs["links"] = links
     return _build_card_context(title, description, **kwargs)
 
 
