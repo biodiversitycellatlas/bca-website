@@ -19,7 +19,10 @@ def get_DIAMOND_version():
 
 def get_latest_git_tag():
     """Get latest GitHub tag of this project."""
-    cmd = "git describe --tags --abbrev=0"
+    cmd = (
+        "git config --global --add safe.directory /usr/src/app && "
+        "git describe --tags --abbrev=0"
+    )
     return get_command_output(cmd)
 
 
