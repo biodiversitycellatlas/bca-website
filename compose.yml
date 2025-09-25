@@ -35,7 +35,7 @@ services:
 
     web:
         build: .
-        user: "${DOCKER_WEB_USER:-bca}"
+        # user: "${DOCKER_WEB_USER:-bca}"
         restart: always
         env_file: [.env]
         command: ["./entrypoint.sh"]
