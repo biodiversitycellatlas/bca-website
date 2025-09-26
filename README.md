@@ -75,6 +75,13 @@ The project directory is automatically mounted to the web app container,
 allowing to preview updates in the web app in real-time, except for
 static files and Django model updates.
 
+After launching the service, the main website will be deployed to
+http://localhost and the Data Portal to http://portal.localhost.
+
+> [!NOTE]
+> If you are using proxies, localhost subdomains may need to be excluded in your
+Proxy settings.
+
 #### Update static files
 
 Static files are served by [Nginx][].
