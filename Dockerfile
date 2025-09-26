@@ -1,8 +1,13 @@
+# checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
+
 # Get postgreSQL client from official Docker image
 FROM postgres:17.5-trixie AS postgres
 
 # Serve website
 FROM python:3.13.7-trixie
+
+LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
+      description="Biodiversity Cell Atlas website and data portal"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

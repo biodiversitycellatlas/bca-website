@@ -1,33 +1,58 @@
 """
-Functions to properly setup settings.py.
+Functions to prepare settings.py setup.
 """
 
 import os
+import re
 import subprocess
 
 
 # Global variables
+def run_command(cmd):
+    """Execute a shell command (list of args) and return its output."""
+    return subprocess.run(cmd, text=True, capture_output=True, check=False)
+
+
 def get_command_output(cmd):
-    run = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-    return run.stdout.strip()
+    """Run and parse the output of a shell command."""
+    return run_command(cmd).stdout.strip()
 
 
-def get_DIAMOND_version():
-    cmd = "diamond --version | grep -Eo '[0-9.]+'"
-    return get_command_output(cmd)
+def get_diamond_version():
+    """Get version of DIAMOND installed."""
+    output = get_command_output(["diamond", "--version"])
+    version = re.search(r"[\w\.]+", output.split()[-1]).group()
+    return version
 
 
 def get_latest_git_tag():
     """Get latest GitHub tag of this project."""
-    cmd = (
-        "git config --global --add safe.directory /usr/src/app && "
-        "git describe --tags --abbrev=0"
-    )
+
+    # Configure git directory as safe to avoid errors
+    cmd = ["git", "config", "--global", "--add", "safe.directory", "/usr/src/app"]
+    run_command(cmd)
+
+    # Get latest GitHub release tag
+    cmd = ["git", "describe", "--tags", "--abbrev=0"]
     return get_command_output(cmd)
 
 
 # Parse environmental variables
 def get_env(key, default=None, **kwargs):
+    """
+    Get an environment variable and optionally cast it to a specific type.
+
+    Args:
+        key (str): Name of the environment variable.
+        default: Value to return if the variable is not set.
+        **kwargs:
+            required (bool): If True, raise RuntimeError for missing variable.
+            type (str): Cast variable to 'bool', 'int', 'float', or 'array'.
+            delim (str): Delimiter for 'array' type (default: ',').
+
+    Returns:
+        Value of environment variable.
+    """
     env = os.getenv(key, default)
     res = env
 
@@ -39,15 +64,15 @@ def get_env(key, default=None, **kwargs):
         )
 
     # Parse according to variable type
-    type = kwargs["type"] if "type" in kwargs else None
+    var_type = kwargs["type"] if "type" in kwargs else None
 
-    if type == "bool":
+    if var_type == "bool":
         res = env == "True"
-    elif type == "int":
+    elif var_type == "int":
         res = int(env)
-    elif type == "float":
+    elif var_type == "float":
         res = float(env)
-    elif type == "array":
+    elif var_type == "array":
         # Split array by comma (default)
         delim = kwargs["delim"] if "delim" in kwargs else ","
         res = env.split(delim)
