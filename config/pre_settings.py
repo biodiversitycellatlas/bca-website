@@ -3,36 +3,37 @@ Functions to prepare settings.py setup.
 """
 
 import os
+import re
 import subprocess
 
 
 # Global variables
+def run_command(cmd):
+    """Execute a shell command (list of args) and return its output."""
+    return subprocess.run(cmd, text=True, capture_output=True, check=False)
+
+
 def get_command_output(cmd):
-    """
-    Execute a shell command and return its standard output as a string.
-
-    Args:
-        cmd (str): The shell command to execute.
-
-    Returns:
-        str: The stripped standard output of the command.
-    """
-    run = subprocess.run(cmd, shell=True, text=True, capture_output=True, check=False)
-    return run.stdout.strip()
+    """Run and parse the output of a shell command."""
+    return run_command(cmd).stdout.strip()
 
 
 def get_diamond_version():
     """Get version of DIAMOND installed."""
-    cmd = "diamond --version | grep -Eo '[0-9.]+'"
-    return get_command_output(cmd)
+    output = get_command_output(["diamond", "--version"])
+    version = re.search(r'[\w\.]+', output.split()[-1]).group()
+    return version
 
 
 def get_latest_git_tag():
     """Get latest GitHub tag of this project."""
-    cmd = (
-        "git config --global --add safe.directory /usr/src/app && "
-        "git describe --tags --abbrev=0"
-    )
+
+    # Configure git directory as safe to avoid errors
+    cmd = ["git", "config", "--global", "--add", "safe.directory", "/usr/src/app"]
+    run_command(cmd)
+
+    # Get latest GitHub release tag
+    cmd = ["git", "describe", "--tags", "--abbrev=0"]
     return get_command_output(cmd)
 
 
