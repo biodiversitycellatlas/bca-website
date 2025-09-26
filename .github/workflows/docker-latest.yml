@@ -37,15 +37,8 @@ jobs:
               uses: docker/metadata-action@v5
               with:
                   labels: |
-                      org.opencontainers.image.title=BCA Website
-                      org.opencontainers.image.description=Biodiversity Cell Atlas website and data portal
-                      org.opencontainers.image.vendor=CRG
+                      org.opencontainers.image.vendor=Centre for Genomic Regulation
                       org.opencontainers.image.authors="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>"
-                      org.opencontainers.image.licenses=Apache-2.0
-                      org.opencontainers.image.version=${{ github.ref_name }}
-                      org.opencontainers.image.revision=${{ github.sha }}
-                      org.opencontainers.image.url=https://biodiversitycellatlas.org
-                      org.opencontainers.image.source=${{ github.repositoryUrl }}
                   images: |
                       ghcr.io/${{ github.repository }}
 
