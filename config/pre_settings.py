@@ -21,7 +21,7 @@ def get_command_output(cmd):
 def get_diamond_version():
     """Get version of DIAMOND installed."""
     output = get_command_output(["diamond", "--version"])
-    version = re.search(r'[\w\.]+', output.split()[-1]).group()
+    version = re.search(r"[\w\.]+", output.split()[-1]).group()
     return version
 
 
