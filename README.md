@@ -8,7 +8,7 @@ This project uses:
 
 - [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
 - [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
-  - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
+    - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
 - [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
@@ -76,11 +76,12 @@ allowing to preview updates in the web app in real-time, except for
 static files and Django model updates.
 
 After launching the service, the main website will be deployed to
-http://localhost and the Data Portal to http://portal.localhost.
+[http://localhost](http://localhost) and the Data Portal to
+[http://portal.localhost](http://portal.localhost).
 
 > [!NOTE]
 > If you are using proxies, localhost subdomains may need to be excluded in your
-Proxy settings.
+> Proxy settings.
 
 #### Update static files
 
