@@ -12,17 +12,33 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Gene</th>
-    <th class="entry-description">Description</th>
-    <th>Domains</th>
-    <th>Membership score</th>
+    <th>
+        Gene
+    </th>
+    <th class="entry-description">
+        Description
+    </th>
+    <th>
+        Domains
+    </th>
+    <th>
+        Membership score
+    </th>
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.gene.get_html_link }}</td>
-    <td class="entry-description">{{ each.gene.description|default:'—' }}</td>
-    <td>{{ each.gene.get_domain_html_links }}</td>
-    <td>{{ each.membership_score }}</td>
+    <td>
+        {{ each.gene.get_html_link }}
+    </td>
+    <td class="entry-description">
+        {{ each.gene.description|default:'—' }}
+    </td>
+    <td>
+        {{ each.gene.get_domain_html_links }}
+    </td>
+    <td>
+        {{ each.membership_score }}
+    </td>
 {% endblock row %}
 
 {% block unfound %}

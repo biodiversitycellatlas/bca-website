@@ -10,13 +10,21 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Dataset</th>
-    <th>Species common name</th>
+    <th>
+        Dataset
+    </th>
+    <th>
+        Species common name
+    </th>
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.get_html_link }}</td>
-    <td>{{ each.species.common_name|default:'—' }}</td>
+    <td>
+        {{ each.get_html_link }}
+    </td>
+    <td>
+        {{ each.species.common_name|default:'—' }}
+    </td>
 {% endblock row %}
 
 {% block unfound %}

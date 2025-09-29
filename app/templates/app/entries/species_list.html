@@ -10,26 +10,52 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Species</th>
-    <th>Common name</th>
-    <th>Division</th>
-    <th>Kingdom</th>
-    <th>Phylum</th>
-    <th>Datasets</th>
+    <th>
+        Species
+    </th>
+    <th>
+        Common name
+    </th>
+    <th>
+        Division
+    </th>
+    <th>
+        Kingdom
+    </th>
+    <th>
+        Phylum
+    </th>
+    <th>
+        Datasets
+    </th>
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.get_html_link }}</td>
-    <td>{{ each.common_name|default:"—" }}</td>
+    <td>
+        {{ each.get_html_link }}
+    </td>
+    <td>
+        {{ each.common_name|default:"—" }}
+    </td>
 
-    <td>{{ each.division }}</td>
-    <td>{{ each.kingdom }}</td>
-    <td>{{ each.phylum }}</td>
+    <td>
+        {{ each.division }}
+    </td>
+    <td>
+        {{ each.kingdom }}
+    </td>
+    <td>
+        {{ each.phylum }}
+    </td>
 
     <td>
         {% if each.datasets %}
             <ul class="mb-0 list-unstyled">
-                {% for dataset in each.datasets.all %}<li>{{ dataset.get_html_link }}</li>{% endfor %}
+                {% for dataset in each.datasets.all %}
+                    <li>
+                        {{ dataset.get_html_link }}
+                    </li>
+                {% endfor %}
             </ul>
         {% endif %}
     </td>

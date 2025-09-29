@@ -1,5 +1,7 @@
 <{{ tag|default:"h1" }}
-{% if id %}id={{ id }}{% endif %}
+{% if id %}
+    id={{ id }}
+{% endif %}
 class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
 
 <span>{{ title|safe }}</span>

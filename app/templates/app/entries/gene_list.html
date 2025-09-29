@@ -10,22 +10,42 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Gene</th>
-    <th class="entry-description">Description</th>
-    <th>Domains</th>
+    <th>
+        Gene
+    </th>
+    <th class="entry-description">
+        Description
+    </th>
+    <th>
+        Domains
+    </th>
     {% if not species %}
-        <th>Species</th>
-        <th>Species common name</th>
+        <th>
+            Species
+        </th>
+        <th>
+            Species common name
+        </th>
     {% endif %}
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.get_html_link }}</td>
-    <td class="entry-description">{{ each.description|default:'—' }}</td>
-    <td>{{ each.get_domain_html_links|default:'—' }}</td>
+    <td>
+        {{ each.get_html_link }}
+    </td>
+    <td class="entry-description">
+        {{ each.description|default:'—' }}
+    </td>
+    <td>
+        {{ each.get_domain_html_links|default:'—' }}
+    </td>
     {% if not species %}
-        <td>{{ each.species.get_genes_html_link }}</td>
-        <td>{{ each.species.common_name|default:'—' }}</td>
+        <td>
+            {{ each.species.get_genes_html_link }}
+        </td>
+        <td>
+            {{ each.species.common_name|default:'—' }}
+        </td>
     {% endif %}
 {% endblock row %}
 

@@ -70,13 +70,17 @@ Input:
                         <button type="button"
                                 id="clear_selected_genes"
                                 class="btn btn-link btn-sm d-block text-end"
-                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">Clear selection</button>
+                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">
+                            Clear selection
+                        </button>
 
                         <button type="button"
                                 id="edit_gene_lists"
                                 class="btn btn-link btn-sm d-block text-end"
                                 data-bs-toggle="modal"
-                                data-bs-target="#{{ id }}_gene_lists_editor">Edit gene lists...</button>
+                                data-bs-target="#{{ id }}_gene_lists_editor">
+                            Edit gene lists...
+                        </button>
                     </div>
                 </div>
 
@@ -102,11 +106,15 @@ Input:
                     <div class="mx-4 mb-3 w-250px">
 
                         <div class="d-flex justify-content-between align-items-center small">
-                            <label class="col-form-label">Filter metacells</label>
+                            <label class="col-form-label">
+                                Filter metacells
+                            </label>
                             <button type="button"
                                     id="select_all_metacells"
                                     class="btn btn-link btn-sm d-block text-end"
-                                    onclick="$('#metacells')[0].selectize.clear();">Select all metacells</button>
+                                    onclick="$('#metacells')[0].selectize.clear();">
+                                Select all metacells
+                            </button>
                         </div>
 
                         {% load string_extras %}
@@ -174,7 +182,9 @@ Input:
         </div>
 
         <div class="col-auto">
-            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-35px">Apply</button>
+            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-35px">
+                Apply
+            </button>
         </div>
     </div>
 </form>
@@ -220,7 +230,9 @@ Input:
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 {% if type|default:'markers' == 'markers' or query.genes %}
     <div class="row">
-        <div class="col-10 col-sm-11">{% include '../plot_container.html' with id=id ratio='16/9' %}</div>
+        <div class="col-10 col-sm-11">
+            {% include '../plot_container.html' with id=id ratio='16/9' %}
+        </div>
     </div>
 
     <script type="module">

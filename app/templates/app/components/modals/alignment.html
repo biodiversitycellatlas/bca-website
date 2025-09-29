@@ -17,19 +17,24 @@ Input:
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Sequence alignment</h1>
+                <h1 class="modal-title fs-5">
+                    Sequence alignment
+                </h1>
                 <span class="ms-2 me-5 small">{{ species.get_html_link }}</span>
 
                 <div class="ms-auto d-flex align-items-center">
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                            aria-label="Close">
+                    </button>
                 </div>
             </div>
             <div class="modal-body">
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">Aligner</label>
+                    <label class="col-lg-2 col-form-label small">
+                        Aligner
+                    </label>
                     <div class="col-lg-10">
                         <a class="form-control-plaintext"
                            target="_blank"
@@ -41,7 +46,9 @@ Input:
                 </div>
 
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">Proteome</label>
+                    <label class="col-lg-2 col-form-label small">
+                        Proteome
+                    </label>
                     <div class="col-lg-10">
                         <span class="form-control-plaintext">
                             <img class="rounded"
@@ -56,7 +63,9 @@ Input:
                 </div>
 
                 <div class="row mb-2 small">
-                    <label class="col-lg-2 col-form-label small">Type</label>
+                    <label class="col-lg-2 col-form-label small">
+                        Type
+                    </label>
                     <div class="col-lg-10">
                         <div class="btn-group btn-group-sm mb-3 w-100" role="group">
                             <input type="radio"
@@ -65,7 +74,9 @@ Input:
                                    id="{{ id }}_type_nucleotides"
                                    autocomplete="off"
                                    value="nucleotides">
-                            <label class="btn btn-outline-primary" for="{{ id }}_type_nucleotides">Nucleotides</label>
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_nucleotides">
+                                Nucleotides
+                            </label>
 
                             <input type="radio"
                                    class="btn-check"
@@ -74,13 +85,17 @@ Input:
                                    autocomplete="off"
                                    value="aminoacids"
                                    checked>
-                            <label class="btn btn-outline-primary" for="{{ id }}_type_aminoacids">Amino acids</label>
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_aminoacids">
+                                Amino acids
+                            </label>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mb-2 small">
-                    <label for="{{ id }}_query" class="col-lg-2 col-form-label small">Sequences</label>
+                    <label for="{{ id }}_query" class="col-lg-2 col-form-label small">
+                        Sequences
+                    </label>
                     <div class="col-lg-10">
                         <div class="sequence-input border border-secondary-subtle rounded">
                             <textarea type="textarea"
@@ -110,7 +125,8 @@ Input:
                 </div>
             </div>
 
-            <div id="{{ id }}_alertContainer"></div>
+            <div id="{{ id }}_alertContainer">
+            </div>
             <template id="{{ id }}_errorTemplate">
                 <div role="alert"
                      class="alert alert-danger alert-dismissible fade show m-2">
@@ -120,7 +136,8 @@ Input:
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="alert"
-                            aria-label="Close"></button>
+                            aria-label="Close">
+                    </button>
                 </div>
             </template>
 
@@ -133,7 +150,9 @@ Input:
                     <button class="btn btn-outline-primary"
                             href="javascript:void(0);"
                             data-bs-toggle="modal"
-                            data-bs-target="#{{ id }}_{{ type }}_editor">Previous results</button>
+                            data-bs-target="#{{ id }}_{{ type }}_editor">
+                        Previous results
+                    </button>
                     <button type="submit"
                             class="btn btn-primary"
                             id="{{ id }}_align_btn"

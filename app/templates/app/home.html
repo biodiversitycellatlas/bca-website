@@ -25,7 +25,9 @@ Features:
 
     {% load static %}
     <div class="px-2 text-center">
-        <h1 class="display-5 fw-bold text-body-emphasis d-none">Biodiversity Cell Atlas: Data Portal</h1>
+        <h1 class="display-5 fw-bold text-body-emphasis d-none">
+            Biodiversity Cell Atlas: Data Portal
+        </h1>
 
         <img title="Biodiversity Cell Atlas"
              width="500"
@@ -54,7 +56,8 @@ Features:
 
     <!-- Tree of Life -->
     <div id="tree"
-         class="container d-flex align-items-center justify-content-center"></div>
+         class="container d-flex align-items-center justify-content-center">
+    </div>
     <script type="module">
         import { createTreeOfLife } from "{% static 'app/js/plots/tree_of_life.js' %}";
         createTreeOfLife("#tree", "{% static 'app/life.json' %}");
@@ -78,7 +81,9 @@ Features:
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
         {% load cards %}
         {% for post in posts.latest %}
-            <div class="col">{% news_card title=post.title date=post.date|date:"j F Y" img_url=post.image link=post.link %}</div>
+            <div class="col">
+                {% news_card title=post.title date=post.date|date:"j F Y" img_url=post.image link=post.link %}
+            </div>
         {% empty %}
             <span class="text-secondary"><i>No posts available.</i></span>
         {% endfor %}

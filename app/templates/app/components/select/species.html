@@ -31,7 +31,8 @@ Input:
                visibility: hidden;
                max-width: 200px"
         placeholder="{{ placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...' }}">
-    <option value=""></option>
+    <option value="">
+    </option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}

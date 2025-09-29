@@ -22,7 +22,9 @@
 
 <ul id="data_dropdown_{{ id }}" class="dropdown-menu">
     <li class="d-flex justify-content-end align-items-center">
-        <label class="col-form-label-sm me-2 text-secondary">Format</label>
+        <label class="col-form-label-sm me-2 text-secondary">
+            Format
+        </label>
 
         <form>
             <div class="btn-group" role="group">
@@ -35,7 +37,9 @@
                                value="{{ format }}"
                                autocomplete="off">
                         <label class="btn btn-outline-secondary btn-xs"
-                               for="data_format_{{ id }}_{{ format }}">{{ format | upper }}</label>
+                               for="data_format_{{ id }}_{{ format }}">
+                            {{ format | upper }}
+                        </label>
                     {% endfor %}
                 {% endwith %}
             </div>
@@ -46,7 +50,9 @@
 
     <template id="data_template_{{ id }}">
         <li name="data_download_option">
-            <label class="key-label">Label</label>
+            <label class="key-label">
+                Label
+            </label>
             <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
                     <a name="data_view_{{ id }}"

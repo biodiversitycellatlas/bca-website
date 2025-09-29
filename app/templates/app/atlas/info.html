@@ -39,9 +39,13 @@ Input:
         <div class="col-md-4">
 
             <!-- Show image and credits -->
-            <p>{% include "../components/dataset_image.html" %}</p>
+            <p>
+                {% include "../components/dataset_image.html" %}
+            </p>
 
-            <h2 class="h5 mt-4">Dataset information</h2>
+            <h2 class="h5 mt-4">
+                Dataset information
+            </h2>
 
             <table class="table table-sm table-striped mx-auto">
                 <tbody>
@@ -49,18 +53,24 @@ Input:
                         <td>
                             <span class="key">Release date</span>
                         </td>
-                        <td class="text-end">{{ dataset.date_created|date:"j F Y" }}</td>
+                        <td class="text-end">
+                            {{ dataset.date_created|date:"j F Y" }}
+                        </td>
                     </tr>
                     <tr>
                         <td>
                             <span class="key">Last update</span>
                         </td>
-                        <td class="text-end">{{ dataset.date_updated|date:"j F Y" }}</td>
+                        <td class="text-end">
+                            {{ dataset.date_updated|date:"j F Y" }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
-            <h2 class="h5 mt-4">Metadata</h2>
+            <h2 class="h5 mt-4">
+                Metadata
+            </h2>
 
             <table class="table table-sm table-striped mx-auto">
                 <tbody>
@@ -94,16 +104,24 @@ Input:
             {% load headings %}
             {% h1 dataset.get_html id="info" %}
 
-            <p>{{ species.description|default:'No description available.'|safe }}</p>
+            <p>
+                {{ species.description|default:'No description available.'|safe }}
+            </p>
 
             <div class="row text-center mt-5">
                 <div class="col-6 col-lg-3">
-                    <p id="n_cells" class="h3 mb-0">0</p>
-                    <p>cells</p>
+                    <p id="n_cells" class="h3 mb-0">
+                        0
+                    </p>
+                    <p>
+                        cells
+                    </p>
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_metacells" class="h3 mb-0">0</p>
+                    <p id="n_metacells" class="h3 mb-0">
+                        0
+                    </p>
                     <a data-bs-toggle="tooltip"
                        data-bs-placement="bottom"
                        data-bs-title="Groups of cells with highly similar gene expression">
@@ -112,7 +130,9 @@ Input:
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_umis" class="h3 mb-0">0</p>
+                    <p id="n_umis" class="h3 mb-0">
+                        0
+                    </p>
                     <a data-bs-toggle="tooltip"
                        data-bs-placement="bottom"
                        data-bs-title="Total number of Unique Molecular Identifiers (UMIs)">
@@ -121,15 +141,23 @@ Input:
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_genes" class="h3 mb-0">0</p>
-                    <p>genes</p>
+                    <p id="n_genes" class="h3 mb-0">
+                        0
+                    </p>
+                    <p>
+                        genes
+                    </p>
                 </div>
             </div>
 
             <div class="row mt-3">
-                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-cells' height='270px' %}</div>
+                <div class="col-md-6">
+                    {% include '../components/plot_container.html' with id='metacell-cells' height='270px' %}
+                </div>
 
-                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-umis' height='270px' %}</div>
+                <div class="col-md-6">
+                    {% include '../components/plot_container.html' with id='metacell-umis' height='270px' %}
+                </div>
             </div>
 
             {% load headings %}

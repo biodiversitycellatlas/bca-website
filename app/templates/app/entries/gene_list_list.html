@@ -10,15 +10,27 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Gene list</th>
-    <th class="entry-description">Description</th>
-    <th>Number of genes</th>
+    <th>
+        Gene list
+    </th>
+    <th class="entry-description">
+        Description
+    </th>
+    <th>
+        Number of genes
+    </th>
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.get_html_link }}</td>
-    <td class="entry-description">{{ each.description|default:'—' }}</td>
-    <td>{{ each.genes.count }}</td>
+    <td>
+        {{ each.get_html_link }}
+    </td>
+    <td class="entry-description">
+        {{ each.description|default:'—' }}
+    </td>
+    <td>
+        {{ each.genes.count }}
+    </td>
 {% endblock row %}
 
 {% block unfound %}

@@ -62,7 +62,9 @@ Input:
                                step="1">
 
                         <div class="d-flex justify-content-end">
-                            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">Apply</button>
+                            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">
+                                Apply
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -85,7 +87,9 @@ Input:
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 {% if dataset2 %}
     <div class="row">
-        <div class="col-10 col-sm-11">{% include '../plot_container.html' with id=id ratio='16/9' %}</div>
+        <div class="col-10 col-sm-11">
+            {% include '../plot_container.html' with id=id ratio='16/9' %}
+        </div>
     </div>
 
     <script type="module">
