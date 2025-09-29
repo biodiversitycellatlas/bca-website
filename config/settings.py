@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 import secrets
 
+import orjson
+
 from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
@@ -189,10 +191,15 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
+        "drf_orjson_renderer.renderers.ORJSONRenderer",
         "rest.renderers.CSVRenderer",
         "rest.renderers.TSVRenderer",
     ],
+    "ORJSON_RENDERER_OPTIONS": (
+        orjson.OPT_NON_STR_KEYS,
+        orjson.OPT_SERIALIZE_DATACLASS,
+        orjson.OPT_SERIALIZE_NUMPY,
+    ),
 }
 
 
