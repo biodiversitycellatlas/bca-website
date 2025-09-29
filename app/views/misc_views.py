@@ -8,7 +8,7 @@ from django.views import View
 from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
-from ..templatetags.bca_website_links import bca_url
+from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import (
     get_dataset_dict,
     get_species_dict,
@@ -29,7 +29,9 @@ class IndexView(TemplateView):
         context["dataset_dict"] = get_dataset_dict()
 
         categories = ["latest", "publications", "meetings", "tutorials"]
-        posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
+        posts = {
+            c: get_latest_posts(tag=c if c != "latest" else None) for c in categories
+        }
         context["posts"] = posts
         return context
 
@@ -98,12 +100,12 @@ class AboutView(TemplateView):
             "contact": [
                 {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
-                    "url": settings.GITHUB_URL,
+                    "url": github_url(),
                     "icon": "fa-brands fa-github",
                     "label": "Source code",
                 },
                 {
-                    "url": settings.GITHUB_ISSUES_URL,
+                    "url": github_url("issues/new"),
                     "icon": "fa-bug",
                     "label": "Bug reports",
                 },
@@ -122,7 +124,7 @@ class AboutView(TemplateView):
             ],
             "licenses": [
                 {
-                    "url": "https://github.com/biodiversitycellatlas/bca-website/blob/main/LICENSE",
+                    "url": github_url("blob/main/LICENSE"),
                     "icon": "fa-kiwi-bird",
                     "label": "BCA website",
                 },
