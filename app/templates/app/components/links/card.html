@@ -44,15 +44,24 @@
     {% endif %}
 
     <div class="card-body">
-        {% if title %}<h3 class="h5 card-title">{{ title }}</h3>{% endif %}
+        {% if title %}
+            <h3 class="h5 card-title">
+                {{ title }}
+            </h3>
+        {% endif %}
 
-        {% if description %}<p class="card-text">{{ description }}</p>{% endif %}
+        {% if description %}
+            <p class="card-text">
+                {{ description }}
+            </p>
+        {% endif %}
 
         {% if links %}
             {% load cards %}
             {% links_list links %}
         {% endif %}
 
-        {% block links %}{% endblock %}
+        {% block links %}
+        {% endblock %}
     </div>
 </div>

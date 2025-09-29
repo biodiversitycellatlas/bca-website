@@ -20,7 +20,9 @@ Dynamic blocks:
 <html lang="en">
     <head>
         <title>
-            {% block title %}Biodiversity Cell Atlas: Data Portal{% endblock %}
+            {% block title %}
+                Biodiversity Cell Atlas: Data Portal
+            {% endblock %}
         </title>
 
         <meta name="description"
@@ -130,9 +132,12 @@ Dynamic blocks:
         {% endblock subnav %}
 
         <main class="container-xxl overflow-x-clip">
-            {% block breadcrumb %}{% endblock %}
-            {% block content %}{% endblock %}
-            {% block pagination %}{% endblock %}
+            {% block breadcrumb %}
+            {% endblock %}
+            {% block content %}
+            {% endblock %}
+            {% block pagination %}
+            {% endblock %}
         </main>
 
         {% block footer %}

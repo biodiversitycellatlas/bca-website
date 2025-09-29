@@ -12,7 +12,9 @@ Search page
 
 {% block content %}
 
-    <h1 class="h3 pt-2 mb-3">Search results</h1>
+    <h1 class="h3 pt-2 mb-3">
+        Search results
+    </h1>
 
     <div class="row mb-5">
         <div class="col-6">
@@ -43,14 +45,20 @@ Search page
 
                     <button type="button"
                             class="btn btn-link btn-sm text-start nav-link p-1 {% if not query.category %}active{% endif %}"
-                            onclick="updateQuery('category')">Summary</button>
+                            onclick="updateQuery('category')">
+                        Summary
+                    </button>
                     <button type="button"
                             class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'datasets' %}active{% endif %}"
-                            onclick="updateQuery('category', 'datasets')">Datasets</button>
+                            onclick="updateQuery('category', 'datasets')">
+                        Datasets
+                    </button>
 
                     <button type="button"
                             class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'genes' %}active{% endif %}"
-                            onclick="updateQuery('category', 'genes')">Genes</button>
+                            onclick="updateQuery('category', 'genes')">
+                        Genes
+                    </button>
 
                     <!-- Species selection -->
                     <div class="d-flex justify-content-between mt-3 p-1">
@@ -60,7 +68,9 @@ Search page
 
                         <button type="button"
                                 class="btn btn-link btn-sm"
-                                onclick="updateQuery('species')">Clear</button>
+                                onclick="updateQuery('species')">
+                            Clear
+                        </button>
                     </div>
                     {% include './components/select/species.html' with redirect='query' placeholder='Search...' species=query.species %}
 
@@ -90,8 +100,10 @@ Search page
                                 <p class="mb-0 small">
                                     <a href="#" class="result-subtitle text-secondary"></a>
                                 </p>
-                                <p class="mb-0 truncate-3 small result-description"></p>
-                                <p class="mb-0 small result-badges"></p>
+                                <p class="mb-0 truncate-3 small result-description">
+                                </p>
+                                <p class="mb-0 small result-badges">
+                                </p>
                             </div>
                         </div>
                     </template>

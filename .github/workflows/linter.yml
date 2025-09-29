@@ -97,7 +97,7 @@ jobs:
                   filter_mode: diff_context
 
             - name: Report all djlint issues
-              run: djlint . --preserve-blank-lines
+              run: djlint .
 
     autoprefix:
         name: Autoprefixer (CSS)

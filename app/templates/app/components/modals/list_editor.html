@@ -32,7 +32,9 @@ Input:
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="{{ id }}_{{ type }}_editor_label">Gene lists</h1>
+                <h1 class="modal-title fs-5" id="{{ id }}_{{ type }}_editor_label">
+                    Gene lists
+                </h1>
                 <span class="ms-2 me-5 small">{{ species.get_html_link }}</span>
 
                 <div class="ms-auto d-flex align-items-center">
@@ -41,7 +43,8 @@ Input:
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                            aria-label="Close">
+                    </button>
                 </div>
             </div>
             <div class="modal-body">
@@ -58,10 +61,13 @@ Input:
                                    placeholder="Filter by name of lists...">
                         </div>
 
-                        <div id="{{ id }}_{{ type }}_options" class="list-group"></div>
+                        <div id="{{ id }}_{{ type }}_options" class="list-group">
+                        </div>
 
                         <template id="{{ id }}_{{ type }}_heading">
-                            <div class="list-group-heading py-0 px-2 d-flex justify-content-between">Preset gene lists</div>
+                            <div class="list-group-heading py-0 px-2 d-flex justify-content-between">
+                                Preset gene lists
+                            </div>
                         </template>
 
                         <template id="{{ id }}_{{ type }}_element">
@@ -241,7 +247,9 @@ Input:
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="d-flex justify-content-between align-items-center small">
-                                                        <label class="col-form-label">Select genes to add</label>
+                                                        <label class="col-form-label">
+                                                            Select genes to add
+                                                        </label>
 
                                                         <button type="button"
                                                                 class="btn btn-link btn-sm d-block text-end"
@@ -257,7 +265,9 @@ Input:
                                                     <div class="d-flex mb-0 mt-35px">
                                                         <button id="{{ id }}_{{ type }}_append_btn"
                                                                 type="button"
-                                                                class="btn btn-primary">Add genes</button>
+                                                                class="btn btn-primary">
+                                                            Add genes
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>

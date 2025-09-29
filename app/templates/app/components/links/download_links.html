@@ -8,5 +8,7 @@ Reusable block for rendering species or dataset download links in multiple forma
     <a {% if type == 'button' %}class="btn btn-primary btn-xs"{% endif %}
        href="{% url view %}?{% if slug %}dataset={{ slug }}{% endif %}&limit=0&format={{ ext }}"
        download="{% if slug %}{{ slug }} {% endif %}{{ suffix }}.{{ ext }}">{{ ext|upper }}</a>
-    {% if type|default:'link' == "link" and not forloop.last %}•{% endif %}
+    {% if type|default:'link' == "link" and not forloop.last %}
+        •
+    {% endif %}
 {% endfor %}

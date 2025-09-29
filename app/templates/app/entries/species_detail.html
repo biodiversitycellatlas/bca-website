@@ -8,22 +8,34 @@
 
     <h1 class="h3 text-break">
         {{ species.get_html }}
-        {% if species.common_name %}<div class="small text-muted">{{ species.common_name }}</div>{% endif %}
+        {% if species.common_name %}
+            <div class="small text-muted">
+                {{ species.common_name }}
+            </div>
+        {% endif %}
     </h1>
 
     <div class="row pt-2">
         <div class="col-md-4">
-            <p>{% include "../components/dataset_image.html" %}</p>
-            <p>{{ species.description|default:'No description available.'|safe }}</p>
+            <p>
+                {% include "../components/dataset_image.html" %}
+            </p>
+            <p>
+                {{ species.description|default:'No description available.'|safe }}
+            </p>
 
-            <h2 class="h4">Species data</h2>
+            <h2 class="h4">
+                Species data
+            </h2>
             <ul>
                 <li>
                     <a href="{{ species.get_gene_list_url }}">Genes</a>
                 </li>
             </ul>
 
-            <h2 class="h4">Files</h2>
+            <h2 class="h4">
+                Files
+            </h2>
             <ul>
                 {% for file in species.files.all %}
                     <li>
@@ -34,24 +46,40 @@
         </div>
 
         <div class="col-md-8">
-            <h2 class="h4">BCA datasets</h2>
+            <h2 class="h4">
+                BCA datasets
+            </h2>
             <ul class="list-unstyled">
-                {% for dataset in species.datasets.all %}<li>{{ dataset.get_html_link }}</li>{% endfor %}
+                {% for dataset in species.datasets.all %}
+                    <li>
+                        {{ dataset.get_html_link }}
+                    </li>
+                {% endfor %}
             </ul>
 
-            <h2 class="h4">Metadata</h2>
+            <h2 class="h4">
+                Metadata
+            </h2>
             <table class="table table-sm table-striped">
                 <thead>
                     <tr>
-                        <th>Key</th>
-                        <th>Value</th>
-                        <th>Source</th>
+                        <th>
+                            Key
+                        </th>
+                        <th>
+                            Value
+                        </th>
+                        <th>
+                            Source
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for metadata in species.meta_set.all %}
                         <tr>
-                            <td>{{ metadata.label }}</td>
+                            <td>
+                                {{ metadata.label }}
+                            </td>
                             <td>
                                 {% with metadata.get_absolute_url as url %}
                                     {% if url %}
@@ -61,7 +89,9 @@
                                     {% endif %}
                                 {% endwith %}
                             </td>
-                            <td>{{ metadata.source.get_html_link }}</td>
+                            <td>
+                                {{ metadata.source.get_html_link }}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

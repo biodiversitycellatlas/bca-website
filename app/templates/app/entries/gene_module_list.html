@@ -10,20 +10,36 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>Gene module</th>
-    <th>Number of genes</th>
+    <th>
+        Gene module
+    </th>
+    <th>
+        Number of genes
+    </th>
     {% if not dataset %}
-        <th>Dataset</th>
-        <th>Species common name</th>
+        <th>
+            Dataset
+        </th>
+        <th>
+            Species common name
+        </th>
     {% endif %}
 {% endblock header %}
 
 {% block row %}
-    <td>{{ each.get_html_link }}</td>
-    <td>{{ each.gene_modules.count }}</td>
+    <td>
+        {{ each.get_html_link }}
+    </td>
+    <td>
+        {{ each.gene_modules.count }}
+    </td>
     {% if not dataset %}
-        <td>{{ each.dataset.get_gene_modules_html_link }}</td>
-        <td>{{ each.dataset.species.common_name|default:'—' }}</td>
+        <td>
+            {{ each.dataset.get_gene_modules_html_link }}
+        </td>
+        <td>
+            {{ each.dataset.species.common_name|default:'—' }}
+        </td>
     {% endif %}
 {% endblock row %}
 

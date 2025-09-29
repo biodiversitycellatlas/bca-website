@@ -6,13 +6,19 @@
     <small>
         {% if category == 'publications' %}
 
-            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>{% endif %}
+            {% if date %}
+                <span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>
+            {% endif %}
 
-            {% if journal %}<span class="text-nowrap"><span class="fa fa-file-lines fa-fw"></span> {{ journal }}</span>{% endif %}
+            {% if journal %}
+                <span class="text-nowrap"><span class="fa fa-file-lines fa-fw"></span> {{ journal }}</span>
+            {% endif %}
 
         {% elif category == 'meetings' %}
 
-            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar fa-fw"></span> {{ date }}</span>{% endif %}
+            {% if date %}
+                <span class="text-nowrap"><span class="fa fa-calendar fa-fw"></span> {{ date }}</span>
+            {% endif %}
 
             {% if location %}
                 {% with location|split:", " as parts %}
@@ -28,7 +34,9 @@
                 <span class="text-nowrap"><span class="fa fa-list-ol fa-fw"></span> Text</span>
             {% endif %}
 
-            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>{% endif %}
+            {% if date %}
+                <span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>
+            {% endif %}
 
         {% endif %}
     </small>

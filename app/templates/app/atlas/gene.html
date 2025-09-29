@@ -46,11 +46,15 @@ Input:
             <button type="button"
                     class="btn btn-link btn-sm"
                     data-bs-toggle="modal"
-                    data-bs-target="#selection_gene_lists_editor">Select from gene lists...</button>
+                    data-bs-target="#selection_gene_lists_editor">
+                Select from gene lists...
+            </button>
             <button type="button"
                     class="btn btn-link btn-sm"
                     data-bs-toggle="modal"
-                    data-bs-target="#selection_alignment">Select from sequence search...</button>
+                    data-bs-target="#selection_alignment">
+                Select from sequence search...
+            </button>
         </div>
     </div>
 
@@ -74,12 +78,16 @@ Input:
                 <table class="table table-sm table-striped gene-info">
                     <tbody>
                         <tr>
-                            <td class="key">Pfam domains</td>
+                            <td class="key">
+                                Pfam domains
+                            </td>
                             <td>
                                 {% if gene.domains.all %}
                                     {% for domain in gene.domains.all %}
                                         <a href="{{ domain.query_url }}" target="_blank">{{ domain }}</a>
-                                        {% if not forloop.last %},{% endif %}
+                                        {% if not forloop.last %}
+                                            ,
+                                        {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     —
@@ -88,18 +96,30 @@ Input:
                         </tr>
 
                         <tr>
-                            <td class="key">Gene lists</td>
-                            <td>{{ gene.genelists.all|join:", "|default:'—' }}</td>
+                            <td class="key">
+                                Gene lists
+                            </td>
+                            <td>
+                                {{ gene.genelists.all|join:", "|default:'—' }}
+                            </td>
                         </tr>
 
                         <tr>
-                            <td class="key">Gene modules</td>
-                            <td>{{ gene.modules.all|join:", "|default:'—' }}</td>
+                            <td class="key">
+                                Gene modules
+                            </td>
+                            <td>
+                                {{ gene.modules.all|join:", "|default:'—' }}
+                            </td>
                         </tr>
 
                         <tr>
-                            <td class="key">Orthogroup</td>
-                            <td>{{ gene.orthogroup_html_link|default:"—" }}</td>
+                            <td class="key">
+                                Orthogroup
+                            </td>
+                            <td>
+                                {{ gene.orthogroup_html_link|default:"—" }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>

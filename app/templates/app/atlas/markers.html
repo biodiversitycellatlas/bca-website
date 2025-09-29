@@ -34,15 +34,21 @@ Input:
         <div class="col-md-3">
             <form>
                 <fieldset>
-                    <legend class="h5">Cell selection</legend>
+                    <legend class="h5">
+                        Cell selection
+                    </legend>
                     <div class="mb-3">
-                        <label class="col-form-label" for="metacells">Metacells</label>
+                        <label class="col-form-label" for="metacells">
+                            Metacells
+                        </label>
                         {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacells %}
                     </div>
                 </fieldset>
 
                 <fieldset>
-                    <legend class="h5">Fold-change</legend>
+                    <legend class="h5">
+                        Fold-change
+                    </legend>
                     <div class="mb-3">
                         <label class="col-form-label" for="fc_min_type">
                             Min. fold-change <i class="fa fa-circle-question"
@@ -56,9 +62,13 @@ Input:
                                 aria-label="Select example"
                                 value="median">
                             <option value="mean"
-                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
+                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>
+                                Mean
+                            </option>
                             <option value="median"
-                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
+                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>
+                                Median
+                            </option>
                         </select>
                     </div>
 
@@ -83,11 +93,17 @@ Input:
                                 aria-label="Select example"
                                 onchange="toggleMaxFCslider(this, '#fc_max_bg');">
                             <option value="ignore"
-                                    {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>Ignore</option>
+                                    {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>
+                                Ignore
+                            </option>
                             <option value="mean"
-                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>Mean</option>
+                                    {% if query.fc_max_bg_type == 'mean' %}selected{% endif %}>
+                                Mean
+                            </option>
                             <option value="median"
-                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>Median</option>
+                                    {% if query.fc_max_bg_type == 'median' %}selected{% endif %}>
+                                Median
+                            </option>
                         </select>
                     </div>
 
@@ -98,7 +114,9 @@ Input:
                            value="{{ query.fc_max_bg|default:3 }}"
                            step="0.1"
                            disabled>
-                    <button type="submit" class="btn btn-primary my-3 w-100">List markers</button>
+                    <button type="submit" class="btn btn-primary my-3 w-100">
+                        List markers
+                    </button>
                 </fieldset>
             </form>
         </div>

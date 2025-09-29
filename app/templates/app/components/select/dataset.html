@@ -41,7 +41,8 @@ Input:
 <select id="dataset-select-{{ id }}"
         class="mb-2 {{ class }} {% if small == 'true' %}small{% endif %}"
         placeholder="{{ placeholder|default:'Search datasets by species, taxonomic rank, division, ...' }}">
-    <option value=""></option>
+    <option value="">
+    </option>
     {% for phylum, dataset_list in dataset_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in dataset_list %}
