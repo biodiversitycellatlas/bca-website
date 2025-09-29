@@ -21,8 +21,8 @@
 </button>
 
 <ul id="data_dropdown_{{ id }}" class="dropdown-menu">
-    <li class="d-flex justify-content-end">
-        <label class="col-form-label-sm me-2">Format</label>
+    <li class="d-flex justify-content-end align-items-center">
+        <label class="col-form-label-sm me-2 text-secondary">Format</label>
 
         <form>
             <div class="btn-group" role="group">
@@ -79,10 +79,10 @@
     </template>
 
     <hr id="data_footer_{{ id }}" class="dropdown-divider">
-    <li class="text-muted small text-end">
-        See also:
-        <a href="{% url 'downloads' %}">Data download</a> •
-        <a href="{% url 'rest:index' %}">API documentation</a>
+    <li class="text-muted small text-end d-flex justify-content-end w-100 gap-3">
+        <span>See also</span>
+        <a href="{% url 'downloads' %}"><i class="fa fa-fw fa-circle-arrow-down"></i> Downloads</a>
+        <a href="{% url 'rest:index' %}"><i class="fa fa-fw fa-code"></i> REST API</a>
     </li>
 </ul>
 

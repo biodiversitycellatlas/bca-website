@@ -215,7 +215,6 @@ fieldset:disabled.btn.btn-primary {
 .news {
     text-decoration: none;
     transition: all 0.1s linear;
-    text-shadow: 0 0 4px var(--card-text-shadow);
 }
 
 .news.card:hover {
@@ -223,7 +222,7 @@ fieldset:disabled.btn.btn-primary {
 }
 
 .text-shadow {
-    text-shadow: 0 0 4px var(--card-text-shadow);
+    text-shadow: 0 0 8px var(--card-text-shadow), 0 0 12px var(--card-text-shadow);
 }
 
 a,
