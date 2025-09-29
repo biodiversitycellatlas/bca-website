@@ -99,7 +99,7 @@ Features:
                     <ul class="list-group list-group-flush">
                         {% for post in posts|get_item:category %}
                             {% if category == "publications" %}
-                                {% news_list title=post.title category=category link=post.link date=post.items.published journal=post.items.journal %}
+                                {% news_list title=post.items.title category=category link=post.link date=post.items.published journal=post.items.journal %}
                             {% elif category == "meetings" %}
                                 {% news_list title=post.title category=category link=post.link date=post.items.date location=post.items.location %}
                             {% elif category == "tutorials" %}
