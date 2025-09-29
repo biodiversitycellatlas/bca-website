@@ -26,7 +26,7 @@ def _build_list_context(title, link, category, **kwargs):
     Returns:
         str: rendered HTML with download card.
     """
-    return { "title": title, "link": link, "category": category, **kwargs }
+    return {"title": title, "link": link, "category": category, **kwargs}
 
 
 @register.inclusion_tag("app/components/lists/news_list.html")

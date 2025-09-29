@@ -113,6 +113,7 @@ def qc_card(title, description, metrics, **kwargs):
     kwargs["metrics"] = metrics
     return _build_card_context(title, description, **kwargs)
 
+
 @register.inclusion_tag("app/components/cards/news_card.html")
 def news_card(title, date, link, **kwargs):
     """
