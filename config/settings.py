@@ -17,14 +17,14 @@ import secrets
 from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
-BCA_WEBSITE = "https://biodiversitycellatlas.org"
 BCA_DOMAIN = "biodiversitycellatlas.org"
-BCA_EMAIL = "bca@biodiversitycellatlas.org"
+BCA_WEBSITE = f"https://{BCA_DOMAIN}"
+BCA_EMAIL = f"bca@{BCA_DOMAIN}"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 
 # Script should be adapted according to what is collected https://plausible.io/docs/plausible-script
 # PLAUSIBLE_SCRIPT = (
-#     "https://stats.biodiversitycellatlas.org/js/"
+#     f"https://stats.{BCA_DOMAIN}/js/"
 #     "script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js"
 # )
 
@@ -43,8 +43,6 @@ MAX_FILE_SIZE = get_env("BCA_APP_MAX_FILE_SIZE", 10, type="int")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
 DEBUG = get_env("DJANGO_DEBUG", type="bool")
