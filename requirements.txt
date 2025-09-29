@@ -1,6 +1,7 @@
 Django==5.2.6
 django-colorfield==0.14.0
 gunicorn==23.0.0
+beautifulsoup4
 
 # Reference pages
 mistune==3.1.4

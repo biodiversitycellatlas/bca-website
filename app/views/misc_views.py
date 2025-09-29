@@ -14,6 +14,7 @@ from ..utils import (
     get_species_dict,
     render_markdown,
     get_pygments_css,
+    get_latest_posts,
 )
 
 
@@ -26,6 +27,10 @@ class IndexView(TemplateView):
         """Add dataset dictionary to context."""
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
+
+        categories = ["latest", "publications", "meetings", "tutorials"]
+        posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
+        context["posts"] = posts
         return context
 
 
