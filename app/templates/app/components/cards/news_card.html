@@ -1,0 +1,36 @@
+{% comment %}
+
+News card
+
+Input:
+- title
+- link
+- img_url
+- date
+
+{% endcomment %}
+
+<style>
+    .news.card {
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 800px;
+        clip-path: url(#gaudi1);
+    }
+</style>
+
+<a href="{{ link }}" target="_blank">
+    <div class="news card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm"
+         style="background-image: url('{{ img_url }}')">
+        <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
+            <h2 class="h4">{{ title }}</h2>
+            <ul class="d-flex list-unstyled mt-auto">
+                <li class="d-flex align-items-center">
+                    <span><small>
+                        <i class="fa fa-calendar-days"></i> Posted {{ date }}
+                    </small></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</a>

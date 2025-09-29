@@ -1,4 +1,4 @@
-"""Custom Django filteres and tags to manipulate strings."""
+"""Custom Django filters and tags to manipulate strings."""
 
 from django import template
 

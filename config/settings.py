@@ -29,9 +29,7 @@ FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 # )
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
-GITHUB_ISSUES_URL = GITHUB_URL + "/issues/new"
 GIT_VERSION = get_latest_git_tag()
-GIT_VERSION_URL = f"{GITHUB_URL}/releases/tag/{GIT_VERSION}"
 
 DIAMOND_VERSION = get_diamond_version()
 

@@ -1,0 +1,28 @@
+<ul class="list-unstyled">
+    {% for item in items %}
+        <li class="list-group-item">
+            <a href="{{ link }}" target="_blank"><b>{{ title }}</b></a>
+            <br />
+            <small>
+                {% if category == 'publications' %}
+                    <span class="fa fa-calendar-days"></span> {{ date }}
+                    <span class="fa fa-file-lines ps-1"></span> {{ journal }}
+                {% elif category == 'meetings' %}
+                    <span class="fa fa-calendar ps-1"></span> {{ date }}
+                    <span class="fa fa-map-pin ps-1"></span> {{ location }}
+                {% elif category == 'tutorials' %}
+                    {% if type == 'video' %}
+                        <span class="fa-brands fa-youtube"></span> {{ duration }}
+                    {% elif type == 'text' %}
+                        <span class="fa fa-list-ol"></span> Text
+                    {% endif %}
+                    <span class="fa fa-calendar-days ps-1"></span> {{ date }}
+                {% endif %}
+            </small>
+        </li>
+    {% empty %}
+        <li class="list-group-item">
+            <span class="text-secondary"><i>No {{ category }} available yet.</i></span>
+        </li>
+    {% endfor %}
+</ul>

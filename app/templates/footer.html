@@ -19,17 +19,13 @@ Features:
                 © 2024-{% now "Y" %}
                 <br />
 
-                <a class="text-nowrap"
-                   href="{{ BCA_WEBSITE|default:'https://biodiversitycellatlas.org' }}"
-                   target="_blank">Biodiversity Cell Atlas</a>
+                <a class="text-nowrap" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
                 <br />
 
                 <span class="text-nowrap">Data Portal</span>
                 <br />
 
-                <a class="text-nowrap"
-                   href="{{ GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website' }}"
-                   target="_blank">
+                <a class="text-nowrap" href="{% github_release_url %}" target="_blank">
                     <i class="fa-brands fa-github"></i>
                     {{ GIT_VERSION|default:"GitHub repository" }}
                 </a>

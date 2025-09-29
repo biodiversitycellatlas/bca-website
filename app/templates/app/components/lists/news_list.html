@@ -1,0 +1,35 @@
+{% load string_extras %}
+
+<li class="list-group-item">
+    <a href="{{ link }}" target="_blank"><b>{{ title }}</b></a>
+    <br>
+    <small>
+        {% if category == 'publications' %}
+
+            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>{% endif %}
+
+            {% if journal %}<span class="text-nowrap"><span class="fa fa-file-lines fa-fw"></span> {{ journal }}</span>{% endif %}
+
+        {% elif category == 'meetings' %}
+
+            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar fa-fw"></span> {{ date }}</span>{% endif %}
+
+            {% if location %}
+                {% with location|split:", " as parts %}
+                    <span class="text-nowrap"><span class="fa fa-map-pin fa-fw"></span> {{ parts|last }}</span>
+                {% endwith %}
+            {% endif %}
+
+        {% elif category == 'tutorials' %}
+
+            {% if type == 'video' and duration %}
+                <span class="text-nowrap"><span class="fa-brands fa-youtube fa-fw"></span> {{ duration }}</span>
+            {% elif type == 'text' %}
+                <span class="text-nowrap"><span class="fa fa-list-ol fa-fw"></span> Text</span>
+            {% endif %}
+
+            {% if date %}<span class="text-nowrap"><span class="fa fa-calendar-days fa-fw"></span> {{ date }}</span>{% endif %}
+
+        {% endif %}
+    </small>
+</li>

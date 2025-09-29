@@ -21,7 +21,7 @@ def _optimise_img_url(**kwargs):
             "fit": "max",
             "fm": "webp",
             "q": "80",
-            "w": "400",
+            "w": "800",
         }
         query = "&".join(f"{k}={v}" for k, v in params.items())
         parsed = urlparse(img_url)
@@ -99,7 +99,7 @@ def download_card(title, description, view, filename, **kwargs):
 @register.inclusion_tag("app/components/cards/qc_card.html")
 def qc_card(title, description, metrics, **kwargs):
     """
-    Render a card with information.
+    Render a card with quality control information.
 
     Args:
         title (str): Title displayed on card.
@@ -112,3 +112,22 @@ def qc_card(title, description, metrics, **kwargs):
     """
     kwargs["metrics"] = metrics
     return _build_card_context(title, description, **kwargs)
+
+
+@register.inclusion_tag("app/components/cards/news_card.html")
+def news_card(title, date, link, **kwargs):
+    """
+    Render a news card.
+
+    Args:
+        title (str): Title displayed on card.
+        date (str): Date of publication.
+        link (str): Link to post.
+        **kwargs (optional): Image arguments (see `_build_card_context`).
+
+    Returns:
+        str: rendered HTML with card.
+    """
+    kwargs["date"] = date
+    kwargs["link"] = link
+    return _build_card_context(title, None, **kwargs)
