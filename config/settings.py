@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
-import orjson
 import os
+from pathlib import Path
 import secrets
+
+import orjson
 
 from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
 
