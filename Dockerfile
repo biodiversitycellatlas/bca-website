@@ -1,7 +1,7 @@
 # checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
 
 # Get postgreSQL client from official Docker image
-FROM postgres:18.0-trixie AS postgres
+FROM postgres:17.6-trixie AS postgres
 
 # Serve website
 FROM python:3.13.7-trixie
