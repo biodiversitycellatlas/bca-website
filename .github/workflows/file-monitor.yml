@@ -20,23 +20,36 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
-
     - name: Check and Alert if watched files changed
       id: check-and-alert
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_REF: ${{ github.ref }}
+        GITHUB_BASE_REF: ${{ github.base_ref }}
       run: |
-        # Define the list of filenames to watch for changes
         watched_files=(".dockerignore" ".env.template" ".gitignore" "Dockerfile" "compose.yml" "nginx/nginx.conf" "requirements.txt")
-        if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+
+        # Determine branch and event info
+        if [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
+          branch="$GITHUB_BASE_REF"
+          event_type="pull_request"
           changed_files=$(git diff --name-only -r HEAD^1 HEAD)
         else
+          # Extract the branch name from GITHUB_REF (e.g., refs/heads/main)
+          branch="${GITHUB_REF#refs/heads/}"
+          event_type="push"
           changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
         fi
+
         for file in $changed_files; do
           for watched_file in "${watched_files[@]}"; do
             if [[ $file == *"$watched_file"* ]]; then
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"File changed: '"$file"' "}' $SLACK_WEBHOOK_URL
+              curl -X POST -H 'Content-type: application/json' \
+                --data '{"text":"['"$event_type"'] File changed: '"$file"' on branch: '"$branch"'"}' \
+                $SLACK_WEBHOOK_URL
             fi
+          done
+        done
           done
         done
