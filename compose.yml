@@ -13,7 +13,7 @@ services:
             - web
 
     ghost:
-        image: ghost:6.1-alpine
+        image: ghost:6.2-alpine
         env_file: [.env]
         expose:
             - "2368"
