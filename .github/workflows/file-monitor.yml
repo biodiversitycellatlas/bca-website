@@ -1,5 +1,7 @@
 # Reference: https://medium.com/@rramgattie/alerting-on-file-changes-with-github-actions-4e733c8e3b52
 name: Check For Changes to Monitored Files
+permissions:
+  contents: read
 
 on:
   pull_request:
