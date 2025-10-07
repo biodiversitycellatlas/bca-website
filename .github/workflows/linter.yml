@@ -54,8 +54,10 @@ jobs:
               run: grep -hv "^#" .github/linters/super-linter{,-fix}.env >> "$GITHUB_ENV"
 
             - name: Lint files with Super-Linter
-              uses: super-linter/super-linter@v8
+              uses: super-linter/super-linter@v8.2.0
               continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Cleanup Super-Linter output
               run: |
