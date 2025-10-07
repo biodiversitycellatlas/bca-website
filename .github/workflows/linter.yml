@@ -18,6 +18,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             checks: write
+            statuses: write
 
         steps:
             - name: Checkout code
@@ -28,10 +29,10 @@ jobs:
                   persist-credentials: false
 
             - name: Load super-linter configuration
-              run: grep -v "^#" .github/super-linter.env >> "$GITHUB_ENV"
+              run: grep -v "^#" .github/linters/super-linter.env >> "$GITHUB_ENV"
 
             - name: Report all Super-Linter issues
-              uses: super-linter/super-linter@v8
+              uses: super-linter/super-linter@v8.2.0
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
@@ -51,11 +52,13 @@ jobs:
                   persist-credentials: false
 
             - name: Load super-linter configuration
-              run: grep -hv "^#" .github/super-linter{,-fix}.env >> "$GITHUB_ENV"
+              run: grep -hv "^#" .github/linters/super-linter{,-fix}.env >> "$GITHUB_ENV"
 
             - name: Lint files with Super-Linter
-              uses: super-linter/super-linter@v8
+              uses: super-linter/super-linter@v8.2.0
               continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Cleanup Super-Linter output
               run: |

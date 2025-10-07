@@ -1,0 +1,11 @@
+{
+    "filters": {
+        "comments": true,
+        "allowlist": {
+            "allow": ["website"]
+        }
+    },
+    "rules": {
+        "terminology": true
+    }
+}
