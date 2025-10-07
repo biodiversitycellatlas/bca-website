@@ -154,7 +154,8 @@ ssh -fN -L 5432:${db_host}:${db_port} ${user}@${host}
 
 To connect to the database via the SSH tunnel, you will need to connect to your
 local machine from Podman by editing this variable in your `.env` file:
-```
+
+```bash
 POSTGRES_HOST=host.docker.internal
 ```
 
