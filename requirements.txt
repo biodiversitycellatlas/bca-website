@@ -26,4 +26,4 @@ pandas==2.3.2
 psutil==7.1.0
 psycopg2==2.9.10
 rds2py==0.7.3
-scipy==1.15.3
+scipy==1.16.2
