@@ -68,7 +68,7 @@ def usage():
 {YELLOW}Optional:{RESET}
   {CYAN}--changed{RESET}             Lint changed files (default)
   {CYAN}--all{RESET}                 Lint full codebase
-  {CYAN}--log-level=LEVEL{RESET}     Set log level: {', '.join(VALID_LOG_LEVELS)}
+  {CYAN}--log-level=LEVEL{RESET}     Set log level: {", ".join(VALID_LOG_LEVELS)}
 
 {YELLOW}Validator flags:{RESET}
   {CYAN}--py, --python{RESET}        Enable all Python linters
@@ -180,12 +180,24 @@ def parse_args(args):
     env_vars = {}
 
     validator_flags = {
-        "--py": ["PYTHON_PYLINT", "PYTHON_BLACK", "PYTHON_FLAKE8", "PYTHON_RUFF"],
-        "--python": ["PYTHON_PYLINT", "PYTHON_BLACK", "PYTHON_FLAKE8", "PYTHON_RUFF"],
+        "--py": [
+            "PYTHON_PYLINT",
+            "PYTHON_BLACK",
+            "PYTHON_FLAKE8",
+            "PYTHON_RUFF",
+            "PYTHON_RUFF_FORMAT",
+        ],
+        "--python": [
+            "PYTHON_PYLINT",
+            "PYTHON_BLACK",
+            "PYTHON_FLAKE8",
+            "PYTHON_RUFF",
+            "PYTHON_RUFF_FORMAT",
+        ],
         "--pylint": ["PYTHON_PYLINT"],
         "--black": ["PYTHON_BLACK"],
         "--flake8": ["PYTHON_FLAKE8"],
-        "--ruff": ["PYTHON_RUFF"],
+        "--ruff": ["PYTHON_RUFF", "PYTHON_RUFF_FORMAT"],
         "--github": ["GITHUB_ACTIONS", "GITHUB_ACTIONS_ZIZMOR"],
         "--zizmor": ["GITHUB_ACTIONS_ZIZMOR"],
         "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
