@@ -4,10 +4,11 @@ Run Super-Linter via Podman with flexible environment and mode options.
 
 Supports 'check' and 'fix' modes, selective validators and log levels.
 
+Environment variables are read from .github/linters/super-linter.env and
+.github/linters/super-linter-fix.env as needed.
+
 Usage:
   super-linter.py <check|fix> [--all] [--log-level=LEVEL] [linters]
-
-Reads .github/super-linter.env and .github/super-linter-fix.env as needed.
 """
 
 import os
@@ -17,7 +18,11 @@ import subprocess
 from pathlib import Path
 
 # Defaults
-ENV_FILES = [".github/super-linter.env"]
+ENV_DIR = ".github/linters"
+ENV_CHECK = f"{ENV_DIR}/super-linter.env"
+ENV_FIX = f"{ENV_DIR}/super-linter-fix.env"
+
+ENV_FILES = [ENV_CHECK]
 VALID_LOG_LEVELS = {"WARN", "INFO", "DEBUG", "ERROR", "NOTICE"}
 
 # Colors
@@ -37,9 +42,9 @@ def get_linter_version():
 
     with file.open(encoding="utf-8") as f:
         for line in f:
-            m = re.search(r"uses:\s*super-linter/super-linter@v(\d+)", line)
+            m = re.search(r"uses:\s*super-linter/super-linter@(v[\d.]+)", line)
             if m:
-                return f"v{m.group(1)}"
+                return m.group(1)
     print(
         f"{RED}❌ Could not determine Super-Linter version from {file}{RESET}",
         file=sys.stderr,
@@ -200,7 +205,7 @@ def parse_args(args):
     for arg in sorted_args:
         if arg == "fix":
             mode = "fix"
-            env_files.append(".github/super-linter-fix.env")
+            env_files.append(ENV_FIX)
         elif arg == "check":
             mode = "check"
         elif arg == "--all":

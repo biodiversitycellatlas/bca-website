@@ -169,6 +169,34 @@ in the [`ghost/`](ghost) folder modify the default theme.
 Transactional emails (like those sent to reset passwords and create new user
 accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
 
+## Super-Linter
+
+Super-Linter is run for every Pull Request. To run it locally using Podman,
+execute the following commands (the correct image is automatically pulled based
+on the version used in the [GitHub workflow](./github/workflows/linter.yml)):
+
+```bash
+# Run in check mode on changed files
+./superlinter.sh check
+
+# Run in fix mode on changed files
+./superlinter.sh fix
+
+# Run in fix mode on changed files using Python and JS linters only
+./superlinter.sh fix --python --js
+
+# Run in fix mode on all codebase
+./superlinter.sh fix --all
+
+# Print all available options
+./superlinter.sh
+```
+
+The environment files that Super-Linter automatically loads are available in
+[.github/linters](.github/linters):
+[super-linter.env](.github/linters/super-linter.env) and
+[super-linter-fix.env](.github/linters/super-linter-fix.env).
+
 ## Contact us
 
 [<img src="app/static/app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png" width="250" target="_blank" alt="Centre for Genomic Regulation (CRG)"/>][CRG]
