@@ -4,8 +4,15 @@ downloads, search, health check, and custom error pages.
 """
 
 from django.urls import path
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap, AtlasSitemap
 
 from . import views
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'dataset': AtlasSitemap,
+}
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
@@ -119,6 +126,8 @@ urlpatterns = [
     path("about/", views.AboutView.as_view(), name="about"),
     path("search/", views.SearchView.as_view(), name="search"),
     path("health/", views.HealthView.as_view(), name="health"),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
     # Error pages
     path("403/", views.Custom403View.as_view()),
     path("404/", views.Custom404View.as_view()),

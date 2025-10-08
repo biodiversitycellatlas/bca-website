@@ -49,6 +49,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
 DEBUG = get_env("DJANGO_DEBUG", type="bool")
 SECRET_KEY = get_env("DJANGO_SECRET_KEY")
+SITE_ID = 1
 
 if get_env("ENVIRONMENT") == "prod":
     # Production environment
@@ -76,6 +77,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "django.contrib.sitemaps",
     "rest_framework",
     "django_filters",
     "colorfield",
