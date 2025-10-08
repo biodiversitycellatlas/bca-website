@@ -54,7 +54,7 @@ services:
                 condition: service_healthy
 
     db:
-        image: postgres:17.6-trixie
+        image: postgres:15.3-bookworm
         restart: always
         env_file: [.env]
         command: |
