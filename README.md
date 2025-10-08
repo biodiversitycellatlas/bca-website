@@ -112,7 +112,8 @@ manual intervention.
 
 ### Production
 
-A dedicated Compose file (such as `compose.prod.yml`) can be used for production-specific settings:
+A dedicated Compose file (such as `compose.prod.yml`) can be used for
+production-specific settings:
 
 ```bash
 # Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
@@ -136,6 +137,16 @@ POSTGRES_DB=bca
 PGUSER=postgres
 POSTGRES_USER=$PGUSER
 POSTGRES_PASSWORD=pg_password
+```
+
+In case the database service is not needed because you are connecting to an
+external database, edit the `.env` file to exclude the `db` profile:
+
+```bash
+# Change the following line to exclude the db service
+
+# COMPOSE_PROFILES=nginx,db
+COMPOSE_PROFILES=nginx
 ```
 
 ### Connect to database via SSH tunnel
@@ -168,6 +179,20 @@ in the [`ghost/`](ghost) folder modify the default theme.
 
 Transactional emails (like those sent to reset passwords and create new user
 accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+
+## Nginx
+
+In case you want to run Nginx or another reversep proxy youself, edit the `.env`
+file to exclude the `nginx` profile:
+
+```bash
+# Change the following line to exclude the nginx service
+
+# COMPOSE_PROFILES=nginx,db
+COMPOSE_PROFILES=db
+
+# If you don't need both the nginx and db services, simply delete the whole line
+```
 
 ## Super-Linter
 

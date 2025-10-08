@@ -11,6 +11,7 @@ services:
         depends_on:
             - ghost
             - web
+        profiles: ["nginx"]
 
     ghost:
         image: ghost:6.2-alpine
@@ -49,9 +50,6 @@ services:
             # Media and static files
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
-        depends_on:
-            db:
-                condition: service_healthy
 
     db:
         image: postgres:17.6-trixie
@@ -80,6 +78,7 @@ services:
             interval: 1s
             timeout: 5s
             retries: 10
+        profiles: ["db"]
 
 volumes:
     db_data:
