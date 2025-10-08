@@ -131,9 +131,13 @@ class AtlasInfoView(BaseAtlasView):
         """Add quality control metrics."""
 
         context = super().get_context_data(**kwargs)
+        dataset = context["dataset"]
+
+        if not isinstance(dataset, Dataset):
+            return context
 
         qc_values = (
-            context["dataset"]
+            dataset
             .qc.annotate(name=F("metric__name"), description=F("metric__description"))
             .values("name", "description", "value")
         )
