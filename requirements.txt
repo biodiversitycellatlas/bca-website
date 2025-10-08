@@ -1,4 +1,4 @@
-Django==5.2.6
+Django==5.2.7
 django-colorfield==0.14.0
 gunicorn==23.0.0
 
@@ -12,7 +12,7 @@ Pygments==2.19.2
 
 # REST
 djangorestframework==3.16.1
-django-filter==25.1
+django-filter==25.2
 drf-spectacular==0.28.0
 drf-orjson-renderer==1.7.3
 
@@ -26,4 +26,4 @@ pandas==2.3.2
 psutil==7.1.0
 psycopg2==2.9.10
 rds2py==0.7.3
-scipy==1.15.3
+scipy==1.16.2

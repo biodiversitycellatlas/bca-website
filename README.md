@@ -120,6 +120,47 @@ A dedicated Compose file (such as `compose.prod.yml`) can be used for production
 podman compose -d
 ```
 
+## Postgres database
+
+By default, the project uses the Postgres database service to serve the Django
+app. However, you can instead connect to any database by editing the Postgres
+variables in the `.env` file:
+
+```bash
+# Postgres
+POSTGRES_HOST=db
+POSTGRES_HOST_AUTH_METHOD=trust
+POSTGRES_PORT=5432
+
+POSTGRES_DB=bca
+PGUSER=postgres
+POSTGRES_USER=$PGUSER
+POSTGRES_PASSWORD=pg_password
+```
+
+### Connect to database via SSH tunnel
+
+If the database can only be accessed via an intermediate host, you will need to
+connect to the host via an SSH tunnel:
+
+```bash
+user=darwin
+host=internal.host.com
+db_host=db.host.com
+db_port=5432
+
+ssh -fN -L 5432:${db_host}:${db_port} ${user}@${host}
+```
+
+To connect to the database via the SSH tunnel, you will need to connect to your
+local machine from Podman by editing this variable in your `.env` file:
+
+```bash
+POSTGRES_HOST=host.docker.internal
+```
+
+You can now start the project as usual.
+
 ## Ghost
 
 The main website is built with the [Ghost][] blogging platform. Base templates
@@ -127,6 +168,34 @@ in the [`ghost/`](ghost) folder modify the default theme.
 
 Transactional emails (like those sent to reset passwords and create new user
 accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+
+## Super-Linter
+
+Super-Linter is run for every Pull Request. To run it locally using Podman,
+execute the following commands (the correct image is automatically pulled based
+on the version used in the [GitHub workflow](./github/workflows/linter.yml)):
+
+```bash
+# Run in check mode on changed files
+./superlinter.sh check
+
+# Run in fix mode on changed files
+./superlinter.sh fix
+
+# Run in fix mode on changed files using Python and JS linters only
+./superlinter.sh fix --python --js
+
+# Run in fix mode on all codebase
+./superlinter.sh fix --all
+
+# Print all available options
+./superlinter.sh
+```
+
+The environment files that Super-Linter automatically loads are available in
+[.github/linters](.github/linters):
+[super-linter.env](.github/linters/super-linter.env) and
+[super-linter-fix.env](.github/linters/super-linter-fix.env).
 
 ## Contact us
 
