@@ -44,6 +44,13 @@ class HealthView(View):
         return JsonResponse({"status": "ok"})
 
 
+class RobotsView(TemplateView):
+    """The robots.txt page."""
+
+    template_name = "robots.txt"
+    content_type = "text/plain"
+
+
 class Custom403View(TemplateView):
     """Custom 403 Forbidden error page."""
 

@@ -7,9 +7,26 @@ from django.urls import path
 
 from . import views
 
+
+# Main paths
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    # Cell Atlas
+    path("downloads/", views.DownloadsView.as_view(), name="downloads"),
+    path(
+        "downloads/<slug:slug>/", views.FileDownloadView.as_view(), name="download_file"
+    ),
+    path(
+        "reference/", views.ReferenceView.as_view(), {"page": "index"}, name="reference"
+    ),
+    path("reference/<str:page>/", views.ReferenceView.as_view(), name="reference"),
+    path("about/", views.AboutView.as_view(), name="about"),
+    path("search/", views.SearchView.as_view(), name="search"),
+    path("health/", views.HealthView.as_view(), name="health"),
+    path("robots.txt", views.RobotsView.as_view(), name="robots.txt"),
+]
+
+# Cell Atlas
+urlpatterns += [
     path("atlas/", views.AtlasView.as_view(), name="atlas"),
     path("atlas/<str:dataset>/", views.AtlasInfoView.as_view(), name="atlas_info"),
     path(
@@ -36,7 +53,10 @@ urlpatterns = [
         views.AtlasCompareView.as_view(),
         name="atlas_compare",
     ),
-    # BCA database entries
+]
+
+# BCA database entries
+urlpatterns += [
     path("entry/", views.EntryView.as_view(), name="entry"),
     path("entry/species/", views.SpeciesListView.as_view(), name="species_entry"),
     path(
@@ -107,19 +127,10 @@ urlpatterns = [
         views.OrthogroupDetailView.as_view(),
         name="orthogroup_entry",
     ),
-    # Other paths
-    path("downloads/", views.DownloadsView.as_view(), name="downloads"),
-    path(
-        "downloads/<slug:slug>/", views.FileDownloadView.as_view(), name="download_file"
-    ),
-    path(
-        "reference/", views.ReferenceView.as_view(), {"page": "index"}, name="reference"
-    ),
-    path("reference/<str:page>/", views.ReferenceView.as_view(), name="reference"),
-    path("about/", views.AboutView.as_view(), name="about"),
-    path("search/", views.SearchView.as_view(), name="search"),
-    path("health/", views.HealthView.as_view(), name="health"),
-    # Error pages
+]
+
+# Error pages
+urlpatterns += [
     path("403/", views.Custom403View.as_view()),
     path("404/", views.Custom404View.as_view()),
     path("500/", views.Custom500View.as_view()),
