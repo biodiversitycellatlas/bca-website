@@ -4,9 +4,13 @@ downloads, search, health check, and custom error pages.
 """
 
 from django.urls import path
+from django.conf import settings
+from django.views.generic import RedirectView
 
 from . import views
 
+
+BCA_WEBSITE = getattr(settings, "BCA_WEBSITE", "https://biodiversitycellatlas.org")
 
 # Main paths
 urlpatterns = [
@@ -134,4 +138,10 @@ urlpatterns += [
     path("403/", views.Custom403View.as_view()),
     path("404/", views.Custom404View.as_view()),
     path("500/", views.Custom500View.as_view()),
+]
+
+# Redirects
+urlpatterns += [
+    path("blog/", RedirectView.as_view(url=f"{BCA_WEBSITE}/blog", permanent=True)),
+    path("about/legal/", RedirectView.as_view(url=f"{BCA_WEBSITE}/legal", permanent=True)),
 ]
