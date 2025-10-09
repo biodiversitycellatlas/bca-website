@@ -57,7 +57,9 @@ Input:
                                  src="{{ species.image_url }}"
                                  alt="Image of {{ species }}">
                             {{ species.get_html }}
-                            <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">{{ species.proteome.ext|upper }}</a>
+                            {% if species.proteome %}
+                                <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">{{ species.proteome.ext|upper }}</a>
+                            {% endif %}
                         </span>
                     </div>
                 </div>
