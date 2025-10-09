@@ -59,9 +59,9 @@ Input:
                             {{ species.get_html }}
 
                             {% if species.proteome %}
-                            <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">
-                                {{ species.proteome.ext|upper }}
-                            </a>
+                                <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">
+                                    {{ species.proteome.ext|upper }}
+                                </a>
                             {% endif %}
                         </span>
                     </div>
@@ -103,12 +103,7 @@ Input:
                     </label>
                     <div class="col-lg-10">
                         <div class="sequence-input border border-secondary-subtle rounded">
-                            <textarea type="textarea"
-                                      id="{{id}}_query"
-                                      rows="6"
-                                      required
-                                      class="sequence-textarea form-control font-monospace border-0 rounded-top p-2"
-                                      placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})">
+                            <textarea type="textarea" id="{{id}}_query" rows="6" required class="sequence-textarea form-control font-monospace border-0 rounded-top p-2" placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})">
                             </textarea>
                             <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
                                 <button type="button"
