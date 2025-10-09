@@ -198,7 +198,7 @@ COMPOSE_PROFILES=db
 
 Super-Linter is run for every Pull Request. To run it locally using Podman,
 execute the following commands (the correct image is automatically pulled based
-on the version used in the [GitHub workflow](./github/workflows/linter.yml)):
+on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
 
 ```bash
 # Run in check mode on changed files
