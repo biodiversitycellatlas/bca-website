@@ -136,10 +136,8 @@ class AtlasInfoView(BaseAtlasView):
         if not isinstance(dataset, Dataset):
             return context
 
-        qc_values = (
-            dataset
-            .qc.annotate(name=F("metric__name"), description=F("metric__description"))
-            .values("name", "description", "value")
+        qc_values = dataset.qc.annotate(name=F("metric__name"), description=F("metric__description")).values(
+            "name", "description", "value"
         )
 
         qc_metrics = [
@@ -255,9 +253,7 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(
-                        Q(name__in=metacells) | Q(type__name__in=metacells)
-                    )
+                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
                     .values_list("name", flat=True)
                     .distinct()
                 )
@@ -268,10 +264,7 @@ class AtlasMarkersView(BaseAtlasView):
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
-                    "description": (
-                        f"Missing <code>metacells</code> in your query: "
-                        f"<code>{query.urlencode()}</code>"
-                    ),
+                    "description": (f"Missing <code>metacells</code> in your query: <code>{query.urlencode()}</code>"),
                 }
         return context
 
