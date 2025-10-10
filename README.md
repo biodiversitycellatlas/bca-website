@@ -1,12 +1,16 @@
 # Biodiversity Cell Atlas website and data portal
 
-The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species.
+The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at
+molecularly characterizing cell types across the eukaryotic tree of life. Our
+mission is to pave the way for the efficient expansion of cell atlases to
+hundreds of species.
 
 ## Overview
 
 This project uses:
 
-- [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
+- [Podman Compose][] to manage multiple [Podman][] containers (using
+  [docker-compose][Docker Compose] backend for compatibility)
 - [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
     - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
 - [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
@@ -17,7 +21,8 @@ This project uses:
 
 To set up the project and run the web app locally, first install:
 
-- [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
+- [Podman][] — consider installing via [Podman Desktop][] to make it easier to
+  manage Podman containers
 - [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
 Then, follow these steps:
@@ -198,7 +203,7 @@ COMPOSE_PROFILES=db
 
 Super-Linter is run for every Pull Request. To run it locally using Podman,
 execute the following commands (the correct image is automatically pulled based
-on the version used in the [GitHub workflow](./github/workflows/linter.yml)):
+on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
 
 ```bash
 # Run in check mode on changed files

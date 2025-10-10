@@ -212,8 +212,8 @@ def sort_api_tags(operation):
 SPECTACULAR_SETTINGS = {
     "TITLE": "Biodiversity Cell Atlas: Data Portal API",
     "DESCRIPTION": "Fetch pre-processed and processed [BCA](/) data",
-    "CONTACT": {"name": "BCA", "url": "/about"},
-    "TOS": "/about/legal",
+    "CONTACT": {"name": "BCA", "url": f"{BCA_WEBSITE}/about"},
+    "TOS": f"{BCA_WEBSITE}/legal",
     "VERSION": get_env("BCA_REST_VERSION"),
     "SERVE_INCLUDE_SCHEMA": False,
     "SORT_OPERATIONS": sort_api_tags,
