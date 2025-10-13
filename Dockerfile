@@ -4,7 +4,7 @@
 FROM postgres:17.6-trixie AS postgres
 
 # Serve website
-FROM python:3.13.7-trixie
+FROM python:3.14.0-trixie
 
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
