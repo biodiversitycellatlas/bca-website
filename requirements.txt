@@ -24,6 +24,6 @@ django-debug-toolbar==5.2.0
 django-extensions==4.1
 pandas==2.3.3
 psutil==7.1.0
-psycopg2==2.9.10
+psycopg2==2.9.11
 rds2py==0.7.3
 scipy==1.16.2
