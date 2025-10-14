@@ -19,10 +19,11 @@ app/static/app/images/logos/BCA/EPS/*
 !.env.template
 /pg_backup
 /source
+.ackrc
 
 # Linters
 /super-linter-output
 .lintr
 /node_modules
 package*.json
-.ackrc
+
