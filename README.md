@@ -187,7 +187,7 @@ accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
 
 ## Nginx
 
-In case you want to run Nginx or another reversep proxy youself, edit the `.env`
+In case you want to run Nginx or another reverse proxy yourself, edit the `.env`
 file to exclude the `nginx` profile:
 
 ```bash
