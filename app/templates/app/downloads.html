@@ -108,9 +108,6 @@ Downloads page
                             Species
                         </th>
                         <th>
-                            Common name
-                        </th>
-                        <th>
                             Proteome
                         </th>
                         <th>
@@ -122,11 +119,11 @@ Downloads page
                     {% with file_types="Proteome,DIAMOND" %}
                         {% for species in species_all %}
                             <tr>
-                                <td>
+                                <td class="d-flex gap-1">
                                     {{ species.get_html_link }}
-                                </td>
-                                <td>
-                                    {{ species.common_name|default_if_none:"–" }}
+                                    <span class="small text-secondary">
+                                        {{ species.common_name|default:"" }}
+                                    </span>
                                 </td>
 
                                 {% for file_type in file_types|split:"," %}
@@ -168,9 +165,6 @@ Downloads page
                         <th>
                             Dataset name
                         </th>
-                        <th>
-                            Species common name
-                        </th>
 
                         <th>
                             Single cell data
@@ -186,11 +180,11 @@ Downloads page
                 <tbody>
                     {% for dataset in datasets_all %}
                         <tr>
-                            <td>
+                            <td class="d-flex gap-1">
                                 {{ dataset.get_html_link }}
-                            </td>
-                            <td>
-                                {{ dataset.species.common_name|default_if_none:"–" }}
+                                <span class="small text-secondary">
+                                    {{ dataset.species.common_name|default:"" }}
+                                </span>
                             </td>
 
                             <td>
