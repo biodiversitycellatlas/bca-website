@@ -57,7 +57,38 @@ class ImageSourceMixin(models.Model):
         return None
 
 
-class Species(SlugMixin, ImageSourceMixin):
+class HtmlLinkMixin():
+    """Mixin to get HTML links for Species and Dataset objects."""
+
+    def get_html_link(self, url=None, common_name=False):
+        """Return HTML representation linking to the Dataset."""
+        url = self.get_absolute_url() if url is None else url
+        image_url = self.get_image_url()
+        html = self.get_html()
+        label = self.get_label()
+        name = self.common_name
+
+        # Add species common name
+        if common_name and name:
+            html = f"""
+                {html}
+                <span class="text-secondary small">{name}</span>
+            """
+
+        html = f"""
+            <a class="d-flex align-items-center gap-1" href="{url}">
+                <img class="rounded" alt="Image of {label}"
+                     width="25px" src="{image_url}">
+                <span>{html}</span>
+            </a>
+        """
+        return mark_safe(html)
+
+    def get_named_html_link(self, url=None):
+        """Return HTML representation with common name."""
+        return self.get_html_link(url=url, common_name=True)
+
+class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
 
     common_name = models.CharField(
@@ -93,6 +124,14 @@ class Species(SlugMixin, ImageSourceMixin):
         """Return proteome file."""
         return self.files.get(type="Proteome")
 
+    def get_label(self):
+        """Return species label."""
+        return self.scientific_name
+
+    def get_image_url(self):
+        """Return image URL from species."""
+        return self.image_url
+
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
         return reverse("species_entry", args=[self.scientific_name])
@@ -125,34 +164,6 @@ class Species(SlugMixin, ImageSourceMixin):
             html = f"<i>{species}</i>"
         return mark_safe(html)
 
-    def get_html_link(self, url=None, common_name=False):
-        """Return HTML representation linking to species object."""
-        url = self.get_absolute_url() if url is None else url
-        image_url = self.image_url
-        label = self.get_html()
-
-        # Add species common name
-        if common_name and self.common_name:
-            label = f"""
-                {label}
-                <span class="text-secondary small">
-                    {self.common_name}
-                </span>
-            """
-
-        html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {self.scientific_name}"
-                     width="25px" src="{image_url}">
-                <span>{label}</span>
-            </a>
-        """
-        return mark_safe(html)
-
-    def get_named_html_link(self, url=None):
-        """Return HTML representation with common name."""
-        return self.get_html_link(url=url, common_name=True)
-
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
         url = self.get_gene_list_url()
@@ -167,7 +178,7 @@ class Species(SlugMixin, ImageSourceMixin):
 
     def __str__(self):
         """String representation."""
-        return self.scientific_name
+        return self.get_label()
 
 
 class Source(models.Model):
@@ -198,7 +209,7 @@ class Source(models.Model):
         return self.name
 
 
-class Dataset(SlugMixin, ImageSourceMixin):
+class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
     species = models.ForeignKey(
@@ -237,42 +248,25 @@ class Dataset(SlugMixin, ImageSourceMixin):
         help_text="Order of the dataset (for ordinal sets like developmental stages).",
     )
 
-    def __label(self, species):
+    @property
+    def common_name(self):
+        """Return species common name."""
+        return self.species.common_name
+
+    def get_label(self, species=None):
         """Return dataset label."""
+        if species is None:
+            species = self.species
         dataset = self.name
         return f"{species} ({dataset})" if dataset else species
 
+    def get_image_url(self):
+        """Return image URL from dataset or species."""
+        return self.image_url or self.species.image_url
+
     def get_html(self):
         """Return HTML representation of the dataset."""
-        return mark_safe(self.__label(self.species.get_html()))
-
-    def get_html_link(self, url=None, common_name=False):
-        """Return HTML representation linking to the Dataset."""
-        url = self.get_absolute_url() if url is None else url
-        image_url = self.image_url or self.species.image_url
-        label = self.get_html()
-
-        # Add species common name
-        if common_name and self.species.common_name:
-            label = f"""
-                {label}
-                <span class="text-secondary small">
-                    {self.species.common_name}
-                </span>
-            """
-
-        html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {self.__label}"
-                     width="25px" src="{image_url}">
-                <span>{label}</span>
-            </a>
-        """
-        return mark_safe(html)
-
-    def get_named_html_link(self, url=None):
-        """Return HTML representation with common name."""
-        return self.get_html_link(url=url, common_name=True)
+        return mark_safe(self.get_label(self.species.get_html()))
 
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
@@ -299,7 +293,7 @@ class Dataset(SlugMixin, ImageSourceMixin):
 
     def __str__(self):
         """String representation."""
-        return self.__label(self.species.scientific_name)
+        return self.get_label(self.species.scientific_name)
 
 
 class QualityControl(models.Model):
