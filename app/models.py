@@ -60,7 +60,7 @@ class ImageSourceMixin(models.Model):
 class HtmlLinkMixin():
     """Mixin to get HTML links for Species and Dataset objects."""
 
-    def get_html_link(self, url=None, common_name=False):
+    def get_html_link(self, url=None, show_common_name=False):
         """Return HTML representation linking to the Dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.get_image_url()
@@ -86,7 +86,7 @@ class HtmlLinkMixin():
 
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
-        return self.get_html_link(url=url, common_name=True)
+        return self.get_html_link(url=url, show_common_name=True)
 
 class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
@@ -167,7 +167,7 @@ class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
         url = self.get_gene_list_url()
-        return self.get_html_link(url, common_name=True)
+        return self.get_html_link(url, show_common_name=True)
 
     class Meta:
         """Meta options."""
@@ -271,7 +271,7 @@ class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
         url = self.get_gene_module_list_url()
-        return self.get_html_link(url, common_name=True)
+        return self.get_html_link(url, show_common_name=True)
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
