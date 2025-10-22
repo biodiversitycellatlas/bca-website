@@ -125,11 +125,21 @@ class Species(SlugMixin, ImageSourceMixin):
             html = f"<i>{species}</i>"
         return mark_safe(html)
 
-    def get_html_link(self, url=None):
+    def get_html_link(self, url=None, common_name=False):
         """Return HTML representation linking to species object."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.image_url
         label = self.get_html()
+
+        # Add species common name
+        if common_name and self.common_name:
+            label = f"""
+                {label}
+                <span class="text-secondary small">
+                    {self.common_name}
+                </span>
+            """
+
         html = f"""
             <a class="d-flex align-items-center gap-1" href="{url}">
                 <img class="rounded" alt="Image of {self.scientific_name}"
@@ -139,10 +149,14 @@ class Species(SlugMixin, ImageSourceMixin):
         """
         return mark_safe(html)
 
+    def get_named_html_link(self, url=None):
+        """Return HTML representation with common name."""
+        return self.get_html_link(url=url, common_name=True)
+
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
         url = self.get_gene_list_url()
-        return self.get_html_link(url)
+        return self.get_html_link(url, common_name=True)
 
     class Meta:
         """Meta options."""
@@ -232,11 +246,20 @@ class Dataset(SlugMixin, ImageSourceMixin):
         """Return HTML representation of the dataset."""
         return mark_safe(self.__label(self.species.get_html()))
 
-    def get_html_link(self, url=None):
+    def get_html_link(self, url=None, common_name=False):
         """Return HTML representation linking to the Dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.image_url or self.species.image_url
         label = self.get_html()
+
+        # Add species common name
+        if common_name and self.species.common_name:
+            label = f"""
+                {label}
+                <span class="text-secondary small">
+                    {self.species.common_name}
+                </span>
+            """
 
         html = f"""
             <a class="d-flex align-items-center gap-1" href="{url}">
@@ -247,10 +270,14 @@ class Dataset(SlugMixin, ImageSourceMixin):
         """
         return mark_safe(html)
 
+    def get_named_html_link(self, url=None):
+        """Return HTML representation with common name."""
+        return self.get_html_link(url=url, common_name=True)
+
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
         url = self.get_gene_module_list_url()
-        return self.get_html_link(url)
+        return self.get_html_link(url, common_name=True)
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""

@@ -15,13 +15,13 @@ def dataset_gene_link(dataset, gene):
 @register.simple_tag
 def species_genelist_link(species, genelist):
     url = species.get_genelist_list_url(genelist=genelist.name)
-    return species.get_html_link(url=url)
+    return species.get_html_link(url=url, common_name=True)
 
 
 @register.simple_tag
 def species_domain_link(species, domain):
     url = species.get_domain_list_url(domain=domain)
-    return species.get_html_link(url=url)
+    return species.get_html_link(url=url, common_name=True)
 
 
 @register.simple_tag
