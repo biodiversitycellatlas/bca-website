@@ -24,9 +24,6 @@
         <th>
             Species
         </th>
-        <th>
-            Species common name
-        </th>
     {% endif %}
 {% endblock header %}
 
@@ -45,9 +42,6 @@
         {% load entry_links %}
         <td>
             {% species_domain_link each.species domain %}
-        </td>
-        <td>
-            {{ each.species.common_name|default:'—' }}
         </td>
     {% endif %}
 {% endblock row %}

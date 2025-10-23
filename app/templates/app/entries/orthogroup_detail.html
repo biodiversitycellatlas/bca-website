@@ -24,9 +24,6 @@
     <th>
         Species
     </th>
-    <th>
-        Common name
-    </th>
 {% endblock header %}
 
 {% block row %}
@@ -40,10 +37,7 @@
         {{ each.gene.get_domain_html_links }}
     </td>
     <td>
-        {{ each.gene.species.get_html_link }}
-    </td>
-    <td>
-        {{ each.gene.species.common_name|default:'—' }}
+        {{ each.gene.species.get_named_html_link }}
     </td>
 {% endblock row %}
 

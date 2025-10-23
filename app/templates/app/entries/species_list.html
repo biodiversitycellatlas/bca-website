@@ -14,9 +14,6 @@
         Species
     </th>
     <th>
-        Common name
-    </th>
-    <th>
         Division
     </th>
     <th>
@@ -32,12 +29,8 @@
 
 {% block row %}
     <td>
-        {{ each.get_html_link }}
+        {{ each.get_named_html_link }}
     </td>
-    <td>
-        {{ each.common_name|default:"—" }}
-    </td>
-
     <td>
         {{ each.division }}
     </td>
