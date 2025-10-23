@@ -87,7 +87,12 @@ export function createExpressionHeatmap(id, species, data) {
                                 type: "quantitative",
                                 title: "Log\u2082 FC",
                                 scale: {
-                                    range: ["#F2F2F2", "#FFA500", "#EE4000", "#520c52"],
+                                    range: [
+                                        "#F2F2F2",
+                                        "#FFA500",
+                                        "#EE4000",
+                                        "#520c52",
+                                    ],
                                 },
                             },
                         },
@@ -98,29 +103,39 @@ export function createExpressionHeatmap(id, species, data) {
                             // Filter first value for each metacell type
                             {
                                 window: [{ op: "row_number", as: "rn" }],
-                                groupby: [ "metacell_type" ],
-                                sort: [{ field: "metacell_name", order: "ascending" }]
+                                groupby: ["metacell_type"],
+                                sort: [
+                                    {
+                                        field: "metacell_name",
+                                        order: "ascending",
+                                    },
+                                ],
                             },
                             {
-                                filter: "datum.rn === 1"
+                                filter: "datum.rn === 1",
                             },
 
                             // Discard first value (overlaps the Y-axis grid line)
                             {
-                                "window": [{ "op": "row_number", "as": "rn_all" }],
-                                "sort": [{ "field": "metacell_name", "order": "ascending" }]
+                                window: [{ op: "row_number", as: "rn_all" }],
+                                sort: [
+                                    {
+                                        field: "metacell_name",
+                                        order: "ascending",
+                                    },
+                                ],
                             },
                             {
-                                "filter": "datum.rn_all > 1"
-                            }
+                                filter: "datum.rn_all > 1",
+                            },
                         ],
                         encoding: {
                             // Position first mark to the left
                             x: { field: "metacell_name", bandPosition: 0 },
                             color: { value: "gray" },
-                            strokeWidth: { value: 0.5 }
-                        }
-                    }
+                            strokeWidth: { value: 0.5 },
+                        },
+                    },
                 ],
             },
             {
