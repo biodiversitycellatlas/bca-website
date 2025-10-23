@@ -69,7 +69,7 @@ class HtmlLinkMixin():
         name = self.common_name
 
         # Add species common name
-        if common_name and name:
+        if show_common_name and name:
             html = f"""
                 {html}
                 <span class="text-secondary small">{name}</span>
