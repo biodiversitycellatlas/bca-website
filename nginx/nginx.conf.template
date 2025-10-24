@@ -1,0 +1,112 @@
+# =========================================================
+# Shared configuration (applies to all servers)
+# =========================================================
+
+# --- Gzip compression ---
+gzip on;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+gzip_min_length 256;
+gzip_comp_level 5;
+gzip_vary on;
+
+# --- Shared SSL settings (allowed at http level) ---
+ssl_session_timeout 1d;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+ssl_prefer_server_ciphers on;
+
+# --- Security headers ---
+add_header X-Content-Type-Options nosniff;
+add_header X-Frame-Options SAMEORIGIN;
+add_header X-XSS-Protection "1; mode=block";
+# add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+# HTTP to HTTPS Redirection for portal.biodiversitycellatlas.org
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DJANGO_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
+    listen [::]:443 ssl http2; # IPv6 support
+    server_name ${DJANGO_HOSTNAME};
+    
+    # --- Wildcard SSL Certificate Paths ---
+    ssl_certificate /etc/nginx/certs/wildcard_hpc.crt;
+    ssl_certificate_key /etc/nginx/certs/wildcard_hpc.key;
+    
+    location / {
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /static/;
+        access_log off;
+        expires 30d;
+    }
+
+    location /data/ {
+        alias /data/;
+        access_log off;
+        expires 30d;
+    }
+}
+
+
+# HTTP to HTTPS Redirection for biodiversitycellatlas.org and www.biodiversitycellatlas.org
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${GHOST_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+
+server {
+    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
+    listen [::]:443 ssl http2; # IPv6 support
+    server_name ${GHOST_HOSTNAME};
+  
+    # --- Wildcard SSL Certificate Paths (same as above) ---
+    ssl_certificate /etc/nginx/certs/wildcard_hpc.crt;
+    ssl_certificate_key /etc/nginx/certs/wildcard_hpc.key;
+
+    location / {
+        proxy_pass http://ghost:2368;   # Ghost default port
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-NginX-Proxy true;
+
+        # These are crucial for cookie handling specifically
+        proxy_set_header Origin $http_origin;
+        proxy_set_header Cookie $http_cookie; # Pass the original Cookie header
+        proxy_pass_header Set-Cookie; # Ensure Ghost's Set-Cookie is passed back to client
+
+        # Add/Adjust Proxy Timeouts (as discussed, to prevent 504s for slow Ghost responses)
+        proxy_read_timeout 120s;
+        proxy_connect_timeout 120s;
+        proxy_send_timeout 120s;
+
+        # Other important proxy settings
+        proxy_redirect off;
+        proxy_buffering off; # Important for Ghost's admin panel responsiveness
+        client_max_body_size 50m;
+        
+    }
+}
