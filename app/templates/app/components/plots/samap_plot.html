@@ -27,11 +27,16 @@ Input:
             </label>
         </div>
 
-        <select id="plot" aria-label="Select plot type"
-        class="form-select form-select mb-3 btn-outline-primary"
-        onchange="updateParam('plot', this.value)">
-            <option {% if query.plot == 'sankey' %}selected{% endif %} value="sankey">Sankey plot</option>
-            <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">Heatmap</option>
+        <select id="plot"
+                aria-label="Select plot type"
+                class="form-select form-select mb-3 btn-outline-primary"
+                onchange="updateParam('plot', this.value)">
+            <option {% if query.plot == 'sankey' %}selected{% endif %} value="sankey">
+                Sankey plot
+            </option>
+            <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">
+                Heatmap
+            </option>
         </select>
     </div>
 
