@@ -8,6 +8,19 @@ import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
 import { hideSpinner } from "../plots/plot_container.js";
 import { createSAMapSankey } from "../plots/samap_sankey_plot.js";
+import { createSAMapHeatmap } from "../plots/samap_heatmap.js";
+
+/**
+ * Update param and reload page
+ *
+ * @param {string} param - Parameter name to set.
+ * @param {string} value - Value.
+ */
+export function updateParam(param, value) {
+    const url = new URL(window.location);
+    url.searchParams.set(param, value);
+    window.location.href = url.href;
+}
 
 /**
  * Navigate to new URL query parameters based on form data.
@@ -56,11 +69,16 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
     });
     var apiURL = getDataPortalUrl("rest:samap-list") + "?" + params.toString();
 
+    var heatmap = $("#plot").val() == "heatmap";
     fetch(apiURL)
         .then((response) => response.json())
         .then((data) => {
             if (data.length) {
-                createSAMapSankey(`#${id}-plot`, data, label, label2);
+                if (heatmap) {
+                    createSAMapHeatmap(`#${id}-plot`, data, label, label2);
+                } else {
+                    createSAMapSankey(`#${id}-plot`, data, label, label2);
+                }
             } else {
                 $(`#${id}-plot`).html(
                     '<p class="text-muted"><i class="fa fa-circle-exclamation"></i>',

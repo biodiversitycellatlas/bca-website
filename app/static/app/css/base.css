@@ -105,7 +105,7 @@ body {
 .form-control:focus,
 .sequence-input:has(.sequence-textarea:focus) {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+    box-shadow: var(--button-box-shadow);
 }
 
 .sequence-textarea:focus {
@@ -131,15 +131,15 @@ body {
 
 /* Buttons */
 
-.btn.btn-primary,
-.btn.btn-outline-primary {
+.btn-primary,
+.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: var(--button-box-shadow);
 }
 
-.btn.btn-primary.disabled,
-.btn.btn-primary:disabled,
+.btn-primary.disabled,
+.btn-primary:disabled,
 fieldset:disabled.btn.btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
@@ -176,6 +176,10 @@ fieldset:disabled.btn.btn-primary {
 .btn-outline-primary {
     border-color: var(--primary-color) !important;
     color: var(--primary-color);
+}
+
+.btn-outline-primary:focus {
+    box-shadow: var(--button-box-shadow);
 }
 
 .btn-outline-primary:hover {
