@@ -54,10 +54,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                 legend: false,
                                 scale: { range: { field: "metacell_color" } },
                             },
-                            tooltip: [
-                                { field: "metacell_type" },
-                                { field: "metacell_color" },
-                            ],
+                            tooltip: [{ field: "metacell_type" }],
                         },
                     },
                     {
@@ -97,7 +94,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
             {
                 hconcat: [
                     {
-                        width: 36,
+                        width: 21,
                         mark: { type: "rect", opacity: 0 },
                     },
                     {
