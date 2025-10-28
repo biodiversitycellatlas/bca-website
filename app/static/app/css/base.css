@@ -131,15 +131,32 @@ body {
 
 /* Buttons */
 
-.btn-primary,
-.btn-outline-primary {
+.btn.btn-primary,
+.btn.btn-outline-primary {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: var(--button-box-shadow);
 }
 
-.btn-primary.disabled,
-.btn-primary:disabled {
+.btn.btn-primary.disabled,
+.btn.btn-primary:disabled,
+fieldset:disabled.btn.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn.btn-link {
+    --bs-btn-color: var(--primary-color);
+    --bs-btn-active-color: var(--hover-color);
+}
+
+.btn-xs {
+    --bs-btn-padding-y: 0.25rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 0.75rem;
+}
+
+.btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
@@ -154,17 +171,6 @@ body {
     background: var(--primary-color) !important;
     background-color: var(--primary-color) !important;
     border-color: white !important;
-}
-
-.btn.btn-link {
-    --bs-btn-color: var(--primary-color);
-    --bs-btn-active-color: var(--hover-color);
-}
-
-.btn-xs {
-    --bs-btn-padding-y: 0.25rem;
-    --bs-btn-padding-x: 0.5rem;
-    --bs-btn-font-size: 0.75rem;
 }
 
 .btn-outline-primary {
