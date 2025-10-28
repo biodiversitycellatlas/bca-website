@@ -136,14 +136,10 @@ body {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: var(--button-box-shadow);
-
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
 }
 
 .btn-primary.disabled,
-.btn-primary:disabled,
-fieldset:disabled.btn.btn-primary {
+.btn-primary:disabled {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
