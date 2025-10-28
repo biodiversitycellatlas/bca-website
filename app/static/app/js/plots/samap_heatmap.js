@@ -78,6 +78,9 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                 field: "samap",
                                 type: "quantitative",
                                 title: "SAMap scores",
+                                legend: {
+                                    labelExpr: "datum.value + '%'"
+                                },
                                 scale: {
                                     range: [
                                         "#F2F2F2",
