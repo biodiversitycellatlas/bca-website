@@ -79,7 +79,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                 type: "quantitative",
                                 title: "SAMap scores",
                                 legend: {
-                                    labelExpr: "datum.value + '%'"
+                                    labelExpr: "datum.value + '%'",
                                 },
                                 scale: {
                                     range: [
