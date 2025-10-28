@@ -14,7 +14,7 @@ services:
         profiles: ["nginx"]
 
     ghost:
-        image: ghost:6.4-alpine
+        image: ghost:6.5-alpine
         env_file: [.env]
         expose:
             - "2368"
