@@ -101,7 +101,8 @@ Input:
         ["#samap_min_value", undefined]
     );
 
-    import { handleFormSubmit } from "{% static 'app/js/atlas/samap_compare.js' %}";
+    import { handleFormSubmit, updateParam } from "{% static 'app/js/atlas/samap_compare.js' %}";
+    window.updateParam = updateParam;
     handleFormSubmit();
 </script>
 
@@ -114,9 +115,8 @@ Input:
     </div>
 
     <script type="module">
-        import { initSAMap, updateParam } from "{% static 'app/js/atlas/samap_compare.js' %}";
+        import { initSAMap } from "{% static 'app/js/atlas/samap_compare.js' %}";
         initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
-        window.updateParam = updateParam;
     </script>
 {% else %}
     <p class="text-muted">
