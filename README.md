@@ -25,14 +25,16 @@ To set up the project and run the web app locally, first install:
   manage Podman containers
 - [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
-Then, follow these steps:
+Then, download the project directory from GitHub and follow these steps:
 
 ```bash
 # Go to the project directory
 cd bca-website
 
-# Copy the .env.template to .env
+# Copy the *.template files to avoid the .template suffix
 cp .env.template .env
+cp .pgpass.template .pgpass
+cp .pg_service.conf.template .pg_service.conf
 
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
@@ -130,18 +132,11 @@ podman compose -d
 
 By default, the project uses the Postgres database service to serve the Django
 app. However, you can instead connect to any database by editing the Postgres
-variables in the `.env` file:
+files `.pg_service.conf` and `.pgpass`, and then changing to which database
+service to connect in `.env`:
 
 ```bash
-# Postgres
-POSTGRES_HOST=db
-POSTGRES_HOST_AUTH_METHOD=trust
-POSTGRES_PORT=5432
-
-POSTGRES_DB=bca
-PGUSER=postgres
-POSTGRES_USER=$PGUSER
-POSTGRES_PASSWORD=pg_password
+POSTGRES_SERVICE=remote-bca-db
 ```
 
 In case the database service is not needed because you are connecting to an
@@ -156,26 +151,29 @@ COMPOSE_PROFILES=nginx
 
 ### Connect to database via SSH tunnel
 
-If the database can only be accessed via an intermediate host, you will need to
-connect to the host via an SSH tunnel:
+If the database can only be accessed via an intermediate host, you will
+need to connect to the host via an SSH tunnel:
 
 ```bash
-user=darwin
-host=internal.host.com
-db_host=db.host.com
-db_port=5432
-
-ssh -fN -L 5432:${db_host}:${db_port} ${user}@${host}
+ssh -fN -L 5432:db-host.com:5432 darwin@intermediate.host.com
 ```
 
-To connect to the database via the SSH tunnel, you will need to connect to your
-local machine from Podman by editing this variable in your `.env` file:
+To connect to the database through the SSH tunnel, use host `host.docker.internal`.
+You can configure your `.pg_service.conf` and `.pgpass` files like this:
 
 ```bash
-POSTGRES_HOST=host.docker.internal
+[ssh-bca-db]
+host=host.docker.internal
+port=5432
+dbname=bca_db
+user=wallace
 ```
 
-You can now start the project as usual.
+```bash
+host.docker.internal:5432:bca_db:wallace:mypassword
+```
+
+You can now start the project as usual via `podman compose up`.
 
 ## Ghost
 

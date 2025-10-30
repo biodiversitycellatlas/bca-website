@@ -24,6 +24,8 @@ jobs:
 
             - name: Prepare .env file
               run: |
+                  cp .pgpass.template .pgpass
+                  cp .pg_service.conf.template .pg_service.conf
                   cp .env.template .env
                   echo "ENVIRONMENT=prod" >> .env
 
