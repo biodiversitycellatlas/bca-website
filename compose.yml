@@ -53,6 +53,9 @@ services:
             # Postgres files
             - ./.pgpass:/postgres/.pgpass
             - ./.pg_service.conf:/postgres/.pg_service.conf
+        environment:
+            - PGPASSFILE=/postgres/.pgpass
+            - PGSERVICEFILE=/postgres/.pg_service.conf
 
     db:
         image: postgres:17.6-trixie
