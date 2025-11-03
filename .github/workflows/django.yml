@@ -45,6 +45,22 @@ jobs:
               run: |
                   docker compose exec web \
                       python -c "from config import settings; print(settings.DATABASES)"
+            
+            - name: Show pg config files
+              run: |
+                  echo "---- .pg_service.conf ----"
+                  cat .pg_service.conf || true
+                  echo
+                  echo "---- .pgpass ----"
+                  cat .pgpass || true
+
+            - name: Show pg config files inside container
+              run: |
+                  echo "---- .pg_service.conf ----"
+                  docker compose exec web cat /usr/src/app/.pg_service.conf || true
+                  echo
+                  echo "---- .pgpass ----"
+                  docker compose exec web cat /usr/src/app/.pgpass || true
 
             - name: Run tests with coverage
               run: |
