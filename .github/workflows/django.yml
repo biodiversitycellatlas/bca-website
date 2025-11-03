@@ -43,7 +43,7 @@ jobs:
 
             - name: Run tests with coverage
               run: |
-                  docker compose exec web \
+                  docker compose exec -T web \
                       coverage run manage.py test
 
             - name: Create XML coverage file
