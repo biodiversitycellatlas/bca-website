@@ -74,13 +74,15 @@ services:
         environment:
             - PGPASSFILE=/postgres/.pgpass
             - PGSERVICEFILE=/postgres/.pg_service.conf
+            - POSTGRES_DB=bca
             - POSTGRES_HOST=db
-            - POSTGRES_DB=postgres
+            - POSTGRES_HOST_AUTH_METHOD=trust
+            - POSTGRES_PORT=5432
             - PGUSER=postgres
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=mypassword
         ports:
-            - "5432:5432"
+            - "${DB_PORT:-5432}:5432"
         profiles: ["db"]
 
 volumes:
