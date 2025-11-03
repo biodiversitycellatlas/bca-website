@@ -144,8 +144,8 @@ else:
             "PASSWORD": get_env("POSTGRES_PASSWORD"),
             "HOST": get_env("POSTGRES_HOST"),
             "PORT": get_env("POSTGRES_PORT"),
+        }
     }
-}
 
 
 # Password validation
