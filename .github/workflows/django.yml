@@ -28,17 +28,18 @@ jobs:
                   chmod 600 .pgpass
                   cp .pg_service.conf.template .pg_service.conf
 
+                  # Fix for local db not loading in GitHub Actions
                   cp .env.template .env
                   sed -i '/POSTGRES_SERVICE/d' .env
                   cat <<EOF >> .env
                   ENVIRONMENT=prod
-                  #POSTGRES_DB=bca
-                  #POSTGRES_HOST=db
-                  #POSTGRES_HOST_AUTH_METHOD=trust
-                  #POSTGRES_PORT=5432
-                  #PGUSER=postgres
-                  #POSTGRES_USER=postgres
-                  #POSTGRES_PASSWORD=mypassword
+                  POSTGRES_DB=bca
+                  POSTGRES_HOST=db
+                  POSTGRES_HOST_AUTH_METHOD=trust
+                  POSTGRES_PORT=5432
+                  PGUSER=postgres
+                  POSTGRES_USER=postgres
+                  POSTGRES_PASSWORD=mypassword
                   EOF
 
             - name: Set up Docker Compose
