@@ -33,8 +33,11 @@ cd bca-website
 
 # Copy the *.template files to avoid the .template suffix
 cp .env.template .env
-cp .pgpass.template .pgpass
 cp .pg_service.conf.template .pg_service.conf
+cp .pgpass.template .pgpass
+
+# Fix the permissions for .pgpass
+chmod 600 .pgpass
 
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
