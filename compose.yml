@@ -80,7 +80,7 @@ services:
             - POSTGRES_PORT=5432
             - PGUSER=postgres
             - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=mypassword
+            - POSTGRES_PASSWORD=pg_password
         ports:
             - "${DB_PORT:-5432}:5432"
         profiles: ["db"]
