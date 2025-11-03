@@ -44,7 +44,7 @@ jobs:
             - name: Print DATABASES
               run: |
                   docker compose exec web \
-                      python -c "from django.conf import settings; print(settings.DATABASES)"
+                      python -c "from config import settings; print(settings.DATABASES)"
 
             - name: Run tests with coverage
               run: |
