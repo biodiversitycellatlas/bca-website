@@ -41,6 +41,11 @@ jobs:
                   docker compose exec web \
                       pip install coverage
 
+            - name: Print DATABASES
+              run: |
+                  docker compose exec web \
+                      python -c "from django.conf import settings; print(settings.DATABASES)"
+
             - name: Run tests with coverage
               run: |
                   docker compose exec web \
