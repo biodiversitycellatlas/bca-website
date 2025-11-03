@@ -50,12 +50,6 @@ services:
             # Media and static files
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
-            # Postgres files
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
-        environment:
-            - PGPASSFILE=/postgres/.pgpass
-            - PGSERVICEFILE=/postgres/.pg_service.conf
 
     db:
         image: postgres:17.6-trixie
@@ -69,11 +63,7 @@ services:
         volumes:
             - db_data:/var/lib/postgresql/data
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
         environment:
-            - PGPASSFILE=/postgres/.pgpass
-            - PGSERVICEFILE=/postgres/.pg_service.conf
             - POSTGRES_HOST=db
             - POSTGRES_DB=postgres
             - PGUSER=postgres
