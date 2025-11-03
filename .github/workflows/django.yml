@@ -26,6 +26,9 @@ jobs:
               run: |
                   cp .env.template .env
                   echo "ENVIRONMENT=prod" >> .env
+
+                  # Manually add the database params
+                  sed -i '/^POSTGRES_SERVICE=/d' .env
                   echo "POSTGRES_DB=bca" >> .env
                   echo "POSTGRES_HOST=db" >> .env
                   echo "POSTGRES_HOST_AUTH_METHOD=trust" >> .env
