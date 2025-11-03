@@ -69,6 +69,11 @@ services:
         volumes:
             - db_data:/var/lib/postgresql/data
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+            - ./.pgpass:/postgres/.pgpass
+            - ./.pg_service.conf:/postgres/.pg_service.conf
+        environment:
+            - PGPASSFILE=/postgres/.pgpass
+            - PGSERVICEFILE=/postgres/.pg_service.conf
         ports:
             - "${DB_PORT:-5432}:5432"
         healthcheck:
