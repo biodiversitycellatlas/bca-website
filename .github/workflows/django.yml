@@ -24,11 +24,15 @@ jobs:
 
             - name: Prepare .env file
               run: |
-                  cp .pgpass.template .pgpass
-                  chmod 600 .pgpass
-                  cp .pg_service.conf.template .pg_service.conf
                   cp .env.template .env
                   echo "ENVIRONMENT=prod" >> .env
+                  echo "POSTGRES_DB=bca" >> .env
+                  echo "POSTGRES_HOST=db" >> .env
+                  echo "POSTGRES_HOST_AUTH_METHOD=trust" >> .env
+                  echo "POSTGRES_PORT=5432" >> .env
+                  echo "PGUSER=postgres" >> .env
+                  echo "POSTGRES_USER=postgres" >> .env
+                  echo "POSTGRES_PASSWORD=mypassword" >> .env
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v1
@@ -45,22 +49,6 @@ jobs:
               run: |
                   docker compose exec web \
                       python -c "from config import settings; print(settings.DATABASES)"
-            
-            - name: Show pg config files
-              run: |
-                  echo "---- .pg_service.conf ----"
-                  cat .pg_service.conf || true
-                  echo
-                  echo "---- .pgpass ----"
-                  cat .pgpass || true
-
-            - name: Show pg config files inside container
-              run: |
-                  echo "---- .pg_service.conf ----"
-                  docker compose exec web cat /usr/src/app/.pg_service.conf || true
-                  echo
-                  echo "---- .pgpass ----"
-                  docker compose exec web cat /usr/src/app/.pgpass || true
 
             - name: Run tests with coverage
               run: |
