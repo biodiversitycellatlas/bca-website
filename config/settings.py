@@ -126,14 +126,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": get_env("POSTGRES_DB"),
-        "USER": get_env("POSTGRES_USER"),
-        "PASSWORD": get_env("POSTGRES_PASSWORD"),
-        "HOST": get_env("POSTGRES_HOST"),
-        "PORT": get_env("POSTGRES_PORT"),
+POSTGRES_SERVICE = get_env("POSTGRES_SERVICE")
+
+if POSTGRES_SERVICE:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "OPTIONS": {"service": POSTGRES_SERVICE},
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "NAME": get_env("POSTGRES_DB"),
+            "USER": get_env("POSTGRES_USER"),
+            "PASSWORD": get_env("POSTGRES_PASSWORD"),
+            "HOST": get_env("POSTGRES_HOST"),
+            "PORT": get_env("POSTGRES_PORT"),
     }
 }
 
