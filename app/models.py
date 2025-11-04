@@ -680,7 +680,7 @@ class GeneModule(models.Model):
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "dataset"]
+        unique_together = ["name", "gene", "dataset"]
 
     def __str__(self):
         """String representation."""
