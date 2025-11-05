@@ -8,9 +8,8 @@ services:
         volumes:
             - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
             - ./nginx/entrypoint.sh:/entrypoint.sh:ro
-            # Mount SSL certificates from the same host directory
-            - ./nginx/wildcard_hpc.crt:/etc/nginx/certs/wildcard_hpc.crt
-            - ./nginx/wildcard_hpc.key:/etc/nginx/certs/wildcard_hpc.key
+            # Mount entire cert directory
+            - ${CERT_DIR}:/certs:ro
             # Media and static files
             - static_files:/static
             - ./data:/data
