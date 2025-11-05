@@ -50,6 +50,12 @@ services:
             # Media and static files
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
+            # Postgres files
+            - ./.pgpass:/postgres/.pgpass
+            - ./.pg_service.conf:/postgres/.pg_service.conf
+        environment:
+            - PGPASSFILE=/postgres/.pgpass
+            - PGSERVICEFILE=/postgres/.pg_service.conf
 
     db:
         image: postgres:17.6-trixie
@@ -63,21 +69,20 @@ services:
         volumes:
             - db_data:/var/lib/postgresql/data
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+            - ./.pgpass:/postgres/.pgpass
+            - ./.pg_service.conf:/postgres/.pg_service.conf
+        environment:
+            - PGPASSFILE=/postgres/.pgpass
+            - PGSERVICEFILE=/postgres/.pg_service.conf
+            - POSTGRES_DB=bca
+            - POSTGRES_HOST=db
+            - POSTGRES_HOST_AUTH_METHOD=trust
+            - POSTGRES_PORT=5432
+            - PGUSER=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=mypassword
         ports:
             - "${DB_PORT:-5432}:5432"
-        healthcheck:
-            test:
-                [
-                    "CMD-SHELL",
-                    "pg_isready",
-                    "-d",
-                    "${POSTGRES_DB}",
-                    "-U",
-                    "${POSTGRES_USER}",
-                ]
-            interval: 1s
-            timeout: 5s
-            retries: 10
         profiles: ["db"]
 
 volumes:
