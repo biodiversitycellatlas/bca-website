@@ -2,7 +2,7 @@
 
 from django.views.generic import DetailView, ListView, TemplateView
 
-from ..models import Dataset, Domain, Gene, GeneList, GeneModule, Ortholog, Species
+from ..models import Dataset, Domain, Gene, GeneList, GeneModule, GeneModuleMembership, Ortholog, Species
 from ..utils import get_dataset, get_gene_list, get_species
 
 
@@ -160,10 +160,10 @@ class GeneModuleListView(FilteredListView):
         return super().get_queryset().distinct("dataset", "name")
 
 
-class GeneModuleDetailView(FilteredListView):
+class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
 
-    model = GeneModule
+    model = GeneModuleMembership
     paginate_by = 20
     template_name = "app/entries/gene_module_detail.html"
 
@@ -172,7 +172,7 @@ class GeneModuleDetailView(FilteredListView):
         qs = super().get_queryset()
         module = self.kwargs.get("gene_module")
         dataset = get_dataset(self.kwargs.get("dataset"))
-        return qs.filter(name=module, dataset=dataset)
+        return qs.filter(module__name=module, module__dataset=dataset)
 
     def get_context_data(self, **kwargs):
         """Add module and dataset to context."""
