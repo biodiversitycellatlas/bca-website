@@ -651,14 +651,12 @@ class Gene(SlugMixin):
 class GeneModule(models.Model):
     """Gene module model."""
 
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="modules")
+    name = models.CharField(max_length=100)
     dataset = models.ForeignKey(
         Dataset, on_delete=models.CASCADE, related_name="gene_modules"
     )
-    name = models.CharField(max_length=100)
-    membership_score = models.DecimalField(
-        max_digits=4, decimal_places=3, blank=True, null=True
-    )
+    genes = models.ManyToManyField("Gene", through="GeneModuleMembership", related_name="gene_modules")
+    eigenvalues = models.ManyToManyField("Metacell", through="GeneModuleEigenvalue", related_name="gene_modules")
 
     @property
     def gene_modules(self):
@@ -677,14 +675,47 @@ class GeneModule(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
-    class Meta:
-        """Meta options."""
-
-        unique_together = ["name", "gene", "dataset"]
-
     def __str__(self):
         """String representation."""
         return str(self.name)
+
+
+class GeneModuleMembership(models.Model):
+    """Gene module membership for each gene."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE)
+    gene = models.ForeignKey("Gene", on_delete=models.CASCADE)
+    membership_score = models.DecimalField(
+        max_digits=4, decimal_places=3, blank=True, null=True
+    )
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ('gene', 'module')
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.gene}, {self.module}: {self.membership_score} "
+
+
+class GeneModuleEigenvalue(models.Model):
+    """Gene module eigenvalue for each metacell."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE)
+    metacell = models.ForeignKey("Metacell", on_delete=models.CASCADE)
+    eigenvalue = models.DecimalField(
+        max_digits=4, decimal_places=3, blank=True, null=True
+    )
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ('module', 'metacell')
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.gene}, {self.module}: {self.membership_score} "
 
 
 class GeneCorrelation(models.Model):
