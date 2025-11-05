@@ -126,7 +126,7 @@ Input:
                                 Orthogroup
                             </td>
                             <td>
-                                {{ gene.orthogroup_html_link|default:"—" }}
+                                {{ gene.get_orthogroup_html_link|default:"—" }}
                             </td>
                         </tr>
                     </tbody>
