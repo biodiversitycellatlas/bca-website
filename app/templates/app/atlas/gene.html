@@ -109,7 +109,15 @@ Input:
                                 Gene modules
                             </td>
                             <td>
-                                {{ gene.modules.all|join:", "|default:'—' }}
+                                {% for member in gene.modules.all %}
+                                    {% if member.module.dataset == dataset %}
+                                        {{ member.module.get_html_link }}:
+                                        <span title="Membership score">{{member.membership_score}}</span>
+                                        <br>
+                                    {% endif %}
+                                {% empty %}
+                                    —
+                                {% endfor %}
                             </td>
                         </tr>
 

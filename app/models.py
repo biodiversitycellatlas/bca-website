@@ -655,13 +655,8 @@ class GeneModule(models.Model):
     dataset = models.ForeignKey(
         Dataset, on_delete=models.CASCADE, related_name="gene_modules"
     )
-    genes = models.ManyToManyField("Gene", through="GeneModuleMembership", related_name="gene_modules")
-    eigenvalues = models.ManyToManyField("Metacell", through="GeneModuleEigenvalue", related_name="gene_modules")
-
-    @property
-    def gene_modules(self):
-        """Return all gene modules for the same module."""
-        return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
+    genes = models.ManyToManyField("Gene", through="GeneModuleMembership")
+    eigenvalues = models.ManyToManyField("Metacell", through="GeneModuleEigenvalue")
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -684,7 +679,7 @@ class GeneModuleMembership(models.Model):
     """Gene module membership for each gene."""
 
     module = models.ForeignKey("GeneModule", on_delete=models.CASCADE)
-    gene = models.ForeignKey("Gene", on_delete=models.CASCADE)
+    gene = models.ForeignKey("Gene", on_delete=models.CASCADE, related_name="modules")
     membership_score = models.DecimalField(
         max_digits=4, decimal_places=3, blank=True, null=True
     )
@@ -693,6 +688,7 @@ class GeneModuleMembership(models.Model):
         """Meta options."""
 
         unique_together = ('gene', 'module')
+        ordering = ["module__dataset__order", "module__name"]
 
     def __str__(self):
         """String representation."""
