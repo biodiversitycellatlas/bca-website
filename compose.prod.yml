@@ -56,7 +56,13 @@ services:
             # Media and static files
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
-
+            # Postgres files
+            - ./.pgpass:/postgres/.pgpass
+            - ./.pg_service.conf:/postgres/.pg_service.conf
+        environment:
+            - PGPASSFILE=/postgres/.pgpass
+            - PGSERVICEFILE=/postgres/.pg_service.conf
+            
 volumes:
     static_files:
     ghost_data:
