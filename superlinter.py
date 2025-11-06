@@ -57,6 +57,7 @@ VALIDATOR_FLAGS["--py"] = VALIDATOR_FLAGS["--python"]
 VALIDATOR_FLAGS["--js"] = VALIDATOR_FLAGS["--javascript"]
 VALIDATOR_FLAGS["--gh"] = VALIDATOR_FLAGS["--github"]
 
+
 def get_linter_version():
     """Get Super-Linter version from GitHub Actions workflows."""
 
