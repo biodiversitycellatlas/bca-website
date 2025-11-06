@@ -303,6 +303,44 @@ class GeneListFilter(FilterSet):
         return queryset.distinct()
 
 
+class GeneModuleFilter(FilterSet):
+    """Filter set for gene modules."""
+
+    dataset = DatasetChoiceFilter()
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.GeneModule
+        fields = ["dataset"]
+
+
+class GeneModuleMembershipFilter(FilterSet):
+    """Filter set for gene module membership."""
+
+    dataset = DatasetChoiceFilter(field_name="module")
+    module = CharFilter(field_name="module__name")
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.GeneModuleMembership
+        fields = ["dataset", "module"]
+
+
+class GeneModuleEigenvalueFilter(FilterSet):
+    """Filter set for gene module eigenvalue."""
+
+    dataset = DatasetChoiceFilter(field_name="module")
+    module = CharFilter(field_name="module__name")
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.GeneModuleEigenvalue
+        fields = ["dataset", "module"]
+
+
 class OrthologFilter(FilterSet):
     """Filter set for ortholog genes."""
 

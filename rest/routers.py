@@ -13,6 +13,10 @@ router.register("gene_lists", views.GeneListViewSet)
 router.register("domains", views.DomainViewSet)
 router.register("correlated", views.CorrelatedGenesViewSet, basename="correlated")
 
+router.register("gene_modules", views.GeneModuleViewSet)
+router.register("gene_modules_membership", views.GeneModuleMembershipViewSet)
+router.register("gene_modules_eigenvalues", views.GeneModuleEigenvalueViewSet)
+
 router.register("orthologs", views.OrthologViewSet)
 router.register("ortholog_counts", views.OrthologCountViewSet, basename="orthologcount")
 router.register("samap", views.SAMapViewSet)

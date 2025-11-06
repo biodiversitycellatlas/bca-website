@@ -144,6 +144,36 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
+@extend_schema(summary="List gene modules", tags=["Gene module"])
+class GeneModuleViewSet(BaseReadOnlyModelViewSet):
+    """List gene modules."""
+
+    queryset = models.GeneModule.objects.all()
+    serializer_class = serializers.GeneModuleSerializer
+    filterset_class = filters.GeneModuleFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene module membership", tags=["Gene module"])
+class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
+    """List gene membership in gene modules."""
+
+    queryset = models.GeneModuleMembership.objects.all()
+    serializer_class = serializers.GeneModuleMembershipSerializer
+    filterset_class = filters.GeneModuleMembershipFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene module eigenvalues", tags=["Gene module"])
+class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
+    """List eigenvalues in gene modules per metacell."""
+
+    queryset = models.GeneModuleEigenvalue.objects.all()
+    serializer_class = serializers.GeneModuleEigenvalueSerializer
+    filterset_class = filters.GeneModuleEigenvalueFilter
+    lookup_field = "name"
+
+
 @extend_schema(
     summary="List genes",
     tags=["Gene"],

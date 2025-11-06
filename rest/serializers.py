@@ -309,6 +309,49 @@ class GeneListSerializer(serializers.ModelSerializer):
         fields = ["name", "description", "gene_count"]
 
 
+class GeneModuleSerializer(serializers.ModelSerializer):
+    """Gene module serializer."""
+
+    dataset = serializers.CharField(source="dataset.slug")
+    gene_count = serializers.IntegerField(source="genes.count")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModule
+        fields = ["name", "dataset", "gene_count"]
+
+
+class GeneModuleMembershipSerializer(serializers.ModelSerializer):
+    """Gene module membership serializer."""
+
+    gene = serializers.CharField()
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    score = serializers.CharField(source="membership_score")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleMembership
+        fields = ["dataset", "module", "gene", "score"]
+
+
+class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
+    """Gene module eigenvalue serializer."""
+
+    metacell = serializers.CharField()
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    eigenvalue = serializers.CharField()
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleEigenvalue
+        fields = ["dataset", "module", "metacell", "eigenvalue"]
+
+
 class BaseExpressionSerializer(serializers.ModelSerializer):
     """Base class to display gene expression for single cell and metacell serializers."""
 
