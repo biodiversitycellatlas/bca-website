@@ -6,8 +6,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('app', '0010_alter_genemodule_unique_together_squashed_0013_alter_genemodule_genes_genemoduleeigenvalue_and_more'), ('app', '0014_alter_genemodulemembership_options_and_more')]
-
     dependencies = [
         ('app', '0002_alter_dataset_options_alter_domain_options_and_more_squashed_0009_alter_datasetqualitycontrol_value'),
     ]

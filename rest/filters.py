@@ -63,7 +63,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
             choices = [
                 (
                     s.scientific_name,
-                    s.common_name if s.common_name is not None else s.scientific_name,
+                    s.common_name if s.common_name is not None else s.get_html(),
                 )
                 for s in models.Species.objects.all()
             ]
@@ -109,8 +109,8 @@ class DatasetChoiceFilter(ChoiceFilter):
 
         choices = []
         if check_model_exists(models.Dataset):
-            choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-            choices = sorted(choices, key=lambda x: x[0])
+            choices = [(d.slug, d.get_html()) for d in models.Dataset.objects.all()]
+
         kwargs["choices"] = choices
         super().__init__(*args, **kwargs)
 
