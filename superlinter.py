@@ -32,6 +32,31 @@ CYAN = "\033[1;36m"
 RESET = "\033[0m"
 
 
+VALIDATOR_FLAGS = {
+    "--python": [
+        "PYTHON_PYLINT",
+        "PYTHON_BLACK",
+        "PYTHON_FLAKE8",
+        "PYTHON_RUFF",
+        "PYTHON_RUFF_FORMAT",
+    ],
+    "--pylint": ["PYTHON_PYLINT"],
+    "--black": ["PYTHON_BLACK"],
+    "--flake8": ["PYTHON_FLAKE8"],
+    "--ruff": ["PYTHON_RUFF", "PYTHON_RUFF_FORMAT"],
+    "--r": ["R"],
+    "--github": ["GITHUB_ACTIONS", "GITHUB_ACTIONS_ZIZMOR"],
+    "--zizmor": ["GITHUB_ACTIONS_ZIZMOR"],
+    "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
+    "--javascript-es": ["JAVASCRIPT_ES"],
+    "--javascript-prettier": ["JAVASCRIPT_PRETTIER"],
+}
+
+# shortcuts
+VALIDATOR_FLAGS["--py"] = VALIDATOR_FLAGS["--python"]
+VALIDATOR_FLAGS["--js"] = VALIDATOR_FLAGS["--javascript"]
+VALIDATOR_FLAGS["--gh"] = VALIDATOR_FLAGS["--github"]
+
 def get_linter_version():
     """Get Super-Linter version from GitHub Actions workflows."""
 
@@ -83,6 +108,8 @@ def usage():
   {CYAN}--js, --javascript{RESET}    Enable all JavaScript linters
   {CYAN}--javascript-prettier{RESET} Enable JavaScript Prettier
   {CYAN}--javascript-es{RESET}       Enable JavaScript ES
+
+  {CYAN}--r{RESET}                   Enable R linter
 
 {YELLOW}Examples:{RESET}
   {CYAN}{sys.argv[0]} check{RESET}
@@ -179,36 +206,6 @@ def parse_args(args):
     env_files = ENV_FILES.copy()
     env_vars = {}
 
-    validator_flags = {
-        "--py": [
-            "PYTHON_PYLINT",
-            "PYTHON_BLACK",
-            "PYTHON_FLAKE8",
-            "PYTHON_RUFF",
-            "PYTHON_RUFF_FORMAT",
-        ],
-        "--python": [
-            "PYTHON_PYLINT",
-            "PYTHON_BLACK",
-            "PYTHON_FLAKE8",
-            "PYTHON_RUFF",
-            "PYTHON_RUFF_FORMAT",
-        ],
-        "--pylint": ["PYTHON_PYLINT"],
-        "--black": ["PYTHON_BLACK"],
-        "--flake8": ["PYTHON_FLAKE8"],
-        "--ruff": ["PYTHON_RUFF", "PYTHON_RUFF_FORMAT"],
-        "--github": ["GITHUB_ACTIONS", "GITHUB_ACTIONS_ZIZMOR"],
-        "--zizmor": ["GITHUB_ACTIONS_ZIZMOR"],
-        "--javascript": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
-        "--javascript-es": ["JAVASCRIPT_ES"],
-        "--javascript-prettier": ["JAVASCRIPT_PRETTIER"],
-    }
-
-    # shortcuts
-    validator_flags["--js"] = validator_flags["--javascript"]
-    validator_flags["--gh"] = validator_flags["--github"]
-
     positional = [a for a in args if not a.startswith("--")]
     options = [a for a in args if a.startswith("--")]
     sorted_args = positional + options
@@ -233,11 +230,11 @@ def parse_args(args):
             log_level = level
         elif arg == "--help":
             usage()
-        elif arg in validator_flags:
+        elif arg in VALIDATOR_FLAGS:
             if not validators_disabled:
                 env_vars = disable_validators(env_files)
                 validators_disabled = True
-            env_vars = enable_validator(validator_flags[arg], env_vars, mode=mode)
+            env_vars = enable_validator(VALIDATOR_FLAGS[arg], env_vars, mode=mode)
             env_files = []
         else:
             usage()
