@@ -30,3 +30,7 @@ app/static/app/images/logos/BCA/EPS/*
 .lintr
 /node_modules
 package*.json
+
+# SSL certificates
+*.crt
+*.key
