@@ -1,5 +1,5 @@
-"""Module providing a conversion of expression matrices in RDS files
-to an HDF5 file format convenient for our application
+"""Conversion of UMI matrices from an RDS file to UMI fractions
+in a HDF5 file optimized for fast gene retrieval
 """
 
 from typing import Dict
@@ -14,7 +14,7 @@ import scipy  # noqa
 
 
 def read_matrix(rds_file: str):
-    """Reads the R matrix in file rds_file
+    """Reads a sparse matrix (dgCMatrix) with UMI raw counts in an RDS file
 
     Args:
         rds_file: path to input RDS file
@@ -91,7 +91,7 @@ def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
     return dictionary
 
 
-def readfromhdf(hdf_file: str, gene: str) -> Dict[str, float]:
+def read_from_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
     """Reads the expression values for a given gene from HDF5 file
 
     Args:
