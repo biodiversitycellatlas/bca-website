@@ -20,9 +20,6 @@
         <th>
             Dataset
         </th>
-        <th>
-            Species common name
-        </th>
     {% endif %}
 {% endblock header %}
 
@@ -36,9 +33,6 @@
     {% if not dataset %}
         <td>
             {{ each.dataset.get_gene_modules_html_link }}
-        </td>
-        <td>
-            {{ each.dataset.species.common_name|default:'—' }}
         </td>
     {% endif %}
 {% endblock row %}

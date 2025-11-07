@@ -57,21 +57,45 @@ class ImageSourceMixin(models.Model):
         return None
 
 
-class Species(SlugMixin, ImageSourceMixin):
+class HtmlLinkMixin:
+    """Mixin to get HTML links for Species and Dataset objects."""
+
+    def get_html_link(self, url=None, show_common_name=False):
+        """Return HTML representation linking to the Dataset."""
+        url = self.get_absolute_url() if url is None else url
+        image_url = self.get_image_url()
+        html = self.get_html()
+        label = self.get_label()
+        name = self.common_name
+
+        # Add species common name
+        if show_common_name and name:
+            html = f"""
+                {html}
+                <span class="text-secondary small">{name}</span>
+            """
+
+        html = f"""
+            <a class="d-flex align-items-center gap-1" href="{url}">
+                <img class="rounded" alt="Image of {label}"
+                     width="25px" src="{image_url}">
+                <span>{html}</span>
+            </a>
+        """
+        return mark_safe(html)
+
+    def get_named_html_link(self, url=None):
+        """Return HTML representation with common name."""
+        return self.get_html_link(url=url, show_common_name=True)
+
+
+class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
 
-    common_name = models.CharField(
-        max_length=100, null=True, help_text="Common name of the species."
-    )
-    scientific_name = models.CharField(
-        max_length=100, unique=True, help_text="Scientific name of the species."
-    )
-    description = models.TextField(
-        blank=True, null=True, help_text="Species description."
-    )
-    image_url = models.URLField(
-        blank=True, null=True, help_text="URL for species image."
-    )
+    common_name = models.CharField(max_length=100, null=True, help_text="Common name of the species.")
+    scientific_name = models.CharField(max_length=100, unique=True, help_text="Scientific name of the species.")
+    description = models.TextField(blank=True, null=True, help_text="Species description.")
+    image_url = models.URLField(blank=True, null=True, help_text="URL for species image.")
 
     @property
     def division(self):
@@ -92,6 +116,14 @@ class Species(SlugMixin, ImageSourceMixin):
     def proteome(self):
         """Return proteome file."""
         return self.files.get(type="Proteome")
+
+    def get_label(self):
+        """Return species label."""
+        return self.scientific_name
+
+    def get_image_url(self):
+        """Return image URL from species."""
+        return self.image_url
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -125,24 +157,10 @@ class Species(SlugMixin, ImageSourceMixin):
             html = f"<i>{species}</i>"
         return mark_safe(html)
 
-    def get_html_link(self, url=None):
-        """Return HTML representation linking to species object."""
-        url = self.get_absolute_url() if url is None else url
-        image_url = self.image_url
-        label = self.get_html()
-        html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {self.scientific_name}"
-                     width="25px" src="{image_url}">
-                <span>{label}</span>
-            </a>
-        """
-        return mark_safe(html)
-
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
         url = self.get_gene_list_url()
-        return self.get_html_link(url)
+        return self.get_html_link(url, show_common_name=True)
 
     class Meta:
         """Meta options."""
@@ -153,21 +171,17 @@ class Species(SlugMixin, ImageSourceMixin):
 
     def __str__(self):
         """String representation."""
-        return self.scientific_name
+        return self.get_label()
 
 
 class Source(models.Model):
     """Data source."""
 
     name = models.CharField(max_length=255, unique=True, help_text="Source name.")
-    description = models.TextField(
-        blank=True, null=True, help_text="Source description."
-    )
+    description = models.TextField(blank=True, null=True, help_text="Source description.")
     url = models.URLField(blank=True, null=True, help_text="Source URL.")
     query_url = models.URLField(blank=True, null=True, help_text="Source query URL.")
-    version = models.CharField(
-        max_length=50, blank=True, null=True, help_text="Source version."
-    )
+    version = models.CharField(max_length=50, blank=True, null=True, help_text="Source version.")
 
     def get_html_link(self):
         """Return HTML representation linking to the Source URL."""
@@ -184,27 +198,15 @@ class Source(models.Model):
         return self.name
 
 
-class Dataset(SlugMixin, ImageSourceMixin):
+class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
-    species = models.ForeignKey(
-        Species, on_delete=models.CASCADE, related_name="datasets"
-    )
-    name = models.CharField(
-        max_length=255, default=None, null=True, help_text="Name of the dataset."
-    )
-    description = models.TextField(
-        blank=True, null=True, help_text="Description of the dataset."
-    )
-    image_url = models.URLField(
-        blank=True, null=True, help_text="URL for dataset image."
-    )
-    date_created = models.DateTimeField(
-        auto_now_add=True, help_text="Timestamp when the dataset was created."
-    )
-    date_updated = models.DateTimeField(
-        auto_now=True, help_text="Timestamp when the dataset was last updated."
-    )
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
+    name = models.CharField(max_length=255, default=None, null=True, help_text="Name of the dataset.")
+    description = models.TextField(blank=True, null=True, help_text="Description of the dataset.")
+    image_url = models.URLField(blank=True, null=True, help_text="URL for dataset image.")
+    date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
+    date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
 
     source = models.ForeignKey(
         Source,
@@ -223,34 +225,30 @@ class Dataset(SlugMixin, ImageSourceMixin):
         help_text="Order of the dataset (for ordinal sets like developmental stages).",
     )
 
-    def __label(self, species):
+    @property
+    def common_name(self):
+        """Return species common name."""
+        return self.species.common_name
+
+    def get_label(self, species=None):
         """Return dataset label."""
+        if species is None:
+            species = self.species
         dataset = self.name
         return f"{species} ({dataset})" if dataset else species
 
+    def get_image_url(self):
+        """Return image URL from dataset or species."""
+        return self.image_url or self.species.image_url
+
     def get_html(self):
         """Return HTML representation of the dataset."""
-        return mark_safe(self.__label(self.species.get_html()))
-
-    def get_html_link(self, url=None):
-        """Return HTML representation linking to the Dataset."""
-        url = self.get_absolute_url() if url is None else url
-        image_url = self.image_url or self.species.image_url
-        label = self.get_html()
-
-        html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {self.__label}"
-                     width="25px" src="{image_url}">
-                <span>{label}</span>
-            </a>
-        """
-        return mark_safe(html)
+        return mark_safe(self.get_label(self.species.get_html()))
 
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
         url = self.get_gene_module_list_url()
-        return self.get_html_link(url)
+        return self.get_html_link(url, show_common_name=True)
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -272,20 +270,16 @@ class Dataset(SlugMixin, ImageSourceMixin):
 
     def __str__(self):
         """String representation."""
-        return self.__label(self.species.scientific_name)
+        return self.get_label(self.species.scientific_name)
 
 
 class QualityControl(models.Model):
     """Quality control metrics."""
 
     type = models.CharField(max_length=100, help_text="Type of quality control.")
-    name = models.CharField(
-        max_length=100, help_text="Name of quality control metric.", unique=True
-    )
+    name = models.CharField(max_length=100, help_text="Name of quality control metric.", unique=True)
     description = models.CharField(max_length=255, help_text="Description.", null=True)
-    datasets = models.ManyToManyField(
-        Dataset, through="DatasetQualityControl", related_name="qc_terms"
-    )
+    datasets = models.ManyToManyField(Dataset, through="DatasetQualityControl", related_name="qc_terms")
 
     def __str__(self):
         """String representation."""
@@ -297,9 +291,7 @@ class DatasetQualityControl(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="qc")
     metric = models.ForeignKey(QualityControl, on_delete=models.CASCADE)
-    value = models.CharField(
-        max_length=100, null=True, help_text="Quality control value."
-    )
+    value = models.CharField(max_length=100, null=True, help_text="Quality control value.")
 
     class Meta:
         """Meta options."""
@@ -319,9 +311,7 @@ class File(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
     file = models.FileField(help_text="File.")
-    checksum = models.CharField(
-        max_length=64, editable=False, help_text="SHA256 digest."
-    )
+    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
     slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -365,9 +355,7 @@ class Meta(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     key = models.CharField(max_length=100, help_text="Metadata key.")
     value = models.CharField(max_length=100, help_text="Metadata value.")
-    query_term = models.CharField(
-        max_length=100, null=True, help_text="Term to use in query URL."
-    )
+    query_term = models.CharField(max_length=100, null=True, help_text="Term to use in query URL.")
     source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
 
     @property
@@ -410,9 +398,7 @@ class Meta(models.Model):
 class MetacellType(SlugMixin):
     """Metacell type model."""
 
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="metacell_types"
-    )
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_types")
     name = models.CharField()
     color = ColorField(default="#AAAAAA")
 
@@ -435,15 +421,9 @@ class MetacellType(SlugMixin):
 class MetacellLink(models.Model):
     """Metacell link model (used for scatter plots)."""
 
-    metacell = models.ForeignKey(
-        "Metacell", related_name="from_links", on_delete=models.CASCADE
-    )
-    metacell2 = models.ForeignKey(
-        "Metacell", related_name="to_links", on_delete=models.CASCADE
-    )
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="metacell_links"
-    )
+    metacell = models.ForeignKey("Metacell", related_name="from_links", on_delete=models.CASCADE)
+    metacell2 = models.ForeignKey("Metacell", related_name="to_links", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_links")
 
     def __str__(self):
         """String representation."""
@@ -453,12 +433,8 @@ class MetacellLink(models.Model):
 class Metacell(models.Model):
     """Metacell model."""
 
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="metacells"
-    )
-    type = models.ForeignKey(
-        MetacellType, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacells")
+    type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
@@ -477,12 +453,8 @@ class Metacell(models.Model):
 class MetacellCount(models.Model):
     """Metacell statistics per dataset."""
 
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="metacell_stats"
-    )
-    metacell = models.ForeignKey(
-        Metacell, on_delete=models.CASCADE, related_name="stats"
-    )
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_stats")
+    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name="stats")
     cells = models.IntegerField()
     umis = models.IntegerField()
 
@@ -492,9 +464,7 @@ class SingleCell(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
-    metacell = models.ForeignKey(
-        Metacell, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
 
@@ -587,9 +557,7 @@ class Gene(SlugMixin):
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList, related_name="genes")
-    correlations = models.ManyToManyField(
-        "self", through="GeneCorrelation", symmetrical=True
-    )
+    correlations = models.ManyToManyField("self", through="GeneCorrelation", symmetrical=True)
 
     @property
     def orthogroup(self):
@@ -717,15 +685,11 @@ class GeneModuleEigenvalue(models.Model):
 class GeneCorrelation(models.Model):
     """Gene correlation model per dataset."""
 
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="gene_corr"
-    )
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_corr")
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene")
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene2")
 
-    spearman = models.DecimalField(
-        max_digits=3, decimal_places=2, blank=True, null=True
-    )
+    spearman = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     pearson = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     class Meta:
@@ -765,9 +729,7 @@ class SingleCellGeneExpression(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
-    single_cell = models.ForeignKey(
-        SingleCell, on_delete=models.CASCADE, related_name="scge"
-    )
+    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name="scge")
     umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
@@ -786,9 +748,7 @@ class SingleCellGeneExpression(models.Model):
 class Ortholog(models.Model):
     """Ortholog model."""
 
-    species = models.ForeignKey(
-        Species, on_delete=models.CASCADE, related_name="orthologs"
-    )
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="orthologs")
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     orthogroup = models.CharField()
 
@@ -831,12 +791,8 @@ class Ortholog(models.Model):
 class SAMap(models.Model):
     """SAMap scores model."""
 
-    metacelltype = models.ForeignKey(
-        MetacellType, on_delete=models.CASCADE, related_name="samap"
-    )
-    metacelltype2 = models.ForeignKey(
-        MetacellType, on_delete=models.CASCADE, related_name="samap2"
-    )
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap")
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap2")
     samap = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
@@ -848,6 +804,5 @@ class SAMap(models.Model):
     def __str__(self):
         """String representation."""
         return (
-            f"{self.metacelltype} ({self.metacelltype.dataset}) vs "
-            f"{self.metacelltype2} ({self.metacelltype2.dataset})"
+            f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"
         )
