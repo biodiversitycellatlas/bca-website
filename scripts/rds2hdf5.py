@@ -69,12 +69,13 @@ def rds2hdf(rds_file: str, output_file: str) -> None:
             row = matrix.getrow(i)
             (_, columns) = row.nonzero()
             dataset = np.empty(shape=len(columns), dtype=[("c", np.int32), ("e", np.float32)])
-            for p, j in enumerate(columns):
-                dataset[p] = (j, matrix[i, j])
-            try:
-                root.create_dataset(gene, data=dataset)
-            except ():
-                print(f"gene {gene}")
+            if columns.size > 0:
+                for p, j in enumerate(columns):
+                    dataset[p] = (j, matrix[i, j])
+                try:
+                    root.create_dataset(gene, data=dataset)
+                except ():
+                    print(f"duplicated gene {gene}")
 
 
 def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
@@ -103,7 +104,7 @@ def read_from_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
 
     """
     with h5py.File(hdf_file, "r") as f:
-        expression_values = f.get(f"/{gene}")[:]
+        expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
         cellnames = f.get("/cell_names")[:]
         cells_position_dict = create_positions_dictionary(cellnames)
         result = {}
