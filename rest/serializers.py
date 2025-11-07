@@ -738,8 +738,7 @@ class AlignRequestSerializer(serializers.Serializer):
     sequences = serializers.CharField(
         required=True,
         help_text=(
-            "The FASTA sequences to query "
-            f"(maximum of {settings.MAX_ALIGNMENT_SEQS} sequences)."
+            f"The FASTA sequences to query (maximum of {settings.MAX_ALIGNMENT_SEQS} sequences)."
         ),
     )
     type = serializers.ChoiceField(

@@ -1,16 +1,13 @@
 import os
-import re
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
-from rest_framework import pagination, viewsets
+from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from app import models

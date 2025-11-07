@@ -2,7 +2,16 @@
 
 from django.views.generic import DetailView, ListView, TemplateView
 
-from ..models import Dataset, Domain, Gene, GeneList, GeneModule, GeneModuleMembership, Ortholog, Species
+from ..models import (
+    Dataset,
+    Domain,
+    Gene,
+    GeneList,
+    GeneModule,
+    GeneModuleMembership,
+    Ortholog,
+    Species,
+)
 from ..utils import get_dataset, get_gene_list, get_species
 
 

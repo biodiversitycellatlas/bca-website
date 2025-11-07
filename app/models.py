@@ -687,7 +687,7 @@ class GeneModuleMembership(models.Model):
     class Meta:
         """Meta options."""
 
-        unique_together = ('gene', 'module')
+        unique_together = ("gene", "module")
         ordering = ["module__dataset__order", "module__name"]
 
     def __str__(self):
@@ -707,7 +707,7 @@ class GeneModuleEigenvalue(models.Model):
     class Meta:
         """Meta options."""
 
-        unique_together = ('module', 'metacell')
+        unique_together = ("module", "metacell")
 
     def __str__(self):
         """String representation."""
