@@ -163,7 +163,7 @@ class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(summary="List gene module eigenvalues", tags=["Gene module"])
 class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
-    """List eigenvalues in gene modules per metacell."""
+    """List eigenvalues in gene modules for each metacell."""
 
     queryset = models.GeneModuleEigenvalue.objects.all()
     serializer_class = serializers.GeneModuleEigenvalueSerializer

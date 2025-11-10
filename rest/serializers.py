@@ -313,13 +313,14 @@ class GeneModuleSerializer(serializers.ModelSerializer):
     """Gene module serializer."""
 
     dataset = serializers.CharField(source="dataset.slug")
+    module = serializers.CharField(source="name")
     gene_count = serializers.IntegerField(source="genes.count")
 
     class Meta:
         """Meta configuration."""
 
         model = models.GeneModule
-        fields = ["name", "dataset", "gene_count"]
+        fields = ["dataset", "module", "gene_count"]
 
 
 class GeneModuleMembershipSerializer(serializers.ModelSerializer):
@@ -508,7 +509,7 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
-    """Serializer for gene expression per metacell."""
+    """Serializer for gene expression for each metacell."""
 
     log2_fold_change = serializers.FloatField(required=False)
 
