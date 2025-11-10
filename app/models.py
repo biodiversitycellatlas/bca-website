@@ -92,10 +92,18 @@ class HtmlLinkMixin:
 class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
 
-    common_name = models.CharField(max_length=100, null=True, help_text="Common name of the species.")
-    scientific_name = models.CharField(max_length=100, unique=True, help_text="Scientific name of the species.")
-    description = models.TextField(blank=True, null=True, help_text="Species description.")
-    image_url = models.URLField(blank=True, null=True, help_text="URL for species image.")
+    common_name = models.CharField(
+        max_length=100, null=True, help_text="Common name of the species."
+    )
+    scientific_name = models.CharField(
+        max_length=100, unique=True, help_text="Scientific name of the species."
+    )
+    description = models.TextField(
+        blank=True, null=True, help_text="Species description."
+    )
+    image_url = models.URLField(
+        blank=True, null=True, help_text="URL for species image."
+    )
 
     @property
     def division(self):
@@ -178,10 +186,14 @@ class Source(models.Model):
     """Data source."""
 
     name = models.CharField(max_length=255, unique=True, help_text="Source name.")
-    description = models.TextField(blank=True, null=True, help_text="Source description.")
+    description = models.TextField(
+        blank=True, null=True, help_text="Source description."
+    )
     url = models.URLField(blank=True, null=True, help_text="Source URL.")
     query_url = models.URLField(blank=True, null=True, help_text="Source query URL.")
-    version = models.CharField(max_length=50, blank=True, null=True, help_text="Source version.")
+    version = models.CharField(
+        max_length=50, blank=True, null=True, help_text="Source version."
+    )
 
     def get_html_link(self):
         """Return HTML representation linking to the Source URL."""
@@ -201,12 +213,24 @@ class Source(models.Model):
 class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
-    name = models.CharField(max_length=255, default=None, null=True, help_text="Name of the dataset.")
-    description = models.TextField(blank=True, null=True, help_text="Description of the dataset.")
-    image_url = models.URLField(blank=True, null=True, help_text="URL for dataset image.")
-    date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
-    date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
+    species = models.ForeignKey(
+        Species, on_delete=models.CASCADE, related_name="datasets"
+    )
+    name = models.CharField(
+        max_length=255, default=None, null=True, help_text="Name of the dataset."
+    )
+    description = models.TextField(
+        blank=True, null=True, help_text="Description of the dataset."
+    )
+    image_url = models.URLField(
+        blank=True, null=True, help_text="URL for dataset image."
+    )
+    date_created = models.DateTimeField(
+        auto_now_add=True, help_text="Timestamp when the dataset was created."
+    )
+    date_updated = models.DateTimeField(
+        auto_now=True, help_text="Timestamp when the dataset was last updated."
+    )
 
     source = models.ForeignKey(
         Source,
@@ -277,9 +301,13 @@ class QualityControl(models.Model):
     """Quality control metrics."""
 
     type = models.CharField(max_length=100, help_text="Type of quality control.")
-    name = models.CharField(max_length=100, help_text="Name of quality control metric.", unique=True)
+    name = models.CharField(
+        max_length=100, help_text="Name of quality control metric.", unique=True
+    )
     description = models.CharField(max_length=255, help_text="Description.", null=True)
-    datasets = models.ManyToManyField(Dataset, through="DatasetQualityControl", related_name="qc_terms")
+    datasets = models.ManyToManyField(
+        Dataset, through="DatasetQualityControl", related_name="qc_terms"
+    )
 
     def __str__(self):
         """String representation."""
@@ -291,7 +319,9 @@ class DatasetQualityControl(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="qc")
     metric = models.ForeignKey(QualityControl, on_delete=models.CASCADE)
-    value = models.CharField(max_length=100, null=True, help_text="Quality control value.")
+    value = models.CharField(
+        max_length=100, null=True, help_text="Quality control value."
+    )
 
     class Meta:
         """Meta options."""
@@ -311,7 +341,9 @@ class File(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
     file = models.FileField(help_text="File.")
-    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+    checksum = models.CharField(
+        max_length=64, editable=False, help_text="SHA256 digest."
+    )
     slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -355,7 +387,9 @@ class Meta(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
     key = models.CharField(max_length=100, help_text="Metadata key.")
     value = models.CharField(max_length=100, help_text="Metadata value.")
-    query_term = models.CharField(max_length=100, null=True, help_text="Term to use in query URL.")
+    query_term = models.CharField(
+        max_length=100, null=True, help_text="Term to use in query URL."
+    )
     source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
 
     @property
@@ -398,7 +432,9 @@ class Meta(models.Model):
 class MetacellType(SlugMixin):
     """Metacell type model."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_types")
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_types"
+    )
     name = models.CharField()
     color = ColorField(default="#AAAAAA")
 
@@ -421,9 +457,15 @@ class MetacellType(SlugMixin):
 class MetacellLink(models.Model):
     """Metacell link model (used for scatter plots)."""
 
-    metacell = models.ForeignKey("Metacell", related_name="from_links", on_delete=models.CASCADE)
-    metacell2 = models.ForeignKey("Metacell", related_name="to_links", on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_links")
+    metacell = models.ForeignKey(
+        "Metacell", related_name="from_links", on_delete=models.CASCADE
+    )
+    metacell2 = models.ForeignKey(
+        "Metacell", related_name="to_links", on_delete=models.CASCADE
+    )
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_links"
+    )
 
     def __str__(self):
         """String representation."""
@@ -433,8 +475,12 @@ class MetacellLink(models.Model):
 class Metacell(models.Model):
     """Metacell model."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacells")
-    type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacells"
+    )
+    type = models.ForeignKey(
+        MetacellType, on_delete=models.SET_NULL, blank=True, null=True
+    )
     name = models.CharField(max_length=100)
     x = models.FloatField()
     y = models.FloatField()
@@ -453,8 +499,12 @@ class Metacell(models.Model):
 class MetacellCount(models.Model):
     """Metacell statistics per dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_stats")
-    metacell = models.ForeignKey(Metacell, on_delete=models.CASCADE, related_name="stats")
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="metacell_stats"
+    )
+    metacell = models.ForeignKey(
+        Metacell, on_delete=models.CASCADE, related_name="stats"
+    )
     cells = models.IntegerField()
     umis = models.IntegerField()
 
@@ -464,7 +514,9 @@ class SingleCell(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
-    metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
+    metacell = models.ForeignKey(
+        Metacell, on_delete=models.SET_NULL, blank=True, null=True
+    )
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
 
@@ -557,7 +609,9 @@ class Gene(SlugMixin):
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList, related_name="genes")
-    correlations = models.ManyToManyField("self", through="GeneCorrelation", symmetrical=True)
+    correlations = models.ManyToManyField(
+        "self", through="GeneCorrelation", symmetrical=True
+    )
 
     @property
     def orthogroup(self):
@@ -685,11 +739,15 @@ class GeneModuleEigenvalue(models.Model):
 class GeneCorrelation(models.Model):
     """Gene correlation model per dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_corr")
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="gene_corr"
+    )
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene")
     gene2 = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="gene2")
 
-    spearman = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+    spearman = models.DecimalField(
+        max_digits=3, decimal_places=2, blank=True, null=True
+    )
     pearson = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     class Meta:
@@ -729,7 +787,9 @@ class SingleCellGeneExpression(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name="scge")
+    single_cell = models.ForeignKey(
+        SingleCell, on_delete=models.CASCADE, related_name="scge"
+    )
     umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
@@ -748,7 +808,9 @@ class SingleCellGeneExpression(models.Model):
 class Ortholog(models.Model):
     """Ortholog model."""
 
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="orthologs")
+    species = models.ForeignKey(
+        Species, on_delete=models.CASCADE, related_name="orthologs"
+    )
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     orthogroup = models.CharField()
 
@@ -791,8 +853,12 @@ class Ortholog(models.Model):
 class SAMap(models.Model):
     """SAMap scores model."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap")
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap2")
+    metacelltype = models.ForeignKey(
+        MetacellType, on_delete=models.CASCADE, related_name="samap"
+    )
+    metacelltype2 = models.ForeignKey(
+        MetacellType, on_delete=models.CASCADE, related_name="samap2"
+    )
     samap = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
@@ -803,6 +869,4 @@ class SAMap(models.Model):
 
     def __str__(self):
         """String representation."""
-        return (
-            f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"
-        )
+        return f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"
