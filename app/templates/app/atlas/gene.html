@@ -112,7 +112,7 @@ Input:
                                 {% for member in gene.modules.all %}
                                     {% if member.module.dataset == dataset %}
                                         {{ member.module.get_html_link }}:
-                                        <span title="Membership score">{{member.membership_score}}</span>
+                                        <span title="Membership score">{{ member.membership_score }}</span>
                                         <br>
                                     {% endif %}
                                 {% empty %}
