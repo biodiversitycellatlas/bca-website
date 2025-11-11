@@ -321,9 +321,9 @@ class AbstractFile(models.Model):
             self.checksum = hasher.hexdigest()
 
             if not self.slug:
-                if (isinstance(self, SpeciesFile)):
+                if isinstance(self, SpeciesFile):
                     base = f"{self.species.scientific_name}-{self.type}"
-                if (isinstance(self, DatasetFile)):
+                if isinstance(self, DatasetFile):
                     base = f"{self.dataset.get_label()}-{self.type}"
                 self.slug = slugify(base)
         self.full_clean()
@@ -342,6 +342,7 @@ class AbstractFile(models.Model):
 
 class SpeciesFile(AbstractFile):
     """File model for a species."""
+
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
     file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
@@ -358,6 +359,7 @@ class SpeciesFile(AbstractFile):
 
 class DatasetFile(AbstractFile):
     """File model for a Dataset."""
+
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="dataset_files")
 
     file_types = {"GeneExpression": "GeneExpression"}
