@@ -315,12 +315,15 @@ class GeneModuleSerializer(serializers.ModelSerializer):
     dataset = serializers.CharField(source="dataset.slug")
     module = serializers.CharField(source="name")
     gene_count = serializers.IntegerField(source="genes.count")
+    gene_hubs = serializers.SlugRelatedField(
+        source="get_gene_hubs", many=True, slug_field="gene.name", read_only=True
+    )
 
     class Meta:
         """Meta configuration."""
 
         model = models.GeneModule
-        fields = ["dataset", "module", "gene_count"]
+        fields = ["dataset", "module", "gene_count", "gene_hubs"]
 
 
 class GeneModuleMembershipSerializer(serializers.ModelSerializer):
@@ -341,7 +344,10 @@ class GeneModuleMembershipSerializer(serializers.ModelSerializer):
 class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
     """Gene module eigenvalue serializer."""
 
-    metacell = serializers.CharField()
+    metacell_name = serializers.CharField(source="metacell.name", default=None)
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None)
+    metacell_color = serializers.CharField(source="metacell.type.color", default=None)
+
     module = serializers.CharField()
     dataset = serializers.CharField(source="module.dataset.slug")
     eigenvalue = serializers.CharField()
@@ -350,7 +356,14 @@ class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.GeneModuleEigenvalue
-        fields = ["dataset", "module", "metacell", "eigenvalue"]
+        fields = [
+            "dataset",
+            "module",
+            "metacell_name",
+            "metacell_type",
+            "metacell_color",
+            "eigenvalue",
+        ]
 
 
 class BaseExpressionSerializer(serializers.ModelSerializer):

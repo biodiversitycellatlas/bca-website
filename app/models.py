@@ -633,9 +633,9 @@ class Gene(SlugMixin):
         """Return absolute URL for this entry."""
         return reverse("gene_entry", args=[self.species.slug, self.name])
 
-    def get_html_link(self):
+    def get_html_link(self, url=None):
         """Return link to this entry formatted in HTML."""
-        url = self.get_absolute_url()
+        url = self.get_absolute_url() if url is None else url
         label = self.name
 
         html = f'<a class="text-break" href="{url}">{label}</a>'
@@ -692,6 +692,10 @@ class GeneModule(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
+    def get_gene_hubs(self, n=5):
+        """Return top gene hubs."""
+        return self.membership.order_by("-membership_score")[:n]
+
     def __str__(self):
         """String representation."""
         return str(self.name)
@@ -700,7 +704,9 @@ class GeneModule(models.Model):
 class GeneModuleMembership(models.Model):
     """Gene module membership for each gene."""
 
-    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE)
+    module = models.ForeignKey(
+        "GeneModule", on_delete=models.CASCADE, related_name="membership"
+    )
     gene = models.ForeignKey("Gene", on_delete=models.CASCADE, related_name="modules")
     membership_score = models.DecimalField(
         max_digits=4, decimal_places=3, blank=True, null=True
