@@ -1,0 +1,38 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Gene modules page
+
+Features:
+- Expression data for selected gene modules:
+    - Fetches via REST API
+    - Plots for data
+    - Download data button
+    - Copy link to clipboard button
+
+{% endcomment %}
+
+{% block title %}
+    {{ dataset }} gene modules
+{% endblock title %}
+
+{% block content %}
+    {% load headings %}
+    <!-- Gene modules -->
+    {% h1 "Gene modules" id="modules" %}
+
+    {% if dataset.gene_modules.count == 0 %}
+        <p class="text-muted">
+            <i class="fa fa-circle-exclamation"></i> No gene modules for {{ dataset.get_html }}.
+        </p>
+    {% else %}
+        {% include '../components/plots/modules_stats.html' with id='modules' %}
+
+        <!-- Gene module comparison -->
+        {% h1 "Overlapping genes" id="overlapping" %}
+
+        <!-- Eigenvalues heatmap -->
+        {% h1 "Module activity" id="eigenvalues" %}
+    {% endif %}
+{% endblock content %}

@@ -1,0 +1,78 @@
+{% comment %}
+
+Gene module size plot
+
+Input:
+- id
+- dataset
+
+{% endcomment %}
+
+<div class="row">
+    <div class="col-sm-2 col-lg-1 text-center">
+        <p id="n_modules" class="h3 mb-0">
+            0
+        </p>
+        <p>
+            gene
+            modules
+        </p>
+    </div>
+    <div class="col-sm-10 col-lg-4">
+        {% include '../plot_container.html' with height='270px' %}
+    </div>
+    <div class="col-sm-12 col-lg-7">
+        <table id="modules_table" class="display nowrap w-100 compact">
+            <thead>
+                <tr>
+                    <th>
+                        Module
+                    </th>
+                    <th>
+                        Genes
+                    </th>
+                    <th>
+                        Gene hubs
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for module in dataset.gene_modules.all %}
+                    <tr>
+                        <td>
+                            {{ module.get_html_link }}
+                        </td>
+                        <td>
+                            {{ module.genes.count }}
+                        </td>
+                        <td>
+                            {% for hub in module.get_gene_hubs.all %}
+                                {% load entry_links %}
+                                {% dataset_gene_link_with_gene_label dataset hub.gene %},
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% load static %}
+<script type="module">
+    import { loadGeneModuleSize, renderGeneModuleStatsPlots } from "{% static 'app/js/atlas/stats.js' %}";
+    loadGeneModuleSize("{{dataset.slug}}");
+    renderGeneModuleStatsPlots("{{dataset.slug}}");
+
+    // DataTable
+    $('#modules_table').DataTable({
+        responsive: true,
+        pageLength: -1,
+        paging: false,
+        info: false,
+        scrollY: "190px",
+        scrollX: true,
+        language: { search: "", searchPlaceholder: "Search table..." },
+        order: [[1, 'des']]
+    });
+</script>

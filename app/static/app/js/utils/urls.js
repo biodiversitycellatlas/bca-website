@@ -67,6 +67,9 @@ export function getDataPortalUrl(
             "rest:metacell-list",
             "rest:metacelllink-list",
             "rest:ortholog-list",
+            "rest:genemodule-list",
+            "rest:genemodulemembership-list",
+            "rest:genemoduleeigenvalue-list",
         ].includes(view)
     ) {
         url = prepareUrlParams(url, dataset, gene, limit, extraParams);

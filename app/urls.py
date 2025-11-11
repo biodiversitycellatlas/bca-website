@@ -16,8 +16,12 @@ BCA_WEBSITE = getattr(settings, "BCA_WEBSITE", "https://biodiversitycellatlas.or
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
     path("downloads/", views.DownloadsView.as_view(), name="downloads"),
-    path("downloads/<slug:slug>/", views.FileDownloadView.as_view(), name="download_file"),
-    path("reference/", views.ReferenceView.as_view(), {"page": "index"}, name="reference"),
+    path(
+        "downloads/<slug:slug>/", views.FileDownloadView.as_view(), name="download_file"
+    ),
+    path(
+        "reference/", views.ReferenceView.as_view(), {"page": "index"}, name="reference"
+    ),
     path("reference/<str:page>/", views.ReferenceView.as_view(), name="reference"),
     path("about/", views.AboutView.as_view(), name="about"),
     path("search/", views.SearchView.as_view(), name="search"),
@@ -40,7 +44,14 @@ urlpatterns += [
         views.AtlasGeneView.as_view(),
         name="atlas_gene",
     ),
-    path("atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
+    path(
+        "atlas/<str:dataset>/modules/",
+        views.AtlasGeneModuleView.as_view(),
+        name="atlas_modules",
+    ),
+    path(
+        "atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"
+    ),
     path(
         "atlas/<str:dataset>/markers/",
         views.AtlasMarkersView.as_view(),
@@ -137,5 +148,7 @@ urlpatterns += [
 # Redirects
 urlpatterns += [
     path("blog/", RedirectView.as_view(url=f"{BCA_WEBSITE}/blog", permanent=True)),
-    path("about/legal/", RedirectView.as_view(url=f"{BCA_WEBSITE}/legal", permanent=True)),
+    path(
+        "about/legal/", RedirectView.as_view(url=f"{BCA_WEBSITE}/legal", permanent=True)
+    ),
 ]

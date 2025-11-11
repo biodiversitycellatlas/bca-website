@@ -88,3 +88,41 @@ export function renderStatsPlots(dataset) {
         })
         .catch((error) => console.error("Error:", error));
 }
+
+/**
+ * Fetch dataset statistics and update numeric counters on the page.
+ *
+ * @param {string} dataset - Dataset name.
+ */
+export function loadGeneModuleSize(dataset) {
+    var url = getDataPortalUrl("rest:genemodule-list", dataset);
+
+    fetch(url)
+        .then((response) => response.json())
+        .then((data) => animateNumber("#n_modules", data.count))
+        .catch((error) => console.error("Error:", error));
+}
+
+/**
+ * Render per-metacell statistics plots.
+ *
+ * @param {string} dataset - Dataset name.
+ */
+export function renderGeneModuleStatsPlots(dataset) {
+    var url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, { order_by_gene_count: 1 });
+    appendDataMenu("modules", url, "Gene modules");
+
+    fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+            createStatsPlot(
+                "#modules-plot",
+                data,
+                "gene_count",
+                "Genes per gene module",
+                "Gene count",
+                false,
+            );
+        })
+        .catch((error) => console.error("Error:", error));
+}
