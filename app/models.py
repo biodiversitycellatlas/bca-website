@@ -303,16 +303,14 @@ class DatasetQualityControl(models.Model):
         return f"{self.dataset}, {self.metric}: {self.value or 'NA'}"
 
 
-class File(models.Model):
-    """File model for a species."""
-
-    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
-
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
-    file = models.FileField(help_text="File.")
-    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+class AbstractFile(models.Model):
     slug = models.SlugField(unique=True, blank=True)
+    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+    file = models.FileField(help_text="File.")
+    type = models.CharField(max_length=255, help_text="File type.")
+
+    class Meta:
+        abstract = True
 
     def save(self, *args, **kwargs):
         """Compute file checksum and generate slug before saving."""
@@ -323,9 +321,11 @@ class File(models.Model):
             self.checksum = hasher.hexdigest()
 
             if not self.slug:
-                base = f"{self.species.scientific_name}-{self.type}"
+                if (isinstance(self, SpeciesFile)):
+                    base = f"{self.species.scientific_name}-{self.type}"
+                if (isinstance(self, DatasetFile)):
+                    base = f"{self.dataset.get_label()}-{self.type}"
                 self.slug = slugify(base)
-
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -339,6 +339,13 @@ class File(models.Model):
         """Return filename."""
         return f"{self}.{self.ext}"
 
+
+class SpeciesFile(AbstractFile):
+    """File model for a species."""
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
+    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
     class Meta:
         """Meta options."""
 
@@ -347,6 +354,23 @@ class File(models.Model):
     def __str__(self):
         """String representation."""
         return f"{self.species.scientific_name} - {self.type}"
+
+
+class DatasetFile(AbstractFile):
+    """File model for a Dataset."""
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="dataset_files")
+
+    file_types = {"GeneExpression": "GeneExpression"}
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["dataset", "type"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset.slug} - {self.type}"
 
 
 class Meta(models.Model):

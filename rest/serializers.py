@@ -33,7 +33,7 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta configuration."""
 
-        model = models.File
+        model = models.SpeciesFile
         fields = ["type", "file", "checksum"]
 
 

@@ -7,7 +7,7 @@ from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
 
-from ..models import Dataset, File, Species
+from ..models import Dataset, SpeciesFile, Species
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import (
     get_dataset_dict,
@@ -83,7 +83,7 @@ class DownloadsView(TemplateView):
 class FileDownloadView(DetailView):
     """Serve a downloadable file from the File model."""
 
-    model = File
+    model = SpeciesFile
 
     def render_to_response(self, context, **response_kwargs):
         """Return file as attachment with original filename."""
