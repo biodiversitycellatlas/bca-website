@@ -109,7 +109,9 @@ export function loadGeneModuleSize(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderGeneModuleStatsPlots(dataset) {
-    var url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, { order_by_gene_count: 1 });
+    var url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
+        order_by_gene_count: 1,
+    });
     appendDataMenu("modules", url, "Gene modules");
 
     fetch(url)

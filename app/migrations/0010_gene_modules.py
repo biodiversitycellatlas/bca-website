@@ -78,6 +78,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='genemodule',
-            options={},
+            options={'ordering': ['dataset', 'name']},
         ),
     ]

@@ -260,7 +260,7 @@ class DomainFilter(QueryFilterSet):
     query_fields = ["name"]
 
     order_by_gene_count = BooleanFilter(
-        method=skip_param, label="Order results by gene count (ascending)."
+        method=skip_param, label="Order results by gene count (descending)."
     )
 
     class Meta:
@@ -307,12 +307,28 @@ class GeneModuleFilter(FilterSet):
     """Filter set for gene modules."""
 
     dataset = DatasetChoiceFilter()
+    order_by_gene_count = BooleanFilter(
+        method=skip_param, label="Order results by gene count (descending)."
+    )
 
     class Meta:
         """Configuration for model and filterable fields."""
 
         model = models.GeneModule
         fields = ["dataset"]
+
+    def filter_queryset(self, queryset):
+        """Order by gene count."""
+        queryset = super().filter_queryset(queryset)
+
+        # Annotate and order by gene count
+        order = self.form.cleaned_data.get("order_by_gene_count")
+        if order:
+            queryset = queryset.annotate(
+                gene_count=Count("genes", distinct=True)
+            ).order_by("dataset", "-gene_count")
+
+        return queryset
 
 
 class GeneModuleMembershipFilter(FilterSet):

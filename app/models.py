@@ -696,6 +696,11 @@ class GeneModule(models.Model):
         """Return top gene hubs."""
         return self.membership.order_by("-membership_score")[:n]
 
+    class Meta:
+        """Meta options."""
+
+        ordering = ["dataset", "name"]
+
     def __str__(self):
         """String representation."""
         return str(self.name)
