@@ -27,12 +27,13 @@ Features:
             <i class="fa fa-circle-exclamation"></i> No gene modules for {{ dataset.get_html }}.
         </p>
     {% else %}
-        {% include '../components/plots/modules_stats.html' with id='modules' %}
-
-        <!-- Gene module comparison -->
-        {% h1 "Overlapping genes" id="overlapping" %}
+        {% include '../components/plots/module_stats.html' with id='modules' %}
 
         <!-- Eigenvalues heatmap -->
         {% h1 "Module activity" id="eigenvalues" %}
+        {% include '../components/plots/module_activity.html' with id='eigenvalues' %}
+
+        <!-- Gene module comparison -->
+        {% h1 "Overlapping genes across modules" id="overlapping" %}
     {% endif %}
 {% endblock content %}

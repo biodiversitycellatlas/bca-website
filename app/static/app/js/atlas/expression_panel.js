@@ -127,23 +127,3 @@ export function initSubmitButtonToggler(id) {
         toggleSubmitButton(id);
     });
 }
-
-function updateMetacellSelectionLabel(count) {
-    let label = count > 0 ? "Selected metacells" : "All metacells";
-    $("#metacells_filter").text(label);
-}
-
-/**
- * Update label based on number of selected metacells.
- */
-export function initMetacellSelectionLabelUpdater() {
-    // Change metacell selection label
-    const metacell_selectize = $("#metacells")[0].selectize;
-    let count = metacell_selectize.items.length;
-    updateMetacellSelectionLabel(count);
-
-    metacell_selectize.on("change", function () {
-        let count = this.items.length;
-        updateMetacellSelectionLabel(count);
-    });
-}

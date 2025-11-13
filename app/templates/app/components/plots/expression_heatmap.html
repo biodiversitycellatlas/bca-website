@@ -193,14 +193,14 @@ Input:
 <script type="module">
     import {
         handleFormSubmit,
-        initSubmitButtonToggler,
-        initMetacellSelectionLabelUpdater
+        initSubmitButtonToggler
     } from "{% static 'app/js/atlas/expression_panel.js' %}";
 
+    import { initMetacellSelectionUpdater } from "{% static 'app/js/utils/metacell.js' %}";
     import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
     $(function() {
-        initMetacellSelectionLabelUpdater();
+        initMetacellSelectionUpdater();
         {% if type == 'gene-lists' %}
             initSubmitButtonToggler('{{id}}');
         {% endif %}

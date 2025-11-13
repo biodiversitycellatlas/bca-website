@@ -46,8 +46,8 @@ Input:
                             {{ module.genes.count }}
                         </td>
                         <td>
+                            {% load entry_links %}
                             {% for hub in module.get_gene_hubs.all %}
-                                {% load entry_links %}
                                 {% dataset_gene_link_with_gene_label dataset hub.gene %},
                             {% endfor %}
                         </td>

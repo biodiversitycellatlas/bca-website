@@ -155,7 +155,9 @@ class GeneModuleViewSet(BaseReadOnlyModelViewSet):
 class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
     """List gene membership in gene modules."""
 
-    queryset = models.GeneModuleMembership.objects.all()
+    queryset = models.GeneModuleMembership.objects.prefetch_related(
+        "module", "module__dataset", "gene"
+    )
     serializer_class = serializers.GeneModuleMembershipSerializer
     filterset_class = filters.GeneModuleMembershipFilter
     lookup_field = "name"
@@ -166,7 +168,7 @@ class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
     """List eigenvalues in gene modules for each metacell."""
 
     queryset = models.GeneModuleEigenvalue.objects.prefetch_related(
-        "metacell", "metacell__type"
+        "module", "module__dataset", "metacell", "metacell__type"
     )
     serializer_class = serializers.GeneModuleEigenvalueSerializer
     filterset_class = filters.GeneModuleEigenvalueFilter
