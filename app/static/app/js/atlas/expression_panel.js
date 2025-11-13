@@ -6,7 +6,7 @@
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
-import { createExpressionHeatmap } from "../plots/expression_heatmap.js";
+import { createExpressionHeatmap } from "../plots/metacell_heatmap.js";
 import { getUserLists } from "./modals/list_editor.js";
 
 /**
@@ -41,7 +41,7 @@ export function loadExpressionData(id, dataset, genes = null) {
     fetch(apiURL)
         .then((response) => response.json())
         .then((data) => {
-            createExpressionHeatmap(`#${id}-plot`, dataset, data);
+            createExpressionHeatmap(`#${id}-plot`, data);
         })
         .catch((error) => console.error("Error fetching data:", error));
 

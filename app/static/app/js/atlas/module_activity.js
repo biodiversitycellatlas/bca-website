@@ -6,7 +6,7 @@
 
 import { getDataPortalUrl } from "../utils/urls.js";
 import { appendDataMenu } from "../buttons/data_dropdown.js";
-import { createActivityHeatmap } from "../plots/module_activity_heatmap.js";
+import { createActivityHeatmap } from "../plots/metacell_heatmap.js";
 import { getUserLists } from "./modals/list_editor.js";
 
 /**
