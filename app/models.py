@@ -303,7 +303,7 @@ class DatasetQualityControl(models.Model):
         return f"{self.dataset}, {self.metric}: {self.value or 'NA'}"
 
 
-class AbstractFile(models.Model):
+class FileMixin(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
     file = models.FileField(help_text="File.")
@@ -340,7 +340,7 @@ class AbstractFile(models.Model):
         return f"{self}.{self.ext}"
 
 
-class SpeciesFile(AbstractFile):
+class SpeciesFile(FileMixin):
     """File model for a species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
@@ -357,12 +357,12 @@ class SpeciesFile(AbstractFile):
         return f"{self.species.scientific_name} - {self.type}"
 
 
-class DatasetFile(AbstractFile):
+class DatasetFile(FileMixin):
     """File model for a Dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="dataset_files")
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
 
-    file_types = {"GeneExpression": "GeneExpression"}
+    file_types = {"singlecell_umifrac": "singlecell_umifrac"}
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
 
     class Meta:
