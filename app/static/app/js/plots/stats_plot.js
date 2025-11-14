@@ -141,7 +141,7 @@ function prepareStatsSpecPerParam(
             mark: {
                 type: "circle",
                 size: 150,
-                color: "orange",
+                color: "#239184",
                 opacity: 0.8,
                 stroke: "white",
                 strokeWidth: 1,

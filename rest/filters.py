@@ -53,7 +53,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
         """
 
         field_name = field_name or self.default_field_name
-        anchor_url = '#/operations/species_list'
+        anchor_url = "#/operations/species_list"
         label = label or f"The <a href='{anchor_url}'>species' scientific name</a>."
 
         choices = []
@@ -67,7 +67,9 @@ class SpeciesChoiceFilter(ChoiceFilter):
             ]
             choices = sorted(choices, key=lambda x: x[0])
 
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+        super().__init__(
+            field_name=field_name, label=label, choices=choices, *args, **kwargs
+        )
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -101,14 +103,16 @@ class DatasetChoiceFilter(ChoiceFilter):
         """Initialize the dataset filter."""
 
         field_name = field_name or self.default_field_name
-        anchor_url = '#/operations/datasets_list'
-        label = label or f"The <a href='#/operations/datasets_list'>dataset's slug</a>."
+        anchor_url = "#/operations/datasets_list"
+        label = label or f"The <a href='{anchor_url}'>dataset's slug</a>."
 
         choices = []
         if check_model_exists(models.Dataset):
             choices = [(d.slug, d.get_html()) for d in models.Dataset.objects.all()]
 
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+        super().__init__(
+            field_name=field_name, label=label, choices=choices, *args, **kwargs
+        )
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""
@@ -390,9 +394,9 @@ class GeneModuleEigenvalueFilter(FilterSet):
         if value:
             queryset = self.sort_across_metacells(
                 queryset,
-                field_name = "module",
-                partition_field = "module__name",
-                order_field = "eigenvalue"
+                field_name="module",
+                partition_field="module__name",
+                order_field="eigenvalue",
             )
         return queryset
 
