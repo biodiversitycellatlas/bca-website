@@ -27,6 +27,5 @@ app/static/app/images/logos/BCA/EPS/*
 
 # Linters
 /super-linter-output
-.lintr
 /node_modules
 package*.json
