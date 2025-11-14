@@ -27,13 +27,23 @@ class MetaSerializer(serializers.ModelSerializer):
         fields = ["key", "value", "source", "query_url"]
 
 
-class FileSerializer(serializers.ModelSerializer):
+class SpeciesFileSerializer(serializers.ModelSerializer):
     """Species file serializer."""
 
     class Meta:
         """Meta configuration."""
 
         model = models.SpeciesFile
+        fields = ["type", "file", "checksum"]
+
+
+class DatasetFileSerializer(serializers.ModelSerializer):
+    """Dataset file serializer."""
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.DatasetFile
         fields = ["type", "file", "checksum"]
 
 
@@ -54,6 +64,7 @@ class DatasetSerializer(serializers.ModelSerializer):
     species = serializers.CharField(source="species.scientific_name", help_text="Species name.")
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
     dataset_html = serializers.CharField(source="get_html_link", help_text="HTML representation of the dataset.")
+    files = DatasetFileSerializer(many=True, help_text="Supporting files.")
     species_common_name = serializers.CharField(source="species.common_name")
     species_image_url = serializers.CharField(source="species.image_url")
     species_description = serializers.CharField(source="species.description")
@@ -71,6 +82,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "slug",
             "dataset_html",
             "description",
+            "files",
             "image_url",
             "source",
             "order",
@@ -88,7 +100,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
     """Serializer for Species model."""
 
     meta = MetaSerializer(source="meta_set", many=True, help_text="Species metadata.")
-    files = FileSerializer(many=True, help_text="Supporting files.")
+    files = SpeciesFileSerializer(many=True, help_text="Supporting files.")
     datasets = DatasetSerializer(many=True, help_text="Available datasets for the species.")
     html = serializers.CharField(source="get_html_link")
 

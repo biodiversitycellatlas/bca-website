@@ -80,7 +80,7 @@ class DownloadsView(TemplateView):
         return context
 
 
-class FileDownloadView(DetailView):
+class SpeciesFileDownloadView(DetailView):
     """Serve a downloadable file from the File model."""
 
     model = SpeciesFile
