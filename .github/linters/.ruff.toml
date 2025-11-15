@@ -1,0 +1,7 @@
+# Store the cache in a temporary location
+cache-dir = "/tmp/.ruff_cache"
+
+line-length = 88
+
+[lint]
+ignore = ["E203"]
