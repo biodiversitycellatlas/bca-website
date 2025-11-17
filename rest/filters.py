@@ -344,6 +344,31 @@ class GeneModuleMembershipFilter(FilterSet):
         fields = ["dataset", "module"]
 
 
+class GeneModuleSimilarityFilter(FilterSet):
+    """Filter set to compare similarity between gene modules."""
+
+    dataset = DatasetChoiceFilter(required=True)
+    modules = CharFilter(method="filter_modules")
+    list_genes = BooleanFilter(
+        label="List intersecting and unique gene names between modules.",
+        method=skip_param,
+    )
+
+    def filter_modules(self, queryset, name, value):
+        """Filter queryset by module names."""
+
+        if value:
+            modules = value.split(",")
+            queryset = queryset.filter(Q(name__in=modules)).distinct()
+        return queryset
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.GeneModule
+        fields = ["dataset"]
+
+
 class SortAcrossMetacellFilter(BooleanFilter):
     """Filter to sort a queryset across metacells based on a specified field."""
 

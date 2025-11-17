@@ -7,7 +7,7 @@
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
 
-const COLOR_SCALE = ["#F2F2F2", "#FFA500", "#EE4000", "#520c52"];
+export const COLOR_SCALE = ["#F2F2F2", "#FFA500", "#EE4000", "#520c52"];
 
 /**
  * Build a rug plot showing metacell group colors (placed above/below heatmap)

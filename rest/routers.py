@@ -15,6 +15,11 @@ router.register("correlated", views.CorrelatedGenesViewSet, basename="correlated
 
 router.register("gene_modules", views.GeneModuleViewSet)
 router.register("gene_modules_membership", views.GeneModuleMembershipViewSet)
+router.register(
+    "gene_modules_similarity",
+    views.GeneModuleSimilarityViewSet,
+    basename="genemodulesimilarity",
+)
 router.register("gene_modules_eigenvalues", views.GeneModuleEigenvalueViewSet)
 
 router.register("orthologs", views.OrthologViewSet)

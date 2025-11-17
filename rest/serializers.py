@@ -341,6 +341,44 @@ class GeneModuleMembershipSerializer(serializers.ModelSerializer):
         fields = ["dataset", "module", "gene", "score"]
 
 
+class GeneModuleSimilaritySerializer(serializers.Serializer):
+    """Gene module similarity serializer."""
+
+    module = serializers.CharField(help_text="Gene module 1.")
+    module2 = serializers.CharField(help_text="Gene module 2.")
+
+    similarity = serializers.IntegerField(
+        help_text="Jaccard similarity index ( intersection / union ) in percentage."
+    )
+
+    unique_genes_module = serializers.IntegerField(
+        help_text="Number of unique genes for the first module."
+    )
+    unique_genes_module_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the first module.",
+        required=False,
+    )
+
+    unique_genes_module2 = serializers.IntegerField(
+        help_text="Number of unique genes for the second module."
+    )
+    unique_genes_module2_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the second module.",
+        required=False,
+    )
+
+    intersecting_genes = serializers.IntegerField(
+        help_text="Number of intersecting genes between modules."
+    )
+    intersecting_genes_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of intersecting genes.",
+        required=False,
+    )
+
+
 class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
     """Gene module eigenvalue serializer."""
 

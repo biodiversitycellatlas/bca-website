@@ -70,6 +70,7 @@ export function getDataPortalUrl(
             "rest:genemodule-list",
             "rest:genemodulemembership-list",
             "rest:genemoduleeigenvalue-list",
+            "rest:genemodulesimilarity-list",
         ].includes(view)
     ) {
         url = prepareUrlParams(url, dataset, gene, limit, extraParams);

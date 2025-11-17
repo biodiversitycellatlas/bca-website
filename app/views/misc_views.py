@@ -29,7 +29,9 @@ class IndexView(TemplateView):
         context["dataset_dict"] = get_dataset_dict()
 
         categories = ["latest", "publications", "meetings", "tutorials"]
-        posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
+        posts = {
+            c: get_latest_posts(tag=c if c != "latest" else None) for c in categories
+        }
         context["posts"] = posts
         return context
 
@@ -87,7 +89,9 @@ class FileDownloadView(DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         """Return file as attachment with original filename."""
-        resp = FileResponse(self.object.file.open(), as_attachment=True, filename=self.object.filename)
+        resp = FileResponse(
+            self.object.file.open(), as_attachment=True, filename=self.object.filename
+        )
         return resp
 
 
