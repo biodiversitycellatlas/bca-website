@@ -1,20 +1,17 @@
+import logging
 import os
-import re
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
-from rest_framework import pagination, viewsets
+from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from app import models
-
 from . import filters, serializers
 from .utils import get_enum_description, get_path_param, parse_species_dataset
 
@@ -33,7 +30,8 @@ class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         OpenApiParameter(
             "q",
             str,
-            description="Query string to filter results. The string will be searched and ranked across species' common name, scientific name and metadata.",
+            description="Query string to filter results. The string will be searched and "
+            + "ranked across species' common name, scientific name and metadata.",
             examples=[OpenApiExample("Example", value="mouse")],
         )
     ],
@@ -46,9 +44,7 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_url_kwarg = "species"
 
     def get_object(self):
-        self.kwargs[self.lookup_url_kwarg] = unquote_plus(
-            self.kwargs[self.lookup_url_kwarg]
-        )
+        self.kwargs[self.lookup_url_kwarg] = unquote_plus(self.kwargs[self.lookup_url_kwarg])
         return super().get_object()
 
     @extend_schema(
@@ -68,7 +64,8 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
         OpenApiParameter(
             "q",
             str,
-            description="Query string to filter results. The string will be searched and ranked across dataset's name and description.",
+            description="Query string to filter results. The string will be searched "
+            + "and ranked across dataset's name and description.",
             examples=[OpenApiExample("Example", value="adult")],
         )
     ],
@@ -152,11 +149,7 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
             "genes",
             str,
             description=filters.GeneFilter().base_filters["genes"].label,
-            examples=[
-                OpenApiExample(
-                    "Example", value="Transcription factors,Pkinase,Tadh_P33902"
-                )
-            ],
+            examples=[OpenApiExample("Example", value="Transcription factors,Pkinase,Tadh_P33902")],
         ),
         OpenApiParameter(
             "q",
@@ -217,12 +210,8 @@ class SAMapViewSet(BaseReadOnlyModelViewSet):
 
         qs = queryset.annotate(
             order_flag=Case(
-                When(
-                    metacelltype__dataset=ds1, metacelltype2__dataset=ds2, then=Value(0)
-                ),
-                When(
-                    metacelltype__dataset=ds2, metacelltype2__dataset=ds1, then=Value(1)
-                ),
+                When(metacelltype__dataset=ds1, metacelltype2__dataset=ds2, then=Value(0)),
+                When(metacelltype__dataset=ds2, metacelltype2__dataset=ds1, then=Value(1)),
                 default=Value(2),  # fallback
                 output_field=IntegerField(),
             )
@@ -243,11 +232,7 @@ class OrthologCountViewSet(BaseReadOnlyModelViewSet):
         if orthogroup and not self.queryset.filter(orthogroup=orthogroup).exists():
             raise NotFound(detail=f"Orthogroup '{orthogroup}' not found.")
 
-        qs = (
-            self.queryset.values("species__scientific_name")
-            .annotate(count=Count("id"))
-            .order_by("-count")
-        )
+        qs = self.queryset.values("species__scientific_name").annotate(count=Count("id")).order_by("-count")
         return qs
 
 
@@ -320,14 +305,8 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
         OpenApiParameter(
             "genes",
             str,
-            description=filters.SingleCellGeneExpressionFilter()
-            .base_filters["genes"]
-            .label,
-            examples=[
-                OpenApiExample(
-                    "Example", value="Transcription factors,Pkinase,Tadh_P33902"
-                )
-            ],
+            description=filters.SingleCellGeneExpressionFilter().base_filters["genes"].label,
+            examples=[OpenApiExample("Example", value="Transcription factors,Pkinase,Tadh_P33902")],
         )
     ],
 )
@@ -348,21 +327,13 @@ class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
         OpenApiParameter(
             "genes",
             str,
-            description=filters.MetacellGeneExpressionFilter()
-            .base_filters["genes"]
-            .label,
-            examples=[
-                OpenApiExample(
-                    "Example", value="Transcription factors,Pkinase,Tadh_P33902"
-                )
-            ],
+            description=filters.MetacellGeneExpressionFilter().base_filters["genes"].label,
+            examples=[OpenApiExample("Example", value="Transcription factors,Pkinase,Tadh_P33902")],
         ),
         OpenApiParameter(
             "metacells",
             str,
-            description=filters.MetacellGeneExpressionFilter()
-            .base_filters["metacells"]
-            .label,
+            description=filters.MetacellGeneExpressionFilter().base_filters["metacells"].label,
             examples=[OpenApiExample("Example", value="12,30,Peptidergic1")],
         ),
     ],
@@ -386,17 +357,9 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
             str,
             description=get_enum_description(
                 filters.CorrelatedGenesFilter().base_filters["ordering"].label,
-                dict(
-                    filters.CorrelatedGenesFilter()
-                    .base_filters["ordering"]
-                    .extra["choices"]
-                ),
+                dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
             ),
-            enum=dict(
-                filters.CorrelatedGenesFilter()
-                .base_filters["ordering"]
-                .extra["choices"]
-            ),
+            enum=dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
             examples=[OpenApiExample("Example", value="-pearson_r")],
         )
     ],
@@ -437,16 +400,15 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
 
 @extend_schema(summary="List metacell counts", tags=["Metacell"])
 class MetacellCountViewSet(BaseReadOnlyModelViewSet):
-    queryset = models.MetacellCount.objects.prefetch_related(
-        "metacell", "metacell__type"
-    )
+    queryset = models.MetacellCount.objects.prefetch_related("metacell", "metacell__type")
     serializer_class = serializers.MetacellCountSerializer
     filterset_class = filters.MetacellCountFilter
 
 
 @extend_schema(
     summary="Submit sequences for alignment",
-    description=f"Align query sequences against the protein sequences in the BCA database using [DIAMOND {settings.DIAMOND_VERSION}](https://github.com/bbuchfink/diamond).",
+    description="Align query sequences against the protein sequences in the BCA database "
+    + f"using [DIAMOND {settings.DIAMOND_VERSION}](https://github.com/bbuchfink/diamond).",
     tags=["Sequence alignment"],
 )
 class AlignViewSet(viewsets.ViewSet):
@@ -461,9 +423,7 @@ class AlignViewSet(viewsets.ViewSet):
                 location="query",
                 required=True,
                 enum=serializers.AlignRequestSerializer().fields["species"].choices,
-                description=serializers.AlignRequestSerializer()
-                .fields["species"]
-                .help_text,
+                description=serializers.AlignRequestSerializer().fields["species"].help_text,
             ),
             OpenApiParameter(
                 "sequences",
@@ -475,12 +435,11 @@ class AlignViewSet(viewsets.ViewSet):
                     OpenApiExample(
                         "Multiple queries",
                         summary="Multiple queries",
-                        value=">Query_1\\nMSLIRNYNYHLRSASLANASQLDT\\n>Query_2\\nMDSSTDIPCNCVEILTA\\n>Query_3\\nMDSLTDRPCNYVEILTA",
+                        value=">Query_1\\nMSLIRNYNYHLRSASLANASQLDT\\n>Query_2\\nMDSSTDIPCNCVEILTA"
+                        + "\\n>Query_3\\nMDSLTDRPCNYVEILTA",
                     ),
                 ],
-                description=serializers.AlignRequestSerializer()
-                .fields["sequences"]
-                .help_text,
+                description=serializers.AlignRequestSerializer().fields["sequences"].help_text,
             ),
             OpenApiParameter(
                 "type",
@@ -488,9 +447,7 @@ class AlignViewSet(viewsets.ViewSet):
                 location="query",
                 required=True,
                 enum=serializers.AlignRequestSerializer().fields["type"].choices,
-                description=serializers.AlignRequestSerializer()
-                .fields["type"]
-                .help_text,
+                description=serializers.AlignRequestSerializer().fields["type"].help_text,
             ),
         ],
         operation_id="align_get",
@@ -540,9 +497,7 @@ class AlignViewSet(viewsets.ViewSet):
             if line.startswith(">"):
                 count = count + 1
                 if count > self.limit:
-                    raise ValueError(
-                        f"Query can only contain up to {self.limit} FASTA sequences"
-                    )
+                    raise ValueError(f"Query can only contain up to {self.limit} FASTA sequences")
             elif count <= 10:
                 sample = sample + line + "\n"
 
@@ -550,9 +505,7 @@ class AlignViewSet(viewsets.ViewSet):
         program = "blastp" if (type is None or type == "aminoacids") else "blastx"
 
         # Write query sequences to temporary file
-        with tempfile.NamedTemporaryFile(
-            delete=False, mode="w", suffix=".fasta"
-        ) as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".fasta") as temp_file:
             if not sequences.startswith(">") or not sequences.startswith("@"):
                 temp_file.write(">query\n")
             temp_file.write(sequences)
@@ -591,3 +544,47 @@ class AlignViewSet(viewsets.ViewSet):
                     os.remove(f)
 
         return results
+
+
+@extend_schema(
+    summary="List gene expression per gene in a dataset",
+    tags=["Single cell"],
+    request=serializers.SingleCellGeneExpressionFSerializer,
+    parameters=[
+        OpenApiParameter(
+            "gene",
+            int,
+            "query",
+            True,
+            "gene id",
+            examples=[OpenApiExample("Example", value="276096")],
+        ),
+        OpenApiParameter(
+            "dataset",
+            int,
+            "query",
+            True,
+            "dataset id",
+            examples=[OpenApiExample("Example", value="13")],
+        ),
+    ],
+)
+class SingleCellExpressionFromFile(viewsets.GenericViewSet):
+    """List the Single Cell Expression data for a Gene in a Dataset"""
+
+    http_method_names = ["get"]
+    serializer_class = serializers.SingleCellGeneExpressionFSerializer
+    queryset = models.SingleCellGeneExpressionF.objects.none()
+    filterset_class = None
+    pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        gene = request.GET.get("gene")
+        dataset = request.GET.get("dataset")
+        expression_data_manager = models.ExpressionDataManager(dataset, gene)
+        try:
+            self.queryset = expression_data_manager.create_singlecellexpression_models()
+            return Response(self.queryset)
+        except OSError:
+            logging.exception(f"Error with expression data in file for {dataset}")
+            return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)

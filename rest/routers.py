@@ -25,5 +25,6 @@ router.register("metacell_counts", views.MetacellCountViewSet, basename="metacel
 
 router.register("single_cells", views.SingleCellViewSet)
 router.register("single_cell_expression", views.SingleCellGeneExpressionViewSet)
+router.register("new_single_expression", views.SingleCellExpressionFromFile, basename="fromhdf5")
 
 router.register("align", views.AlignViewSet, basename="align")
