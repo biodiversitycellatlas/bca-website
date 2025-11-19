@@ -1,16 +1,13 @@
 import os
-import re
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
-from rest_framework import pagination, viewsets
+from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from app import models
@@ -141,6 +138,40 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     queryset = models.GeneList.objects.all()
     serializer_class = serializers.GeneListSerializer
     filterset_class = filters.GeneListFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene modules", tags=["Gene module"])
+class GeneModuleViewSet(BaseReadOnlyModelViewSet):
+    """List gene modules."""
+
+    queryset = models.GeneModule.objects.all()
+    serializer_class = serializers.GeneModuleSerializer
+    filterset_class = filters.GeneModuleFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene module membership", tags=["Gene module"])
+class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
+    """List gene membership in gene modules."""
+
+    queryset = models.GeneModuleMembership.objects.prefetch_related(
+        "module", "module__dataset", "gene"
+    )
+    serializer_class = serializers.GeneModuleMembershipSerializer
+    filterset_class = filters.GeneModuleMembershipFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene module eigenvalues", tags=["Gene module"])
+class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
+    """List eigenvalues in gene modules for each metacell."""
+
+    queryset = models.GeneModuleEigenvalue.objects.prefetch_related(
+        "module", "module__dataset", "metacell", "metacell__type"
+    )
+    serializer_class = serializers.GeneModuleEigenvalueSerializer
+    filterset_class = filters.GeneModuleEigenvalueFilter
     lookup_field = "name"
 
 

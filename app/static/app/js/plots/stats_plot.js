@@ -11,10 +11,16 @@ export let viewStats;
  *
  * @param {string} param - Data field to plot
  * @param {string} [label=param] - Axis label
+ * @param {boolean} [color_by_metacell=true] - Whether to color using metacell data
  * @param {boolean} [counts=true] - Whether to use counts in density calculation
  * @returns {Array} Array of Vega-Lite layer specifications
  */
-function prepareStatsSpecPerParam(param, label = param, counts = true) {
+function prepareStatsSpecPerParam(
+    param,
+    label = param,
+    counts = true,
+    color_by_metacell = true,
+) {
     var plot = [
         {
             transform: [{ density: param, counts: counts }],
@@ -100,7 +106,11 @@ function prepareStatsSpecPerParam(param, label = param, counts = true) {
                     // Add text on mouse hover
                     mark: { type: "text", align: "left", dx: 10 },
                     encoding: {
-                        text: { type: "quantitative", field: "value" },
+                        text: {
+                            type: "quantitative",
+                            field: "value",
+                            format: counts ? "d" : null,
+                        },
                         opacity: {
                             condition: {
                                 value: 1,
@@ -141,15 +151,19 @@ function prepareStatsSpecPerParam(param, label = param, counts = true) {
             encoding: {
                 x: { field: param, type: "quantitative" },
                 y: { value: 190 },
-                color: {
-                    field: "metacell_type",
-                    scale: { range: { field: "metacell_color" } },
-                    title: "Cell type",
-                    legend: false,
-                },
             },
         },
     ];
+
+    if (color_by_metacell) {
+        plot[2]["encoding"]["color"] = {
+            field: "metacell_type",
+            scale: { range: { field: "metacell_color" } },
+            title: "Cell type",
+            legend: false,
+        };
+    }
+
     return plot;
 }
 
@@ -161,6 +175,7 @@ function prepareStatsSpecPerParam(param, label = param, counts = true) {
  * @param {string} param - Data field to plot
  * @param {string} title - Plot title
  * @param {string} [label=param] - Axis label
+ * @param {boolean} [color_by_metacell=true] - Whether to color using metacell data
  * @param {boolean} [counts=true] - Whether to use counts in density calculation
  */
 export function createStatsPlot(
@@ -169,6 +184,7 @@ export function createStatsPlot(
     param,
     title,
     label = param,
+    color_by_metacell = true,
     counts = true,
 ) {
     var chart = {
@@ -177,12 +193,18 @@ export function createStatsPlot(
         data: { name: "data", values: data },
         width: "container",
         height: "container",
-        layer: prepareStatsSpecPerParam(param, label, counts),
+        layer: prepareStatsSpecPerParam(
+            param,
+            label,
+            counts,
+            color_by_metacell,
+        ),
         config: {
             style: { cell: { stroke: "transparent" } },
             axis: { grid: false },
         },
     };
+
     vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewStats = res.view;

@@ -1,0 +1,23 @@
+{% comment %}
+
+Heatmap plot of module activity (eigenvalues)
+
+Input:
+- id: prefix used in the identifiers of all elements
+- dataset: Dataset object
+
+{% endcomment %}
+
+{% load static %}
+
+<!-- Use column due to vega-lite's bug with containers for concatenated plots -->
+<div class="row">
+    <div class="col-10 col-sm-11">
+        {% include '../plot_container.html' with id=id ratio='16/9' %}
+    </div>
+</div>
+
+<script type="module">
+    import { loadEigenvalues } from "{% static 'app/js/atlas/module_activity.js' %}";
+    loadEigenvalues("{{id}}", "{{dataset.slug}}");
+</script>
