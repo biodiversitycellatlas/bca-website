@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import csv
 import fnmatch
 import functools
 import os
@@ -8,12 +7,13 @@ from pathlib import Path
 
 from django.core.files import File as DjangoFile
 
+from app.models import SpeciesFile, Species
 from scripts.utils import load_config, parse_dataset
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
-####### Main functions
+# Main functions
 
 config = load_config("data/raw/config.yaml")
 dir = "data/raw/files"
@@ -30,9 +30,7 @@ def add_file(file_path, species):
 
     with open(file_path, "rb") as f:
         django_file = DjangoFile(f, name=os.path.basename(file_path))
-        File.objects.get_or_create(
-            species=species, type=type, defaults={"file": django_file}
-        )
+        SpeciesFile.objects.get_or_create(species=species, type=type, defaults={"file": django_file})
 
     return True
 
