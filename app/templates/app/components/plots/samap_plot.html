@@ -17,6 +17,7 @@ Input:
     }
 </style>
 
+{% load static %}
 <div class="row g-2 mb-4 align-items-start">
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -61,7 +62,9 @@ Input:
                                step="1">
 
                         <div class="d-flex justify-content-end">
-                            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">Apply</button>
+                            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">
+                                Apply
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -70,88 +73,28 @@ Input:
     </div>
 </div>
 
-<script>
-function updateText (id, from_min_id, suffix = "") {
-    return function update(data) {
-        $(id).text(data.from + suffix);
+<script type="module">
+    import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
+    initRangeSlider("#samap_min",
+        { min: 0, max: 100, from: {{query.samap_min|default:5}} },
+        ["#samap_min_value", undefined]
+    );
 
-        // Update from_min of given ionRangeSlider
-        if (from_min_id && from_min_id !== null) {
-            $(from_min_id).data("ionRangeSlider").update({from_min: data.from})
-        }
-    }
-}
-
-$("#samap_min").ionRangeSlider({
-    min: 0,
-    max: 100,
-    from: {{query.samap_min|default:5}},
-    step: 1,
-    grid: true,
-    skin: "round",
-    onStart: updateText("#samap_min_value", undefined),
-    onChange: updateText("#samap_min_value", undefined),
-    onUpdate: updateText("#samap_min_value", undefined)
-});
-
-<!-- Maintain query when changing samap_min -->
-function modifyFormQuery (elem, e) {
-    e.preventDefault();
-
-    // Modify form URL
-    var formData = new FormData(elem);
-    var url = new URL(e.target.action);
-    for (let [key, value] of formData.entries()) {
-        url.searchParams.set(key, value);
-    }
-    window.location.href = url.href;
-}
-
-$('form').on('submit', function(e) {
-    modifyFormQuery(this, e);
-});
+    import { handleFormSubmit } from "{% static 'app/js/atlas/samap_compare.js' %}";
+    handleFormSubmit();
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
 {% if dataset2 %}
     <div class="row">
-        <div class="col-10 col-sm-11">{% include '../plot_container.html' with id=id ratio='16/9' %}</div>
+        <div class="col-10 col-sm-11">
+            {% include '../plot_container.html' with id=id ratio='16/9' %}
+        </div>
     </div>
 
-    {% load static %}
-    <script type="text/javascript"
-            src="{% static 'app/js/plots/samap_sankey_plot.js' %}"></script>
-
-    <script type="text/javascript">
-    $(function() {
-        var url = "{% url 'rest:samap-list' %}";
-
-        var params = new URLSearchParams({
-            dataset: '{{dataset.slug}}',
-            dataset2: '{{dataset2.slug}}',
-            threshold: $("#samap_min").val(),
-            limit: 0
-        });
-        var apiURL = url + "?" + params.toString();
-
-        fetch(apiURL)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length) {
-                    createSAMapSankey("#{{id}}-plot", data, '{{dataset}}', '{{dataset2}}');
-                } else {
-                    $('#{{id}}-plot').html(
-                        '<p class="text-muted"><i class="fa fa-circle-exclamation"></i> No data available for the selected datasets.</p>'
-                    );
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error))
-            .finally(() => {
-                hideSpinner('{{id}}');
-            });
-
-        appendDataMenu('{{id}}', apiURL, 'SAMap scores');
-    });
+    <script type="module">
+        import { initSAMap } from "{% static 'app/js/atlas/samap_compare.js' %}";
+        initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
     </script>
 {% else %}
     <p class="text-muted">

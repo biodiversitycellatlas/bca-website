@@ -5,7 +5,7 @@ panels, markers, comparisons, and main atlas landing.
 
 import random
 
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import redirect, reverse
 from django.views.generic import TemplateView
 
@@ -127,6 +127,46 @@ class AtlasInfoView(BaseAtlasView):
 
     template_name = "app/atlas/info.html"
 
+    def get_context_data(self, **kwargs):
+        """Add quality control metrics."""
+
+        context = super().get_context_data(**kwargs)
+        dataset = context["dataset"]
+
+        if not isinstance(dataset, Dataset):
+            return context
+
+        qc_values = dataset.qc.annotate(name=F("metric__name"), description=F("metric__description")).values(
+            "name", "description", "value"
+        )
+
+        qc_metrics = [
+            {
+                "title": "Mapping and read quality",
+                "img_url": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797",
+                "img_author": "Javier Miranda",
+                "img_author_handle": "nuvaproductions",
+            },
+            {
+                "title": "Noise and contamination",
+                "img_url": "https://images.unsplash.com/photo-1535127022272-dbe7ee35cf33",
+                "img_author": "Michael Schiffer",
+                "img_author_handle": "michael_schiffer_design",
+            },
+            {
+                "title": "Cell metrics",
+                "img_url": "https://images.unsplash.com/photo-1631556097152-c39479bbff93",
+                "img_author": "National Cancer Institute",
+                "img_author_handle": "nci",
+            },
+        ]
+
+        for each in qc_metrics:
+            each["values"] = qc_values.filter(metric__type=each["title"])
+        context["qc_metrics"] = qc_metrics
+
+        return context
+
 
 class AtlasOverviewView(BaseAtlasView):
     """Cell Atlas overview page."""
@@ -210,9 +250,7 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(
-                        Q(name__in=metacells) | Q(type__name__in=metacells)
-                    )
+                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
                     .values_list("name", flat=True)
                     .distinct()
                 )
@@ -223,10 +261,7 @@ class AtlasMarkersView(BaseAtlasView):
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
-                    "description": (
-                        f"Missing <code>metacells</code> in your query: "
-                        f"<code>{query.urlencode()}</code>"
-                    ),
+                    "description": (f"Missing <code>metacells</code> in your query: <code>{query.urlencode()}</code>"),
                 }
         return context
 

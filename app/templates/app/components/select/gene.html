@@ -36,210 +36,41 @@ Input:
         placeholder="{{ placeholder|default:'Search gene...' }}"
         {% if multiple == 'true' %}multiple{% endif %}
         {% if disabled == 'true' %}disabled{% endif %}>
-    <option value=""></option>
+    <option value="">
+    </option>
 </select>
 
 <!-- Species selection: selectize.js JavaScript options -->
-<script>
-function displayGeneInfo (item, escape) {
-    if (item.group && item.group !== 'genes') {
-        // Display gene lists
-        return `<div class='option'>${item.name} <span class="text-muted small">${item.count} genes</span></div>`;
-    } else {
-        var domains_array = item.domains;
-        badges = '';
-        for(var i = 0; i < domains_array.length; i++) {
-            if (domains_array[i] !== '') {
-                span = '<span class="badge rounded-pill text-bg-secondary">';
-                badges += ` ${span}<small>${domains_array[i]}</small></span>`;
-            }
-        }
+<script type="module">
+    {% load static %}
+    import { initGeneSelectize } from "{% static 'app/js/select/gene.js' %}";
 
-        var desc = item.description === null ? "" : `<span class="text-muted small">${item.description}</span>`;
-        return `<div class='option'>${item.name} ${desc} ${badges}</div>`;
-    }
-}
 
-function displayGeneName (item, escape) {
-    badges = '';
-    if (item.group && item.group !== 'genes') {
-        // Show count as a badge
-        badges = ` <span class="badge rounded-pill text-bg-secondary"><small>${item.count}</small></span>`;
-    }
-    return `<div class='option'>${item.name}${badges}</div>`;
-}
+    let geneName = "{{ gene.name }}";
 
-function prependGeneLists (selectize, callback, genes, domains) {
-    res = getAllLists('{{id}}_gene_lists')
-        .concat( domains.map(obj => ({ ...obj, count: obj.gene_count, group: "domains" })) )
-        .concat(   genes.map(obj => ({ ...obj, group: "genes"   })) );
-    callback(res);
-}
-
-$(function () {
-    $("#{{id}}_gene_selection").selectize({
-        {% if multiple == 'true' %}
-            multiple: true,
-            optgroupField: 'group',
-        {% endif %}
-
-        onChange: function(value) {
-            // Avoid jumping if value is empty or matches current gene
-            if (value !== "" && value !== '{{gene}}') {
-                {% if redirect == 'arg' %}
-                    window.location.href = "{% url request.resolver_match.url_name dataset.slug '::arg' %}".replace('::arg', value);
-                {% elif redirect == 'query' %}
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('gene', value)
-                    if ('{{hash}}' !== '') {
-                        url.hash = '#{{hash}}';
-                    }
-                    window.location.href = url;
-                {% endif %}
-            }
+    let id = "{{ id }}",
+        hash = "{{ hash }}",
+        redirect = "{{ redirect }}",
+        species = "{{ species }}",
+        dataset = "{{ dataset.slug }}",
+        gene = {
+            name: geneName !== "" ? geneName : null,
+            description: "{{ gene.description|default:'' }}",
+            domains: [
+                {% for domain in gene.domains.all %}
+                    "{{ domain }}"
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            ]
         },
+        selected = "{{ selected }}",
+        limit = {{limit|default:50}},
+        multiple = "{{ multiple }}",
+        display = "{{ display|default:'name' }}" === "all";
 
-        {% if multiple != 'true' %}
-            onDropdownOpen: function($dropdown) {
-                this.clear();
-            },
-            onBlur: function() {
-                // Set current gene if no value is selected
-                if (!this.getValue()) {
-                    this.setValue('{{gene}}');
-                }
-            },
-            onType: function(str) {
-                // Clear available options to avoid selection while loading more data
-                this.clearOptions();
-            },
-        {% endif %}
-        render: {
-            item:
-                {% if display|default:'name' == 'all' %}
-                    displayGeneInfo
-                {% else %}
-                    displayGeneName
-                {% endif %},
-            option: displayGeneInfo
-        },
-        valueField: 'name',
-        searchField: ['name', 'description', 'domains'],
-        respect_word_boundaries: false,
-        preload: true,
-        plugins: {
-            {% if multiple == 'true' %}
-                'remove_button': { label: ' &#xd7;' }
-            {% endif %}
-        },
-        load: function(query, callback) {
-            const genes = $.ajax({
-                url: '{% url "rest:gene-list" %}',
-                data: {
-                    species: '{{species}}',
-                    q: query || '{{gene}}',
-                    limit: {{limit|default:50}}
-                }
-            });
-
-            const domains =
-            {% if multiple == 'true' %}
-                $.ajax({
-                    url: '{% url "rest:domain-list" %}',
-                    data: {
-                        species: '{{species}}',
-                        q: query || '{{gene}}',
-                        limit: 10,
-                        order_by_gene_count: true
-                    }
-                });
-            {% else %}
-                undefined;
-            {% endif %}
-
-            Promise.all([genes, domains])
-                .then(data => {
-                    {% if multiple == 'true' %}
-                        prependGeneLists(this, callback, data[0].results, data[1].results);
-                    {% else %}
-                        callback(data[0].results);
-                    {% endif %}
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    callback();
-                })
-        }
-    });
-
-    {% if gene %}
-        function setDefaultGene(id, name, description, domains) {
-            var geneOptions = {
-                'name': name,
-                'description': description,
-                'domains': domains
-            };
-
-            var selectize = $(`#${id}_gene_selection`)[0].selectize;
-            selectize.addOption(geneOptions);
-            selectize.setValue(name);
-        }
-        setDefaultGene(
-            '{{id}}', '{{gene.name}}', '{{gene.description|default:''}}',
-            [ {% for domain in gene.domains.all %}"{{domain}}"{% if not forloop.last %}, {% endif %}{% endfor %} ]
+    $(function () {
+        initGeneSelectize(
+            id, hash, redirect, species, dataset, gene, selected, limit, multiple, display
         );
-    {% endif %}
-
-    {% if multiple == 'true' %}
-        // Run once after loading results
-        var hasRun = false;
-        var selectize = $("#{{id}}_gene_selection")[0].selectize;
-        selectize.on('load', function() {
-            if (!hasRun) {
-                var values = '{{ selected }}'.split(',');
-
-                var options = selectize.options;
-                var missingValues = values.filter(function(value) {
-                    return !(value in options);
-                });
-
-                var missingValuesArray = [];
-                for (var i in missingValues) {
-                    var elem = missingValues[i];
-                    missingValuesArray.push({
-                        'name': elem,
-                        'description': '',
-                        'domains': [],
-                    })
-                }
-                selectize.addOption(missingValuesArray);
-
-                selectize.setValue(values);
-                hasRun = true;
-            }
-
-            // Set up optgroups
-            const groups = [...new Set(Object
-                .values(selectize.options)
-                .map(obj => obj.group))];
-
-            for (i in groups) {
-                const group = groups[i];
-                if (group) {
-                    var label = group;
-                    if (group == 'preset') {
-                        label = 'Preset gene lists';
-                    } else if (group == 'custom') {
-                        label = 'Custom gene lists';
-                    } else if (group == 'genes') {
-                        label = 'Genes';
-                    } else if (group == 'domains') {
-                        label = 'Domains';
-                    }
-                    selectize.addOptionGroup(group, { label: label });
-                }
-            }
-        });
-    {% endif %}
-});
+    })
 </script>

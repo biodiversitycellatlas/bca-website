@@ -1,0 +1,182 @@
+{% comment %}
+
+Modal to align sequence
+
+Input:
+- id: prefix of element identifiers
+
+{% endcomment %}
+
+<div class="modal fade"
+     id="{{ id }}_alignment"
+     tabindex="-1"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     aria-labelledby="{{ id }}_{{ type }}_modal_label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">
+                    Sequence alignment
+                </h1>
+                <span class="ms-2 me-5 small">{{ species.get_html_link }}</span>
+
+                <div class="ms-auto d-flex align-items-center">
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-2 small">
+                    <label class="col-lg-2 col-form-label small">
+                        Aligner
+                    </label>
+                    <div class="col-lg-10">
+                        <a class="form-control-plaintext"
+                           target="_blank"
+                           href="https://github.com/bbuchfink/diamond">
+                            DIAMOND {{ DIAMOND_VERSION }}
+                            <i class="fa fa-2xs fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row mb-2 small">
+                    <label class="col-lg-2 col-form-label small">
+                        Proteome
+                    </label>
+                    <div class="col-lg-10">
+                        <span class="form-control-plaintext">
+                            <img class="rounded"
+                                 width="20px"
+                                 height="100%"
+                                 src="{{ species.image_url }}"
+                                 alt="Image of {{ species }}">
+                            {{ species.get_html }}
+
+                            {% if species.proteome %}
+                                <a class="ps-1" href="{% url 'download_file' species.proteome.slug %}">
+                                    {{ species.proteome.ext|upper }}
+                                </a>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-2 small">
+                    <label class="col-lg-2 col-form-label small">
+                        Type
+                    </label>
+                    <div class="col-lg-10">
+                        <div class="btn-group btn-group-sm mb-3 w-100" role="group">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="{{ id }}_type"
+                                   id="{{ id }}_type_nucleotides"
+                                   autocomplete="off"
+                                   value="nucleotides">
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_nucleotides">
+                                Nucleotides
+                            </label>
+
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="{{ id }}_type"
+                                   id="{{ id }}_type_aminoacids"
+                                   autocomplete="off"
+                                   value="aminoacids"
+                                   checked>
+                            <label class="btn btn-outline-primary" for="{{ id }}_type_aminoacids">
+                                Amino acids
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2 small">
+                    <label for="{{ id }}_query" class="col-lg-2 col-form-label small">
+                        Sequences
+                    </label>
+                    <div class="col-lg-10">
+                        <div class="sequence-input border border-secondary-subtle rounded">
+                            <textarea type="textarea" id="{{id}}_query" rows="6" required class="sequence-textarea form-control font-monospace border-0 rounded-top p-2" placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})">
+                            </textarea>
+                            <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
+                                <button type="button"
+                                        class="btn btn-link btn-sm"
+                                        onclick="$('#{{ id }}_upload').click();">
+                                    <span class="small">
+                                        <i class="fa fa-file-lines"></i>
+                                        Load from FASTA file...
+                                    </span>
+                                </button>
+                                <span>
+                                    <span id="{{ id }}_count">0</span>
+                                    out of {{ MAX_ALIGNMENT_SEQS }} sequences
+                                </span>
+                            </div>
+                        </div>
+
+                        <input class="form-control d-none" type="file" id="{{ id }}_upload">
+                    </div>
+                </div>
+            </div>
+
+            <div id="{{ id }}_alertContainer">
+            </div>
+            <template id="{{ id }}_errorTemplate">
+                <div role="alert"
+                     class="alert alert-danger alert-dismissible fade show m-2">
+                    <i class="fa fa-triangle-exclamation"></i>
+                    <strong class="alert-title">Title</strong>
+                    <span class="alert-description">Description</span>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+                </div>
+            </template>
+
+            <div class="modal-footer justify-content-between">
+                <p class="text-muted small">
+                    <i class="fa fa-info-circle"></i>
+                    Alignment results are saved as gene lists.
+                </p>
+                <span>
+                    <button class="btn btn-outline-primary"
+                            href="javascript:void(0);"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ id }}_{{ type }}_editor">
+                        Previous results
+                    </button>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="{{ id }}_align_btn"
+                            disabled>
+                        <span id="{{ id }}_align_spinner"
+                              class="spinner-border spinner-border-sm d-none"></span>
+                        Align
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    {% load static %}
+    import { uploadSequenceFile, highlightSequenceText, alignSequence }
+        from "{% static 'app/js/atlas/modals/alignment.js' %}";
+
+    const id = "{{id}}",
+          maxMB = {{ MAX_FILE_SIZE }},
+          maxSeqs = {{ MAX_ALIGNMENT_SEQS }};
+    uploadSequenceFile(id, maxMB, maxSeqs);
+    highlightSequenceText(id, maxSeqs);
+    alignSequence(id, "{{species}}", "{{type}}");
+</script>

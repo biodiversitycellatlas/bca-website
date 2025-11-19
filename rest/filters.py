@@ -1,3 +1,5 @@
+"""Custom django-filter filter sets and utilities for the API."""
+
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.core.exceptions import ValidationError
 from django.db.models import (
@@ -8,11 +10,9 @@ from django.db.models import (
     FloatField,
     IntegerField,
     Max,
-    OuterRef,
     Q,
     Subquery,
     Sum,
-    Value,
     When,
     Window,
 )
@@ -22,32 +22,36 @@ from django_filters.rest_framework import (
     CharFilter,
     ChoiceFilter,
     FilterSet,
-    ModelChoiceFilter,
     NumberFilter,
-    NumericRangeFilter,
     OrderingFilter,
 )
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema_field
 
 from app import models
 
 from .aggregates import Median
-from .functions import ArrayPosition, ArrayToString
+from .functions import ArrayPosition
 from .utils import check_model_exists, parse_species_dataset
 
 
 def skip_param(queryset, name, value):
     """
-    Function to allow to document a parameter without actually running anything.
-    Useful if the param is used elsewhere.
+    Document a query parameter without altering the queryset.
+    Useful if the actual param is altered elsewhere.
     """
     return queryset
 
 
 class SpeciesChoiceFilter(ChoiceFilter):
+    """Choice filter for selecting a species by scientific or common name."""
+
     default_field_name = "species"
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the species filter.
+        Populates choices from the Species model.
+        """
+
         kwargs.setdefault("field_name", self.default_field_name)
         kwargs.setdefault(
             "label",
@@ -68,6 +72,8 @@ class SpeciesChoiceFilter(ChoiceFilter):
         super().__init__(*args, **kwargs)
 
     def filter(self, qs, value):
+        """Filter queryset. Optimised to avoid inner joins."""
+
         # Optimise query: filter by species_id directly to avoid inner joins
         if value:
             # Build species_id field based on given field_name
@@ -89,9 +95,13 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
 
 class DatasetChoiceFilter(ChoiceFilter):
+    """Choice filter for selecting a dataset by slug."""
+
     default_field_name = "dataset"
 
     def __init__(self, *args, **kwargs):
+        """Initialize the dataset filter."""
+
         kwargs.setdefault("field_name", self.default_field_name)
         kwargs.setdefault(
             "label", "The <a href='#/operations/datasets_list'>dataset's slug</a>."
@@ -105,6 +115,11 @@ class DatasetChoiceFilter(ChoiceFilter):
         super().__init__(*args, **kwargs)
 
     def get_dataset_id_field(self, field):
+        """Return the dataset ID field name for filtering."""
+
+        if self.model.__name__ == "Dataset":
+            return "id"
+
         # Build dataset_id field based on given field_name
         dataset_id_field = "dataset_id"
         if field != "dataset":
@@ -112,6 +127,12 @@ class DatasetChoiceFilter(ChoiceFilter):
         return dataset_id_field
 
     def filter(self, qs, value):
+        """
+        Filter the queryset by dataset ID.
+
+        Optimised to avoid inner joins.
+        """
+
         if not value:
             return super().filter(qs, value)
 
@@ -130,16 +151,18 @@ class DatasetChoiceFilter(ChoiceFilter):
 
 
 class QueryFilterSet(FilterSet):
-    """
-    Base class to add a query parameter to search through multiple fields
-    from a model.
-    """
+    """Base filter set that adds fuzzy text search across multiple fields."""
 
     # Array of strings to use when querying
     query_fields = []
     threshold = 0.3
 
     def query(self, queryset, name, value):
+        """
+        Filter queryset by fuzzy text search across query_fields,
+        annotating similarity and sorting by threshold.
+        """
+
         if value:
             expr = []
             for field in self.query_fields:
@@ -162,11 +185,15 @@ class QueryFilterSet(FilterSet):
 
 
 class SpeciesFilter(QueryFilterSet):
+    """Filter set for species."""
+
     q = CharFilter(method="query")
     query_fields = ["common_name", "scientific_name", "meta__value"]
 
 
 class DatasetFilter(QueryFilterSet):
+    """Filter set for datasets."""
+
     species = SpeciesChoiceFilter()
     q = CharFilter(method="query")
     query_fields = [
@@ -179,18 +206,30 @@ class DatasetFilter(QueryFilterSet):
 
 
 class GeneFilter(QueryFilterSet):
+    """Filter set for genes."""
+
     species = SpeciesChoiceFilter()
     genes = CharFilter(
-        label="Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label=(
+            "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, "
+            "<a href='#/operations/gene_lists_list'>gene lists</a> and "
+            "<a href='#/operations/domains_list'>domains</a> to retrieve data for. "
+            "If not provided, data is returned for all genes."
+        ),
         method="filter_genes",
     )
     q = CharFilter(
         method="query",
-        label="Query string to filter results. The string will be searched and ranked across gene names, descriptions, and domains.",
+        label=(
+            "Query string to filter results. The string will be searched and "
+            "ranked across gene names, descriptions, and domains."
+        ),
     )
     query_fields = ["name", "description", "domains__name"]
 
     def filter_genes(self, queryset, name, value):
+        """Filter queryset by a list of gene names, domains, or gene lists."""
+
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
@@ -201,15 +240,22 @@ class GeneFilter(QueryFilterSet):
         return queryset
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Gene
         fields = ["species"]
 
 
 class DomainFilter(QueryFilterSet):
+    """Filter set for domains."""
+
     species = SpeciesChoiceFilter(field_name="gene")
     q = CharFilter(
         method="query",
-        label="Query string to filter results. The string will be searched and ranked across domain names.",
+        label=(
+            "Query string to filter results. The string will be searched and "
+            "ranked across domain names."
+        ),
     )
     query_fields = ["name"]
 
@@ -218,10 +264,13 @@ class DomainFilter(QueryFilterSet):
     )
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Domain
         fields = ["species"]
 
     def filter_queryset(self, queryset):
+        """Avoid returning duplicate gene lists and order by gene count."""
         queryset = super().filter_queryset(queryset)
 
         # Avoid returning duplicate gene lists because of the species filter
@@ -238,23 +287,32 @@ class DomainFilter(QueryFilterSet):
 
 
 class GeneListFilter(FilterSet):
+    """Filter set for gene lists."""
+
     species = SpeciesChoiceFilter(field_name="genes")
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.GeneList
         fields = ["species"]
 
     def filter_queryset(self, queryset):
-        # Avoid returning duplicate gene lists because of the species filter
+        """Avoid returning duplicate gene lists because of the species filter."""
         queryset = super().filter_queryset(queryset)
         return queryset.distinct()
 
 
 class OrthologFilter(FilterSet):
+    """Filter set for ortholog genes."""
+
     orthogroup = CharFilter()
     gene = CharFilter(
         method="find_orthologs",
-        label="The <a href='#/operations/genes_list'>gene name</a> for ortholog search. If not defined, returns all orthologs.",
+        label=(
+            "The <a href='#/operations/genes_list'>gene name</a> for ortholog "
+            "search. If not defined, returns all orthologs."
+        ),
     )
     expression = BooleanFilter(
         method=skip_param,  # used in serializers.OrthologSerializer
@@ -263,10 +321,14 @@ class OrthologFilter(FilterSet):
     species = SpeciesChoiceFilter()
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Ortholog
         fields = ["species"]
 
     def find_orthologs(self, queryset, name, value):
+        """Filter queryset based on genes from the same orthogroup."""
+
         if value:
             orthogroup = queryset.filter(gene__name=value).values("orthogroup")[:1]
             queryset = queryset.filter(orthogroup=orthogroup)
@@ -274,17 +336,23 @@ class OrthologFilter(FilterSet):
 
 
 class OrthologCountFilter(FilterSet):
+    """Filter set for ortholog counts."""
+
     orthogroup = CharFilter(
         label="The orthogroup. If not defined, returns counts for orthologs from all orthogroups."
     )
     species = SpeciesChoiceFilter()
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Ortholog
         fields = ["orthogroup", "species"]
 
 
 class SAMapFilter(FilterSet):
+    """Filter set for SAMap scores."""
+
     dataset = DatasetChoiceFilter(
         field_name=["metacelltype", "metacelltype2"], required=True
     )
@@ -298,11 +366,17 @@ class SAMapFilter(FilterSet):
     )
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.SAMap
         fields = ["dataset", "dataset2", "threshold"]
 
     @property
     def qs(self):
+        """
+        Filter queryset based on different datasets.
+        Raises ValidationError if they are the same.
+        """
         queryset = super().qs
 
         # Avoid comparing two datasets from the same species
@@ -318,6 +392,8 @@ class SAMapFilter(FilterSet):
 
 
 class SingleCellFilter(FilterSet):
+    """Filter set for single cells."""
+
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
         method=skip_param,
@@ -325,11 +401,15 @@ class SingleCellFilter(FilterSet):
     )
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.SingleCell
         fields = ["dataset"]
 
 
 class MetacellFilter(FilterSet):
+    """Filter set for metacells."""
+
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
         method=skip_param,
@@ -337,30 +417,47 @@ class MetacellFilter(FilterSet):
     )
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Metacell
         fields = ["dataset"]
 
 
 class MetacellLinkFilter(FilterSet):
+    """Filter set for metacell links."""
+
     dataset = DatasetChoiceFilter(field_name="metacell", required=True)
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.MetacellLink
         fields = ["dataset"]
 
 
 class MetacellCountFilter(FilterSet):
+    """Filter set for metacell counts."""
+
     dataset = DatasetChoiceFilter(field_name="metacell", required=True)
 
 
 class SingleCellGeneExpressionFilter(FilterSet):
+    """Filter set for single-cell gene expression."""
+
     dataset = DatasetChoiceFilter(required=True)
     genes = CharFilter(
-        label="Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label=(
+            "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, "
+            "<a href='#/operations/gene_lists_list'>gene lists</a> and "
+            "<a href='#/operations/domains_list'>domains</a> to retrieve data for. "
+            "If not provided, data is returned for all genes."
+        ),
         method="filter_genes",
     )
 
     def filter_genes(self, queryset, name, value):
+        """Filter queryset by gene names, domains or gene lists."""
+
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
@@ -371,18 +468,30 @@ class SingleCellGeneExpressionFilter(FilterSet):
         return queryset
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.SingleCellGeneExpression
         fields = ["dataset"]
 
 
 class MetacellGeneExpressionFilter(FilterSet):
+    """Filter set for metacell gene expression."""
+
     dataset = DatasetChoiceFilter(required=True)
     genes = CharFilter(
-        label="Comma-separated list of <a href='#/operations/genes_list'>genes</a>, <a href='#/operations/gene_lists_list'>gene lists</a> and <a href='#/operations/domains_list'>domains</a> to retrieve data for. If not provided, data is returned for all genes.",
+        label=(
+            "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, "
+            "<a href='#/operations/gene_lists_list'>gene lists</a> and "
+            "<a href='#/operations/domains_list'>domains</a> to retrieve data for. "
+            "If not provided, data is returned for all genes."
+        ),
         method="filter_genes",
     )
     metacells = CharFilter(
-        label="Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>.",
+        label=(
+            "Comma-separated list of <a href='#/operations/metacells_list'>metacell "
+            "names and cell types</a>."
+        ),
         method="filter_metacells",
     )
     fc_min = NumberFilter(
@@ -395,7 +504,10 @@ class MetacellGeneExpressionFilter(FilterSet):
         method="filter_markers",
     )
     sort_genes = BooleanFilter(
-        label="Sort genes based on their highest gene expression across metacells (default: <kbd>false</kbd>).",
+        label=(
+            "Sort genes based on their highest gene expression across metacells "
+            "(default: <kbd>false</kbd>)."
+        ),
         method="sort_genes_across_metacells",
     )
     log2 = BooleanFilter(
@@ -403,11 +515,17 @@ class MetacellGeneExpressionFilter(FilterSet):
         method="log2_transform",
     )
     clip_log2 = NumberFilter(
-        label="Set the maximum limit for <kbd>log2_fold_change</kbd> values (requires <kbd>log2=true</kbd>). If <kbd>fc_min</kbd> is higher, <kbd>clip_log2</kbd> is set to <kbd>fc_min</kbd>.",
+        label=(
+            "Set the maximum limit for <kbd>log2_fold_change</kbd> values "
+            "(requires <kbd>log2=true</kbd>). If <kbd>fc_min</kbd> is higher, "
+            "<kbd>clip_log2</kbd> is set to <kbd>fc_min</kbd>."
+        ),
         method="clip_expression",
     )
 
     def filter_genes(self, queryset, name, value):
+        """Filter queryset by gene names, domains or gene lists."""
+
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
@@ -418,6 +536,8 @@ class MetacellGeneExpressionFilter(FilterSet):
         return queryset
 
     def filter_metacells(self, queryset, name, value):
+        """Filter queryset by metacell names or types."""
+
         if value:
             metacells = value.split(",")
             # Filter metacells by name and type
@@ -429,6 +549,7 @@ class MetacellGeneExpressionFilter(FilterSet):
 
     def filter_markers(self, queryset, name, value):
         """Filter data based on top genes."""
+
         if value:
             top_genes = list(
                 queryset.annotate(
@@ -446,7 +567,8 @@ class MetacellGeneExpressionFilter(FilterSet):
         return queryset
 
     def sort_genes_across_metacells(self, queryset, name, value):
-        """Sort genes by their highest gene expression across metacells."""
+        """Sort genes by their highest expression across metacells."""
+
         if value:
             sorted_genes = (
                 queryset.annotate(
@@ -468,13 +590,15 @@ class MetacellGeneExpressionFilter(FilterSet):
         return queryset
 
     def log2_transform(self, queryset, name, value):
-        """Log2-transform fold-change data."""
+        """Annotate queryset with log2-transformed fold-change values."""
+
         if value:
             queryset = queryset.annotate(log2_fold_change=Log(2, F("fold_change")))
         return queryset
 
     def clip_expression(self, queryset, name, value):
-        """Limit log2-transformed fold-change data."""
+        """Cap log2-transformed fold-change values."""
+
         # Check if log2 expression data is available
         log2 = self.data.get("log2", "false") == "true"
         if log2 and value:
@@ -491,14 +615,21 @@ class MetacellGeneExpressionFilter(FilterSet):
         return queryset
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.MetacellGeneExpression
         fields = ["dataset"]
 
 
 class CorrelatedGenesFilter(QueryFilterSet):
+    """Filter set for correlated genes."""
+
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
-        label="<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top correlated genes for.",
+        label=(
+            "<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top "
+            "correlated genes for."
+        ),
         method="filter_gene",
         required=True,
     )
@@ -512,7 +643,10 @@ class CorrelatedGenesFilter(QueryFilterSet):
     )
     q = CharFilter(
         method="query",
-        label="Query string to filter results. The string will be searched and ranked across gene names, descriptions, and domains.",
+        label=(
+            "Query string to filter results. The string will be searched and "
+            "ranked across gene names, descriptions, and domains."
+        ),
     )
     query_fields = [
         "gene__name",
@@ -524,17 +658,32 @@ class CorrelatedGenesFilter(QueryFilterSet):
     ]
 
     def filter_gene(self, queryset, name, value):
+        """Filter correlations involving the given gene symbol."""
+
         if value:
-            id = models.Gene.objects.filter(name=value).values_list("id")[0][0]
-            queryset = queryset.filter(Q(gene=id) | Q(gene2=id)).distinct()
+            gid = models.Gene.objects.filter(name=value).values_list("id")[0][0]
+            queryset = queryset.filter(Q(gene=gid) | Q(gene2=gid)).distinct()
         return queryset
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.GeneCorrelation
         fields = ["dataset", "gene"]
 
 
-def createFCtypeChoiceFilter(mode, ignoreMode=False):
+def create_fc_type_choice_filter(mode, ignore_mode=False):
+    """
+    Build a ChoiceFilter for fold-change filtering.
+
+    Args:
+        mode (str): "minimum" or "maximum", determines filter type.
+        ignore_mode (bool): Whether to include an "ignore" option.
+
+    Returns:
+        ChoiceFilter: Configured filter for fold-change thresholding.
+    """
+
     if mode == "minimum":
         var = "fc_min"
         sign = "≥"
@@ -558,12 +707,15 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
         for item in ["mean", "median"]
     ]
 
-    if ignoreMode:
+    if ignore_mode:
         choices.append(["ignore", "Skip this filtering"])
 
     res = ChoiceFilter(
         choices=choices,
-        label=f"Type of filtering to use for the {mode} fold-change threshold (default: <kbd>{default}</kbd>).",
+        label=(
+            f"Type of filtering to use for the {mode} fold-change threshold "
+            f"(default: <kbd>{default}</kbd>)."
+        ),
         method=method,
         required=required,
     )
@@ -571,26 +723,39 @@ def createFCtypeChoiceFilter(mode, ignoreMode=False):
 
 
 class MetacellMarkerFilter(FilterSet):
+    """Filter set for metacell markers."""
+
     dataset = DatasetChoiceFilter(field_name="mge", required=True)
     metacells = CharFilter(
-        label="Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>.",
+        label=(
+            "Comma-separated list of <a href='#/operations/metacells_list'>metacell "
+            "names and cell types</a>."
+        ),
         method="select_metacells",
         required=True,
     )
 
     fc_min = NumberFilter(
-        label="Filter genes across foreground (i.e., selected) metacells by their minimum fold-change (default: <kbd>2</kbd>).",
+        label=(
+            "Filter genes across foreground (i.e., selected) metacells by their "
+            "minimum fold-change (default: <kbd>2</kbd>)."
+        ),
         method=skip_param,
     )
-    fc_min_type = createFCtypeChoiceFilter("minimum")
+    fc_min_type = create_fc_type_choice_filter("minimum")
 
     fc_max_bg = NumberFilter(
-        label="Filter genes across background (i.e., non-selected) metacells by their maximum fold-change (default: <kbd>3</kbd>).",
+        label=(
+            "Filter genes across background (i.e., non-selected) metacells by "
+            "their maximum fold-change (default: <kbd>3</kbd>)."
+        ),
         method=skip_param,
     )
-    fc_max_bg_type = createFCtypeChoiceFilter("maximum", ignoreMode=True)
+    fc_max_bg_type = create_fc_type_choice_filter("maximum", ignore_mode=True)
 
     def select_metacells(self, queryset, name, value):
+        """Compute UMI fractions and fold-changes from background and foreground metacells."""
+
         # Select foreground (selected) and background metacells
         metacells = value.split(",")
         fg_metacells = (
@@ -620,6 +785,8 @@ class MetacellMarkerFilter(FilterSet):
         return queryset
 
     def filter_fc_min(self, queryset, name, value):
+        """Filter genes by minimum fold-change in selected metacells."""
+
         # Get "gap genes" (those specifically expressed in selected metacells)
         fc_min = self.data.get("fc_min", 2)
 
@@ -632,12 +799,16 @@ class MetacellMarkerFilter(FilterSet):
         return queryset
 
     def filter_fc_max_bg(self, queryset, name, value):
+        """Filter genes by maximum fold-change in background metacells."""
+
         fc_max_bg = self.data.get("fc_min", 3)
+
         # Discard "gap genes" based on background
         if not value or value == "ignore":
             # Ignore backgound filtering
             return queryset
-        elif value == "mean":
+
+        if value == "mean":
             # Keep genes whose mean FC across background <= fc_max_bg
             queryset = queryset.filter(bg_mean_fc__lte=fc_max_bg)
         elif value == "median":
@@ -646,5 +817,7 @@ class MetacellMarkerFilter(FilterSet):
         return queryset
 
     class Meta:
+        """Configuration for model and filterable fields."""
+
         model = models.Gene
         fields = ["dataset"]

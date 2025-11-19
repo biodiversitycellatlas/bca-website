@@ -31,14 +31,16 @@ Input:
                visibility: hidden;
                max-width: 200px"
         placeholder="{{ placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...' }}">
-    <option value=""></option>
+    <option value="">
+    </option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}
                 <option value="{{ elem.species.slug }}"
                         data-meta="{{ elem.meta|join:',' }}"
                         data-image="{{ elem.species.image_url }}"
-                        data-name="{{ elem.species.common_name }}"
+                        data-label="{{ elem.species.get_html }}"
+                        data-name="{{ elem.species.common_name|default_if_none:'' }}"
                         {% if species == elem.species or species == elem.species.slug %}selected{% endif %}>
                     {{ elem.species.scientific_name }}
                 </option>
@@ -48,89 +50,14 @@ Input:
 </select>
 
 <!-- Species selection: selectize.js JavaScript options -->
-<script>
-$(function () {
-    var $select = $("#species-select");
-    $select.selectize({
-        onChange: function(value) {
-            // Jump to species page upon selection
-            if (value !== "" && value !== '{{species.slug}}') {
-                {% if redirect == 'arg' %}
-                    // Avoid jumping if value is empty or matches current species
-                    window.location.href =
-                        {% if request.resolver_match.view_name == 'atlas' %}
-                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-                        {% else %}
-                            "{% url request.resolver_match.view_name '::arg' %}".replace('::arg', value);
-                        {% endif %}
-                {% elif redirect == 'query' %}
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('species', value)
-                    window.location.href = url;
-                {% elif redirect == 'atlas' %}
-                    window.location.href =
-                            "{% url 'atlas_info' '::arg' %}".replace('::arg', value);
-                {% endif %}
-            }
-        },
-        onDropdownOpen: function() {
-            this.clear();
-            setTimeout(() => {
-                var species = '{{species.slug}}';
-                if (species) {
-                    var current = this.getOption(species);
-                    this.setActiveOption(current);
-                }
-            }, 10);
-        },
-        onBlur: function() {
-            // Set current species if no value is selected
-            if (!this.getValue()) {
-                this.setValue('{{species.slug}}');
-            }
-        },
-        onType: function(str) {
-            $('.highlight').closest('.species-meta').css('display', 'inline-block');
-        },
-        render: {
-            item: function (item, escape) {
-                // Display common name if different than species name
-                description = '';
-                if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-                return `<div class='option'><img src="${item.image}" style="width: 20px;"> <i>${item.text}</i>${description}</div>`;
-            },
-            option: function (item, escape) {
-                // Display common name if different than species name
-                description = '';
-                if (item.name !== item.text) {
-                    description = ` <span class="text-muted"><small>${item.name}</small></span>`;
-                }
-
-                // Add metadata (only visible when matching user query)
-                var meta_array = item.meta.split(',');
-                badges = '';
-                for(var i = 0; i < meta_array.length; i++) {
-                    var elem = meta_array[i];
-                    if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
-                        span = '<span class="species-meta badge rounded-pill text-bg-secondary">';
-                        badges += ` ${span}<small>${meta_array[i]}</small></span>`;
-                    }
-                }
-                var img = item.image === "None" ? "" : item.image;
-                return `<div class='option'><img src="${img}" style="width: 20px;"> <i>${item.text}</i>${description}${badges}</div>`;
-            }
-        },
-        searchField: ['text', 'meta', 'optgroup', 'name'],
-        plugins: {
-            {% if optgroup_columns == 'true' %}
-                optgroup_columns: {
-                    equalizeWidth: false,
-                    equalizeHeight: false
-                }
-            {% endif %}
-        }
+<script type="module">
+    {% load static %}
+    import { initSpeciesSelectize }
+        from "{% static 'app/js/select/species.js' %}";
+    $(function () {
+        let species = "{{species.slug}}",
+            redirect = "{{redirect}}",
+            optgroup_columns = "{{optgroup_columns}}" === "true";
+        initSpeciesSelectize(species, redirect, optgroup_columns);
     });
-});
 </script>

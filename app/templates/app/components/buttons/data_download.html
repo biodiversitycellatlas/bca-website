@@ -13,16 +13,18 @@
 </style>
 
 <button type="button"
-        class="btn btn-secondary btn-sm me-2 dropdown-toggle"
+        class="btn btn-secondary btn-sm dropdown-toggle"
         data-bs-toggle="dropdown"
         aria-expanded="false"
         data-bs-auto-close="outside">
-    <i class="fa fa-table"></i> Data
+    <i class="fa fa-table"></i> Export data
 </button>
 
 <ul id="data_dropdown_{{ id }}" class="dropdown-menu">
-    <li class="d-flex justify-content-end">
-        <label class="col-form-label-sm me-2">Format</label>
+    <li class="d-flex justify-content-end align-items-center">
+        <label class="col-form-label-sm me-2 text-secondary">
+            Format
+        </label>
 
         <form>
             <div class="btn-group" role="group">
@@ -35,7 +37,9 @@
                                value="{{ format }}"
                                autocomplete="off">
                         <label class="btn btn-outline-secondary btn-xs"
-                               for="data_format_{{ id }}_{{ format }}">{{ format | upper }}</label>
+                               for="data_format_{{ id }}_{{ format }}">
+                            {{ format | upper }}
+                        </label>
                     {% endfor %}
                 {% endwith %}
             </div>
@@ -46,7 +50,9 @@
 
     <template id="data_template_{{ id }}">
         <li name="data_download_option">
-            <label class="key-label">Label</label>
+            <label class="key-label">
+                Label
+            </label>
             <div class="btn-toolbar ms-2 float-end" role="toolbar">
                 <div class="btn-group me-2" role="group">
                     <a name="data_view_{{ id }}"
@@ -79,165 +85,15 @@
     </template>
 
     <hr id="data_footer_{{ id }}" class="dropdown-divider">
-    <li class="text-muted small text-end">
-        See also:
-        <a href="{% url 'downloads' %}">Downloads</a> •
-        <a href="{% url 'rest:index' %}">API documentation</a>
+    <li class="text-muted small text-end d-flex justify-content-end w-100 gap-3">
+        <span>See also</span>
+        <a href="{% url 'downloads' %}"><i class="fa fa-fw fa-circle-arrow-down"></i> Downloads</a>
+        <a href="{% url 'rest:index' %}"><i class="fa fa-fw fa-code"></i> REST API</a>
     </li>
 </ul>
 
-<script>
-    // Get current link to data from view button
-    function getDataURL(id, index) {
-        url = $(`a[name="data_view_${id}"]`)[index].href;
-        url = new URL(url, window.location.href);
-        return url;
-    }
-
-    // Download data from URL as a file
-    function downloadData(id, index) {
-        // Disable download button and change icon to spinner
-        const button = $(`a[name="data_download_${id}"]`)[index];
-        button.classList.add('disabled');
-        const previousInnerHTML = button.innerHTML;
-        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Downloading...';
-
-        // Prepare filename
-        url = getDataURL(id, index);
-        format   = url.searchParams.get('format');
-        filename = url.pathname.split('/').filter(Boolean).pop();
-
-        // Fetch and download data
-        fetch(url)
-            .then(response => response.blob())
-            .then(blob => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${filename}.${format}`;
-                link.click();
-            })
-            .catch(error => console.error('Error downloading file:', error))
-            .finally(() => {
-                button.classList.remove('disabled');
-                button.innerHTML = previousInnerHTML;
-            });
-    }
-
-    // Copy API URL to clipboard
-    function copyDataLink(id, index) {
-        const btn = $(`a[name="data_link_${id}"]`).eq(index);
-        btn.addClass("disabled");
-
-        const url = getDataURL(id, index);
-        navigator.clipboard.writeText(url.href);
-        btn.tooltip('show');
-
-        setTimeout(function() {
-            btn.tooltip('hide');
-            btn.removeClass("disabled");
-        }, 500);
-    }
-
-    // Update data formats of all elements
-    function updateDataFormat(format) {
-        // Change all view buttons to the same format
-        const view_btns = $(`a[name*="data_view"]`);
-        for (let i = 0; i < view_btns.length; i++) {
-            url = new URL(view_btns[i].href);
-            url.searchParams.set('format', format);
-            view_btns[i].href = url;
-        }
-        localStorage.setItem('data_format', format);
-    }
-    $(document).ready(function () {
-        // Set format based on saved setting (fallback to 'csv')
-        format = localStorage.getItem('data_format');
-        valid = $('input[name="data_format_{{id}}"]').map((_, el) => el.value).get();
-        format = valid.includes(format) ? format : 'csv';
-        $(`input[name="data_format_{{id}}"][value="${format}"]`).prop('checked', true);
-        updateDataFormat(format);
-    });
-
-    // Change data format based on user selection
-    $('input[name=data_format_{{id}}]').on('change', function() {
-        format = $(this).val();
-        // Update all format selection elements in the page to the same value
-        $(`input[type="radio"][value="${format}"]`).prop('checked', true);
-        updateDataFormat(format);
-    });
-
-    function updateDataMenuLink(id, elem, url) {
-        // View data
-        elem.querySelector(`a[name="data_view_${id}"]`).href = url;
-        return elem;
-    }
-
-    /**
-     * Append menu to data dropdown.
-     *
-     * @param {string} id - The prefix identifier of the HTML elements.
-     * @param {string|Object} urls - String of single URL dictionary where keys
-     *    are labels (overridden by `labels` if provided) and values are URLs.
-     * @param {string[]} [labels] - Optional string or array of labels used to
-     *    identify each link.
-     *
-     * @example
-     * appendDataMenu('heatmap', {
-     *     sc_data: '/api/v1/singlecells/?species=Mus+musculus',
-     *     mc_data: '/api/v1/metacells/?species=Mus+musculus'
-     * }, ['Single-cell data', 'Metacell data']);
-     *
-     * @example
-     * appendDataMenu('metacells', '/api/v1/metacells/?species=Mus+musculus',
-     *                'Metacell data');
-     */
-    function appendDataMenu(id, urls, labels) {
-        var template = document.getElementById(`data_template_${id}`);
-        var dropdownMenu = document.getElementById(`data_dropdown_${id}`);
-        var dropdownFooter = document.getElementById(`data_footer_${id}`);
-
-        if (typeof urls == 'string') {
-            urls = { [labels]: urls };
-            labels = undefined;
-        }
-
-        // Find last index of data download option for this identifier
-        var lastIndex = $(`ul[id="data_dropdown_${id}"] > li[name="data_download_option"]`).last().data('index');
-
-        var i = lastIndex !== undefined ? lastIndex + 1 : 0;
-        for (key in urls) {
-            const clone = document.importNode(template.content, true);
-            label = labels === undefined ? key : labels[i];
-            clone.querySelector('label').textContent = label;
-            clone.querySelector('li').setAttribute('data-index', i);
-
-            // View data
-            url = urls[key];
-            updateDataMenuLink(id, clone, url);
-
-            // Download data
-            clone.querySelector(`a[name="data_download_${id}"]`).onclick = (function(id, i) {
-                return function() { downloadData(id, i); };
-            })(id, i);
-
-            // Copy API link
-            clone.querySelector(`a[name="data_link_${id}"]`).onclick = (function(id, i) {
-                return function() { copyDataLink(id, i); };
-            })(id, i);
-
-            dropdownMenu.insertBefore(clone, dropdownFooter);
-            i++;
-        }
-    }
-
-    function updateDataMenu(id, url, label) {
-        var li = $(`ul[id="data_dropdown_${id}"] > li[name="data_download_option"] > label:contains("${label}")`).last().parent()[0];
-        if (li === undefined) {
-            // If running for the first time, append data instead
-            appendDataMenu(id, url, label);
-        } else {
-            // Update URL
-            updateDataMenuLink(id, li, url);
-        }
-    }
+<script type="module">
+    {% load static %}
+    import { initDataFormatSelector } from "{% static 'app/js/buttons/data_dropdown.js' %}";
+    initDataFormatSelector("{{id}}");
 </script>

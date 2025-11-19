@@ -1,0 +1,57 @@
+# Reference: https://medium.com/@rramgattie/alerting-on-file-changes-with-github-actions-4e733c8e3b52
+name: File monitor
+permissions:
+    contents: read
+
+on:
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
+
+jobs:
+    check_changes_and_alert:
+        name: Alert if watched files change
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+                  persist-credentials: false
+
+            - name: Check and alert if watched files change
+              id: check-and-alert
+              if: env.SLACK_WEBHOOK_URL != ''
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+                  GITHUB_EVENT_NAME: ${{ github.event_name }}
+                  GITHUB_REF: ${{ github.ref }}
+                  GITHUB_BASE_REF: ${{ github.base_ref }}
+              run: |
+                  watched_files=(".dockerignore" ".env.template" ".gitignore" "Dockerfile" "compose.yml" "nginx/nginx.conf" "requirements.txt")
+
+                  # Determine branch and event info
+                  if [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
+                      branch="$GITHUB_BASE_REF"
+                      event_type="pull_request"
+                      changed_files=$(git diff --name-only -r HEAD^1 HEAD)
+                  else
+                      # Extract the branch name from GITHUB_REF (e.g., refs/heads/main)
+                      branch="${GITHUB_REF#refs/heads/}"
+                      event_type="push"
+                      changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+                  fi
+
+                  for file in $changed_files; do
+                      for watched_file in "${watched_files[@]}"; do
+                          if [[ "$file" == *"$watched_file"* ]]; then
+                              curl -X POST -H 'Content-type: application/json' \
+                                   --data '{"text":"['"$event_type"'] File changed: '"$file"' on branch: '"$branch"'"}' \
+                                   "$SLACK_WEBHOOK_URL"
+                          fi
+                      done
+                  done

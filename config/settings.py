@@ -12,24 +12,28 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import secrets
 
-from .pre_settings import get_DIAMOND_version, get_env, get_latest_git_tag
+import orjson
+
+from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
-BCA_WEBSITE = "https://biodiversitycellatlas.org"
 BCA_DOMAIN = "biodiversitycellatlas.org"
-BCA_EMAIL = "bca@biodiversitycellatlas.org"
+BCA_WEBSITE = f"https://{BCA_DOMAIN}"
+BCA_EMAIL = f"bca@{BCA_DOMAIN}"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 
 # Script should be adapted according to what is collected https://plausible.io/docs/plausible-script
-# PLAUSIBLE_SCRIPT = "https://stats.biodiversitycellatlas.org/js/script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js"
+# PLAUSIBLE_SCRIPT = (
+#     f"https://stats.{BCA_DOMAIN}/js/"
+#     "script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js"
+# )
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
-GITHUB_ISSUES_URL = GITHUB_URL + "/issues/new"
 GIT_VERSION = get_latest_git_tag()
-GIT_VERSION_URL = f"{GITHUB_URL}/releases/tag/{GIT_VERSION}"
 
-DIAMOND_VERSION = get_DIAMOND_version()
+DIAMOND_VERSION = get_diamond_version()
 
 # Max sequences for alignment
 MAX_ALIGNMENT_SEQS = get_env("BCA_APP_MAX_ALIGNMENT_SEQS", 100, type="int")
@@ -41,17 +45,26 @@ MAX_FILE_SIZE = get_env("BCA_APP_MAX_FILE_SIZE", 10, type="int")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env("DJANGO_SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env("DJANGO_DEBUG", type="bool")
 
 ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
+DEBUG = get_env("DJANGO_DEBUG", type="bool")
+SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
+if get_env("ENVIRONMENT") == "prod":
+    # Production environment
+    DEBUG = False
+
+    # Avoid using insecure key
+    if SECRET_KEY.startswith("django-insecure"):
+        SECRET_KEY = secrets.token_hex(50)
+
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 30
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # Application definition
 
@@ -68,9 +81,11 @@ INSTALLED_APPS = [
     "colorfield",
     "drf_spectacular",
     "django_extensions",
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -78,6 +93,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 if DEBUG:
@@ -110,16 +126,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": get_env("POSTGRES_DB"),
-        "USER": get_env("POSTGRES_USER"),
-        "PASSWORD": get_env("POSTGRES_PASSWORD"),
-        "HOST": get_env("POSTGRES_HOST"),
-        "PORT": get_env("POSTGRES_PORT"),
+POSTGRES_SERVICE = get_env("POSTGRES_SERVICE")
+
+if POSTGRES_SERVICE:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "OPTIONS": {"service": POSTGRES_SERVICE},
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "NAME": get_env("POSTGRES_DB"),
+            "USER": get_env("POSTGRES_USER"),
+            "PASSWORD": get_env("POSTGRES_PASSWORD"),
+            "HOST": get_env("POSTGRES_HOST"),
+            "PORT": get_env("POSTGRES_PORT"),
+        }
+    }
 
 
 # Password validation
@@ -175,25 +201,32 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
+        "drf_orjson_renderer.renderers.ORJSONRenderer",
         "rest.renderers.CSVRenderer",
         "rest.renderers.TSVRenderer",
     ],
+    "ORJSON_RENDERER_OPTIONS": (
+        orjson.OPT_NON_STR_KEYS,
+        orjson.OPT_SERIALIZE_DATACLASS,
+        orjson.OPT_SERIALIZE_NUMPY,
+    ),
 }
 
 
-def sort_API_tags(operation):
+def sort_api_tags(operation):
+    """Sort API tags."""
+
     return ["Species", "Gene", "Metacell", "Single cell", "Sequence alignment"]
 
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Biodiversity Cell Atlas: Data Portal API",
     "DESCRIPTION": "Fetch pre-processed and processed [BCA](/) data",
-    "CONTACT": {"name": "BCA", "url": "/about"},
-    "TOS": "/about/legal",
+    "CONTACT": {"name": "BCA", "url": f"{BCA_WEBSITE}/about"},
+    "TOS": f"{BCA_WEBSITE}/legal",
     "VERSION": get_env("BCA_REST_VERSION"),
     "SERVE_INCLUDE_SCHEMA": False,
-    "SORT_OPERATIONS": sort_API_tags,
+    "SORT_OPERATIONS": sort_api_tags,
 }
 
 # Logging in console

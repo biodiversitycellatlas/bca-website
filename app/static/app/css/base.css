@@ -8,7 +8,6 @@
     --light-accent-color: #ffac3e;
     --bold-accent-color: #3ab064;
     --primary-color: var(--bold-dark-color);
-
     --hover-color: var(--bold-light-color);
     --hover-border-color: #3bbcb277;
     --navbar-hover-color: #00000030;
@@ -16,7 +15,6 @@
     --navbar-box-shadow: 0 0.5rem 1rem var(--navbar-hover-color);
     --subnavbar-bg-color: #ffffff80;
     --subnavbar-blur: blur(20px);
-
     --button-box-shadow: 0 0 0 0.25rem var(--hover-border-color);
     --card-text-shadow: var(--navbar-hover-shadow-color);
     --dropdown-menu-color: var(--subnavbar-bg-color);
@@ -128,7 +126,7 @@ body {
 
 .entry-description {
     max-width: 400px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Buttons */
@@ -217,11 +215,16 @@ fieldset:disabled.btn.btn-primary {
 .news {
     text-decoration: none;
     transition: all 0.1s linear;
-    text-shadow: 0 0 4px var(--card-text-shadow);
 }
 
 .news.card:hover {
     transform: scale(1.05);
+}
+
+.text-shadow {
+    text-shadow:
+        0 0 8px var(--card-text-shadow),
+        0 0 12px var(--card-text-shadow);
 }
 
 a,
@@ -233,11 +236,7 @@ a,
 .btn.btn-link.btn-sm {
     border-bottom: 0;
     border-top: 0;
-
-    padding-bottom: 0;
-    padding-top: 0;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding: 0 2px;
 }
 
 a:hover,

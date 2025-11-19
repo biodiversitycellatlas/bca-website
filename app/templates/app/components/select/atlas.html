@@ -14,7 +14,9 @@ Input:
 
 {% endcomment %}
 
-<div class="container-xxl">{% include './dataset.html' with small='true' %}</div>
+<div class="container-xxl">
+    {% include './dataset.html' with small='true' %}
+</div>
 
 <!-- Subnavbar to navigate the Cell Atlas -->
 <div class="subnavbar sticky-top py-1">
@@ -36,12 +38,15 @@ Input:
              id="offcanvas"
              aria-labelledby="bdSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom">
-                <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">Cell Atlas</h5>
+                <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">
+                    Cell Atlas
+                </h5>
                 <button type="button"
                         class="btn-close"
                         data-bs-dismiss="offcanvas"
                         aria-label="Close"
-                        data-bs-target="#offcanvas"></button>
+                        data-bs-target="#offcanvas">
+                </button>
             </div>
 
             <div class="offcanvas-body">
@@ -68,7 +73,8 @@ Input:
 </div>
 
 <!-- Add some whitespace between subnavbar and content -->
-<div class="mb-2"></div>
+<div class="mb-2">
+</div>
 
 <!-- Set species in cookie -->
 <!--{% if dataset %}

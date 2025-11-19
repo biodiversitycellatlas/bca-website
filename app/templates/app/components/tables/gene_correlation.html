@@ -12,18 +12,7 @@ Input:
 </table>
 
 {% load static %}
-<script type="text/javascript" src="{% static 'app/js/gene_table.js' %}"></script>
-<script>
-$(function() {
-    // Get lists from API
-    var url = "{% url 'rest:correlated-list' %}";
-    var params = new URLSearchParams({
-        dataset: '{{dataset.slug}}',
-        gene: '{{gene}}'
-    });
-    var apiURL = url + "?" + params.toString();
-
-    appendDataMenu('{{id}}', apiURL, 'Correlation table (current page)');
-    createGeneTable('{{id}}_table', apiURL, correlation=true, select='single');
-});
+<script type="module">
+    import { loadGeneCorrelationTable } from "{% static 'app/js/atlas/correlation_table.js' %}";
+    loadGeneCorrelationTable("{{id}}", "{{dataset.slug}}", "{{gene}}");
 </script>

@@ -6,6 +6,10 @@ __pycache__
 db.sqlite3
 media
 
+# Postgres
+.pg_service.conf
+.pgpass
+
 # Backup files
 *.bak
 .DS_Store
@@ -17,7 +21,11 @@ app/static/app/images/logos/BCA/EPS/*
 # Environment
 .env*
 !.env.template
-/node_modules
-package*.json
 /pg_backup
 /source
+.ackrc
+
+# Linters
+/super-linter-output
+/node_modules
+package*.json

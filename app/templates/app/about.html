@@ -18,7 +18,9 @@ Features:
 
     {% load bca_website_links %}
 
-    <h1 class="h3" id="about">About us</h1>
+    <h1 class="h3" id="about">
+        About us
+    </h1>
 
     <p class="pb-3">
         The <a href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a> (BCA)
@@ -27,7 +29,7 @@ Features:
         way for the efficient expansion of cell atlases to hundreds of species.
     </p>
 
-    {% load card %}
+    {% load cards %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col">
             {% card title="Contact us" description=html|safe img_url="https://images.unsplash.com/photo-1600633660236-f6f61d5f155d" img_author='Valeriia Miller' img_author_handle='@valeriiamiller' links=info.contact %}
@@ -49,7 +51,7 @@ Features:
     </div>
 </div>
 
-{% load custom_tags %}
+{% load file_tags %}
 <p class="text-end mt-4 small">
     Last updated: <span class="fw-bolder">{% file_last_modified %}</span>
 </p>

@@ -1,4 +1,12 @@
 /**
+ * SAMap sankey plot
+ */
+
+export let viewSAMapSankey;
+
+/* global vegaEmbed */
+
+/**
  * Renders a Sankey diagram to compare SAMap scores between metacell types from
  * two species
  *
@@ -16,7 +24,7 @@
  *   - metacell2_color: color for metacell2_type
  *   - samap: SAMap score between the two metacell types
  */
-function createSAMapSankey(id, data, dataset_label, dataset2_label) {
+export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     // If direction of datasets is reversed, switch labels
     const normalize = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
     if (
@@ -27,7 +35,7 @@ function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     }
 
     var chart = {
-        $schema: "https://vega.github.io/schema/vega/v5.json",
+        $schema: "https://vega.github.io/schema/vega/v6.json",
         autosize: {
             type: "fit",
             contains: "padding",
@@ -352,7 +360,7 @@ function createSAMapSankey(id, data, dataset_label, dataset2_label) {
             },
         ],
     };
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewSAMapSankey = res.view;
         })

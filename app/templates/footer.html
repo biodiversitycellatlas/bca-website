@@ -19,17 +19,13 @@ Features:
                 © 2024-{% now "Y" %}
                 <br />
 
-                <a class="text-nowrap"
-                   href="{{ BCA_WEBSITE|default:'https://biodiversitycellatlas.org' }}"
-                   target="_blank">Biodiversity Cell Atlas</a>
+                <a class="text-nowrap" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
                 <br />
 
                 <span class="text-nowrap">Data Portal</span>
                 <br />
 
-                <a class="text-nowrap"
-                   href="{{ GIT_VERSION_URL|default:'https://github.com/biodiversitycellatlas/bca-website' }}"
-                   target="_blank">
+                <a class="text-nowrap" href="{% github_release_url %}" target="_blank">
                     <i class="fa-brands fa-github"></i>
                     {{ GIT_VERSION|default:"GitHub repository" }}
                 </a>
@@ -62,7 +58,8 @@ Features:
             </a>
         </div>
 
-        <div class="mb-3 d-none d-md-block"></div>
+        <div class="mb-3 d-none d-md-block">
+        </div>
 
         <div class="mb-3">
             <h6>
@@ -71,7 +68,8 @@ Features:
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <span class="nav-link p-0 text-muted">
-                        White paper coming soon: <b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b>
+                        White paper: <a href="https://www.nature.com/articles/s41586-025-09312-4"
+    target="_blank">The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</a>
                     </span>
                 </li>
                 {% comment %}
@@ -98,7 +96,7 @@ Features:
 
                 <li class="nav-item mb-2">
                     <a href="{% url 'downloads' %}" class="nav-link p-0 text-muted">
-                        <i class="fa fa-fw fa-file-arrow-down"></i>
+                        <i class="fa fa-fw fa-circle-arrow-down"></i>
                         Downloads
                     </a>
                 </li>
@@ -109,6 +107,15 @@ Features:
                         REST API
                     </a>
                 </li>
+
+                {% comment %}
+                <li class="nav-item mb-2">
+                    <a href="{% url 'reference' %}" class="nav-link p-0 text-muted">
+                        <i class="fa fa-fw fa-graduation-cap"></i>
+                        Reference
+                    </a>
+                </li>
+                {% endcomment %}
 
                 <li class="nav-item mb-2">
                     <a href="{% url 'entry' %}" class="nav-link p-0 text-muted">
@@ -145,7 +152,7 @@ Features:
                     <a href="{% bca_url 'about/#media-kit' %}"
                        class="nav-link p-0 text-muted"
                        target="_blank">
-                        <i class="fa fa-fw fa-box"></i>
+                        <i class="fa fa-fw fa-photo-film"></i>
                         Media kit
                     </a>
                 </li>

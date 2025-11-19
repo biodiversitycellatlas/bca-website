@@ -12,7 +12,6 @@
         border: none;
         border-radius: 12px;
         padding: 4px 12px;
-        margin-right: 6px;
         font-size: 0.9em;
         cursor: pointer;
         color: #333;
@@ -24,6 +23,10 @@
 
     .gh-container-title.tag-buttons {
         border-bottom: none;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
     }
 </style>
 
@@ -47,13 +50,11 @@
 
         <!-- Tag shortcuts -->
         <div class="gh-container-title tag-buttons" style="margin-top: 1em;">
-            <center>
-                <a class="tag-btn" href="tag/news">News</a>
-                <a class="tag-btn" href="tag/media">Media</a>
-                <a class="tag-btn" href="tag/meetings">Meetings</a>
-                <a class="tag-btn" href="tag/publications">Publications</a>
-                <a class="tag-btn" href="tag/tutorials">Tutorials</a>
-            </center>
+            <a class="tag-btn" href="tag/news">News</a>
+            <a class="tag-btn" href="tag/media">Media</a>
+            <a class="tag-btn" href="tag/meetings">Meetings</a>
+            <a class="tag-btn" href="tag/publications">Publications</a>
+            <a class="tag-btn" href="tag/tutorials">Tutorials</a>
         </div>
 
         {{#if showTitle}}

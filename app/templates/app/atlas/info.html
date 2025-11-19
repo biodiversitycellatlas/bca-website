@@ -35,24 +35,17 @@ Input:
     {% load static %}
     {% include '../components/warning_alert.html' %}
 
-    <div class="row pt-2">
+    <div class="row">
         <div class="col-md-4">
 
             <!-- Show image and credits -->
-            <img src="{{ dataset.image_url|default:species.image_url }}"
-                 alt="Image of {{ dataset.species }}"
-                 width="auto"
-                 height="auto"
-                 class="w-100">
-            {% if dataset.image_source or species.image_source %}
-                <span class="small text-secondary"><i>
-                    Image credits:
-                    <a href="{{ dataset.image_url|default:species.image_url }}"
-                       target="_blank">{{ dataset.image_source|default:species.image_source }}</a>
-                </i></span>
-            {% endif %}
+            <p>
+                {% include "../components/dataset_image.html" %}
+            </p>
 
-            <h2 class="h5 mt-4">Dataset information</h2>
+            <h2 class="h5 mt-4">
+                Dataset information
+            </h2>
 
             <table class="table table-sm table-striped mx-auto">
                 <tbody>
@@ -60,18 +53,24 @@ Input:
                         <td>
                             <span class="key">Release date</span>
                         </td>
-                        <td class="text-end">{{ dataset.date_created|date:"j F Y" }}</td>
+                        <td class="text-end">
+                            {{ dataset.date_created|date:"j F Y" }}
+                        </td>
                     </tr>
                     <tr>
                         <td>
                             <span class="key">Last update</span>
                         </td>
-                        <td class="text-end">{{ dataset.date_updated|date:"j F Y" }}</td>
+                        <td class="text-end">
+                            {{ dataset.date_updated|date:"j F Y" }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
-            <h2 class="h5 mt-4">Metadata</h2>
+            <h2 class="h5 mt-4">
+                Metadata
+            </h2>
 
             <table class="table table-sm table-striped mx-auto">
                 <tbody>
@@ -105,16 +104,24 @@ Input:
             {% load headings %}
             {% h1 dataset.get_html id="info" %}
 
-            <p>{{ species.description|default:'No description available.'|safe }}</p>
+            <p>
+                {{ species.description|default:'No description available.'|safe }}
+            </p>
 
             <div class="row text-center mt-5">
                 <div class="col-6 col-lg-3">
-                    <p id="n_cells" class="h3 mb-0">0</p>
-                    <p>cells</p>
+                    <p id="n_cells" class="h3 mb-0">
+                        0
+                    </p>
+                    <p>
+                        cells
+                    </p>
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_metacells" class="h3 mb-0">0</p>
+                    <p id="n_metacells" class="h3 mb-0">
+                        0
+                    </p>
                     <a data-bs-toggle="tooltip"
                        data-bs-placement="bottom"
                        data-bs-title="Groups of cells with highly similar gene expression">
@@ -123,7 +130,9 @@ Input:
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_umis" class="h3 mb-0">0</p>
+                    <p id="n_umis" class="h3 mb-0">
+                        0
+                    </p>
                     <a data-bs-toggle="tooltip"
                        data-bs-placement="bottom"
                        data-bs-title="Total number of Unique Molecular Identifiers (UMIs)">
@@ -132,74 +141,40 @@ Input:
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <p id="n_genes" class="h3 mb-0">0</p>
-                    <p>genes</p>
+                    <p id="n_genes" class="h3 mb-0">
+                        0
+                    </p>
+                    <p>
+                        genes
+                    </p>
                 </div>
             </div>
 
             <div class="row mt-3">
-                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-cells' ratio='16/9' %}</div>
+                <div class="col-md-6">
+                    {% include '../components/plot_container.html' with id='metacell-cells' height='270px' %}
+                </div>
 
-                <div class="col-md-6">{% include '../components/plot_container.html' with id='metacell-umis' ratio='16/9' %}</div>
+                <div class="col-md-6">
+                    {% include '../components/plot_container.html' with id='metacell-umis' height='270px' %}
+                </div>
+            </div>
+
+            {% load headings %}
+            {% h2 "Quality control metrics" id="qc" %}
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 small">
+                {% load cards %}
+                {% for item in qc_metrics %}
+                    {% qc_card title=item.title description=item.description img_url=item.img_url img_author=item.img_author img_author_handle=item.img_author_handle metrics=item.values %}
+                {% endfor %}
             </div>
         </div>
     </div>
-
-    <script type="text/javascript" src="{% static 'app/js/plots/stats.js' %}"></script>
-    <script>
-    var counts_url = new URL("{% url 'rest:metacellcount-list' %}", window.location.origin);
-    counts_url.searchParams.append('dataset', '{{dataset.slug}}');
-    counts_url.searchParams.append('limit', '0');
-
-    var urls = {
-        info: "{% url 'rest:dataset-detail' dataset.slug %}",
-        stats: "{% url 'rest:stats-detail' dataset.slug %}",
-        counts: counts_url.toString()
-    };
-    appendDataMenu('info', urls,
-                   ['Dataset information', 'Summary statistics', 'Metacell counts']);
-
-    function animateNumber(id, target) {
-        let val = 0;
-
-        // Increment value at a fixed interval
-        const time = 15;
-        const duration = 250;
-        const increment = Math.max( Math.floor(target / (duration / time)), 1 );
-
-        const interval = setInterval(function() {
-            val += increment;
-            if (val >= target) {
-                val = target;
-                clearInterval(interval);
-            }
-            $(id).text(val.toLocaleString());
-        }, time);
-    }
-
-    fetch(urls.stats)
-        .then(response => response.json())
-        .then(data => {
-            animateNumber('#n_cells', data.cells);
-            animateNumber('#n_metacells', data.metacells);
-            animateNumber('#n_umis', data.umis);
-            animateNumber('#n_genes', data.genes);
-        })
-        .catch(error => console.error('Error:', error))
-
-    $(function() {
-        fetch(urls.counts)
-            .then(response => response.json())
-            .then(data => {
-                createStatsPlot(
-                    '#metacell-cells-plot', data, 'cells',
-                    'Cells per metacell', 'Cell count');
-                createStatsPlot(
-                    '#metacell-umis-plot', data, 'umis',
-                    'UMIs per metacell', 'UMI count');
-            })
-            .catch(error => console.error('Error:', error))
-    });
+    <script type="module">
+        import { loadDatasetStats, renderStatsPlots } from "{% static 'app/js/atlas/stats.js' %}";
+        loadDatasetStats("{{dataset.slug}}");
+        renderStatsPlots("{{dataset.slug}}");
     </script>
 
 {% endblock content %}

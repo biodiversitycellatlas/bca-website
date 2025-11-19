@@ -1,6 +1,21 @@
-function createExpressionHeatmap(id, species, data) {
+/**
+ * Gene expression heatmaps.
+ */
+
+/* global vegaEmbed */
+
+export let viewExpressionHeatmap;
+
+/**
+ * Render heatmap of gene expression for a given species and dataset.
+ *
+ * @param {string} id - DOM element ID where the heatmap will be embedded.
+ * @param {string} species - Species name (used for metadata or future extensions).
+ * @param {Array} data - Array of objects containing metacell and gene expression data.
+ */
+export function createExpressionHeatmap(id, species, data) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },
         transform: [
@@ -52,28 +67,76 @@ function createExpressionHeatmap(id, species, data) {
             {
                 width: "container",
                 height: 500,
-                mark: { type: "rect", tooltip: { content: "data" } },
-                encoding: {
-                    x: {
-                        field: "metacell_name",
-                        axis: { labels: false, ticks: false },
-                        title: "",
-                    },
-                    y: {
-                        field: "gene_name",
-                        axis: { labels: false, ticks: false },
-                        sort: { field: "index" },
-                        title: "Genes",
-                    },
-                    color: {
-                        field: "log2_fold_change",
-                        type: "quantitative",
-                        title: "Log\u2082 FC",
-                        scale: {
-                            range: ["#F2F2F2", "#FFA500", "#EE4000", "#520c52"],
+                layer: [
+                    {
+                        mark: { type: "rect", tooltip: { content: "data" } },
+                        encoding: {
+                            x: {
+                                field: "metacell_name",
+                                axis: { labels: false, ticks: false },
+                                title: "",
+                            },
+                            y: {
+                                field: "gene_name",
+                                axis: { labels: false, ticks: false },
+                                sort: { field: "index" },
+                                title: "Genes",
+                            },
+                            color: {
+                                field: "log2_fold_change",
+                                type: "quantitative",
+                                title: "Log\u2082 FC",
+                                scale: {
+                                    range: [
+                                        "#F2F2F2",
+                                        "#FFA500",
+                                        "#EE4000",
+                                        "#520c52",
+                                    ],
+                                },
+                            },
                         },
                     },
-                },
+                    {
+                        mark: "rule",
+                        transform: [
+                            // Filter first value for each metacell type
+                            {
+                                window: [{ op: "row_number", as: "rn" }],
+                                groupby: ["metacell_type"],
+                                sort: [
+                                    {
+                                        field: "metacell_name",
+                                        order: "ascending",
+                                    },
+                                ],
+                            },
+                            {
+                                filter: "datum.rn === 1",
+                            },
+
+                            // Discard first value (overlaps the Y-axis grid line)
+                            {
+                                window: [{ op: "row_number", as: "rn_all" }],
+                                sort: [
+                                    {
+                                        field: "metacell_name",
+                                        order: "ascending",
+                                    },
+                                ],
+                            },
+                            {
+                                filter: "datum.rn_all > 1",
+                            },
+                        ],
+                        encoding: {
+                            // Position first mark to the left
+                            x: { field: "metacell_name", bandPosition: 0 },
+                            color: { value: "gray" },
+                            strokeWidth: { value: 0.5 },
+                        },
+                    },
+                ],
             },
             {
                 width: "container",
@@ -98,7 +161,7 @@ function createExpressionHeatmap(id, species, data) {
         ],
         config: { view: { stroke: "transparent" } },
     };
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewExpressionHeatmap = res.view;
         })

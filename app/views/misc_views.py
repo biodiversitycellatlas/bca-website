@@ -1,13 +1,21 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
+import os
+
 from django.conf import settings
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
 
 from ..models import Dataset, File, Species
-from ..templatetags.bca_website_links import bca_url
-from ..utils import get_dataset_dict
+from ..templatetags.bca_website_links import bca_url, github_url
+from ..utils import (
+    get_dataset_dict,
+    get_species_dict,
+    render_markdown,
+    get_pygments_css,
+    get_latest_posts,
+)
 
 
 class IndexView(TemplateView):
@@ -19,6 +27,10 @@ class IndexView(TemplateView):
         """Add dataset dictionary to context."""
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
+
+        categories = ["latest", "publications", "meetings", "tutorials"]
+        posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
+        context["posts"] = posts
         return context
 
 
@@ -28,6 +40,13 @@ class HealthView(View):
     def get(self, request, *args, **kwargs):
         """Return a 200 OK status in JSON."""
         return JsonResponse({"status": "ok"})
+
+
+class RobotsView(TemplateView):
+    """The robots.txt page."""
+
+    template_name = "robots.txt"
+    content_type = "text/plain"
 
 
 class Custom403View(TemplateView):
@@ -68,9 +87,7 @@ class FileDownloadView(DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         """Return file as attachment with original filename."""
-        resp = FileResponse(
-            self.object.file.open(), as_attachment=True, filename=self.object.filename
-        )
+        resp = FileResponse(self.object.file.open(), as_attachment=True, filename=self.object.filename)
         return resp
 
 
@@ -86,12 +103,12 @@ class AboutView(TemplateView):
             "contact": [
                 {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
-                    "url": settings.GITHUB_URL,
+                    "url": github_url(),
                     "icon": "fa-brands fa-github",
                     "label": "Source code",
                 },
                 {
-                    "url": settings.GITHUB_ISSUES_URL,
+                    "url": github_url("issues/new"),
                     "icon": "fa-bug",
                     "label": "Bug reports",
                 },
@@ -110,17 +127,45 @@ class AboutView(TemplateView):
             ],
             "licenses": [
                 {
+                    "url": github_url("blob/main/LICENSE"),
+                    "icon": "fa-kiwi-bird",
+                    "label": "BCA website",
+                },
+                {
                     "url": "https://fontawesome.com/license/free",
                     "icon": "fa-brands fa-font-awesome",
                     "label": "Icons by Font Awesome",
                 },
                 {
                     "url": "https://fonts.google.com/specimen/Rubik/license",
-                    "icon": "fa-book",
+                    "icon": "fa-pen-nib",
                     "label": "Rubik font by Google Fonts",
                 },
             ],
         }
+        return context
+
+
+class ReferenceView(TemplateView):
+    """Reference pages rendered from Markdown files."""
+
+    template_name = "app/reference.html"
+    reference_dir = "app/reference"
+
+    def get_context_data(self, **kwargs):
+        """Render HTML from Markdown files."""
+        context = super().get_context_data(**kwargs)
+        page = kwargs.get("page", "index")
+        file_path = os.path.join(self.reference_dir, f"{page}.md")
+
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8") as f:
+                md_content = f.read()
+            context["content"] = render_markdown(md_content)
+            context["pygments_css"] = get_pygments_css()
+        else:
+            raise Http404()
+
         return context
 
 
@@ -132,7 +177,7 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add dataset dictionary and search query to context."""
         context = super().get_context_data(**kwargs)
-        context["dataset_dict"] = get_dataset_dict()
+        context["species_dict"] = get_species_dict()
 
         query = self.request.GET
         if query:

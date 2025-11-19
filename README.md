@@ -1,13 +1,18 @@
 # Biodiversity Cell Atlas website and data portal
 
-The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species.
+The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at
+molecularly characterizing cell types across the eukaryotic tree of life. Our
+mission is to pave the way for the efficient expansion of cell atlases to
+hundreds of species.
 
 ## Overview
 
 This project uses:
 
-- [Podman Compose][] to manage multiple [Podman][] containers (using [docker-compose][Docker Compose] backend for compatibility)
+- [Podman Compose][] to manage multiple [Podman][] containers (using
+  [docker-compose][Docker Compose] backend for compatibility)
 - [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
+    - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
 - [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
@@ -16,17 +21,23 @@ This project uses:
 
 To set up the project and run the web app locally, first install:
 
-- [Podman][] — consider installing via [Podman Desktop][] to make it easier to manage Podman containers
+- [Podman][] — consider installing via [Podman Desktop][] to make it easier to
+  manage Podman containers
 - [docker-compose (standalone)][docker-compose] — Docker itself is not required
 
-Then, follow these steps:
+Then, download the project directory from GitHub and follow these steps:
 
 ```bash
 # Go to the project directory
 cd bca-website
 
-# Copy the .env.template to .env
+# Copy the *.template files to avoid the .template suffix
 cp .env.template .env
+cp .pg_service.conf.template .pg_service.conf
+cp .pgpass.template .pgpass
+
+# Fix the permissions for .pgpass
+chmod 600 .pgpass
 
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
@@ -74,6 +85,14 @@ The project directory is automatically mounted to the web app container,
 allowing to preview updates in the web app in real-time, except for
 static files and Django model updates.
 
+After launching the service, the main website will be deployed to
+[http://localhost](http://localhost) and the Data Portal to
+[http://portal.localhost](http://portal.localhost).
+
+> [!NOTE]
+> If you are using proxies, localhost subdomains may need to be excluded in your
+> Proxy settings.
+
 #### Update static files
 
 Static files are served by [Nginx][].
@@ -103,13 +122,111 @@ manual intervention.
 
 ### Production
 
-A dedicated Compose file (such as `compose.prod.yml`) can be used for production-specific settings:
+A dedicated Compose file (such as `compose.prod.yml`) can be used for
+production-specific settings:
 
 ```bash
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
 # Deploy in production mode
-# Alternatively, set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
-podman compose -f compose.yml -f compose.prod.yml up -d
+podman compose -d
 ```
+
+## Postgres database
+
+By default, the project uses the Postgres database service to serve the Django
+app. However, you can instead connect to any database by editing the Postgres
+files `.pg_service.conf` and `.pgpass`, and then changing to which database
+service to connect in `.env`:
+
+```bash
+POSTGRES_SERVICE=remote-bca-db
+```
+
+In case the database service is not needed because you are connecting to an
+external database, edit the `.env` file to exclude the `db` profile:
+
+```bash
+# Change the following line to exclude the db service
+
+# COMPOSE_PROFILES=nginx,db
+COMPOSE_PROFILES=nginx
+```
+
+### Connect to database via SSH tunnel
+
+If the database can only be accessed via an intermediate host, you will
+need to connect to the host via an SSH tunnel:
+
+```bash
+ssh -fN -L 5432:db-host.com:5432 darwin@intermediate.host.com
+```
+
+To connect to the database through the SSH tunnel, use host `host.docker.internal`.
+You can configure your `.pg_service.conf` and `.pgpass` files like this:
+
+```bash
+[ssh-bca-db]
+host=host.docker.internal
+port=5432
+dbname=bca_db
+user=wallace
+```
+
+```bash
+host.docker.internal:5432:bca_db:wallace:mypassword
+```
+
+You can now start the project as usual via `podman compose up`.
+
+## Ghost
+
+The main website is built with the [Ghost][] blogging platform. Base templates
+in the [`ghost/`](ghost) folder modify the default theme.
+
+Transactional emails (like those sent to reset passwords and create new user
+accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+
+## Nginx
+
+In case you want to run Nginx or another reverse proxy yourself, edit the `.env`
+file to exclude the `nginx` profile:
+
+```bash
+# Change the following line to exclude the nginx service
+
+# COMPOSE_PROFILES=nginx,db
+COMPOSE_PROFILES=db
+
+# If you don't need both the nginx and db services, simply delete the whole line
+```
+
+## Super-Linter
+
+Super-Linter is run for every Pull Request. To run it locally using Podman,
+execute the following commands (the correct image is automatically pulled based
+on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
+
+```bash
+# Run in check mode on changed files
+./superlinter.sh check
+
+# Run in fix mode on changed files
+./superlinter.sh fix
+
+# Run in fix mode on changed files using Python and JS linters only
+./superlinter.sh fix --python --js
+
+# Run in fix mode on all codebase
+./superlinter.sh fix --all
+
+# Print all available options
+./superlinter.sh
+```
+
+The environment files that Super-Linter automatically loads are available in
+[.github/linters](.github/linters):
+[super-linter.env](.github/linters/super-linter.env) and
+[super-linter-fix.env](.github/linters/super-linter-fix.env).
 
 ## Contact us
 
@@ -131,6 +248,7 @@ podman compose -f compose.yml -f compose.prod.yml up -d
 [Nginx]: https://nginx.org
 [Gunicorn]: https://gunicorn.org
 [Ghost]: https://ghost.org
+[Mailpit]: https://mailpit.axllent.org
 [collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
 [CRG]: https://crg.eu

@@ -12,15 +12,9 @@ Downloads page
 
 {% block subnav %}
     <div class="container-xxl">
-        <h1 class="h3">Data download</h1>
-        <p>
-            Please find the download links for <a href="#species">species</a> and
-            <a href="#dataset">dataset</a> data in the tables below.
-        </p>
-        <p>
-            To download data in bulk, we recommend using the
-            <a href="{% url 'api' %}">REST API</a>.
-        </p>
+        <h1 class="h3">
+            Data download
+        </h1>
     </div>
 
     <div class="subnavbar sticky-top py-1">
@@ -42,12 +36,15 @@ Downloads page
                  id="offcanvas"
                  aria-labelledby="bdSidebarOffcanvasLabel">
                 <div class="offcanvas-header border-bottom">
-                    <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">Data download</h5>
+                    <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">
+                        Data download
+                    </h5>
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
-                            data-bs-target="#offcanvas"></button>
+                            data-bs-target="#offcanvas">
+                    </button>
                 </div>
 
                 <div class="offcanvas-body">
@@ -83,9 +80,10 @@ Downloads page
 {% endblock subnav %}
 
 {% block content %}
-
-    {% load custom_filters %}
+    {% load cards %}
     {% load download_links %}
+    {% load file_tags %}
+    {% load string_extras %}
 
     <div data-bs-spy="scroll"
          data-bs-target="#scrollspy-nav"
@@ -106,19 +104,24 @@ Downloads page
             <table id="species_table" class="display nowrap w-100">
                 <thead>
                     <tr>
-                        <th>Species</th>
-                        <th>Common name</th>
-                        <th>Proteome</th>
-                        <th>DIAMOND database</th>
+                        <th>
+                            Species
+                        </th>
+                        <th>
+                            Proteome
+                        </th>
+                        <th>
+                            DIAMOND database
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% with file_types="Proteome,DIAMOND" %}
                         {% for species in species_all %}
                             <tr>
-                                <td>{{ species.get_html_link }}</td>
-                                <td>{{ species.common_name|default_if_none:"–" }}</td>
-
+                                <td>
+                                    {{ species.get_named_html_link }}
+                                </td>
                                 {% for file_type in file_types|split:"," %}
                                     {% with file=species.files.all|get_file_type:file_type %}
                                         <td>
@@ -155,23 +158,35 @@ Downloads page
             <table id="dataset_table" class="display nowrap w-100">
                 <thead>
                     <tr>
-                        <th>Dataset name</th>
-                        <th>Species common name</th>
-
-                        <th>Single cell data</th>
-                        <th>Metacell data</th>
-                        <th>Metacell counts</th>
+                        <th>
+                            Dataset name
+                        </th>
+                        <th>
+                            Single cell data
+                        </th>
+                        <th>
+                            Metacell data
+                        </th>
+                        <th>
+                            Metacell counts
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for dataset in datasets_all %}
                         <tr>
-                            <td>{{ dataset.get_html_link }}</td>
-                            <td>{{ dataset.species.common_name|default_if_none:"–" }}</td>
-
-                            <td>{% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}</td>
-                            <td>{% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}</td>
-                            <td>{% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}</td>
+                            <td>
+                                {{ dataset.get_named_html_link }}
+                            </td>
+                            <td>
+                                {% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}
+                            </td>
+                            <td>
+                                {% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}
+                            </td>
+                            <td>
+                                {% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -179,14 +194,14 @@ Downloads page
         </div>
 
         <script>
-$('#species_table, #dataset_table').DataTable({
-    responsive: true,
-    pageLength: 25,
-    scrollX: true,
-    language: { "search": "" }
-});
+            $('#species_table, #dataset_table').DataTable({
+                responsive: true,
+                pageLength: 25,
+                scrollX: true,
+                language: { "search": "" }
+            });
 
-$('.dt-search input').attr("placeholder", "Search table...");
+            $('.dt-search input').attr("placeholder", "Search table...");
         </script>
 
     </div>

@@ -1,11 +1,10 @@
-/* Update values of all checkboxes for vega */
-function updateCheckboxValue(el) {
-    el.value = el.checked;
-}
-$('input[type="checkbox"]').each(function () {
-    this.value = this.checked;
-    this.setAttribute("onclick", "updateCheckboxValue(this);");
-});
+/**
+ * Metacell projection scatterplot.
+ */
+
+/* global vegaEmbed */
+
+export let viewMetacellProjection;
 
 /**
  * Generate color scale based on data type and color.
@@ -31,7 +30,16 @@ function generateColorScale(data) {
     return scale;
 }
 
-function createMetacellProjection(
+/**
+ * Create metacell projection chart.
+ *
+ * @param {string} id - CSS selector for target element.
+ * @param {string} species - Species name.
+ * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_links`.
+ * @param {boolean} [color_by_metacell_type=true] - Color points by metacell type.
+ * @param {string|null} [gene=null] - Optional gene name for subtitle.
+ */
+export function createMetacellProjection(
     id,
     species,
     data,
@@ -40,7 +48,7 @@ function createMetacellProjection(
 ) {
     var metacellColorScale = generateColorScale(data["mc_data"]);
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
             text: {
                 expr: "data('sc_data').length + ' cells, ' + data('mc_data').length + ' metacells'",
@@ -193,7 +201,7 @@ function createMetacellProjection(
         };
     }
 
-    vegaEmbed(id, chart)
+    vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
             viewMetacellProjection = res.view;
         })

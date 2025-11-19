@@ -6,50 +6,91 @@
 
 {% block content %}
 
+    <h1 class="h3 text-break">
+        {{ species.get_html }}
+        {% if species.common_name %}
+            <div class="small text-muted">
+                {{ species.common_name }}
+            </div>
+        {% endif %}
+    </h1>
+
     <div class="row pt-2">
         <div class="col-md-4">
-            <h1 class="h3 text-break">
-                {{ species.get_html }}
-                {% if species.common_name %}<div class="small text-muted">{{ species.common_name }}</div>{% endif %}
-            </h1>
-
             <p>
-                <img class="rounded w-100"
-                     width="100%"
-                     height="100%"
-                     src="{{ species.image_url }}"
-                     alt="Image of {{ species }}">
+                {% include "../components/dataset_image.html" %}
             </p>
-            <p>{{ species.description|default:'No description available.'|safe }}</p>
+        </div>
 
-            <h2 class="h4">BCA datasets</h2>
-            <ul>
-                {% for dataset in species.datasets.all %}<li>{{ dataset.get_html_link }}</li>{% endfor %}
+        <div class="col-md-8">
+            <h2 class="h4">
+                Description
+            </h2>
+            <p>
+                {{ species.description|default:'No description available.'|safe }}
+            </p>
+
+            <h2 class="h4">
+                BCA datasets
+            </h2>
+            <ul class="list-unstyled">
+                {% for dataset in species.datasets.all %}
+                    <li>
+                        {{ dataset.get_html_link }}
+                    </li>
+                {% endfor %}
             </ul>
+        </div>
+    </div>
 
-            <h2 class="h4">Species data</h2>
+    <hr>
+    <div class="row pt-2">
+        <div class="col-md-4">
+            <h2 class="h4">
+                Species data
+            </h2>
             <ul>
                 <li>
                     <a href="{{ species.get_gene_list_url }}">Genes</a>
                 </li>
             </ul>
+
+            <h2 class="h4">
+                File download
+            </h2>
+            <ul>
+                {% for file in species.files.all %}
+                    <li>
+                        <a href="{% url 'download_file' file.slug %}">{{ file.type }} ({{ file.ext.upper }})</a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="col-md-8">
-            <h2 class="h4">Metadata</h2>
-
+            <h2 class="h4">
+                Metadata
+            </h2>
             <table class="table table-sm table-striped">
                 <thead>
                     <tr>
-                        <th>Key</th>
-                        <th>Value</th>
-                        <th>Source</th>
+                        <th>
+                            Key
+                        </th>
+                        <th>
+                            Value
+                        </th>
+                        <th>
+                            Source
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for metadata in species.meta_set.all %}
                         <tr>
-                            <td>{{ metadata.label }}</td>
+                            <td>
+                                {{ metadata.label }}
+                            </td>
                             <td>
                                 {% with metadata.get_absolute_url as url %}
                                     {% if url %}
@@ -59,7 +100,9 @@
                                     {% endif %}
                                 {% endwith %}
                             </td>
-                            <td>{{ metadata.source }}</td>
+                            <td>
+                                {{ metadata.source.get_html_link }}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

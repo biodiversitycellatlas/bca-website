@@ -21,30 +21,13 @@ Features:
             height: 600px;
             width: 100%;
         }
-
-        .news.card {
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 800px;
-            clip-path: url(#gaudi1);
-        }
-
-        .news-1 {
-            background-image: url('https://images.unsplash.com/photo-1470165473874-023613603389');
-        }
-
-        .news-2 {
-            background-image: url('https://images.unsplash.com/photo-1535780429486-94a540c2f0f9');
-        }
-
-        .news-3 {
-            background-image: url('https://images.unsplash.com/photo-1523947204020-b03d6498b702');
-        }
     </style>
 
     {% load static %}
     <div class="px-2 text-center">
-        <h1 class="display-5 fw-bold text-body-emphasis d-none">Biodiversity Cell Atlas: Data Portal</h1>
+        <h1 class="display-5 fw-bold text-body-emphasis d-none">
+            Biodiversity Cell Atlas: Data Portal
+        </h1>
 
         <img title="Biodiversity Cell Atlas"
              width="500"
@@ -68,15 +51,17 @@ Features:
     </div>
 
     <div class="container-fluid d-flex justify-content-center align-items-center pt-4">
-        {% include 'app/components/select/dataset.html' with redirect='atlas' class='w-100 atlas-select home' optgroup_columns='true' %}
+        {% include 'app/components/select/dataset.html' with redirect='arg' class='w-100 atlas-select home' %}
     </div>
 
     <!-- Tree of Life -->
     <div id="tree"
-         class="container d-flex align-items-center justify-content-center"></div>
-    <script type="text/javascript"
-            src="{% static 'app/js/plots/tree_of_life.js' %}"></script>
-    <script type="text/javascript">createTreeOfLife("#tree", "{% static 'app/life.json' %}")</script>
+         class="container d-flex align-items-center justify-content-center">
+    </div>
+    <script type="module">
+        import { createTreeOfLife } from "{% static 'app/js/plots/tree_of_life.js' %}";
+        createTreeOfLife("#tree", "{% static 'app/life.json' %}");
+    </script>
 
     {% comment %}
         <svg xmlns="http://www.w3.org/2000/svg" class="position-absolute">
@@ -88,137 +73,51 @@ Features:
         </svg>
     {% endcomment %}
 
-    <!-- News -->
-    <h1 class="h3" id="news">Latest news</h1>
+    <!-- News fetched from Ghost blog RSS -->
+    <h1 class="h3" id="news">
+        <a href="{% bca_url 'blog' %}" target="_blank">Latest news</a>
+    </h1>
+
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
-        <div class="col">
-            <a href="#">
-                <div class="news news-1 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
-                    <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
-                        <h2 class="h4">
-                            New release: scRNA-seq data for <i>Vulpes lagopus</i>
-                        </h2>
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <li class="d-flex align-items-center">
-                                <span><i class="fa fa-calendar-days"></i> <small>3 days ago</small></span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="#">
-                <div class="news news-2 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
-                    <div class="d-flex flex-column h-100 p-5 text-white text-shadow-1">
-                        <h2 class="h4">On flowering species: new publication</h2>
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <li class="d-flex align-items-center">
-                                <span><i class="fa fa-calendar-days"></i> <small>5 days ago</small></span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="#">
-                <div class="news news-3 card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm">
-                    <div class="d-flex flex-column h-100 p-5 text-shadow-1">
-                        <h2 class="h4">Improved resources for cnidarians</h2>
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <li class="d-flex align-items-center">
-                                <span><i class="fa fa-calendar-days"></i> <small>22 Oct 2024</small></span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+        {% load cards %}
+        {% for post in posts.latest %}
+            <div class="col">
+                {% news_card title=post.title date=post.date|date:"j F Y" img_url=post.image link=post.link %}
             </div>
-        </a>
+        {% empty %}
+            <span class="text-secondary"><i>No posts available.</i></span>
+        {% endfor %}
     </div>
 
     <!-- Publications, meetings and tutorials -->
-    <div class="row row-cols-1 row-cols-lg-3 align-items-stretch  g-4 py-2">
-        <div class="col">
-            <h1 class="h3" id="publications">Publications</h1>
-            <div class="bd-example m-0 border-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <a href="#"><b>On flowering species</b></a>
-                        <br />
-                        <small>
-                            <span class="fa fa-calendar-days"></span> 26 Oct 2024
-                            <span class="fa fa-file-lines ps-1"></span> Plant Cell
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#"><b>The Biodiversity Cell Atlas: mapping the tree of life at cellular resolution</b></a>
-                        <br />
-                        <small>
-                            <span class="fa fa-calendar-days"></span> 7 Jun 2024
-                            <span class="fa fa-file-lines ps-1"></span> Systems Biology
-                        </small>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    {% load lists %}
+    {% load string_extras %}
+    {% load dict_extras %}
 
-        <div class="col">
-            <h1 class="h3" id="meetings">BCA in meetings</h1>
-            <div class="bd-example m-0 border-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <a href="#"><b>Barcelona Bioinformatics</b></a>
-                        <br />
-                        <small>
-                            <span class="fa fa-calendar-days"></span> 5 Nov 2024
-                            <span class="fa fa-map-pin ps-1"></span> Barcelona 🇪🇸
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#"><b>Bio Evo 2024</b></a>
-                        <br />
-                        <small>
-                            <span class="fa fa-calendar-days"></span> 30 Oct 2024
-                            <span class="fa fa-map-pin ps-1"></span> Boston 🇺🇸
-                        </small>
-                    </li>
-                </ul>
+    <div class="row row-cols-1 row-cols-md-3 align-items-stretch  g-4 py-2">
+        {% for category in "publications,meetings,tutorials"|split:"," %}
+            <div class="col">
+                <h2 class="h4" id="{{ category }}">
+                    <a href="{% bca_url 'blog/tag/'|add:category %}" target="_blank">{{ category|capfirst }}</a>
+                </h2>
+                <div class="bd-example m-0 border-0">
+                    <ul class="list-group list-group-flush">
+                        {% for post in posts|get_item:category %}
+                            {% if category == "publications" %}
+                                {% news_list title=post.items.title category=category link=post.link date=post.items.published journal=post.items.journal %}
+                            {% elif category == "meetings" %}
+                                {% news_list title=post.title category=category link=post.link date=post.items.date location=post.items.location %}
+                            {% elif category == "tutorials" %}
+                                {% news_list title=post.title category=category link=post.link date=post.items.date duration=post.items.duration type=post.items.type %}
+                            {% endif %}
+                        {% empty %}
+                            <li class="list-group-item">
+                                <span class="text-secondary"><i>No {{ category }} available yet.</i></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-        </div>
-
-        <div class="col">
-            <h1 class="h3" id="tutorials">Tutorials</h1>
-            <div class="bd-example m-0 border-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <a href="#"><b>How to use the BCA website?</b></a>
-                        <br />
-                        <small>
-                            <span class="fa-brands fa-youtube"></span> 3m40
-                            <span class="fa fa-calendar-days ps-1"></span> 12 Oct 2024
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#"><b>Downloading BCA data</b></a>
-                        <br />
-                        <small>
-                            <span class="fa-brands fa-youtube"></span> 5m23
-                            <span class="fa fa-calendar-days ps-1"></span> 10 Oct 2024
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#"><b>Using REST for programmatic access</b></a>
-                        <br />
-                        <small>
-                            <span class="fa fa-list-ol"></span> Text
-                            <span class="fa fa-calendar-days ps-1"></span> 2 Oct 2024
-                        </small>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 {% endblock content %}

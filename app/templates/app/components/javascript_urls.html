@@ -1,0 +1,45 @@
+{% comment %}
+
+Prepare URLs to be used in JavaScript scripts
+
+{% endcomment %}
+
+{% load string_extras %}
+{% startswith request.resolver_match.view_name 'atlas_' as atlas %}
+<script>
+    window.APP_URLS = {
+        search: "{% url 'search' %}",
+
+        // Atlas views
+        atlas:
+            {% if atlas %}
+                "{% url request.resolver_match.view_name 'DATASET_PLACEHOLDER' %}"
+            {% else %}
+                "{% url 'atlas_info' 'DATASET_PLACEHOLDER' %}"
+            {% endif %},
+        atlas_info: "{% url 'atlas_info' 'DATASET_PLACEHOLDER' %}",
+        atlas_gene: "{% url 'atlas_gene' 'DATASET_PLACEHOLDER' 'GENE_PLACEHOLDER' %}",
+        atlas_markers: "{% url 'atlas_markers' 'DATASET_PLACEHOLDER' %}",
+
+        // REST data
+        "rest:dataset-list": "{% url 'rest:dataset-list' %}",
+        "rest:dataset-detail": "{% url 'rest:dataset-detail' 'DATASET_PLACEHOLDER' %}",
+        "rest:stats-detail": "{% url 'rest:stats-detail' 'DATASET_PLACEHOLDER' %}",
+
+        "rest:gene-list": "{% url 'rest:gene-list' %}",
+        "rest:domain-list": "{% url 'rest:domain-list' %}",
+        "rest:genelist-list": "{% url 'rest:genelist-list' %}",
+        "rest:ortholog-list": "{% url 'rest:ortholog-list' %}",
+        "rest:correlated-list": "{% url 'rest:correlated-list' %}",
+        "rest:align-list": "{% url 'rest:align-list' %}",
+
+        "rest:samap-list": "{% url 'rest:samap-list' %}",
+        "rest:singlecell-list": "{% url 'rest:singlecell-list' %}",
+
+        "rest:metacell-list": "{% url 'rest:metacell-list' %}",
+        "rest:metacelllink-list": "{% url 'rest:metacelllink-list' %}",
+        "rest:metacellcount-list": "{% url 'rest:metacellcount-list' %}",
+        "rest:metacellmarker-list": "{% url 'rest:metacellmarker-list' %}",
+        "rest:metacellgeneexpression-list": "{% url 'rest:metacellgeneexpression-list' %}",
+    };
+</script>

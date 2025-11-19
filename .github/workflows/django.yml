@@ -18,10 +18,29 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
+              with:
+                  persist-credentials: false
 
-            - name: Copy .env file
-              run: cp .env.template .env
+            - name: Prepare environment
+              run: |
+                  cp .pgpass.template .pgpass
+                  chmod 600 .pgpass
+                  cp .pg_service.conf.template .pg_service.conf
+
+                  # Fix for local db not loading in GitHub Actions
+                  cp .env.template .env
+                  sed -i '/POSTGRES_SERVICE/d' .env
+                  cat <<EOF >> .env
+                  ENVIRONMENT=prod
+                  POSTGRES_DB=bca
+                  POSTGRES_HOST=db
+                  POSTGRES_HOST_AUTH_METHOD=trust
+                  POSTGRES_PORT=5432
+                  PGUSER=postgres
+                  POSTGRES_USER=postgres
+                  POSTGRES_PASSWORD=mypassword
+                  EOF
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v1

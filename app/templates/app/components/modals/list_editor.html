@@ -20,7 +20,7 @@ Input:
     .mt-35px { margin-top: 35px; }
 </style>
 
-{% include './align.html' %}
+{% include './alignment.html' %}
 
 <div class="modal fade"
      id="{{ id }}_{{ type }}_editor"
@@ -32,15 +32,10 @@ Input:
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="{{ id }}_{{ type }}_editor_label">Gene lists</h1>
-                <span class="ms-2 me-5">
-                    <img class="rounded"
-                         width="25px"
-                         height="100%"
-                         src="{{ species.image_url }}"
-                         alt="Image of {{ species }}">
-                    <span class="small">{{ species.get_html }}</span>
-                </span>
+                <h1 class="modal-title fs-5" id="{{ id }}_{{ type }}_editor_label">
+                    Gene lists
+                </h1>
+                <span class="ms-2 me-5 small">{{ species.get_html_link }}</span>
 
                 <div class="ms-auto d-flex align-items-center">
                     {% load headings %}
@@ -48,7 +43,8 @@ Input:
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                            aria-label="Close">
+                    </button>
                 </div>
             </div>
             <div class="modal-body">
@@ -65,10 +61,13 @@ Input:
                                    placeholder="Filter by name of lists...">
                         </div>
 
-                        <div id="{{ id }}_{{ type }}_options" class="list-group"></div>
+                        <div id="{{ id }}_{{ type }}_options" class="list-group">
+                        </div>
 
                         <template id="{{ id }}_{{ type }}_heading">
-                            <div class="list-group-heading py-0 px-2 d-flex justify-content-between">Preset gene lists</div>
+                            <div class="list-group-heading py-0 px-2 d-flex justify-content-between">
+                                Preset gene lists
+                            </div>
                         </template>
 
                         <template id="{{ id }}_{{ type }}_element">
@@ -126,7 +125,7 @@ Input:
                                         data-bs-toggle="modal"
                                         data-bs-target="#{{ id }}_alignment">
                                     <i class="fa fa-align-center fa-fw"></i>
-                                    From sequence alignment...
+                                    From sequence search...
                                 </button>
 
                                 {# djlint:off #}
@@ -212,9 +211,9 @@ Input:
                                 <hr class="dropdown-divider">
                                 <p class="text-body-secondary small mb-0 text-center">
                                     <i class="fa fa-shield-halved"></i>
-                                    User lists are stored
+                                    User lists are saved
                                     <br>
-                                    <b>only</b> in your local browser
+                                    <b>locally</b> on your device
                                 </p>
                             </div>
 
@@ -248,7 +247,9 @@ Input:
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="d-flex justify-content-between align-items-center small">
-                                                        <label class="col-form-label">Select genes to add</label>
+                                                        <label class="col-form-label">
+                                                            Select genes to add
+                                                        </label>
 
                                                         <button type="button"
                                                                 class="btn btn-link btn-sm d-block text-end"
@@ -264,7 +265,9 @@ Input:
                                                     <div class="d-flex mb-0 mt-35px">
                                                         <button id="{{ id }}_{{ type }}_append_btn"
                                                                 type="button"
-                                                                class="btn btn-primary">Add genes</button>
+                                                                class="btn btn-primary">
+                                                            Add genes
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -304,175 +307,15 @@ Input:
 </div>
 
 {% load static %}
-<script>var gene_url = "{% url 'atlas_gene' species.slug %}";</script>
-<script type="text/javascript" src="{% static 'app/js/list_editor.js' %}"></script>
-<script type="text/javascript" src="{% static 'app/js/gene_table.js' %}"></script>
-<script>
-$(function() {
-    // Get lists from API
-    var url = "{% url 'rest:genelist-list' %}";
-    var params = new URLSearchParams({ species: '{{species}}' });
-    var genelist_apiURL = url + "?" + params.toString();
+<script type="module">
+    import { loadGeneLists, renderActiveList, loadMenuActions }
+        from "{% static 'app/js/atlas/modals/list_editor.js' %}";
 
-    fetch(genelist_apiURL)
-        .then(response => response.json())
-        .then(data => {
-            appendListGroupHeading('{{id}}_{{type}}', 'preset');
-            data.results.forEach((item, index) => {
-                appendListGroupItem('{{id}}_{{type}}', item.name, item.type,
-                                    item.gene_count);
-            });
-            drawUserLists('{{id}}_{{type}}', '{{species}}');
-        })
-        .then(data => {
-            // Create gene table
-            createGeneTable('{{id}}_{{type}}_editor_table');
-
-            // Update interface based on selection
-            var table = $('#{{id}}_{{type}}_editor_table').DataTable();
-            table.on('select deselect', function(e, dt, type, indexes) {
-                if (type === 'row') {
-                    const len = getSelectedRows('{{id}}_{{type}}_editor_table').length;
-                    var label = `${len} selected gene` + (len === 1 ? '' : 's');
-                    $('#{{id}}_{{type}}_new_selected_count').text(label);
-
-                    // Disable element if no rows are selected
-                    if (len === 0) {
-                        $('#{{id}}_{{type}}_new_selected').addClass('disabled');
-                    } else {
-                        $('#{{id}}_{{type}}_new_selected').removeClass('disabled');
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-
-    // Get data and render table for active group list
-    let previousActiveList = null;
-
-    // Trigger data rendering on any change to .active class
-    $("#{{id}}_{{type}}_options").on('click keyup', '.active', function (event) {
-        // Prevent event triggering if element was previously active
-        if ( previousActiveList && previousActiveList.is($(this)) ) {
-            event.preventDefault();
-            return;
-        }
-        previousActiveList = $(this);
-        renderListDetail('{{id}}_{{type}}', '{{species}}', "{% url 'rest:gene-list' %}");
-    });
-
-    // Menu action: New list
-    $('#{{id}}_{{type}}_new_empty').on('click', function(e) {
-        appendUserList('{{id}}_{{type}}', '{{species}}', 'Empty list', []);
-    });
-
-    $('#{{id}}_{{type}}_new_selected').on('click', function(e) {
-        const selected = getSelectedRows('{{id}}_{{type}}_editor_table');
-        appendUserList('{{id}}_{{type}}', '{{species}}', 'Selected genes', selected);
-    });
-
-    // Menu action: Reset
-    $('#{{id}}_{{type}}_reset').on('click', function(e) {
-        if (confirm("Do you want to reset all user gene lists for {{species}}?")) {
-            resetUserLists('{{id}}_{{type}}', '{{species}}');
-            redrawUserLists('{{id}}_{{type}}', '{{species}}');
-
-            // Select the first item in the list if no element is selected
-            if ($("#{{id}}_{{type}}_options").find('a.active').length === 0) {
-                $("#{{id}}_{{type}}_options a").first().addClass('active').click();
-            }
-        }
-    });
-
-    // Menu action: Rename
-    $('#{{id}}_{{type}}_rename_btn').on('click', function(e) {
-        var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
-        var oldName = activeItem.find('.{{id}}_{{type}}_group_title').text();
-
-        var newName = prompt("Rename list:", oldName);
-        if (newName === '') {
-            // Avoid empty list name
-            alert('The name of a list cannot be empty.');
-            return;
-        } else if (newName === null) {
-            // Cancel rename
-            return;
-        }
-
-        // Avoid duplicated name
-        var all_names = $("#{{id}}_{{type}}_options")
-            .find('a .{{id}}_{{type}}_group_title')
-            .map((i, el) => $(el).text()).get();
-
-        if (all_names.includes(newName)) {
-            alert('This list name is already in use.');
-            return;
-        }
-
-        renameUserList('{{id}}_{{type}}', '{{species}}', oldName, newName);
-        redrawUserLists('{{id}}_{{type}}', '{{species}}', activeList=[newName]);
-    });
-
-    // Menu action: Remove
-    $('#{{id}}_{{type}}_remove').on('click', function(e) {
-        var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
-        var name = activeItem.find('.{{id}}_{{type}}_group_title').text();
-
-        if (confirm(`Do you want to remove the following list: ${name}?`)) {
-            removeUserList('{{id}}_{{type}}', '{{species}}', name);
-            redrawUserLists('{{id}}_{{type}}', '{{species}}');
-
-            // Select the first item in the list if no element is selected
-            if ($("#{{id}}_{{type}}_options").find('a.active').length === 0) {
-                $("#{{id}}_{{type}}_options a").first().addClass('active').click();
-            }
-        }
-    });
-
-    // Menu action: duplicate
-    $('#{{id}}_{{type}}_new_duplicate').on('click', function(e) {
-        var activeItem = $("#{{id}}_{{type}}_options").find('a.active');
-        var name = activeItem.data('list');
-        var group = activeItem.data('group');
-
-        var url = "{% url 'rest:gene-list' %}";
-        fetchAllGenesFromList('{{id}}_{{type}}', '{{species}}', url, name, group)
-            .then(genes => {
-                appendUserList('{{id}}_{{type}}', '{{species}}', name, genes);
-            })
-            .catch(error => {
-                console.error("Error fetching genes:", error);
-            });
-    });
-
-    // Menu action: upload file containing lists
-    $("#{{id}}_{{type}}_new_upload").on("change", function () {
-        createUserListsFromFile (this, '{{id}}_{{type}}', '{{species}}',
-                                 {{ MAX_FILE_SIZE }});
-    });
-
-    function highlightMatch(content, query) {
-        const regex = new RegExp(`(${query})`, 'gi');
-        return content.replace(regex, '<span class="search-highlight">$1</span>');
-    }
-
-    // Filter by list name
-    $("#{{id}}_{{type}}_search").on("input search", function () {
-        const query = this.value.toLowerCase(); // lowercase comparison
-
-        // Hide lists that do not match query value
-        var elems = $('#{{id}}_{{type}}_options a');
-        elems.each(function() {
-            const title = $(this).find('.{{id}}_{{type}}_group_title');
-            if (title.text().toLowerCase().includes(query)) {
-                $(this).removeClass('d-none');
-            } else {
-                $(this).addClass('d-none');
-            }
-            title.html(highlightMatch(title.text(), query));
-        });
-    });
-});
+    let id = "{{id}}_{{type}}",
+        species = "{{species}}",
+        dataset = "{{dataset.slug}}",
+        maxFileSize = {{ MAX_FILE_SIZE }};
+    loadGeneLists(id, species, dataset);
+    renderActiveList(id, species);
+    loadMenuActions(id, species, maxFileSize);
 </script>

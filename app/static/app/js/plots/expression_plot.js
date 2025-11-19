@@ -1,6 +1,21 @@
-function createExpressionBubblePlot(id, gene, data) {
+/**
+ * Gene expression visualizations.
+ */
+
+/* global vegaEmbed */
+
+import { escapeString } from "../utils/utils.js";
+
+/**
+ * Render bubble plot showing expression levels of a single gene across metacells.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the gene to visualize.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ */
+export function createExpressionBubblePlot(id, gene, data) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
         transform: [
             { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
@@ -56,48 +71,25 @@ function createExpressionBubblePlot(id, gene, data) {
             tickStep: 1,
         },
     };
-    vegaEmbed(id, chart)
-        .then((res) => {
-            viewExpression = res.view;
-        })
-        .catch(console.error);
+    vegaEmbed(id, chart, { renderer: "canvas" }).catch(console.error);
 }
 
-function plotGeneExpressionComparison(id, dataset, gene, gene2, url, stats) {
-    // Create URL to fetch expression data for both genes
-    var params = new URLSearchParams({
-        genes: `${gene},${gene2}`,
-        dataset: dataset,
-        limit: 0,
-    });
-    var apiURL = url + "?" + params.toString().replaceAll("%2C", ",");
-    updateDataMenu(id, apiURL, "Expression comparison (plot data)");
+/**
+ * Render comparison scatter plot of two genes' expression across metacells
+ * with regression line and correlation stats.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the first gene.
+ * @param {string} gene2 - Name of the second gene.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ * @param {Object} stats - Object containing correlation statistics (pearson, spearman).
+ */
+export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
+    let escapedGene = escapeString(gene),
+        escapedGene2 = escapeString(gene2);
 
-    // Fetch data from the API and create plot
-    clearContainer(id);
-    showSpinner(id);
-    fetch(apiURL)
-        .then((response) => response.json())
-        .then((data) => {
-            createExpressionComparisonPlot(
-                `#${id}-plot`,
-                gene,
-                gene2,
-                data,
-                stats,
-            );
-        })
-        .catch((error) => {
-            console.error("Error fetching data:", error);
-        })
-        .finally(() => {
-            hideSpinner(id);
-        });
-}
-
-function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     var chart = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
             text: [`Pearson: ${stats.pearson}`, `Spearman: ${stats.spearman}`],
             fontWeight: "normal",
@@ -113,10 +105,10 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
             },
             {
                 joinaggregate: [
-                    { op: "min", field: gene, as: "xMin" },
-                    { op: "max", field: gene, as: "xMax" },
-                    { op: "min", field: gene2, as: "yMin" },
-                    { op: "max", field: gene2, as: "yMax" },
+                    { op: "min", field: escapedGene, as: "xMin" },
+                    { op: "max", field: escapedGene, as: "xMax" },
+                    { op: "min", field: escapedGene2, as: "yMin" },
+                    { op: "max", field: escapedGene2, as: "yMax" },
                 ],
             },
             { calculate: "min(datum.xMin, datum.yMin)", as: "min" },
@@ -126,7 +118,7 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
         width: "container",
         encoding: {
             x: {
-                field: gene,
+                field: escapedGene,
                 type: "quantitative",
                 title: gene + " fold-change",
                 scale: {
@@ -136,7 +128,7 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                 },
             },
             y: {
-                field: gene2,
+                field: escapedGene2,
                 type: "quantitative",
                 title: gene2 + " fold-change",
                 scale: {
@@ -155,7 +147,7 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                     strokeWidth: 1.5,
                     clip: true,
                 },
-                transform: [{ regression: gene, on: gene2 }],
+                transform: [{ regression: escapedGene, on: escapedGene2 }],
             },
             {
                 mark: { type: "circle", tooltip: { content: "data" } },
@@ -173,9 +165,5 @@ function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
             },
         ],
     };
-    vegaEmbed(id, chart)
-        .then((res) => {
-            viewExpression = res.view;
-        })
-        .catch(console.error);
+    vegaEmbed(id, chart, { renderer: "canvas" }).catch(console.error);
 }

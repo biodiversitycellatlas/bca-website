@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+
 {% comment %}
 
     Template for error page
 
 {% endcomment %}
+
 {% block content %}
     <div class="container-xxl">
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
@@ -16,17 +18,20 @@
                     <figcaption class="text-center small text-muted">
                         Photo by
                         <a href="{% block author_url %}{% endblock %}" target="_blank">
-                            {% block author %}{% endblock %}
+                            {% block author %}
+                            {% endblock %}
                         </a>
                     </figcaption>
                 </figure>
             </div>
             <div class="col align-self-center">
                 <h1 class="h3">
-                    {% block title %}{% endblock %}
+                    {% block title %}
+                    {% endblock %}
                 </h1>
                 <p>
-                    {% block description %}{% endblock %}
+                    {% block description %}
+                    {% endblock %}
                 </p>
             </div>
         </div>
