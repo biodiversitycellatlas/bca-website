@@ -58,7 +58,7 @@ services:
             - PGSERVICEFILE=/postgres/.pg_service.conf
 
     db:
-        image: postgres:17.6-trixie
+        image: postgres:18.1-trixie
         restart: always
         env_file: [.env]
         command: |
