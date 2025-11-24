@@ -726,16 +726,15 @@ class MetacellGeneExpression(models.Model):
 class SingleCellGeneExpression(models.Model):
     """Single cell gene expression model per dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name="scge")
-    umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
+    dataset = models.CharField(max_length=200)
+    gene = models.CharField(max_length=200)
+    single_cell = models.CharField(max_length=200)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "single_cell", "dataset"]
+        managed = False
         verbose_name = "single-cell gene expression"
         verbose_name_plural = verbose_name
 
@@ -807,26 +806,6 @@ class SAMap(models.Model):
         )
 
 
-class SingleCellGeneExpressionF(models.Model):
-    """Single cell gene expression model per dataset."""
-
-    dataset = models.CharField(max_length=200)
-    gene = models.CharField(max_length=200)
-    single_cell = models.CharField(max_length=200)
-    umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
-
-    class Meta:
-        """Meta options."""
-
-        managed = False
-        verbose_name = "single-cell gene expression"
-        verbose_name_plural = verbose_name
-
-    def __str__(self):
-        """String representation."""
-        return f"{self.gene} {self.single_cell}"
-
-
 class ExpressionDataManager:
     """Creates SingleCellExpression models from data in HDF5"""
 
@@ -838,9 +817,9 @@ class ExpressionDataManager:
         dataset_file = get_object_or_404(DatasetFile, dataset_id=self.dataset.pk)
         expression_dictionary = read_from_hdf(dataset_file.file.path, self.gene.name)
         result = []
-        for j, key in enumerate(expression_dictionary, 1):
-            scge = SingleCellGeneExpressionF()
-            scge.id = j
+        for row, key in enumerate(expression_dictionary, 1):
+            scge = SingleCellGeneExpression()
+            scge.id = row
             scge.gene = self.gene.name
             scge.dataset = self.dataset.slug
             scge.single_cell = key
