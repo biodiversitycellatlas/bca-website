@@ -341,6 +341,7 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
             logging.exception(f"Error with expression data in file for {dataset}")
             return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @extend_schema(
     summary="List gene expression per metacell",
     tags=["Metacell", "Gene"],
