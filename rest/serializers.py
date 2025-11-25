@@ -435,7 +435,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
     """Serializer for gene expression per single cell."""
 
-    # dataset = serializers.CharField(help_text="Dataset Name")
+    dataset = serializers.CharField(help_text="Dataset Name")
     gene = serializers.CharField(help_text="Gene Name.")
     single_cell = serializers.CharField(help_text="Single Cell Name.")
     umifrac = serializers.DecimalField(help_text="Expression Value (umifrac)", max_digits=8, decimal_places=3)
@@ -444,7 +444,6 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.SingleCellGeneExpression
-        # fields = ["gene", "single_cell", "umifrac"]
         exclude = ["id"]
 
 

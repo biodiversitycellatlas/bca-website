@@ -298,27 +298,6 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.MetacellLinkFilter
 
 
-# @extend_schema(
-#     summary="List gene expression per single cell",
-#     tags=["Single cell", "Gene"],
-#     parameters=[
-#         OpenApiParameter(
-#             "genes",
-#             str,
-#             description=filters.SingleCellGeneExpressionFilter().base_filters["genes"].label,
-#             examples=[OpenApiExample("Example", value="Transcription factors,Pkinase,Tadh_P33902")],
-#         )
-#     ],
-# )
-# class SingleCellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
-#     """List gene expression data per single cell."""
-#
-#     queryset = models.SingleCellGeneExpression.objects.prefetch_related(
-#         "single_cell", "gene", "gene__domains", "metacell", "metacell__type"
-#     )
-#     serializer_class = serializers.SingleCellGeneExpressionSerializer
-#     filterset_class = filters.SingleCellGeneExpressionFilter
-
 @extend_schema(
     summary="List gene expression per gene in a dataset",
     tags=["Single cell"],
@@ -586,47 +565,3 @@ class AlignViewSet(viewsets.ViewSet):
                     os.remove(f)
 
         return results
-
-
-# @extend_schema(
-#     summary="List gene expression per gene in a dataset",
-#     tags=["Single cell"],
-#     request=serializers.SingleCellGeneExpressionSerializer,
-#     parameters=[
-#         OpenApiParameter(
-#             "gene",
-#             int,
-#             "query",
-#             True,
-#             "gene id",
-#             examples=[OpenApiExample("Example", value="276096")],
-#         ),
-#         OpenApiParameter(
-#             "dataset",
-#             int,
-#             "query",
-#             True,
-#             "dataset id",
-#             examples=[OpenApiExample("Example", value="13")],
-#         ),
-#     ],
-# )
-# class SingleCellExpressionFromFile(viewsets.GenericViewSet):
-#     """List the Single Cell Expression data for a Gene in a Dataset"""
-#
-#     http_method_names = ["get"]
-#     serializer_class = serializers.SingleCellGeneExpressionSerializer
-#     queryset = models.SingleCellGeneExpression.objects.none()
-#     filterset_class = None
-#     pagination_class = None
-#
-#     def list(self, request, *args, **kwargs):
-#         gene = request.GET.get("gene")
-#         dataset = request.GET.get("dataset")
-#         expression_data_manager = models.ExpressionDataManager(dataset, gene)
-#         try:
-#             self.queryset = expression_data_manager.create_singlecellexpression_models()
-#             return Response(self.queryset)
-#         except OSError:
-#             logging.exception(f"Error with expression data in file for {dataset}")
-#             return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
