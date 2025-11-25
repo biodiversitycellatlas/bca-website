@@ -19,7 +19,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Avg, Count, F, OuterRef, Subquery, Sum
 from rds2py import read_rds
 
-from app import models
+# from app import models
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)

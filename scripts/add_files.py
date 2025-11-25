@@ -7,8 +7,9 @@ from pathlib import Path
 
 from django.core.files import File as DjangoFile
 
-from app.models import SpeciesFile, Species
-from scripts.utils import load_config, parse_dataset
+# from app.models import SpeciesFile, Species
+# from scripts.utils import load_config, parse_dataset
+from utils import load_config, parse_dataset
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
@@ -37,19 +38,21 @@ def add_file(file_path, species):
 
 for key in config:
     i = config[key]
+    if key != "default":
+        hdf_file = i["umicountsc_file"].removesuffix(".RDS") + ".hdf5"
+        print(hdf_file)
     key = key.split("_")[0]  # only need the species part
     if "species" not in i.keys():
         continue
     species, dataset = parse_dataset(i["species"])
-
-    try:
-        species = Species.objects.get(scientific_name=species)
-    except Species.DoesNotExist:
-        print(f"Warning: species {species} not found")
-        continue
-
-    base_path = Path(dir)
-    for file in base_path.iterdir():
-        if fnmatch.fnmatch(file.name.lower(), f"{key.lower()}*"):
-            print(f"===== {key}: {file} =====")
-            add_file(file, species)
+    # try:
+    #     species = Species.objects.get(scientific_name=species)
+    # except Species.DoesNotExist:
+    #     print(f"Warning: species {species} not found")
+    #     continue
+    #
+    # base_path = Path(dir)
+    # for file in base_path.iterdir():
+    #     if fnmatch.fnmatch(file.name.lower(), f"{key.lower()}*"):
+    #         print(f"===== {key}: {file} =====")
+    #         add_file(file, species)
