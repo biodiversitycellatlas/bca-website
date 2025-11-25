@@ -707,12 +707,3 @@ class AlignResponseSerializer(serializers.Serializer):
     target_end = serializers.IntegerField(help_text="End position of the hit sequence in the alignment.")
     e_value = serializers.FloatField(help_text="Statistical significance.")
     bit_score = serializers.FloatField(help_text="Alignment quality.")
-
-
-# class SingleCellGeneExpressionFSerializer(serializers.Serializer):
-#     """Serializer for Single Cell Gene Expression data"""
-#
-    # dataset = serializers.CharField(help_text="Dataset Name")
-    # gene = serializers.CharField(help_text="Gene Name.")
-    # single_cell = serializers.CharField(help_text="Single Cell Name.")
-    # umifrac = serializers.DecimalField(help_text="Expression Value (umifrac)", max_digits=8, decimal_places=3)
