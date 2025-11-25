@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-import fnmatch
 import functools
 import os
-from pathlib import Path
 
 from django.core.files import File as DjangoFile
 
