@@ -5,8 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    replaces = [('app', '0004_singlecellgeneexpressionf'), ('app', '0005_delete_singlecellgeneexpressionf_and_more')]
-
     dependencies = [
         ('app', '0003_add_datasetfile'),
     ]
