@@ -32,47 +32,36 @@ Input:
                         Genes
                     </th>
                     <th>
-                        Gene hubs
+                        Gene hub 1
+                    </th>
+                    <th>
+                        Gene hub 2
+                    </th>
+                    <th>
+                        Gene hub 3
+                    </th>
+                    <th>
+                        Gene hub 4
+                    </th>
+                    <th>
+                        Gene hub 5
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                {% for module in dataset.gene_modules.all %}
-                    <tr>
-                        <td>
-                            {{ module.get_html_link }}
-                        </td>
-                        <td>
-                            {{ module.genes.count }}
-                        </td>
-                        <td>
-                            {% load entry_links %}
-                            {% for hub in module.get_gene_hubs.all %}
-                                {% dataset_gene_link_with_gene_label dataset hub.gene %},
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
 
-{% load static %}
 <script type="module">
-    import { loadGeneModuleSize, renderGeneModuleStatsPlots } from "{% static 'app/js/atlas/stats.js' %}";
+    {% load static %}
+    import {
+        loadGeneModuleSize,
+        renderGeneModuleStatsPlots,
+        renderGeneModuleTable
+    } from "{% static 'app/js/atlas/stats.js' %}";
+
     loadGeneModuleSize("{{dataset.slug}}");
     renderGeneModuleStatsPlots("{{dataset.slug}}");
-
-    // DataTable
-    $('#modules_table').DataTable({
-        responsive: true,
-        pageLength: -1,
-        paging: false,
-        info: false,
-        scrollY: "190px",
-        scrollX: true,
-        language: { search: "", searchPlaceholder: "Search table..." },
-        order: [[1, 'des']]
-    });
+    renderGeneModuleTable("modules_table", "{{dataset.slug}}");
 </script>

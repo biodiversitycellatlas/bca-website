@@ -38,7 +38,7 @@ function animateNumber(id, target) {
  * @param {string} dataset - Dataset name.
  */
 export function loadDatasetStats(dataset) {
-    var urls = {
+    let urls = {
         info: getDataPortalUrl("rest:dataset-detail", dataset),
         stats: getDataPortalUrl("rest:stats-detail", dataset),
         counts: getDataPortalUrl("rest:metacellcount-list", dataset),
@@ -67,7 +67,7 @@ export function loadDatasetStats(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderStatsPlots(dataset) {
-    var url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
+    let url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
@@ -95,7 +95,7 @@ export function renderStatsPlots(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function loadGeneModuleSize(dataset) {
-    var url = getDataPortalUrl("rest:genemodule-list", dataset);
+    let url = getDataPortalUrl("rest:genemodule-list", dataset);
 
     fetch(url)
         .then((response) => response.json())
@@ -109,7 +109,7 @@ export function loadGeneModuleSize(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderGeneModuleStatsPlots(dataset) {
-    var url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
+    let url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
         order_by_gene_count: 1,
     });
     appendDataMenu("modules", url, "Gene modules");
@@ -127,4 +127,51 @@ export function renderGeneModuleStatsPlots(dataset) {
             );
         })
         .catch((error) => console.error("Error:", error));
+}
+
+function renderGeneModuleLink(dataset, module, text = module) {
+    let url = getDataPortalUrl("gene_module_entry", dataset, null, null, {
+        gene_module: module,
+    });
+    return `<a href="${url}">${text}</a>`;
+}
+
+function renderGeneLink(dataset, gene, text = gene) {
+    if (!gene) return "";
+
+    let url = getDataPortalUrl("atlas_gene", dataset, gene);
+    return `<a href="${url}">${text}</a>`;
+}
+
+export function renderGeneModuleTable(id, dataset) {
+    let url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
+        order_by_gene_count: 1,
+    });
+
+    // Render n columns for gene hubs (returns empty column if not enough)
+    const geneHubs = (n) =>
+        Array.from({ length: n }, (_, i) => ({
+            data: "gene_hubs",
+            render: (d) => renderGeneLink(dataset, d[i]),
+        }));
+
+    $(`#${id}`).DataTable({
+        ajax: { url: url, dataSrc: "" },
+        columns: [
+            {
+                data: "module",
+                render: (d) => renderGeneModuleLink(dataset, d),
+            },
+            { data: "gene_count" },
+            ...geneHubs(5),
+        ],
+        responsive: true,
+        pageLength: -1,
+        paging: false,
+        info: false,
+        scrollY: "190px",
+        scrollX: true,
+        language: { search: "", searchPlaceholder: "Search table..." },
+        order: [[1, "des"]],
+    });
 }

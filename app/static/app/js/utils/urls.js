@@ -82,8 +82,15 @@ export function getDataPortalUrl(
     } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
     } else {
+        // Replace with parameters
         if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
         if (gene) url = url.replace("GENE_PLACEHOLDER", gene);
+        if (extraParams?.gene_module) {
+            url = url.replace(
+                "GENE_MODULE_PLACEHOLDER",
+                extraParams.gene_module,
+            );
+        }
     }
     return url;
 }
