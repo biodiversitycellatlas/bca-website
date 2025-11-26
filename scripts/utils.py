@@ -12,7 +12,7 @@ from django.db.models import OuterRef, Subquery
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
-####### Utility functions
+# Utility functions
 
 
 def print_progress(index, total):
