@@ -22,21 +22,27 @@ Input:
                 Please click a value in the plot to compare genes between two modules.
             </span>
         </div>
-        <div id="{{ id }}-module-genes" class="row small"></div>
+        <div id="{{ id }}-module-genes" class="row small">
+        </div>
     </div>
 </div>
 
 <!-- Template for module header -->
 <template id="{{ id }}-module-header-template">
     <div class="col-4">
-        <p class="p-0 m-0 module-name">Module</p>
+        <p class="p-0 m-0 module-name">
+            Module
+        </p>
         <ul class="list-unstyled text-secondary small m-0">
-            <li class="gene-count">20 unique genes</li>
+            <li class="gene-count">
+                20 unique genes
+            </li>
 
             <li class="btn-group-vertical w-100" role="group">
                 <!-- Buttons -->
                 <a class="btn btn-outline-primary btn-xs show-genes-btn"
-                data-bs-toggle="collapse" href="#">
+                   data-bs-toggle="collapse"
+                   href="#">
                     <i class="fa fa-eye"></i> Show all genes
                 </a>
                 <a class="btn btn-outline-primary btn-xs gene-list-btn" href="#">
