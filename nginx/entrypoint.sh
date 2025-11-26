@@ -3,6 +3,11 @@ set -e
 
 echo "[NGINX] Preparing config..."
 
+# Enforce secure TLS in production
+if [ "$ENVIRONMENT" = "prod" ] && [ "$NODE_TLS_REJECT_UNAUTHORIZED" != "1" ]; then
+  export NODE_TLS_REJECT_UNAUTHORIZED=1
+fi
+
 # Ensure directory exists
 mkdir -p /etc/nginx/conf.d
 
