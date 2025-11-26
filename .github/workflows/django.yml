@@ -32,7 +32,7 @@ jobs:
                   cp .env.template .env
                   sed -i '/POSTGRES_SERVICE/d' .env
                   cat <<EOF >> .env
-                  ENVIRONMENT=prod
+                  #ENVIRONMENT=prod
                   POSTGRES_DB=bca
                   POSTGRES_HOST=db
                   POSTGRES_HOST_AUTH_METHOD=trust
