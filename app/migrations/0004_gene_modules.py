@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0002_alter_dataset_options_alter_domain_options_and_more_squashed_0009_alter_datasetqualitycontrol_value'),
+        ('app', '0003_add_datasetfile'),
     ]
 
     operations = [
