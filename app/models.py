@@ -335,7 +335,9 @@ class DatasetQualityControl(models.Model):
 
 class FileMixin(models.Model):
     slug = models.SlugField(unique=True, blank=True)
-    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+    checksum = models.CharField(
+        max_length=64, editable=False, help_text="SHA256 digest."
+    )
     file = models.FileField(help_text="File.")
     type = models.CharField(max_length=255, help_text="File type.")
 
