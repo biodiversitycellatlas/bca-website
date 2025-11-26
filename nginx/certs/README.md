@@ -1,1 +1,1 @@
-SSL certificates should be placed here but are *not* committed to the repository.
+SSL certificates should be placed here but are _not_ committed to the repository.

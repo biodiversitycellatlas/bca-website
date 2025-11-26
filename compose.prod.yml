@@ -62,7 +62,7 @@ services:
         environment:
             - PGPASSFILE=/postgres/.pgpass
             - PGSERVICEFILE=/postgres/.pg_service.conf
-            
+
 volumes:
     static_files:
     ghost_data:
