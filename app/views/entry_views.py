@@ -164,10 +164,6 @@ class GeneModuleListView(FilteredListView):
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
 
-    def get_queryset(self):
-        """Return unique queryset items based on dataset and gene module name."""
-        return super().get_queryset().distinct("dataset", "name")
-
 
 class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
