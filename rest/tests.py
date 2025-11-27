@@ -125,3 +125,27 @@ class SingleCellTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(single_cells), 1)
         self.assertListEqual([s["name"] for s in single_cells], ["singleCell"])
+
+
+class MetaCellTests(APITestCase):
+    """Test Metacell endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
+        species1.save()
+        dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
+        dataset1.save()
+        type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
+        type1.save()
+        metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
+        metacell1.save()
+        metacell2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
+        metacell2.save()
+
+    def test_retrieve(self):
+        url = "/api/v1/metacells/?dataset=species3-dataset3"
+        response = self.client.get(url, format="json")
+        metacells = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(metacells), 2)
+        self.assertSetEqual({s["name"] for s in metacells}, {"meta1", "meta2"})
