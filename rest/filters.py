@@ -18,7 +18,6 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Greatest, Log, Rank
 from django.forms import ChoiceField
-from django_filters import ModelMultipleChoiceFilter
 from django_filters.rest_framework import (
     BooleanFilter,
     CharFilter,
@@ -87,9 +86,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
                 species_id_field = f"{self.field_name}__species_id"
 
             # Filter by ID directly
-            species_subquery = models.Species.objects.filter(
-                scientific_name=value
-            ).values("id")[:1]
+            species_subquery = models.Species.objects.filter(scientific_name=value).values("id")[:1]
             qs = qs.filter(**{species_id_field: Subquery(species_subquery)})
         else:
             qs = super().filter(qs, value)
@@ -105,7 +102,6 @@ def update_dataset_choices():
 
 
 class DatasetChoiceField(ChoiceField):
-
     def valid_value(self, value):
         self.choices = update_dataset_choices()
         return super().valid_value(value)
@@ -120,10 +116,8 @@ class DatasetChoiceFilter(ChoiceFilter):
     def __init__(self, *args, **kwargs):
         """Initialize the dataset filter."""
         kwargs.setdefault("field_name", self.default_field_name)
-        kwargs.setdefault(
-            "label", "The <a href='#/operations/datasets_list'>dataset's slug</a>."
-        )
-        kwargs["choices"] =  update_dataset_choices()
+        kwargs.setdefault("label", "The <a href='#/operations/datasets_list'>dataset's slug</a>.")
+        kwargs["choices"] = update_dataset_choices()
         super().__init__(*args, **kwargs)
 
     def get_dataset_id_field(self, field):
@@ -186,9 +180,7 @@ class QueryFilterSet(FilterSet):
             similarity = Greatest(*expr) if len(expr) > 1 else expr[0]
 
             # Filter results based on a given threshold
-            queryset = queryset.annotate(similarity=similarity).filter(
-                similarity__gt=self.threshold
-            )
+            queryset = queryset.annotate(similarity=similarity).filter(similarity__gt=self.threshold)
 
             # If unsorted, sort results by similarity
             if not queryset.query.order_by:
@@ -245,9 +237,7 @@ class GeneFilter(QueryFilterSet):
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
-                Q(name__in=genes)
-                | Q(domains__name__in=genes)
-                | Q(genelists__name__in=genes)
+                Q(name__in=genes) | Q(domains__name__in=genes) | Q(genelists__name__in=genes)
             ).distinct()
         return queryset
 
@@ -264,16 +254,11 @@ class DomainFilter(QueryFilterSet):
     species = SpeciesChoiceFilter(field_name="gene")
     q = CharFilter(
         method="query",
-        label=(
-            "Query string to filter results. The string will be searched and "
-            "ranked across domain names."
-        ),
+        label=("Query string to filter results. The string will be searched and ranked across domain names."),
     )
     query_fields = ["name"]
 
-    order_by_gene_count = BooleanFilter(
-        method=skip_param, label="Order results by gene count (ascending)."
-    )
+    order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (ascending).")
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -350,9 +335,7 @@ class OrthologFilter(FilterSet):
 class OrthologCountFilter(FilterSet):
     """Filter set for ortholog counts."""
 
-    orthogroup = CharFilter(
-        label="The orthogroup. If not defined, returns counts for orthologs from all orthogroups."
-    )
+    orthogroup = CharFilter(label="The orthogroup. If not defined, returns counts for orthologs from all orthogroups.")
     species = SpeciesChoiceFilter()
 
     class Meta:
@@ -365,12 +348,8 @@ class OrthologCountFilter(FilterSet):
 class SAMapFilter(FilterSet):
     """Filter set for SAMap scores."""
 
-    dataset = DatasetChoiceFilter(
-        field_name=["metacelltype", "metacelltype2"], required=True
-    )
-    dataset2 = DatasetChoiceFilter(
-        field_name=["metacelltype", "metacelltype2"], required=True
-    )
+    dataset = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
+    dataset2 = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
     threshold = NumberFilter(
         label="Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>",
         field_name="samap",
@@ -473,9 +452,7 @@ class SingleCellGeneExpressionFilter(FilterSet):
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
-                Q(gene__name__in=genes)
-                | Q(gene__domains__name__in=genes)
-                | Q(gene__genelists__name__in=genes)
+                Q(gene__name__in=genes) | Q(gene__domains__name__in=genes) | Q(gene__genelists__name__in=genes)
             ).distinct()
         return queryset
 
@@ -500,10 +477,7 @@ class MetacellGeneExpressionFilter(FilterSet):
         method="filter_genes",
     )
     metacells = CharFilter(
-        label=(
-            "Comma-separated list of <a href='#/operations/metacells_list'>metacell "
-            "names and cell types</a>."
-        ),
+        label=("Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>."),
         method="filter_metacells",
     )
     fc_min = NumberFilter(
@@ -516,10 +490,7 @@ class MetacellGeneExpressionFilter(FilterSet):
         method="filter_markers",
     )
     sort_genes = BooleanFilter(
-        label=(
-            "Sort genes based on their highest gene expression across metacells "
-            "(default: <kbd>false</kbd>)."
-        ),
+        label=("Sort genes based on their highest gene expression across metacells (default: <kbd>false</kbd>)."),
         method="sort_genes_across_metacells",
     )
     log2 = BooleanFilter(
@@ -541,9 +512,7 @@ class MetacellGeneExpressionFilter(FilterSet):
         if value:
             genes = value.split(",")
             queryset = queryset.filter(
-                Q(gene__name__in=genes)
-                | Q(gene__domains__name__in=genes)
-                | Q(gene__genelists__name__in=genes)
+                Q(gene__name__in=genes) | Q(gene__domains__name__in=genes) | Q(gene__genelists__name__in=genes)
             ).distinct()
         return queryset
 
@@ -553,9 +522,7 @@ class MetacellGeneExpressionFilter(FilterSet):
         if value:
             metacells = value.split(",")
             # Filter metacells by name and type
-            selected = Q(metacell__name__in=metacells) | Q(
-                metacell__type__name__in=metacells
-            )
+            selected = Q(metacell__name__in=metacells) | Q(metacell__type__name__in=metacells)
             queryset = queryset.filter(selected).distinct()
         return queryset
 
@@ -638,10 +605,7 @@ class CorrelatedGenesFilter(QueryFilterSet):
 
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
-        label=(
-            "<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top "
-            "correlated genes for."
-        ),
+        label=("<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top correlated genes for."),
         method="filter_gene",
         required=True,
     )
@@ -724,10 +688,7 @@ def create_fc_type_choice_filter(mode, ignore_mode=False):
 
     res = ChoiceFilter(
         choices=choices,
-        label=(
-            f"Type of filtering to use for the {mode} fold-change threshold "
-            f"(default: <kbd>{default}</kbd>)."
-        ),
+        label=(f"Type of filtering to use for the {mode} fold-change threshold (default: <kbd>{default}</kbd>)."),
         method=method,
         required=required,
     )
@@ -739,10 +700,7 @@ class MetacellMarkerFilter(FilterSet):
 
     dataset = DatasetChoiceFilter(field_name="mge", required=True)
     metacells = CharFilter(
-        label=(
-            "Comma-separated list of <a href='#/operations/metacells_list'>metacell "
-            "names and cell types</a>."
-        ),
+        label=("Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>."),
         method="select_metacells",
         required=True,
     )
