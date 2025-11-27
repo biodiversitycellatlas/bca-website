@@ -17,6 +17,8 @@ from django.db.models import (
     Window,
 )
 from django.db.models.functions import Cast, Greatest, Log, Rank
+from django.forms import ChoiceField
+from django_filters import ModelMultipleChoiceFilter
 from django_filters.rest_framework import (
     BooleanFilter,
     CharFilter,
@@ -94,24 +96,34 @@ class SpeciesChoiceFilter(ChoiceFilter):
         return qs
 
 
+def update_dataset_choices():
+    choices = []
+    if check_model_exists(models.Dataset):
+        choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
+        choices = sorted(choices, key=lambda x: x[0])
+    return choices
+
+
+class DatasetChoiceField(ChoiceField):
+
+    def valid_value(self, value):
+        self.choices = update_dataset_choices()
+        return super().valid_value(value)
+
+
 class DatasetChoiceFilter(ChoiceFilter):
     """Choice filter for selecting a dataset by slug."""
 
     default_field_name = "dataset"
+    field_class = DatasetChoiceField
 
     def __init__(self, *args, **kwargs):
         """Initialize the dataset filter."""
-
         kwargs.setdefault("field_name", self.default_field_name)
         kwargs.setdefault(
             "label", "The <a href='#/operations/datasets_list'>dataset's slug</a>."
         )
-
-        choices = []
-        if check_model_exists(models.Dataset):
-            choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-            choices = sorted(choices, key=lambda x: x[0])
-        kwargs["choices"] = choices
+        kwargs["choices"] =  update_dataset_choices()
         super().__init__(*args, **kwargs)
 
     def get_dataset_id_field(self, field):

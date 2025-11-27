@@ -101,4 +101,27 @@ class SingleCellGeneExpressionTests(APITestCase):
         self.assertEqual(len(expression_values), 2)
         self.assertSetEqual({s["single_cell"] for s in expression_values}, {"c3", "c5"})
         self.assertSetEqual({s["umifrac"] for s in expression_values}, {2142.857177734375, 10000.0})
-        pass
+
+
+class SingleCellTests(APITestCase):
+    """Tests SingleCell endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        species1.save()
+        dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
+        dataset1.save()
+        type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
+        type1.save()
+        metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
+        metacell1.save()
+        single_cell = SingleCell.objects.create(name="singleCell", dataset=dataset1, metacell=metacell1)
+        single_cell.save()
+
+    def test_retrieve(self):
+        url = "/api/v1/single_cells/?dataset=species1-dataset1"
+        response = self.client.get(url, format="json")
+        single_cells = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(single_cells), 1)
+        self.assertListEqual([s["name"] for s in single_cells], ["singleCell"])
