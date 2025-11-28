@@ -4,6 +4,7 @@ Blog-related functions to get latest posts.
 
 from bs4 import BeautifulSoup
 from dateutil import parser
+from urllib.error import URLError, HTTPError
 import feedparser
 
 from ..templatetags.bca_website_links import bca_url
