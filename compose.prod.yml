@@ -1,8 +1,6 @@
 services:
     nginx:
-        image: nginx:1.29
         ports:
-            - "${WEB_PORT:-8080}:80"
             - "443:443"
         env_file: [.env]
         volumes:
@@ -10,58 +8,9 @@ services:
             - ./nginx/entrypoint.sh:/entrypoint.sh:ro
             # Mount entire cert directory
             - ${CERT_DIR}:/certs:ro
-            # Media and static files
-            - static_files:/static
-            - ./data:/data
         entrypoint: ["/bin/sh", "/entrypoint.sh"]
         depends_on:
-            - ghost
-            - web
-        profiles: ["nginx"]
-
-    ghost:
-        image: ghost:6.4-alpine
-        env_file: [.env]
-        expose:
-            - "2368"
-        volumes:
-            - ghost_data:/var/lib/ghost/content
-            - ./ghost/default.hbs:/var/lib/ghost/content/themes/source/default.hbs
-            - ./ghost/partials/announcement-bar.hbs:/var/lib/ghost/content/themes/source/partials/announcement-bar.hbs
-            - ./ghost/partials/components/footer.hbs:/var/lib/ghost/content/themes/source/partials/components/footer.hbs
-            - ./ghost/partials/components/post-list.hbs:/var/lib/ghost/content/themes/source/partials/components/post-list.hbs
-            - ./ghost/partials/components/tracking.hbs:/var/lib/ghost/content/themes/source/partials/components/tracking.hbs
-
-    mailpit:
-        image: axllent/mailpit:v1.27
-        env_file: [.env]
-        container_name: mailpit
-        restart: unless-stopped
-        ports:
-            - "1025:1025" # SMTP
-            - "8025:8025" # Web UI
-
-    web:
-        build: .
-        # user: "${DOCKER_WEB_USER:-bca}"
-        restart: always
-        env_file: [.env]
-        command: ["./entrypoint.sh"]
-        ports:
-            - 8000:8000
-        volumes:
-            - ./entrypoint.sh:/usr/src/app/entrypoint.sh
-            # Update Django files in real-time
-            - .:/usr/src/app
-            # Media and static files
-            - static_files:/usr/src/app/static
-            - ./data:/usr/src/app/data
-            # Postgres files
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
-        environment:
-            - PGPASSFILE=/postgres/.pgpass
-            - PGSERVICEFILE=/postgres/.pg_service.conf
+            - plausible
 
     plausible:
         image: ghcr.io/plausible/community-edition:v3.0.1
@@ -88,8 +37,7 @@ services:
             - CLICKHOUSE_DATABASE_URL=${PLAUSIBLE_CLICKHOUSE_DATABASE_URL}
             # Google: https://github.com/plausible/community-edition/wiki/configuration#google
             # email: https://github.com/plausible/community-edition/wiki/configuration#email
+        profiles: ["plausible"]
 
 volumes:
-    static_files:
-    ghost_data:
     plausible_data:
