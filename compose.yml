@@ -31,6 +31,9 @@ services:
             - database__connection__filename=${GHOST_DATABASE_CONNECTION_FILENAME}
             - security__staffDeviceVerification=${GHOST_SECURITY_STAFFDEVICEVERIFICATION}
             - NODE_TLS_REJECT_UNAUTHORIZED=${GHOST_NODE_TLS_REJECT_UNAUTHORIZED}
+            - mail__options__host=${GHOST_MAIL_OPTIONS_HOST}
+            - mail__options__port=${GHOST_MAIL_OPTIONS_PORT}
+            - mail__transport=${GHOST_MAIL_TRANSPORT}
 
     mailpit:
         image: axllent/mailpit:v1.27
@@ -40,10 +43,6 @@ services:
         ports:
             - "1025:1025" # SMTP
             - "8025:8025" # Web UI
-        environment:
-            - mail__options__host=${MP_MAIL_OPTIONS_HOST}
-            - mail__options__port=${MP_MAIL_OPTIONS_PORT}
-            - mail__transport=${MP_MAIL_TRANSPORT}
 
     web:
         build: .
