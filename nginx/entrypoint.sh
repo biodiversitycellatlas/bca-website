@@ -12,7 +12,7 @@ fi
 mkdir -p /etc/nginx/conf.d
 
 # Substitute variables into config
-envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME' \
+envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $PLAUSIBLE_HOSTNAME' \
     </etc/nginx/nginx.conf.template \
     >/etc/nginx/conf.d/default.conf
 
