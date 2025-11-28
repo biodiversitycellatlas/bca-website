@@ -72,6 +72,8 @@ def extract_image(entry):
 
 
 def safe_parse_feed(feed_url):
+    """Handle exceptions when parsing RSS feed."""
+
     feed = None
 
     try:
