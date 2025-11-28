@@ -71,6 +71,21 @@ def extract_image(entry):
     return image
 
 
+def safe_parse_feed(feed_url):
+    feed = None
+
+    try:
+        feed = feedparser.parse(feed_url)
+    except HTTPError as e:
+        print(f"HTTP error fetching latest news: {e.code} {e.reason}")
+    except URLError as e:
+        print(f"URL error fetching latest news: {e.code} {e.reason}")
+    except Exception as e:
+        print(f"Unexpected error fetching latest news: {e}")
+
+    return feed
+
+
 def get_latest_posts(n=3, tag=None):
     """Fetch and parse posts from the RSS feed (optionally filtered by tag)."""
 
@@ -78,7 +93,7 @@ def get_latest_posts(n=3, tag=None):
     tag_path = f"tag/{tag}" if tag else ""
     feed_url = f"{base_url}/{tag_path}/rss/"
 
-    feed = feedparser.parse(feed_url)
+    feed = safe_parse_feed(feed_url)
     if not feed.entries:
         return None
 
