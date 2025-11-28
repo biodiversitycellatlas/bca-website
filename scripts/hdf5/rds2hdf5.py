@@ -82,7 +82,7 @@ def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
     """Creates a dictionary from positions to elements in the array
 
     Args:
-        aList: numpy array of strings (cell names)
+        a_list: numpy array of strings (cell names)
     Returns:
         dictionary e.g: { 0: "AAACG-1", 3:"CCTG-3"}
     """
@@ -105,10 +105,10 @@ def read_from_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
     """
     with h5py.File(hdf_file, "r") as f:
         expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
-        cellnames = f.get("/cell_names")[:]
-        cells_position_dict = create_positions_dictionary(cellnames)
+        cell_names = f.get("/cell_names")[:]
+        cell_positions_dict = create_positions_dictionary(cell_names)
         result = {}
         for elem in np.nditer(expression_values, flags=["zerosize_ok"]):
             position = int(elem["c"])
-            result[cells_position_dict[position]] = float(elem["e"])
+            result[cell_positions_dict[position]] = float(elem["e"])
         return result
