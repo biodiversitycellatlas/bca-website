@@ -4,7 +4,16 @@
 {% endif %}
 class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
 
-<span>{{ title|safe }}</span>
+<span>
+    {{ title|safe }}
+    {% if help %}
+        <i class="fa fa-circle-question fs-5 text-secondary"
+           data-bs-toggle="tooltip"
+           data-bs-placement="bottom"
+           data-bs-title="{{ help }}"></i>
+    {% endif %}
+</span>
+
 <div class="d-flex ms-auto gap-2">
     {% load headings %}
 
@@ -16,5 +25,4 @@ class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
         {% data_dropdown id %}
     {% endif %}
 </div>
-
 </{{ tag|default:"h1" }}>
