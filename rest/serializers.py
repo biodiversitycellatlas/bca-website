@@ -438,7 +438,9 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
     dataset = serializers.CharField(help_text="Dataset name.")
     gene = serializers.CharField(help_text="Gene name.")
     single_cell = serializers.CharField(help_text="Cell name.")
-    umifrac = serializers.DecimalField(help_text="Gene expression value (UMI fraction).", max_digits=8, decimal_places=3)
+    umifrac = serializers.DecimalField(
+        help_text="Gene expression value (UMI fraction).", max_digits=8, decimal_places=3
+    )
 
     class Meta:
         """Meta configuration."""
