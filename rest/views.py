@@ -331,8 +331,8 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
     pagination_class = None
 
     def list(self, request, *args, **kwargs):
-        gene = request.GET.get("gene")
-        dataset = request.GET.get("dataset")
+        gene = request.query_params.get("gene")
+        dataset = request.query_params.get("dataset")
         expression_data_manager = models.ExpressionDataManager(dataset, gene)
         try:
             data = expression_data_manager.create_singlecellexpression_models()
