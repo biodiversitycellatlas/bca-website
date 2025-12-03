@@ -322,7 +322,7 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
     ],
 )
 class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
-    """List the Single Cell Expression per Gene in a Dataset"""
+    """List single-cell expression data for a gene in a dataset."""
 
     http_method_names = ["get"]
     serializer_class = serializers.SingleCellGeneExpressionSerializer
