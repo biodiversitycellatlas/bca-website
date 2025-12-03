@@ -444,7 +444,7 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.SingleCellGeneExpression
-        exclude = ["id"]
+        exclude = ["id", "dataset"]
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
