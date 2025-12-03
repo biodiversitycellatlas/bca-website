@@ -800,5 +800,3 @@ class SAMap(models.Model):
         return (
             f"{self.metacelltype} ({self.metacelltype.dataset}) vs {self.metacelltype2} ({self.metacelltype2.dataset})"
         )
-
-

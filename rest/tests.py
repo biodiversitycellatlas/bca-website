@@ -12,8 +12,8 @@ class SpeciesTests(APITestCase):
     """Test Species Endpoint"""
 
     def setUp(self):
-        species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        species2 = Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
+        Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
+        Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
 
     def test_species(self):
         response = self.client.get("/api/v1/species/", format="json")
@@ -29,8 +29,8 @@ class DatasetTests(APITestCase):
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
         species2 = Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
-        dataset1 = Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
-        dataset2 = Dataset.objects.create(species=species2, name="DMouse", description="mouse dataset")
+        Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
+        Dataset.objects.create(species=species2, name="DMouse", description="mouse dataset")
 
     def test_datasets(self):
         response = self.client.get("/api/v1/datasets/", format="json")
@@ -45,8 +45,8 @@ class GeneTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        gene1 = Gene.objects.create(species=species1, name="Gene1", description="description1")
-        gene2 = Gene.objects.create(species=species1, name="Gene2", description="description2")
+        Gene.objects.create(species=species1, name="Gene1", description="description1")
+        Gene.objects.create(species=species1, name="Gene2", description="description2")
 
     def test_genes(self):
         response = self.client.get("/api/v1/genes/", format="json")
@@ -69,7 +69,6 @@ class SingleCellGeneExpressionTests(APITestCase):
         for i in range(1, 5):
             gene = "g" + str(i)
             Gene.objects.create(name=gene, species=species1)
-        # self.gene_id = Gene.objects.all().first().pk
 
         for i in range(1, 6):
             cell = "c" + str(i)
@@ -83,7 +82,7 @@ class SingleCellGeneExpressionTests(APITestCase):
             )
 
     def test_retrieve(self):
-        url = f"/api/v1/single_cell_expression/?dataset=rat-drat&gene=g1"
+        url = "/api/v1/single_cell_expression/?dataset=rat-drat&gene=g1"
         response = self.client.get(url, format="json")
         expression_values = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -104,7 +103,7 @@ class SingleCellTests(APITestCase):
         dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
         metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        single_cell = SingleCell.objects.create(name="singleCell", dataset=dataset1, metacell=metacell1)
+        SingleCell.objects.create(name="singleCell", dataset=dataset1, metacell=metacell1)
 
     def test_retrieve(self):
         url = "/api/v1/single_cells/?dataset=species1-dataset1"
@@ -122,8 +121,8 @@ class MetaCellTests(APITestCase):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        metacell2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
+        Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
+        Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
 
     def test_retrieve(self):
         url = "/api/v1/metacells/?dataset=species3-dataset3"
