@@ -340,7 +340,7 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(instance=data, many=True)
             return Response(serializer.data)
         except OSError:
-            logging.exception(f"Error with expression data in file for {dataset}")
+            logging.exception(f"Error reading expression data for {gene} in {dataset}")
             return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

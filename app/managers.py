@@ -2,8 +2,7 @@ from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 
 from app.models import Dataset, Gene, DatasetFile, SingleCellGeneExpression
-from app.utils import get_dataset
-from scripts.hdf5.rds2hdf5 import read_from_hdf
+from app.utils import get_dataset, read_hdf
 
 
 class ExpressionDataManager:
@@ -17,7 +16,7 @@ class ExpressionDataManager:
 
     def create_singlecellexpression_models(self):
         dataset_file = get_object_or_404(DatasetFile, dataset_id=self.dataset.pk)
-        expression_dictionary = read_from_hdf(dataset_file.file.path, self.gene.name)
+        expression_dictionary = read_hdf(dataset_file.file.path, self.gene.name)
         result = []
         for row, key in enumerate(expression_dictionary, 1):
             scge = SingleCellGeneExpression()

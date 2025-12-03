@@ -1,9 +1,14 @@
 """Misc utility functions."""
 
 import json
+from typing import Dict
+
+import h5py
+import numpy as np
 
 from django.urls import reverse
 
+from scripts.hdf5.rds2hdf5 import create_positions_dictionary
 from ..models import Dataset, Gene, GeneList, Species
 
 
@@ -202,3 +207,25 @@ def get_cell_atlas_links(url_name, dataset=None):
         else:
             link["href"] = "#"
     return links
+
+
+def read_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
+    """Reads the expression values for a given gene from HDF5 file
+
+    Args:
+        hdf_file: path to the HDF5 file
+        gene: a gene, e.g ("Spolac_c99997_g1")
+    Returns:
+        A dictionary of cell names to UMI frac expression values, e.g.
+        {"AACTC-1": 1.462, "ACCG-1": 1.235}
+
+    """
+    with h5py.File(hdf_file, "r") as f:
+        expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
+        cell_names = f.get("/cell_names")[:]
+        cell_positions_dict = create_positions_dictionary(cell_names)
+        result = {}
+        for elem in np.nditer(expression_values, flags=["zerosize_ok"]):
+            position = int(elem["c"])
+            result[cell_positions_dict[position]] = float(elem["e"])
+        return result

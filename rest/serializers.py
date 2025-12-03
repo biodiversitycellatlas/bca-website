@@ -435,7 +435,6 @@ class MetacellCountSerializer(serializers.ModelSerializer):
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
     """Serializer for gene expression per single cell."""
 
-    dataset = serializers.CharField(help_text="Dataset name.")
     gene = serializers.CharField(help_text="Gene name.")
     single_cell = serializers.CharField(help_text="Cell name.")
     umifrac = serializers.DecimalField(
