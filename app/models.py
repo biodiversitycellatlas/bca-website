@@ -807,7 +807,7 @@ class SAMap(models.Model):
 
 
 class ExpressionDataManager:
-    """Creates SingleCellExpression models from data in HDF5"""
+    """Creates SingleCellExpression models from data in HDF5."""
 
     def __init__(self, dataset: int, gene: int):
         self.dataset = get_object_or_404(Dataset, pk=dataset)
