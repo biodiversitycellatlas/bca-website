@@ -299,8 +299,8 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="List gene expression per gene in a dataset",
-    tags=["Single cell"],
+    summary="List gene expression per single cell",
+    tags=["Single cell", "Gene"],
     request=serializers.SingleCellGeneExpressionSerializer,
     parameters=[
         OpenApiParameter(
