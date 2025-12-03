@@ -238,11 +238,11 @@ class OrthologCountViewSet(BaseReadOnlyModelViewSet):
 
 
 class ExpressionPrefetchMixin:
-    """Mixin to prefetch gene expression for single cell and metacell views."""
+    """Mixin to prefetch gene expression for metacell views."""
 
-    related_field = "scge"
-    expression_related_name = "scge"
-    expression_model = models.SingleCellGeneExpression
+    related_field = "mge"
+    expression_related_name = "mge"
+    expression_model = models.MetacellGeneExpression
 
     def get_queryset(self):
         gene = self.request.query_params.get("gene", None)
@@ -267,7 +267,7 @@ class ExpressionPrefetchMixin:
 
 
 @extend_schema(summary="List single cells", tags=["Single cell"])
-class SingleCellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
+class SingleCellViewSet(BaseReadOnlyModelViewSet):
     """List single cells for a given dataset."""
 
     queryset = models.SingleCell.objects.prefetch_related("metacell", "metacell__type")
@@ -284,10 +284,6 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     serializer_class = serializers.MetacellSerializer
     filterset_class = filters.MetacellFilter
     lookup_field = "name"
-
-    related_field = "mge"
-    expression_related_name = "mge"
-    expression_model = models.MetacellGeneExpression
 
 
 @extend_schema(summary="List metacell links", tags=["Metacell"])
