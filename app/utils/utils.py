@@ -18,20 +18,14 @@ def get_dataset_dict():
     for dataset in Dataset.objects.all():
         # get phylum
         try:
-            phylum = dataset.species.meta_set.filter(key="phylum").values_list(
-                "value", flat=True
-            )[0]
+            phylum = dataset.species.meta_set.filter(key="phylum").values_list("value", flat=True)[0]
         except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
         try:
             removed_terms = ["species", "phylum"]
-            meta = list(
-                dataset.species.meta_set.exclude(key__in=removed_terms).values_list(
-                    "value", flat=True
-                )
-            )
+            meta = list(dataset.species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
 
@@ -43,9 +37,7 @@ def get_dataset_dict():
 
     # Sort dictionary by phyla, species and dataset order
     sorted_dict = {
-        phylum: sorted(
-            elems, key=lambda x: (str(x["dataset"].species), x["dataset"].order)
-        )
+        phylum: sorted(elems, key=lambda x: (str(x["dataset"].species), x["dataset"].order))
         for phylum, elems in sorted(dataset_dict.items())
     }
     return sorted_dict
@@ -57,20 +49,14 @@ def get_species_dict():
     for species in Species.objects.all():
         # get phylum
         try:
-            phylum = species.meta_set.filter(key="phylum").values_list(
-                "value", flat=True
-            )[0]
+            phylum = species.meta_set.filter(key="phylum").values_list("value", flat=True)[0]
         except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
         try:
             removed_terms = ["species", "phylum"]
-            meta = list(
-                species.meta_set.exclude(key__in=removed_terms).values_list(
-                    "value", flat=True
-                )
-            )
+            meta = list(species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
 
