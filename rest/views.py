@@ -335,8 +335,9 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
         dataset = request.GET.get("dataset")
         expression_data_manager = models.ExpressionDataManager(dataset, gene)
         try:
-            self.queryset = expression_data_manager.create_singlecellexpression_models()
-            return Response(self.queryset)
+            data = expression_data_manager.create_singlecellexpression_models()
+            serializer = self.get_serializer(instance=data, many=True)
+            return Response(serializer.data)
         except OSError:
             logging.exception(f"Error with expression data in file for {dataset}")
             return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
