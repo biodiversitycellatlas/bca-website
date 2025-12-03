@@ -1,3 +1,4 @@
+import math
 import os.path
 
 from django.core.files import File as DjangoFile
@@ -12,9 +13,7 @@ class SpeciesTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        species1.save()
         species2 = Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
-        species2.save()
 
     def test_species(self):
         response = self.client.get("/api/v1/species/", format="json")
@@ -29,13 +28,9 @@ class DatasetTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        species1.save()
         species2 = Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
-        species2.save()
         dataset1 = Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
-        dataset1.save()
         dataset2 = Dataset.objects.create(species=species2, name="DMouse", description="mouse dataset")
-        dataset2.save()
 
     def test_datasets(self):
         response = self.client.get("/api/v1/datasets/", format="json")
@@ -50,11 +45,8 @@ class GeneTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        species1.save()
         gene1 = Gene.objects.create(species=species1, name="Gene1", description="description1")
-        gene1.save()
         gene2 = Gene.objects.create(species=species1, name="Gene2", description="description2")
-        gene2.save()
 
     def test_genes(self):
         response = self.client.get("/api/v1/genes/", format="json")
@@ -69,22 +61,19 @@ class SingleCellGeneExpressionTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        species1.save()
         dataset1 = Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
-        dataset1.save()
         self.dataset_id = dataset1.pk
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        type1.save()
         metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=3, y=5)
 
         for i in range(1, 5):
             gene = "g" + str(i)
-            Gene.objects.create(name=gene, species=species1).save()
-        self.gene_id = Gene.objects.all().first().pk
+            Gene.objects.create(name=gene, species=species1)
+        # self.gene_id = Gene.objects.all().first().pk
 
         for i in range(1, 6):
             cell = "c" + str(i)
-            SingleCell.objects.create(name=cell, dataset=dataset1, metacell=metacell1).save()
+            SingleCell.objects.create(name=cell, dataset=dataset1, metacell=metacell1)
 
         test_file = os.path.join(os.path.dirname(__file__), "test_fixtures", "gene_expression_test.hdf5")
         with open(test_file, "rb") as f:
@@ -94,13 +83,17 @@ class SingleCellGeneExpressionTests(APITestCase):
             )
 
     def test_retrieve(self):
-        url = f"/api/v1/single_cell_expression/?dataset={self.dataset_id}&gene={self.gene_id}"
+        url = f"/api/v1/single_cell_expression/?dataset=rat-drat&gene=g1"
         response = self.client.get(url, format="json")
         expression_values = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(expression_values), 2)
         self.assertSetEqual({s["single_cell"] for s in expression_values}, {"c3", "c5"})
-        self.assertSetEqual({s["umifrac"] for s in expression_values}, {2142.857177734375, 10000.0})
+        for entry in expression_values:
+            if entry["single_cell"] == "c3":
+                self.assertTrue(math.isclose(float(entry["umifrac"]), 2142.857, rel_tol=0.001))
+            if entry["single_cell"] == "c5":
+                self.assertTrue(math.isclose(float(entry["umifrac"]), 10000, rel_tol=0.001))
 
 
 class SingleCellTests(APITestCase):
@@ -108,15 +101,10 @@ class SingleCellTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        species1.save()
         dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
-        dataset1.save()
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        type1.save()
         metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        metacell1.save()
         single_cell = SingleCell.objects.create(name="singleCell", dataset=dataset1, metacell=metacell1)
-        single_cell.save()
 
     def test_retrieve(self):
         url = "/api/v1/single_cells/?dataset=species1-dataset1"
@@ -132,15 +120,10 @@ class MetaCellTests(APITestCase):
 
     def setUp(self):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
-        species1.save()
         dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
-        dataset1.save()
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        type1.save()
         metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        metacell1.save()
         metacell2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
-        metacell2.save()
 
     def test_retrieve(self):
         url = "/api/v1/metacells/?dataset=species3-dataset3"

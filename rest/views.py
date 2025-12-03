@@ -11,6 +11,7 @@ from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
+import app.managers
 from app import models
 from . import filters, serializers
 from .utils import get_enum_description, get_path_param, parse_species_dataset
@@ -308,16 +309,16 @@ class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
             int,
             "query",
             True,
-            "gene id",
-            examples=[OpenApiExample("Example", value="276096")],
+            "gene name",
+            examples=[OpenApiExample("Example", value="Spolac_c99997_g1")],
         ),
         OpenApiParameter(
             "dataset",
             int,
             "query",
             True,
-            "dataset id",
-            examples=[OpenApiExample("Example", value="13")],
+            "dataset slug",
+            examples=[OpenApiExample("Example", value="spongilla-lacustris")],
         ),
     ],
 )
@@ -333,7 +334,7 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
     def list(self, request, *args, **kwargs):
         gene = request.query_params.get("gene")
         dataset = request.query_params.get("dataset")
-        expression_data_manager = models.ExpressionDataManager(dataset, gene)
+        expression_data_manager = app.managers.ExpressionDataManager(dataset, gene)
         try:
             data = expression_data_manager.create_singlecellexpression_models()
             serializer = self.get_serializer(instance=data, many=True)

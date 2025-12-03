@@ -7,13 +7,9 @@ from typing import Optional
 
 from colorfield.fields import ColorField
 from django.db import models
-from django.forms import model_to_dict
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-
-from scripts.hdf5.rds2hdf5 import read_from_hdf
 
 
 class SlugMixin(models.Model):
@@ -806,23 +802,3 @@ class SAMap(models.Model):
         )
 
 
-class ExpressionDataManager:
-    """Creates SingleCellExpression models from data in HDF5."""
-
-    def __init__(self, dataset: int, gene: int):
-        self.dataset = get_object_or_404(Dataset, pk=dataset)
-        self.gene = get_object_or_404(Gene, pk=gene)
-
-    def create_singlecellexpression_models(self):
-        dataset_file = get_object_or_404(DatasetFile, dataset_id=self.dataset.pk)
-        expression_dictionary = read_from_hdf(dataset_file.file.path, self.gene.name)
-        result = []
-        for row, key in enumerate(expression_dictionary, 1):
-            scge = SingleCellGeneExpression()
-            scge.id = row
-            scge.gene = self.gene.name
-            scge.dataset = self.dataset.slug
-            scge.single_cell = key
-            scge.umifrac = expression_dictionary[key]
-            result.append(model_to_dict(scge))
-        return result
