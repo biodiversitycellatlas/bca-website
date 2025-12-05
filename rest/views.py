@@ -278,10 +278,14 @@ class SingleCellViewSet(BaseReadOnlyModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
-        gene = context["request"].GET.get("gene")
         dataset = context["request"].GET.get("dataset")
-        expression_data_manager = ExpressionDataManager(dataset, gene)
-        context.update({"expression_dictionary": expression_data_manager.get_expression_dictionary()})
+        gene = context["request"].GET.get("gene")
+        if gene is None:
+            expression_dictionary = {}
+        else:
+            expression_data_manager = ExpressionDataManager(dataset, gene)
+            expression_dictionary = expression_data_manager.get_expression_dictionary()
+        context.update({"expression_dictionary": expression_dictionary})
         return context
 
 

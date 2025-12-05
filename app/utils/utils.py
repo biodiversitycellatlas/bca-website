@@ -195,7 +195,7 @@ def get_cell_atlas_links(url_name, dataset=None):
     return links
 
 
-def read_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
+def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
     """Reads the expression values for a given gene from HDF5 file
 
     Args:

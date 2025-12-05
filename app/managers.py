@@ -2,7 +2,7 @@ from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 
 from app.models import Dataset, Gene, DatasetFile, SingleCellGeneExpression
-from app.utils import get_dataset, read_hdf
+from app.utils import get_dataset, read_hdf5
 
 
 class ExpressionDataManager:
@@ -13,7 +13,7 @@ class ExpressionDataManager:
         self.dataset = get_object_or_404(Dataset, pk=dataset_id)
         self.gene = get_object_or_404(Gene, name=gene)
         dataset_file = get_object_or_404(DatasetFile, dataset_id=self.dataset.pk)
-        self.expression_dictionary = read_hdf(dataset_file.file.path, self.gene.name)
+        self.expression_dictionary = read_hdf5(dataset_file.file.path, self.gene.name)
 
     def get_expression_dictionary(self):
         return self.expression_dictionary

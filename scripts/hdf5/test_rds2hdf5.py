@@ -3,7 +3,7 @@
 import math
 
 from rds2hdf5 import rds2hdf
-from app.utils import read_hdf
+from app.utils import read_hdf5
 
 # 0 0   0.3 0   0.4
 # 0 0   0.5 0.7 0
@@ -33,10 +33,10 @@ INPUT_FILE = "example.RDS"
 OUTPUT_FILE = "example.hdf5"
 rds2hdf(INPUT_FILE, OUTPUT_FILE)
 
-g1 = read_hdf(OUTPUT_FILE, "g1")
-g2 = read_hdf(OUTPUT_FILE, "g2")
-g3 = read_hdf(OUTPUT_FILE, "g3")
-g4 = read_hdf(OUTPUT_FILE, "g4")
+g1 = read_hdf5(OUTPUT_FILE, "g1")
+g2 = read_hdf5(OUTPUT_FILE, "g2")
+g3 = read_hdf5(OUTPUT_FILE, "g3")
+g4 = read_hdf5(OUTPUT_FILE, "g4")
 
 assert len(g1) == 2 and len(g2) == 2 and len(g3) == 0 and len(g4) == 2
 
