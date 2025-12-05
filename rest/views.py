@@ -11,7 +11,7 @@ from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
-import app.managers
+from app.managers import ExpressionDataManager
 from app import models
 from . import filters, serializers
 from .utils import get_enum_description, get_path_param, parse_species_dataset
@@ -275,6 +275,15 @@ class SingleCellViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.SingleCellFilter
     lookup_field = "name"
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        gene = context["request"].GET.get("gene")
+        dataset = context["request"].GET.get("dataset")
+        expression_data_manager = ExpressionDataManager(dataset, gene)
+        context.update({"expression_dictionary": expression_data_manager.get_expression_dictionary()})
+        return context
+
 
 @extend_schema(summary="List metacells", tags=["Metacell"])
 class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
@@ -330,7 +339,7 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
     def list(self, request, *args, **kwargs):
         gene = request.query_params.get("gene")
         dataset = request.query_params.get("dataset")
-        expression_data_manager = app.managers.ExpressionDataManager(dataset, gene)
+        expression_data_manager = ExpressionDataManager(dataset, gene)
         try:
             data = expression_data_manager.create_singlecellexpression_models()
             serializer = self.get_serializer(instance=data, many=True)

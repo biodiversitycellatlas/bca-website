@@ -10,7 +10,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from app import models
-
 from .aggregates import PercentileCont
 from .utils import check_model_exists
 
@@ -352,17 +351,13 @@ class SingleCellSerializer(BaseExpressionSerializer):
         """Meta configuration."""
 
         model = models.SingleCell
-        fields = [
-            "name",
-            "x",
-            "y",
-            "metacell_name",
-            "metacell_type",
-            "metacell_color",
-            "gene_name",
-            "umifrac",
-            "umi_raw",
-        ]
+        fields = ["name", "x", "y", "metacell_name", "metacell_type", "metacell_color", "gene_name", "umifrac"]
+
+    def get_umifrac(self, obj):
+        """Return UMI fraction."""
+        cell_name = obj.name
+        expression_dictionary = self.context["expression_dictionary"]
+        return expression_dictionary.get(cell_name, 0.0)
 
 
 class MetacellSerializer(BaseExpressionSerializer):
