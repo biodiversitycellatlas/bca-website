@@ -357,7 +357,7 @@ class SingleCellSerializer(BaseExpressionSerializer):
         """Return UMI fraction."""
         cell_name = obj.name
         expression_dictionary = self.context["expression_dictionary"]
-        return expression_dictionary.get(cell_name, 0.0)
+        return expression_dictionary.get(cell_name, None)
 
 
 class MetacellSerializer(BaseExpressionSerializer):
