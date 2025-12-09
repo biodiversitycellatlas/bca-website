@@ -136,9 +136,9 @@ class AtlasInfoView(BaseAtlasView):
         if not isinstance(dataset, Dataset):
             return context
 
-        qc_values = dataset.qc.annotate(name=F("metric__name"), description=F("metric__description")).values(
-            "name", "description", "value"
-        )
+        qc_values = dataset.qc.annotate(
+            name=F("metric__name"), description=F("metric__description")
+        ).values("name", "description", "value")
 
         qc_metrics = [
             {
@@ -212,6 +212,21 @@ class AtlasGeneView(BaseAtlasView):
         return context
 
 
+class AtlasGeneModuleView(BaseAtlasView):
+    """Gene modules page for a specific dataset."""
+
+    template_name = "app/atlas/modules.html"
+
+    def get_context_data(self, **kwargs):
+        """Add gene info or warning if gene invalid."""
+        context = super().get_context_data(**kwargs)
+        dataset = context.get("dataset")
+        if not isinstance(dataset, Dataset):
+            return context
+
+        return context
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 
@@ -250,7 +265,9 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
+                    dataset.metacells.filter(
+                        Q(name__in=metacells) | Q(type__name__in=metacells)
+                    )
                     .values_list("name", flat=True)
                     .distinct()
                 )
@@ -261,7 +278,9 @@ class AtlasMarkersView(BaseAtlasView):
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
-                    "description": (f"Missing <code>metacells</code> in your query: <code>{query.urlencode()}</code>"),
+                    "description": (
+                        f"Missing <code>metacells</code> in your query: <code>{query.urlencode()}</code>"
+                    ),
                 }
         return context
 

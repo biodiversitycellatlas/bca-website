@@ -1,0 +1,76 @@
+{% comment %}
+
+Compare gene modules
+
+Input:
+- id: prefix used in the identifiers of all elements
+- dataset: Dataset object
+
+{% endcomment %}
+
+{% load static %}
+
+<div class="row">
+    <div class="col-12 col-md-5 col-lg-6">
+        {% include '../plot_container.html' with id=id ratio='16/9' %}
+    </div>
+
+    <div class="col">
+        <div id="{{ id }}-module-header" class="row">
+            <span class="text-secondary small">
+                <i class="fa fa-question-circle"></i>
+                Please click a value in the plot to compare genes between two modules.
+            </span>
+        </div>
+        <div id="{{ id }}-module-genes" class="row small">
+        </div>
+    </div>
+</div>
+
+<!-- Template for module header -->
+<template id="{{ id }}-module-header-template">
+    <div class="col-4">
+        <p class="p-0 m-0 module-name">
+            Module
+        </p>
+        <ul class="list-unstyled text-secondary small m-0">
+            <li class="gene-count">
+                20 unique genes
+            </li>
+
+            <li class="btn-group-vertical w-100" role="group">
+                <!-- Buttons -->
+                <a class="btn btn-outline-primary btn-xs show-genes-btn"
+                   data-bs-toggle="collapse"
+                   href="#">
+                    <i class="fa fa-eye"></i> Show all genes
+                </a>
+                <a class="btn btn-outline-primary btn-xs gene-list-btn" href="#">
+                    <i class="fa fa-list"></i> Create gene list
+                </a>
+                <a class="btn btn-outline-primary btn-xs plot-expression-btn" href="#">
+                    <i class="fa fa-solar-panel"></i> Plot expression
+                </a>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<!-- Template for gene list -->
+<template id="{{ id }}-module-genes-template">
+    <div class="col-4">
+        <ul class="list-unstyled gene-list">
+            <!-- List of genes is inserted here -->
+        </ul>
+    </div>
+</template>
+
+<!-- JavaScript code -->
+<script type="module">
+    {% load static %}
+    import { loadModuleSimilarityPlot } from "{% static 'app/js/atlas/module_similarity.js' %}";
+    import { loadModuleGeneLists } from "{% static 'app/js/atlas/module_overlaps.js' %}";
+
+    // Load intersecting and unique genes from selected modules in the plot
+    loadModuleSimilarityPlot("{{ id }}", "{{ dataset.slug }}", loadModuleGeneLists);
+</script>
