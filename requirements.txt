@@ -3,7 +3,7 @@ django-colorfield==0.14.0
 gunicorn==23.0.0
 
 # Blog parsing
-beautifulsoup4==4.14.2
+beautifulsoup4==4.14.3
 feedparser==6.0.12
 
 # Reference pages
