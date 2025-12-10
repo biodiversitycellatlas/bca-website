@@ -10,7 +10,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from app import models
-
 from .aggregates import PercentileCont
 from .utils import check_model_exists
 
@@ -352,17 +351,13 @@ class SingleCellSerializer(BaseExpressionSerializer):
         """Meta configuration."""
 
         model = models.SingleCell
-        fields = [
-            "name",
-            "x",
-            "y",
-            "metacell_name",
-            "metacell_type",
-            "metacell_color",
-            "gene_name",
-            "umifrac",
-            "umi_raw",
-        ]
+        fields = ["name", "x", "y", "metacell_name", "metacell_type", "metacell_color", "gene_name", "umifrac"]
+
+    def get_umifrac(self, obj):
+        """Return UMI fraction."""
+        cell_name = obj.name
+        expression_dictionary = self.context["expression_dictionary"]
+        return expression_dictionary.get(cell_name, None)
 
 
 class MetacellSerializer(BaseExpressionSerializer):
@@ -435,11 +430,11 @@ class MetacellCountSerializer(serializers.ModelSerializer):
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
     """Serializer for gene expression per single cell."""
 
-    gene_name = serializers.CharField(source="gene.name")
-    gene_description = serializers.CharField(source="gene.description")
-    gene_domains = serializers.StringRelatedField(source="gene.domains", many=True)
-
-    single_cell_name = serializers.CharField(source="single_cell.name")
+    gene = serializers.CharField(help_text="Gene name.")
+    single_cell = serializers.CharField(help_text="Cell name.")
+    umifrac = serializers.DecimalField(
+        help_text="Gene expression value (UMI fraction).", max_digits=8, decimal_places=3
+    )
 
     class Meta:
         """Meta configuration."""
