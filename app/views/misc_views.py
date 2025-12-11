@@ -160,41 +160,70 @@ class DocumentationView(TemplateView):
 
     template_name = "app/docs.html"
     docs_dir = "app/docs"
+    index_file = "_index.md"
 
-    def fetch_all_pages(self):
-        pages = []
-        for root, dirs, files in os.walk(self.docs_dir):
-            for f in files:
-                if f.endswith(".md"):
-                    path = os.path.relpath(os.path.join(root, f), self.docs_dir)
-                    pages.append(path.replace("\\", "/"))
-        return pages
+    def generate_docs_link(self, dir, filename=None):
+        """Generate link to documentation page."""
+        if filename is not None and filename.endswith(".md"):
+            filename = os.path.splitext(filename)[0]
+        real_path = os.path.join(dir, filename or "")
 
-    def fetch_docs_pages(self):
-        docs_path = Path(self.docs_dir)
-        mtime = docs_path.stat().st_mtime
-        key = "docs_pages"
+        link = os.path.relpath(real_path, self.docs_dir)
+        link = reverse("docs", kwargs={"page": link})
+        return link
 
-        # Validate cache based on modified time of directory
-        pages = get_validated_cache(key, mtime)
-        if pages is not None:
-            return pages
+    def generate_docs_link_title(self, path, default=None):
+        index_path = os.path.join(path, self.index_file)
+        if os.path.isfile(path):
+            # Read title from file's metadata
+            meta = MarkdownPage(path).metadata
+            title = meta.get("linkTitle") or meta.get("title")
+        elif os.path.isdir(path) and os.path.isfile(index_path):
+            # Read title from index file's metadata
+            title = self.generate_docs_link_title(index_path)
+        else:
+            # Create title from default or path
+            default = default or os.path.basename(path)
+            title = None
 
-        pages = []
-        #for root, dirs, files in os.walk(self.docs_dir):
-        #    for f in files:
-        #        if f.endswith(".md"):
-        #            path = os.path.join(self.docs_dir, f)
-        #            metadata = MarkdownPage(path).get_metadata()
-        #            pages.append(Path(path).as_posix())
-        for file_path in docs_path.rglob("*.md"):
-            rel_path = file_path.relative_to(docs_path).as_posix()
-            metadata = MarkdownPage(file_path).get_metadata()  # if needed
-            pages.append(rel_path)
+        if title is None and default is not None:
+            title = default.replace(".md", "").capitalize()
 
-        raise ValueError(pages)
-        set_validated_cache(key, mtime, pages)
-        return pages
+        return title
+
+    def build_html_index(self, path=None, head=True):
+        path = path or self.docs_dir
+
+        # Ignore hidden files
+        entries = sorted(f for f in os.listdir(path) if not f.startswith("."))
+
+        html = ""
+        for name in entries:
+            this_path = os.path.join(path, name)
+
+            if os.path.isdir(this_path):
+                branch = self.build_html_index(this_path, head=False)
+                html += f"<li>{branch}</li>"
+            elif name != self.index_file:
+                link = self.generate_docs_link(path, name)
+                title = self.generate_docs_link_title(this_path)
+                html += f'<li><a href="{link}">{title}</a></li>'
+
+        html = f"<ul>{html}</ul>"
+
+        # Wrap directory name with metadata from _index.md
+        if head:
+            # Top level directory
+            pass
+        elif self.index_file in entries:
+            title = self.generate_docs_link_title(path)
+            link = self.generate_docs_link(path)
+            html = f'<a href="{link}">{title}</a>' + html
+        else:
+            title = self.generate_docs_link_title(path)
+            title = os.path.basename(path).capitalize()
+            html = title + html
+        return html
 
     def get_context_data(self, **kwargs):
         """Render HTML from Markdown files in hierarchy."""
@@ -203,18 +232,19 @@ class DocumentationView(TemplateView):
         file_path = os.path.join(self.docs_dir, f"{page}.md")
 
         if not os.path.exists(file_path):
-            file_path = os.path.join(self.docs_dir, page, "_index.md")
+            file_path = os.path.join(self.docs_dir, page, self.index_file)
 
         if os.path.exists(file_path):
             md = MarkdownPage(file_path)
-            context["content"] = md.get_html()
-            context["toc"] = md.get_toc()
-            context["metadata"] = md.get_metadata()
-            context["pygments_css"] = md.get_css()
+            context["content"] = md.html
+            context["toc"] = md.toc
+            context["metadata"] = md.metadata
+            context["pygments_css"] = md.get_pygment_css()
+            context["action_links"] = md.get_action_links()
         else:
             raise Http404()
 
-        context["index"] = self.fetch_docs_pages()
+        context["index"] = self.build_html_index()
         return context
 
 

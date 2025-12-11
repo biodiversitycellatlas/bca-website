@@ -19,6 +19,8 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import html, HtmlFormatter
 from pygments.util import ClassNotFound
 
+from ..templatetags.bca_website_links import github_url
+
 
 class CustomTOC(TableOfContents):
     """Create Table of Contents with custom identifiers."""
@@ -70,48 +72,33 @@ class MarkdownRenderer(mistune.HTMLRenderer):
 class MarkdownPage():
     """Create HTML page from Markdown content."""
 
-    def __init__(self, filename):
+    def __init__(self, filename, parser=None):
         """Initialize Markdown file parsing."""
         self.filename = filename
+        self._parser = parser
+        self._html = None
+        self._toc = None
+
+        # Load metadata and Markdown content from filename
         self.content = None
-        self.html = None
-        self.toc = None
         self.metadata = None
-        self.parser = None
-        self.css = None
 
-        # Load code block syntax highlighting
-        self.css = self.prepare_pygments_css()
-
-        # Read file
         md = None
         if os.path.exists(filename):
             with open(filename, "r", encoding="utf-8") as f:
-                self.prepare_parser()
                 self.prepare_content()
-                self.parse_html()
-                self.parse_toc_html()
 
-    def get_html(self):
-        """Get Markdown content in HTML format."""
-        return self.html
+    def prepare_content(self):
+        """Prepare file content and metadata based on frontmatter."""
+        post = frontmatter.load(self.filename)
+        self.metadata = post.metadata
+        self.content = post.content
 
-    def get_css(self):
-        """Get CSS styles for Markdown content."""
-        return self.css
-
-    def get_toc(self):
-        """Get Table of Contents in HTML format."""
-        return self.toc
-
-    def get_metadata(self):
-        return self.metadata
-
-    def prepare_parser(self):
+    @property
+    def parser(self):
         """Prepare Markdown parser with plugins."""
-
-        if self.parser:
-           return self.parser
+        if self._parser:
+           return self._parser
 
         plugins = [
             "table",
@@ -130,44 +117,43 @@ class MarkdownPage():
             FencedDirective([Admonition()]),
             RSTDirective([CustomTOC()]),
         ]
-        self.parser = mistune.create_markdown(renderer=MarkdownRenderer(), plugins=plugins)
-        return self.parser
+        self._parser = mistune.create_markdown(renderer=MarkdownRenderer(), plugins=plugins)
+        return self._parser
 
-    def prepare_content(self):
-        """Prepare file content and metadata based on frontmatter."""
-        post = frontmatter.load(self.filename)
-        self.metadata = post.metadata
-        self.content = post.content
-
-    def parse_html(self):
+    @property
+    def html(self):
         """Parse Markdown content in HTML format."""
-        if self.html:
-            return self.html
+        if self._html:
+            return self._html
 
-        self.html = self.parser(self.content)
-        return self.html
+        self._html = self.parser(self.content)
+        return self._html
 
-    def parse_toc_html(self):
+    @property
+    def toc(self):
         """Parse table of contents in HTML format."""
-        if self.toc:
-            return self.toc
+        if self._toc:
+            return self._toc
 
         md = self.parser
         add_toc_hook(md, heading_id=CustomTOC.generate_toc_heading_id)
 
         html, state = md.parse(self.content)
         toc_items = state.env['toc_items']
-        self.toc = render_toc_ul(toc_items)
-        return self.toc
+        self._toc = render_toc_ul(toc_items)
+        return self._toc
 
-    def prepare_pygments_css(self, arg=".highlight"):
+    def get_pygment_css(self, arg=".highlight"):
         """Get CSS style definitions from pygments."""
-        if self.css:
-            return self.css
+        return HtmlFormatter().get_style_defs(arg)
 
-        self.css = HtmlFormatter().get_style_defs(arg)
-        return self.css
-
-    def __repr__(self):
-        """String representation of parsed Markdown file in HTML."""
-        return self.content
+    def get_action_links(self, path=None, branch="main"):
+        """Get URL for multiple actions regarding the selected Markdown page."""
+        path = path or self.filename
+        action_links = {
+            "view": github_url(f"blob/{branch}/{path}"),
+            "edit": github_url(f"edit/{branch}/{path}"),
+            "history": github_url(f"commits/{branch}/{path}"),
+            "feedback": github_url(f"edit/{branch}/{path}"),
+        }
+        return action_links
