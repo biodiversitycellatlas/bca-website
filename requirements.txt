@@ -1,4 +1,4 @@
-Django==5.2.8
+Django==5.2.9
 django-colorfield==0.14.0
 gunicorn==23.0.0
 
