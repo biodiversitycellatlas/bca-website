@@ -1,3 +1,7 @@
+---
+title: Testing
+---
+
 # This is a test
 
 What a great test.

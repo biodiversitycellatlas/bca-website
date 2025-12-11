@@ -1,22 +1,20 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
 import os
+from pathlib import Path
 
+from django.core.cache import cache
 from django.conf import settings
 from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
+from django.urls import reverse
 
 from ..models import Dataset, SpeciesFile, Species
 from ..templatetags.bca_website_links import bca_url, github_url
-from ..utils import (
-    get_dataset_dict,
-    get_species_dict,
-    render_markdown,
-    get_pygments_css,
-    get_latest_posts,
-)
-
+from ..utils import get_dataset_dict, get_species_dict
+from ..utils.blog import get_latest_posts
+from ..utils.markdown import MarkdownPage
 
 class IndexView(TemplateView):
     """Homepage."""
@@ -146,26 +144,77 @@ class AboutView(TemplateView):
         return context
 
 
-class ReferenceView(TemplateView):
-    """Reference pages rendered from Markdown files."""
+def get_validated_cache(key, validation):
+    cached = cache.get(key)
+    if cached is not None:
+        data, cached_validation = cached
+        if validation == cached_validation:
+            return data
+    return None
 
-    template_name = "app/reference.html"
-    reference_dir = "app/reference"
+def set_validated_cache(key, validation, data, timeout=24 * 60 * 60):
+    cache.set(key, (data, validation), timeout=timeout)
+
+class DocumentationView(TemplateView):
+    """Documentation pages rendered from Markdown files."""
+
+    template_name = "app/docs.html"
+    docs_dir = "app/docs"
+
+    def fetch_all_pages(self):
+        pages = []
+        for root, dirs, files in os.walk(self.docs_dir):
+            for f in files:
+                if f.endswith(".md"):
+                    path = os.path.relpath(os.path.join(root, f), self.docs_dir)
+                    pages.append(path.replace("\\", "/"))
+        return pages
+
+    def fetch_docs_pages(self):
+        docs_path = Path(self.docs_dir)
+        mtime = docs_path.stat().st_mtime
+        key = "docs_pages"
+
+        # Validate cache based on modified time of directory
+        pages = get_validated_cache(key, mtime)
+        if pages is not None:
+            return pages
+
+        pages = []
+        #for root, dirs, files in os.walk(self.docs_dir):
+        #    for f in files:
+        #        if f.endswith(".md"):
+        #            path = os.path.join(self.docs_dir, f)
+        #            metadata = MarkdownPage(path).get_metadata()
+        #            pages.append(Path(path).as_posix())
+        for file_path in docs_path.rglob("*.md"):
+            rel_path = file_path.relative_to(docs_path).as_posix()
+            metadata = MarkdownPage(file_path).get_metadata()  # if needed
+            pages.append(rel_path)
+
+        raise ValueError(pages)
+        set_validated_cache(key, mtime, pages)
+        return pages
 
     def get_context_data(self, **kwargs):
-        """Render HTML from Markdown files."""
+        """Render HTML from Markdown files in hierarchy."""
         context = super().get_context_data(**kwargs)
-        page = kwargs.get("page", "index")
-        file_path = os.path.join(self.reference_dir, f"{page}.md")
+        page = kwargs.get("page", "_index")
+        file_path = os.path.join(self.docs_dir, f"{page}.md")
+
+        if not os.path.exists(file_path):
+            file_path = os.path.join(self.docs_dir, page, "_index.md")
 
         if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
-                md_content = f.read()
-            context["content"] = render_markdown(md_content)
-            context["pygments_css"] = get_pygments_css()
+            md = MarkdownPage(file_path)
+            context["content"] = md.get_html()
+            context["toc"] = md.get_toc()
+            context["metadata"] = md.get_metadata()
+            context["pygments_css"] = md.get_css()
         else:
             raise Http404()
 
+        context["index"] = self.fetch_docs_pages()
         return context
 
 

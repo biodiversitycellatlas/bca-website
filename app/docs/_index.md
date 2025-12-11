@@ -1,37 +1,37 @@
+---
+title: Getting started
+---
+
 ```{warning}
 You are looking at the **dev** documentation. This is not yet stable.
 ```
 
-.. toc:: Table of Contents
-
-# Getting Started
-
 Welcome to the **Reference** documentation.
 
-## Installation
+# Installation
 
 1. Clone the repository
 2. ~~Install dependencies~~ just run Docker
 3. Run the server
 
-## Usage
+# Usage
 
 Use the navigation menu[^1] to browse topics.
 
 [^1]: The thing at the top of the page.
 
-## Links
+# Links
 
 - [test](test)
 
-### Table
+## Table
 
 | First Header | Second Header |
 | ------------ | ------------- |
 | Content Cell | Content Cell  |
 | Content Cell | Content Cell  |
 
-#### Code
+### Code
 
 ```R
 a = 5

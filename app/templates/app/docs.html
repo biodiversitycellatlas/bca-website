@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% comment %}
+
+Reference: documentation, tutorials, etc.
+
+{% endcomment %}
+
+{% block content %}
+    {{ index | safe }}
+
+    {{ toc | safe }}
+
+    <!-- Color snippets of code -->
+    <style>{{ pygments_css|safe }}</style>
+
+    <div class="markdown-content">
+        {{ content|safe }}
+    </div>
+{% endblock %}
+
+{% block subnav %}
+    <div class="subnavbar sticky-top py-2">
+        <div class="container-xxl d-flex justify-content-between align-items-center">
+            {% load breadcrumbs %}
+            {% breadcrumbs 'Documentation' %}
+
+            <div class="d-flex gap-3 small">
+                <a href="#"><i class="fa fa-file"></i> View source</a>
+                <a href="#"><i class="fa fa-history"></i> History</a>
+                <a href="#"><i class="fa fa-pencil"></i> Edit</a>
+                <a href="#"><i class="fa fa-comments"></i> Suggest changes</a>
+            </div>
+        </div>
+    </div>
+{% endblock subnav %}
