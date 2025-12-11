@@ -32,7 +32,7 @@ jobs:
               run: grep -v "^#" .github/linters/super-linter.env >> "$GITHUB_ENV"
 
             - name: Report all Super-Linter issues
-              uses: super-linter/super-linter@v8.2.1
+              uses: super-linter/super-linter@v8.3.0
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
@@ -55,7 +55,7 @@ jobs:
               run: grep -hv "^#" .github/linters/super-linter{,-fix}.env >> "$GITHUB_ENV"
 
             - name: Lint files with Super-Linter
-              uses: super-linter/super-linter@v8.2.1
+              uses: super-linter/super-linter@v8.3.0
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
