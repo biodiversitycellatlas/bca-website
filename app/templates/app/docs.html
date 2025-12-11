@@ -24,7 +24,9 @@ Documentation: tutorials, guides, etc.
             <div class="row">
                 <!-- Markdown page -->
                 <div class="col">
-                    <h1>{{ metadata.title }}</h1>
+                    <h1>
+                        {{ metadata.title }}
+                    </h1>
 
                     <!-- Color snippets of code -->
                     <style>{{ pygments_css|safe }}</style>
@@ -52,27 +54,29 @@ Documentation: tutorials, guides, etc.
         <div class="container-xxl d-flex justify-content-between align-items-center flex-wrap column-gap-2">
             {% load breadcrumbs %}
             {% breadcrumbs 'Documentation' %}
-            
-            <div class="btn-group py-2" role="group"
-                style="margin-top: -2px; margin-bottom: -2px;">
+
+            <div class="btn-group py-2"
+                 role="group"
+                 style="margin-top: -2px;
+                        margin-bottom: -2px">
                 <a href="{{ action_links.view }}"
-                    target="_blank"
-                    class="btn btn-outline-secondary btn-xs">
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
                     <i class="fa fa-file"></i> View source
                 </a>
                 <a href="{{ action_links.edit }}"
-                    target="_blank"
-                    class="btn btn-outline-secondary btn-xs">
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
                     <i class="fa fa-pencil"></i> Edit page
                 </a>
                 <a href="{{ action_links.history }}"
-                    target="_blank"
-                    class="btn btn-outline-secondary btn-xs">
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
                     <i class="fa fa-history"></i> History
                 </a>
                 <a href="{{ action_links.feedback }}"
-                    target="_blank"
-                    class="btn btn-outline-secondary btn-xs">
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
                     <i class="fa fa-comments"></i> Suggest changes
                 </a>
             </div>
