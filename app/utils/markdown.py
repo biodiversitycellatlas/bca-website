@@ -43,6 +43,24 @@ class CustomTOC(TableOfContents):
 class MarkdownRenderer(mistune.HTMLRenderer):
     """Custom Markdown renderer."""
 
+    def __init__(self, static_dir=None, *args, **kwargs):
+        """Add static directory for media."""
+        super().__init__(*args, **kwargs)
+        self.static_dir = static_dir
+
+    def image(self, alt="", url="", title=None):
+        """Fix path to image and make it responsive."""
+
+        # Add static dir in relative URLs
+        if self.static_dir and not url.startswith(("http://", "https://", "/")):
+            url = os.path.join(self.static_dir, url)
+
+        # Make image responsive
+        attrs = f' src="{url}" alt="{alt}" class="img-fluid"'
+        if title:
+            attrs += f' title="{title}"'
+        return f'<img{attrs}>'
+
     def block_code(self, code, info=None):
         """Add syntax highlight in code blocks."""
 
@@ -72,9 +90,10 @@ class MarkdownRenderer(mistune.HTMLRenderer):
 class MarkdownPage():
     """Create HTML page from Markdown content."""
 
-    def __init__(self, filename, parser=None):
+    def __init__(self, filename, static_dir=None, parser=None):
         """Initialize Markdown file parsing."""
         self.filename = filename
+        self.static_dir = static_dir
         self._parser = parser
         self._html = None
         self._toc = None
@@ -117,7 +136,10 @@ class MarkdownPage():
             FencedDirective([Admonition()]),
             RSTDirective([CustomTOC()]),
         ]
-        self._parser = mistune.create_markdown(renderer=MarkdownRenderer(), plugins=plugins)
+        self._parser = mistune.create_markdown(
+            renderer=MarkdownRenderer(static_dir=self.static_dir),
+            plugins=plugins
+        )
         return self._parser
 
     @property

@@ -10,6 +10,10 @@ Documentation: tutorials, guides, etc.
     {{ metadata.title|default:'Documentation' }}
 {% endblock title %}
 
+{% block main_class %}
+    container overflow-x-clip
+{% endblock main_class %}
+
 {% block content %}
     <div class="row">
         <!-- Index -->
@@ -51,7 +55,7 @@ Documentation: tutorials, guides, etc.
 {% block subnav %}
     <!-- Documentation subnavbar -->
     <div class="subnavbar sticky-top">
-        <div class="container-xxl d-flex justify-content-between align-items-center flex-wrap column-gap-2">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap column-gap-2">
             {% load breadcrumbs %}
             {% breadcrumbs 'Documentation' %}
 

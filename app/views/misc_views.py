@@ -9,6 +9,7 @@ from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
 from django.views.generic import DetailView, TemplateView
 from django.urls import reverse
+from django.templatetags.static import static
 
 from ..models import Dataset, SpeciesFile, Species
 from ..templatetags.bca_website_links import bca_url, github_url
@@ -159,8 +160,9 @@ class DocumentationView(TemplateView):
     """Documentation pages rendered from Markdown files."""
 
     template_name = "app/docs.html"
-    docs_dir = "app/docs"
-    index_file = "_index.md"
+    docs_dir = "app/static/docs"
+    index = "_index"
+    index_file = f"{index}.md"
 
     def generate_docs_link(self, dir, filename=None):
         """Generate link to documentation page."""
@@ -202,6 +204,8 @@ class DocumentationView(TemplateView):
             this_path = os.path.join(path, name)
 
             if os.path.isdir(this_path):
+                if name == "images":
+                    continue
                 branch = self.build_html_index(this_path, head=False)
                 html += f"<li>{branch}</li>"
             elif name != self.index_file:
@@ -227,15 +231,24 @@ class DocumentationView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """Render HTML from Markdown files in hierarchy."""
+
         context = super().get_context_data(**kwargs)
-        page = kwargs.get("page", "_index")
+        page = kwargs.get("page", self.index)
         file_path = os.path.join(self.docs_dir, f"{page}.md")
 
         if not os.path.exists(file_path):
             file_path = os.path.join(self.docs_dir, page, self.index_file)
 
         if os.path.exists(file_path):
-            md = MarkdownPage(file_path)
+            # Fetch corresponding static location
+            static_path = self.request.path
+            if os.path.basename(file_path) != self.index_file:
+                # If not index page, go back once to fix path
+                static_path = os.path.join(static_path, "..")
+            static_dir = static(static_path)
+
+            # Parse Markdown page
+            md = MarkdownPage(file_path, static_dir=static_dir)
             context["content"] = md.html
             context["toc"] = md.toc
             context["metadata"] = md.metadata

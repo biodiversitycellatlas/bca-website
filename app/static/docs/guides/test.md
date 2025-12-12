@@ -15,3 +15,7 @@ b = 6
 # Let's sum this
 a + b
 ```
+
+2
+
+![Polar bear](images/polar-bear.jpg)

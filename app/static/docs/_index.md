@@ -18,6 +18,8 @@ Welcome to the documentation pages.
 
 ### Docker vs Podman
 
+![Polar bear](./images/pb.jpg)
+
 #### Docker
 
 #### Podman
