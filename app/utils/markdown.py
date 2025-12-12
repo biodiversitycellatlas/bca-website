@@ -59,7 +59,7 @@ class MarkdownRenderer(mistune.HTMLRenderer):
         attrs = f' src="{url}" alt="{alt}" class="img-fluid"'
         if title:
             attrs += f' title="{title}"'
-        return f'<img{attrs}>'
+        return f"<img{attrs}>"
 
     def block_code(self, code, info=None):
         """Add syntax highlight in code blocks."""
@@ -87,7 +87,7 @@ class MarkdownRenderer(mistune.HTMLRenderer):
         return f"<{tag} {class_attr} {id_attr}>{text}</{tag}>\n"
 
 
-class MarkdownPage():
+class MarkdownPage:
     """Create HTML page from Markdown content."""
 
     def __init__(self, filename, static_dir=None, parser=None):
@@ -117,7 +117,7 @@ class MarkdownPage():
     def parser(self):
         """Prepare Markdown parser with plugins."""
         if self._parser:
-           return self._parser
+            return self._parser
 
         plugins = [
             "table",
@@ -136,10 +136,7 @@ class MarkdownPage():
             FencedDirective([Admonition()]),
             RSTDirective([CustomTOC()]),
         ]
-        self._parser = mistune.create_markdown(
-            renderer=MarkdownRenderer(static_dir=self.static_dir),
-            plugins=plugins
-        )
+        self._parser = mistune.create_markdown(renderer=MarkdownRenderer(static_dir=self.static_dir), plugins=plugins)
         return self._parser
 
     @property
@@ -161,7 +158,7 @@ class MarkdownPage():
         add_toc_hook(md, heading_id=CustomTOC.generate_toc_heading_id)
 
         html, state = md.parse(self.content)
-        toc_items = state.env['toc_items']
+        toc_items = state.env["toc_items"]
         self._toc = render_toc_ul(toc_items)
         return self._toc
 
