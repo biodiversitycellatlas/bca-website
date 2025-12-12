@@ -298,6 +298,38 @@ a:active,
     border-top-width: 1px;
 }
 
+/* Documentation page lists: index and table of contents */
+
+.docs ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.docs ul li {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.docs ul li:first-child {
+    margin-top: 0;
+}
+
+.docs ul ul li {
+    margin-top: 0;
+    font-weight: normal;
+}
+
+.docs ul ul ul,
+.docs ul ul ul ul,
+.docs ul ul ul ul ul {
+    padding-left: 1rem;
+}
+
+.docs ul li:hover {
+    background-color: #f0f0f0;
+}
+
 /* Dropdown menu */
 
 .dropdown-menu {
