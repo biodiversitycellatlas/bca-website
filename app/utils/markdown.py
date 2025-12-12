@@ -101,11 +101,7 @@ class MarkdownPage:
         # Load metadata and Markdown content from filename
         self.content = None
         self.metadata = None
-
-        md = None
-        if os.path.exists(filename):
-            with open(filename, "r", encoding="utf-8") as f:
-                self.prepare_content()
+        self.prepare_content()
 
     def prepare_content(self):
         """Prepare file content and metadata based on frontmatter."""

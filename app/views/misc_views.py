@@ -1,9 +1,7 @@
 """Miscellaneous views for health checks, downloads, errors, and static pages."""
 
 import os
-from pathlib import Path
 
-from django.core.cache import cache
 from django.conf import settings
 from django.http import FileResponse, JsonResponse, Http404
 from django.views import View
@@ -16,6 +14,8 @@ from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
 from ..utils.markdown import MarkdownPage
+from ..utils.cache import get_validated_cache, set_validated_cache
+
 
 class IndexView(TemplateView):
     """Homepage."""
@@ -145,17 +145,6 @@ class AboutView(TemplateView):
         return context
 
 
-def get_validated_cache(key, validation):
-    cached = cache.get(key)
-    if cached is not None:
-        data, cached_validation = cached
-        if validation == cached_validation:
-            return data
-    return None
-
-def set_validated_cache(key, validation, data, timeout=24 * 60 * 60):
-    cache.set(key, (data, validation), timeout=timeout)
-
 class DocumentationView(TemplateView):
     """Documentation pages rendered from Markdown files."""
 
@@ -229,6 +218,17 @@ class DocumentationView(TemplateView):
             html = title + html
         return html
 
+    def get_html_index(self):
+        # Cache HTML index using last modified time of docs dir
+        key = "docs_index"
+        validation = os.path.getmtime(self.docs_dir)
+
+        cached = get_validated_cache(key, validation)
+        if cached is None:
+            cached = self.build_html_index()
+            set_validated_cache(key, validation, cached)
+        return cached
+
     def get_context_data(self, **kwargs):
         """Render HTML from Markdown files in hierarchy."""
 
@@ -257,7 +257,7 @@ class DocumentationView(TemplateView):
         else:
             raise Http404()
 
-        context["index"] = self.build_html_index()
+        context["index"] = self.get_html_index()
         return context
 
 
