@@ -3,7 +3,7 @@ title: Downstream metacell analysis
 linkTitle: Metacells
 ---
 
-# Metacell tutorial
+## Metacell tutorial
 
 Use Metacell2 to cluster single cells into metacells.
 

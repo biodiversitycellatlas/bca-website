@@ -6,23 +6,23 @@ title: Documentation
 You are looking at the **dev** documentation. This is not yet stable.
 ```
 
-# Getting started
+## Getting started
 
 Welcome to the documentation pages.
 
-## Installation
+### Installation
 
 1. Clone the repository
 2. ~~Install dependencies~~ just run Docker
 3. Run the server
 
-### Docker vs Podman
+#### Docker vs Podman
 
 ![Polar bear](./images/pb.jpg)
 
-#### Docker
+##### Docker
 
-#### Podman
+##### Podman
 
 ## Usage
 

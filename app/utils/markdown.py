@@ -166,7 +166,7 @@ class MarkdownPage:
         """Get URL for multiple actions regarding the selected Markdown page."""
         path = path or self.filename
         action_links = {
-            "view": github_url(f"blob/{branch}/{path}"),
+            "github": github_url(f"blob/{branch}/{path}"),
             "edit": github_url(f"edit/{branch}/{path}"),
             "history": github_url(f"commits/{branch}/{path}"),
             "feedback": github_url(f"edit/{branch}/{path}"),

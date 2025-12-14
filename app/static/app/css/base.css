@@ -311,13 +311,13 @@ a:active,
     margin-top: 15px;
 }
 
-.docs ul li:first-child {
-    margin-top: 0;
-}
-
 .docs ul ul li {
     margin-top: 0;
     font-weight: normal;
+}
+
+.docs ul li:first-child {
+    margin-top: 0;
 }
 
 .docs ul ul ul,
