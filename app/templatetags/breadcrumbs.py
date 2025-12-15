@@ -22,7 +22,7 @@ def breadcrumbs(context, main_label=None):
         elif segment in ["gene-module", "gene-list"]:
             label = segment.replace("-", " ").capitalize()
         elif segment == segment.lower():
-            # Capitalize if label is all in lowercase
+            # Capitalize if label is in lowercase
             label = segment.capitalize()
         else:
             label = segment

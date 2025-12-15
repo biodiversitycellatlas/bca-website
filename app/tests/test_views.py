@@ -24,7 +24,7 @@ class DocumentationViewTest(TestCase):
 
         # Test breadcrumbs
         response.render()
-        self.assertIn("Tutorialsxx", response.content.decode())
+        self.assertIn("Tutorials", response.content.decode())
 
     def test_get_docs_page(self):
         request = self.factory.get("/docs/tutorials/metacell.md")

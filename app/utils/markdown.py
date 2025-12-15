@@ -80,7 +80,7 @@ class MarkdownRenderer(mistune.HTMLRenderer):
         tag = f"h{level}"
         class_attr = f"class='h{level + 2}''"
 
-        # Alwa
+        # Prepare heading ID
         _id = CustomTOC.create_heading_id(text)
         id_attr = f"id='{_id}'" if _id is not None else None
 
