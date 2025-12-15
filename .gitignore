@@ -29,6 +29,7 @@ app/static/app/images/logos/BCA/EPS/*
 /super-linter-output
 /node_modules
 package*.json
+.coverage
 
 # SSL certificates
 *.crt
