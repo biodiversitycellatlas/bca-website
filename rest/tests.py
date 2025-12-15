@@ -5,7 +5,21 @@ from django.core.files import File as DjangoFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from app.models import Species, Dataset, Gene, SingleCell, Metacell, MetacellType, DatasetFile
+from app.models import (
+    Species,
+    Dataset,
+    Gene,
+    SingleCell,
+    Metacell,
+    MetacellType,
+    DatasetFile,
+    GeneList,
+    Domain,
+    GeneCorrelation,
+    Ortholog,
+    MetacellLink,
+    MetacellGeneExpression,
+)
 
 
 class SpeciesTests(APITestCase):
@@ -120,9 +134,17 @@ class MetaCellTests(APITestCase):
     def setUp(self):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
+        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
+        meta1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
+        meta2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
+        MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
+        MetacellGeneExpression.objects.create(
+            dataset=dataset1, gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=0.2
+        )
+        MetacellGeneExpression.objects.create(
+            dataset=dataset1, gene=gene1, metacell=meta2, umi_raw=1, umifrac=1.41, fold_change=0.2
+        )
 
     def test_retrieve(self):
         url = "/api/v1/metacells/?dataset=species3-dataset3"
@@ -131,3 +153,116 @@ class MetaCellTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(metacells), 2)
         self.assertSetEqual({s["name"] for s in metacells}, {"meta1", "meta2"})
+
+    def test_retrieve_links(self):
+        url = "/api/v1/metacell_links/?dataset=species3-dataset3"
+        response = self.client.get(url, format="json")
+        metacell_links = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(metacell_links), 1)
+        self.assertEqual(metacell_links[0]["metacell"], "meta1")
+        self.assertEqual(metacell_links[0]["metacell2"], "meta2")
+
+    def test_retrieve_gene_expression(self):
+        url = "/api/v1/metacell_expression/?dataset=species3-dataset3"
+        response = self.client.get(url, format="json")
+        metacell_gene_expression = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(metacell_gene_expression), 2)
+        self.assertSetEqual({s["metacell_name"] for s in metacell_gene_expression}, {"meta1", "meta2"})
+
+
+class GeneListTests(APITestCase):
+    """Tests GeneList endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        genelist1 = GeneList.objects.create(name="geneList1", description="geneList1")
+        genelist2 = GeneList.objects.create(name="geneList2", description="geneList2")
+        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
+        gene1.genelists.set([genelist1, genelist2])
+
+    def test_retrieve(self):
+        url = "/api/v1/gene_lists/?dataset=species1-dataset1"
+        response = self.client.get(url, format="json")
+        genelists = response.data["results"]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(genelists), 2)
+        self.assertSetEqual({s["name"] for s in genelists}, {"geneList1", "geneList2"})
+
+
+class DomainsTest(APITestCase):
+    """Tests Domains endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        domain1 = Domain.objects.create(name="Domain1")
+        domain2 = Domain.objects.create(name="Domain2")
+        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
+        gene1.domains.set([domain1, domain2])
+        gene1.save()
+
+    def test_retrieve(self):
+        url = "/api/v1/domains/"
+        response = self.client.get(url, format="json")
+        domains = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(domains), 2)
+        self.assertSetEqual({s["name"] for s in domains}, {"Domain1", "Domain2"})
+
+
+class CorrelatedGenesTest(APITestCase):
+    """Tests CorrelatedGenes endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
+        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
+        gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
+        gene3 = Gene.objects.create(species=species1, name="gene3", description="gene3")
+        gene4 = Gene.objects.create(species=species1, name="gene4", description="gene4")
+        GeneCorrelation.objects.create(dataset=dataset1, gene=gene1, gene2=gene2, spearman=0.5, pearson=0.8)
+        GeneCorrelation.objects.create(dataset=dataset1, gene=gene1, gene2=gene3, spearman=0.4, pearson=0.7)
+        GeneCorrelation.objects.create(dataset=dataset1, gene=gene1, gene2=gene4, spearman=0.56, pearson=0.6)
+
+    def test_retrieve(self):
+        url = "/api/v1/correlated/?dataset=species1-dataset1&gene=gene1"
+        response = self.client.get(url, format="json")
+        correlations = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(correlations), 3)
+        self.assertSetEqual({s["spearman"] for s in correlations}, {0.5, 0.4, 0.56})
+        self.assertSetEqual({s["pearson"] for s in correlations}, {0.8, 0.7, 0.6})
+
+
+class OrthologsTests(APITestCase):
+    """Tests Orthologs endpoint"""
+
+    def setUp(self):
+        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
+        gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
+        gene3 = Gene.objects.create(species=species1, name="gene3", description="gene3")
+        gene4 = Gene.objects.create(species=species1, name="gene4", description="gene4")
+        Ortholog.objects.create(species=species1, gene=gene1, orthogroup="orthogroup1")
+        Ortholog.objects.create(species=species1, gene=gene2, orthogroup="orthogroup1")
+        Ortholog.objects.create(species=species1, gene=gene3, orthogroup="orthogroup1")
+        Ortholog.objects.create(species=species1, gene=gene4, orthogroup="orthogroup1")
+
+    def test_retrieve(self):
+        url = "/api/v1/orthologs/"
+        response = self.client.get(url, format="json")
+        orthologs = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(orthologs), 4)
+        self.assertSetEqual({s["gene_name"] for s in orthologs}, {"gene1", "gene2", "gene3", "gene4"})
+
+    def test_counts(self):
+        url = "/api/v1/ortholog_counts/"
+        response = self.client.get(url, format="json")
+        ortholog_counts = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(ortholog_counts), 1)
+        self.assertEqual(ortholog_counts[0]["species"], "species1")
+        self.assertEqual(ortholog_counts[0]["gene_count"], 4)
