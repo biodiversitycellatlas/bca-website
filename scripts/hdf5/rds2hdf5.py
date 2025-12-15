@@ -2,8 +2,6 @@
 in a HDF5 file optimized for fast gene retrieval
 """
 
-from typing import Dict
-
 import h5py
 import numpy as np
 import rds2py
@@ -76,17 +74,3 @@ def rds2hdf(rds_file: str, output_file: str) -> None:
                     root.create_dataset(gene, data=dataset)
                 except ():
                     print(f"duplicated gene {gene}")
-
-
-def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
-    """Creates a dictionary from positions to elements in the array
-
-    Args:
-        a_list: numpy array of strings (cell names)
-    Returns:
-        dictionary e.g: { 0: "AAACG-1", 3:"CCTG-3"}
-    """
-    dictionary = {}
-    for pos, value in enumerate(a_list):
-        dictionary[pos] = str(value, encoding="ascii")
-    return dictionary

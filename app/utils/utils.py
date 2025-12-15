@@ -8,7 +8,6 @@ import numpy as np
 
 from django.urls import reverse
 
-from scripts.hdf5.rds2hdf5 import create_positions_dictionary
 from ..models import Dataset, Gene, GeneList, Species
 
 
@@ -215,3 +214,17 @@ def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
             position = int(elem["c"])
             result[cell_positions_dict[position]] = float(elem["e"])
         return result
+
+
+def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
+    """Creates a dictionary from positions to elements in the array
+
+    Args:
+        a_list: numpy array of strings (cell names)
+    Returns:
+        dictionary e.g: { 0: "AAACG-1", 3:"CCTG-3"}
+    """
+    dictionary = {}
+    for pos, value in enumerate(a_list):
+        dictionary[pos] = str(value, encoding="ascii")
+    return dictionary
