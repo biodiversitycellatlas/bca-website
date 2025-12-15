@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import fnmatch
 import functools
 import os
@@ -7,8 +6,8 @@ from pathlib import Path
 
 from django.core.files import File as DjangoFile
 
-from app.models import SpeciesFile, Species
-from scripts.utils import load_config, parse_dataset
+from app.models import Species, SpeciesFile
+from utils import load_config, parse_dataset
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
@@ -41,7 +40,6 @@ for key in config:
     if "species" not in i.keys():
         continue
     species, dataset = parse_dataset(i["species"])
-
     try:
         species = Species.objects.get(scientific_name=species)
     except Species.DoesNotExist:

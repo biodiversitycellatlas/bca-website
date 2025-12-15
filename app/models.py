@@ -3,8 +3,8 @@
 import hashlib
 import re
 from pathlib import Path
-
 from typing import Optional
+
 from colorfield.fields import ColorField
 from django.db import models
 from django.urls import reverse
@@ -722,16 +722,15 @@ class MetacellGeneExpression(models.Model):
 class SingleCellGeneExpression(models.Model):
     """Single cell gene expression model per dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name="scge")
-    umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
+    dataset = models.CharField(max_length=200)
+    gene = models.CharField(max_length=200)
+    single_cell = models.CharField(max_length=200)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "single_cell", "dataset"]
+        managed = False
         verbose_name = "single-cell gene expression"
         verbose_name_plural = verbose_name
 
