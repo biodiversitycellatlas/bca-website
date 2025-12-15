@@ -15,10 +15,15 @@ Documentation: tutorials, guides, etc.
 {% endblock main_class %}
 
 {% block content %}
+    <style>
+        <!-- Color snippets of code -->
+        {{ pygments_css|safe }}
+    </style>
+
     <div class="row">
         <!-- Index -->
         <div class="docs col-sm-auto">
-            <div class="sticky-top" style="top: 98px; z-index: 999;">
+            <div class="sticky-top">
                 {{ index | safe }}
             </div>
         </div>
@@ -32,9 +37,6 @@ Documentation: tutorials, guides, etc.
                         {{ metadata.title }}
                     </h1>
 
-                    <!-- Color snippets of code -->
-                    <style>{{ pygments_css|safe }}</style>
-
                     <div class="markdown-content">
                         {{ content | safe }}
                     </div>
@@ -42,7 +44,7 @@ Documentation: tutorials, guides, etc.
 
                 <!-- Table of Contents -->
                 <div class="docs small col-auto d-none d-md-block">
-                    <div class="sticky-top" style="top: 98px; z-index: 999;">
+                    <div class="sticky-top">
                         <span class="fw-semibold">Table of contents</span>
                         {{ toc | safe }}
                     </div>
@@ -59,10 +61,7 @@ Documentation: tutorials, guides, etc.
             {% load breadcrumbs %}
             {% breadcrumbs 'Documentation' %}
 
-            <div class="btn-group py-2"
-                 role="group"
-                 style="margin-top: -2px;
-                        margin-bottom: -2px">
+            <div class="docs btn-group py-2" role="group">
                 <a href="{{ action_links.github }}"
                    target="_blank"
                    class="btn btn-outline-secondary btn-xs">

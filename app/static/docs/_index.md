@@ -30,7 +30,7 @@ Use the navigation menu[^1] to browse topics.
 
 [^1]: The thing at the top of the page.
 
-# Links
+## Links
 
 - [test](test)
 

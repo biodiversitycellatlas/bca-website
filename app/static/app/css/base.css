@@ -298,7 +298,7 @@ a:active,
     border-top-width: 1px;
 }
 
-/* Documentation page lists: index and table of contents */
+/* Documentation page improvements */
 
 .docs ul {
     list-style: none;
@@ -328,6 +328,16 @@ a:active,
 
 .docs ul li:hover {
     background-color: #f0f0f0;
+}
+
+.docs.btn-group {
+    margin-top: -2px;
+    margin-bottom: -2px;
+}
+
+.docs .sticky-top {
+    top: 98px;
+    z-index: 999;
 }
 
 /* Dropdown menu */
