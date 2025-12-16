@@ -432,6 +432,7 @@ class MetacellType(SlugMixin):
         """Meta options."""
 
         unique_together = ["dataset", "name"]
+        indexes = [models.Index(fields=["dataset", "name"])]
 
     def __str__(self):
         """String representation."""
@@ -671,6 +672,7 @@ class GeneModule(models.Model):
         """Meta options."""
 
         unique_together = ["gene", "dataset"]
+        indexes = [models.Index(fields=["name"], name="genemodule_name_idx")]
 
     def __str__(self):
         """String representation."""
