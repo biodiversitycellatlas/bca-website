@@ -432,7 +432,7 @@ class MetacellType(SlugMixin):
         """Meta options."""
 
         unique_together = ["dataset", "name"]
-        indexes = [models.Index(fields=["name"], name="metacelltype_name_idx")]
+        indexes = [models.Index(fields=["dataset", "name"])]
 
     def __str__(self):
         """String representation."""
