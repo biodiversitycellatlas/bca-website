@@ -282,8 +282,6 @@ class OrthologsTests(APITestCase):
 class SAMapTests(APITestCase):
     """Tests SAMap endpoint"""
 
-
-
     def setUpTestData(self):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
