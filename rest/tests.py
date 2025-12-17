@@ -18,7 +18,8 @@ from app.models import (
     GeneCorrelation,
     Ortholog,
     MetacellLink,
-    MetacellGeneExpression, SAMap,
+    MetacellGeneExpression,
+    SAMap,
 )
 
 
