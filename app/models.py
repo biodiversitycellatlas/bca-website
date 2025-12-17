@@ -672,7 +672,7 @@ class GeneModule(models.Model):
         """Meta options."""
 
         unique_together = ["gene", "dataset"]
-        indexes = [models.Index(fields=["name"], name="genemodule_name_idx")]
+        indexes = [models.Index(fields=["name"], name="app_genemodule_name_idx")]
 
     def __str__(self):
         """String representation."""
