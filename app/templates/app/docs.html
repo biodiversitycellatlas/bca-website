@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% comment %}
+
+Documentation: tutorials, guides, etc.
+
+{% endcomment %}
+
+{% block title %}
+    {{ metadata.title|default:'Documentation' }}
+{% endblock title %}
+
+{% block main_class %}
+    container-xl overflow-x-clip
+{% endblock main_class %}
+
+{% block content %}
+    <style>
+        <!-- Color snippets of code -->
+        {{ pygments_css|safe }}
+    </style>
+
+    <div class="row">
+        <!-- Index -->
+        <div class="docs col-sm-auto">
+            <div class="sticky-top">
+                {{ index | safe }}
+            </div>
+        </div>
+
+        <!-- Markdown page -->
+        <div class="col">
+            <h1 class="h3">
+                {{ metadata.title }}
+            </h1>
+            <div class="markdown-content">
+                {{ content | safe }}
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="docs small col-auto d-none d-md-block">
+            <div class="sticky-top">
+                <span class="fw-semibold">Table of contents</span>
+                {{ toc | safe }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block subnav %}
+    <!-- Documentation subnavbar -->
+    <div class="subnavbar sticky-top">
+        <div class="container-xl d-flex justify-content-between align-items-center flex-wrap column-gap-2">
+            {% load breadcrumbs %}
+            {% breadcrumbs 'Documentation' %}
+
+            <div class="docs btn-group py-2" role="group">
+                <a href="{{ action_links.github }}"
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <a href="{{ action_links.edit }}"
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
+                    <i class="fa fa-pencil"></i> Edit
+                </a>
+                <a href="{{ action_links.history }}"
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
+                    <i class="fa fa-history"></i> History
+                </a>
+                <a href="{{ action_links.feedback }}"
+                   target="_blank"
+                   class="btn btn-outline-secondary btn-xs">
+                    <i class="fa fa-comments"></i> Suggest
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock subnav %}

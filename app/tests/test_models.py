@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .models import Dataset, Species
+from ..models import Dataset, Species
 
 
 class SpeciesModelTest(TestCase):
