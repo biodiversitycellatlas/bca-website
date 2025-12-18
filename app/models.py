@@ -207,6 +207,7 @@ class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     image_url = models.URLField(blank=True, null=True, help_text="URL for dataset image.")
     date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
+    test = models.CharField()
 
     source = models.ForeignKey(
         Source,
