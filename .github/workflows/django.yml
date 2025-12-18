@@ -52,11 +52,6 @@ jobs:
                   docker compose exec web \
                       python manage.py makemigrations --check
 
-            - name: Install coverage
-              run: |
-                  docker compose exec web \
-                      pip install coverage
-
             - name: Run tests with coverage
               run: |
                   docker compose exec web \
