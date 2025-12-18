@@ -110,3 +110,47 @@ server {
 
     }
 }
+
+# HTTP to HTTPS Redirection for Plausible
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${PLAUSIBLE_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
+    listen [::]:443 ssl http2; # IPv6 support
+    server_name ${PLAUSIBLE_HOSTNAME};
+
+    # --- Wildcard SSL Certificate Paths (same as above) ---
+    ssl_certificate /etc/nginx/certs/server.crt;
+    ssl_certificate_key /etc/nginx/certs/server.key;
+
+    # Plausible requires specific proxy headers for correct operation,
+    # especially for X-Forwarded-Proto to handle the HTTPS connection.
+    location / {
+        proxy_pass http://plausible:8000; # Proxy to the internal container name and port
+
+        # Standard Proxy Headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # CRITICAL: Tell Plausible it's an HTTPS request
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_redirect off;
+
+        # Plausible may have a large body size for file uploads/downloads
+        client_max_body_size 50m;
+
+        # --- CRITICAL for WebSockets (LiveView) ---
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
