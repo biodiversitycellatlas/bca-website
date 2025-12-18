@@ -30,16 +30,6 @@ jobs:
 
                   # Fix for local db not loading in GitHub Actions
                   cp .env.template .env
-                  sed -i '/POSTGRES_SERVICE/d' .env
-                  cat <<EOF >> .env
-                  POSTGRES_DB=bca
-                  POSTGRES_HOST=db
-                  POSTGRES_HOST_AUTH_METHOD=trust
-                  POSTGRES_PORT=5432
-                  PGUSER=postgres
-                  POSTGRES_USER=postgres
-                  POSTGRES_PASSWORD=mypassword
-                  EOF
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v1
