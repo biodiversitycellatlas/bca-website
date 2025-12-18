@@ -82,7 +82,6 @@ jobs:
                       coverage report --skip-covered
 
             - name: Run deployment check
-              if: always()
               run: |
                   docker compose exec web \
                       python manage.py check --deploy
