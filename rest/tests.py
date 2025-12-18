@@ -147,10 +147,10 @@ class MetaCellTests(APITestCase):
         meta2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
         MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
         MetacellGeneExpression.objects.create(
-            dataset=dataset1, gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=0.2
+            dataset=dataset1, gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4
         )
         MetacellGeneExpression.objects.create(
-            dataset=dataset1, gene=gene1, metacell=meta2, umi_raw=1, umifrac=1.41, fold_change=0.2
+            dataset=dataset1, gene=gene1, metacell=meta2, umi_raw=1, umifrac=1.41, fold_change=5
         )
 
     def test_retrieve(self):
@@ -177,6 +177,14 @@ class MetaCellTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(metacell_gene_expression), 2)
         self.assertSetEqual({s["metacell_name"] for s in metacell_gene_expression}, {"meta1", "meta2"})
+
+    def test_retrieve_cell_markers(self):
+        url = "/api/v1/markers/?dataset=species3-dataset3&metacells=meta1&fc_min_type=mean"
+        response = self.client.get(url, format="json")
+        markers = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(markers), 1)
+        self.assertEqual(markers[0]["name"], "gene1")
 
 
 class GeneListTests(APITestCase):

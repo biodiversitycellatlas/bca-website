@@ -410,8 +410,10 @@ class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
     tags=["Metacell"],
     parameters=[
         OpenApiParameter(
-            "metacells",
-            str,
+            name="metacells",
+            type=str,
+            location="query",
+            required=True,
             description=filters.MetacellMarkerFilter().base_filters["metacells"].label,
             examples=[OpenApiExample("Example", value="12,30,Peptidergic1")],
         )
