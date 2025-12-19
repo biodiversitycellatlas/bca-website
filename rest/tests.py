@@ -27,23 +27,44 @@ class SpeciesTests(APITestCase):
     """Test Species Endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
         Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
 
-    def test_species(self):
+    def test_retrieve(self):
         response = self.client.get("/api/v1/species/", format="json")
         species = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(species), 2)
         self.assertSetEqual({s["common_name"] for s in species}, {"rat", "mouse"})
 
+    def test_get(self):
+        response = self.client.get("/api/v1/species/Rat/", format="json")
+        species = response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected = {
+            "common_name": "rat",
+            "scientific_name": "Rat",
+            "html": "\n"
+            '            <a class="d-flex align-items-center gap-1" href="/entry/species/Rat/">\n'
+            '                <img class="rounded" alt="Image of Rat"\n'
+            '                     width="25px" src="None">\n'
+            "                <span><i>Rat</i></span>\n"
+            "            </a>\n        ",
+            "description": "rat",
+            "image_url": None,
+            "meta": [],
+            "files": [],
+            "datasets": [],
+        }
+        self.assertEqual(species, expected)
+
 
 class DatasetTests(APITestCase):
     """Test Datasets Endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
         species2 = Species.objects.create(common_name="mouse", scientific_name="Mouse", description="mouse")
         Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
@@ -61,7 +82,7 @@ class GeneTests(APITestCase):
     """Test Genes Endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
         Gene.objects.create(species=species1, name="Gene1", description="description1")
         Gene.objects.create(species=species1, name="Gene2", description="description2")
@@ -78,10 +99,10 @@ class SingleCellGeneExpressionTests(APITestCase):
     """Tests SingleCellGeneExpression Endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
         dataset1 = Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
-        self.dataset_id = dataset1.pk
+        cls.dataset_id = dataset1.pk
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
         metacell1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=3, y=5)
 
@@ -118,7 +139,7 @@ class SingleCellTests(APITestCase):
     """Tests SingleCell endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
         dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
         type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
@@ -138,7 +159,7 @@ class MetaCellTests(APITestCase):
     """Test Metacell endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
@@ -191,7 +212,7 @@ class GeneListTests(APITestCase):
     """Tests GeneList endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
         genelist1 = GeneList.objects.create(name="geneList1", description="geneList1")
         genelist2 = GeneList.objects.create(name="geneList2", description="geneList2")
@@ -212,7 +233,7 @@ class DomainsTest(APITestCase):
     """Tests Domains endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
         domain1 = Domain.objects.create(name="Domain1")
         domain2 = Domain.objects.create(name="Domain2")
@@ -233,7 +254,7 @@ class CorrelatedGenesTest(APITestCase):
     """Tests CorrelatedGenes endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
         dataset1 = Dataset.objects.create(species=species1, name="dataset1", description="dataset1")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
@@ -258,7 +279,7 @@ class OrthologsTests(APITestCase):
     """Tests Orthologs endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
         gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
@@ -291,7 +312,7 @@ class SAMapTests(APITestCase):
     """Tests SAMap endpoint"""
 
     @classmethod
-    def setUpTestData(self):
+    def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
         dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
