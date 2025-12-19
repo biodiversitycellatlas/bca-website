@@ -82,10 +82,6 @@ class DatasetTests(APITestCase):
         self.assertSetEqual({s["cells"] for s in datasets_stats}, {0, 0})
         self.assertSetEqual({s["metacells"] for s in datasets_stats}, {0, 0})
 
-        # self.assertEqual(datasets_stats["genes"], 0)
-        # self.assertEqual(datasets_stats["cells"], 0)
-        # self.assertEqual(datasets_stats["metacells"], 0)
-
     def test_get_stats(self):
         response = self.client.get("/api/v1/stats/rat-drat/", format="json")
         dataset_stats = dict(response.data)
