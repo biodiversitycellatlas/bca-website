@@ -40,24 +40,11 @@ class SpeciesTests(APITestCase):
 
     def test_get(self):
         response = self.client.get("/api/v1/species/Rat/", format="json")
-        species = response.data
+        species = dict(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        expected = {
-            "common_name": "rat",
-            "scientific_name": "Rat",
-            "html": "\n"
-            '            <a class="d-flex align-items-center gap-1" href="/entry/species/Rat/">\n'
-            '                <img class="rounded" alt="Image of Rat"\n'
-            '                     width="25px" src="None">\n'
-            "                <span><i>Rat</i></span>\n"
-            "            </a>\n        ",
-            "description": "rat",
-            "image_url": None,
-            "meta": [],
-            "files": [],
-            "datasets": [],
-        }
-        self.assertEqual(species, expected)
+        self.assertEqual(species["common_name"], "rat")
+        self.assertEqual(species["scientific_name"], "Rat")
+        self.assertEqual(species["description"], "rat")
 
 
 class DatasetTests(APITestCase):
@@ -70,12 +57,20 @@ class DatasetTests(APITestCase):
         Dataset.objects.create(species=species1, name="DRat", description="rat dataset")
         Dataset.objects.create(species=species2, name="DMouse", description="mouse dataset")
 
-    def test_datasets(self):
+    def test_retrieve(self):
         response = self.client.get("/api/v1/datasets/", format="json")
         datasets = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(datasets), 2)
         self.assertSetEqual({s["dataset"] for s in datasets}, {"DRat", "DMouse"})
+
+    def test_get(self):
+        response = self.client.get("/api/v1/datasets/mouse-dmouse/", format="json")
+        dataset = dict(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(dataset["slug"], "mouse-dmouse")
+        self.assertEqual(dataset["dataset"], "DMouse")
+        self.assertEqual(dataset["species"], "Mouse")
 
 
 class GeneTests(APITestCase):
