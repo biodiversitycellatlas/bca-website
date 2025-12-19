@@ -56,10 +56,20 @@ class SourceSerializer(serializers.ModelSerializer):
         exclude = ["id"]
 
 
+class PublicationSerializer(serializers.ModelSerializer):
+    """Publication serializer."""
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Publication
+        exclude = ["id"]
+
+
 class DatasetSerializer(serializers.ModelSerializer):
     """Dataset serializer."""
 
-    source = SourceSerializer()
+    publication = PublicationSerializer()
     species = serializers.CharField(source="species.scientific_name", help_text="Species name.")
     dataset = serializers.CharField(source="name", help_text="Dataset name.")
     dataset_html = serializers.CharField(source="get_html_link", help_text="HTML representation of the dataset.")
@@ -83,7 +93,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "description",
             "files",
             "image_url",
-            "source",
+            "publication",
             "order",
             "date_created",
             "date_updated",
