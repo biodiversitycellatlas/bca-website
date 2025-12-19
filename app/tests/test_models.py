@@ -4,13 +4,14 @@ from ..models import Dataset, Publication, Source, Species
 
 
 class SpeciesModelTest(TestCase):
-    def setUp(self):
-        self.human = Species.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.human = Species.objects.create(
             common_name="human",
             scientific_name="Homo sapiens",
             description="random citizen",
         )
-        self.sponge = Species.objects.create(
+        cls.sponge = Species.objects.create(
             common_name="sponge",
             scientific_name="Amphineuron queenslandicum",
             description="random sponge citizen",
@@ -22,10 +23,11 @@ class SpeciesModelTest(TestCase):
 
 
 class DatasetModelTest(SpeciesModelTest):
-    def setUp(self):
-        super().setUp()
-        self.baby = Dataset(species=self.human, name="Baby")
-        self.larva = Dataset(species=self.sponge, name="Larva")
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.baby = Dataset(species=cls.human, name="Baby")
+        cls.larva = Dataset(species=cls.sponge, name="Larva")
 
     def test_slug(self):
         self.assertEqual(self.baby.slug, "homo-sapiens-baby")
@@ -33,7 +35,8 @@ class DatasetModelTest(SpeciesModelTest):
 
 
 class PublicationModelTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Create DOI source to test external source links
         Source.objects.create(
             name="DOI",
@@ -42,7 +45,7 @@ class PublicationModelTest(TestCase):
             query_url="https://doi.org/{{id}}"
         )
 
-        self.dna = Publication.objects.create(
+        cls.dna = Publication.objects.create(
             title="Molecular structure of nucleic acids; a structure for deoxyribose nucleic acid",
             authors="James D Watson, Francis H Crick",
             year=1953,
@@ -51,7 +54,7 @@ class PublicationModelTest(TestCase):
             doi="10.1038/171737a0"
         )
 
-        self.proteins = Publication.objects.create(
+        cls.proteins = Publication.objects.create(
             title="The origin and evolution of protein superfamilies",
             authors="Margaret O Dayhoff",
             year=1976,
@@ -59,7 +62,7 @@ class PublicationModelTest(TestCase):
             pmid=181273
         )
 
-        self.genetic_code = Publication.objects.create(
+        cls.genetic_code = Publication.objects.create(
             title="The nucleotide sequence of bacteriophage phiX174",
             authors="F Sanger, A R Coulson, T Friedmann, G M Air, B G Barrell, N L Brown, J C Fiddes, C A Hutchison 3rd, P M Slocombe, M Smith",
             year="1978",
@@ -68,7 +71,7 @@ class PublicationModelTest(TestCase):
             doi="10.1016/0022-2836(78)90346-7",
         )
 
-        self.standards = Publication.objects.create(
+        cls.standards = Publication.objects.create(
             title="2021 Infusion Therapy Standards of Practice Updates",
             year=2021,
             journal="J Infus Nurs",
