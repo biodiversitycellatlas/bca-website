@@ -249,17 +249,17 @@ class Publication(QueryableMixin, models.Model):
 
     def create_short_citation(self):
         """Return a condensed in-line citation like 'Darwin et al., 2017'."""
-        authors = self.authors.split(",")
-        if not authors:
+        if self.authors == "":
             return f"Unknown, {self.year}"
 
         # Get last name of first author
+        authors = self.authors.split(",")
         first = authors[0].split()[-1]
         if len(authors) == 1:
             citation = f"{first}, {self.year}"
         elif len(authors) == 2:
             # Get last name of second author
-            second = authors[1]
+            second = authors[1].split()[-1]
             citation = f"{first} & {second}, {self.year}"
         else:
             citation = f"{first} et al., {self.year}"
@@ -269,6 +269,10 @@ class Publication(QueryableMixin, models.Model):
         """Override label to display for the source HTML link."""
         citation = self.create_short_citation()
         citation = citation.replace("et al.", "<i>et al.</i>")
+
+        # Return only citation if there is no DOI to link to
+        if not self.doi:
+            return citation
         return super().get_source_html_link(citation)
 
     def __str__(self):
