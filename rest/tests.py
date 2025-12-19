@@ -72,6 +72,29 @@ class DatasetTests(APITestCase):
         self.assertEqual(dataset["dataset"], "DMouse")
         self.assertEqual(dataset["species"], "Mouse")
 
+    def test_retrieve_stats(self):
+        response = self.client.get("/api/v1/stats/", format="json")
+        datasets_stats = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertSetEqual({s["species"] for s in datasets_stats}, {"Mouse", "Rat"})
+        self.assertSetEqual({s["dataset"] for s in datasets_stats}, {"DMouse", "DRat"})
+        self.assertSetEqual({s["genes"] for s in datasets_stats}, {0, 0})
+        self.assertSetEqual({s["cells"] for s in datasets_stats}, {0, 0})
+        self.assertSetEqual({s["metacells"] for s in datasets_stats}, {0, 0})
+
+        # self.assertEqual(datasets_stats["genes"], 0)
+        # self.assertEqual(datasets_stats["cells"], 0)
+        # self.assertEqual(datasets_stats["metacells"], 0)
+
+    def test_get_stats(self):
+        response = self.client.get("/api/v1/stats/rat-drat/", format="json")
+        dataset_stats = dict(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(dataset_stats["dataset"], "DRat")
+        self.assertEqual(dataset_stats["species"], "Rat")
+        self.assertEqual(dataset_stats["genes"], 0)
+        self.assertEqual(dataset_stats["cells"], 0)
+
 
 class GeneTests(APITestCase):
     """Test Genes Endpoint"""
