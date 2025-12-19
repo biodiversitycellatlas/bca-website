@@ -248,10 +248,10 @@ class Publication(QueryableMixin, models.Model):
     pubmed_id = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
 
     def create_short_citation(self):
-        """Return a compressed author string like 'Darwin et al., 2017'."""
+        """Return a condensed in-line citation like 'Darwin et al., 2017'."""
         authors = self.authors.split(",")
         if not authors:
-            return f"(Unknown, {self.year})"
+            return f"Unknown, {self.year}"
 
         # Get last name of first author
         first = authors[0].split()[-1]
@@ -272,6 +272,7 @@ class Publication(QueryableMixin, models.Model):
         return super().get_source_html_link(citation)
 
     def __str__(self):
+        """String representation."""
         return self.create_short_citation()
 
 
