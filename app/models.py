@@ -91,7 +91,7 @@ class QueryableMixin:
                 {label}
             </a>
         """
-        return(mark_safe(html))
+        return mark_safe(html)
 
 
 class HtmlLinkMixin:
