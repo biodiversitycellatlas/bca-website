@@ -39,10 +39,7 @@ class PublicationModelTest(TestCase):
     def setUpTestData(cls):
         # Create DOI source to test external source links
         Source.objects.create(
-            name="DOI",
-            description="DOI Foundation",
-            url="https://doi.org",
-            query_url="https://doi.org/{{id}}"
+            name="DOI", description="DOI Foundation", url="https://doi.org", query_url="https://doi.org/{{id}}"
         )
 
         cls.dna = Publication.objects.create(
@@ -51,7 +48,7 @@ class PublicationModelTest(TestCase):
             year=1953,
             journal="Nature",
             pmid=13054692,
-            doi="10.1038/171737a0"
+            doi="10.1038/171737a0",
         )
 
         cls.proteins = Publication.objects.create(
@@ -59,7 +56,7 @@ class PublicationModelTest(TestCase):
             authors="Margaret O Dayhoff",
             year=1976,
             journal="Fed Proc",
-            pmid=181273
+            pmid=181273,
         )
 
         cls.genetic_code = Publication.objects.create(
@@ -76,7 +73,7 @@ class PublicationModelTest(TestCase):
             year=2021,
             journal="J Infus Nurs",
             pmid=34197345,
-            doi="10.1097/NAN.0000000000000436"
+            doi="10.1097/NAN.0000000000000436",
         )
 
     def test_short_citation(self):
@@ -96,7 +93,7 @@ class PublicationModelTest(TestCase):
             <a href="https://doi.org/10.1038/171737a0" target="_blank">
                 Watson & Crick, 1953
             </a>
-            """.strip()
+            """.strip(),
         )
 
         # If no DOI, return just the short citation information without a link
