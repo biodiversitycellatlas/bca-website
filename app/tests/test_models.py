@@ -61,7 +61,7 @@ class PublicationModelTest(TestCase):
 
         cls.genetic_code = Publication.objects.create(
             title="The nucleotide sequence of bacteriophage phiX174",
-            authors="F Sanger, A R Coulson, T Friedmann, G M Air, B G Barrell, N L Brown, J C Fiddes, C A Hutchison 3rd, P M Slocombe, M Smith",
+            authors="Sanger, Coulson, Friedmann, Air, Barrell, Brown, Fiddes, Hutchison, Slocombe, Smith",
             year="1978",
             journal="J Mol Bio",
             pmid=731693,
