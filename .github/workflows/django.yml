@@ -47,10 +47,10 @@ jobs:
             - name: Start services
               run: DOCKER_WEB_USER=root docker compose up -d --build
 
-            - name: Install coverage
+            - name: Check for missing migrations
               run: |
                   docker compose exec web \
-                      pip install coverage
+                      python manage.py makemigrations --check
 
             - name: Run tests with coverage
               run: |
@@ -77,7 +77,6 @@ jobs:
                       coverage report --skip-covered
 
             - name: Run deployment check
-              if: always()
               run: |
                   docker compose exec web \
                       python manage.py check --deploy
