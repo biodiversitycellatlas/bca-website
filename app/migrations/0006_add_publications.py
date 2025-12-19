@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('year', models.PositiveIntegerField(help_text='Year of publication.')),
                 ('journal', models.CharField(help_text='Journal.', max_length=255)),
                 ('doi', models.CharField(help_text='DOI (Digital Object Identifier).', max_length=255, unique=True)),
-                ('pubmed_id', models.CharField(help_text='PubMed identifier.', max_length=20, unique=True)),
+                ('pmid', models.CharField(help_text='PubMed identifier.', max_length=20, unique=True)),
             ],
         ),
         migrations.RemoveField(

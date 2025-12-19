@@ -245,7 +245,7 @@ class Publication(QueryableMixin, models.Model):
 
     # Identifiers
     doi = models.CharField(max_length=255, unique=True, help_text="DOI (Digital Object Identifier).")
-    pubmed_id = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
+    pmid = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
 
     def create_short_citation(self):
         """Return a condensed in-line citation like 'Darwin et al., 2017'."""

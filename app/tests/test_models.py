@@ -47,7 +47,7 @@ class PublicationModelTest(TestCase):
             authors="James D Watson, Francis H Crick",
             year=1953,
             journal="Nature",
-            pubmed_id=13054692,
+            pmid=13054692,
             doi="10.1038/171737a0"
         )
 
@@ -56,7 +56,7 @@ class PublicationModelTest(TestCase):
             authors="Margaret O Dayhoff",
             year=1976,
             journal="Fed Proc",
-            pubmed_id=181273
+            pmid=181273
         )
 
         self.genetic_code = Publication.objects.create(
@@ -64,7 +64,7 @@ class PublicationModelTest(TestCase):
             authors="F Sanger, A R Coulson, T Friedmann, G M Air, B G Barrell, N L Brown, J C Fiddes, C A Hutchison 3rd, P M Slocombe, M Smith",
             year="1978",
             journal="J Mol Bio",
-            pubmed_id=731693,
+            pmid=731693,
             doi="10.1016/0022-2836(78)90346-7",
         )
 
@@ -72,7 +72,7 @@ class PublicationModelTest(TestCase):
             title="2021 Infusion Therapy Standards of Practice Updates",
             year=2021,
             journal="J Infus Nurs",
-            pubmed_id=34197345,
+            pmid=34197345,
             doi="10.1097/NAN.0000000000000436"
         )
 
