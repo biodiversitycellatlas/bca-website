@@ -93,11 +93,7 @@ def get_latest_posts(n=3, tag=None):
 
     request_headers = {}
     if is_secure:
-        request_headers = {
-            "Host": public_domain,
-            "X-Forwarded-Proto": "https",
-            "User-Agent": "BCA-Django-Internal/1.0"
-        }
+        request_headers = {"Host": public_domain, "X-Forwarded-Proto": "https", "User-Agent": "BCA-Django-Internal/1.0"}
 
     try:
         # feedparser.parse can take headers directly
