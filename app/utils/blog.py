@@ -7,8 +7,6 @@ from dateutil import parser
 import feedparser
 from django.conf import settings
 
-from ..templatetags.bca_website_links import bca_url
-
 
 def remove_emojis(text):
     """Remove common emoji characters and zero-width joiners from text."""
@@ -78,11 +76,11 @@ def get_latest_posts(n=3, tag=None):
     using the RSS feed (optionally filtered by tag).
     Bypasses VPN/Public DNS by using the Podman bridge network.
     """
-    posts = [] # Define an empty list for posts
+    posts = []  # Define an empty list for posts
     
     # 1. Use internal container name and port
     # Get the base from .env and append the path
-    internal_host = getattr(settings, "GHOST_INTERNAL_HOST", "http://ghost:2368").rstrip('/')
+    internal_host = getattr(settings, "GHOST_INTERNAL_HOST", "http://ghost:2368").rstrip("/")
     public_domain = getattr(settings, "BCA_DOMAIN", "localhost")
     base_url = f"{internal_host}/blog"
     tag_path = f"tag/{tag}/" if tag else ""
@@ -91,7 +89,7 @@ def get_latest_posts(n=3, tag=None):
 
     # 2. Detect if the app is in "Secure" mode
     # We check if SECURE_SSL_REDIRECT is True (common in prod) 
-    is_secure = getattr(settings, 'SECURE_SSL_REDIRECT', False)
+    is_secure = getattr(settings, "SECURE_SSL_REDIRECT", False)
 
     request_headers = {}
     if is_secure:
@@ -106,7 +104,7 @@ def get_latest_posts(n=3, tag=None):
         feed = feedparser.parse(feed_url, request_headers=request_headers)
 
         # Check for successful fetch
-        if hasattr(feed, 'status') and feed.status >= 400:
+        if hasattr(feed, "status") and feed.status >= 400:
             print(f"get_latest_posts - Ghost RSS Fetch Failed: Status {feed.status} for {feed_url}")
             return []
 
