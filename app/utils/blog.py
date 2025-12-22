@@ -77,7 +77,7 @@ def get_latest_posts(n=3, tag=None):
     Bypasses VPN/Public DNS by using the Podman bridge network.
     """
     posts = []  # Define an empty list for posts
-    
+
     # 1. Use internal container name and port
     # Get the base from .env and append the path
     internal_host = getattr(settings, "GHOST_INTERNAL_HOST", "http://ghost:2368").rstrip("/")
@@ -88,7 +88,7 @@ def get_latest_posts(n=3, tag=None):
     feed_url = f"{base_url}/{tag_path}rss/"
 
     # 2. Detect if the app is in "Secure" mode
-    # We check if SECURE_SSL_REDIRECT is True (common in prod) 
+    # We check if SECURE_SSL_REDIRECT is True (common in prod)
     is_secure = getattr(settings, "SECURE_SSL_REDIRECT", False)
 
     request_headers = {}

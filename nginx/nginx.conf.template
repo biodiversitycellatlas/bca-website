@@ -26,8 +26,8 @@ add_header X-XSS-Protection "1; mode=block";
 # ----------------------------------------------------------------------
 # Buffer & Header Optimizations
 # ----------------------------------------------------------------------
-# These settings prevent "413 Request Entity Too Large" or "502 Bad Gateway" 
-# errors when handling large cookies, heavy RSS payloads (like Ghost), 
+# These settings prevent "413 Request Entity Too Large" or "502 Bad Gateway"
+# errors when handling large cookies, heavy RSS payloads (like Ghost),
 # or large upstream headers from Django.
 
 # Buffers for the initial client request line and headers
