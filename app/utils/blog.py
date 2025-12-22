@@ -23,12 +23,7 @@ def remove_emojis(text):
         (0x2700, 0x27BF),
     ]
 
-    return "".join(
-        c
-        for c in text
-        if c != "\u200d"
-        and not any(start <= ord(c) <= end for start, end in emoji_ranges)
-    )
+    return "".join(c for c in text if c != "\u200d" and not any(start <= ord(c) <= end for start, end in emoji_ranges))
 
 
 def parse_content(body_html):
