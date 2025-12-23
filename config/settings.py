@@ -23,6 +23,7 @@ BCA_DOMAIN = "biodiversitycellatlas.org"
 BCA_WEBSITE = f"https://{BCA_DOMAIN}"
 BCA_EMAIL = f"bca@{BCA_DOMAIN}"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
+GHOST_INTERNAL_URL = get_env("GHOST_INTERNAL_URL", required=True)
 
 # Script should be adapted according to what is collected https://plausible.io/docs/plausible-script
 # PLAUSIBLE_SCRIPT = (
