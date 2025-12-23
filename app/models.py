@@ -57,6 +57,43 @@ class ImageSourceMixin(models.Model):
         return None
 
 
+class QueryableMixin:
+    """Mixin to provide query link to external website."""
+
+    source_name = "DOI"
+    query_term_field = "doi"
+
+    @property
+    def source(self):
+        """Return Source instance."""
+        return Source.objects.get(name=self.source_name)
+
+    @property
+    def query_term(self):
+        """Return query term."""
+        return getattr(self, self.query_term_field, None)
+
+    @property
+    def query_url(self):
+        """Return external URL to query term."""
+        url = self.source.query_url
+        term = self.query_term
+        if url and term:
+            return url.replace("{{id}}", term)
+        return None
+
+    def get_source_html_link(self, label=None):
+        """Get HTML link to external source querying for this term."""
+        url = self.query_url
+        label = label or self.query_term
+        html = f"""
+            <a href="{url}" target="_blank">
+                {label}
+            </a>
+        """
+        return mark_safe(html)
+
+
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
@@ -198,6 +235,51 @@ class Source(models.Model):
         return self.name
 
 
+class Publication(QueryableMixin, models.Model):
+    """Scientific article."""
+
+    title = models.CharField(max_length=500, help_text="Publication title.")
+    authors = models.TextField(help_text="Comma-separated list of authors.")
+    year = models.PositiveIntegerField(help_text="Year of publication.")
+    journal = models.CharField(max_length=255, help_text="Journal.")
+
+    # Identifiers
+    doi = models.CharField(max_length=255, unique=True, help_text="DOI (Digital Object Identifier).")
+    pmid = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
+
+    def create_short_citation(self):
+        """Return a condensed in-line citation like 'Darwin et al., 2017'."""
+        if self.authors == "":
+            return f"Unknown, {self.year}"
+
+        # Get last name of first author
+        authors = self.authors.split(",")
+        first = authors[0].split()[-1]
+        if len(authors) == 1:
+            citation = f"{first}, {self.year}"
+        elif len(authors) == 2:
+            # Get last name of second author
+            second = authors[1].split()[-1]
+            citation = f"{first} & {second}, {self.year}"
+        else:
+            citation = f"{first} et al., {self.year}"
+        return citation
+
+    def get_source_html_link(self):
+        """Override label to display for the source HTML link."""
+        citation = self.create_short_citation()
+        citation = citation.replace("et al.", "<i>et al.</i>")
+
+        # Return only citation if there is no DOI to link to
+        if not self.doi:
+            return citation
+        return super().get_source_html_link(citation)
+
+    def __str__(self):
+        """String representation."""
+        return self.create_short_citation()
+
+
 class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
@@ -208,13 +290,7 @@ class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
 
-    source = models.ForeignKey(
-        Source,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        help_text="Source of the dataset.",
-    )
+    publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True, help_text="Dataset publication.")
     # version = models.CharField(max_length=50, blank=True, null=True)
     # is_public = models.BooleanField(default=True)
 
@@ -505,31 +581,13 @@ class SingleCell(models.Model):
         return self.name
 
 
-class Domain(models.Model):
+class Domain(QueryableMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)
 
-    @property
-    def source(self):
-        """Return the Source instance."""
-        return Source.objects.get(name="Pfam")
-
-    @property
-    def query_term(self):
-        """Return query term used in URL."""
-        return self.name
-
-    @property
-    def query_url(self):
-        """Build query URL."""
-        url = self.source.query_url
-        term = self.query_term
-        if url and term:
-            url = url.replace("{{id}}", term)
-        else:
-            url = None
-        return url
+    source_name = "Pfam"
+    query_term_field = "name"
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
