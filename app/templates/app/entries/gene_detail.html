@@ -91,6 +91,9 @@
                     <thead>
                         <tr>
                             <th>
+                                Dataset
+                            </th>
+                            <th>
                                 Module
                             </th>
                             <th>
@@ -99,13 +102,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for module in gene.modules.all %}
+                        {% for member in gene.modules.all %}
                             <tr>
                                 <td>
-                                    {{ module.get_html_link }}
+                                    {% dataset_gene_link member.module.dataset gene %}
                                 </td>
                                 <td>
-                                    {{ module.membership_score }}
+                                    {{ member.module.get_html_link }}
+                                </td>
+                                <td>
+                                    {{ member.membership_score }}
                                 </td>
                             </tr>
                         {% endfor %}
