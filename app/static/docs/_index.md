@@ -1,18 +1,28 @@
+---
+title: Documentation
+---
+
 ```{warning}
 You are looking at the **dev** documentation. This is not yet stable.
 ```
 
-.. toc:: Table of Contents
+## Getting started
 
-# Getting Started
+Welcome to the documentation pages.
 
-Welcome to the **Reference** documentation.
-
-## Installation
+### Installation
 
 1. Clone the repository
 2. ~~Install dependencies~~ just run Docker
 3. Run the server
+
+#### Docker vs Podman
+
+![Polar bear](./images/pb.jpg)
+
+##### Docker
+
+##### Podman
 
 ## Usage
 
@@ -24,14 +34,24 @@ Use the navigation menu[^1] to browse topics.
 
 - [test](test)
 
-### Table
+## Table
 
 | First Header | Second Header |
 | ------------ | ------------- |
 | Content Cell | Content Cell  |
 | Content Cell | Content Cell  |
 
-#### Code
+### Subtable
+
+| First Header | Second Header |
+| ------------ | ------------- |
+| Content Cell | Content Cell  |
+
+#### test
+
+hello
+
+## Code
 
 ```R
 a = 5

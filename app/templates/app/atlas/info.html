@@ -16,7 +16,7 @@ Input:
 {% endcomment %}
 
 {% block title %}
-    {{ dataset }} Information
+    {{ dataset }}
 {% endblock title %}
 
 {% block content %}
@@ -51,7 +51,15 @@ Input:
                 <tbody>
                     <tr>
                         <td>
-                            <span class="key">Release date</span>
+                            <span class="key">Source</span>
+                        </td>
+                        <td class="text-end">
+                            {{ dataset.publication.get_source_html_link|default:'<span class="text-secondary small fst-italic">Not available</span>' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="key">Processed</span>
                         </td>
                         <td class="text-end">
                             {{ dataset.date_created|date:"j F Y" }}

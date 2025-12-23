@@ -131,7 +131,7 @@ Dynamic blocks:
             {% endcomment %}
         {% endblock subnav %}
 
-        <main class="container-xxl overflow-x-clip">
+        <main class="{% block main_class %}container-xxl overflow-x-clip{% endblock %}">
             {% block breadcrumb %}
             {% endblock %}
             {% block content %}

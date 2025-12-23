@@ -2,8 +2,6 @@
 in a HDF5 file optimized for fast gene retrieval
 """
 
-from typing import Dict
-
 import h5py
 import numpy as np
 import rds2py
@@ -76,39 +74,3 @@ def rds2hdf(rds_file: str, output_file: str) -> None:
                     root.create_dataset(gene, data=dataset)
                 except ():
                     print(f"duplicated gene {gene}")
-
-
-def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
-    """Creates a dictionary from positions to elements in the array
-
-    Args:
-        aList: numpy array of strings (cell names)
-    Returns:
-        dictionary e.g: { 0: "AAACG-1", 3:"CCTG-3"}
-    """
-    dictionary = {}
-    for pos, value in enumerate(a_list):
-        dictionary[pos] = str(value, encoding="ascii")
-    return dictionary
-
-
-def read_from_hdf(hdf_file: str, gene: str) -> Dict[str, float]:
-    """Reads the expression values for a given gene from HDF5 file
-
-    Args:
-        hdf_file: path to the HDF5 file
-        gene: a gene, e.g ("Spolac_c99997_g1")
-    Returns:
-        A dictionary of cell names to UMI frac expression values, e.g.
-        {"AACTC-1": 1.462, "ACCG-1": 1.235}
-
-    """
-    with h5py.File(hdf_file, "r") as f:
-        expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
-        cellnames = f.get("/cell_names")[:]
-        cells_position_dict = create_positions_dictionary(cellnames)
-        result = {}
-        for elem in np.nditer(expression_values, flags=["zerosize_ok"]):
-            position = int(elem["c"])
-            result[cells_position_dict[position]] = float(elem["e"])
-        return result
