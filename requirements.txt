@@ -22,7 +22,7 @@ drf-orjson-renderer==1.7.3
 django-prometheus==2.4.1
 
 # dev
-coverage==7.13.0
+coverage==7.13.1
 django-debug-toolbar==5.2.0
 django-extensions==4.1
 pandas==2.3.3
