@@ -23,6 +23,22 @@ add_header X-Frame-Options SAMEORIGIN;
 add_header X-XSS-Protection "1; mode=block";
 # add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 
+# ----------------------------------------------------------------------
+# Buffer & Header Optimizations
+# ----------------------------------------------------------------------
+# These settings prevent "413 Request Entity Too Large" or "502 Bad Gateway"
+# errors when handling large cookies, heavy RSS payloads (like Ghost),
+# or large upstream headers from Django.
+
+# Buffers for the initial client request line and headers
+client_header_buffer_size 16k;
+large_client_header_buffers 4 32k;
+
+# Buffers for responses received from the proxied server (Django/Ghost)
+proxy_buffer_size 128k;
+proxy_buffers 4 256k;
+proxy_busy_buffers_size 256k;
+
 # HTTP to HTTPS Redirection for portal.biodiversitycellatlas.org
 server {
     listen 80;
@@ -79,24 +95,19 @@ server {
 server {
     listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
     listen [::]:443 ssl http2; # IPv6 support
-    server_name ${GHOST_HOSTNAME};
+    server_name ${GHOST_HOSTNAME} www.${GHOST_HOSTNAME};
 
     # --- Wildcard SSL Certificate Paths (same as above) ---
     ssl_certificate /etc/nginx/certs/server.crt;
     ssl_certificate_key /etc/nginx/certs/server.key;
 
     location / {
-        proxy_pass http://ghost:2368;   # Ghost default port
-        proxy_set_header Host $host;
+        proxy_pass ${GHOST_INTERNAL_URL};   # Ghost internal URL with default port
+        proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-NginX-Proxy true;
-
-        # These are crucial for cookie handling specifically
-        proxy_set_header Origin $http_origin;
-        proxy_set_header Cookie $http_cookie; # Pass the original Cookie header
-        proxy_pass_header Set-Cookie; # Ensure Ghost's Set-Cookie is passed back to client
 
         # Add/Adjust Proxy Timeouts (as discussed, to prevent 504s for slow Ghost responses)
         proxy_read_timeout 120s;
