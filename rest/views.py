@@ -541,7 +541,7 @@ class AlignViewSet(viewsets.ViewSet):
 
         # Write query sequences to temporary file
         with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".fasta") as temp_file:
-            if not sequences.startswith(">") or not sequences.startswith("@"):
+            if not sequences.startswith((">", "@")):
                 temp_file.write(">query\n")
             temp_file.write(sequences)
             temp_file.write("\n")
