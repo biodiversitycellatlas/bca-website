@@ -525,18 +525,14 @@ class AlignViewSet(viewsets.ViewSet):
         # Avoid literal newlines from GET request
         sequences = sequences.replace("\\n", "\n")
 
-        # Count lines up to a limit and get a sample from first 10 sequences
+        # Check limit for the number of query sequences
         count = 0
-        sample = ""
         for line in sequences.splitlines():
             if line.startswith(">"):
                 count = count + 1
                 if count > self.limit:
                     raise ValueError(f"Query can only contain up to {self.limit} FASTA sequences")
-            elif count <= 10:
-                sample = sample + line + "\n"
 
-        # Check if sample is composed of amino acids or nucleotides
         program = "blastp" if (type is None or type == "aminoacids") else "blastx"
 
         # Write query sequences to temporary file
