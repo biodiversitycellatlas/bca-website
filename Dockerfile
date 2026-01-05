@@ -4,7 +4,7 @@
 FROM postgres:17.6-trixie AS postgres
 
 # Get diamond aligner from biocontainers
-FROM buchfink/diamond:version2.1.12 AS diamond
+FROM buchfink/diamond:version2.1.17 AS diamond
 
 # Serve website
 FROM python:3.13.7-trixie
