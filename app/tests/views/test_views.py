@@ -7,17 +7,12 @@ import os
 from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime
 
-from django.core.exceptions import PermissionDenied
 from django.test import TestCase, Client, override_settings
 from django.conf import settings
-from django.http import HttpResponse, FileResponse
-from django.views import View
-from django.urls import path
+from django.http import FileResponse
 
 from app.views import DocumentationView
 from app.tests.views.test_atlas_views import DataTestCase
-from config.urls import urlpatterns
-
 
 
 @override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatlas.org")
@@ -65,7 +60,7 @@ class StatusViewsTest(TestCase):
     def test_robots(self):
         response = self.client.get("/robots.txt")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'text/plain')
+        self.assertEqual(response["Content-Type"], "text/plain")
         self.assertIn("User-agent", response.content.decode())
 
     def test_403(self):
@@ -104,16 +99,10 @@ class SpeciesFileDownloadViewTests(DataTestCase):
         self.assertIsInstance(response, FileResponse)
 
         filename = self.species_file.filename
-        self.assertEqual(response.get('Content-Disposition'), f'attachment; filename="{filename}"')
+        self.assertEqual(response.get("Content-Disposition"), f'attachment; filename="{filename}"')
 
         # Test file content
-        expected = (
-            ">Brca1\n"
-            "MACDEFGHIK\n"
-            "LMNPQRSTVW\n"
-            ">Brca2\n"
-            "MACDEFGHIK\n"
-        ).encode("utf-8")
+        expected = (">Brca1\nMACDEFGHIK\nLMNPQRSTVW\n>Brca2\nMACDEFGHIK\n").encode("utf-8")
         content = b"".join(response.streaming_content)
         self.assertEqual(content, expected)
 

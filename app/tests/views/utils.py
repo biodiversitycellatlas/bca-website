@@ -17,18 +17,10 @@ class DataTestCase(TestCase):
         cls.brca1 = Gene.objects.create(name="Brca1", species=cls.species)
         cls.brca2 = Gene.objects.create(name="Brca2", species=cls.species)
 
-        fasta_demo = (
-            ">Brca1\n"
-            "MACDEFGHIK\n"
-            "LMNPQRSTVW\n"
-            ">Brca2\n"
-            "MACDEFGHIK\n"
-        ).encode("utf-8")
+        fasta_demo = (">Brca1\nMACDEFGHIK\nLMNPQRSTVW\n>Brca2\nMACDEFGHIK\n").encode("utf-8")
 
         cls.species_file = SpeciesFile.objects.create(
-            species=cls.species,
-            type="Proteome",
-            file=SimpleUploadedFile("demo.fasta", fasta_demo)
+            species=cls.species, type="Proteome", file=SimpleUploadedFile("demo.fasta", fasta_demo)
         )
 
         # Prepare client

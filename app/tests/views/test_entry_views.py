@@ -1,9 +1,5 @@
 """Test database entry views."""
 
-from django.urls import reverse
-
-from app.views import AtlasView
-from app.models import Gene
 from app.tests.views.utils import DataTestCase
 
 
