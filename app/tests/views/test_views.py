@@ -1,7 +1,32 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.http import Http404
 
-from ..views import DocumentationView
+from app.views import IndexView, DocumentationView
+
+
+@override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatals.org")
+class IndexViewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_homepage_context_and_template(self):
+        request = self.factory.get("/")
+        response = IndexView.as_view()(request)
+        response.render()
+
+        # Check context keys
+        self.assertIn("dataset_dict", response.context_data)
+        self.assertIn("posts", response.context_data)
+
+        # Check posts keys
+        expected_categories = [None, "publications", "meetings", "tutorials"]
+        self.assertEqual(set(response.context_data["posts"].keys()), set(expected_categories))
+
+        # Check dataset_dict is a dict
+        self.assertIsInstance(response.context_data["dataset_dict"], dict)
+
+        # Check response contains some text
+        self.assertIn("<body", response.content.decode())
 
 
 class DocumentationViewTest(TestCase):

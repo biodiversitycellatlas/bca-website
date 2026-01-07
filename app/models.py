@@ -57,7 +57,7 @@ class ImageSourceMixin(models.Model):
         return None
 
 
-class QueryableMixin:
+class ExternalQueryMixin:
     """Mixin to provide query link to external website."""
 
     source_name = "DOI"
@@ -235,7 +235,7 @@ class Source(models.Model):
         return self.name
 
 
-class Publication(QueryableMixin, models.Model):
+class Publication(ExternalQueryMixin, models.Model):
     """Scientific article."""
 
     title = models.CharField(max_length=500, help_text="Publication title.")
@@ -581,7 +581,7 @@ class SingleCell(models.Model):
         return self.name
 
 
-class Domain(QueryableMixin, models.Model):
+class Domain(ExternalQueryMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)

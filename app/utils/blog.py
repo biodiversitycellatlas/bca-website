@@ -75,7 +75,7 @@ def get_latest_posts(n=3, tag=None):
 
     # 1. Use internal container name and port
     # Get the base from .env and append the path
-    internal_host = getattr(settings, "GHOST_INTERNAL_HOST", "http://ghost:2368").rstrip("/")
+    internal_host = getattr(settings, "GHOST_INTERNAL_URL", "http://ghost:2368").rstrip("/")
     public_domain = getattr(settings, "BCA_DOMAIN", "localhost")
     base_url = f"{internal_host}/blog"
     tag_path = f"tag/{tag}/" if tag else ""
