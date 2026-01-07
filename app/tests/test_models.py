@@ -27,9 +27,7 @@ class DatasetModelTest(SpeciesModelTest):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.baby = Dataset(
-            species=cls.human,
-            name="Baby",
-            image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg"
+            species=cls.human, name="Baby", image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg"
         )
         cls.larva = Dataset(species=cls.sponge, name="Larva")
 

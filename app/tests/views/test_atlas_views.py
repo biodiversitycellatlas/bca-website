@@ -1,4 +1,3 @@
-import random
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from types import SimpleNamespace
@@ -38,11 +37,11 @@ class AtlasViewTest(BaseTestCase):
         self.assertIsInstance(icon, str)
 
     def test_invalid_dataset_warning(self):
-         request = self.get_atlas_request("/atlas/?dataset=invalid-dataset")
-         response = AtlasView.as_view()(request)
+        request = self.get_atlas_request("/atlas/?dataset=invalid-dataset")
+        response = AtlasView.as_view()(request)
 
-         self.assertIn("warning", response.context_data)
-         self.assertIn("Invalid dataset", response.context_data["warning"]["title"])
+        self.assertIn("warning", response.context_data)
+        self.assertIn("Invalid dataset", response.context_data["warning"]["title"])
 
 
 class BaseAtlasViewTest(BaseTestCase):
