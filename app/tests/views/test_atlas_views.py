@@ -1,42 +1,13 @@
 """Test Cell Atlas views."""
 
-from django.test import TestCase, Client
 from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from app.views import AtlasView
-from app.models import Dataset, Species, Gene, SpeciesFile
+from app.models import Gene
+from app.tests.views.utils import DataTestCase
 
 
-class BaseTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        # Runs once for the whole class
-        cls.species = Species.objects.create(scientific_name="Mus musculus", common_name="mouse")
-        cls.dataset = Dataset.objects.create(name="adult", species=cls.species)
-
-        cls.brca1 = Gene.objects.create(name="Brca1", species=cls.species)
-        cls.brca2 = Gene.objects.create(name="Brca2", species=cls.species)
-
-        fasta_demo = (
-            ">Brca1\n"
-            "MACDEFGHIK\n"
-            "LMNPQRSTVW\n"
-            ">Brca2\n"
-            "MACDEFGHIK\n"
-        ).encode("utf-8")
-
-        cls.species_file = SpeciesFile.objects.create(
-            species=cls.species,
-            type="Proteome",
-            file=SimpleUploadedFile("demo.fasta", fasta_demo)
-        )
-
-        # Prepare client
-        cls.client = Client()
-
-
-class AtlasViewTest(BaseTestCase):
+class AtlasViewTest(DataTestCase):
     def test_atlas_view_basic(self):
         response = self.client.get("/atlas/")
         self.assertEqual(response.status_code, 200)
@@ -59,7 +30,7 @@ class AtlasViewTest(BaseTestCase):
         self.assertIn(reverse("atlas"), response.url)
 
 
-class AtlasInfoViewTest(BaseTestCase):
+class AtlasInfoViewTest(DataTestCase):
     def test_dataset(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/")
         self.assertEqual(response.status_code, 200)
@@ -77,13 +48,13 @@ class AtlasInfoViewTest(BaseTestCase):
             self.assertIn("values", metric)
 
 
-class AtlasOverviewViewTest(BaseTestCase):
+class AtlasOverviewViewTest(DataTestCase):
     def test_dataset(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/overview/")
         self.assertEqual(response.status_code, 200)
 
 
-class AtlasGeneViewTest(BaseTestCase):
+class AtlasGeneViewTest(DataTestCase):
     def test_index(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/gene/")
         self.assertEqual(response.status_code, 200)
@@ -113,21 +84,21 @@ class AtlasGeneViewTest(BaseTestCase):
         self.assertIn("Please check available genes", warning["description"])
 
 
-class AtlasPanelViewTest(BaseTestCase):
+class AtlasPanelViewTest(DataTestCase):
     def test_gene_panel(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/panel/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("metacell_dict", response.context)
 
 
-class AtlasMarkersViewTest(BaseTestCase):
+class AtlasMarkersViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/markers/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("metacell_dict", response.context)
 
 
-class AtlasCompareViewTest(BaseTestCase):
+class AtlasCompareViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.dataset.slug}/compare/")
         self.assertEqual(response.status_code, 200)

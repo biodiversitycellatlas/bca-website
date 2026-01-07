@@ -15,8 +15,10 @@ from django.views import View
 from django.urls import path
 
 from app.views import DocumentationView
-from app.tests.views.test_atlas_views import BaseTestCase
+from app.tests.views.test_atlas_views import DataTestCase
 from config.urls import urlpatterns
+
+
 
 @override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatlas.org")
 class IndexViewTest(TestCase):
@@ -95,7 +97,7 @@ class DownloadsViewTests(TestCase):
         self.assertIn("datasets_all", response.context)
 
 
-class SpeciesFileDownloadViewTests(BaseTestCase):
+class SpeciesFileDownloadViewTests(DataTestCase):
     def test_file_download(self):
         response = self.client.get("/downloads/mus-musculus-proteome/")
         self.assertEqual(response.status_code, 200)
@@ -196,7 +198,7 @@ class AboutViewTest(TestCase):
         self.assertIn(mtime_str, content)
 
 
-class SearchViewTest(BaseTestCase):
+class SearchViewTest(DataTestCase):
     def test_search_view_context_without_query(self):
         response = self.client.get("/search/")
         self.assertEqual(response.status_code, 200)
