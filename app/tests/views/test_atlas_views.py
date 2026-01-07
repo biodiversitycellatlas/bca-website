@@ -1,19 +1,38 @@
+"""Test Cell Atlas views."""
+
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from app.views import AtlasView
-from app.models import Dataset, Species, Gene
+from app.models import Dataset, Species, Gene, SpeciesFile
 
 
 class BaseTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # runs once for the class
+        # Runs once for the whole class
         cls.species = Species.objects.create(scientific_name="Mus musculus", common_name="mouse")
         cls.dataset = Dataset.objects.create(name="adult", species=cls.species)
 
         cls.brca1 = Gene.objects.create(name="Brca1", species=cls.species)
         cls.brca2 = Gene.objects.create(name="Brca2", species=cls.species)
+
+        fasta_demo = (
+            ">Brca1\n"
+            "MACDEFGHIK\n"
+            "LMNPQRSTVW\n"
+            ">Brca2\n"
+            "MACDEFGHIK\n"
+        ).encode("utf-8")
+
+        cls.species_file = SpeciesFile.objects.create(
+            species=cls.species,
+            type="Proteome",
+            file=SimpleUploadedFile("demo.fasta", fasta_demo)
+        )
+
+        # Prepare client
         cls.client = Client()
 
 

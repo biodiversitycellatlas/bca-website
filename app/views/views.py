@@ -8,6 +8,7 @@ from django.views import View
 from django.views.generic import DetailView, TemplateView
 from django.urls import reverse
 from django.templatetags.static import static
+from django.shortcuts import render
 
 from ..models import Dataset, SpeciesFile, Species
 from ..templatetags.bca_website_links import bca_url, github_url
@@ -51,19 +52,25 @@ class RobotsView(TemplateView):
 class Custom403View(TemplateView):
     """Custom 403 Forbidden error page."""
 
-    template_name = "403.html"
+    def get(self, request, *args, **kwargs):
+        """Return a 403 error page with the corresponding status."""
+        return render(request, "403.html", status=403)
 
 
-class Custom404View(TemplateView):
+class Custom404View(View):
     """Custom 404 Not Found error page."""
 
-    template_name = "404.html"
+    def get(self, request, *args, **kwargs):
+        """Return a 404 error page with the corresponding status."""
+        return render(request, "404.html", status=404)
 
 
-class Custom500View(TemplateView):
+class Custom500View(View):
     """Custom 500 Internal Server Error page."""
 
-    template_name = "500.html"
+    def get(self, request, *args, **kwargs):
+        """Return a 500 error page with the corresponding status."""
+        return render(request, "500.html", status=500)
 
 
 class DownloadsView(TemplateView):

@@ -1,6 +1,4 @@
-"""
-Blog-related functions to get latest posts.
-"""
+"""Blog-related functions to get latest posts."""
 
 from bs4 import BeautifulSoup
 from dateutil import parser

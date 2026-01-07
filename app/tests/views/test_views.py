@@ -1,3 +1,5 @@
+"""Test miscellaneous views."""
+
 import ssl
 import io
 import os
@@ -5,12 +7,16 @@ import os
 from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime
 
+from django.core.exceptions import PermissionDenied
 from django.test import TestCase, Client, override_settings
 from django.conf import settings
+from django.http import HttpResponse, FileResponse
+from django.views import View
+from django.urls import path
 
 from app.views import DocumentationView
 from app.tests.views.test_atlas_views import BaseTestCase
-
+from config.urls import urlpatterns
 
 @override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatlas.org")
 class IndexViewTest(TestCase):
@@ -20,7 +26,7 @@ class IndexViewTest(TestCase):
         ssl._create_default_https_context = ssl._create_unverified_context
         cls.client = Client()
 
-    def test_homepage_context(self):
+    def test_homepage(self):
         # Suppress stdout/stderr during feed fetch to avoid 404 errors
         f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
@@ -42,6 +48,72 @@ class IndexViewTest(TestCase):
 
         # Check response contains some text
         self.assertIn("<body", response.content.decode())
+
+
+class StatusViewsTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+
+    def test_health_json(self):
+        response = self.client.get("/health/")
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, {"status": "ok"})
+
+    def test_robots(self):
+        response = self.client.get("/robots.txt")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        self.assertIn("User-agent", response.content.decode())
+
+    def test_403(self):
+        response = self.client.get("/403/")
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, "403.html")
+
+    def test_404(self):
+        response = self.client.get("/404/")
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "404.html")
+
+    def test_random_404(self):
+        response = self.client.get("/some-random-page/")
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "404.html")
+
+    def test_500(self):
+        response = self.client.get("/500/")
+        self.assertEqual(response.status_code, 500)
+        self.assertTemplateUsed(response, "500.html")
+
+
+class DownloadsViewTests(TestCase):
+    def test_downloads(self):
+        response = self.client.get("/downloads/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("species_all", response.context)
+        self.assertIn("datasets_all", response.context)
+
+
+class SpeciesFileDownloadViewTests(BaseTestCase):
+    def test_file_download(self):
+        response = self.client.get("/downloads/mus-musculus-proteome/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response, FileResponse)
+
+        filename = self.species_file.filename
+        self.assertEqual(response.get('Content-Disposition'), f'attachment; filename="{filename}"')
+
+        # Test file content
+        expected = (
+            ">Brca1\n"
+            "MACDEFGHIK\n"
+            "LMNPQRSTVW\n"
+            ">Brca2\n"
+            "MACDEFGHIK\n"
+        ).encode("utf-8")
+        content = b"".join(response.streaming_content)
+        self.assertEqual(content, expected)
 
 
 class DocumentationViewTest(TestCase):
