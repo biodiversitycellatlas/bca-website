@@ -12,6 +12,7 @@ class DataTestCase(TestCase):
         # Runs once for the whole class
         cls.species = Species.objects.create(scientific_name="Mus musculus", common_name="mouse")
         cls.dataset = Dataset.objects.create(name="adult", species=cls.species)
+        Dataset.objects.create(name="baby", species=cls.species)
 
         cls.brca1 = Gene.objects.create(name="Brca1", species=cls.species)
         cls.brca2 = Gene.objects.create(name="Brca2", species=cls.species)

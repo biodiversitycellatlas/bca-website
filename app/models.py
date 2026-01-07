@@ -137,17 +137,17 @@ class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     @property
     def division(self):
         """Return species division."""
-        return self.meta_set.filter(key="division").first().value
+        return self.meta_set.get(key="division").value
 
     @property
     def kingdom(self):
         """Return species kingdom."""
-        return self.meta_set.filter(key="kingdom").first().value
+        return self.meta_set.get(key="kingdom").value
 
     @property
     def phylum(self):
         """Return species phylum."""
-        return self.meta_set.filter(key="phylum").first().value
+        return self.meta_set.get(key="phylum").value
 
     @property
     def proteome(self):
@@ -463,7 +463,7 @@ class Meta(models.Model):
     @property
     def query_url(self) -> Optional[str]:
         """Build query URL."""
-        url = self.source.query_url
+        url = getattr(self.source, "query_url", None)
         term = self.query_term
         if url and term:
             url = url.replace("{{id}}", term)
