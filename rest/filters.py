@@ -94,6 +94,8 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
 
 def update_dataset_choices():
+    """Update dataset choices based on available datasets."""
+
     choices = []
     if check_model_exists(models.Dataset):
         choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
@@ -102,7 +104,13 @@ def update_dataset_choices():
 
 
 class DatasetChoiceField(ChoiceField):
+    """Fix to dynamically uodate dataset choices."""
+
+    null_label = None
+
     def valid_value(self, value):
+        """Update dataset choices before validation."""
+
         self.choices = update_dataset_choices()
         return super().valid_value(value)
 
