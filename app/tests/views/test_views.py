@@ -37,7 +37,7 @@ class IndexViewTest(TestCase):
         self.assertIn("posts", response.context)
 
         # Check posts keys
-        categories = [None, "publications", "meetings", "tutorials"]
+        categories = ["latest", "publications", "meetings", "tutorials"]
         self.assertEqual(set(response.context["posts"].keys()), set(categories))
 
         # Check dataset_dict is a dict
@@ -98,7 +98,7 @@ class SpeciesFileDownloadViewTests(DataTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response, FileResponse)
 
-        filename = self.species_file.filename
+        filename = self.mouse_fasta.filename
         self.assertEqual(response.get("Content-Disposition"), f'attachment; filename="{filename}"')
 
         # Test file content

@@ -28,7 +28,7 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
 
-        categories = [None, "publications", "meetings", "tutorials"]
+        categories = ["latest", "publications", "meetings", "tutorials"]
         posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
         context["posts"] = posts
         return context

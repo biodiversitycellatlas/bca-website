@@ -32,11 +32,11 @@ class AtlasViewTest(DataTestCase):
 
 class AtlasInfoViewTest(DataTestCase):
     def test_dataset(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/")
         self.assertEqual(response.status_code, 200)
 
         context = response.context
-        self.assertEqual(context["dataset"], self.dataset)
+        self.assertEqual(context["dataset"], self.adult_mouse)
         self.assertEqual(context["species"].common_name, "mouse")
         self.assertIn("dataset_dict", context)
         self.assertIn("links", context)
@@ -50,30 +50,30 @@ class AtlasInfoViewTest(DataTestCase):
 
 class AtlasOverviewViewTest(DataTestCase):
     def test_dataset(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/overview/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/overview/")
         self.assertEqual(response.status_code, 200)
 
 
 class AtlasGeneViewTest(DataTestCase):
     def test_index(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/gene/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("gene", response.context)
         self.assertEqual(response.context["gene"], "")
         self.assertNotIn("warning", response.context)
 
     def test_valid_gene(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/gene/Brca1/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/{self.brca1.name}/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("gene", response.context)
         self.assertIsInstance(response.context["gene"], Gene)
-        self.assertEqual(response.context["gene"].name, "Brca1")
+        self.assertEqual(response.context["gene"].name, self.brca1.name)
 
         # No warnings expected
         self.assertNotIn("warning", response.context)
 
     def test_invalid_gene(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/gene/invalid-gene/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/invalid-gene/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["gene"], "")
         self.assertIn("warning", response.context)
@@ -86,19 +86,19 @@ class AtlasGeneViewTest(DataTestCase):
 
 class AtlasPanelViewTest(DataTestCase):
     def test_gene_panel(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/panel/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/panel/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("metacell_dict", response.context)
 
 
 class AtlasMarkersViewTest(DataTestCase):
     def test_gene_markers(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/markers/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/markers/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("metacell_dict", response.context)
 
 
 class AtlasCompareViewTest(DataTestCase):
     def test_gene_markers(self):
-        response = self.client.get(f"/atlas/{self.dataset.slug}/compare/")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/compare/")
         self.assertEqual(response.status_code, 200)

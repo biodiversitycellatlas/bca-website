@@ -629,6 +629,11 @@ class GeneList(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
+    class Meta:
+        """Meta options."""
+
+        ordering = ["name"]
+
     def __str__(self):
         """String representation."""
         return str(self.name)
@@ -695,6 +700,7 @@ class Gene(SlugMixin):
         """Meta options."""
 
         unique_together = ["name", "species"]
+        ordering = ["species", "name"]
 
     def __str__(self):
         """String representation."""
