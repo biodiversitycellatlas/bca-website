@@ -2,7 +2,7 @@
 set -euo pipefail
 
 species=(aque hoih23 mmus smed tadh xesp chem dmel hvul nvec spis cele hhon mlei sman spol trh2)
-n_threads=8  # adjust as needed
+n_threads=8 # adjust as needed
 config=config.yaml
 
 blast_dir=blast
@@ -33,8 +33,8 @@ submit_blastp() {
     local email=nuno.agostinho@crg.eu
 
     sbatch --time=00:20:00 --job-name=$job --cpus-per-task=$n_threads \
-      --output="${out_log}" --mail-type=END,FAIL --mail-user=$email \
-      --wrap="apptainer exec $image blastp -query $query -db $db -outfmt 6 -out ${out_file} -num_threads $n_threads -max_hsps 1 -evalue 1e-6"
+        --output="${out_log}" --mail-type=END,FAIL --mail-user=$email \
+        --wrap="apptainer exec $image blastp -query $query -db $db -outfmt 6 -out ${out_file} -num_threads $n_threads -max_hsps 1 -evalue 1e-6"
 }
 
 for ((i = 0; i < ${#species[@]}; i++)); do

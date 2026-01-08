@@ -8,13 +8,11 @@ import time
 import numpy as np
 import pandas as pd
 import psycopg2
-from django.core.exceptions import ValidationError
-from django.db import connection
-from rds2py import read_rds
-from scipy.stats import pearsonr, spearmanr, t
 
 from app import models
 from scripts.add_data_to_db import batch_raw_insert
+
+from app.models import Dataset
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
@@ -92,12 +90,8 @@ def save_dataset_gene_corr(d):
     start_time = time.time()
 
     print("Getting metacell gene expression values for genes with FC >= 2...")
-    genes = (
-        d.mge.filter(fold_change__gte=2).values_list("gene__id", flat=True).distinct()
-    )
-    mge = d.mge.filter(gene__id__in=genes).values(
-        "gene__id", "metacell__id", "fold_change"
-    )
+    genes = d.mge.filter(fold_change__gte=2).values_list("gene__id", flat=True).distinct()
+    mge = d.mge.filter(gene__id__in=genes).values("gene__id", "metacell__id", "fold_change")
 
     print("Converting to data frame...")
     df = pd.DataFrame(mge)

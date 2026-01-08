@@ -292,7 +292,7 @@ def run_linters(env_files, env_vars):
         f"ghcr.io/super-linter/super-linter:{get_linter_version()}",
     ]
 
-    print(f"\n✨{YELLOW} Running Super-Linter command {RESET}✨")
+    print(f"\n✨{YELLOW} Running Super-Linter {get_linter_version()} {RESET}✨")
     print(CYAN + " ".join(cmd) + RESET + "\n")
 
     try:

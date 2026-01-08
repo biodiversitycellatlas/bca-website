@@ -26,9 +26,7 @@ gene_list_map = {
     "tfs": "Transcription factors",
     "myo": "Myosins",
 }
-gene_list_map = {
-    acronym: GeneList.objects.get(name=name) for acronym, name in gene_list_map.items()
-}
+gene_list_map = {acronym: GeneList.objects.get(name=name) for acronym, name in gene_list_map.items()}
 
 
 def update_gene_modules(file_path, species, gene_list):
@@ -80,8 +78,8 @@ for key in config:
 
             # Get gene list from file name
             acronym = os.path.basename(file_path.name).split(".")[0]
-            genelist = gene_list_map[acronym]
-            print(genelist)
+            gene_list = gene_list_map[acronym]
+            print(gene_list)
 
             update_gene_modules(file, species, gene_list)
 

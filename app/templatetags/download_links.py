@@ -8,9 +8,7 @@ from django import template
 register = template.Library()
 
 
-def _build_download_context(
-    view, suffix, slug=None, render="link", formats=("csv", "tsv", "json")
-):
+def _build_download_context(view, suffix, slug=None, render="link", formats=("csv", "tsv", "json")):
     """
     Build context dictionary for download links in multiple formats.
 

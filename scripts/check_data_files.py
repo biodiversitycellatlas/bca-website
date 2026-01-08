@@ -42,10 +42,10 @@ def check_species_files(species, data):
                 raise FileNotFoundError(f"File {file} does not exist!")
 
             if file.endswith(".RDS"):
-                content = rds2py.read_rds(file)
+                rds2py.read_rds(file)
             else:
                 with open(file, "r") as f:
-                    content = f.read()
+                    f.read()
             print_okay(" \u2713")
         except Warning as w:
             print(f"Warning caught: {w}")
@@ -54,6 +54,6 @@ def check_species_files(species, data):
 
 
 for species in data:
-    if not "data_subdir" in data[species]:
+    if "data_subdir" not in data[species]:
         continue
     check_species_files(species, data)
