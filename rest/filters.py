@@ -18,6 +18,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Greatest, Log, Rank
 from django.forms import ChoiceField
+from drf_spectacular.utils import extend_schema_field
 from django_filters.rest_framework import (
     BooleanFilter,
     CharFilter,
@@ -101,6 +102,7 @@ def update_dataset_choices():
     return choices
 
 
+@extend_schema_field(ChoiceField)
 class DatasetChoiceField(ChoiceField):
     def valid_value(self, value):
         self.choices = update_dataset_choices()
