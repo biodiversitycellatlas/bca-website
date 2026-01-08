@@ -16,7 +16,7 @@ python-frontmatter==1.1.0
 djangorestframework==3.16.1
 django-filter==25.2
 drf-spectacular==0.29.0
-drf-orjson-renderer==1.7.3
+drf-orjson-renderer==1.8.0
 
 # Monitoring
 django-prometheus==2.4.1
