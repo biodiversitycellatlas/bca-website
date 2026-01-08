@@ -4,7 +4,6 @@ Run SAMAP to perform pairwise comparisons among the specified species.
 """
 
 import functools
-import itertools
 import os
 import sys
 
@@ -16,7 +15,7 @@ try:
     from rds2py import read_rds
     from samalg import SAM
     from samap.mapping import SAMAP
-    from samap.utils import load_samap, save_samap
+    from samap.utils import save_samap
 except ImportError:
     print("Error: Missing dependencies. Did you forget to run `conda activate SAMap`?")
     sys.exit(1)
@@ -42,9 +41,7 @@ def get_config_filepaths(species):
     species_data = data.get(species, {})
     subdir = species_data.get("data_subdir", "")
 
-    files = [
-        species_data.get(e) for e in ("umicountsc_file", "cellmc_file", "ann_file")
-    ]
+    files = [species_data.get(e) for e in ("umicountsc_file", "cellmc_file", "ann_file")]
     return [os.path.join(subdir, f) for f in files]
 
 
@@ -73,7 +70,7 @@ def save_SAM_file(dataset, sam_dir):
     genes = np.array(rds.dimnames[0])
     cells = np.array(rds.dimnames[1])
 
-    print(f"Preparing SAM object...")
+    print("Preparing SAM object...")
     sam = SAM(counts=(counts, genes, cells))
     sam.preprocess_data()
 
@@ -82,9 +79,7 @@ def save_SAM_file(dataset, sam_dir):
 
     print("Adding cell types to SAM object...")
     cell_types = prepare_cell_types(cellmc_file, ann_file)
-    cell_types_map = [
-        cell_types.get(cell, "unannotated") for cell in sam.adata.obs.index
-    ]
+    cell_types_map = [cell_types.get(cell, "unannotated") for cell in sam.adata.obs.index]
     sam.adata.obs["cell"] = sam.adata.obs.index
     sam.adata.obs["celltype"] = cell_types_map
 
@@ -105,7 +100,7 @@ def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
     s2 = d2.split("_")[0]
 
     if s1 == s2:
-        print(f"Error: {d1} and {d2} share the same species ({species}), aborting!")
+        print(f"Error: {d1} and {d2} share the same species, aborting!")
         sys.exit(1)
 
     params = {s1: sam1, s2: sam2}

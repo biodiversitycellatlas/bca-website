@@ -19,9 +19,7 @@ def bca_url(path=None):
 @register.simple_tag
 def github_url(path=None):
     """Return URL to GitHub repository with path as suffix."""
-    domain = getattr(
-        settings, "GITHUB_URL", "https://github.com/biodiversitycellatlas/bca-website"
-    )
+    domain = getattr(settings, "GITHUB_URL", "https://github.com/biodiversitycellatlas/bca-website")
     path = path or ""
     return f"{domain.rstrip('/')}/{path}"
 
@@ -29,9 +27,7 @@ def github_url(path=None):
 @register.simple_tag
 def github_release_url(path=None):
     """Return URL to GitHub repository with path as suffix."""
-    domain = getattr(
-        settings, "GITHUB_URL", "https://github.com/biodiversitycellatlas/bca-website"
-    )
+    domain = getattr(settings, "GITHUB_URL", "https://github.com/biodiversitycellatlas/bca-website")
     tag = getattr(settings, "GIT_VERSION")
 
     if tag is None:
