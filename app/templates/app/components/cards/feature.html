@@ -13,7 +13,12 @@ Input:
 {% endcomment %}
 
 <div class="col my-3">
-    <img src="{{ img_url }}" class="img-fluid rounded rounded-3 mb-2">
+    <img src="{{ img_url }}"
+         class="img-fluid rounded rounded-3 mb-2"
+         alt="{{ img_alt }}"
+         width="auto"
+         height="auto">
+
     <h3 class="h5">
         {{ title }}
     </h3>
