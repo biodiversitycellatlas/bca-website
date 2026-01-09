@@ -57,7 +57,7 @@ class ImageSourceMixin(models.Model):
         return None
 
 
-class QueryableMixin:
+class ExternalQueryMixin:
     """Mixin to provide query link to external website."""
 
     source_name = "DOI"
@@ -137,17 +137,17 @@ class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     @property
     def division(self):
         """Return species division."""
-        return self.meta_set.filter(key="division").first().value
+        return self.meta_set.get(key="division").value
 
     @property
     def kingdom(self):
         """Return species kingdom."""
-        return self.meta_set.filter(key="kingdom").first().value
+        return self.meta_set.get(key="kingdom").value
 
     @property
     def phylum(self):
         """Return species phylum."""
-        return self.meta_set.filter(key="phylum").first().value
+        return self.meta_set.get(key="phylum").value
 
     @property
     def proteome(self):
@@ -235,7 +235,7 @@ class Source(models.Model):
         return self.name
 
 
-class Publication(QueryableMixin, models.Model):
+class Publication(ExternalQueryMixin, models.Model):
     """Scientific article."""
 
     title = models.CharField(max_length=500, help_text="Publication title.")
@@ -463,7 +463,7 @@ class Meta(models.Model):
     @property
     def query_url(self) -> Optional[str]:
         """Build query URL."""
-        url = self.source.query_url
+        url = getattr(self.source, "query_url", None)
         term = self.query_term
         if url and term:
             url = url.replace("{{id}}", term)
@@ -581,7 +581,7 @@ class SingleCell(models.Model):
         return self.name
 
 
-class Domain(QueryableMixin, models.Model):
+class Domain(ExternalQueryMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)
@@ -628,6 +628,11 @@ class GeneList(models.Model):
 
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
+
+    class Meta:
+        """Meta options."""
+
+        ordering = ["name"]
 
     def __str__(self):
         """String representation."""
@@ -695,6 +700,7 @@ class Gene(SlugMixin):
         """Meta options."""
 
         unique_together = ["name", "species"]
+        ordering = ["species", "name"]
 
     def __str__(self):
         """String representation."""
