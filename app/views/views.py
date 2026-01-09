@@ -28,6 +28,10 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
 
+        # Get examples for feature links
+        context["example_dataset"] = Dataset.objects.first()
+        context["example_gene"] = context["example_dataset"].species.genes.first()
+
         # Fetch number of cells, species and datasets
         counter = {
             "datasets": Dataset.objects.count(),

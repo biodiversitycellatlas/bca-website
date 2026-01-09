@@ -39,7 +39,7 @@ Features:
              class="img-fluid m-n40px"
              src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
-        <h1 class="h5 fw-semibold text-body-emphasis">BCA Data Portal</h1>
+        <h2 class="h5 fw-semibold text-body-emphasis">BCA Data Portal</h2>
         <div class="col-sm-8 col-md-6 col-lg-4 mx-auto">
             <p class="lead mb-3">
                 Explore and download single-cell datasets across the eukaryotic tree of life.
@@ -87,10 +87,41 @@ Features:
         </svg>
     {% endcomment %}
 
+    <!-- Data portal features -->
+    <h2 class="h3" id="features">Data portal features</h2>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+        {% url 'atlas_info' dataset=example_dataset as info_url %}
+        {% include "app/components/cards/feature.html" with title="Quality control" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Assess key metrics for each dataset." example_url=info_url %}
+
+        {% url 'atlas_overview' dataset=example_dataset as overview_url %}
+        {% include "app/components/cards/feature.html" with title="Cell projection" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Visualize dimensionality reduction of cells, colored by cell types or expression of a gene of interest." example_url=overview_url %}
+
+        {% include "app/components/cards/feature.html" with title="Gene expression heatmap" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Explore expression patterns of top cell type markers or specific genes." example_url=overview_url %}
+
+        {% url 'atlas_gene' dataset=example_dataset.slug gene=example_gene as gene_url %}
+        {% include "app/components/cards/feature.html" with title="Gene and ortholog expression" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Compare gene expression across cell types and their corresponding orthologs." example_url=gene_url %}
+
+        {% url 'atlas_markers' dataset=example_dataset.slug as markers_url %}
+        {% include "app/components/cards/feature.html" with title="Cell type markers" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Identify genes enriched in selected cell types." example_url=markers_url %}
+
+        {% url 'atlas_compare' dataset=example_dataset.slug as compare_url %}
+        {% include "app/components/cards/feature.html" with title="Comparative analyses" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Perform cross-species comparisons to examine cell type similarities." example_url=compare_url %}
+
+        {% url 'downloads' as downloads_url %}
+        {% include "app/components/cards/feature.html" with title="Data download" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Access and download all BCA data." explore_url=downloads_url %}
+
+        {% url 'rest:index' as rest_url %}
+        {% include "app/components/cards/feature.html" with title="REST API" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Download data programmatically with examples in multiple programming languages." docs_url=rest_url %}
+
+        {% url 'entry' as entries_url %}
+        {% include "app/components/cards/feature.html" with title="Database entries" img_url="https://images.unsplash.com/photo-1624957866304-b0dee1955e29" description="Browse a detailed index of the entries in the BCA database." explore_url=entries_url %}
+    </div>
+
     <!-- News fetched from Ghost blog RSS -->
-    <h1 class="h3" id="news">
+    <h2 class="h3" id="news">
         <a href="{% bca_url 'blog' %}" target="_blank">Latest news</a>
-    </h1>
+    </h2>
 
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
         {% load cards %}
