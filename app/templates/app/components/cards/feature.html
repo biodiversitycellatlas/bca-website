@@ -14,20 +14,24 @@ Input:
 
 <div class="col my-3">
     <img src="{{ img_url }}" class="img-fluid rounded rounded-3 mb-2">
-    <h3 class="h5">{{ title }}</h3>
-    <p class="mb-1">{{ description }}</p>
+    <h3 class="h5">
+        {{ title }}
+    </h3>
+    <p class="mb-1">
+        {{ description }}
+    </p>
 
     {% if example_url or docs_url or explore_url %}
-    <div class="small mb-3 d-flex gap-3">
-        {% if example_url %}
-            <a href="{{ example_url }}">Example</a>
-        {% endif %}
-        {% if docs_url %}
-            <a href="{{ docs_url }}">Documentation</a>
-        {% endif %}
-        {% if explore_url %}
-            <a href="{{ explore_url }}">Explore</a>
-        {% endif %}
-    </div>
+        <div class="small mb-3 d-flex gap-3">
+            {% if example_url %}
+                <a href="{{ example_url }}">Example</a>
+            {% endif %}
+            {% if docs_url %}
+                <a href="{{ docs_url }}">Documentation</a>
+            {% endif %}
+            {% if explore_url %}
+                <a href="{{ explore_url }}">Explore</a>
+            {% endif %}
+        </div>
     {% endif %}
 </div>

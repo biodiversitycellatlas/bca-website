@@ -29,9 +29,9 @@ def human_number(value):
         return value
 
     if value >= 1_000_000:
-        return f"{value/1_000_000:.0f}M"
+        return f"{value / 1_000_000:.0f}M"
     elif value >= 1_000:
-        return f"{value/1_000:.0f}K"
+        return f"{value / 1_000:.0f}K"
     else:
         return str(value)
 

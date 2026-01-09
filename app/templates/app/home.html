@@ -39,7 +39,9 @@ Features:
              class="img-fluid m-n40px"
              src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
-        <h2 class="h5 fw-semibold text-body-emphasis">BCA Data Portal</h2>
+        <h2 class="h5 fw-semibold text-body-emphasis">
+            BCA Data Portal
+        </h2>
         <div class="col-sm-8 col-md-6 col-lg-4 mx-auto">
             <p class="lead mb-3">
                 Explore and download single-cell datasets across the eukaryotic tree of life.
@@ -47,18 +49,30 @@ Features:
 
             <div class="d-flex justify-content-center text-center gap-3">
                 <div style="width: 100px;">
-                    <p id="n_cells" class="h3 mb-0">{{counter.cells|human_number}}</p>
-                    <p>cells</p>
+                    <p id="n_cells" class="h3 mb-0">
+                        {{ counter.cells|human_number }}
+                    </p>
+                    <p>
+                        cells
+                    </p>
                 </div>
 
                 <a href="{% url 'species_entry' %}" style="width: 100px;">
-                    <p id="n_genes" class="h3 mb-0">{{counter.species|human_number}}</p>
-                    <p>species</p>
+                    <p id="n_genes" class="h3 mb-0">
+                        {{ counter.species|human_number }}
+                    </p>
+                    <p>
+                        species
+                    </p>
                 </a>
 
                 <a href="{% url 'dataset_entry' %}" style="width: 100px;">
-                    <p id="n_metacells" class="h3 mb-0">{{counter.datasets|human_number}}</p>
-                    <p>datasets</p>
+                    <p id="n_metacells" class="h3 mb-0">
+                        {{ counter.datasets|human_number }}
+                    </p>
+                    <p>
+                        datasets
+                    </p>
                 </a>
             </div>
         </div>
@@ -88,7 +102,9 @@ Features:
     {% endcomment %}
 
     <!-- Data portal features -->
-    <h2 class="h3" id="features">Data portal features</h2>
+    <h2 class="h3" id="features">
+        Data portal features
+    </h2>
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
         {% url 'atlas_info' dataset=example_dataset as info_url %}
