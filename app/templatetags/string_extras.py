@@ -13,13 +13,32 @@ def split(value, delimiter=","):
 
 @register.simple_tag
 def startswith(value, arg):
-    """Return True if the string starts with the given argument."""
+    """Check if the string starts with the given arg string."""
     return value.startswith(arg)
 
 
 @register.filter
+def human_number(value):
+    """
+    Convert large number into a human-readable string.
+    Examples: 1500 -> '2K', 2000000 -> '2M', 950 -> '950'
+    """
+    try:
+        value = int(value)
+    except (ValueError, TypeError):
+        return value
+
+    if value >= 1_000_000:
+        return f"{value/1_000_000:.0f}M"
+    elif value >= 1_000:
+        return f"{value/1_000:.0f}K"
+    else:
+        return str(value)
+
+
+@register.filter
 def intspace(value):
-    """If possible, format a numeric value with spaces as thousand separators."""
+    """Convert numeric value to string with spaces as thousand separators."""
     try:
         num = float(value)
         if num.is_integer():
