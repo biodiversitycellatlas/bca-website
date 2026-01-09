@@ -84,9 +84,7 @@ def add_SAMAP_scores(filename):
 
         m1 = mc_dict[s1][mc1]
         m2 = mc_dict[s2][mc2]
-        SAMap.objects.get_or_create(
-            metacelltype=m1, metacelltype2=m2, samap=samap_rounded
-        )
+        SAMap.objects.get_or_create(metacelltype=m1, metacelltype2=m2, samap=samap_rounded)
 
 
 for f in os.listdir(samap_dir):
