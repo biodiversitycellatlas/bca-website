@@ -30,9 +30,7 @@ class SpectacularElementsView(APIView):
         )
 
     def _get_schema_url(self, request):
-        schema_url = self.url or get_relative_url(
-            reverse(self.url_name, request=request)
-        )
+        schema_url = self.url or get_relative_url(reverse(self.url_name, request=request))
         return set_query_parameters(
             url=schema_url,
             lang=request.GET.get("lang"),

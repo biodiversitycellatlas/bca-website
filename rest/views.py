@@ -514,38 +514,32 @@ class AlignViewSet(viewsets.ViewSet):
         """
         Align query sequences against proteome database from the species.
         """
-        s = models.Species.objects.filter(scientific_name=species).first()
-        db = s.files.filter(type="DIAMOND")
+        s = models.Species.objects.get(scientific_name=species)
+        db = s.files.filter(type="DIAMOND").first()
 
-        if not db.exists():
+        if db is None:
             raise ValueError(f"{species} does not have a DIAMOND database.")
-        else:
-            db = db.first()
 
         # Avoid literal newlines from GET request
         sequences = sequences.replace("\\n", "\n")
 
-        # Count lines up to a limit and get a sample from first 10 sequences
-        count = 0
-        sample = ""
+        # Check sequence limit
+        num_seq = 0
         for line in sequences.splitlines():
             if line.startswith(">"):
-                count = count + 1
-                if count > self.limit:
+                num_seq += 1
+                if num_seq > self.limit:
                     raise ValueError(f"Query can only contain up to {self.limit} FASTA sequences")
-            elif count <= 10:
-                sample = sample + line + "\n"
 
-        # Check if sample is composed of amino acids or nucleotides
-        program = "blastp" if (type is None or type == "aminoacids") else "blastx"
+        program = "blastp" if type in (None, "aminoacids") else "blastx"
 
         # Write query sequences to temporary file
-        with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".fasta") as temp_file:
-            if not sequences.startswith(">") or not sequences.startswith("@"):
-                temp_file.write(">query\n")
-            temp_file.write(sequences)
-            temp_file.write("\n")
-            query_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".fasta") as query_file:
+            if not sequences.startswith((">", "@")):
+                query_file.write(">query\n")
+            query_file.write(sequences)
+            query_file.write("\n")
+            query_path = query_file.name
         out_path = tempfile.NamedTemporaryFile(suffix=".m8").name
 
         results = []

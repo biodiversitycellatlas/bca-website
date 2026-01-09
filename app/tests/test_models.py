@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from ..models import Dataset, Publication, Source, Species
+from app.models import Dataset, Publication, Source, Species
 
 
 class SpeciesModelTest(TestCase):
@@ -14,7 +14,7 @@ class SpeciesModelTest(TestCase):
         cls.sponge = Species.objects.create(
             common_name="sponge",
             scientific_name="Amphineuron queenslandicum",
-            description="random sponge citizen",
+            description="random sponge",
         )
 
     def test_slug(self):
@@ -26,12 +26,18 @@ class DatasetModelTest(SpeciesModelTest):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.baby = Dataset(species=cls.human, name="Baby")
+        cls.baby = Dataset(
+            species=cls.human, name="Baby", image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg"
+        )
         cls.larva = Dataset(species=cls.sponge, name="Larva")
 
     def test_slug(self):
         self.assertEqual(self.baby.slug, "homo-sapiens-baby")
         self.assertEqual(self.larva.slug, "amphineuron-queenslandicum-larva")
+
+    def test_image_source(self):
+        self.assertEqual(self.baby.image_source, "Wikimedia")
+        self.assertEqual(self.larva.image_source, None)
 
 
 class PublicationModelTest(TestCase):

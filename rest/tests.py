@@ -1,7 +1,9 @@
 import math
+import tempfile
 import os.path
 
 from django.core.files import File as DjangoFile
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -109,6 +111,7 @@ class GeneTests(APITestCase):
         self.assertSetEqual({s["name"] for s in genes}, {"Gene1", "Gene2"})
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class SingleCellGeneExpressionTests(APITestCase):
     """Tests SingleCellGeneExpression Endpoint"""
 
