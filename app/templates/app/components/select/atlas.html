@@ -50,7 +50,7 @@ Input:
             </div>
 
             <div class="offcanvas-body">
-                <ul class="nav nav-pills small flex-column flex-md-row">
+                <ul class="nav nav-pills small flex-column flex-md-row flex-nowrap text-nowrap overflow-x-auto">
                     {% for link in links %}
                         <li class="nav-item">
                             <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"

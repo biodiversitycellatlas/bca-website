@@ -57,6 +57,10 @@ html:has(.subnavbar) {
     backdrop-filter: var(--subnavbar-blur);
 }
 
+.subnavbar ul.nav {
+    scrollbar-width: none;
+}
+
 .offcanvas-header {
     margin-top: 58px;
 }
