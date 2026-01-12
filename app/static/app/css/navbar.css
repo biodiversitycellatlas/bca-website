@@ -61,6 +61,13 @@ html:has(.subnavbar) {
     scrollbar-width: none;
 }
 
+.subnavbar .nav.scroll-fade {
+    /* Fade at the right edge of the element */
+    mask-image: linear-gradient(to right, white 0%, white calc(100% - 10px), transparent 100%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+}
+
 .offcanvas-header {
     margin-top: 58px;
 }
