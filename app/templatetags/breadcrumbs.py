@@ -28,7 +28,4 @@ def breadcrumbs(context, root=None, css_class=""):
             label = segment
         crumbs.append((label, url))
 
-    return {
-        "crumbs": crumbs,
-        "css_class": css_class
-    }
+    return {"crumbs": crumbs, "css_class": css_class}
