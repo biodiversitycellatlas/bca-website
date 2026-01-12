@@ -24,7 +24,7 @@ Input:
             <ul class="nav nav-pills small flex-row flex-nowrap text-nowrap overflow-x-auto scroll-fade">
                 {% for link in links %}
                     <!-- Add padding to avoid fade -->
-                    <li class="nav-item {% if forloop.last %}pe-2{% endif %}">
+                    <li class="nav-item">
                         <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"
                            href="{{ link.href }}">
                             <i class="fa fa-{{ link.icon }}"></i>

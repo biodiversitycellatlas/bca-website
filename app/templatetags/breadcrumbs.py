@@ -6,7 +6,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("app/components/links/breadcrumbs.html", takes_context=True)
-def breadcrumbs(context, main_label=None):
+def breadcrumbs(context, root=None, css_class=""):
     """Generate breadcrumb links from the current request path."""
 
     request = context["request"]
@@ -17,8 +17,8 @@ def breadcrumbs(context, main_label=None):
     for i, segment in enumerate(path):
         url += f"/{segment}"
 
-        if main_label is not None and i == 0:
-            label = main_label
+        if root is not None and i == 0:
+            label = root
         elif segment in ["gene-module", "gene-list"]:
             label = segment.replace("-", " ").capitalize()
         elif segment == segment.lower():
@@ -28,4 +28,7 @@ def breadcrumbs(context, main_label=None):
             label = segment
         crumbs.append((label, url))
 
-    return {"crumbs": crumbs}
+    return {
+        "crumbs": crumbs,
+        "css_class": css_class
+    }

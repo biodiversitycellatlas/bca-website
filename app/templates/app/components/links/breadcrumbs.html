@@ -9,7 +9,7 @@
 }
 </style>
 
-<nav class="breadcrumb-nav overflow-x-auto" aria-label="breadcrumb">
+<nav class="breadcrumb-nav overflow-x-auto {{ css_class }}" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0 flex-row flex-nowrap text-nowrap">
         {% for label, url in crumbs %}
             {% if forloop.last %}

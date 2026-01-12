@@ -53,7 +53,7 @@ Documentation: tutorials, guides, etc.
     <div class="subnavbar sticky-top">
         <div class="container-xl d-flex justify-content-between align-items-center flex-wrap flex-sm-nowrap gap-2 py-2">
             {% load breadcrumbs %}
-            {% breadcrumbs 'Documentation' %}
+            {% breadcrumbs root="Documentation" css_class="scroll-fade" %}
 
             <div class="docs btn-group flex-shrink-0" role="group">
                 <a href="{{ action_links.github }}"

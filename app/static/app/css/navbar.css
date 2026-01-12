@@ -61,7 +61,7 @@ html:has(.subnavbar) {
     scrollbar-width: none;
 }
 
-.subnavbar .nav.scroll-fade {
+.subnavbar .scroll-fade {
     /* Fade at the right edge of the element */
     -webkit-mask-image: linear-gradient(
         to right,
@@ -79,6 +79,14 @@ html:has(.subnavbar) {
     mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
+
+    display: flex;
+}
+
+.subnavbar .scroll-fade::after {
+    /* Add padding to avoid fade in the last element when scrolling */
+    content: "";
+    flex: 0 0 8px;
 }
 
 .offcanvas-header {
