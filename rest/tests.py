@@ -21,7 +21,7 @@ from app.models import (
     Ortholog,
     MetacellLink,
     MetacellGeneExpression,
-    SAMap,
+    SAMap, SpeciesFile,
 )
 
 
@@ -350,3 +350,35 @@ class SAMapTests(APITestCase):
         self.assertSetEqual({s["metacell_type"] for s in samaps}, {"type1", "type2"})
         self.assertSetEqual({s["metacell2_type"] for s in samaps}, {"type3", "type4"})
         self.assertSetEqual({s["samap"] for s in samaps}, {0.8, 0.7})
+
+
+class AlignTests(APITestCase):
+    """Tests Alignment endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        species1 = Species.objects.create(common_name="aligner", scientific_name="Alignspecies", description="Align Species")
+        test_file = os.path.join(os.path.dirname(__file__), "test_fixtures", "test-dmd-db.dmnd")
+        with open(test_file, "rb") as f:
+            django_file = DjangoFile(f, name=os.path.basename(test_file))
+            SpeciesFile.objects.get_or_create(species=species1, type="DIAMOND", defaults={"file": django_file})
+
+    def test_post(self):
+        url = "/api/v1/align/"
+        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRP", type="aminoacids", species="Alignspecies")
+
+        # species = Species.objects.get(scientific_name="Alignspecies")
+        # file = species.files.filter(type="DIAMOND").first()
+        # print(file.file.name)
+        #
+        # from app import models
+        # print([(s.scientific_name, s.common_name) for s in models.Species.objects.filter(files__type="DIAMOND")])
+
+        response = self.client.post(url, data, format='json')
+        print(response.status_code)
+
+
+
+        # alignments = response.data["results"]
+        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # self.assertEqual(len(alignments), 1)
