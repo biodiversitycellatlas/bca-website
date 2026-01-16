@@ -23,9 +23,6 @@
         <th>
             Species
         </th>
-        <th>
-            Species common name
-        </th>
     {% endif %}
 {% endblock header %}
 
@@ -42,9 +39,6 @@
     {% if not species %}
         <td>
             {{ each.species.get_genes_html_link }}
-        </td>
-        <td>
-            {{ each.species.common_name|default:'—' }}
         </td>
     {% endif %}
 {% endblock row %}

@@ -6,6 +6,10 @@ __pycache__
 db.sqlite3
 media
 
+# Postgres
+.pg_service.conf
+.pgpass
+
 # Backup files
 *.bak
 .DS_Store
@@ -23,7 +27,10 @@ app/static/app/images/logos/BCA/EPS/*
 
 # Linters
 /super-linter-output
-.lintr
 /node_modules
 package*.json
+.coverage
 
+# SSL certificates
+*.crt
+*.key

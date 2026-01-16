@@ -18,14 +18,28 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v5
+              uses: actions/checkout@v6
               with:
                   persist-credentials: false
 
-            - name: Prepare .env file
+            - name: Prepare environment
               run: |
+                  cp .pgpass.template .pgpass
+                  chmod 600 .pgpass
+                  cp .pg_service.conf.template .pg_service.conf
+
+                  # Fix for local db not loading in GitHub Actions
                   cp .env.template .env
-                  echo "ENVIRONMENT=prod" >> .env
+                  sed -i '/POSTGRES_SERVICE/d' .env
+                  cat <<EOF >> .env
+                  POSTGRES_DB=bca
+                  POSTGRES_HOST=db
+                  POSTGRES_HOST_AUTH_METHOD=trust
+                  POSTGRES_PORT=5432
+                  PGUSER=postgres
+                  POSTGRES_USER=postgres
+                  POSTGRES_PASSWORD=mypassword
+                  EOF
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v1
@@ -33,10 +47,10 @@ jobs:
             - name: Start services
               run: DOCKER_WEB_USER=root docker compose up -d --build
 
-            - name: Install coverage
+            - name: Check for missing migrations
               run: |
                   docker compose exec web \
-                      pip install coverage
+                      python manage.py makemigrations --check
 
             - name: Run tests with coverage
               run: |
@@ -63,7 +77,6 @@ jobs:
                       coverage report --skip-covered
 
             - name: Run deployment check
-              if: always()
               run: |
                   docker compose exec web \
                       python manage.py check --deploy

@@ -37,12 +37,12 @@ Input:
 
     {% include '../components/modals/list_editor.html' with id='selection' type='gene_lists' %}
 
-    <div class="d-flex justify-content-between align-items-center small">
+    <div class="d-flex flex-wrap justify-content-between align-items-center small">
         <label class="col-form-label">
             <i class="fa fa-dna"></i>
             Gene selection
         </label>
-        <div class="d-flex gap-3">
+        <div class="d-flex column-gap-3 flex-wrap justify-content-end ms-auto">
             <button type="button"
                     class="btn btn-link btn-sm"
                     data-bs-toggle="modal"

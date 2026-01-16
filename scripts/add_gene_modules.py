@@ -7,6 +7,8 @@ from pathlib import Path
 
 from scripts.utils import load_config
 
+from app.models import Dataset, GeneModule
+
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 

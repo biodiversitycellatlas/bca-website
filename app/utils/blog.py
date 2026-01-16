@@ -1,12 +1,9 @@
-"""
-Blog-related functions to get latest posts.
-"""
+"""Blog-related functions to get latest posts."""
 
 from bs4 import BeautifulSoup
 from dateutil import parser
 import feedparser
-
-from ..templatetags.bca_website_links import bca_url
+from django.conf import settings
 
 
 def remove_emojis(text):
@@ -24,12 +21,7 @@ def remove_emojis(text):
         (0x2700, 0x27BF),
     ]
 
-    return "".join(
-        c
-        for c in text
-        if c != "\u200d"
-        and not any(start <= ord(c) <= end for start, end in emoji_ranges)
-    )
+    return "".join(c for c in text if c != "\u200d" and not any(start <= ord(c) <= end for start, end in emoji_ranges))
 
 
 def parse_content(body_html):
@@ -72,34 +64,60 @@ def extract_image(entry):
 
 
 def get_latest_posts(n=3, tag=None):
-    """Fetch and parse posts from the RSS feed (optionally filtered by tag)."""
+    """
+    Fetch and parse posts from the internal Ghost container
+    using the RSS feed (optionally filtered by tag).
+    Bypasses VPN/Public DNS by using the Podman bridge network.
+    """
+    # Prepare Ghost URL based on .env
+    internal_host = getattr(settings, "GHOST_INTERNAL_URL").rstrip("/")
+    base_url = f"{internal_host}/blog"
+    tag_path = f"tag/{tag}/" if tag else ""
 
-    base_url = bca_url("blog")
-    tag_path = f"tag/{tag}" if tag else ""
-    feed_url = f"{base_url}/{tag_path}/rss/"
+    # Ensure the trailing slash is present to avoid Ghost's internal redirects
+    feed_url = f"{base_url}/{tag_path}rss/"
 
-    feed = feedparser.parse(feed_url)
-    if not feed.entries:
-        return None
+    # Add request headers based on SECURE_SSL_REDIRECT
+    is_secure = getattr(settings, "SECURE_SSL_REDIRECT", False)
 
-    posts = []
-    for entry in feed.entries[:n]:
-        # Extract content from feed
-        body_html = entry.get("content", [{}])[0].get("value")
-        items = parse_content(body_html)
+    request_headers = {}
+    if is_secure:
+        public_domain = getattr(settings, "BCA_DOMAIN", "localhost")
+        request_headers = {"Host": public_domain, "X-Forwarded-Proto": "https", "User-Agent": "BCA-Django-Internal/1.0"}
 
-        date = None
-        if entry.get("published"):
-            date = parser.parse(entry.get("published"))
+    try:
+        feed = feedparser.parse(feed_url, request_headers=request_headers)
 
-        post = {
-            "title": entry.title,
-            "link": entry.link,
-            "date": date,
-            "tags": [tag.term for tag in entry.get("tags", [])],
-            "items": items,
-            "image": extract_image(entry),
-        }
-        posts.append(post)
+        # Check for successful fetch
+        if hasattr(feed, "status") and feed.status >= 400:
+            print(f"get_latest_posts - Ghost RSS Fetch Failed: Status {feed.status} for {feed_url}")
+            return []
 
-    return posts
+        if not feed.entries:
+            return []
+
+        posts = []
+        for entry in feed.entries[:n]:
+            # Extract content from RSS feed
+            body_html = entry.get("content", [{}])[0].get("value")
+            items = parse_content(body_html)
+
+            date = None
+            if entry.get("published"):
+                date = parser.parse(entry.get("published"))
+
+            post = {
+                "title": entry.title,
+                "link": entry.link,
+                "date": date,
+                "tags": [tag.term for tag in entry.get("tags", [])],
+                "items": items,
+                "image": extract_image(entry),
+            }
+            posts.append(post)
+
+        return posts
+
+    except Exception as e:
+        print(f"get_latest_posts - Ghost RSS Internal Error: {e}")
+        return []

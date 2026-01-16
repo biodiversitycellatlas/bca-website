@@ -23,6 +23,7 @@ BCA_DOMAIN = "biodiversitycellatlas.org"
 BCA_WEBSITE = f"https://{BCA_DOMAIN}"
 BCA_EMAIL = f"bca@{BCA_DOMAIN}"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
+GHOST_INTERNAL_URL = get_env("GHOST_INTERNAL_URL", "http://ghost:2368")
 
 # Script should be adapted according to what is collected https://plausible.io/docs/plausible-script
 # PLAUSIBLE_SCRIPT = (
@@ -126,16 +127,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": get_env("POSTGRES_DB"),
-        "USER": get_env("POSTGRES_USER"),
-        "PASSWORD": get_env("POSTGRES_PASSWORD"),
-        "HOST": get_env("POSTGRES_HOST"),
-        "PORT": get_env("POSTGRES_PORT"),
+POSTGRES_SERVICE = get_env("POSTGRES_SERVICE")
+
+if POSTGRES_SERVICE:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "OPTIONS": {"service": POSTGRES_SERVICE},
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django_prometheus.db.backends.postgresql",
+            "NAME": get_env("POSTGRES_DB"),
+            "USER": get_env("POSTGRES_USER"),
+            "PASSWORD": get_env("POSTGRES_PASSWORD"),
+            "HOST": get_env("POSTGRES_HOST"),
+            "PORT": get_env("POSTGRES_PORT"),
+        }
+    }
 
 
 # Password validation

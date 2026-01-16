@@ -1,0 +1,43 @@
+services:
+    nginx:
+        ports:
+            - "443:443"
+        env_file: [.env]
+        volumes:
+            - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+            - ./nginx/entrypoint.sh:/entrypoint.sh:ro
+            # Mount entire cert directory
+            - ${CERT_DIR}:/certs:ro
+        entrypoint: ["/bin/sh", "/entrypoint.sh"]
+        depends_on:
+            - plausible
+
+    plausible:
+        image: ghcr.io/plausible/community-edition:v3.0.1
+        restart: unless-stopped
+        env_file: [.env]
+        ports:
+            - "8001:8000"
+        command: sh -c "/entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
+        volumes:
+            - plausible_data:/var/lib/plausible
+        ulimits:
+            nofile:
+                soft: 65535
+                hard: 65535
+        environment:
+            - TMPDIR=/var/lib/plausible/tmp
+            # required: https://github.com/plausible/community-edition/wiki/configuration#required
+            - BASE_URL=${PLAUSIBLE_BASE_URL}
+            - SECRET_KEY_BASE=${PLAUSIBLE_SECRET_KEY_BASE}
+            # optional: https://github.com/plausible/community-edition/wiki/configuration#optional
+            # registration: https://github.com/plausible/community-edition/wiki/configuration#registration
+            # databases: https://github.com/plausible/community-edition/wiki/configuration#database
+            - DATABASE_URL=${PLAUSIBLE_DATABASE_URL}
+            - CLICKHOUSE_DATABASE_URL=${PLAUSIBLE_CLICKHOUSE_DATABASE_URL}
+            # Google: https://github.com/plausible/community-edition/wiki/configuration#google
+            # email: https://github.com/plausible/community-edition/wiki/configuration#email
+        profiles: ["plausible"]
+
+volumes:
+    plausible_data:
