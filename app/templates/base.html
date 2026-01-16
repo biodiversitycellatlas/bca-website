@@ -52,72 +52,16 @@ Dynamic blocks:
               href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
         <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
 
-        <!-- jQuery -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-                integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-                crossorigin="anonymous"></script>
+        <!-- External CSS libraries -->
+        <link rel="stylesheet" href="{% static 'app/js/index.css' %}">
 
-        <!-- Bootstrap -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-              rel="stylesheet"
-              integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-              crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-                crossorigin="anonymous"></script>
-
-        <!-- FontAwesome icons -->
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
-              integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer" />
-
-        <!-- Phosphor icons -->
-        <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-
-        <!-- vega and vega-lite for interactive graphics -->
-        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega@6/build/vega.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-lite@6/build/vega-lite.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-embed@7/build/vega-embed.min.js"></script>
-        <!-- DataTables -->
-        <link rel="stylesheet"
-              href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" />
-        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
-        <link rel="stylesheet"
-              href="https://cdn.datatables.net/select/3.0.0/css/select.dataTables.min.css" />
-        <script src="https://cdn.datatables.net/select/3.0.0/js/dataTables.select.min.js"></script>
-
-        <!-- ion-rangeslider -->
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"
-                integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg=="
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"></script>
-
-        <!-- Selectize.js -->
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css"
-              integrity="sha512-Ars0BmSwpsUJnWMw+KoUKGKunT7+T8NGK0ORRKj+HT8naZzLSIQoOSIIM3oyaJljgLxFi0xImI5oZkAWEFARSA=="
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
-                integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"></script>
-
-        <!-- Rubik typeface from Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-              rel="stylesheet">
-
+        <!-- Custom CSS and scripts -->
         <link rel="stylesheet" href="{% static 'app/css/base.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/navbar.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/selectize.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/slider.css' %}">
         <link rel="stylesheet" href="{% static 'app/css/tables.css' %}">
+
         {# Plausible Tracking Snippet #}
         {% include 'tracking.html' %}
     </head>
@@ -144,7 +88,10 @@ Dynamic blocks:
             {% include 'footer.html' %}
         {% endblock footer %}
 
-        <!-- Enable tooltips and popovers-->
+        <!-- External JavaScript libraries -->
+        <script type="module" src="{% static 'app/js/index.js' %}"></script>
+
+        <!-- Tooltips and popovers -->
         <script type="module">
             import { enableTooltipsAndPopovers } from "{% static 'app/js/tooltips.js' %}";
             enableTooltipsAndPopovers();
