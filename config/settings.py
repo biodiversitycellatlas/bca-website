@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 import secrets
+import sys
 
 import orjson
 
@@ -97,7 +98,8 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
-if DEBUG:
+TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
+if DEBUG and not TESTING:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
     INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
