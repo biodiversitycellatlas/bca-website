@@ -1,6 +1,4 @@
-"""
-Blog-related functions to get latest posts.
-"""
+"""Blog-related functions to get latest posts."""
 
 from bs4 import BeautifulSoup
 from dateutil import parser
@@ -71,27 +69,23 @@ def get_latest_posts(n=3, tag=None):
     using the RSS feed (optionally filtered by tag).
     Bypasses VPN/Public DNS by using the Podman bridge network.
     """
-    posts = []  # Define an empty list for posts
-
-    # 1. Use internal container name and port
-    # Get the base from .env and append the path
-    internal_host = getattr(settings, "GHOST_INTERNAL_HOST", "http://ghost:2368").rstrip("/")
-    public_domain = getattr(settings, "BCA_DOMAIN", "localhost")
+    # Prepare Ghost URL based on .env
+    internal_host = getattr(settings, "GHOST_INTERNAL_URL").rstrip("/")
     base_url = f"{internal_host}/blog"
     tag_path = f"tag/{tag}/" if tag else ""
+
     # Ensure the trailing slash is present to avoid Ghost's internal redirects
     feed_url = f"{base_url}/{tag_path}rss/"
 
-    # 2. Detect if the app is in "Secure" mode
-    # We check if SECURE_SSL_REDIRECT is True (common in prod)
+    # Add request headers based on SECURE_SSL_REDIRECT
     is_secure = getattr(settings, "SECURE_SSL_REDIRECT", False)
 
     request_headers = {}
     if is_secure:
+        public_domain = getattr(settings, "BCA_DOMAIN", "localhost")
         request_headers = {"Host": public_domain, "X-Forwarded-Proto": "https", "User-Agent": "BCA-Django-Internal/1.0"}
 
     try:
-        # feedparser.parse can take headers directly
         feed = feedparser.parse(feed_url, request_headers=request_headers)
 
         # Check for successful fetch
@@ -102,8 +96,9 @@ def get_latest_posts(n=3, tag=None):
         if not feed.entries:
             return []
 
+        posts = []
         for entry in feed.entries[:n]:
-            # Extract content from feed
+            # Extract content from RSS feed
             body_html = entry.get("content", [{}])[0].get("value")
             items = parse_content(body_html)
 

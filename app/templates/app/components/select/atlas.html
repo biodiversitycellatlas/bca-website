@@ -4,7 +4,6 @@ Atlas selection dropdown and tab navigation for Cell Atlas
 
 Features:
 - Allows user to search dataset by species and metadata (including taxonomic ranks)
-- Atlas selection dropdown is initially invisible to prevent Flash of Unstyled Content (FOUC)
 - Upon dataset selection, the user is redirected to that dataset page
 - Navigation tabs redirect to different views for the selected dataset
 - When no dataset is selected, mockup is shown and navigation tabs are disabled
@@ -21,19 +20,40 @@ Input:
 <!-- Subnavbar to navigate the Cell Atlas -->
 <div class="subnavbar sticky-top py-1">
     <div class="container-xxl">
-        <ul class="nav nav-pills small d-md-none">
-            <li class="nav-item">
-                <a class="nav-link p-2 small"
-                   data-bs-toggle="offcanvas"
-                   href="#offcanvas"
-                   role="button">
-                    <i class="fa fa-ellipsis-vertical fa-fw"></i>
-                    Show Cell Atlas sections
-                </a>
-            </li>
-        </ul>
+        <div class="d-flex">
+            <ul class="nav nav-pills small flex-row flex-nowrap text-nowrap overflow-x-auto scroll-fade">
+                {% for link in links %}
+                    <!-- Add padding to avoid fade -->
+                    <li class="nav-item">
+                        <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"
+                           href="{{ link.href }}">
+                            <i class="fa fa-{{ link.icon }}"></i>
+                            {{ link.name }}
+                            {% if link.tooltip %}
+                                <i class="fa fa-circle-question"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="bottom"
+                                   data-bs-title="{{ link.tooltip }}"></i>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
 
-        <div class="offcanvas-md offcanvas-start"
+            <ul class="nav nav-pills small ms-auto text-nowrap">
+                <li class="nav-item">
+                    <a class="nav-link p-2 small"
+                       data-bs-toggle="offcanvas"
+                       href="#offcanvas"
+                       role="button">
+                        <i class="fa fa-ellipsis-vertical fa-fw"></i>
+                        Show all
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="offcanvas offcanvas-start"
              tabindex="-1"
              id="offcanvas"
              aria-labelledby="bdSidebarOffcanvasLabel">
@@ -50,7 +70,7 @@ Input:
             </div>
 
             <div class="offcanvas-body">
-                <ul class="nav nav-pills small flex-column flex-md-row">
+                <ul class="nav nav-pills small flex-column flex-nowrap text-nowrap overflow-x-auto">
                     {% for link in links %}
                         <li class="nav-item">
                             <a class="nav-link p-2 {% if link.active %}active{% endif %} {% if link.disabled %}disabled{% endif %}"
@@ -80,3 +100,8 @@ Input:
 <!--{% if dataset %}
 <script>document.cookie='dataset={{dataset}}';</script>
 {% endif %}-->
+
+<!-- Scroll to active element -->
+<script>
+    $(".subnavbar .flex-row .active")[0].scrollIntoView({ inline: "center", block: "nearest" });
+</script>

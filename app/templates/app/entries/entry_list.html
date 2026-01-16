@@ -16,22 +16,24 @@ List entries - base template
 
     {% if object_list %}
         <style>td, th { vertical-align: middle; }</style>
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    {% block header %}
-                    {% endblock header %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for each in object_list %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
                     <tr>
-                        {% block row %}
-                        {% endblock row %}
+                        {% block header %}
+                        {% endblock header %}
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for each in object_list %}
+                        <tr>
+                            {% block row %}
+                            {% endblock row %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <p>
             {% block unfound %}
