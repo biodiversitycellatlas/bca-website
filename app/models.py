@@ -247,19 +247,29 @@ class Publication(ExternalQueryMixin, models.Model):
     doi = models.CharField(max_length=255, unique=True, help_text="DOI (Digital Object Identifier).")
     pmid = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
 
+    def format_author_name(self, author):
+        """Return full name for groups, last name for people."""
+        name = author.strip()
+
+        # Check if author is a collective
+        group_keywords = {"consortium", "committee", "group", "team", "collaboration", "project"}
+        if not set(name.lower().split()) & group_keywords:
+            name = name.split()[-1]
+        return name
+
     def create_short_citation(self):
         """Return a condensed in-line citation like 'Darwin et al., 2017'."""
         if self.authors == "":
             return f"Unknown, {self.year}"
 
-        # Get last name of first author
+        # Format name of first author
         authors = self.authors.split(",")
-        first = authors[0].split()[-1]
+        first = self.format_author_name(authors[0])
         if len(authors) == 1:
             citation = f"{first}, {self.year}"
         elif len(authors) == 2:
-            # Get last name of second author
-            second = authors[1].split()[-1]
+            # Format name of second author
+            second = self.format_author_name(authors[1])
             citation = f"{first} & {second}, {self.year}"
         else:
             citation = f"{first} et al., {self.year}"
