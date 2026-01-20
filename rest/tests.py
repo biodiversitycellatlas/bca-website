@@ -21,7 +21,8 @@ from app.models import (
     Ortholog,
     MetacellLink,
     MetacellGeneExpression,
-    SAMap, SpeciesFile,
+    SAMap,
+    SpeciesFile,
 )
 
 

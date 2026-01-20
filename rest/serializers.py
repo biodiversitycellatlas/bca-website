@@ -3,7 +3,6 @@ REST API serializers.
 """
 
 from operator import attrgetter
-from tkinter.scrolledtext import example
 
 from django.conf import settings
 from django.db.models import Avg, Max, Min, StdDev, Sum
