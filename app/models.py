@@ -13,9 +13,9 @@ from django.utils.text import slugify
 
 
 class AutoSlugMixin(models.Model):
-    """Abstract mixin to add automatic slug to model."""
+    """Abstract mixin to add an automatic slug to the model."""
 
-    slug = models.SlugField(unique=False, blank=True)
+    slug = models.SlugField(unique=True, blank=True)
 
     class Meta:
         """Meta options."""
@@ -23,7 +23,7 @@ class AutoSlugMixin(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        """Save slug if not provided."""
+        """Format the model representation for safe use in URLs."""
 
         if not self.slug:
             self.slug = slugify(str(self))
