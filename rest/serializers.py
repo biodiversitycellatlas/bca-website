@@ -3,6 +3,7 @@ REST API serializers.
 """
 
 from operator import attrgetter
+from tkinter.scrolledtext import example
 
 from django.conf import settings
 from django.db.models import Avg, Max, Min, StdDev, Sum
@@ -11,7 +12,6 @@ from rest_framework import serializers
 
 from app import models
 from .aggregates import PercentileCont
-from .utils import check_model_exists
 
 
 class MetaSerializer(serializers.ModelSerializer):
@@ -687,14 +687,9 @@ class AlignRequestSerializer(serializers.Serializer):
             "for proteins (default) or <kbd>nucleotides</kbd> for DNA/RNA."
         ),
     )
-    species = serializers.ChoiceField(
-        choices=(
-            [(s.scientific_name, s.common_name) for s in models.Species.objects.filter(files__type="DIAMOND")]
-            if check_model_exists(models.Species)
-            else []
-        ),
+    species = serializers.CharField(
         required=True,
-        help_text="The [species' scientific name](#/operations/species_list).",
+        help_text="The [species' scientific name](#/operations/species_list)."
     )
 
 
