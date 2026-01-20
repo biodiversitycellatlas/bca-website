@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from app.models import Dataset, Publication, Source, Species
+from app.models import Publication, Source, Species
 
 
 class SpeciesModelTest(TestCase):
@@ -26,7 +26,9 @@ class DatasetModelTest(SpeciesModelTest):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.baby = cls.human.datasets.create(name="baby", image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg")
+        cls.baby = cls.human.datasets.create(
+            name="baby", image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg"
+        )
         cls.larva = cls.sponge.datasets.create(name="larva")
 
     def test_slug(self):
