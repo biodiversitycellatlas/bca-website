@@ -359,9 +359,8 @@ class AlignTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(
-            common_name="aligner",
-            scientific_name="Alignspecies",
-            description="Align Species")
+            common_name="aligner", scientific_name="Alignspecies", description="Align Species"
+        )
         test_file = os.path.join(
             os.path.dirname(__file__), "test_fixtures", "test-dmd-db.dmnd")
         with open(test_file, "rb") as f:
@@ -397,9 +396,7 @@ class AlignTests(APITestCase):
 
     def test_post(self):
         url = "/api/v1/align/"
-        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRPRS",
-                    type="aminoacids",
-                    species="Alignspecies")
+        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRPRS", type="aminoacids", species="Alignspecies")
 
         response = self.client.post(url, data, format="json")
 

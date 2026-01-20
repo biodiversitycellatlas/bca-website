@@ -687,8 +687,7 @@ class AlignRequestSerializer(serializers.Serializer):
         ),
     )
     species = serializers.CharField(
-        required=True,
-        help_text="The [species' scientific name](#/operations/species_list)."
+        required=True, help_text="The [species' scientific name](#/operations/species_list)."
     )
 
 
