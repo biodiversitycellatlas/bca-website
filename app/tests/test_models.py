@@ -74,6 +74,15 @@ class PublicationModelTest(TestCase):
             doi="10.1016/0022-2836(78)90346-7",
         )
 
+        cls.mouse = Publication.objects.create(
+            title="Single-cell transcriptomics of 20 mouse organs creates a Tabula Muris",
+            authors="The Tabula Muris Consortium",
+            year=2018,
+            journal="Nature",
+            pmid=30283141,
+            doi="10.1038/s41586-018-0590-4",
+        )
+
         cls.standards = Publication.objects.create(
             title="2021 Infusion Therapy Standards of Practice Updates",
             year=2021,
@@ -86,11 +95,13 @@ class PublicationModelTest(TestCase):
         self.assertEqual(self.dna.create_short_citation(), "Watson & Crick, 1953")
         self.assertEqual(self.proteins.create_short_citation(), "Dayhoff, 1976")
         self.assertEqual(self.genetic_code.create_short_citation(), "Sanger et al., 1978")
+        self.assertEqual(self.mouse.create_short_citation(), "The Tabula Muris Consortium, 2018")
         self.assertEqual(self.standards.create_short_citation(), "Unknown, 2021")
 
     def test_string_representation(self):
-        self.assertEqual(str(self.dna), "Watson & Crick, 1953")
-        self.assertEqual(str(self.proteins), "Dayhoff, 1976")
+        self.assertEqual(str(self.dna), self.dna.create_short_citation())
+        self.assertEqual(str(self.proteins), self.proteins.create_short_citation())
+        self.assertEqual(str(self.mouse), self.mouse.create_short_citation())
 
     def test_get_source_html_link(self):
         self.assertEqual(
