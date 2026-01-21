@@ -12,8 +12,26 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 
-class SlugMixin(models.Model):
-    """Abstract model mixin that adds slug-related fields or behavior."""
+class AutoSlugMixin(models.Model):
+    """Abstract mixin to add an automatic slug to the model."""
+
+    slug = models.SlugField(unique=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """Format the model representation for safe use in URLs."""
+
+        if not self.slug:
+            self.slug = slugify(str(self))
+        super().save(*args, **kwargs)
+
+
+class DynamicSlugMixin(models.Model):
+    """Abstract mixin to create slug dynamically."""
 
     class Meta:
         """Meta options."""
@@ -126,7 +144,7 @@ class HtmlLinkMixin:
         return self.get_html_link(url=url, show_common_name=True)
 
 
-class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
+class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
 
     common_name = models.CharField(max_length=100, null=True, help_text="Common name of the species.")
@@ -290,7 +308,7 @@ class Publication(ExternalQueryMixin, models.Model):
         return self.create_short_citation()
 
 
-class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
+class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
@@ -507,7 +525,7 @@ class Meta(models.Model):
         return f"{self.key.capitalize()}: {self.value}"
 
 
-class MetacellType(SlugMixin):
+class MetacellType(DynamicSlugMixin):
     """Metacell type model."""
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_types")
@@ -649,7 +667,7 @@ class GeneList(models.Model):
         return str(self.name)
 
 
-class Gene(SlugMixin):
+class Gene(DynamicSlugMixin):
     """Gene model per species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="genes")
