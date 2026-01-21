@@ -1,6 +1,12 @@
 {
     "threshold": 10,
     "reporters": ["consoleFull"],
-    "ignore": ["**/__snapshots__/**", "**/node_modules/**", "**/*.svg", "**/htmlcov/**", "**/.venv/**"],
+    "ignore": [
+        "**/__snapshots__/**",
+        "**/node_modules/**",
+        "**/*.svg",
+        "**/htmlcov/**",
+        "**/.venv/**"
+    ],
     "absolute": true
 }
