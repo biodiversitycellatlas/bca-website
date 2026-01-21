@@ -21,7 +21,7 @@ spaces_around_operators = true
 spaces_around_brackets = false
 
 
-[rest/test_fixtures/gene_expression_test.hdf5]
+[rest/test_fixtures/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
