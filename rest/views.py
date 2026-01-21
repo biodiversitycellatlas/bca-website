@@ -458,7 +458,7 @@ class AlignViewSet(viewsets.ViewSet):
                 location="query",
                 required=True,
                 description=serializers.AlignRequestSerializer().fields["species"].help_text,
-                examples=[OpenApiExample("Species", value="Mus musculus")],
+                examples=[OpenApiExample("Species", value="Trichoplax adhaerens")],
             ),
             OpenApiParameter(
                 "sequences",
