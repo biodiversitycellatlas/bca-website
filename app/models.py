@@ -15,7 +15,7 @@ from django.utils.text import slugify
 class AutoSlugMixin(models.Model):
     """Abstract mixin to add an automatic slug to the model."""
 
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, null=True)
 
     class Meta:
         """Meta options."""
