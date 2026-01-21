@@ -21,15 +21,7 @@ spaces_around_operators = true
 spaces_around_brackets = false
 
 
-[rest/test_fixtures/gene_expression_test.hdf5]
-charset = unset
-end_of_line = unset
-insert_final_newline = unset
-trim_trailing_whitespace = unset
-indent_style = unset
-indent_size = unset
-
-[rest/test_fixtures/test-dmd-db.dmnd]
+[rest/test_fixtures/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
