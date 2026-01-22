@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "datatables.net-bs5";
 
 import { getDataPortalUrl } from "../../utils/urls.ts";
 import { highlightMatch } from "../../utils/utils.ts";
@@ -529,6 +530,34 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
 }
 
 /**
+ * Update table based on selection.
+ *
+ * @param {string} id - Base identifier.
+ * @param {Object} dataset - Dataset reference for table creation.
+ */
+function updateTable(id, dataset) {
+    // Create gene table
+    createGeneTable(`${id}_editor_table`, dataset);
+
+    // Update interface based on selection
+    var table = $(`#${id}_editor_table`).DataTable();
+    table.on("select deselect", function (e, dt, type) {
+        if (type === "row") {
+            const len = getSelectedRows(`${id}_editor_table`).length;
+            var label = `${len} selected gene` + (len === 1 ? "" : "s");
+            $(`#${id}_new_selected_count`).text(label);
+
+            // Disable element if no rows are selected
+            if (len === 0) {
+                $(`#${id}_new_selected`).addClass("disabled");
+            } else {
+                $(`#${id}_new_selected`).removeClass("disabled");
+            }
+        }
+    });
+}
+
+/**
  * Load and render preset gene lists.
  *
  * @param {string} id - Base identifier.
@@ -548,26 +577,7 @@ export function loadGeneLists(id, species, dataset) {
             });
             drawUserLists(id, species);
         })
-        .then(() => {
-            // Create gene table
-            createGeneTable(`${id}_editor_table`, dataset);
-            // Update interface based on selection
-            var table = $(`#${id}_editor_table`).DataTable();
-            table.on("select deselect", function (e, dt, type) {
-                if (type === "row") {
-                    const len = getSelectedRows(`${id}_editor_table`).length;
-                    var label = `${len} selected gene` + (len === 1 ? "" : "s");
-                    $(`#${id}_new_selected_count`).text(label);
-
-                    // Disable element if no rows are selected
-                    if (len === 0) {
-                        $(`#${id}_new_selected`).addClass("disabled");
-                    } else {
-                        $(`#${id}_new_selected`).removeClass("disabled");
-                    }
-                }
-            });
-        })
+        .then(() => updateTable(id, dataset))
         .catch((error) => {
             console.error("Error fetching data:", error);
         });

@@ -2,8 +2,7 @@
  * Create interactive gene tables using DataTables.
  */
 
-/* global $, jQuery */
-
+import $ from "jquery";
 import { makeLinkGene, parseArray } from "./utils.ts";
 
 function buildDataQuery(data) {
@@ -23,7 +22,7 @@ function buildDataQuery(data) {
 }
 
 function filterData(data) {
-    var json = jQuery.parseJSON(data);
+    var json = JSON.parse(data);
     json.recordsTotal = json.count;
     json.recordsFiltered = json.count;
     json.data = json.list;
