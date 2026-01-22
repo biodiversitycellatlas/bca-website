@@ -3,7 +3,7 @@ from typing import Type, Any, List
 
 from django.core.checks import Error, register
 from django.core import checks
-from django.core.checks.registry import CheckRegistry, register
+from django.core.checks.registry import register
 
 from app.models import DatasetFile, SpeciesFile
 
