@@ -35,4 +35,3 @@ def do_files_exist(cls: Type[Any]) -> List[Error]:
                 )
             )
     return errors
-
