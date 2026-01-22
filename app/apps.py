@@ -3,7 +3,6 @@ import logging
 from django.apps import AppConfig
 
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -14,4 +13,4 @@ class AppConfig(AppConfig):
 
     def ready(self):
         super().ready()
-        from .systemchecks.files import check_application_files # noqa:  F401 
+        from .systemchecks.files import check_application_files # noqa: F401
