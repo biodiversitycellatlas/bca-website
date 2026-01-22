@@ -70,7 +70,7 @@ Input:
                         <button type="button"
                                 id="clear_selected_genes"
                                 class="btn btn-link btn-sm d-block text-end"
-                                onclick="$('#{{ id }}_gene_selection')[0].selectize.clear();">
+                                onclick="document.getElementById('{{ id }}_gene_selection').selectize.clear();">
                             Clear selection
                         </button>
 
@@ -112,7 +112,7 @@ Input:
                             <button type="button"
                                     id="select_all_metacells"
                                     class="btn btn-link btn-sm d-block text-end"
-                                    onclick="$('#metacells')[0].selectize.clear();">
+                                    onclick="document.getElementById('metacells').selectize.clear();">
                                 Select all metacells
                             </button>
                         </div>

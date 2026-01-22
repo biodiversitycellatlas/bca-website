@@ -150,7 +150,8 @@ Input:
             from "{% static 'app/js/atlas/markers.js' %}";
 
         // Hide slider depending on value of #fc_max_bg_type
-        toggleMaxFCslider($('#fc_max_bg_type')[0], '#fc_max_bg');
+        var fc_max_bg_type = document.getElementById('fc_max_bg_type');
+        toggleMaxFCslider(fc_max_bg_type, '#fc_max_bg');
         window.toggleMaxFCslider = toggleMaxFCslider;
 
         handleFormSubmit();
