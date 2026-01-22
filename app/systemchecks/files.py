@@ -27,7 +27,7 @@ def do_files_exist(cls: Type[Any]) -> List[Error]:
         if size < MIN_SIZE:
             errors.append(
                 Error(
-                    "file is has size smaller than {MIN_SIZE} bytes",
+                    "file has size smaller than {MIN_SIZE} bytes",
                     hint="small file size",
                     obj=path,
                     id="bca.E001",
