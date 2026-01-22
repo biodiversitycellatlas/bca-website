@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import { copyToClipboard } from "./clipboard.ts";
 
 /**
  * Get the current URL from a data view button.
@@ -18,40 +19,6 @@ function getDataURL(id, index) {
 }
 
 /**
- * Download data from the specified view button URL.
- *
- * @param {string} id - Data menu identifier.
- * @param {number} index - Index of the download button.
- */
-function downloadData(id, index) {
-    // Disable download button and change icon to spinner
-    const button = $(`a[name="data_download_${id}"]`)[index];
-    button.classList.add("disabled");
-    const previousInnerHTML = button.innerHTML;
-    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Downloading...';
-
-    // Prepare filename
-    let url = getDataURL(id, index);
-    let format = url.searchParams.get("format");
-    let filename = url.pathname.split("/").filter(Boolean).pop();
-
-    // Fetch and download data
-    fetch(url)
-        .then((response) => response.blob())
-        .then((blob) => {
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `${filename}.${format}`;
-            link.click();
-        })
-        .catch((error) => console.error("Error downloading file:", error))
-        .finally(() => {
-            button.classList.remove("disabled");
-            button.innerHTML = previousInnerHTML;
-        });
-}
-
-/**
  * Copy the API URL for a data view button to the clipboard.
  *
  * @param {string} id - Data menu identifier.
@@ -59,16 +26,8 @@ function downloadData(id, index) {
  */
 function copyDataLink(id, index) {
     const btn = $(`a[name="data_link_${id}"]`).eq(index);
-    btn.addClass("disabled");
-
     const url = getDataURL(id, index);
-    navigator.clipboard.writeText(url.href);
-    btn.tooltip("show");
-
-    setTimeout(function () {
-        btn.tooltip("hide");
-        btn.removeClass("disabled");
-    }, 500);
+    copyToClipboard(btn, url.href);
 }
 
 /**

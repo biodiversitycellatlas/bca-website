@@ -12,19 +12,23 @@ import { Tooltip, Popover } from "bootstrap";
  */
 export function enableTooltipsAndPopovers() {
     // Allow table elements in tooltips
-    Tooltip.Default.allowList.table = [];
-    Tooltip.Default.allowList.thead = [];
-    Tooltip.Default.allowList.tbody = [];
-    Tooltip.Default.allowList.tr = [];
-    Tooltip.Default.allowList.td = [];
+    Tooltip.Default.allowList = {
+        ...Tooltip.Default.allowList,
+        table: [],
+        thead: [],
+        tbody: [],
+        tr: [],
+        td: [],
+    };
 
-    const tooltipTriggerList = document.querySelectorAll(
-        '[data-bs-toggle="tooltip"]',
-    );
-    tooltipTriggerList.forEach((el) => new Tooltip(el));
+    // Enable tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+        new Tooltip(el);
+    });
 
-    const popoverTriggerList = document.querySelectorAll(
-        '[data-bs-toggle="popover"]',
-    );
-    popoverTriggerList.forEach((el) => new Popover(el));
+    // Enable popovers
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
+        new Popover(el);
+    });
+
 }

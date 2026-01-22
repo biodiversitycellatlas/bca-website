@@ -90,12 +90,6 @@ Dynamic blocks:
 
         <!-- External JavaScript libraries -->
         <script type="module" src="{% static 'app/js/index.js' %}"></script>
-
-        <!-- Tooltips and popovers -->
-        <script type="module">
-            import { enableTooltipsAndPopovers } from "{% static 'app/js/utils/tooltips.js' %}";
-            enableTooltipsAndPopovers();
-        </script>
         {% include 'app/components/javascript_urls.html' %}
     </body>
 </html>
