@@ -3,7 +3,7 @@
  *
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";

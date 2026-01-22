@@ -3,7 +3,7 @@
  * Also allows table HTML tags in tooltips.
  */
 
-/* global bootstrap */
+import { Tooltip, Popover } from "bootstrap";
 
 /**
  * Initialize Bootstrap tooltips and popovers across the page.
@@ -12,19 +12,19 @@
  */
 export function enableTooltipsAndPopovers() {
     // Allow table elements in tooltips
-    bootstrap.Tooltip.Default.allowList.table = [];
-    bootstrap.Tooltip.Default.allowList.thead = [];
-    bootstrap.Tooltip.Default.allowList.tbody = [];
-    bootstrap.Tooltip.Default.allowList.tr = [];
-    bootstrap.Tooltip.Default.allowList.td = [];
+    Tooltip.Default.allowList.table = [];
+    Tooltip.Default.allowList.thead = [];
+    Tooltip.Default.allowList.tbody = [];
+    Tooltip.Default.allowList.tr = [];
+    Tooltip.Default.allowList.td = [];
 
     const tooltipTriggerList = document.querySelectorAll(
         '[data-bs-toggle="tooltip"]',
     );
-    tooltipTriggerList.forEach((el) => new bootstrap.Tooltip(el));
+    tooltipTriggerList.forEach((el) => new Tooltip(el));
 
     const popoverTriggerList = document.querySelectorAll(
         '[data-bs-toggle="popover"]',
     );
-    popoverTriggerList.forEach((el) => new bootstrap.Popover(el));
+    popoverTriggerList.forEach((el) => new Popover(el));
 }

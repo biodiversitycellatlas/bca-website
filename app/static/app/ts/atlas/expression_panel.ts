@@ -2,7 +2,7 @@
  * Gene panel expression page.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";

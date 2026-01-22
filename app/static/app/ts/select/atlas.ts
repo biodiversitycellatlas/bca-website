@@ -2,7 +2,7 @@
  * Cell Atlas selectize element.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Toggles the 'plugin-optgroup_columns' class on 'atlas-select' based on the

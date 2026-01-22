@@ -2,7 +2,7 @@
  * Search bar initialization and results rendering.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 

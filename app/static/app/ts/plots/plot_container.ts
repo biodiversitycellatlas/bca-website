@@ -6,7 +6,7 @@
  *   - Spinner element:  <id>-spinner
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Get the spinner element for a given container id.

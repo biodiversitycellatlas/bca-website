@@ -2,7 +2,7 @@
  * Create interactive DataTables for gene markers.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { makeLinkGene, round, parseArray } from "./utils.ts";
 

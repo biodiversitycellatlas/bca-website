@@ -2,7 +2,7 @@
  * Utility functions for DataTables displaying gene information.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../../utils/urls.ts";
 

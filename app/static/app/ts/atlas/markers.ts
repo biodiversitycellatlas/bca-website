@@ -2,7 +2,7 @@
  * Metacell markers page.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { createMarkersTable } from "./tables/markers_table.ts";

@@ -2,7 +2,7 @@
  * Dropdown to view, download and copy links to data.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Get the current URL from a data view button.

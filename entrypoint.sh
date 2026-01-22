@@ -21,6 +21,10 @@ has_table() {
         );" | grep -q t
 }
 
+# Prepare JS and CSS dependencies
+bun install
+bun run build:ts
+
 # Check whether the environment is production
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
     # Create tables with data models if they do not exist

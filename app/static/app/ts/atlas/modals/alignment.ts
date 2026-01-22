@@ -2,10 +2,10 @@
  * Sequence alignment functions.
  */
 
+import $ from "jquery";
+
 import { getDataPortalUrl } from "../../utils/urls.ts";
 import { appendUserList, redrawUserLists } from "./list_editor.ts";
-
-/* global $ */
 
 /**
  * File upload for FASTA sequences.

@@ -2,6 +2,8 @@
  * Plot gene expression comparisons.
  */
 
+import $ from "jquery";
+
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionComparisonPlot } from "../plots/expression_plot.ts";
@@ -10,8 +12,6 @@ import {
     hideSpinner,
     clearContainer,
 } from "../plots/plot_container.js";
-
-/* global $ */
 
 /**
  * Plot expression comparison for the selected gene against a reference gene.

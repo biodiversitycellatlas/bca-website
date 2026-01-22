@@ -2,7 +2,7 @@
  * Dataset dropdown UI selectize element.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 

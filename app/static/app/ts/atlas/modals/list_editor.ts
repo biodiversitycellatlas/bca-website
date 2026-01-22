@@ -2,12 +2,12 @@
  * Dataset selectize element.
  */
 
+import $ from "jquery";
+
 import { getDataPortalUrl } from "../../utils/urls.ts";
 import { highlightMatch } from "../../utils/utils.ts";
 import { createGeneTable } from "../tables/gene_table.ts";
 import { getSelectedRows } from "../tables/utils.ts";
-
-/* global $ */
 
 /**
  * Normalizes list identifier.

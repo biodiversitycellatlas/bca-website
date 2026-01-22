@@ -2,7 +2,7 @@
  * Gene selectize element.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Convert a comma-separated list of numbers into ranges.

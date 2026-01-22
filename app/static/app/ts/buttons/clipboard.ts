@@ -2,7 +2,7 @@
  * Clipboard functions.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Copy the current page URL to the clipboard and temporarily show confirmation

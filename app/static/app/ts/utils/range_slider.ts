@@ -2,7 +2,7 @@
  * Utility functions for range sliders.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Update text content and ionRangeSlider settings.

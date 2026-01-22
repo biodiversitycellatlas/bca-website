@@ -2,7 +2,7 @@
  * Gene selectize element.
  */
 
-/* global $ */
+import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { getAllLists } from "../atlas/modals/list_editor.ts";

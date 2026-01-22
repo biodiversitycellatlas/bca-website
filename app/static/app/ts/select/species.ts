@@ -2,7 +2,7 @@
  * Dataset dropdown UI selectize element.
  */
 
-/* global $ */
+import $ from "jquery";
 
 /**
  * Render a dropdown option for a species.
