@@ -3,6 +3,8 @@
  */
 
 import $ from "jquery";
+import "ion-rangeslider";
+window.$ = $;
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { createMarkersTable } from "./tables/markers_table.ts";
@@ -13,10 +15,9 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
  * Toggle maximum fold-change slider based on selection.
  *
  * @param {HTMLSelectElement} elem - Select element controlling the slider.
- * @param {string} id - Selector for the ionRangeSlider element.
+ * @param {Object} slider - ionRangeSlider slider element.
  */
-export function toggleMaxFCslider(elem, id) {
-    let slider = $(id).data("ionRangeSlider");
+export function toggleMaxFCslider(elem, slider) {
     if (elem.value == "ignore") {
         slider.update({ disable: true });
     } else {
