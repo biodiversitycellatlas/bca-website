@@ -31,7 +31,7 @@ def do_files_exist(cls: Type[Any]) -> List[Error]:
                     "file is has size smaller than {MIN_SIZE} bytes",
                     hint="small file size",
                     obj=path,
-                    id='bca.E001',
+                    id="bca.E001",
                 )
             )
     return errors
