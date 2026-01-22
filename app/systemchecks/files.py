@@ -1,7 +1,7 @@
 import os
 from typing import Type, Any, List
 
-from django.core.checks import Error, Tags, register
+from django.core.checks import Error, register
 from django.core import checks
 from django.core.checks.registry import CheckRegistry, register
 
