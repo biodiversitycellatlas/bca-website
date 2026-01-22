@@ -6,11 +6,8 @@ import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { hideSpinner } from "../plots/plot_container.ts";
-import {
-    createMetacellProjection,
-    viewMetacellProjection,
-} from "../plots/metacell_scatterplot.js";
+import { hideSpinner } from "./plots/plot_container.ts";
+import { createMetacellProjection, viewMetacellProjection } from "./plots/metacell_scatterplot.js";
 
 /**
  * Toggle gene selection input.

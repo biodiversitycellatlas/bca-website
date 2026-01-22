@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "ion-rangeslider";
 
 /**
  * Update text content and ionRangeSlider settings.

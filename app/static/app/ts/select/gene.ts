@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "@selectize/selectize";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { getAllLists } from "../atlas/modals/list_editor.ts";

@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "@selectize/selectize";
 
 /**
  * Render a dropdown option for a species.

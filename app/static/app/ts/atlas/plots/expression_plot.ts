@@ -4,7 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
-import { escapeString } from "../utils/utils.ts";
+import { escapeString } from "../../utils/utils.ts";
 
 /**
  * Render bubble plot showing expression levels of a single gene across metacells.

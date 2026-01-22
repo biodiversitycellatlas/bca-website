@@ -6,12 +6,8 @@ import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
-import { createExpressionComparisonPlot } from "../plots/expression_plot.ts";
-import {
-    showSpinner,
-    hideSpinner,
-    clearContainer,
-} from "../plots/plot_container.js";
+import { createExpressionComparisonPlot } from "./plots/expression_plot.ts";
+import { showSpinner, hideSpinner, clearContainer } from "./plots/plot_container.js";
 
 /**
  * Plot expression comparison for the selected gene against a reference gene.

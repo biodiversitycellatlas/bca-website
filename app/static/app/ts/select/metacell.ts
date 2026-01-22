@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "@selectize/selectize";
 
 /**
  * Convert a comma-separated list of numbers into ranges.

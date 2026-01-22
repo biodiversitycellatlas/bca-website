@@ -199,7 +199,7 @@ Input:
 
     import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
-    $(function() {
+    document.addEventListener("DOMContentLoaded", () => {
         initMetacellSelectionLabelUpdater();
         {% if type == 'gene-lists' %}
             initSubmitButtonToggler('{{id}}');
@@ -237,7 +237,7 @@ Input:
 
     <script type="module">
         import { loadExpressionData } from "{% static 'app/js/atlas/expression_panel.js' %}";
-        $(function() {
+        document.addEventListener("DOMContentLoaded", () => {
             loadExpressionData("{{id}}", "{{dataset.slug}}", "{{query.genes}}");
         });
     </script>

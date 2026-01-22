@@ -5,7 +5,7 @@
 import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
-import { createStatsPlot } from "../plots/stats_plot.ts";
+import { createStatsPlot } from "./plots/stats_plot.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 
 /**

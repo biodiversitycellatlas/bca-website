@@ -6,8 +6,8 @@ import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { hideSpinner } from "../plots/plot_container.ts";
-import { createSAMapSankey } from "../plots/samap_sankey_plot.ts";
+import { hideSpinner } from "./plots/plot_container.ts";
+import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
 
 /**
  * Navigate to new URL query parameters based on form data.

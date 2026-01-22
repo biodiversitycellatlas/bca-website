@@ -4,8 +4,8 @@
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { createExpressionBubblePlot } from "../plots/expression_plot.ts";
-import { hideSpinner } from "../plots/plot_container.ts";
+import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
+import { hideSpinner } from "./plots/plot_container.ts";
 
 /**
  * Render expression plots for each corresponding ortholog.
