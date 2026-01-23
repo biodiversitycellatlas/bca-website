@@ -3,6 +3,9 @@
  */
 
 import $ from "jquery";
+import "datatables.net-bs5";
+import "datatables.net-select-bs5";
+
 import { makeLinkGene, parseArray } from "./utils.ts";
 
 function buildDataQuery(data) {

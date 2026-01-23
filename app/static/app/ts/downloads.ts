@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 import "datatables.net-bs5";
-
+import "datatables.net-select-bs5";
 
 /**
  * Render DataTables for downloading data.

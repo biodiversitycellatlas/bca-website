@@ -4,6 +4,8 @@
 
 import $ from "jquery";
 import "datatables.net-bs5";
+import "datatables.net-select-bs5";
+
 import { makeLinkGene, round, parseArray } from "./utils.ts";
 
 /**

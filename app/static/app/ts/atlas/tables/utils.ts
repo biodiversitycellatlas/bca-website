@@ -3,6 +3,8 @@
  */
 
 import $ from "jquery";
+import "datatables.net-bs5";
+import "datatables.net-select-bs5";
 
 import { getDataPortalUrl } from "../../utils/urls.ts";
 
