@@ -265,8 +265,11 @@ function appendListGroupHeading(id, group) {
     $clone.find(`div`).text(group).attr("data-group", group);
 
     if (isPreset) {
-        const readonly =
-            '<span class="text-muted"><i class="fa fa-lock fa-2xs"></i><span class="d-none d-lg-inline"> read-only</span></span>';
+        const readonly = `
+            <span class="text-muted">
+                <i class="fa fa-lock fa-xs"></i>
+                <span class="d-none d-lg-inline"> READ-ONLY</span>
+            </span>`;
         $clone.find(`div`).html("Preset lists" + readonly);
     }
 
