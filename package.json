@@ -1,9 +1,7 @@
 {
     "name": "app",
     "scripts": {
-        "build:assets": "bun build app/assets/ --outdir app/static/app/ --minify",
-        "build:ts": "bun build $(find app/static/app/ts/ -name '*.ts' | sort) --outdir app/static/app/js --outbase app/static/app/ts/ --minify --sourcemap",
-        "build": "bun run build:assets && bun run build:ts"
+        "build": "bun build $(find app/static/app/ts/ -name '*.ts' | sort) --outdir app/static/app/js --outbase app/static/app/ts/ --minify --sourcemap",
     },
     "dependencies": {"@fontsource/rubik": "^5.2.6",
         "@fortawesome/fontawesome-free": "^7.0.0",
