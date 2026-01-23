@@ -41,7 +41,7 @@ export function initDatasetSelectize(
                 }
             } else if (redirect == "query") {
                 if (value !== "" && value !== query) {
-                    let url = new URL(window.location.href);
+                    const url = new URL(window.location.href);
                     url.searchParams.set("dataset", value);
                     window.location.href = url;
                 }
@@ -52,7 +52,7 @@ export function initDatasetSelectize(
             setTimeout(() => {
                 dataset = redirect == "query" ? query : dataset;
                 if (dataset) {
-                    let current = this.getOption(dataset);
+                    const current = this.getOption(dataset);
                     this.setActiveOption(current);
                 }
             }, 10);
@@ -100,22 +100,22 @@ export function initDatasetSelectize(
                 }
 
                 // Add metadata (only visible when matching user query)
-                let meta_array = item.meta.split(",");
+                const meta_array = item.meta.split(",");
 
                 let badges = "";
                 for (let i = 0; i < meta_array.length; i++) {
-                    let elem = meta_array[i];
+                    const elem = meta_array[i];
                     if (
                         elem &&
                         !item.name.includes(elem) &&
                         !item.text.includes(elem)
                     ) {
-                        let span =
+                        const span =
                             '<span class="species-meta badge rounded-pill text-bg-secondary">';
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
-                let img = item.image === "None" ? "" : escape(item.image);
+                const img = item.image === "None" ? "" : escape(item.image);
                 return `<div class='option'>
                     <img src="${img}" class="w-20px">
                     ${item.label}${description}${badges}

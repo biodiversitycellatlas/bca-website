@@ -9,7 +9,11 @@ import "datatables.net-select-bs5";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.ts";
-import { showSpinner, hideSpinner, clearContainer } from "./plots/plot_container.js";
+import {
+    showSpinner,
+    hideSpinner,
+    clearContainer,
+} from "./plots/plot_container.js";
 
 /**
  * Plot expression comparison for the selected gene against a reference gene.
@@ -23,9 +27,9 @@ export function plotGeneExpressionComparison(id, dataset, gene) {
         .DataTable()
         .on("select", function (e, dt, type) {
             if (type === "row") {
-                let selected = dt.rows({ selected: true }).data();
+                const selected = dt.rows({ selected: true }).data();
                 if (selected && selected.length > 0) {
-                    let gene2 = selected[0].name;
+                    const gene2 = selected[0].name;
                     loadExpressionComparison(
                         id,
                         dataset,

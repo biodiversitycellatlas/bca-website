@@ -17,9 +17,9 @@ import { hideSpinner } from "./plots/plot_container.ts";
  * @param {Object} item - Ortholog data object, including gene name, species, datasets, and expression.
  */
 function processOrtholog(baseGene, header, template, container, item) {
-    let gene = item.gene_name;
+    const gene = item.gene_name;
     if (gene != baseGene) {
-        let headerClone = document.importNode(header.content, true);
+        const headerClone = document.importNode(header.content, true);
 
         if (item.datasets && item.datasets[0]) {
             headerClone.getElementById("ortholog-species-img").src =
@@ -34,7 +34,7 @@ function processOrtholog(baseGene, header, template, container, item) {
             const dataset = item.datasets[d];
 
             // Header info
-            let clone = document.importNode(template.content, true);
+            const clone = document.importNode(template.content, true);
             clone.getElementById("ortholog-dataset").innerHTML =
                 dataset.name || `<i>${item.species}</i>`;
             clone.getElementById("ortholog-dataset-href").href =
@@ -64,7 +64,7 @@ function processOrtholog(baseGene, header, template, container, item) {
  * @param {string} gene - Reference gene.
  */
 export function loadOrthologExpression(gene) {
-    let apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, {
+    const apiURL = getDataPortalUrl("rest:ortholog-list", null, gene, 0, {
         expression: true,
     });
     appendDataMenu("orthologs", apiURL, "Ortholog expression");

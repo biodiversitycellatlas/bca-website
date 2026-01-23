@@ -9,13 +9,13 @@ import "datatables.net-select-bs5";
 import { makeLinkGene, parseArray } from "./utils.ts";
 
 function buildDataQuery(data) {
-    var ordering;
+    let ordering;
     if (data.order && data.order[0]) {
         const o = data.order[0];
         ordering = (o.dir == "desc" ? "-" : "") + o.name;
     }
 
-    var params = {
+    const params = {
         offset: data.start,
         limit: data.length,
         q: data.search.value,
@@ -25,7 +25,7 @@ function buildDataQuery(data) {
 }
 
 function filterData(data) {
-    var json = JSON.parse(data);
+    const json = JSON.parse(data);
     json.recordsTotal = json.count;
     json.recordsFiltered = json.count;
     json.data = json.list;
@@ -49,9 +49,9 @@ export function createGeneTable(
     correlation = false,
     select = "multiple",
 ) {
-    let linkGene = makeLinkGene(dataset);
+    const linkGene = makeLinkGene(dataset);
     // Columns to display
-    var cols = [
+    let cols = [
         {
             name: "name",
             data: "name",
@@ -76,7 +76,7 @@ export function createGeneTable(
         },
     ];
 
-    var order;
+    let order;
     if (correlation) {
         cols = cols.concat([
             { name: "pearson", data: "pearson", title: "Pearson's r" },
@@ -87,7 +87,7 @@ export function createGeneTable(
     }
 
     // Gene selection mode
-    var selectLayout, selectParam;
+    let selectLayout, selectParam;
     if (select == "multiple") {
         selectParam = true;
     } else if (select == "single") {

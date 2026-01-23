@@ -14,7 +14,7 @@ import { escapeString } from "../../utils/utils.ts";
  * @param {Array} data - Array of objects containing metacell expression data.
  */
 export function createExpressionBubblePlot(id, gene, data) {
-    var chart = {
+    const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
         transform: [
@@ -85,10 +85,10 @@ export function createExpressionBubblePlot(id, gene, data) {
  * @param {Object} stats - Object containing correlation statistics (pearson, spearman).
  */
 export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
-    let escapedGene = escapeString(gene),
+    const escapedGene = escapeString(gene),
         escapedGene2 = escapeString(gene2);
 
-    var chart = {
+    const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
             text: [`Pearson: ${stats.pearson}`, `Spearman: ${stats.spearman}`],

@@ -16,7 +16,7 @@ import { makeLinkGene, round, parseArray } from "./utils.ts";
  * @param {string} url - URL to fetch gene marker data.
  */
 export function createMarkersTable(id, dataset, url) {
-    let linkGene = makeLinkGene(dataset);
+    const linkGene = makeLinkGene(dataset);
     $(`#${id}_table`).dataTable({
         ajax: {
             url: url,

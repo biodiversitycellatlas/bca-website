@@ -15,12 +15,12 @@ import { getDataPortalUrl } from "../utils/urls.ts";
  * @returns {string} HTML string representing the search result option
  */
 function displaySearchResults(item, escape) {
-    let group = escape(item.group);
+    const group = escape(item.group);
     let res = "";
 
     if (group === "gene") {
         let badges = "";
-        let domains_array = item.domains;
+        const domains_array = item.domains;
         for (let i = 0; i < domains_array.length; i++) {
             if (domains_array[i] !== "") {
                 badges += `
@@ -31,7 +31,7 @@ function displaySearchResults(item, escape) {
             }
         }
 
-        let desc =
+        const desc =
             item.description === null
                 ? ""
                 : `
@@ -40,11 +40,11 @@ function displaySearchResults(item, escape) {
                     </span>
                 `;
 
-        let shortenedName = escape(item.species.scientific_name)
+        const shortenedName = escape(item.species.scientific_name)
             .split(" ")
             .map((word, index) => (index === 0 ? `${word[0]}.` : word))
             .join(" ");
-        let species = `
+        const species = `
             <span class='text-muted float-end'>
                 <small><img src="${escape(item.species.image_url)}" class="w-15px">
                 <i>${shortenedName}</i></small>
@@ -53,9 +53,9 @@ function displaySearchResults(item, escape) {
 
         res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
     } else if (group === "dataset") {
-        let imgURL = escape(item.image_url || item.species_image_url);
-        let img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
-        let desc = !item.species_common_name
+        const imgURL = escape(item.image_url || item.species_image_url);
+        const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
+        const desc = !item.species_common_name
             ? ""
             : `
                 <span class="text-muted">
@@ -63,10 +63,10 @@ function displaySearchResults(item, escape) {
                 </span>
             `;
 
-        let meta_array = item.species_meta.map((i) => escape(i.value));
+        const meta_array = item.species_meta.map((i) => escape(i.value));
         let badges = "";
         for (let i = 0; i < meta_array.length; i++) {
-            let elem = meta_array[i];
+            const elem = meta_array[i];
             if (
                 elem &&
                 !item.species.includes(elem) &&
@@ -79,7 +79,7 @@ function displaySearchResults(item, escape) {
                 `;
             }
         }
-        let dataset_label = !item.name ? "" : `(${escape(item.name)})`;
+        const dataset_label = !item.name ? "" : `(${escape(item.name)})`;
         res = `<div class='option'>${img}<i>${escape(item.species)}</i> ${dataset_label} ${desc} ${badges}</div>`;
     }
     return res;
@@ -129,17 +129,17 @@ export function initSearch() {
             item: () => `<div>Search the BCA...</div>`,
             option: displaySearchResults,
             optgroup_header: function (data) {
-                let query = this.getTextboxValue();
-                let search = getDataPortalUrl("search");
-                let count = `<a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
+                const query = this.getTextboxValue();
+                const search = getDataPortalUrl("search");
+                const count = `<a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
                 return `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`;
             },
         },
         load: function (query, callback) {
             if (!query.length) return callback();
 
-            let params = new URLSearchParams({ q: query, limit: 5 });
-            let datasetsURL = new URL(
+            const params = new URLSearchParams({ q: query, limit: 5 });
+            const datasetsURL = new URL(
                 getDataPortalUrl("rest:dataset-list"),
                 window.location.href,
             );
@@ -169,18 +169,18 @@ export function initSearch() {
         },
         onChange: function (value) {
             if (!value) return;
-            let item = this.options[value];
+            const item = this.options[value];
 
             if (item.group === "gene") {
-                let gene = item.name;
-                let dataset = item.dataset.scientific_name.replace(" ", "_");
+                const gene = item.name;
+                const dataset = item.dataset.scientific_name.replace(" ", "_");
                 window.location.href = getDataPortalUrl(
                     "atlas_gene",
                     dataset,
                     gene,
                 );
             } else if (item.group === "dataset") {
-                let dataset = item.slug;
+                const dataset = item.slug;
                 window.location.href = getDataPortalUrl("atlas", dataset);
             }
         },

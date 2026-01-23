@@ -38,7 +38,7 @@ function animateNumber(id, target) {
  * @param {string} dataset - Dataset name.
  */
 export function loadDatasetStats(dataset) {
-    var urls = {
+    const urls = {
         info: getDataPortalUrl("rest:dataset-detail", dataset),
         stats: getDataPortalUrl("rest:stats-detail", dataset),
         counts: getDataPortalUrl("rest:metacellcount-list", dataset),
@@ -67,7 +67,7 @@ export function loadDatasetStats(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderStatsPlots(dataset) {
-    var url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
+    const url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
     fetch(url)
         .then((response) => response.json())
         .then((data) => {

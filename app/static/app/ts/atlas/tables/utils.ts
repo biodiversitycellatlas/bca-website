@@ -17,7 +17,7 @@ import { getDataPortalUrl } from "../../utils/urls.ts";
 export function makeLinkGene(dataset) {
     return function linkGene(data, type) {
         if (type === "display") {
-            let url = getDataPortalUrl("atlas_gene", dataset, data);
+            const url = getDataPortalUrl("atlas_gene", dataset, data);
             if (url) {
                 data = `<a href=${url}>${data}</a>`;
             }

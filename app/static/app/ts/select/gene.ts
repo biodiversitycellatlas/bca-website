@@ -25,9 +25,9 @@ function displayGeneInfo(item, escape) {
             </div>
         `;
     } else {
-        var domains_array = item.domains;
+        const domains_array = item.domains;
         let badges = "";
-        for (var i = 0; i < domains_array.length; i++) {
+        for (let i = 0; i < domains_array.length; i++) {
             if (domains_array[i] !== "") {
                 badges = `
                     <span class="badge rounded-pill text-bg-secondary">
@@ -37,7 +37,7 @@ function displayGeneInfo(item, escape) {
             }
         }
 
-        var desc =
+        const desc =
             item.description === null
                 ? ""
                 : `
@@ -78,7 +78,7 @@ function displayGeneName(item, escape) {
  * @param {array} domains - Array of domain objects.
  */
 function prependGeneLists(id, selectize, callback, genes, domains) {
-    let res = getAllLists(`${id}_gene_lists`)
+    const res = getAllLists(`${id}_gene_lists`)
         .concat(
             domains.map((obj) => ({
                 ...obj,
@@ -99,13 +99,13 @@ function prependGeneLists(id, selectize, callback, genes, domains) {
  * @param {array} domains - Array of gene domains.
  */
 function setDefaultGene(id, name, description, domains) {
-    let geneOptions = {
+    const geneOptions = {
         name: name,
         description: description,
         domains: domains,
     };
 
-    let selectize = $(`#${id}_gene_selection`)[0].selectize;
+    const selectize = $(`#${id}_gene_selection`)[0].selectize;
     selectize.addOption(geneOptions);
     selectize.setValue(name);
 }
@@ -119,20 +119,20 @@ function setDefaultGene(id, name, description, domains) {
 function initGeneSelectizeValues(id, selected) {
     // Run only once
     let hasRun = false;
-    let selectize = $(`#${id}_gene_selection`)[0].selectize;
+    const selectize = $(`#${id}_gene_selection`)[0].selectize;
     selectize.on("load", function () {
         if (!hasRun) {
-            var values = selected.split(",").filter((v) => v);
+            const values = selected.split(",").filter((v) => v);
             if (values.length === 0) return null;
 
-            var options = selectize.options;
-            var missingValues = values.filter(function (value) {
+            const options = selectize.options;
+            const missingValues = values.filter(function (value) {
                 return !(value in options);
             });
 
-            var missingValuesArray = [];
-            for (var i in missingValues) {
-                var elem = missingValues[i];
+            const missingValuesArray = [];
+            for (const i in missingValues) {
+                const elem = missingValues[i];
                 missingValuesArray.push({
                     name: elem,
                     description: "",
@@ -155,7 +155,7 @@ function initGeneSelectizeValues(id, selected) {
         for (i in groups) {
             const group = groups[i];
             if (group) {
-                var label = group;
+                let label = group;
                 if (group == "preset") {
                     label = "Preset gene lists";
                 } else if (group == "custom") {
@@ -202,12 +202,12 @@ export function initGeneSelectize(
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
-                    let url = getDataPortalUrl("atlas_gene", dataset, value);
+                    const url = getDataPortalUrl("atlas_gene", dataset, value);
                     if (window.location.pathname != url) {
                         window.location.href = url;
                     }
                 } else if (redirect == "query") {
-                    let url = new URL(window.location.href);
+                    const url = new URL(window.location.href);
                     url.searchParams.set("gene", value);
                     if (hash !== "") url.hash = `#${hash}`;
                     window.location.href = url;

@@ -22,7 +22,7 @@ function getSpinner(id) {
  * @param {string} id - Base id of the container.
  */
 export function hideSpinner(id) {
-    var spinner = getSpinner(id);
+    const spinner = getSpinner(id);
     if (spinner !== null) {
         spinner.style.display = "none";
     }
@@ -33,7 +33,7 @@ export function hideSpinner(id) {
  * @param {string} id - Base id of the container.
  */
 export function showSpinner(id) {
-    var spinner = getSpinner(id);
+    const spinner = getSpinner(id);
     if (spinner !== null) {
         spinner.style.display = "flex";
     }

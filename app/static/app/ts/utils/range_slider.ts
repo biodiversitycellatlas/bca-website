@@ -45,5 +45,5 @@ export function initRangeSlider(selector, opts, textArgs) {
         onChange: cb,
         onUpdate: cb,
     });
-    return $(selector).data('ionRangeSlider');
+    return $(selector).data("ionRangeSlider");
 }

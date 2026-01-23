@@ -16,7 +16,7 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
  * @param {string} geneLabel - Gene name.
  */
 export function loadGeneExpression(dataset, datasetLabel, gene, geneLabel) {
-    let url = getDataPortalUrl(
+    const url = getDataPortalUrl(
         "rest:metacellgeneexpression-list",
         dataset,
         geneLabel,

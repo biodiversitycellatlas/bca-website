@@ -20,9 +20,9 @@ function modifyFormQuery(elem, e) {
     e.preventDefault();
 
     // Modify form URL
-    var formData = new FormData(elem);
-    var url = new URL(e.target.action);
-    for (let [key, value] of formData.entries()) {
+    const formData = new FormData(elem);
+    const url = new URL(e.target.action);
+    for (const [key, value] of formData.entries()) {
         url.searchParams.set(key, value);
     }
     window.location.href = url.href;
@@ -48,13 +48,14 @@ export function handleFormSubmit() {
  * @param {string} dataset2 - Name of the second dataset
  */
 export function initSAMap(id, label, dataset, label2, dataset2) {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         dataset: dataset,
         dataset2: dataset2,
         threshold: $("#samap_min").val(),
         limit: 0,
     });
-    var apiURL = getDataPortalUrl("rest:samap-list") + "?" + params.toString();
+    const apiURL =
+        getDataPortalUrl("rest:samap-list") + "?" + params.toString();
 
     fetch(apiURL)
         .then((response) => response.json())

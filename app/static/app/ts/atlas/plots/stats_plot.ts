@@ -15,7 +15,7 @@ export let viewStats;
  * @returns {Array} Array of Vega-Lite layer specifications
  */
 function prepareStatsSpecPerParam(param, label = param, counts = true) {
-    var plot = [
+    const plot = [
         {
             transform: [{ density: param, counts: counts }],
             encoding: {
@@ -171,7 +171,7 @@ export function createStatsPlot(
     label = param,
     counts = true,
 ) {
-    var chart = {
+    const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: { text: title },
         data: { name: "data", values: data },

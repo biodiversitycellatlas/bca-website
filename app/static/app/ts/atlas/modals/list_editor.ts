@@ -46,7 +46,7 @@ function setLocalStorageLists(id, lists) {
  * @returns {Array|Object} Matching list(s).
  */
 export function getUserLists(id, species, name = undefined) {
-    var lists = getLocalStorageLists(id);
+    const lists = getLocalStorageLists(id);
     if (name === undefined) {
         return lists[species] || [];
     } else {
@@ -72,7 +72,7 @@ function setUserList(
     group = "Custom lists",
     color = "gray",
 ) {
-    var lists = getLocalStorageLists(id);
+    const lists = getLocalStorageLists(id);
 
     // Create species key if not present
     lists[species] ||= [];
@@ -106,8 +106,8 @@ function findUserListIndex(list, name) {
  * @param {string} newName - New list name.
  */
 function renameUserList(id, species, name, newName) {
-    let lists = getLocalStorageLists(id);
-    let index = findUserListIndex(lists[species], name);
+    const lists = getLocalStorageLists(id);
+    const index = findUserListIndex(lists[species], name);
     lists[species][index].name = newName;
     setLocalStorageLists(id, lists);
 }
@@ -119,7 +119,7 @@ function renameUserList(id, species, name, newName) {
  * @param {string} species - Species identifier.
  */
 function resetUserLists(id, species) {
-    var lists = getLocalStorageLists(id);
+    const lists = getLocalStorageLists(id);
     delete lists[species];
     setLocalStorageLists(id, lists);
 }
@@ -132,9 +132,9 @@ function resetUserLists(id, species) {
  * @param {string} name - Name of the list to remove.
  */
 function removeUserList(id, species, name) {
-    let lists = getLocalStorageLists(id);
+    const lists = getLocalStorageLists(id);
     if (species in lists) {
-        let index = findUserListIndex(lists[species], name);
+        const index = findUserListIndex(lists[species], name);
         lists[species].splice(index, 1);
         setLocalStorageLists(id, lists);
     } else {
@@ -151,7 +151,7 @@ function removeUserList(id, species, name) {
  * @returns {Array<Object>} List metadata (name, count, color, group).
  */
 export function getAllLists(id) {
-    let res = $(`#${id}_options a`)
+    const res = $(`#${id}_options a`)
         .map(function () {
             return {
                 name: $(this).data("list"),
@@ -172,7 +172,7 @@ export function getAllLists(id) {
  */
 function getAllListNames(id) {
     // Get names of all rendered lists
-    var lists = $(`#${id}_options a`)
+    const lists = $(`#${id}_options a`)
         .map((index, item) => $(item).data("list"))
         .get();
     return lists;
@@ -213,7 +213,7 @@ export function appendUserList(
     color = "gray",
     redraw = true,
 ) {
-    let allListNames = getAllListNames(id);
+    const allListNames = getAllListNames(id);
     let index;
 
     // Ensure new list name is unique
@@ -261,7 +261,7 @@ function appendListGroupHeading(id, group) {
     const isPreset = group === "preset";
 
     // Render each list based on template
-    var $clone = $(document.importNode(template.content, true));
+    const $clone = $(document.importNode(template.content, true));
     $clone.find(`div`).text(group).attr("data-group", group);
 
     if (isPreset) {
@@ -290,7 +290,7 @@ function appendListGroupItem(id, name, group, count, active = false) {
     const container = document.getElementById(`${id}_options`);
 
     // Render each list based on template
-    var $clone = $(document.importNode(template.content, true));
+    const $clone = $(document.importNode(template.content, true));
 
     $clone
         .find(`.${id}_group_a`)
@@ -319,12 +319,12 @@ function appendListGroupItem(id, name, group, count, active = false) {
  */
 function drawUserLists(id, species, activeList = []) {
     // Render all user lists (sorted by group)
-    let lists = getUserLists(id, species);
+    const lists = getUserLists(id, species);
 
     let group = "";
     for (const index in lists) {
         const elem = lists[index];
-        let active = activeList.includes(elem.name);
+        const active = activeList.includes(elem.name);
         if (elem.group != group) {
             appendListGroupHeading(id, elem.group);
             group = elem.group;
@@ -340,7 +340,7 @@ function drawUserLists(id, species, activeList = []) {
  * @param {string} id - Base identifier.
  */
 function clearSearch(id) {
-    let search = $(`#${id}_search`);
+    const search = $(`#${id}_search`);
     search.val("");
 
     // Trigger input event as if the user cleared the search box
@@ -375,7 +375,7 @@ export function redrawUserLists(id, species, activeList = []) {
  * @returns {string} Full request URL.
  */
 function getGenesFromListURL(url, species, genelist, limit = undefined) {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         species: species,
         genes: genelist,
     });
@@ -395,7 +395,7 @@ function getGenesFromListURL(url, species, genelist, limit = undefined) {
  * @returns {string} Full request URL.
  */
 function getGenesURL(url, species, genes) {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         species: species,
         genes: genes.join(","),
     });
@@ -413,9 +413,9 @@ function getGenesURL(url, species, genes) {
  * @returns {Promise<Array<string>>} Gene names.
  */
 async function fetchAllGenesFromList(id, species, apiURL, name, group) {
-    var genes;
+    let genes;
     if (group === "preset") {
-        var url = getGenesFromListURL(apiURL, species, name, 0);
+        const url = getGenesFromListURL(apiURL, species, name, 0);
         const response = await fetch(url);
         const data = await response.json();
         genes = data.map((item) => item.name);
@@ -454,19 +454,19 @@ export function renderActiveList(id, species) {
  * @param {string} species - Species.
  */
 function renderListDetail(id, species) {
-    var table = $(`#${id}_editor_table`).DataTable();
+    const table = $(`#${id}_editor_table`).DataTable();
     table.search("").columns().search(""); // Clear search
     table.clear(); // Clear data
 
     // Load data depending on list group
-    var name = $(`#${id}_options`).find(".active").data("list");
-    var group = $(`#${id}_options`).find(".active").data("group");
+    const name = $(`#${id}_options`).find(".active").data("list");
+    const group = $(`#${id}_options`).find(".active").data("group");
 
     let url = getDataPortalUrl("rest:gene-list");
     if (group === "preset") {
         url = getGenesFromListURL(url, species, name);
     } else {
-        var genes = getUserLists(id, species, name).items;
+        const genes = getUserLists(id, species, name).items;
         url = genes.length === 0 ? "" : getGenesURL(url, species, genes);
     }
     table.ajax.url(url || "").load();
@@ -507,14 +507,14 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
             lines.forEach(function (line) {
                 const columns = line.split(delimiter);
                 if (columns.length > 1) {
-                    let [key, value] = columns.map((str) => str.trim());
+                    const [key, value] = columns.map((str) => str.trim());
                     dict[key] ||= [];
                     dict[key].push(value);
                 }
             });
 
             // Append user lists
-            var name;
+            let name;
             for (const key in dict) {
                 name = appendUserList(
                     id,
@@ -544,11 +544,11 @@ function updateTable(id, dataset) {
     createGeneTable(`${id}_editor_table`, dataset);
 
     // Update interface based on selection
-    var table = $(`#${id}_editor_table`).DataTable();
+    const table = $(`#${id}_editor_table`).DataTable();
     table.on("select deselect", function (e, dt, type) {
         if (type === "row") {
             const len = getSelectedRows(`${id}_editor_table`).length;
-            var label = `${len} selected gene` + (len === 1 ? "" : "s");
+            const label = `${len} selected gene` + (len === 1 ? "" : "s");
             $(`#${id}_new_selected_count`).text(label);
 
             // Disable element if no rows are selected
@@ -569,7 +569,7 @@ function updateTable(id, dataset) {
  * @param {Object} dataset - Dataset reference for table creation.
  */
 export function loadGeneLists(id, species, dataset) {
-    let url = getDataPortalUrl("rest:genelist-list", null, null, null, {
+    const url = getDataPortalUrl("rest:genelist-list", null, null, null, {
         species: species,
     });
     fetch(url)
@@ -622,10 +622,10 @@ export function loadMenuActions(id, species, maxFileSize) {
 
     // Menu action: Rename
     $(`#${id}_rename_btn`).on("click", function () {
-        var activeItem = $(`#${id}_options`).find("a.active");
-        var oldName = activeItem.find(`.${id}_group_title`).text();
+        const activeItem = $(`#${id}_options`).find("a.active");
+        const oldName = activeItem.find(`.${id}_group_title`).text();
 
-        var newName = prompt("Rename list:", oldName);
+        const newName = prompt("Rename list:", oldName);
         if (newName === "") {
             // Avoid empty list name
             alert("The name of a list cannot be empty.");
@@ -636,7 +636,7 @@ export function loadMenuActions(id, species, maxFileSize) {
         }
 
         // Avoid duplicated name
-        var all_names = $(`#${id}_options`)
+        const all_names = $(`#${id}_options`)
             .find(`a .${id}_group_title`)
             .map((i, el) => $(el).text())
             .get();
@@ -652,8 +652,8 @@ export function loadMenuActions(id, species, maxFileSize) {
 
     // Menu action: Remove
     $(`#${id}_remove`).on("click", function () {
-        var activeItem = $(`#${id}_options`).find("a.active");
-        var name = activeItem.find(`.${id}_group_title`).text();
+        const activeItem = $(`#${id}_options`).find("a.active");
+        const name = activeItem.find(`.${id}_group_title`).text();
 
         if (confirm(`Do you want to remove the following list: ${name}?`)) {
             removeUserList(id, species, name);
@@ -668,11 +668,11 @@ export function loadMenuActions(id, species, maxFileSize) {
 
     // Menu action: duplicate
     $(`#${id}_new_duplicate`).on("click", function () {
-        let activeItem = getSelectedList(id);
-        let name = activeItem.data("list");
-        let group = activeItem.data("group");
+        const activeItem = getSelectedList(id);
+        const name = activeItem.data("list");
+        const group = activeItem.data("group");
 
-        let url = getDataPortalUrl("rest:gene-list");
+        const url = getDataPortalUrl("rest:gene-list");
         fetchAllGenesFromList(id, species, url, name, group)
             .then((genes) => {
                 appendUserList(id, species, name, genes);
@@ -688,11 +688,11 @@ export function loadMenuActions(id, species, maxFileSize) {
     });
 
     // Filter by list name
-    $(`#${id}_search`).on("input search", function () {
+    $(`#${id}_search`).on("input", function () {
         const query = this.value.toLowerCase(); // lowercase comparison
 
         // Hide lists that do not match query value
-        var elems = $(`#${id}_options a`);
+        const elems = $(`#${id}_options a`);
         elems.each(function () {
             const title = $(this).find(`.${id}_group_title`);
             if (title.text().toLowerCase().includes(query)) {

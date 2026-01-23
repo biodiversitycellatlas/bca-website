@@ -14,5 +14,5 @@ import "@selectize/selectize/dist/css/selectize.bootstrap5.css";
 import "@fontsource/rubik"; // Rubik typeface
 
 // Enable tooltips and popovers
-import { enableTooltipsAndPopovers, getTooltip } from "./utils/tooltips.ts";
+import { enableTooltipsAndPopovers } from "./utils/tooltips.ts";
 enableTooltipsAndPopovers();

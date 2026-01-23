@@ -14,7 +14,7 @@ export let viewExpressionHeatmap;
  * @param {Array} data - Array of objects containing metacell and gene expression data.
  */
 export function createExpressionHeatmap(id, species, data) {
-    var chart = {
+    const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },

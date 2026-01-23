@@ -7,7 +7,10 @@ import $ from "jquery";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
-import { createMetacellProjection, viewMetacellProjection } from "./plots/metacell_scatterplot.js";
+import {
+    createMetacellProjection,
+    viewMetacellProjection,
+} from "./plots/metacell_scatterplot.js";
 
 /**
  * Toggle gene selection input.
@@ -17,10 +20,15 @@ import { createMetacellProjection, viewMetacellProjection } from "./plots/metace
  */
 function toggleGeneSelectize(id) {
     $('input[name="color_by"]').change(function () {
-        let elem = $(`#${id}_gene_selection`)[0].selectize;
-        this.id.includes("expression") ? elem.enable() : elem.disable();
+        const elem = $(`#${id}_gene_selection`)[0].selectize;
 
-        let url = new URL(window.location.href);
+        if (this.id.includes("expression")) {
+            elem.enable();
+        } else {
+            elem.disable();
+        }
+
+        const url = new URL(window.location.href);
         if (url.searchParams.has("gene")) {
             url.searchParams.delete("gene");
             url.hash = `#${id}`;
@@ -45,21 +53,21 @@ function initCheckboxSelect() {
  * @returns {string[]} Array of selected metacell names
  */
 function getSelectedMetacells() {
-    let view = viewMetacellProjection;
+    const view = viewMetacellProjection;
 
     // Get selection brush
-    let brush = view.signal("brush");
+    const brush = view.signal("brush");
     if ($.isEmptyObject(brush)) {
         // Brush not available
         return [];
     }
-    let [minX, maxX] = brush.x;
-    let [minY, maxY] = brush.y;
+    const [minX, maxX] = brush.x;
+    const [minY, maxY] = brush.y;
 
     // Get data within selection brush
-    let data = view.data("mc_data");
+    const data = view.data("mc_data");
     let x, y;
-    let metacells = [];
+    const metacells = [];
     for (let i = 0; i < data.length; i++) {
         x = data[i].x;
         y = data[i].y;
@@ -77,7 +85,7 @@ function getSelectedMetacells() {
  * @param {string|URL} url - URL containing METACELL_PLACEHOLDER
  */
 function handleSelectedMetacell(url) {
-    let metacells = getSelectedMetacells();
+    const metacells = getSelectedMetacells();
     if (metacells.length >= 1) {
         url = url.toString().replace("METACELL_PLACEHOLDER", metacells);
         window.location.href = url;
@@ -95,7 +103,7 @@ function handleSelectedMetacell(url) {
  */
 function listMarkers(dataset) {
     $("#list_markers").on("click", function () {
-        let url =
+        const url =
             getDataPortalUrl("atlas_markers", dataset) +
             "?metacells=METACELL_PLACEHOLDER";
         handleSelectedMetacell(url);
@@ -107,7 +115,7 @@ function listMarkers(dataset) {
  */
 function filterHeatmap() {
     $("#filter_heatmap").on("click", function () {
-        let url = new URL(window.location.href);
+        const url = new URL(window.location.href);
         url.searchParams.set("metacells", "METACELL_PLACEHOLDER");
         url.hash = "expression";
         handleSelectedMetacell(url);
@@ -129,7 +137,7 @@ export function initProjection(id, dataset, label, gene) {
     listMarkers(dataset);
     filterHeatmap();
 
-    let urls = {
+    const urls = {
         sc_data: getDataPortalUrl("rest:singlecell-list", dataset, gene, 0),
         mc_data: getDataPortalUrl("rest:metacell-list", dataset, gene, 0),
         mc_links: getDataPortalUrl("rest:metacelllink-list", dataset, null, 0),
@@ -157,14 +165,14 @@ export function initProjection(id, dataset, label, gene) {
 
             if (!data["sc_data"] && !data["mc_data"]) {
                 // Show informative message that no expression data is available
-                let plot = document.getElementById(`${id}-plot`);
+                const plot = document.getElementById(`${id}-plot`);
                 plot.innerHTML = `<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No <b>${gene}</b> expression for <i>${label}</i>.</p>`;
                 plot.style.removeProperty("aspect-ratio");
 
                 // Remove plot buttons
                 document.getElementById(`${id}-plot-ui`).style.display = "none";
             } else {
-                let color_by_metacell_type = gene === null;
+                const color_by_metacell_type = gene === null;
                 createMetacellProjection(
                     `#${id}-plot`,
                     dataset,

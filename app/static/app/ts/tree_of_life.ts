@@ -15,13 +15,13 @@ export function flatten(obj) {
     return _flatten2(obj);
 
     function _flatten2(obj, array = [], parentID = null) {
-        let node = {};
+        const node = {};
         node.id = id++;
         if (parentID !== null) node.parent = parentID;
         if (obj.length) node.size = obj.length;
 
         if (obj.children) {
-            for (let child of obj.children) {
+            for (const child of obj.children) {
                 _flatten2(child, array, node.id);
             }
         } else {
@@ -40,10 +40,8 @@ export function flatten(obj) {
  * @returns {Promise<Array>} Flattened array of tree nodes
  */
 export async function readNewickJSON(file) {
-    let obj;
-
     const res = await fetch(file);
-    obj = await res.json();
+    const obj = await res.json();
     return flatten(obj);
 }
 
@@ -58,7 +56,7 @@ export function createTreeOfLife(id, file) {
         .then((res) => res.json())
         .then((obj) => flatten(obj))
         .then((data) => {
-            var chart = {
+            const chart = {
                 $schema: "https://vega.github.io/schema/vega/v6.json",
                 description: "Tree of life.",
                 width: 1000,

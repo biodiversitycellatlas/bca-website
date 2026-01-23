@@ -17,7 +17,7 @@ export function convertToRange(str) {
         .split(",")
         .map(Number)
         .sort((a, b) => a - b);
-    let ranges = [];
+    const ranges = [];
     let start = numbers[0];
     let end = numbers[0];
 
@@ -44,7 +44,7 @@ export function convertToRange(str) {
  * @returns {string} HTML string for a colored circle.
  */
 function createColorCircle(color) {
-    let circle = `<i class="fa fa-circle color-bullet pe-1" style="color: ${color};"></i>`;
+    const circle = `<i class="fa fa-circle color-bullet pe-1" style="color: ${color};"></i>`;
     return circle;
 }
 
@@ -60,7 +60,7 @@ export function initMetacellSelectize(selected, selected2) {
         plugins: ["remove_button"],
         onInitialize: function () {
             if (selected || selected2) {
-                let metacell_values = (selected || selected2).split(",");
+                const metacell_values = (selected || selected2).split(",");
                 this.setValue(metacell_values);
             }
         },
@@ -89,14 +89,14 @@ export function initMetacellSelectize(selected, selected2) {
             },
             option: function (item, escape) {
                 let extra = "",
-                    text = escape(item.text),
-                    circle = createColorCircle(escape(item.color));
+                    text = escape(item.text);
+                const circle = createColorCircle(escape(item.color));
                 if (item.metacells) {
                     text = circle + text;
-                    let metacells = convertToRange(escape(item.metacells));
+                    const metacells = convertToRange(escape(item.metacells));
                     extra = `Metacells: ${metacells}`;
                 } else {
-                    let type = escape(item.celltype);
+                    const type = escape(item.celltype);
                     extra = circle + type;
                 }
                 extra =

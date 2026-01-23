@@ -15,14 +15,14 @@ import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
  * @param {string} value - New value (removes if empty).
  */
 export function updateQuery(key, value) {
-    let searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     if (value) {
         searchParams.set(key, value);
     } else {
         searchParams.delete(key);
     }
 
-    let searchString = "?" + searchParams.toString();
+    const searchString = "?" + searchParams.toString();
     if (window.location.search != searchString) {
         window.location.search = searchString;
     }
@@ -48,14 +48,14 @@ function appendResult(
 ) {
     const template = $("#result-template");
     const container = $("#results");
-    let $clone = $(template.html());
+    const $clone = $(template.html());
 
     let title_mod = title,
         subtitle_mod = subtitle,
         description_mod = description;
 
     // Highlight query matches
-    let query = $("#search").val().trim();
+    const query = $("#search").val().trim();
     if (query) {
         title_mod = highlightMatch(title_mod, query);
         subtitle_mod = highlightMatch(subtitle_mod, query);
@@ -107,7 +107,7 @@ export function loadSearchResults(
     category = "datasets",
 ) {
     // Fetch data from API
-    let params = new URLSearchParams({
+    const params = new URLSearchParams({
         q: encodeURIComponent(query),
         limit: limit,
         offset: offset,
@@ -115,7 +115,7 @@ export function loadSearchResults(
     });
 
     if (category === "datasets") {
-        let datasetsURL = new URL(
+        const datasetsURL = new URL(
             getDataPortalUrl("rest:dataset-list"),
             window.location.href,
         );
@@ -129,10 +129,10 @@ export function loadSearchResults(
                     if (item.name) {
                         title = `${title} - ${item.name}`;
                     }
-                    let subtitle = item.species_common_name || "";
+                    const subtitle = item.species_common_name || "";
 
-                    let description = item.species_description;
-                    let badges = item.species_meta
+                    const description = item.species_description;
+                    const badges = item.species_meta
                         .map((item) => item.value)
                         .filter(
                             (item) =>
@@ -140,7 +140,7 @@ export function loadSearchResults(
                                 !subtitle.includes(item),
                         );
 
-                    let dataset_url = getDataPortalUrl("atlas", item.slug);
+                    const dataset_url = getDataPortalUrl("atlas", item.slug);
                     appendResult(
                         title,
                         dataset_url,
@@ -158,7 +158,7 @@ export function loadSearchResults(
                 console.error("Error loading data:", err);
             });
     } else if (category === "genes") {
-        let genesURL = new URL(
+        const genesURL = new URL(
             getDataPortalUrl("gene_list"),
             window.location.href,
         );
@@ -168,18 +168,18 @@ export function loadSearchResults(
             .then((res) => res.json())
             .then((data) => {
                 data.results.forEach((item) => {
-                    let gene = item.name;
-                    let species_name = item.species
+                    const gene = item.name;
+                    const species_name = item.species
                         ? item.species.scientific_name
                         : "";
-                    let description = item.description;
-                    let domains = item.domains;
+                    const description = item.description;
+                    const domains = item.domains;
 
-                    let slug = item.species
+                    const slug = item.species
                         ? item.species.scientific_name.slug
                         : species.slug;
-                    let species_url = getDataPortalUrl("atlas", slug);
-                    let gene_url = getDataPortalUrl("atlas_gene", slug, gene);
+                    const species_url = getDataPortalUrl("atlas", slug);
+                    const gene_url = getDataPortalUrl("atlas_gene", slug, gene);
                     appendResult(
                         gene,
                         gene_url,

@@ -64,14 +64,13 @@ export function uploadSequenceFile(id, maxMB, maxSeqs) {
  */
 export function highlightSequenceText(id, maxSeqs) {
     $(`#${id}_query`).on("input", function () {
-        let text = $(this).val();
-        let matches = text.match(/^>/gm);
-        let isEmptyText = text.trim() === "";
-        let count = matches ? matches.length : isEmptyText ? 0 : 1;
+        const text = $(this).val();
+        const matches = text.match(/^>/gm);
+        const isEmptyText = text.trim() === "";
+        const count = matches ? matches.length : isEmptyText ? 0 : 1;
 
-        let text_color,
-            disabled,
-            count_label = $(`#${id}_count`);
+        let text_color, disabled;
+        const count_label = $(`#${id}_count`);
         count_label.text(count);
         if (count > maxSeqs) {
             text_color = "var(--bs-danger)";
@@ -137,7 +136,7 @@ export function alignSequence(id, species, type) {
     $(`#${id}_align_btn`).on("click", function () {
         startLoadingState(id);
 
-        let url = getDataPortalUrl("rest:align-list");
+        const url = getDataPortalUrl("rest:align-list");
         fetch(url, {
             method: "POST",
             headers: {
@@ -168,7 +167,7 @@ export function alignSequence(id, species, type) {
                 }, {});
 
                 let name;
-                for (let key in result) {
+                for (const key in result) {
                     name = key + " alignment";
                     name = appendUserList(
                         id + type,

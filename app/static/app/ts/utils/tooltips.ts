@@ -30,5 +30,4 @@ export function enableTooltipsAndPopovers() {
     document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
         new Popover(el);
     });
-
 }

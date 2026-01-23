@@ -7,7 +7,7 @@ import $ from "jquery";
 /**
  * Copies text to the clipboard and shows temporary visual feedback.
  *
-  * @param {HTMLElement|jQuery} elem - Element triggering the copy action
+ * @param {HTMLElement|jQuery} elem - Element triggering the copy action
  * @param {string} data - Text to copy to the clipboard
  * @param {number} timeout - Duration (ms) before restoring original state
  */
@@ -21,7 +21,9 @@ export function copyToClipboard(elem, data, timeout = 1000) {
 
     // Replace text with confirmation with fade animation
     textSpan.fadeOut(150, function () {
-        textSpan.html("<i class='fa fa-check fa-bounce'></i> Copied").fadeIn(150);
+        textSpan
+            .html("<i class='fa fa-check fa-bounce'></i> Copied")
+            .fadeIn(150);
     });
 
     setTimeout(function () {
@@ -39,7 +41,7 @@ export function copyToClipboard(elem, data, timeout = 1000) {
  * @param {HTMLElement} elem - Button element triggering the copy action.
  */
 function handleCopyURL(elem, id = "") {
-    let url = new URL(window.location.href);
+    const url = new URL(window.location.href);
     if (id !== "") url.hash = `#${id}`;
     copyToClipboard(elem, url.href);
 }

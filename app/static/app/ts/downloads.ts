@@ -17,7 +17,7 @@ export function renderTables(id) {
         responsive: true,
         pageLength: 25,
         scrollX: true,
-        language: { "search": "" }
+        language: { search: "" },
     });
 
     $(".dt-search input").attr("placeholder", "Search table...");

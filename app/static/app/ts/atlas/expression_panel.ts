@@ -18,9 +18,9 @@ import { getUserLists } from "./modals/list_editor.ts";
  * @param {string|null} genes - Optional comma-separated list of gene names to include.
  */
 export function loadExpressionData(id, dataset, genes = null) {
-    let url = getDataPortalUrl("rest:metacellgeneexpression-list");
+    const url = getDataPortalUrl("rest:metacellgeneexpression-list");
 
-    let params = new URLSearchParams({
+    const params = new URLSearchParams({
         dataset: dataset,
         metacells: $("#metacells").val().join(","),
         fc_min: $("#fc_min").val(),
@@ -36,7 +36,7 @@ export function loadExpressionData(id, dataset, genes = null) {
         params.append("n_markers", $("#markers").val());
     }
 
-    let apiURL = url + "?" + params.toString();
+    const apiURL = url + "?" + params.toString();
 
     fetch(apiURL)
         .then((response) => response.json())
@@ -62,28 +62,28 @@ function modifyFormQuery(elem, e, id, dataset, multiple = []) {
     e.preventDefault();
 
     // Modify form URL
-    let formData = new FormData(elem);
-    let url = new URL(e.target.action);
-    for (let [key, value] of formData.entries()) {
+    const formData = new FormData(elem);
+    const url = new URL(e.target.action);
+    for (const [key, value] of formData.entries()) {
         url.searchParams.set(key, value);
     }
 
     // Get values
-    for (let i in multiple) {
-        let param = multiple[i];
-        let values = formData.getAll(param);
+    for (const i in multiple) {
+        const param = multiple[i];
+        const values = formData.getAll(param);
         url.searchParams.set(param, values.join(","));
 
         // Process values from user lists as hidden query parameters
         if (param == "gene_lists") {
             // Get genes from user lists
-            let lists = getUserLists(`${id}_${param}`, dataset);
-            let matches = lists.filter((list) => values.includes(list.name));
+            const lists = getUserLists(`${id}_${param}`, dataset);
+            const matches = lists.filter((list) => values.includes(list.name));
             let genes = matches.flatMap((list) => list.items);
 
             // Get remaining lists
-            let names = matches.flatMap((list) => list.name);
-            let diff = values.filter((value) => !names.includes(value));
+            const names = matches.flatMap((list) => list.name);
+            const diff = values.filter((value) => !names.includes(value));
             genes = diff.concat(genes);
 
             // Set query parameter
@@ -92,7 +92,7 @@ function modifyFormQuery(elem, e, id, dataset, multiple = []) {
     }
 
     // Maintain commas in query params
-    let href = url.href.replaceAll("%2C", ",");
+    const href = url.href.replaceAll("%2C", ",");
     window.location.href = href;
 }
 
@@ -103,15 +103,15 @@ function modifyFormQuery(elem, e, id, dataset, multiple = []) {
  */
 export function handleFormSubmit(id, dataset, type) {
     $("form").on("submit", function (e) {
-        let multiple = ["metacell_lists"];
+        const multiple = ["metacell_lists"];
         if (type === "gene-lists") multiple.push("gene_lists");
         modifyFormQuery(this, e, id, dataset, multiple);
     });
 }
 
 function toggleSubmitButton(id) {
-    let elem = $(`#${id}_gene_selection`)[0].selectize;
-    let isEmpty = elem.items.length === 0;
+    const elem = $(`#${id}_gene_selection`)[0].selectize;
+    const isEmpty = elem.items.length === 0;
     $(`#${id}_submit`).prop("disabled", isEmpty);
 }
 
@@ -129,7 +129,7 @@ export function initSubmitButtonToggler(id) {
 }
 
 function updateMetacellSelectionLabel(count) {
-    let label = count > 0 ? "Selected metacells" : "All metacells";
+    const label = count > 0 ? "Selected metacells" : "All metacells";
     $("#metacells_filter").text(label);
 }
 
@@ -139,11 +139,11 @@ function updateMetacellSelectionLabel(count) {
 export function initMetacellSelectionLabelUpdater() {
     // Change metacell selection label
     const metacell_selectize = $("#metacells")[0].selectize;
-    let count = metacell_selectize.items.length;
+    const count = metacell_selectize.items.length;
     updateMetacellSelectionLabel(count);
 
     metacell_selectize.on("change", function () {
-        let count = this.items.length;
+        const count = this.items.length;
         updateMetacellSelectionLabel(count);
     });
 }

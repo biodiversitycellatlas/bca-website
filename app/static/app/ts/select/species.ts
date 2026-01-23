@@ -24,10 +24,10 @@ function renderOption(item, escape) {
     }
 
     // Add metadata (only visible when matching user query)
-    let meta_array = escape(item.meta).split(",");
+    const meta_array = escape(item.meta).split(",");
     let badges = "";
     for (let i = 0; i < meta_array.length; i++) {
-        let elem = meta_array[i];
+        const elem = meta_array[i];
         if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
             badges = `
                 <span class="species-meta badge rounded-pill text-bg-secondary">
@@ -36,7 +36,7 @@ function renderOption(item, escape) {
             `;
         }
     }
-    let img = item.image === "None" ? "" : escape(item.image);
+    const img = item.image === "None" ? "" : escape(item.image);
     return `
         <div class='option'>
             <img src="${img}" style="width: 20px;">
@@ -90,7 +90,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
         onChange: function (value) {
             // Jump to species page upon selection
             if (redirect && value !== "" && value !== species) {
-                let url = new URL(window.location.href);
+                const url = new URL(window.location.href);
                 url.searchParams.set("species", value);
                 window.location.href = url;
             }
@@ -99,7 +99,7 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
             this.clear();
             setTimeout(() => {
                 if (species) {
-                    let current = this.getOption(species);
+                    const current = this.getOption(species);
                     this.setActiveOption(current);
                 }
             }, 10);

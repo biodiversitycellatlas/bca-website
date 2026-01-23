@@ -39,7 +39,7 @@ function updateDataFormat(format) {
     // Change all view buttons to the same format
     const view_btns = $(`a[name*="data_view"]`);
     for (let i = 0; i < view_btns.length; i++) {
-        let url = new URL(view_btns[i].href);
+        const url = new URL(view_btns[i].href);
         url.searchParams.set("format", format);
         view_btns[i].href = url;
     }
@@ -53,7 +53,7 @@ function updateDataFormat(format) {
  */
 function setSavedFormat(id) {
     // Get valid formats
-    let valid = $(`input[name="data_format_${id}"]`)
+    const valid = $(`input[name="data_format_${id}"]`)
         .map((_, el) => el.value)
         .get();
 
@@ -78,7 +78,7 @@ export function initDataFormatSelector(id) {
 
     // Change data format based on user selection
     $(`input[name=data_format_${id}]`).on("change", function () {
-        let format = $(this).val();
+        const format = $(this).val();
         // Update all format selection elements in the page to the same value
         $(`input[type="radio"][value="${format}"]`).prop("checked", true);
         updateDataFormat(format);
@@ -119,7 +119,7 @@ function updateDataMenuLink(id, elem, url) {
  *                'Metacell data');
  */
 export function appendDataMenu(id, urls, labels) {
-    let template = document.getElementById(`data_template_${id}`),
+    const template = document.getElementById(`data_template_${id}`),
         dropdownMenu = document.getElementById(`data_dropdown_${id}`),
         dropdownFooter = document.getElementById(`data_footer_${id}`);
 
@@ -129,21 +129,21 @@ export function appendDataMenu(id, urls, labels) {
     }
 
     // Find last index of data download option for this identifier
-    let lastIndex = $(
+    const lastIndex = $(
         `ul[id="data_dropdown_${id}"] > li[name="data_download_option"]`,
     )
         .last()
         .data("index");
 
     let i = lastIndex !== undefined ? lastIndex + 1 : 0;
-    for (let key in urls) {
+    for (const key in urls) {
         const clone = document.importNode(template.content, true);
-        let label = labels === undefined ? key : labels[i];
+        const label = labels === undefined ? key : labels[i];
         clone.querySelector("label").textContent = label;
         clone.querySelector("li").setAttribute("data-index", i);
 
         // View data
-        let url = urls[key];
+        const url = urls[key];
         updateDataMenuLink(id, clone, url);
 
         // Download data
@@ -177,7 +177,7 @@ export function appendDataMenu(id, urls, labels) {
  * @param {string} label - Label identifying the menu item to update.
  */
 export function updateDataMenu(id, url, label) {
-    let li = $(
+    const li = $(
         `ul[id="data_dropdown_${id}"] > li[name="data_download_option"] > label:contains("${label}")`,
     )
         .last()
