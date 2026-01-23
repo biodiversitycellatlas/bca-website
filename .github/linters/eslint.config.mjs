@@ -117,6 +117,7 @@ export default defineConfig([
 
         rules: {
             "n/no-unsupported-features/node-builtins": "off",
+            "n/no-missing-import": "off",
         },
     },
     ...pluginVue.configs["flat/recommended"],
