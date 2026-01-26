@@ -137,8 +137,9 @@ The Data Portal is powered by Django and its image is built from [`Dockerfile`](
 The latest images are available on [GitHub Packages](https://github.com/biodiversitycellatlas/bca-website/pkgs/container/bca-website).
 
 The Data Portal is organized into two directories:
-* [app](app) contains the models and templates for the Data Portal
-* [rest](rest) contains the REST API code and its documentation
+
+- [app](app) contains the models and templates for the Data Portal
+- [rest](rest) contains the REST API code and its documentation
 
 ### Update Django models
 
@@ -333,7 +334,6 @@ The environment files that Super-Linter automatically loads are available in
 [DIAMOND]: https://github.com/bbuchfink/diamond
 [Ghost]: https://ghost.org
 [Mailpit]: https://mailpit.axllent.org
-[collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
 [CRG]: https://crg.eu
 [EBI]: https://ebi.ac.uk/
