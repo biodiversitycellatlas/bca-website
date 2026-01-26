@@ -13,10 +13,14 @@ import $ from "jquery";
  */
 export function copyToClipboard(elem, data, timeout = 1000) {
     const $elem = $(elem);
-    const originalHTML = $elem.html();
     const textSpan = $elem.find("span.label");
-    $elem.addClass("disabled");
+    const originalHTML = textSpan.html();
 
+    // Lock button width
+    const width = $elem.outerWidth();
+    $elem.css("min-width", width);
+
+    $elem.addClass("disabled");
     navigator.clipboard.writeText(data);
 
     // Replace text with confirmation with fade animation
@@ -29,8 +33,8 @@ export function copyToClipboard(elem, data, timeout = 1000) {
     setTimeout(function () {
         textSpan.fadeOut(150, function () {
             textSpan.html(originalHTML).fadeIn(150);
+            $elem.removeClass("disabled");
         });
-        $elem.removeClass("disabled");
     }, timeout);
 }
 
