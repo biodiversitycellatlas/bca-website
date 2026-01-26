@@ -7,7 +7,9 @@
     {# djlint:off H008 #}
     data-bs-title="<i class='fa fa-circle-check'></i> Copied!">
     {# djlint:on #}
-    {{ text|default:'<i class="fa fa-chain"></i> Copy link' }}
+    <span class="label">
+        {{ text|default:'<i class="fa fa-chain"></i> Copy link' }}
+    </span>
 </button>
 
 <script type="module">

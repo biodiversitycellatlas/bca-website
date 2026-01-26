@@ -68,9 +68,9 @@ Input:
         multiple = "{{ multiple }}",
         display = "{{ display|default:'name' }}" === "all";
 
-    $(function () {
+    document.addEventListener("DOMContentLoaded", function() {
         initGeneSelectize(
             id, hash, redirect, species, dataset, gene, selected, limit, multiple, display
         );
-    })
+    });
 </script>

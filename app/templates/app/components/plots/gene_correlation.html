@@ -16,7 +16,7 @@ Input:
 <script type="module">
     import { plotGeneExpressionComparison }
         from "{% static 'app/js/atlas/expression_compare.js' %}";
-    $(function () {
+    document.addEventListener('DOMContentLoaded', function() {
         plotGeneExpressionComparison('{{id}}', '{{dataset.slug}}', '{{gene}}')
     });
 </script>
