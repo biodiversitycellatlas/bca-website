@@ -54,7 +54,7 @@ Input:
 <script type="module">
     {% load static %}
     import { initMetacellSelectize } from "{% static 'app/js/select/metacell.js' %}";
-    $(function () {
+    document.addEventListener("DOMContentLoaded", function() {
         initMetacellSelectize("{{selected}}", "{{selected2}}");
-    })
+    });
 </script>

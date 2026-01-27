@@ -276,10 +276,8 @@ a:active,
 }
 
 .list-group-heading {
-    color: var(--primary-color);
-    font-weight: 500;
-    text-transform: lowercase;
-    font-variant: small-caps;
+    color: black;
+    font-size: 11px;
     background-color: rgb(var(--bs-light-rgb));
     border: var(--bs-list-group-border-width) solid
         var(--bs-list-group-border-color);
