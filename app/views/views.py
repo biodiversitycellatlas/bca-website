@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.templatetags.static import static
 from django.shortcuts import render
 
-from ..models import Dataset, SpeciesFile, Species
+from ..models import Dataset, SpeciesFile, Species, SingleCell
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
@@ -28,6 +28,19 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["dataset_dict"] = get_dataset_dict()
 
+        # Get examples for feature links
+        context["example_dataset"] = Dataset.objects.first()
+        context["example_gene"] = context["example_dataset"].species.genes.first()
+
+        # Fetch number of cells, species and datasets
+        counter = {
+            "datasets": Dataset.objects.count(),
+            "species": Species.objects.count(),
+            "cells": SingleCell.objects.count(),
+        }
+        context["counter"] = counter
+
+        # Fetch latest blog posts
         categories = ["latest", "publications", "meetings", "tutorials"]
         posts = {c: get_latest_posts(tag=c if c != "latest" else None) for c in categories}
         context["posts"] = posts

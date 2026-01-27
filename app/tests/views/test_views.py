@@ -16,12 +16,12 @@ from app.tests.views.test_atlas_views import DataTestCase
 
 
 @override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatlas.org")
-class IndexViewTest(TestCase):
+class IndexViewTest(DataTestCase):
     @classmethod
     def setUpTestData(cls):
         # Disable SSL verification to fetch data
         ssl._create_default_https_context = ssl._create_unverified_context
-        cls.client = Client()
+        super().setUpTestData()
 
     def test_homepage(self):
         # Suppress stdout/stderr during feed fetch to avoid 404 errors
