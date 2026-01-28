@@ -10,7 +10,7 @@ MIN_SIZE = 1000
 
 
 @register(checks.Tags.files, deploy=True)
-def check_application_files(app_configs, **kwargs):
+def check_application_files(app_configs, **kwargs) -> List[Error]:
     dataset_errors = do_files_exist(DatasetFile)
     species_errors = do_files_exist(SpeciesFile)
     return dataset_errors + species_errors
@@ -27,10 +27,7 @@ def do_files_exist(cls: Type[Any]) -> List[Error]:
         if size < MIN_SIZE:
             errors.append(
                 Error(
-                    "file has size smaller than {MIN_SIZE} bytes",
-                    hint="small file size",
-                    obj=path,
-                    id="bca.E001",
+                    msg=f"file has size smaller than {MIN_SIZE} bytes", hint="small file size", obj=path, id="bca.E001"
                 )
             )
     return errors
