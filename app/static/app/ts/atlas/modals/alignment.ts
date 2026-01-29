@@ -170,19 +170,18 @@ export function alignSequence(id, species, type) {
                 for (const key in result) {
                     name = key + " alignment";
                     name = appendUserList(
-                        id + type,
+                        `${id}_${type}`,
                         species,
                         name,
                         result[key],
                         "Alignment results",
                         "gray",
-                        false,
+                        true,
                     );
                 }
-                redrawUserLists(id, species, [name]);
 
-                $(`#${id}_alignment`).modal("hide");
-                $(`#${id}_${type}_editor`).modal("show");
+                // Show the alignment results in the gene list modal
+                $(`#${id}_${type}_editor_btn`).click();
 
                 // Clean form state
                 $(`#${id}_query`).val("");
