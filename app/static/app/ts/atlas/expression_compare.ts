@@ -2,7 +2,6 @@
  * Gene correlation table and plot functions.
  */
 
-import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 

@@ -5,7 +5,7 @@
 import $ from "jquery";
 
 import { getDataPortalUrl } from "../../utils/urls.ts";
-import { appendUserList, redrawUserLists } from "./list_editor.ts";
+import { appendUserList } from "./list_editor.ts";
 
 /**
  * File upload for FASTA sequences.
