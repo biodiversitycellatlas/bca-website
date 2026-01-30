@@ -105,7 +105,7 @@ body {
 .form-control:focus,
 .sequence-input:has(.sequence-textarea:focus) {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem var(--hover-border-color);
+    box-shadow: var(--button-box-shadow);
 }
 
 .sequence-textarea:focus {
@@ -176,6 +176,10 @@ fieldset:disabled.btn.btn-primary {
 .btn-outline-primary {
     border-color: var(--primary-color) !important;
     color: var(--primary-color);
+}
+
+.btn-outline-primary:focus {
+    box-shadow: var(--button-box-shadow);
 }
 
 .btn-outline-primary:hover {
