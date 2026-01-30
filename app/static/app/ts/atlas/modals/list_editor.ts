@@ -541,10 +541,9 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
  */
 function updateTable(id, dataset) {
     // Create gene table
-    createGeneTable(`${id}_editor_table`, dataset);
+    const table = createGeneTable(`${id}_editor_table`, dataset);
 
     // Update interface based on selection
-    const table = $(`#${id}_editor_table`).DataTable();
     table.on("select deselect", function (e, dt, type) {
         if (type === "row") {
             const len = getSelectedRows(`${id}_editor_table`).length;

@@ -97,7 +97,7 @@ export function createGeneTable(
         selectParam = false;
     }
 
-    $(`#${id}`).dataTable({
+    const table = $(`#${id}`).DataTable({
         ajax: {
             url: url,
             data: buildDataQuery,
@@ -142,4 +142,5 @@ export function createGeneTable(
             }
         },
     });
+    return table;
 }
