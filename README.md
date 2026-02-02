@@ -263,7 +263,7 @@ COMPOSE_PROFILES=db
 ## Unit tests
 
 Unit tests are automatically run using Django and Bun for every pull request using
-GitHub Actions. Their coverage reports are then uploaded to [CodeCov][codecov-link].
+GitHub Actions. Their coverage reports are then uploaded to [Codecov][codecov-link].
 
 The tests and coverage reports can also be manually run with the following commands.
 
