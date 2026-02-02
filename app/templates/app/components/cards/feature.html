@@ -12,31 +12,40 @@ Input:
 
 {% endcomment %}
 
-<div class="col my-3">
-    <img src="{{ img_url }}"
-         class="img-fluid rounded rounded-3 mb-2"
-         alt="{{ img_alt }}"
-         width="auto"
-         height="auto">
+<style>
+.card-img-top {
+    height: 200px;
+    object-position: left top;
+}
+</style>
 
-    <h3 class="h5">
-        {{ title }}
-    </h3>
-    <p class="mb-1">
-        {{ description }}
-    </p>
+<div class="col">
+    <div class="card border-0">
+        <img src="{{ img_url }}"
+             class="card-img-top object-fit-cover rounded-3 shadow"
+             alt="{{ img_alt }}"
+             width="auto"
+             height="auto">
 
-    {% if example_url or docs_url or explore_url %}
-        <div class="small mb-3 d-flex gap-3">
-            {% if example_url %}
-                <a href="{{ example_url }}">Example</a>
-            {% endif %}
-            {% if docs_url %}
-                <a href="{{ docs_url }}">Documentation</a>
-            {% endif %}
-            {% if explore_url %}
-                <a href="{{ explore_url }}">Explore</a>
+        <div class="card-body">
+            <h3 class="h5 card-title">
+                {{ title }}
+            </h3>
+            <p class="card-text">
+                {{ description }}
+            </p>
+
+            {% if example_url or docs_url or explore_url %}
+                {% if example_url %}
+                    <a href="{{ example_url }}" class="card-link">Example</a>
+                {% endif %}
+                {% if docs_url %}
+                    <a href="{{ docs_url }}" class="card-link">Documentation</a>
+                {% endif %}
+                {% if explore_url %}
+                    <a href="{{ explore_url }}" class="card-link">Explore</a>
+                {% endif %}
             {% endif %}
         </div>
-    {% endif %}
+    </div>
 </div>
