@@ -103,5 +103,7 @@ Input:
 
 <!-- Scroll to active element -->
 <script>
-    $(".subnavbar .flex-row .active")[0].scrollIntoView({ inline: "center", block: "nearest" });
+    document.querySelector(".subnavbar .flex-row .active")?.scrollIntoView({
+        inline: "center", block: "nearest"
+    });
 </script>

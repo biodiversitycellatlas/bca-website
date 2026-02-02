@@ -54,7 +54,7 @@ Input:
     {% load static %}
     import { initSpeciesSelectize }
         from "{% static 'app/js/select/species.js' %}";
-    $(function () {
+    document.addEventListener('DOMContentLoaded', function() {
         let species = "{{species.slug}}",
             redirect = "{{redirect}}",
             optgroup_columns = "{{optgroup_columns}}" === "true";
