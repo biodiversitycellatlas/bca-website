@@ -7,6 +7,7 @@ from django.core import checks
 
 MIN_NUM_RECORDS = 4
 
+
 @register(checks.Tags.files, deploy=True)
 def check_tables(app_configs, **kwargs) -> List[Error]:
     errors = []
