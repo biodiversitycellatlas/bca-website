@@ -1,13 +1,13 @@
 /**
- * Plot gene expression comparisons.
+ * Gene correlation table and plot functions.
  */
 
-import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
-import { updateDataMenu } from "../buttons/data_dropdown.ts";
+import { appendDataMenu, updateDataMenu } from "../buttons/data_dropdown.ts";
+import { createGeneTable } from "./tables/gene_table.ts";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.ts";
 import {
     showSpinner,
@@ -16,30 +16,47 @@ import {
 } from "./plots/plot_container.js";
 
 /**
+ * Load a gene correlation table for a given gene.
+ *
+ * Fetches correlated gene data from the API, adds a data menu, and
+ * initializes a single-selection gene DataTable with correlation columns.
+ *
+ * @param {string} id - Container element ID for the table.
+ * @param {Object} dataset - Dataset reference for linking genes and fetching data.
+ * @param {string} gene - Gene ID for which to load correlated genes.
+ */
+function createGeneCorrelationTable(id, dataset, gene) {
+    // Get lists from API
+    const corrURL = getDataPortalUrl("rest:correlated-list", dataset, gene);
+    appendDataMenu(id, corrURL, "Correlation table (current page)");
+    const table = createGeneTable(
+        `${id}_table`,
+        dataset,
+        corrURL,
+        true,
+        "single",
+    );
+    return table;
+}
+
+/**
  * Plot expression comparison for the selected gene against a reference gene.
  *
+ * @param {string} jQuery - Table element.
  * @param {string} id - Table container ID.
  * @param {Object} dataset - Dataset reference.
  * @param {string} gene - Reference gene name for comparison.
  */
-export function plotGeneExpressionComparison(id, dataset, gene) {
-    $(`#${id}_table`)
-        .DataTable()
-        .on("select", function (e, dt, type) {
-            if (type === "row") {
-                const selected = dt.rows({ selected: true }).data();
-                if (selected && selected.length > 0) {
-                    const gene2 = selected[0].name;
-                    loadExpressionComparison(
-                        id,
-                        dataset,
-                        gene,
-                        gene2,
-                        selected[0],
-                    );
-                }
+function plotGeneExpressionComparison(table, id, dataset, gene) {
+    table.on("select", function (e, dt, type) {
+        if (type === "row") {
+            const selected = dt.rows({ selected: true }).data();
+            if (selected && selected.length > 0) {
+                const gene2 = selected[0].name;
+                loadExpressionComparison(id, dataset, gene, gene2, selected[0]);
             }
-        });
+        }
+    });
 
     // Hide spinner if gene correlation table is empty
     hideSpinner(id);
@@ -85,4 +102,19 @@ function loadExpressionComparison(id, dataset, gene, gene2, stats) {
         .finally(() => {
             hideSpinner(id);
         });
+}
+
+/**
+ * Load gene correlation interface.
+ *
+ * @param {string} id - Container element ID for the table.
+ * @param {Object} dataset - Dataset reference for linking genes and fetching data.
+ * @param {string} gene - Gene ID for which to load correlated genes.
+ */
+export function loadGeneCorrelation(id, dataset, gene) {
+    // Create gene correlation table
+    const table = createGeneCorrelationTable(id, dataset, gene);
+
+    // Plot expression data to compare two genes based on table selection
+    plotGeneExpressionComparison(table, id, dataset, gene);
 }

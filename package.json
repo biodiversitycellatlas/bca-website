@@ -1,7 +1,7 @@
 {
     "name": "app",
     "scripts": {
-        "build": "bun build $(find app/static/app/ts/ -name '*.ts' | sort) --outdir app/static/app/js --outbase app/static/app/ts/ --minify --sourcemap"
+        "build": "bun build $(find app/static/app/ts/ -name '*.ts' | sort) --outdir app/static/app/js --outbase app/static/app/ts/ --minify"
     },
     "dependencies": {
         "@fontsource/rubik": "^5.2.6",

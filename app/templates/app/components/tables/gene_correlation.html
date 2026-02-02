@@ -8,11 +8,18 @@ Input:
 
 {% endcomment %}
 
-<table id="{{ id }}_table" class="display compact w-100">
-</table>
+<div class="row">
+    <div class="col-md-8 mb-1">
+        <table id="{{ id }}_table" class="display compact w-100">
+        </table>
+    </div>
+    <div class="col-md-4 gene-corr">
+        {% include "../plot_container.html" with id=id height="100%" %}
+    </div>
+</div>
 
 {% load static %}
 <script type="module">
-    import { loadGeneCorrelationTable } from "{% static 'app/js/atlas/correlation_table.js' %}";
-    loadGeneCorrelationTable("{{id}}", "{{dataset.slug}}", "{{gene}}");
+    import { loadGeneCorrelation } from "{% static 'app/js/atlas/expression_compare.js' %}";
+    loadGeneCorrelation("{{id}}", "{{dataset.slug}}", "{{gene}}");
 </script>
