@@ -10,7 +10,7 @@ MIN_NUM_RECORDS = 4
 @register(checks.Tags.files, deploy=True)
 def check_tables(app_configs, **kwargs) -> List[Error]:
     errors = []
-    models = apps.get_app_config('app').models
+    models = apps.get_app_config("app").models
 
     for model in models:
         if model != "singlecellgeneexpression":
