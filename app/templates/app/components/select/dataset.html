@@ -26,7 +26,7 @@ Input:
 
 <style>
     #dataset-select-{{ id }} {
-        margin-bottom: 23px !important;
+        margin-bottom: 15px !important;
         visibility: hidden;
         max-width: 200px;
         {% if width %} width: {{ width }} !important; {% endif %}
@@ -37,7 +37,7 @@ Input:
     }
 </style>
 
-<!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
+<!-- Make select invisible and with margin of 15px to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="dataset-select-{{ id }}"
         class="mb-2 {{ class }} {% if small == 'true' %}small{% endif %}"
         placeholder="{{ placeholder|default:'Search datasets by species, taxonomic rank, division, ...' }}">

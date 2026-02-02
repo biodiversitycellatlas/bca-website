@@ -1,11 +1,17 @@
 <style>
 .breadcrumb-nav {
     --bs-breadcrumb-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E");
+    scrollbar-width: none;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    float: none;
 }
 </style>
 
-<nav class="breadcrumb-nav" aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
+<nav class="breadcrumb-nav overflow-x-auto {{ css_class }}"
+     aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0 flex-row flex-nowrap text-nowrap">
         {% for label, url in crumbs %}
             {% if forloop.last %}
                 <li class="breadcrumb-item active" aria-current="page">

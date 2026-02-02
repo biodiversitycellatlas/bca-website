@@ -13,7 +13,7 @@ services:
             - plausible
 
     plausible:
-        image: ghcr.io/plausible/community-edition:v3.0.1
+        image: ghcr.io/plausible/community-edition:v3.1.0
         restart: unless-stopped
         env_file: [.env]
         ports:

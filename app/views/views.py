@@ -265,7 +265,7 @@ class DocumentationView(TemplateView):
             if os.path.basename(file_path) != self.index_file:
                 # If not index page, go back once to fix path
                 static_path = os.path.join(static_path, "..")
-            static_dir = static(static_path)
+            static_dir = static(static_path.lstrip("/"))
 
             # Parse Markdown page
             md = MarkdownPage(file_path, static_dir=static_dir)
