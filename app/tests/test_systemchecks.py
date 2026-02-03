@@ -4,9 +4,10 @@ from django.core.files import File as DjangoFile
 from django.test import TestCase
 
 from app.apps import AppConfig
-from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
+from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression, GeneModule
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
+from app.systemchecks.postgresql_tables import check_tables
 
 
 class FilesSystemCheckTest(TestCase):
@@ -46,3 +47,24 @@ class MetacellGeneExpressionCheckTest(TestCase):
         errors = check_negative_umis([AppConfig], deploy=True)
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, "bca.E002")
+
+
+class PostgresTablesCheckTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        speciesP = Species.objects.create(
+            common_name="postgrescheck",
+            scientific_name="postgrescheck",
+            description="postgrescheck Species",
+        )
+        dataset1 = Dataset.objects.create(species=speciesP, name="psqlcheckdataset", description="psqlcheckdataset")
+        gene1 = Gene.objects.create(species=speciesP, name="geneP", description="geneP")
+        GeneModule.objects.create(name="psql", gene=gene1, dataset=dataset1, membership_score=4.1)
+
+    # In test mode there are several empty tables.
+    # Looking only for table 'genemodule':
+    def test_execution(self):
+        errors = check_tables([AppConfig], deploy=True)
+        for error in errors:
+            if error.obj == "genemodule":
+                self.assertEqual(error.id, "bca.E003")
