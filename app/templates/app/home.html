@@ -46,39 +46,39 @@ Features:
         <h2 class="h5 fw-semibold text-body-emphasis">
             BCA Data Portal
         </h2>
-        <div class="col-sm-8 col-md-6 col-lg-4 mx-auto">
-            <p class="lead mb-3">
-                Explore and download single-cell datasets across the eukaryotic tree of life.
-            </p>
 
-            <div class="d-flex justify-content-center text-center gap-3">
-                <div class="fixed-width">
-                    <p class="h3 mb-0">
-                        {{ counter.cells|human_number }}
-                    </p>
-                    <p>
-                        cells
-                    </p>
-                </div>
+        <p class="lead mb-3">
+            Explore and download single-cell datasets<br>
+            across the eukaryotic tree of life.
+        </p>
 
-                <a href="{% url 'species_entry' %}" class="fixed-width">
-                    <p class="h3 mb-0">
-                        {{ counter.species|human_number }}
-                    </p>
-                    <p>
-                        species
-                    </p>
-                </a>
-
-                <a href="{% url 'dataset_entry' %}" class="fixed-width">
-                    <p class="h3 mb-0">
-                        {{ counter.datasets|human_number }}
-                    </p>
-                    <p>
-                        datasets
-                    </p>
-                </a>
+        <div class="d-flex justify-content-center text-center gap-3">
+            <div class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.cells|human_number }}
+                </p>
+                <p>
+                    cells
+                </p>
             </div>
+
+            <a href="{% url 'species_entry' %}" class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.species|human_number }}
+                </p>
+                <p>
+                    species
+                </p>
+            </a>
+
+            <a href="{% url 'dataset_entry' %}" class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.datasets|human_number }}
+                </p>
+                <p>
+                    datasets
+                </p>
+            </a>
         </div>
     </div>
 
