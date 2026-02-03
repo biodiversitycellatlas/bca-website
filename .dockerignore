@@ -3,3 +3,6 @@
 .gitignore
 data/
 pg_backup/
+node_modules/
+super-linter-output/
+htmlcov/
