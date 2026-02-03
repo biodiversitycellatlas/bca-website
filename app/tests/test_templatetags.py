@@ -9,7 +9,6 @@ from app.templatetags.string_extras import (
 
 
 class StringExtrasTests(SimpleTestCase):
-
     def test_split_default_delimiter(self):
         self.assertEqual(split("a,b,c"), ["a", "b", "c"])
 
