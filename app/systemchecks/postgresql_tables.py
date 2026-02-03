@@ -17,7 +17,7 @@ def check_tables(app_configs, **kwargs) -> List[Error]:
 
         for model in models:
             if model != "singlecellgeneexpression":
-                n = len(apps.get_model(f"app.{model}").objects.all()[:MIN_NUM_RECORDS])
+                n = len(models[model].objects.all()[:MIN_NUM_RECORDS])
                 if n < MIN_NUM_RECORDS:
                     errors.append(Error(msg="Table has not enough data", hint="few records", obj=model, id="bca.E003"))
 
