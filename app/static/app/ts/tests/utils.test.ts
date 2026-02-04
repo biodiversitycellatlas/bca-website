@@ -4,7 +4,7 @@ import {
     addWordBreakOpportunities,
     slugify,
     escapeString,
-} from "../ts/utils/utils";
+} from "../utils/utils";
 
 describe("highlightMatch", () => {
     it("returns null if content is null", () => {
