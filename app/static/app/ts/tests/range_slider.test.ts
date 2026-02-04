@@ -18,10 +18,13 @@ describe("Range Slider Utils", () => {
 
         // Initalize slider
         const opts = { min: 0, max: 5, from: 3, step: 0.1 };
-        const sliderInstance = initRangeSlider("#slider", opts, ["#label", undefined, " eggs"]);
+        const slider = initRangeSlider("#slider", opts, [
+            "#label",
+            undefined,
+            " eggs",
+        ]);
 
         // Check if slider was started as expected
-        const slider = $("#slider").data("ionRangeSlider");
         expect(slider).toBeDefined();
         expect(slider.options.min).toBe(0);
         expect(slider.options.max).toBe(5);
@@ -34,8 +37,11 @@ describe("Range Slider Utils", () => {
         expect(label.text()).toBe("3 eggs");
 
         // Update slider's from_min based on slider2's from value
-        const slider2Instance = initRangeSlider("#slider2", opts, ["#label", "#slider", " eggs"]);
-        const slider2 = $("#slider2").data("ionRangeSlider");
+        const slider2 = initRangeSlider("#slider2", opts, [
+            "#label",
+            "#slider",
+            " eggs",
+        ]);
         expect(slider.options.from_min).toBe(slider2.options.from);
     });
 });
