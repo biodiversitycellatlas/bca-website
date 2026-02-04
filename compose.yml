@@ -25,9 +25,18 @@ services:
             - ./ghost/partials/components/footer.hbs:/var/lib/ghost/content/themes/source/partials/components/footer.hbs
             - ./ghost/partials/components/post-list.hbs:/var/lib/ghost/content/themes/source/partials/components/post-list.hbs
             - ./ghost/partials/components/tracking.hbs:/var/lib/ghost/content/themes/source/partials/components/tracking.hbs
+        environment:
+            - url=${GHOST_URL}
+            - database__client=${GHOST_DATABASE_CLIENT}
+            - database__connection__filename=${GHOST_DATABASE_CONNECTION_FILENAME}
+            - security__staffDeviceVerification=${GHOST_SECURITY_STAFFDEVICEVERIFICATION}
+            - NODE_TLS_REJECT_UNAUTHORIZED=${GHOST_NODE_TLS_REJECT_UNAUTHORIZED}
+            - mail__options__host=${GHOST_MAIL_OPTIONS_HOST}
+            - mail__options__port=${GHOST_MAIL_OPTIONS_PORT}
+            - mail__transport=${GHOST_MAIL_TRANSPORT}
 
     mailpit:
-        image: axllent/mailpit:v1.27
+        image: axllent/mailpit:v1.28
         env_file: [.env]
         container_name: mailpit
         restart: unless-stopped

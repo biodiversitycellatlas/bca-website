@@ -84,6 +84,7 @@ Downloads page
     {% load download_links %}
     {% load file_tags %}
     {% load string_extras %}
+    {% load static %}
 
     <div data-bs-spy="scroll"
          data-bs-target="#scrollspy-nav"
@@ -193,15 +194,9 @@ Downloads page
             </table>
         </div>
 
-        <script>
-            $('#species_table, #dataset_table').DataTable({
-                responsive: true,
-                pageLength: 25,
-                scrollX: true,
-                language: { "search": "" }
-            });
-
-            $('.dt-search input').attr("placeholder", "Search table...");
+        <script type="module">
+            import { renderTables } from "{% static 'app/js/downloads.js' %}";
+            renderTables("#species_table, #dataset_table");
         </script>
 
     </div>

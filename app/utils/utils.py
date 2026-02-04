@@ -1,6 +1,10 @@
 """Misc utility functions."""
 
 import json
+from typing import Dict
+
+import h5py
+import numpy as np
 
 from django.urls import reverse
 
@@ -13,20 +17,14 @@ def get_dataset_dict():
     for dataset in Dataset.objects.all():
         # get phylum
         try:
-            phylum = dataset.species.meta_set.filter(key="phylum").values_list(
-                "value", flat=True
-            )[0]
+            phylum = dataset.species.meta_set.filter(key="phylum").values_list("value", flat=True)[0]
         except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
         try:
             removed_terms = ["species", "phylum"]
-            meta = list(
-                dataset.species.meta_set.exclude(key__in=removed_terms).values_list(
-                    "value", flat=True
-                )
-            )
+            meta = list(dataset.species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
 
@@ -38,9 +36,7 @@ def get_dataset_dict():
 
     # Sort dictionary by phyla, species and dataset order
     sorted_dict = {
-        phylum: sorted(
-            elems, key=lambda x: (str(x["dataset"].species), x["dataset"].order)
-        )
+        phylum: sorted(elems, key=lambda x: (str(x["dataset"].species), x["dataset"].order))
         for phylum, elems in sorted(dataset_dict.items())
     }
     return sorted_dict
@@ -52,20 +48,14 @@ def get_species_dict():
     for species in Species.objects.all():
         # get phylum
         try:
-            phylum = species.meta_set.filter(key="phylum").values_list(
-                "value", flat=True
-            )[0]
+            phylum = species.meta_set.filter(key="phylum").values_list("value", flat=True)[0]
         except (AttributeError, IndexError):
             phylum = "Other phyla"
 
         # get meta info
         try:
             removed_terms = ["species", "phylum"]
-            meta = list(
-                species.meta_set.exclude(key__in=removed_terms).values_list(
-                    "value", flat=True
-                )
-            )
+            meta = list(species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
 
@@ -202,3 +192,39 @@ def get_cell_atlas_links(url_name, dataset=None):
         else:
             link["href"] = "#"
     return links
+
+
+def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
+    """Reads the expression values for a given gene from HDF5 file
+
+    Args:
+        hdf_file: path to the HDF5 file
+        gene: a gene, e.g ("Spolac_c99997_g1")
+    Returns:
+        A dictionary of cell names to UMI frac expression values, e.g.
+        {"AACTC-1": 1.462, "ACCG-1": 1.235}
+
+    """
+    with h5py.File(hdf_file, "r") as f:
+        expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
+        cell_names = f.get("/cell_names")[:]
+        cell_positions_dict = create_positions_dictionary(cell_names)
+        result = {}
+        for elem in np.nditer(expression_values, flags=["zerosize_ok"]):
+            position = int(elem["c"])
+            result[cell_positions_dict[position]] = float(elem["e"])
+        return result
+
+
+def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
+    """Creates a dictionary from positions to elements in the array
+
+    Args:
+        a_list: numpy array of strings (cell names)
+    Returns:
+        dictionary e.g: { 0: "AAACG-1", 3:"CCTG-3"}
+    """
+    dictionary = {}
+    for pos, value in enumerate(a_list):
+        dictionary[pos] = str(value, encoding="ascii")
+    return dictionary

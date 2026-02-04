@@ -3,8 +3,8 @@
 import hashlib
 import re
 from pathlib import Path
-
 from typing import Optional
+
 from colorfield.fields import ColorField
 from django.db import models
 from django.urls import reverse
@@ -12,8 +12,26 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 
-class SlugMixin(models.Model):
-    """Abstract model mixin that adds slug-related fields or behavior."""
+class AutoSlugMixin(models.Model):
+    """Abstract mixin to add an automatic slug to the model."""
+
+    slug = models.SlugField(unique=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """Format the model representation for safe use in URLs."""
+
+        if not self.slug:
+            self.slug = slugify(str(self))
+        super().save(*args, **kwargs)
+
+
+class DynamicSlugMixin(models.Model):
+    """Abstract mixin to create slug dynamically."""
 
     class Meta:
         """Meta options."""
@@ -57,6 +75,43 @@ class ImageSourceMixin(models.Model):
         return None
 
 
+class ExternalQueryMixin:
+    """Mixin to provide query link to external website."""
+
+    source_name = "DOI"
+    query_term_field = "doi"
+
+    @property
+    def source(self):
+        """Return Source instance."""
+        return Source.objects.get(name=self.source_name)
+
+    @property
+    def query_term(self):
+        """Return query term."""
+        return getattr(self, self.query_term_field, None)
+
+    @property
+    def query_url(self):
+        """Return external URL to query term."""
+        url = self.source.query_url
+        term = self.query_term
+        if url and term:
+            return url.replace("{{id}}", term)
+        return None
+
+    def get_source_html_link(self, label=None):
+        """Get HTML link to external source querying for this term."""
+        url = self.query_url
+        label = label or self.query_term
+        html = f"""
+            <a href="{url}" target="_blank">
+                {label}
+            </a>
+        """
+        return mark_safe(html)
+
+
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
@@ -89,7 +144,7 @@ class HtmlLinkMixin:
         return self.get_html_link(url=url, show_common_name=True)
 
 
-class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
+class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Species model."""
 
     common_name = models.CharField(max_length=100, null=True, help_text="Common name of the species.")
@@ -100,17 +155,17 @@ class Species(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     @property
     def division(self):
         """Return species division."""
-        return self.meta_set.filter(key="division").first().value
+        return self.meta_set.get(key="division").value
 
     @property
     def kingdom(self):
         """Return species kingdom."""
-        return self.meta_set.filter(key="kingdom").first().value
+        return self.meta_set.get(key="kingdom").value
 
     @property
     def phylum(self):
         """Return species phylum."""
-        return self.meta_set.filter(key="phylum").first().value
+        return self.meta_set.get(key="phylum").value
 
     @property
     def proteome(self):
@@ -198,7 +253,62 @@ class Source(models.Model):
         return self.name
 
 
-class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
+class Publication(ExternalQueryMixin, models.Model):
+    """Scientific article."""
+
+    title = models.CharField(max_length=500, help_text="Publication title.")
+    authors = models.TextField(help_text="Comma-separated list of authors.")
+    year = models.PositiveIntegerField(help_text="Year of publication.")
+    journal = models.CharField(max_length=255, help_text="Journal.")
+
+    # Identifiers
+    doi = models.CharField(max_length=255, unique=True, help_text="DOI (Digital Object Identifier).")
+    pmid = models.CharField(max_length=20, unique=True, help_text="PubMed identifier.")
+
+    def format_author_name(self, author):
+        """Return full name for groups, last name for people."""
+        name = author.strip()
+
+        # Check if author is a collective
+        group_keywords = {"consortium", "committee", "group", "team", "collaboration", "project"}
+        if not set(name.lower().split()) & group_keywords:
+            name = name.split()[-1]
+        return name
+
+    def create_short_citation(self):
+        """Return a condensed in-line citation like 'Darwin et al., 2017'."""
+        if self.authors == "":
+            return f"Unknown, {self.year}"
+
+        # Format name of first author
+        authors = self.authors.split(",")
+        first = self.format_author_name(authors[0])
+        if len(authors) == 1:
+            citation = f"{first}, {self.year}"
+        elif len(authors) == 2:
+            # Format name of second author
+            second = self.format_author_name(authors[1])
+            citation = f"{first} & {second}, {self.year}"
+        else:
+            citation = f"{first} et al., {self.year}"
+        return citation
+
+    def get_source_html_link(self):
+        """Override label to display for the source HTML link."""
+        citation = self.create_short_citation()
+        citation = citation.replace("et al.", "<i>et al.</i>")
+
+        # Return only citation if there is no DOI to link to
+        if not self.doi:
+            return citation
+        return super().get_source_html_link(citation)
+
+    def __str__(self):
+        """String representation."""
+        return self.create_short_citation()
+
+
+class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
@@ -208,13 +318,7 @@ class Dataset(SlugMixin, ImageSourceMixin, HtmlLinkMixin):
     date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
 
-    source = models.ForeignKey(
-        Source,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        help_text="Source of the dataset.",
-    )
+    publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True, help_text="Dataset publication.")
     # version = models.CharField(max_length=50, blank=True, null=True)
     # is_public = models.BooleanField(default=True)
 
@@ -303,16 +407,14 @@ class DatasetQualityControl(models.Model):
         return f"{self.dataset}, {self.metric}: {self.value or 'NA'}"
 
 
-class File(models.Model):
-    """File model for a species."""
-
-    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
-
-    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
-    file = models.FileField(help_text="File.")
-    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+class FileMixin(models.Model):
     slug = models.SlugField(unique=True, blank=True)
+    checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
+    file = models.FileField(help_text="File.")
+    type = models.CharField(max_length=255, help_text="File type.")
+
+    class Meta:
+        abstract = True
 
     def save(self, *args, **kwargs):
         """Compute file checksum and generate slug before saving."""
@@ -323,9 +425,11 @@ class File(models.Model):
             self.checksum = hasher.hexdigest()
 
             if not self.slug:
-                base = f"{self.species.scientific_name}-{self.type}"
+                if isinstance(self, SpeciesFile):
+                    base = f"{self.species.scientific_name}-{self.type}"
+                if isinstance(self, DatasetFile):
+                    base = f"{self.dataset.get_label()}-{self.type}"
                 self.slug = slugify(base)
-
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -339,6 +443,14 @@ class File(models.Model):
         """Return filename."""
         return f"{self}.{self.ext}"
 
+
+class SpeciesFile(FileMixin):
+    """File model for a species."""
+
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
+    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
     class Meta:
         """Meta options."""
 
@@ -347,6 +459,24 @@ class File(models.Model):
     def __str__(self):
         """String representation."""
         return f"{self.species.scientific_name} - {self.type}"
+
+
+class DatasetFile(FileMixin):
+    """File model for a Dataset."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
+
+    file_types = {"singlecell_umifrac": "singlecell_umifrac"}
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["dataset", "type"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset.slug} - {self.type}"
 
 
 class Meta(models.Model):
@@ -361,7 +491,7 @@ class Meta(models.Model):
     @property
     def query_url(self) -> Optional[str]:
         """Build query URL."""
-        url = self.source.query_url
+        url = getattr(self.source, "query_url", None)
         term = self.query_term
         if url and term:
             url = url.replace("{{id}}", term)
@@ -395,7 +525,7 @@ class Meta(models.Model):
         return f"{self.key.capitalize()}: {self.value}"
 
 
-class MetacellType(SlugMixin):
+class MetacellType(DynamicSlugMixin):
     """Metacell type model."""
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_types")
@@ -406,6 +536,7 @@ class MetacellType(SlugMixin):
         """Meta options."""
 
         unique_together = ["dataset", "name"]
+        indexes = [models.Index(fields=["dataset", "name"])]
 
     def __str__(self):
         """String representation."""
@@ -478,31 +609,13 @@ class SingleCell(models.Model):
         return self.name
 
 
-class Domain(models.Model):
+class Domain(ExternalQueryMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)
 
-    @property
-    def source(self):
-        """Return the Source instance."""
-        return Source.objects.get(name="Pfam")
-
-    @property
-    def query_term(self):
-        """Return query term used in URL."""
-        return self.name
-
-    @property
-    def query_url(self):
-        """Build query URL."""
-        url = self.source.query_url
-        term = self.query_term
-        if url and term:
-            url = url.replace("{{id}}", term)
-        else:
-            url = None
-        return url
+    source_name = "Pfam"
+    query_term_field = "name"
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -544,12 +657,17 @@ class GeneList(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
+    class Meta:
+        """Meta options."""
+
+        ordering = ["name"]
+
     def __str__(self):
         """String representation."""
         return str(self.name)
 
 
-class Gene(SlugMixin):
+class Gene(DynamicSlugMixin):
     """Gene model per species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="genes")
@@ -610,6 +728,7 @@ class Gene(SlugMixin):
         """Meta options."""
 
         unique_together = ["name", "species"]
+        ordering = ["species", "name"]
 
     def __str__(self):
         """String representation."""
@@ -645,6 +764,7 @@ class GeneModule(models.Model):
         """Meta options."""
 
         unique_together = ["gene", "dataset"]
+        indexes = [models.Index(fields=["name"], name="app_genemodule_name_idx")]
 
     def __str__(self):
         """String representation."""
@@ -696,16 +816,15 @@ class MetacellGeneExpression(models.Model):
 class SingleCellGeneExpression(models.Model):
     """Single cell gene expression model per dataset."""
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="scge")
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="scge")
-    single_cell = models.ForeignKey(SingleCell, on_delete=models.CASCADE, related_name="scge")
-    umi_raw = models.DecimalField(max_digits=8, decimal_places=0, blank=True, null=True)
+    dataset = models.CharField(max_length=200)
+    gene = models.CharField(max_length=200)
+    single_cell = models.CharField(max_length=200)
     umifrac = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null=True)
 
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "single_cell", "dataset"]
+        managed = False
         verbose_name = "single-cell gene expression"
         verbose_name_plural = verbose_name
 

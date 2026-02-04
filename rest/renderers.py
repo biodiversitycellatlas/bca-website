@@ -43,11 +43,7 @@ class CSVRenderer(BaseRenderer):
             data = data["results"]
 
             # Add comment with pagination details
-            output.write(
-                f"# Count: {total_count}\n"
-                f"# Next: {next_link}\n"
-                f"# Previous: {previous_link}\n"
-            )
+            output.write(f"# Count: {total_count}\n# Next: {next_link}\n# Previous: {previous_link}\n")
 
         # Write headers
         if isinstance(data, list):

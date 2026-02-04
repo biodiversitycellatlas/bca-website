@@ -1,7 +1,13 @@
 # checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
 
-# Get postgreSQL client from official Docker image
+# Get postgreSQL client
 FROM postgres:18.1-trixie AS postgres
+
+# Get diamond aligner
+FROM buchfink/diamond:version2.1.17 AS diamond
+
+# Get bun
+FROM oven/bun:1.3.6-slim AS bun
 
 # Serve website
 FROM python:3.13.7-trixie
@@ -11,12 +17,6 @@ LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-            diamond-aligner=2.1.11-2 \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -25,6 +25,8 @@ COPY . .
 # Copy binaries and dependencies
 COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
 COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
+COPY --from=diamond /usr/local/bin/diamond /usr/bin/
+COPY --from=bun /usr/local/bin/bun /usr/bin/
 RUN ldconfig
 
 # Switch to non-root user

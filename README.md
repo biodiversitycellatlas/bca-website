@@ -1,5 +1,19 @@
 # Biodiversity Cell Atlas website and data portal
 
+[![website][]][website-link]
+[![build][]][build-link]
+[![codecov][]][codecov-link]
+[![docker][]][docker-link]
+
+[website]: https://img.shields.io/badge/website-biodiversitycellatlas.org-blue
+[website-link]: https://biodiversitycellatlas.org
+[build]: https://img.shields.io/github/actions/workflow/status/biodiversitycellatlas/bca-website/django.yml?logo=github&logoColor=white
+[build-link]: https://github.com/biodiversitycellatlas/bca-website/actions/workflows/django.yml
+[codecov]: https://img.shields.io/codecov/c/github/biodiversitycellatlas/bca-website?logo=codecov&logoColor=white
+[codecov-link]: https://codecov.io/gh/biodiversitycellatlas/bca-website
+[docker]: https://img.shields.io/badge/docker-ghcr.io/biodiversitycellatlas/bca--website-blue?logo=docker&logoColor=white
+[docker-link]: https://github.com/biodiversitycellatlas/bca-website/pkgs/container/bca-website
+
 The [Biodiversity Cell Atlas][] is a coordinated international effort aimed at
 molecularly characterizing cell types across the eukaryotic tree of life. Our
 mission is to pave the way for the efficient expansion of cell atlases to
@@ -11,11 +25,16 @@ This project uses:
 
 - [Podman Compose][] to manage multiple [Podman][] containers (using
   [docker-compose][Docker Compose] backend for compatibility)
-- [Ghost][], a blog-focused Content Management System (CMS) to setup the main website
-    - [Mailpit][] captures and provides a web interface to read Ghost transactional emails
-- [Django][], a high-level Python web framework setup using [Gunicorn][] to setup the data portal
+- [Ghost][], a blog-focused Content Management System (CMS) for the main website
+    - [Mailpit][] provides a web interface to read Ghost transactional emails
+- [Django][], a high-level Python web framework powering the data portal, with additional dependencies (see [`Dockerfile`](Dockerfile))
+    - [Bun][] to build JavaScript and CSS assets from external libraries
+    - [DIAMOND][] for fast sequence alignment
+    - [Gunicorn][] to serve the Django app in production
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
+
+The project configuration is defined in [`compose.yml`](compose.yml).
 
 ### Initial setup
 
@@ -93,21 +112,36 @@ After launching the service, the main website will be deployed to
 > If you are using proxies, localhost subdomains may need to be excluded in your
 > Proxy settings.
 
-#### Update static files
+### Production
 
-Static files are served by [Nginx][].
-
-If you need to manually update the static files (such as when editing them),
-run the [`collectstatic`][collectstatic] command:
+A dedicated Compose file (such as `compose.prod.yml`) can be used for
+production-specific settings:
 
 ```bash
-podman compose exec web python manage.py collectstatic --noinput
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
+# Deploy in production mode
+podman compose -d
 ```
 
-The `collectstatics` command runs automatically when the web app container starts,
-so you can simply run `podman compose restart web`.
+## Main website (Ghost)
 
-#### Update Django models
+The main website is built with the [Ghost][] blogging platform. Base templates
+in the [`ghost/`](ghost) folder modify the default theme.
+
+Transactional emails (like those sent to reset passwords and create new user
+accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+
+## Data Portal (Django app)
+
+The Data Portal is powered by Django and its image is built from [`Dockerfile`](Dockerfile).
+The latest images are available on [GitHub Packages](https://github.com/biodiversitycellatlas/bca-website/pkgs/container/bca-website).
+
+The Data Portal is organized into two directories:
+
+- [app](app) contains the models and templates for the Data Portal
+- [rest](rest) contains the REST API code and its documentation
+
+### Update Django models
 
 To apply changes to Django models, run the [`migrate`][migrate] command:
 
@@ -120,27 +154,53 @@ development mode, so you can simply run `podman compose restart web`.
 The automatic command will not work if there is an issue that requires
 manual intervention.
 
-### Production
+### Update static files
 
-A dedicated Compose file (such as `compose.prod.yml`) can be used for
-production-specific settings:
+When you start the Compose project (`podman compose up web`),
+[`entrypoint.sh`](entrypoint.sh) runs [Bun][] to build JavaScript and
+CSS assets from TypeScript and external libraries, then runs Django
+to collect the static files. [Nginx][] automatically serves the
+collected files from the output folder.
+
+To manually update static files, you can also run these commands:
 
 ```bash
-# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.prod.yml
-# Deploy in production mode
-podman compose -d
+# Bun: install JS and CSS dependencies
+podman compose exec web bun install
+
+# Bun: build custom and third-party JS and CSS assets
+podman compose exec web bun run build
+
+# Django: collect all static files
+podman compose exec web python manage.py collectstatic --noinput
+```
+
+### Run unit tests
+
+Run all Django unit tests to check the app's functionality:
+
+```bash
+podman compose exec web python manage.py test
+```
+
+You can verify the deployment configuration:
+
+```bash
+podman compose exec web python manage.py check-deploy
 ```
 
 ## Postgres database
 
-By default, the project uses the Postgres database service to serve the Django
-app. However, you can instead connect to any database by editing the Postgres
-files `.pg_service.conf` and `.pgpass`, and then changing to which database
-service to connect in `.env`:
+By default, the Django app uses the Postgres database service in
+[`compose.yml`](compose.yml). However, you can instead connect to any
+database by editing the Postgres files `.pg_service.conf` and `.pgpass`,
+and then changing to which database service to connect in `.env`:
 
 ```bash
 POSTGRES_SERVICE=remote-bca-db
 ```
+
+### Disable Postgres service
 
 In case the database service is not needed because you are connecting to an
 external database, edit the `.env` file to exclude the `db` profile:
@@ -178,17 +238,17 @@ host.docker.internal:5432:bca_db:wallace:mypassword
 
 You can now start the project as usual via `podman compose up`.
 
-## Ghost
-
-The main website is built with the [Ghost][] blogging platform. Base templates
-in the [`ghost/`](ghost) folder modify the default theme.
-
-Transactional emails (like those sent to reset passwords and create new user
-accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
-
 ## Nginx
 
-In case you want to run Nginx or another reverse proxy yourself, edit the `.env`
+To check the Nginx configuration that is going to be run:
+
+```bash
+podman compose exec nginx nginx -t
+```
+
+### Disable Nginx
+
+In case you want to disable the Nginx service, edit the `.env`
 file to exclude the `nginx` profile:
 
 ```bash
@@ -200,9 +260,32 @@ COMPOSE_PROFILES=db
 # If you don't need both the nginx and db services, simply delete the whole line
 ```
 
-## Super-Linter
+## Linters
 
-Super-Linter is run for every Pull Request. To run it locally using Podman,
+### djlint
+
+Check and lint Django templates using [djlint][]:
+
+```bash
+# Show errors in Django  template files
+djlint .
+
+# Automatically lint and reformat Django template files
+djlint . --preserve-blank-lines --reformat
+```
+
+### autoprefixer
+
+Process CSS with [Autoprefixer][] to add vendor prefixes:
+
+```bash
+# Process all CSS files and replace them in-place
+bunx postcss ./**/*.css --use autoprefixer --no-map --replace
+```
+
+### Super-Linter
+
+[Super-Linter][] is run for every Pull Request. To run it locally using Podman,
 execute the following commands (the correct image is automatically pulled based
 on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
 
@@ -246,13 +329,17 @@ The environment files that Super-Linter automatically loads are available in
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
+[Bun]: https://bun.com
 [Gunicorn]: https://gunicorn.org
+[DIAMOND]: https://github.com/bbuchfink/diamond
 [Ghost]: https://ghost.org
 [Mailpit]: https://mailpit.axllent.org
-[collectstatic]: https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#collectstatic
 [migrate]: https://docs.djangoproject.com/en/dev/topics/migrations/
 [CRG]: https://crg.eu
 [EBI]: https://ebi.ac.uk/
 [Sanger]: https://sanger.ac.uk/
 [Moore]: https://moore.org
 [Biodiversity Cell Atlas]: https://biodiversitycellatlas.org
+[Autoprefixer]: https://autoprefixer.github.io
+[djlint]: https://djlint.com
+[Super-Linter]: https://github.com/super-linter/super-linter

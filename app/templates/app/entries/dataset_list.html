@@ -13,11 +13,17 @@
     <th>
         Dataset
     </th>
+    <th>
+        Source
+    </th>
 {% endblock header %}
 
 {% block row %}
     <td>
         {{ each.get_named_html_link }}
+    </td>
+    <td>
+        {{ each.publication.get_source_html_link }}
     </td>
 {% endblock row %}
 

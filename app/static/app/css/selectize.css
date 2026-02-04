@@ -58,10 +58,7 @@
 
 .selectize-control::before {
     opacity: 0;
-    -moz-transition: opacity 0.2s;
-    -webkit-transition: opacity 0.2s;
     transition: opacity 0.2s;
-    -webkit-animation: none;
     animation: none;
     z-index: 2;
     position: absolute;
@@ -87,7 +84,6 @@
 
 .selectize-control.loading::before {
     opacity: 1;
-    -webkit-animation: fa-spin 2s infinite linear;
     animation: fa-spin 2s infinite linear;
 }
 

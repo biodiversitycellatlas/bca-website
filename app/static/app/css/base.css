@@ -276,10 +276,8 @@ a:active,
 }
 
 .list-group-heading {
-    color: var(--primary-color);
-    font-weight: 500;
-    text-transform: lowercase;
-    font-variant: small-caps;
+    color: black;
+    font-size: 11px;
     background-color: rgb(var(--bs-light-rgb));
     border: var(--bs-list-group-border-width) solid
         var(--bs-list-group-border-color);
@@ -296,6 +294,48 @@ a:active,
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     border-top-width: 1px;
+}
+
+/* Documentation page improvements */
+
+.docs ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.docs ul li {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.docs ul ul li {
+    margin-top: 0;
+    font-weight: normal;
+}
+
+.docs ul li:first-child {
+    margin-top: 0;
+}
+
+.docs ul ul ul,
+.docs ul ul ul ul,
+.docs ul ul ul ul ul {
+    padding-left: 1rem;
+}
+
+.docs ul li:hover {
+    background-color: #f0f0f0;
+}
+
+.docs.btn-group {
+    margin-top: -2px;
+    margin-bottom: -2px;
+}
+
+.docs .sticky-top {
+    top: 98px;
+    z-index: 999;
 }
 
 /* Dropdown menu */

@@ -142,13 +142,13 @@ class AtlasInfoView(BaseAtlasView):
 
         qc_metrics = [
             {
-                "title": "Mapping and read quality",
+                "title": "Mapping metrics",
                 "img_url": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797",
                 "img_author": "Javier Miranda",
                 "img_author_handle": "nuvaproductions",
             },
             {
-                "title": "Noise and contamination",
+                "title": "Quality metrics",
                 "img_url": "https://images.unsplash.com/photo-1535127022272-dbe7ee35cf33",
                 "img_author": "Michael Schiffer",
                 "img_author_handle": "michael_schiffer_design",

@@ -90,8 +90,7 @@ Input:
                         <select class="form-select"
                                 id="fc_max_bg_type"
                                 name="fc_max_bg_type"
-                                aria-label="Select example"
-                                onchange="toggleMaxFCslider(this, '#fc_max_bg');">
+                                aria-label="Select example">
                             <option value="ignore"
                                     {% if query.fc_max_bg_type == 'ignore' %}selected{% endif %}>
                                 Ignore
@@ -144,14 +143,19 @@ Input:
     <script type="module">
         import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
         initRangeSlider("#fc_min", { min: 0, max: 5, from: {{query.fc_min|default:2}}, step: 0.1 });
-        initRangeSlider("#fc_max_bg", { min: 0, max: 5, from: {{query.fc_max_bg|default:3}}, step: 0.1 });
+        const fx_max_bg_slider = initRangeSlider("#fc_max_bg", { min: 0, max: 5, from: {{query.fc_max_bg|default:3}}, step: 0.1 });
 
         import { handleFormSubmit, updateMetacellSelectionLabel, initMarkersTable, toggleMaxFCslider }
             from "{% static 'app/js/atlas/markers.js' %}";
 
         // Hide slider depending on value of #fc_max_bg_type
-        toggleMaxFCslider($('#fc_max_bg_type')[0], '#fc_max_bg');
-        window.toggleMaxFCslider = toggleMaxFCslider;
+        document.addEventListener('DOMContentLoaded', () => {
+            const fc_max_bg_type = document.getElementById('fc_max_bg_type');
+            toggleMaxFCslider(fc_max_bg_type, fx_max_bg_slider);
+            fc_max_bg_type.addEventListener('change', (e) => {
+                toggleMaxFCslider(e.target, fx_max_bg_slider);
+            });
+        });
 
         handleFormSubmit();
         updateMetacellSelectionLabel("{{metacells|join:', '}}");

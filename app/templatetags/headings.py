@@ -1,6 +1,4 @@
 from django import template
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -22,9 +20,7 @@ def data_dropdown(id):
     return {"id": id}
 
 
-@register.inclusion_tag(
-    "app/components/buttons/copy_to_clipboard.html", takes_context=True
-)
+@register.inclusion_tag("app/components/buttons/copy_to_clipboard.html", takes_context=True)
 def clipboard_button(context, id="", text=""):
     """
     Button to copy current URL (optionally with hash #id) to clipboard.
@@ -39,9 +35,7 @@ def clipboard_button(context, id="", text=""):
     }
 
 
-def _render_heading(
-    context, title, id=None, tag="h1", clipboard_button=True, data_dropdown=True
-):
+def _render_heading(context, title, id=None, tag="h1", clipboard_button=True, data_dropdown=True):
     """
     Heading to show copy link and data dropdown buttons
 
