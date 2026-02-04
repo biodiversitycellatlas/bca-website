@@ -67,7 +67,7 @@ services:
                 -c maintenance_work_mem=4GB
                 -c work_mem=64MB
         volumes:
-            - db_data:/var/lib/postgresql/data
+            - db_data:/var/lib/postgresql
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
             - ./.pgpass:/postgres/.pgpass
             - ./.pg_service.conf:/postgres/.pg_service.conf
