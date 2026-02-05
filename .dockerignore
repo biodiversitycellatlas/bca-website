@@ -3,3 +3,6 @@
 .gitignore
 data/
 pg_backup/
+super-linter-output
+node_modules
+static
