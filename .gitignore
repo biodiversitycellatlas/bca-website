@@ -5,6 +5,11 @@
 __pycache__
 db.sqlite3
 media
+**/data
+app/static/app/js
+app/static/app/images/logos/BCA/PNG/*
+app/static/app/images/logos/BCA/EPS/*
+htmlcov
 
 # Postgres
 .pg_service.conf
@@ -15,13 +20,10 @@ media
 *.bak
 .DS_Store
 *.RDS
-**/data
-app/static/app/images/logos/BCA/PNG/*
-app/static/app/images/logos/BCA/EPS/*
 
 # Linters
-/super-linter-output
-/node_modules
+super-linter-output/
+node_modules/
 .coverage
 
 # SSL certificates
@@ -29,8 +31,7 @@ app/static/app/images/logos/BCA/EPS/*
 *.key
 
 # Environment
+.ackrc
 .env*
 !.env.template
-/source
-.ackrc
-/app/static/app/js
+source/
