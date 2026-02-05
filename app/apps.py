@@ -15,3 +15,4 @@ class AppConfig(AppConfig):
         super().ready()
         from .systemchecks.files import check_application_files  # noqa: F401
         from .systemchecks.metacellgenexpression import check_negative_umis  # noqa: F401
+        from .systemchecks.postgresql_tables import check_tables  # noqa: F401
