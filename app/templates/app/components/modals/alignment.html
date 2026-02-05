@@ -108,7 +108,7 @@ Input:
                             <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
                                 <button type="button"
                                         class="btn btn-link btn-sm"
-                                        onclick="$('#{{ id }}_upload').click();">
+                                        onclick="document.getElementById('{{ id }}_upload').click();">
                                     <span class="small">
                                         <i class="fa fa-file-lines"></i>
                                         Load from FASTA file...
@@ -148,11 +148,12 @@ Input:
                     Alignment results are saved as gene lists.
                 </p>
                 <span>
-                    <button class="btn btn-outline-primary"
+                    <button id="{{ id }}_{{ type }}_editor_btn"
+                            class="btn btn-outline-primary"
                             href="javascript:void(0);"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ id }}_{{ type }}_editor">
-                        Previous results
+                        Show gene lists
                     </button>
                     <button type="submit"
                             class="btn btn-primary"

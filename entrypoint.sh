@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e # Exit if any command returns a non-zero status
 
-# Collect all Django static files
-python manage.py collectstatic --noinput
-
 # Create and apply Django migrations
 run_django_migrations() {
     python manage.py makemigrations
@@ -21,7 +18,14 @@ has_table() {
         );" | grep -q t
 }
 
-# Check whether the environment is production
+# Prepare JS and CSS dependencies
+bun install
+bun run build
+
+# Collect all Django static files
+python manage.py collectstatic --noinput
+
+# Deploy Django app
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
     # Create tables with data models if they do not exist
     if ! has_table 'species'; then
