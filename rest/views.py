@@ -467,10 +467,7 @@ class AlignViewSet(viewsets.ViewSet):
                 str,
                 location="query",
                 required=True,
-                examples=[
-                    OpenApiExample("Single query", value=examples[0].value["sequences"]),
-                    OpenApiExample("Multiple queries", value=examples[1].value["sequences"]),
-                ],
+                examples=[OpenApiExample(e.name, value=e.value["sequences"]) for e in examples],
                 description=serializers.AlignRequestSerializer().fields["sequences"].help_text,
             ),
             OpenApiParameter(
