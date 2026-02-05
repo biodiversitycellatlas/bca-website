@@ -47,7 +47,7 @@ Input:
             {% for metric in metrics %}
                 <li class="list-group-item"
                     {% if metric.description %} data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ metric.description }}" {% endif %}>
-                    <span {% if metric.description %}class="text-decoration-underline" style="text-decoration-style: dotted;"{% endif %}>{{ metric.name }}</span>
+                    <span {% if metric.description %}style="text-decoration: underline; text-decoration-style: dotted;"{% endif %}>{{ metric.name }}</span>
                     {% load string_extras %}
                     <span class="float-end text-secondary">{{ metric.value|intspace }}</span>
                 </li>
