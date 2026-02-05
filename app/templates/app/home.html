@@ -21,11 +21,18 @@ Features:
             height: 600px;
             width: 100%;
         }
+
+        .fixed-width {
+            width: 100px;
+        }
     </style>
 
     {% load static %}
+    {% load bca_website_links %}
+    {% load string_extras %}
+
     <div class="px-2 text-center">
-        <h1 class="display-5 fw-bold text-body-emphasis d-none">
+        <h1 class="d-none">
             Biodiversity Cell Atlas: Data Portal
         </h1>
 
@@ -36,17 +43,43 @@ Features:
              class="img-fluid m-n40px"
              src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
-        <div class="col-lg-8 mx-auto mt-3 mt-md-0">
-            <p class="lead">
-                <span class="h5 mb-5 pb-5 fw-semibold text-body-emphasis">BCA Data Portal:</span>
+        <h2 class="h5 fw-semibold text-body-emphasis">
+            BCA Data Portal
+        </h2>
 
-                {% load bca_website_links %}
-                The <a class="fw-bolder" href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a>
-                is a coordinated international effort aimed at molecularly characterizing
-                cell types across the eukaryotic tree of life. Our mission is to
-                pave the way for the efficient expansion of cell atlases to hundreds
-                of species.
-            </p>
+        <p class="lead mb-3">
+            Explore and download single-cell datasets
+            <br>
+            across the eukaryotic tree of life.
+        </p>
+
+        <div class="d-flex justify-content-center text-center gap-3">
+            <div class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.cells|human_number }}
+                </p>
+                <p>
+                    cells
+                </p>
+            </div>
+
+            <a href="{% url 'species_entry' %}" class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.species|human_number }}
+                </p>
+                <p>
+                    species
+                </p>
+            </a>
+
+            <a href="{% url 'dataset_entry' %}" class="fixed-width">
+                <p class="h3 mb-0">
+                    {{ counter.datasets|human_number }}
+                </p>
+                <p>
+                    datasets
+                </p>
+            </a>
         </div>
     </div>
 
@@ -73,10 +106,52 @@ Features:
         </svg>
     {% endcomment %}
 
+    <!-- Data portal features -->
+    <h2 class="h3 mt-5" id="features">
+        BCA Data Portal features
+    </h2>
+
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+        {% url 'atlas_info' dataset=example_dataset.slug as info_url %}
+        {% static 'app/images/features/qc.png' as qc_img %}
+        {% include "app/components/cards/feature.html" with title="Quality control" img_url=qc_img img_alt="Quality control screenshot" description="Assess key metrics for each dataset." example_url=info_url %}
+
+        {% url 'atlas_overview' dataset=example_dataset.slug as overview_url %}
+        {% static 'app/images/features/cell-projection.svg' as projection_img %}
+        {% include "app/components/cards/feature.html" with title="Cell projection" img_url=projection_img img_alt="Cell projection screenshot" description="Visualize dimensionality reduction of cells, colored by cell types or expression of a gene of interest." example_url=overview_url %}
+
+        {% static 'app/images/features/expression-heatmap.svg' as heatmap_img %}
+        {% include "app/components/cards/feature.html" with title="Gene expression heatmap" img_url=heatmap_img img_alt="Gene expression heatmap screenshot" description="Explore expression patterns of top cell type markers or specific genes." example_url=overview_url %}
+
+        {% url 'atlas_gene' dataset=example_dataset.slug gene=example_gene as gene_url %}
+        {% static 'app/images/features/orthologs.png' as orthologs_img %}
+        {% include "app/components/cards/feature.html" with title="Gene and ortholog expression" img_url=orthologs_img img_alt="Gene and ortholog expression screenshot" description="Compare gene expression across cell types and their corresponding orthologs." example_url=gene_url %}
+
+        {% url 'atlas_markers' dataset=example_dataset.slug as markers_url %}
+        {% static 'app/images/features/markers.png' as markers_img %}
+        {% include "app/components/cards/feature.html" with title="Cell type markers" img_url=markers_img img_alt="Cell type markers screenshot" description="Identify genes enriched in selected cell types." example_url=markers_url %}
+
+        {% url 'atlas_compare' dataset=example_dataset.slug as compare_url %}
+        {% static 'app/images/features/compare.png' as compare_img %}
+        {% include "app/components/cards/feature.html" with title="Comparative analysis" img_url=compare_img img_alt="Comparative analysis screenshot" description="Perform cross-species comparisons and check cell type similarities." example_url=compare_url %}
+
+        {% url 'downloads' as downloads_url %}
+        {% static 'app/images/features/downloads.png' as downloads_img %}
+        {% include "app/components/cards/feature.html" with title="Data download" img_url=downloads_img img_alt="Data download screenshot" description="Access and download processed data." explore_url=downloads_url %}
+
+        {% url 'rest:index' as rest_url %}
+        {% static 'app/images/features/rest.png' as rest_img %}
+        {% include "app/components/cards/feature.html" with title="REST API" img_url=rest_img img_alt="REST API screenshot" description="Download data programmatically." docs_url=rest_url %}
+
+        {% url 'entry' as entries_url %}
+        {% static 'app/images/features/entries.png' as entries_img %}
+        {% include "app/components/cards/feature.html" with title="Database entries" img_url=entries_img img_alt="Database entry screenshot" description="Browse an index of the entries in the BCA database." explore_url=entries_url %}
+    </div>
+
     <!-- News fetched from Ghost blog RSS -->
-    <h1 class="h3" id="news">
+    <h2 class="h3 mt-5" id="news">
         <a href="{% bca_url 'blog' %}" target="_blank">Latest news</a>
-    </h1>
+    </h2>
 
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
         {% load cards %}
@@ -91,7 +166,6 @@ Features:
 
     <!-- Publications, meetings and tutorials -->
     {% load lists %}
-    {% load string_extras %}
     {% load dict_extras %}
 
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch  g-4 py-2">
