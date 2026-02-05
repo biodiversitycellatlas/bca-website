@@ -19,6 +19,7 @@ has_table() {
 }
 
 # Prepare JavaScript and CSS static files
+bun install
 bun run build
 
 # Collect all Django static files
