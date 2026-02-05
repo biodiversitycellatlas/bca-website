@@ -19,8 +19,8 @@ Base entry template
     {% load cards %}
     <div class="row row-cols row-cols-sm-2 row-cols-lg-4">
         <div class="col">
-            {% url 'species_entry' as species_url %}
-            {% url 'dataset_entry' as dataset_url %}
+            {% url "species_entry" as species_url %}
+            {% url "dataset_entry" as dataset_url %}
             {% with title="<a href='"|add:species_url|add:"'>Species</a>" description="<ul><li><a href='"|add:dataset_url|add:"'>Datasets</a></li></ul>" %}
             {% card title=title|safe description=description|safe img_url="https://images.unsplash.com/photo-1747767899252-af016ec627c2" img_author='The New York Public Library' img_author_handle='@nypl' %}
         {% endwith %}

@@ -22,7 +22,7 @@ Dynamic blocks:
         <title>
             {% block title %}
                 Biodiversity Cell Atlas: Data Portal
-            {% endblock %}
+            {% endblock title %}
         </title>
 
         <meta name="description"
@@ -63,11 +63,11 @@ Dynamic blocks:
         <link rel="stylesheet" href="{% static 'app/css/tables.css' %}">
 
         {# Plausible Tracking Snippet #}
-        {% include 'tracking.html' %}
+        {% include "tracking.html" %}
     </head>
     <body>
         {% block navbar %}
-            {% include 'navbar.html' %}
+            {% include "navbar.html" %}
         {% endblock navbar %}
         {% block subnav %}
             {% comment %}
@@ -75,21 +75,21 @@ Dynamic blocks:
             {% endcomment %}
         {% endblock subnav %}
 
-        <main class="{% block main_class %}container-xxl overflow-x-clip{% endblock %}">
+        <main class="{% block main_class %}container-xxl overflow-x-clip{% endblock main_class %}">
             {% block breadcrumb %}
-            {% endblock %}
+            {% endblock breadcrumb %}
             {% block content %}
-            {% endblock %}
+            {% endblock content %}
             {% block pagination %}
-            {% endblock %}
+            {% endblock pagination %}
         </main>
 
         {% block footer %}
-            {% include 'footer.html' %}
+            {% include "footer.html" %}
         {% endblock footer %}
 
         <!-- External JavaScript libraries -->
         <script type="module" src="{% static 'app/js/index.js' %}"></script>
-        {% include 'app/components/javascript_urls.html' %}
+        {% include "app/components/javascript_urls.html" %}
     </body>
 </html>
