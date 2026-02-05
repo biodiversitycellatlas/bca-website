@@ -22,8 +22,8 @@ htmlcov
 *.RDS
 
 # Linters
-super-linter-output/
-node_modules/
+super-linter-output
+node_modules
 .coverage
 
 # SSL certificates
@@ -33,5 +33,6 @@ node_modules/
 # Environment
 .ackrc
 .env*
+.venv
 !.env.template
 source/
