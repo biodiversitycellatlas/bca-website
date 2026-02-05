@@ -18,8 +18,7 @@ has_table() {
         );" | grep -q t
 }
 
-# Prepare JS and CSS dependencies
-bun install
+# Prepare JavaScript and CSS static files
 bun run build
 
 # Collect all Django static files

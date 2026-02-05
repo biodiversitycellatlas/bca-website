@@ -3,3 +3,5 @@
 .gitignore
 data/
 pg_backup/
+super-linter-output/
+htmlcov/
