@@ -90,7 +90,7 @@ jobs:
               run: pip install djlint
 
             - name: Lint HTML files with djlint
-              run: djlint . --preserve-blank-lines --reformat
+              run: djlint . --reformat
               continue-on-error: true
 
             - name: Suggest changes

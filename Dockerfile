@@ -26,7 +26,7 @@ COPY . .
 COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
 COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
-COPY --from=bun /usr/local/bin/bun /usr/bin/
+COPY --from=bun /usr/local/bin/bun* /usr/bin/
 RUN ldconfig
 
 # Switch to non-root user

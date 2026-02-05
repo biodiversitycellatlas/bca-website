@@ -267,7 +267,7 @@ GitHub Actions. Their coverage reports are then uploaded to [Codecov][codecov-li
 
 The tests and coverage reports can also be manually run with the following commands.
 
-### Django tests
+### Run Django tests
 
 Run all Django unit tests with:
 
@@ -280,7 +280,7 @@ podman compose exec web coverage run manage.py test
 podman compose exec web coverage html
 ```
 
-### Bun tests for TypeScript files
+### Run Bun tests for TypeScript files
 
 Run all TypeScript tests with Bun:
 
@@ -297,28 +297,34 @@ podman compose exec web bun test --watch
 
 ## Linters
 
-### djlint
+### Run djlint
 
 Check and lint Django templates using [djlint][]:
 
 ```bash
+# Locally deploy the web app
+podman compose up -d --build
+
 # Show errors in Django  template files
-djlint .
+podman compose exec web djlint .
 
 # Automatically lint and reformat Django template files
-djlint . --preserve-blank-lines --reformat
+podman compose exec web djlint . --reformat
 ```
 
-### autoprefixer
+### Run autoprefixer
 
 Process CSS with [Autoprefixer][] to add vendor prefixes:
 
 ```bash
+# Locally deploy the web app
+podman compose up -d --build
+
 # Process all CSS files and replace them in-place
-bunx postcss ./**/*.css --use autoprefixer --no-map --replace
+podman compose exec web bunx postcss ./**/*.css --use autoprefixer --no-map --replace
 ```
 
-### Super-Linter
+### Run Super-Linter
 
 [Super-Linter][] is run for every Pull Request. To run it locally using Podman,
 execute the following commands (the correct image is automatically pulled based
