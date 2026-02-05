@@ -21,23 +21,19 @@ Base entry template
         <div class="col">
             {% url "species_entry" as species_url %}
             {% url "dataset_entry" as dataset_url %}
-            {% with title="<a href='"|add:species_url|add:"'>Species</a>" description="<ul><li><a href='"|add:dataset_url|add:"'>Datasets</a></li></ul>" %}
-            {% card title=title|safe description=description|safe img_url="https://images.unsplash.com/photo-1747767899252-af016ec627c2" img_author='The New York Public Library' img_author_handle='@nypl' %}
-        {% endwith %}
+            {% card title="<a href='"|add:species_url|add:"'>Species</a>"|safe description="<ul><li><a href='"|add:dataset_url|add:"'>Datasets</a></li></ul>"|safe img_url="https://images.unsplash.com/photo-1747767899252-af016ec627c2" img_author="The New York Public Library" img_author_handle="@nypl" %}
+        </div>
+
+        <div class="col">
+            {% url 'gene_entry' as genes_url %}
+            {% url 'gene_list_entry' as gene_lists_url %}
+            {% url 'gene_module_entry' as gene_modules_url %}
+            {% url 'domain_entry' as domains_url %}
+            {% url 'orthogroup_entry' as orthogroups_url %}
+
+            {% card title="<a href='"|add:genes_url|add:"'>Genes</a>"|safe description='<ul><li><a href="'|add:gene_lists_url|add:'">Gene lists</a></li><li><a href="'|add:gene_modules_url|add:'">Gene modules</a></li><li><a href="'|add:domains_url|add:'">Protein domains</a></li><li><a href="'|add:orthogroups_url|add:'">Orthogroups</a></li></ul>'|safe img_url="https://images.unsplash.com/photo-1576086265779-619d2f54d96b" img_author='National Cancer Institute' img_author_handle='@nci' %}
+        </div>
     </div>
-
-    <div class="col">
-        {% url 'gene_entry' as genes_url %}
-        {% url 'gene_list_entry' as gene_lists_url %}
-        {% url 'gene_module_entry' as gene_modules_url %}
-        {% url 'domain_entry' as domains_url %}
-        {% url 'orthogroup_entry' as orthogroups_url %}
-
-        {% with title="<a href='"|add:genes_url|add:"'>Genes</a>"|safe description='<ul><li><a href="'|add:gene_lists_url|add:'">Gene lists</a></li><li><a href="'|add:gene_modules_url|add:'">Gene modules</a></li><li><a href="'|add:domains_url|add:'">Protein domains</a></li><li><a href="'|add:orthogroups_url|add:'">Orthogroups</a></li></ul>'|safe %}
-        {% card title=title description=description img_url="https://images.unsplash.com/photo-1576086265779-619d2f54d96b" img_author='National Cancer Institute' img_author_handle='@nci' %}
-    {% endwith %}
-</div>
-</div>
 
 {% endblock content %}
 
