@@ -7,7 +7,7 @@ import TomSelect from "tom-select";
 import { getDataPortalUrl } from "../utils/urls.ts";
 
 /**
- * Render search result options for Selectize input.
+ * Render search result options for TomSelect input.
  *
  * @param {Object} item - Search result item (gene or dataset)
  * @param {Function} escape - Function to escape HTML content
@@ -87,7 +87,7 @@ function displaySearchResults(item, escape) {
 /**
  * Initialize the navbar search input.
  *
- * Configures Selectize with:
+ * Configures TomSelect with:
  * - Autocomplete for datasets and genes
  * - Keyboard shortcut (/) to focus the search input
  * - Redirect on selection

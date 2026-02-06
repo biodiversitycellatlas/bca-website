@@ -1,9 +1,8 @@
 /**
- * Gene selectize element.
+ * Gene select element.
  */
 
-import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 /**
  * Convert a comma-separated list of numbers into ranges.
@@ -49,13 +48,13 @@ function createColorCircle(color) {
 }
 
 /**
- * Initialize a Selectize dropdown for metacells.
+ * Initialize a TomSelect dropdown for metacells.
  *
  * @param {string} selected - Comma-separated pre-selected metacell values.
  * @param {string} selected2 - Alternative comma-separated pre-selected metacell values.
  */
-export function initMetacellSelectize(selected, selected2) {
-    $("#metacells").selectize({
+export function initMetacellSelect(selected, selected2) {
+    const select = new TomSelect("#metacells", {
         multiple: true,
         plugins: ["remove_button"],
         onInitialize: function () {
@@ -108,4 +107,5 @@ export function initMetacellSelectize(selected, selected2) {
             },
         },
     });
+    return select;
 }
