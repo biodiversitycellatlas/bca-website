@@ -25,7 +25,7 @@ django-prometheus==2.4.1
 coverage==7.13.2
 django-debug-toolbar==6.1.0
 django-extensions==4.1
-pandas==2.3.3
+pandas==3.0.0
 psutil==7.2.1
 psycopg2==2.9.11
 rds2py==0.8.1
