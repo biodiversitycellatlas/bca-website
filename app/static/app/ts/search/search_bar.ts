@@ -2,8 +2,7 @@
  * Search bar initialization and results rendering.
  */
 
-import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 
@@ -94,7 +93,7 @@ function displaySearchResults(item, escape) {
  * - Redirect on selection
  */
 export function initSearch() {
-    $("#bca-search").selectize({
+    const search = new TomSelect("#bca-search", {
         maxItems: 1,
         onType: function (str) {
             if (str === "") {
@@ -129,10 +128,18 @@ export function initSearch() {
             item: () => `<div>Search the BCA...</div>`,
             option: displaySearchResults,
             optgroup_header: function (data) {
-                const query = this.getTextboxValue();
+                const query = this.inputValue();
                 const search = getDataPortalUrl("search");
-                const count = `<a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}"><span class="badge rounded-pill pt-1 background-primary">${data.count} results <i class="fa fa-circle-chevron-right"></i></span></a>`;
-                return `<div class="optgroup-header d-flex justify-content-between"><span>${data.label} search</span>${count}</div>`;
+                const count = `
+                    <a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}">
+                        <span class="badge rounded-pill pt-1 background-primary">
+                            ${data.count} results <i class="fa fa-circle-chevron-right"></i>
+                        </span>
+                    </a>`;
+                return `
+                    <div class="optgroup-header d-flex justify-content-between">
+                        <span>${data.label} search</span>${count}
+                    </div>`;
             },
         },
         load: function (query, callback) {
@@ -195,7 +202,8 @@ export function initSearch() {
             !e.altKey
         ) {
             e.preventDefault();
-            $("#bca-search")[0].selectize.focus();
+            search.focus();
         }
     });
+    return search;
 }
