@@ -450,6 +450,8 @@ class AlignViewSet(viewsets.ViewSet):
     serializer_class = serializers.AlignRequestSerializer
     limit = settings.MAX_ALIGNMENT_SEQS  # Limit number of sequences to align
 
+    examples = getattr(serializers.AlignRequestSerializer, "_spectacular_annotation", {}).get("examples", [])
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -458,22 +460,14 @@ class AlignViewSet(viewsets.ViewSet):
                 location="query",
                 required=True,
                 description=serializers.AlignRequestSerializer().fields["species"].help_text,
-                examples=[OpenApiExample("Species", value="Trichoplax adhaerens")],
+                examples=[OpenApiExample("Species", value=examples[0].value["species"])],
             ),
             OpenApiParameter(
                 "sequences",
                 str,
                 location="query",
                 required=True,
-                examples=[
-                    OpenApiExample("Single query", value="MSIWFSIAILSVLVPFVQLTPIRPRS"),
-                    OpenApiExample(
-                        "Multiple queries",
-                        summary="Multiple queries",
-                        value=">Query_1\\nMSLIRNYNYHLRSASLANASQLDT\\n>Query_2\\nMDSSTDIPCNCVEILTA"
-                        + "\\n>Query_3\\nMDSLTDRPCNYVEILTA",
-                    ),
-                ],
+                examples=[OpenApiExample(e.name, value=e.value["sequences"]) for e in examples],
                 description=serializers.AlignRequestSerializer().fields["sequences"].help_text,
             ),
             OpenApiParameter(
