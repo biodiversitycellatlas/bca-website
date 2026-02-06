@@ -15,7 +15,7 @@ try:
     from rds2py import read_rds
     from samalg import SAM
     from samap.mapping import SAMAP
-    from samap.utils import save_samap
+    from samap.utils import get_mapping_scores, save_samap
 except ImportError:
     print("Error: Missing dependencies. Did you forget to run `conda activate SAMap`?")
     sys.exit(1)
@@ -114,7 +114,8 @@ def run_pairwise_SAMAP(d1, d2, sam_dir, alignment_dir, samap_dir):
 
     print("Saving SAMAP results...")
     os.makedirs(samap_dir, exist_ok=True)
-    save_samap(sm, f"{samap_dir}/{d1}-{d2}.samap")
+    filename = f"{samap_dir}/{d1}-{d2}.samap"
+    save_samap(sm, filename)
 
     print(f"Saving pairwise scores between cell types from {s1} and {s2}...")
     # D: highest-scoring alignment scores for each cell type

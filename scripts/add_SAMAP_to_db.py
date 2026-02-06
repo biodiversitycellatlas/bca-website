@@ -5,6 +5,8 @@ import re
 import pandas as pd
 import yaml
 
+from app.models import Dataset, SAMap
+
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
