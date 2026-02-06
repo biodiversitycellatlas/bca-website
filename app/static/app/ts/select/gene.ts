@@ -80,8 +80,20 @@ function displayGeneName(item, escape) {
  */
 function prependGeneLists(id, select, callback, genes, domains, preset) {
     const res = getAllLists(`${id}_gene_lists`)
-        .concat(preset.map((obj) => ({ ...obj, count: obj.gene_count, group: "preset" })))
-        .concat(domains.map((obj) => ({ ...obj, count: obj.gene_count, group: "domains" })))
+        .concat(
+            preset.map((obj) => ({
+                ...obj,
+                count: obj.gene_count,
+                group: "preset",
+            })),
+        )
+        .concat(
+            domains.map((obj) => ({
+                ...obj,
+                count: obj.gene_count,
+                group: "domains",
+            })),
+        )
         .concat(genes.map((obj) => ({ ...obj, group: "genes" })));
     callback(res);
 }
@@ -141,16 +153,14 @@ function initGeneSelectValues(select, items) {
 
         // Set up optgroups
         const groups = [
-            ...new Set(
-                Object.values(select.options).map((obj) => obj.group),
-            ),
+            ...new Set(Object.values(select.options).map((obj) => obj.group)),
         ];
 
         const labelMap = {
             preset: "Preset gene lists",
             custom: "Custom gene lists",
             genes: "Genes",
-            domains: "Domains"
+            domains: "Domains",
         };
 
         for (const group of groups) {
@@ -286,7 +296,8 @@ export function initGeneSelect(
                 });
         },
     });
-    if (gene.name) setDefaultGene(select, gene.name, gene.description, gene.domains);
+    if (gene.name)
+        setDefaultGene(select, gene.name, gene.description, gene.domains);
     if (multiple) initGeneSelectValues(select, selected);
     return select;
 }
