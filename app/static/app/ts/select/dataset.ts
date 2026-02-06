@@ -2,8 +2,7 @@
  * Dataset dropdown UI selectize element.
  */
 
-import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 
@@ -31,7 +30,7 @@ export function initDatasetSelectize(
     redirect,
     optgroup_columns,
 ) {
-    $(`#dataset-select-${id}`).selectize({
+    new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
             // Jump to dataset page upon selection
             if (redirect == "arg") {
