@@ -50,11 +50,9 @@ Input:
     {% endfor %}
 </select>
 
-<!-- Metacell: selectize.js JavaScript options -->
+<!-- Metacell select options -->
 <script type="module">
     {% load static %}
-    import { initMetacellSelectize } from "{% static 'app/js/select/metacell.js' %}";
-    document.addEventListener("DOMContentLoaded", function() {
-        initMetacellSelectize("{{selected}}", "{{selected2}}");
-    });
+    import { initMetacellSelect } from "{% static 'app/js/select/metacell.js' %}";
+    initMetacellSelect("{{selected}}", "{{selected2}}");
 </script>

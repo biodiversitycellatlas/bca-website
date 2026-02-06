@@ -1,14 +1,13 @@
 /**
- * Dataset dropdown UI selectize element.
+ * Dataset dropdown UI TomSelect element.
  */
 
-import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 
 /**
- * Initializes a Selectize dropdown for dataset selection.
+ * Initializes a TomSelect dropdown for dataset selection.
  *
  * Features:
  * - By default, redirects to a new dataset page on selection.
@@ -24,14 +23,14 @@ import { getDataPortalUrl } from "../utils/urls.ts";
  *   "query" : update `dataset` query parameter in current URL.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
  */
-export function initDatasetSelectize(
+export function initDatasetSelect(
     id,
     dataset,
     query,
     redirect,
     optgroup_columns,
 ) {
-    $(`#dataset-select-${id}`).selectize({
+    const select = new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
             // Jump to dataset page upon selection
             if (redirect == "arg") {
@@ -132,4 +131,5 @@ export function initDatasetSelectize(
             }),
         },
     });
+    return select;
 }
