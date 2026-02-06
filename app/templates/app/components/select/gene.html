@@ -40,10 +40,10 @@ Input:
     </option>
 </select>
 
-<!-- Species selection: selectize.js JavaScript options -->
+<!-- Species select options -->
 <script type="module">
     {% load static %}
-    import { initGeneSelectize } from "{% static 'app/js/select/gene.js' %}";
+    import { initGeneSelect } from "{% static 'app/js/select/gene.js' %}";
 
 
     let geneName = "{{ gene.name }}";
@@ -69,7 +69,7 @@ Input:
         display = "{{ display|default:'name' }}" === "all";
 
     document.addEventListener("DOMContentLoaded", function() {
-        initGeneSelectize(
+        initGeneSelect(
             id, hash, redirect, species, dataset, gene, selected, limit, multiple, display
         );
     });

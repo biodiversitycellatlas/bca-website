@@ -16,11 +16,11 @@ import {
  * Toggle gene selection input.
  * Updates URL if a gene is currently selected.
  *
- * @param {string} id - HTML element ID prefix for the gene selectize input
+ * @param {string} id - HTML element ID prefix for the gene select input
  */
-function toggleGeneSelectize(id) {
+function toggleGeneSelect(id) {
     $('input[name="color_by"]').change(function () {
-        const elem = $(`#${id}_gene_selection`)[0].selectize;
+        const elem = $(`#${id}_gene_selection`).tomselect;
 
         if (this.id.includes("expression")) {
             elem.enable();
@@ -133,7 +133,7 @@ function filterHeatmap() {
  */
 export function initProjection(id, dataset, label, gene) {
     initCheckboxSelect();
-    toggleGeneSelectize("{{id}}"); // Toggle state of gene selectize element
+    toggleGeneSelect("{{id}}"); // Toggle state of gene select element
     listMarkers(dataset);
     filterHeatmap();
 
