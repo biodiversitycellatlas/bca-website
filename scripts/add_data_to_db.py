@@ -10,6 +10,7 @@ import urllib.parse
 import urllib.request
 import warnings
 import xml.etree.ElementTree as ET
+import os
 from collections import Counter
 
 import pandas as pd
@@ -24,7 +25,7 @@ from app import models
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
-####### Utility functions
+# Utility functions
 
 
 def print_progress(index, total):
@@ -75,7 +76,7 @@ def perform_subquery(obj, expr):
     return subquery
 
 
-####### Main functions
+# Main functions
 
 
 def add_taxonomy_metadata(species):
@@ -96,7 +97,7 @@ def add_taxonomy_metadata(species):
 
     try:
         taxid = data["esearchresult"]["idlist"][0]
-    except:
+    except (KeyError, IndexError):
         raise ValueError(f"Taxonomy ID for species '{scientific_name}' not found.")
 
     # Fetch taxonomy details in XML
@@ -315,7 +316,7 @@ def add_metacell_gene_expression(species, dataset, expr, umi, umifrac):
 
             try:
                 umifrac_value = umifrac_df.loc[gene, metacell]
-            except:
+            except KeyError:
                 umifrac_value = None
 
             if str(species) == "Schistosoma mansoni":
@@ -325,7 +326,7 @@ def add_metacell_gene_expression(species, dataset, expr, umi, umifrac):
 
             try:
                 fold_change_value = expr_df.loc[gene_tmp, metacell]
-            except:
+            except KeyError:
                 fold_change_value = None
 
             mge = models.MetacellGeneExpression(

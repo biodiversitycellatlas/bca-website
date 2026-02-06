@@ -783,7 +783,7 @@ class MetacellMarkerFilter(FilterSet):
 
         # Discard "gap genes" based on background
         if not value or value == "ignore":
-            # Ignore backgound filtering
+            # Ignore background filtering
             return queryset
 
         if value == "mean":

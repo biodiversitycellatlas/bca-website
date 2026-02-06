@@ -7,11 +7,12 @@ import os
 from pathlib import Path
 
 from scripts.utils import load_config, parse_dataset
+from app.models import GeneList, Species
 
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
-####### Main functions
+# Main functions
 
 config = load_config("data/raw/config.yaml")
 data_dir = "data/raw"
@@ -46,7 +47,7 @@ def update_gene_modules(file_path, species, gene_list):
             try:
                 g = species.genes.get(name=gene)
                 g_list.append(g)
-            except:
+            except species.genes.model.DoesNotExist:
                 print(f"Warning: {gene} has no match in {species}")
                 continue
 
@@ -77,7 +78,7 @@ for key in config:
             print(f"===== {key}: {file} =====")
 
             # Get gene list from file name
-            acronym = os.path.basename(file_path.name).split(".")[0]
+            acronym = os.path.basename(file.name).split(".")[0]
             gene_list = gene_list_map[acronym]
             print(gene_list)
 

@@ -257,18 +257,17 @@ def parse_args(args):
     return env_files, env_vars
 
 
-def run_linters(env_files, env_vars):
+def prepare_linter_cmd(env_files, env_vars):
     """
-    Build and execute the Podman command to run Super-Linter.
+    Build Podman command to run Super-Linter based on environment variables.
 
     Args:
         env_files (list): List of environment file paths.
         env_vars (dict): Dictionary of environment variables.
 
     Prints:
-        Full Podman command and contents of the Super-Linter summary file.
+        Full Podman command.
     """
-
     env_list = []
 
     if env_files:
@@ -291,8 +290,23 @@ def run_linters(env_files, env_vars):
         "newer",
         f"ghcr.io/super-linter/super-linter:{get_linter_version()}",
     ]
+    return cmd
+
+
+def run_linters(env_files, env_vars):
+    """
+    Build and execute the Podman command to run Super-Linter.
+
+    Args:
+        env_files (list): List of environment file paths.
+        env_vars (dict): Dictionary of environment variables.
+
+    Prints:
+        Full Podman command and contents of the Super-Linter summary file.
+    """
 
     print(f"\n✨{YELLOW} Running Super-Linter {get_linter_version()} {RESET}✨")
+    cmd = prepare_linter_cmd(env_files, env_vars)
     print(CYAN + " ".join(cmd) + RESET + "\n")
 
     try:
@@ -302,16 +316,31 @@ def run_linters(env_files, env_vars):
 
     print(f"\n✨ {YELLOW}Super-Linter has finished!{RESET} ✨\n")
 
-    summary_file = Path("super-linter-output/super-linter-summary.md")
+
+def print_summary_table(filename):
+    """Print summary table."""
+    summary_file = Path(filename)
     if summary_file.exists():
-        print(summary_file.read_text(encoding="utf-8"))
+        content = summary_file.read_text(encoding="utf-8")
+
+        # Find summary table start and end
+        table_start = content.find("| ")
+        table_lines = content[table_start:].splitlines()
+        table_only = []
+        for line in table_lines:
+            if line.startswith("| "):
+                table_only.append(line)
+            else:
+                break
+        print("\n".join(table_only), "\n")
 
 
 def main():
-    """Prepare environment, run Super-Linter via Podman, and print summary."""
+    """Prepare environment, run Super-Linter via Podman, and print summary table."""
     args = sys.argv[1:]
     env_files, env_vars = parse_args(args)
     run_linters(env_files, env_vars)
+    print_summary_table("super-linter-output/super-linter-summary.md")
 
 
 if __name__ == "__main__":
