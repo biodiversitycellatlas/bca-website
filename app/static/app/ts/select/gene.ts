@@ -76,16 +76,12 @@ function displayGeneName(item, escape) {
  * @param {function} callback - Function to call with options.
  * @param {array} genes - Array of gene objects.
  * @param {array} domains - Array of domain objects.
+ * @param {array} preset - Array of preset gene list objects.
  */
-function prependGeneLists(id, select, callback, genes, domains) {
+function prependGeneLists(id, select, callback, genes, domains, preset) {
     const res = getAllLists(`${id}_gene_lists`)
-        .concat(
-            domains.map((obj) => ({
-                ...obj,
-                count: obj.gene_count,
-                group: "domains",
-            })),
-        )
+        .concat(preset.map((obj) => ({ ...obj, count: obj.gene_count, group: "preset" })))
+        .concat(domains.map((obj) => ({ ...obj, count: obj.gene_count, group: "domains" })))
         .concat(genes.map((obj) => ({ ...obj, group: "genes" })));
     callback(res);
 }
@@ -119,7 +115,7 @@ function initGeneSelectValues(select, items) {
     // Run only once
     let hasRun = false;
     select.on("load", function () {
-        if (!hasRun) {
+        if (!hasRun && items != null && items !== "") {
             const values = items.split(",").filter((v) => v);
             if (values.length === 0) return null;
 
@@ -249,6 +245,14 @@ export function initGeneSelect(
                 },
             });
 
+            const preset = $.ajax({
+                url: getDataPortalUrl("rest:genelist-list"),
+                data: {
+                    species: species,
+                    limit: limit,
+                },
+            });
+
             const domains = multiple
                 ? $.ajax({
                       url: getDataPortalUrl("rest:domain-list"),
@@ -261,7 +265,7 @@ export function initGeneSelect(
                   })
                 : undefined;
 
-            Promise.all([genes, domains])
+            Promise.all([genes, domains, preset])
                 .then((data) => {
                     if (multiple) {
                         prependGeneLists(
@@ -270,6 +274,7 @@ export function initGeneSelect(
                             callback,
                             data[0].results,
                             data[1].results,
+                            data[2].results,
                         );
                     } else {
                         callback(data[0].results);
