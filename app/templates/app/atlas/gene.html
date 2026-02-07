@@ -31,7 +31,7 @@ Input:
         }
     </style>
 
-    {% include '../components/modals/list_editor.html' with id='selection' type='gene_lists' %}
+    {% include "../components/modals/list_editor.html" with id="selection" type="gene_lists" %}
 
     <div class="d-flex flex-wrap justify-content-between align-items-center small">
         <label class="col-form-label">
@@ -54,9 +54,9 @@ Input:
         </div>
     </div>
 
-    {% include '../components/select/gene.html' with gene=gene placeholder='Search gene by symbol, description or domains...' display='all' redirect='arg' %}
+    {% include "../components/select/gene.html" with gene=gene placeholder="Search gene by symbol, description or domains..." display="all" redirect="arg" %}
 
-    {% include '../components/warning_alert.html' %}
+    {% include "../components/warning_alert.html" %}
 
     {% if gene %}
         {% load headings %}
@@ -123,19 +123,19 @@ Input:
         </div>
 
         {% h1 "Metacell projection" id="projection" %}
-        {% include '../components/plots/metacell_projection.html' with id='projection' %}
+        {% include "../components/plots/metacell_projection.html" with id="projection" %}
 
         {% h1 "Gene expression" id="expression" %}
-        {% include '../components/plots/expression_plot.html' with species=species gene=gene %}
+        {% include "../components/plots/expression_plot.html" with species=species gene=gene %}
 
         {% h1 "Correlated genes" id="correlation" %}
-        {% include '../components/tables/gene_correlation.html' with id='correlation' dataset=dataset species=species gene=gene gene2='' %}
+        {% include "../components/tables/gene_correlation.html" with id="correlation" dataset=dataset species=species gene=gene gene2="" %}
 
         {% h1 "Orthologs" id="orthologs" %}
-        {% include '../components/plots/ortholog_plots.html' with species=species gene=gene %}
+        {% include "../components/plots/ortholog_plots.html" with species=species gene=gene %}
 
     {% else %}
-        {% include '../components/mockup/barplot.html' %}
+        {% include "../components/mockup/barplot.html" %}
     {% endif %}
 
 {% endblock content %}

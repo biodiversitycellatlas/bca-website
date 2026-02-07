@@ -72,7 +72,7 @@ Search page
                             Clear
                         </button>
                     </div>
-                    {% include './components/select/species.html' with redirect='query' placeholder='Search...' species=query.species %}
+                    {% include "./components/select/species.html" with redirect="query" placeholder="Search..." species=query.species %}
 
                     <!-- Results per page -->
                     <span class="fw-semibold mt-3 p-1">
@@ -111,7 +111,7 @@ Search page
             </div>
         </div>
     {% else %}
-        {% include './components/mockup/search.html' %}
+        {% include "./components/mockup/search.html" %}
     {% endif %}
 
     <script type="module">

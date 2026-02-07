@@ -61,14 +61,14 @@ Input:
     {% endfor %}
 </select>
 
-<!-- Species selection: selectize.js JavaScript options -->
+<!-- Species select options -->
 <script type="module">
     {% load static %}
-    import { initDatasetSelectize } from "{% static 'app/js/select/dataset.js' %}";
+    import { initDatasetSelect } from "{% static 'app/js/select/dataset.js' %}";
     let id = "{{id}}",
         dataset = "{{dataset.slug}}",
         query = "{{query.dataset}}",
         redirect = "{{redirect}}",
         optgroup_columns = "{{optgroup_columns}}" === "true";
-    initDatasetSelectize(id, dataset, query, redirect, optgroup_columns);
+    initDatasetSelect(id, dataset, query, redirect, optgroup_columns);
 </script>

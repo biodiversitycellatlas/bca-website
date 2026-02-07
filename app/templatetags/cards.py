@@ -58,7 +58,7 @@ def links_list(items):
 
 
 @register.inclusion_tag("app/components/links/card.html")
-def card(title, description, links=None, **kwargs):
+def card(title, description=None, links=None, **kwargs):
     """
     Render a card with information.
 

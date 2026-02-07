@@ -28,7 +28,7 @@ function updateText(id, from_min_id, suffix = "") {
 
 /**
  * Initializes an ionRangeSlider on the given selector with base and custom options,
- * optionally linking text update callbacks.
+ * optionally linking text update callbacks to update the label text.
  *
  * @param {string} selector - jQuery selector for the slider element(s).
  * @param {object} opts - Custom ionRangeSlider options to override base settings.
@@ -36,14 +36,15 @@ function updateText(id, from_min_id, suffix = "") {
  */
 export function initRangeSlider(selector, opts, textArgs) {
     const baseOpts = { grid: true, skin: "round" };
-    let cb;
-    if (textArgs) cb = updateText(...textArgs);
-    $(selector).ionRangeSlider({
+    const callback = textArgs ? updateText(...textArgs) : undefined;
+
+    const slider = $(selector);
+    slider.ionRangeSlider({
         ...baseOpts,
         ...opts,
-        onStart: cb,
-        onChange: cb,
-        onUpdate: cb,
+        onStart: callback,
+        onChange: callback,
+        onUpdate: callback,
     });
-    return $(selector).data("ionRangeSlider");
+    return slider.data("ionRangeSlider");
 }

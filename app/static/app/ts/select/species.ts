@@ -1,9 +1,8 @@
 /**
- * Dataset dropdown UI selectize element.
+ * Dataset dropdown UI select element.
  */
 
-import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 /**
  * Render a dropdown option for a species.
@@ -71,7 +70,7 @@ function renderItem(item, escape) {
 }
 
 /**
- * Initializes a Selectize dropdown for species selection.
+ * Initializes a TomSelect dropdown for species selection.
  *
  * Features:
  * - By default, redirects to a new dataset page on selection.
@@ -85,8 +84,8 @@ function renderItem(item, escape) {
  * @param {boolean} redirect - Redirect to selected species or not.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
  */
-export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
-    $("#species-select").selectize({
+export function initSpeciesSelect(id, species, redirect, optgroup_columns) {
+    const select = new TomSelect(`#species-select-${id}`, {
         onChange: function (value) {
             // Jump to species page upon selection
             if (redirect && value !== "" && value !== species) {
@@ -126,4 +125,5 @@ export function initSpeciesSelectize(id, species, redirect, optgroup_columns) {
             }),
         },
     });
+    return select;
 }

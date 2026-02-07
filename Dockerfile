@@ -17,6 +17,7 @@ LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# Install Python dependencies
 WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -26,8 +27,11 @@ COPY . .
 COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
 COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
-COPY --from=bun /usr/local/bin/bun /usr/bin/
+COPY --from=bun /usr/local/bin/bun* /usr/bin/
 RUN ldconfig
+
+# Install JavaScript and CSS dependencies
+RUN bun install
 
 # Switch to non-root user
 #RUN useradd -m bca \

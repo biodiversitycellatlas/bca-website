@@ -260,30 +260,71 @@ COMPOSE_PROFILES=db
 # If you don't need both the nginx and db services, simply delete the whole line
 ```
 
+## Unit tests
+
+Unit tests are automatically run using Django and Bun for every pull request using
+GitHub Actions. Their coverage reports are then uploaded to [Codecov][codecov-link].
+
+The tests and coverage reports can also be manually run with the following commands.
+
+### Run Django tests
+
+Run all Django unit tests with:
+
+```bash
+# Locally deploy the web app
+podman compose up -d --build
+
+# Run Django tests and report coverage in HTML (open the HTML file with a web browser)
+podman compose exec web coverage run manage.py test
+podman compose exec web coverage html
+```
+
+### Run Bun tests for TypeScript files
+
+Run all TypeScript tests with Bun:
+
+```bash
+# Locally deploy the web app
+podman compose up -d --build
+
+# Run Bun tests and report coverage as text in the terminal
+podman compose exec web bun test --coverage
+
+# Run Bun tests in watch mode to automatically re-run tests on file changes
+podman compose exec web bun test --watch
+```
+
 ## Linters
 
-### djlint
+### Run djlint
 
 Check and lint Django templates using [djlint][]:
 
 ```bash
+# Locally deploy the web app
+podman compose up -d --build
+
 # Show errors in Django  template files
-djlint .
+podman compose exec web djlint .
 
 # Automatically lint and reformat Django template files
-djlint . --preserve-blank-lines --reformat
+podman compose exec web djlint . --reformat
 ```
 
-### autoprefixer
+### Run autoprefixer
 
 Process CSS with [Autoprefixer][] to add vendor prefixes:
 
 ```bash
+# Locally deploy the web app
+podman compose up -d --build
+
 # Process all CSS files and replace them in-place
-bunx postcss ./**/*.css --use autoprefixer --no-map --replace
+podman compose exec web bunx postcss ./**/*.css --use autoprefixer --no-map --replace
 ```
 
-### Super-Linter
+### Run Super-Linter
 
 [Super-Linter][] is run for every Pull Request. To run it locally using Podman,
 execute the following commands (the correct image is automatically pulled based

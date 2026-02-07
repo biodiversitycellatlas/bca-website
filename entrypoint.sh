@@ -18,7 +18,7 @@ has_table() {
         );" | grep -q t
 }
 
-# Prepare JS and CSS dependencies
+# Prepare JavaScript and CSS static files
 bun install
 bun run build
 
