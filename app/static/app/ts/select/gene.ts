@@ -1,9 +1,9 @@
 /**
- * Gene selectize element.
+ * Gene select element.
  */
 
 import $ from "jquery";
-import "@selectize/selectize";
+import TomSelect from "tom-select";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { getAllLists } from "../atlas/modals/list_editor.ts";
@@ -12,7 +12,7 @@ import { getAllLists } from "../atlas/modals/list_editor.ts";
  * Display gene info in dropdown with description and domains.
  *
  * @param {object} item - Gene or gene list object.
- * @param {function} escape - Escape function from Selectize.
+ * @param {function} escape - Escape function from TomSelect.
  * @returns {string} HTML for dropdown option.
  */
 function displayGeneInfo(item, escape) {
@@ -52,7 +52,7 @@ function displayGeneInfo(item, escape) {
  * Display only the gene name (and count badge for gene lists).
  *
  * @param {object} item - Gene or gene list object.
- * @param {function} escape - Escape function from Selectize.
+ * @param {function} escape - Escape function from TomSelect.
  * @returns {string} HTML for dropdown option.
  */
 function displayGeneName(item, escape) {
@@ -69,16 +69,24 @@ function displayGeneName(item, escape) {
 }
 
 /**
- * Prepend gene lists and domains to Selectize options.
+ * Prepend gene lists and domains to TomSelect options.
  *
  * @param {string} id - Element ID prefix.
- * @param {object} selectize - Selectize instance.
+ * @param {object} select - TomSelect instance.
  * @param {function} callback - Function to call with options.
  * @param {array} genes - Array of gene objects.
  * @param {array} domains - Array of domain objects.
+ * @param {array} preset - Array of preset gene list objects.
  */
-function prependGeneLists(id, selectize, callback, genes, domains) {
+function prependGeneLists(id, select, callback, genes, domains, preset) {
     const res = getAllLists(`${id}_gene_lists`)
+        .concat(
+            preset.map((obj) => ({
+                ...obj,
+                count: obj.gene_count,
+                group: "preset",
+            })),
+        )
         .concat(
             domains.map((obj) => ({
                 ...obj,
@@ -91,41 +99,39 @@ function prependGeneLists(id, selectize, callback, genes, domains) {
 }
 
 /**
- * Add a default gene to Selectize and set it as current.
+ * Add a default gene to select input and set it as current.
  *
- * @param {string} id - Element ID prefix.
+ * @param {string} select - Select element.
  * @param {string} name - Gene name.
  * @param {string} description - Gene description.
  * @param {array} domains - Array of gene domains.
  */
-function setDefaultGene(id, name, description, domains) {
+function setDefaultGene(select, name, description, domains) {
     const geneOptions = {
         name: name,
         description: description,
         domains: domains,
     };
 
-    const selectize = $(`#${id}_gene_selection`)[0].selectize;
-    selectize.addOption(geneOptions);
-    selectize.setValue(name);
+    select.addOption(geneOptions);
+    select.setValue(name);
 }
 
 /**
- * Initialize Selectize with pre-selected genes and add optgroups.
+ * Initialize select input with pre-selected genes and add optgroups.
  *
- * @param {string} id - Element ID prefix.
- * @param {string} selected - Comma-separated selected gene names.
+ * @param {string} select - Select element.
+ * @param {string} items - Comma-separated selected genes.
  */
-function initGeneSelectizeValues(id, selected) {
+function initGeneSelectValues(select, items) {
     // Run only once
     let hasRun = false;
-    const selectize = $(`#${id}_gene_selection`)[0].selectize;
-    selectize.on("load", function () {
-        if (!hasRun) {
-            const values = selected.split(",").filter((v) => v);
+    select.on("load", function () {
+        if (!hasRun && items != null && items !== "") {
+            const values = items.split(",").filter((v) => v);
             if (values.length === 0) return null;
 
-            const options = selectize.options;
+            const options = select.options;
             const missingValues = values.filter(function (value) {
                 return !(value in options);
             });
@@ -139,40 +145,34 @@ function initGeneSelectizeValues(id, selected) {
                     domains: [],
                 });
             }
-            selectize.addOption(missingValuesArray);
+            select.addOption(missingValuesArray);
 
-            selectize.setValue(values);
+            select.setValue(values);
             hasRun = true;
         }
 
         // Set up optgroups
         const groups = [
-            ...new Set(
-                Object.values(selectize.options).map((obj) => obj.group),
-            ),
+            ...new Set(Object.values(select.options).map((obj) => obj.group)),
         ];
 
-        for (i in groups) {
-            const group = groups[i];
-            if (group) {
-                let label = group;
-                if (group == "preset") {
-                    label = "Preset gene lists";
-                } else if (group == "custom") {
-                    label = "Custom gene lists";
-                } else if (group == "genes") {
-                    label = "Genes";
-                } else if (group == "domains") {
-                    label = "Domains";
-                }
-                selectize.addOptionGroup(group, { label: label });
-            }
+        const labelMap = {
+            preset: "Preset gene lists",
+            custom: "Custom gene lists",
+            genes: "Genes",
+            domains: "Domains",
+        };
+
+        for (const group of groups) {
+            if (!group) continue;
+            const label = labelMap[group] || group;
+            select.addOptionGroup(group, { label: label });
         }
     });
 }
 
 /**
- * Initialize the gene Selectize element.
+ * Initialize the gene TomSelect element.
  *
  * @param {string} id - Element ID prefix.
  * @param {string} hash - Optional hash for URL updates.
@@ -185,7 +185,7 @@ function initGeneSelectizeValues(id, selected) {
  * @param {boolean} multiple - Allow multiple selection.
  * @param {boolean} display - Toggle detailed info display.
  */
-export function initGeneSelectize(
+export function initGeneSelect(
     id,
     hash,
     redirect,
@@ -197,7 +197,7 @@ export function initGeneSelectize(
     multiple,
     display,
 ) {
-    $(`#${id}_gene_selection`).selectize({
+    const select = new TomSelect(`#${id}_gene_selection`, {
         onChange: function (value) {
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
@@ -255,6 +255,14 @@ export function initGeneSelectize(
                 },
             });
 
+            const preset = $.ajax({
+                url: getDataPortalUrl("rest:genelist-list"),
+                data: {
+                    species: species,
+                    limit: limit,
+                },
+            });
+
             const domains = multiple
                 ? $.ajax({
                       url: getDataPortalUrl("rest:domain-list"),
@@ -267,7 +275,7 @@ export function initGeneSelectize(
                   })
                 : undefined;
 
-            Promise.all([genes, domains])
+            Promise.all([genes, domains, preset])
                 .then((data) => {
                     if (multiple) {
                         prependGeneLists(
@@ -276,6 +284,7 @@ export function initGeneSelectize(
                             callback,
                             data[0].results,
                             data[1].results,
+                            data[2].results,
                         );
                     } else {
                         callback(data[0].results);
@@ -287,8 +296,8 @@ export function initGeneSelectize(
                 });
         },
     });
-    if (gene.name) {
-        setDefaultGene(id, gene.name, gene.description, gene.domains);
-    }
-    if (multiple) initGeneSelectizeValues(id, selected);
+    if (gene.name)
+        setDefaultGene(select, gene.name, gene.description, gene.domains);
+    if (multiple) initGeneSelectValues(select, selected);
+    return select;
 }

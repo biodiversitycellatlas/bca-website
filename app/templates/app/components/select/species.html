@@ -49,15 +49,15 @@ Input:
     {% endfor %}
 </select>
 
-<!-- Species selection: selectize.js JavaScript options -->
+<!-- Species select options -->
 <script type="module">
     {% load static %}
-    import { initSpeciesSelectize }
+    import { initSpeciesSelect }
         from "{% static 'app/js/select/species.js' %}";
     document.addEventListener('DOMContentLoaded', function() {
         let species = "{{species.slug}}",
             redirect = "{{redirect}}",
             optgroup_columns = "{{optgroup_columns}}" === "true";
-        initSpeciesSelectize(species, redirect, optgroup_columns);
+        initSpeciesSelect(species, redirect, optgroup_columns);
     });
 </script>

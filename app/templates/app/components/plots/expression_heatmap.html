@@ -70,7 +70,7 @@ Input:
                         <button type="button"
                                 id="clear_selected_genes"
                                 class="btn btn-link btn-sm d-block text-end"
-                                onclick="document.getElementById('{{ id }}_gene_selection').selectize.clear();">
+                                onclick="document.getElementById('{{ id }}_gene_selection').tomselect.clear();">
                             Clear selection
                         </button>
 
@@ -112,13 +112,13 @@ Input:
                             <button type="button"
                                     id="select_all_metacells"
                                     class="btn btn-link btn-sm d-block text-end"
-                                    onclick="document.getElementById('metacells').selectize.clear();">
+                                    onclick="document.getElementById('metacells').tomselect.clear();">
                                 Select all metacells
                             </button>
                         </div>
 
                         {% load string_extras %}
-                        {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="All metacells selected" name='metacell_lists' %}
+                        {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="Select metacells" name='metacell_lists' %}
                     </div>
                 </div>
             </div>
@@ -196,13 +196,13 @@ Input:
         initSubmitButtonToggler,
         initMetacellSelectionLabelUpdater
     } from "{% static 'app/js/atlas/expression_panel.js' %}";
-
     import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
     document.addEventListener("DOMContentLoaded", () => {
-        initMetacellSelectionLabelUpdater();
+        const select = document.querySelector("#metacells").tomselect;
+        initMetacellSelectionLabelUpdater(select);
         {% if type == 'gene-lists' %}
-            initSubmitButtonToggler('{{id}}');
+            initSubmitButtonToggler("{{id}}", select);
         {% endif %}
     });
 
