@@ -11,7 +11,7 @@
         "autoprefixer": "10.4.24",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
-        "datatables.net-bs5": "2.3.3",
+        "datatables.net-bs5": "2.3.7",
         "datatables.net-select-bs5": "3.0.1",
         "ion-rangeslider": "2.3.1",
         "jquery": "3.7.1",
