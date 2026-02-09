@@ -163,7 +163,6 @@ fieldset:disabled.btn.btn-primary {
 
 .btn-primary:active {
     background: var(--primary-color) !important;
-    background-color: var(--primary-color) !important;
     border-color: white !important;
 }
 

@@ -12,7 +12,7 @@ from app.models import Dataset, GeneModule
 # Auto-flush print statements
 print = functools.partial(print, flush=True)
 
-####### Main functions
+# Main functions
 
 config = load_config("data/raw/config.yaml")
 dir = "data/raw"
@@ -44,7 +44,7 @@ def update_gene_modules(file_path, species, dataset):
 
             try:
                 gene = dataset.species.genes.get(name=gene_name)
-            except:
+            except dataset.species.genes.model.DoesNotExist:
                 continue
 
             GeneModule.objects.update_or_create(
