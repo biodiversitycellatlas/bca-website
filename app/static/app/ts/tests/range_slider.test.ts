@@ -16,7 +16,7 @@ describe("Range Slider Utils", () => {
         const label = $("#label");
         expect(label.text()).toBe("5 eggs");
 
-        // Initalize slider
+        // Initialize slider
         const opts = { min: 0, max: 5, from: 3, step: 0.1 };
         const slider = initRangeSlider("#slider", opts, [
             "#label",
