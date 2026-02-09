@@ -1,5 +1,5 @@
 /**
- * Dataset selectize element.
+ * Dataset select element.
  */
 
 import $ from "jquery";

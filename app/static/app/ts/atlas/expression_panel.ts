@@ -109,22 +109,21 @@ export function handleFormSubmit(id, dataset, type) {
     });
 }
 
-function toggleSubmitButton(id) {
-    const elem = $(`#${id}_gene_selection`)[0].selectize;
-    const isEmpty = elem.items.length === 0;
+function toggleSubmitButton(id, select) {
+    const isEmpty = select.items.length === 0;
     $(`#${id}_submit`).prop("disabled", isEmpty);
 }
 
 /**
  * Toggle the gene selection submit button based on current selection.
  *
- * @param {string} id - Element identifier.
+ * @param {string} select - Select element.
  */
-export function initSubmitButtonToggler(id) {
+export function initSubmitButtonToggler(id, select) {
     // Enable/disable submit button
-    toggleSubmitButton(id);
-    $("#expression_gene_selection")[0].selectize.on("change", function () {
-        toggleSubmitButton(id);
+    toggleSubmitButton(id, select);
+    select.on("change", function () {
+        toggleSubmitButton(id, select);
     });
 }
 
@@ -136,13 +135,12 @@ function updateMetacellSelectionLabel(count) {
 /**
  * Update label based on number of selected metacells.
  */
-export function initMetacellSelectionLabelUpdater() {
-    // Change metacell selection label
-    const metacell_selectize = $("#metacells")[0].selectize;
-    const count = metacell_selectize.items.length;
+export function initMetacellSelectionLabelUpdater(select) {
+    // Change select label
+    const count = select.items.length;
     updateMetacellSelectionLabel(count);
 
-    metacell_selectize.on("change", function () {
+    select.on("change", function () {
         const count = this.items.length;
         updateMetacellSelectionLabel(count);
     });
