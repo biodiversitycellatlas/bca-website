@@ -114,16 +114,14 @@ jobs:
               with:
                   persist-credentials: false
 
-            - name: Setup node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: "18"
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
 
-            - name: Install dependencies
-              run: npm install postcss postcss-cli autoprefixer
+            - name: Install JS/CSS dependencies
+              run: bun install
 
             - name: Lint CSS files with Autoprefixer
-              run: npx postcss ./**/*.css --use autoprefixer --no-map --replace
+              run: bunx postcss ./**/*.css --use autoprefixer --no-map --replace
 
             - name: Suggest changes
               uses: reviewdog/action-suggester@v1

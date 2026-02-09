@@ -1,5 +1,5 @@
 ---
-name: Django CI
+name: Data Portal tests
 
 on:
     push:
@@ -64,12 +64,13 @@ jobs:
                   docker compose cp \
                       web:/usr/src/app/coverage.xml coverage.xml
 
-            - name: Upload coverage reports to Codecov
+            - name: Upload coverage to Codecov
               uses: codecov/codecov-action@v5
               with:
                   files: coverage.xml
                   token: ${{ secrets.CODECOV_TOKEN }}
                   slug: biodiversitycellatlas/bca-website
+                  flags: django
 
             - name: Show coverage report
               run: |
@@ -80,3 +81,29 @@ jobs:
               run: |
                   docker compose exec web \
                       python manage.py check --deploy
+
+    bun-ci:
+        name: Typescript Tests via Bun
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+              with:
+                  persist-credentials: false
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+
+            - name: Install JS/CSS dependencies
+              run: bun install
+
+            - name: Run tests with coverage
+              run: bun test --coverage --coverage-reporter=lcov
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  files: ./coverage/lcov.info
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  slug: biodiversitycellatlas/bca-website
+                  flags: typescript

@@ -260,6 +260,41 @@ COMPOSE_PROFILES=db
 # If you don't need both the nginx and db services, simply delete the whole line
 ```
 
+## Unit tests
+
+Unit tests are automatically run using Django and Bun for every pull request using
+GitHub Actions. Their coverage reports are then uploaded to [Codecov][codecov-link].
+
+The tests and coverage reports can also be manually run with the following commands.
+
+### Django tests
+
+Run all Django unit tests with:
+
+```bash
+# Locally deploy the web app
+podman compose up -d --build
+
+# Run Django tests and report coverage in HTML (open the HTML file with a web browser)
+podman compose exec web coverage run manage.py test
+podman compose exec web coverage html
+```
+
+### Bun tests for TypeScript files
+
+Run all TypeScript tests with Bun:
+
+```bash
+# Locally deploy the web app
+podman compose up -d --build
+
+# Run Bun tests and report coverage as text in the terminal
+podman compose exec web bun test --coverage
+
+# Run Bun tests in watch mode to automatically re-run tests on file changes
+podman compose exec web bun test --watch
+```
+
 ## Linters
 
 ### djlint
