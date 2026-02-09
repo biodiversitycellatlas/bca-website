@@ -8,7 +8,7 @@
         "@fontsource/rubik": "5.2.6",
         "@fortawesome/fontawesome-free": "7.0.0",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "^10.4.24",
+        "autoprefixer": "10.4.24",
         "bootstrap": "5.3.7",
         "d3": "7.9.0",
         "datatables.net-bs5": "2.3.3",
@@ -22,7 +22,7 @@
     },
     "devDependencies": {
         "@happy-dom/global-registrator": "20.5.0",
-        "@types/bun": "1.3.6"
+        "@types/bun": "1.3.8"
     },
     "private": true,
     "type": "module"
