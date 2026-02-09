@@ -6,7 +6,8 @@ from operator import attrgetter
 
 from django.conf import settings
 from django.db.models import Avg, Max, Min, StdDev, Sum
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
+
 from rest_framework import serializers
 
 from app import models
@@ -671,6 +672,28 @@ class SAMapSerializer(serializers.ModelSerializer):
         return self._get_metacell_types(obj)[1].color
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Single query",
+            value={
+                "sequences": "MSIWFSIAILSVLVPFVQLTPIRPRS",
+                "type": "aminoacids",
+                "species": "Trichoplax adhaerens",
+            },
+        ),
+        OpenApiExample(
+            "Multiple queries",
+            value={
+                "sequences": (
+                    ">Query_1\\nMSLIRNYNYHLRSASLANASQLDT\\n>Query_2\\nMDSSTDIPCNCVEILTA\\n>Query_3\\nMDSLTDRPCNYVEILTA"
+                ),
+                "type": "aminoacids",
+                "species": "Trichoplax adhaerens",
+            },
+        ),
+    ]
+)
 class AlignRequestSerializer(serializers.Serializer):
     """Serializer for sequence alignment request."""
 
