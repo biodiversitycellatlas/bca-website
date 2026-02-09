@@ -19,6 +19,7 @@ jobs:
         permissions:
             checks: write
             statuses: write
+            pull-requests: write
 
         steps:
             - name: Checkout code
@@ -36,7 +37,6 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'workflow_dispatch' }}
-                  ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
 
     super-linter-fix:
         name: Super-Linter (fix)
