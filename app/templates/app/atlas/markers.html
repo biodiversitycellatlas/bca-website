@@ -28,7 +28,7 @@ Input:
 {% block content %}
 
     {% load static %}
-    {% include '../components/warning_alert.html' %}
+    {% include "../components/warning_alert.html" %}
 
     <div class="row">
         <div class="col-md-3">
@@ -41,7 +41,7 @@ Input:
                         <label class="col-form-label" for="metacells">
                             Metacells
                         </label>
-                        {% include '../components/select/metacell.html' with metacell_dict=metacell_dict selected=query.metacells %}
+                        {% include "../components/select/metacell.html" with metacell_dict=metacell_dict selected=query.metacells %}
                     </div>
                 </fieldset>
 
@@ -135,7 +135,7 @@ Input:
                 <table id="markers_table" class="display w-100">
                 </table>
             {% else %}
-                {% include '../components/mockup/table.html' %}
+                {% include "../components/mockup/table.html" %}
             {% endif %}
         </div>
     </div>

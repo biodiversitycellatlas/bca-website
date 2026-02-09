@@ -20,7 +20,7 @@ Input:
     .mt-35px { margin-top: 35px; }
 </style>
 
-{% include './alignment.html' %}
+{% include "./alignment.html" %}
 
 <div class="modal fade"
      id="{{ id }}_{{ type }}_editor"
@@ -258,7 +258,7 @@ Input:
                                                         </button>
                                                     </div>
 
-                                                    {% include '../select/gene.html' with id='append' name='gene_lists' hash=id limit=10 multiple='true' selected=query.gene_lists class=' ' placeholder='Search genes, gene lists and domains...' %}
+                                                    {% include "../select/gene.html" with id="append" name="gene_lists" hash=id limit=10 multiple="true" selected=query.gene_lists class=" " placeholder="Search genes, gene lists and domains..." %}
                                                 </div>
 
                                                 <div class="col-auto">

@@ -28,7 +28,7 @@
 
         <form>
             <div class="btn-group" role="group">
-                {% with 'csv tsv json' as formats %}
+                {% with "csv tsv json" as formats %}
                     {% for format in formats.split %}
                         <input type="radio"
                                class="btn-check"

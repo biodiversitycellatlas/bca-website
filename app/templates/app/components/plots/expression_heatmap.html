@@ -12,7 +12,7 @@ Input:
 {% load static %}
 
 {% if type == 'gene-lists' %}
-    {% include '../modals/list_editor.html' with id='expression' type='gene_lists' %}
+    {% include "../modals/list_editor.html" with id="expression" type="gene_lists" %}
 {% endif %}
 
 <style>
@@ -84,7 +84,7 @@ Input:
                     </div>
                 </div>
 
-                {% include '../select/gene.html' with id=id name='gene_lists' hash=id limit=10 multiple='true' selected=query.gene_lists class=' ' placeholder='Search genes, gene lists and domains...' width='400px' %}
+                {% include "../select/gene.html" with id=id name="gene_lists" hash=id limit=10 multiple="true" selected=query.gene_lists class=" " placeholder="Search genes, gene lists and domains..." width="400px" %}
             {% endif %}
         </div>
 
@@ -118,7 +118,7 @@ Input:
                         </div>
 
                         {% load string_extras %}
-                        {% include '../select/metacell.html' with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="Select metacells" name='metacell_lists' %}
+                        {% include "../select/metacell.html" with metacell_dict=metacell_dict selected=query.metacell_lists selected2=query.metacells placeholder="Select metacells" name="metacell_lists" %}
                     </div>
                 </div>
             </div>
@@ -231,7 +231,7 @@ Input:
 {% if type|default:'markers' == 'markers' or query.genes %}
     <div class="row">
         <div class="col-10 col-sm-11">
-            {% include '../plot_container.html' with id=id ratio='16/9' %}
+            {% include "../plot_container.html" with id=id ratio="16/9" %}
         </div>
     </div>
 
