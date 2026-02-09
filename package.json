@@ -5,7 +5,7 @@
         "build": "bun build $(bun run list) --outdir app/static/app/js --outbase app/static/app/ts/ --minify"
     },
     "dependencies": {
-        "@fontsource/rubik": "5.2.6",
+        "@fontsource/rubik": "5.2.8",
         "@fortawesome/fontawesome-free": "7.0.0",
         "@phosphor-icons/web": "2.1.2",
         "autoprefixer": "10.4.24",
