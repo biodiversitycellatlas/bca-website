@@ -7,8 +7,8 @@
 
 [website]: https://img.shields.io/badge/website-biodiversitycellatlas.org-blue
 [website-link]: https://biodiversitycellatlas.org
-[build]: https://img.shields.io/github/actions/workflow/status/biodiversitycellatlas/bca-website/django.yml?logo=github&logoColor=white
-[build-link]: https://github.com/biodiversitycellatlas/bca-website/actions/workflows/django.yml
+[build]: https://img.shields.io/github/actions/workflow/status/biodiversitycellatlas/bca-website/tests.yml?logo=github&logoColor=white
+[build-link]: https://github.com/biodiversitycellatlas/bca-website/actions/workflows/tests.yml
 [codecov]: https://img.shields.io/codecov/c/github/biodiversitycellatlas/bca-website?logo=codecov&logoColor=white
 [codecov-link]: https://codecov.io/gh/biodiversitycellatlas/bca-website
 [docker]: https://img.shields.io/badge/docker-ghcr.io/biodiversitycellatlas/bca--website-blue?logo=docker&logoColor=white
