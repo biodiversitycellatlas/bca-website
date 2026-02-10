@@ -1,7 +1,7 @@
 # checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
 
 # Get postgreSQL client
-FROM postgres:17.6-trixie AS postgres
+FROM postgres:18.1-trixie AS postgres
 
 # Get diamond aligner
 FROM buchfink/diamond:version2.1.17 AS diamond
