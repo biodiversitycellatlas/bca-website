@@ -19,6 +19,7 @@ jobs:
         permissions:
             checks: write
             statuses: write
+            pull-requests: write
 
         steps:
             - name: Checkout code
@@ -59,6 +60,7 @@ jobs:
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
 
             - name: Cleanup Super-Linter output
               run: |
