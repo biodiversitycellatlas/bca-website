@@ -25,6 +25,9 @@
         <link rel="stylesheet" href="{% static 'rest/css/base.css' %}">
 
         {% include "favicons.html" %}
+
+        {# Plausible Tracking Snippet #}
+        {% include "tracking.html" %}
     </head>
     <body>
         <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash" layout="responsive" hideSchemas="true" logo="{% static 'app/images/favicons/favicon.svg' %}" />
