@@ -12,7 +12,7 @@
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "2.3.7",
-        "datatables.net-select-bs5": "3.0.1",
+        "datatables.net-select-bs5": "3.1.3",
         "ion-rangeslider": "2.3.1",
         "jquery": "3.7.1",
         "postcss": "8.5.6",
@@ -153,9 +153,9 @@
 
     "datatables.net-bs5": ["datatables.net-bs5@2.3.7", "", { "dependencies": { "datatables.net": "2.3.7", "jquery": ">=1.7" } }, "sha512-RiCEMpMXDBeMDwjSrMpmcXDU6mibRMuOn7Wk7k3SlOfLEY3FQHO7S2m+K7teXYeaNlCLyjJMU+6BUUwlBCpLFw=="],
 
-    "datatables.net-select": ["datatables.net-select@3.0.1", "", { "dependencies": { "datatables.net": "^2", "jquery": ">=1.7" } }, "sha512-f8XWWZtH3HD+OFF0Ytr1Y+2gw4J/rF2I+tyXHR0Jab8XXlQTQXOaK0gITFfFEIw2vSDmgwfeoJwZd8jj5FYXoA=="],
+    "datatables.net-select": ["datatables.net-select@3.1.3", "", { "dependencies": { "datatables.net": "^2", "jquery": ">=1.7" } }, "sha512-IzikFqvYshnuPZVRi/xBvPcSMBNqzhzh9VGO0DtzsOU4w5uBLN/z9dOqAEUUJk1v6qkMOnBMg5NE/35cbdhPeQ=="],
 
-    "datatables.net-select-bs5": ["datatables.net-select-bs5@3.0.1", "", { "dependencies": { "datatables.net-bs5": "^2", "datatables.net-select": "3.0.1", "jquery": ">=1.7" } }, "sha512-DLBYlKMVm0cTMJuDonKKlK1b6YXz5FKUcdPyYw5xT5unhhymKGRDI/CExJcwgnzgL368rFUhlyqG+ZbGWL926Q=="],
+    "datatables.net-select-bs5": ["datatables.net-select-bs5@3.1.3", "", { "dependencies": { "datatables.net-bs5": "^2", "datatables.net-select": "3.1.3", "jquery": ">=1.7" } }, "sha512-1B/fzuEXTxXWnxOvaTiKkgUzVAYfaMLfBIlQ70NckLwQh65xKc64ptgxrd7zKwIM17SMu+uJC5wEmndooJjbhg=="],
 
     "delaunator": ["delaunator@5.0.1", "", { "dependencies": { "robust-predicates": "^3.0.2" } }, "sha512-8nvh+XBe96aCESrGOqMp/84b13H9cdKbG5P2ejQCh4d4sK9RL4371qou9drQjMhvnPmhWl5hnmqbEE0fXr9Xnw=="],
 
@@ -367,17 +367,11 @@
 
     "anymatch/picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 
-    "datatables.net-select/datatables.net": ["datatables.net@2.3.6", "", { "dependencies": { "jquery": ">=1.7" } }, "sha512-xQ/dCxrjfxM0XY70wSIzakkTZ6ghERwlLmAPyCnu8Sk5cyt9YvOVyOsFNOa/BZ/lM63Q3i2YSSvp/o7GXZGsbg=="],
-
-    "datatables.net-select-bs5/datatables.net-bs5": ["datatables.net-bs5@2.3.6", "", { "dependencies": { "datatables.net": "2.3.6", "jquery": ">=1.7" } }, "sha512-oUNGjZrpNC2fY3l/6V4ijTC9kyVKU4Raons+RFmq2J7590rPn0c+5WAYKBx0evgW/CW7WfhStGBrU7+WJig6Og=="],
-
     "readdirp/picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 
     "topojson-client/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
     "vega-lite/yargs": ["yargs@18.0.0", "", { "dependencies": { "cliui": "^9.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "string-width": "^7.2.0", "y18n": "^5.0.5", "yargs-parser": "^22.0.0" } }, "sha512-4UEqdc2RYGHZc7Doyqkrqiln3p9X2DZVxaGbwhn2pi7MrRagKaOcIKe8L3OxYcbhXLgLFUS3zAYuQjKBQgmuNg=="],
-
-    "datatables.net-select-bs5/datatables.net-bs5/datatables.net": ["datatables.net@2.3.6", "", { "dependencies": { "jquery": ">=1.7" } }, "sha512-xQ/dCxrjfxM0XY70wSIzakkTZ6ghERwlLmAPyCnu8Sk5cyt9YvOVyOsFNOa/BZ/lM63Q3i2YSSvp/o7GXZGsbg=="],
 
     "vega-lite/yargs/cliui": ["cliui@9.0.1", "", { "dependencies": { "string-width": "^7.2.0", "strip-ansi": "^7.1.0", "wrap-ansi": "^9.0.0" } }, "sha512-k7ndgKhwoQveBL+/1tqGJYNz097I7WOvwbmmU2AR5+magtbjPWQTS1C5vzGkBC8Ym8UWRzfKUzUUqFLypY4Q+w=="],
 
