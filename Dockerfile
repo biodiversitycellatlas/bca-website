@@ -4,13 +4,13 @@
 FROM postgres:18.1-trixie AS postgres
 
 # Get diamond aligner
-FROM buchfink/diamond:version2.1.17 AS diamond
+FROM buchfink/diamond:version2.1.21 AS diamond
 
 # Get bun
-FROM oven/bun:1.3.6-slim AS bun
+FROM oven/bun:1.3.9-slim AS bun
 
 # Serve website
-FROM python:3.13.7-trixie
+FROM python:3.13.12-trixie
 
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
