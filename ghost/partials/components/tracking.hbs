@@ -1,9 +1,8 @@
-{{#if @site.tracking_script}}
-    <script
-        defer
-        data-domain="{{@site.tracking_domain}}"
-        src="{{@site.tracking_script}}"
-    ></script>
-    <script>window.plausible = window.plausible || function() {
-        (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+{{#if @custom.tracking_script}}
+    <!-- Privacy-friendly analytics by Plausible -->
+    <script async src="{{@custom.tracking_script}}"></script>
+    <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+    </script>
 {{/if}}
