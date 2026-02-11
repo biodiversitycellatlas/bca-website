@@ -26,11 +26,7 @@ BCA_EMAIL = f"bca@{BCA_DOMAIN}"
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 GHOST_INTERNAL_URL = get_env("GHOST_INTERNAL_URL", "http://ghost:2368")
 
-# Script should be adapted according to what is collected https://plausible.io/docs/plausible-script
-# PLAUSIBLE_SCRIPT = (
-#     f"https://stats.{BCA_DOMAIN}/js/"
-#     "script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js"
-# )
+PLAUSIBLE_SCRIPT_URL = get_env("PLAUSIBLE_SCRIPT_URL", default=None)
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
