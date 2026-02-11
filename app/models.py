@@ -899,18 +899,10 @@ class SAMap(models.Model):
 class DBVersion(models.Model):
     """Log of all database version releases."""
 
-    version = models.CharField(
-        max_length=50, 
-        unique=True, 
-        help_text="e.g., 2026.02.11"
-    )
-    description = models.TextField(
-        blank=True, 
-        help_text="Notes on changes."
-    )
+    version = models.CharField(max_length=50, unique=True, help_text="e.g., 2026.02.11")
+    description = models.TextField(blank=True, help_text="Notes on changes.")
     populated_at = models.DateTimeField(
-        auto_now_add=True, 
-        help_text="The timestamp when this data version was populated in the database."
+        auto_now_add=True, help_text="The timestamp when this data version was populated in the database."
     )
 
     class Meta:
