@@ -14,7 +14,11 @@ services:
         profiles: ["nginx"]
 
     ghost:
-        image: ghost:6.4-alpine
+        build:
+            context: ghost
+            dockerfile: Dockerfile
+            args:
+                PLAUSIBLE_SCRIPT_URL: ${PLAUSIBLE_SCRIPT_URL}
         env_file: [.env]
         expose:
             - "2368"
