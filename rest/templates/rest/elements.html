@@ -38,6 +38,9 @@
               href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
         <meta name="apple-mobile-web-app-title" content="BCA" />
         <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
+
+        {# Plausible Tracking Snippet #}
+        {% include "tracking.html" %}
     </head>
     <body>
         <elements-api apiDescriptionUrl="{{ schema_url }}" router="hash" layout="responsive" hideSchemas="true" logo="{% static 'app/images/favicons/favicon.svg' %}" />
