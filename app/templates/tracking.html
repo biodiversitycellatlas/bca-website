@@ -2,11 +2,11 @@
 Tracking template
 {% endcomment %}
 
-{% if PLAUSIBLE_SCRIPT %}
-    <script defer data-domain="{{ BCA_DOMAIN }}" src="{{ PLAUSIBLE_SCRIPT }}"></script>
-    <script>
-        window.plausible = window.plausible || function() {
-            (window.plausible.q = window.plausible.q || []).push(arguments)
-        }
-    </script>
+{% if PLAUSIBLE_SCRIPT_URL %}
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="{{ PLAUSIBLE_SCRIPT_URL }}"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 {% endif %}
