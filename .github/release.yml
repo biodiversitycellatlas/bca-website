@@ -12,9 +12,12 @@ changelog:
         - title: 📚 Documentation
           labels:
               - documentation
+        - title: 🤖 Automation
+          labels:
+              - automation
         - title: 📦 Dependencies
           labels:
               - dependencies
-        - title: ⚡ Other changes
+        - title: 📌 Other changes
           labels:
               - "*"
