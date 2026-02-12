@@ -21,3 +21,17 @@ body {
     /* Full height sidebar */
     height: 100vh !important;
 }
+
+h4.sl-text-heading {
+    /* Avoid margin in title */
+    margin-bottom: 0;
+
+    /* Simulate newline */
+    width: 200px;
+}
+
+img {
+    /* Bigger icon */
+    height: 40px;
+    width: 40px;
+}

@@ -215,10 +215,19 @@ REST_FRAMEWORK = {
 }
 
 
-def sort_api_tags(operation):
-    """Sort API tags."""
+def sort_api_tags():
+    """Return sorted API tags."""
 
-    return ["Species", "Gene", "Metacell", "Single cell", "Sequence alignment"]
+    tags = [
+        "Species",
+        "Dataset",
+        "Gene",
+        "Metacell",
+        "Single cell",
+        "Cross-species",
+        "Sequence alignment",
+    ]
+    return [{"name": tag} for tag in tags]
 
 
 SPECTACULAR_SETTINGS = {
@@ -228,7 +237,7 @@ SPECTACULAR_SETTINGS = {
     "TOS": f"{BCA_WEBSITE}/legal",
     "VERSION": get_env("BCA_REST_VERSION"),
     "SERVE_INCLUDE_SCHEMA": False,
-    "SORT_OPERATIONS": sort_api_tags,
+    "TAGS": sort_api_tags(),
 }
 
 # Logging in console

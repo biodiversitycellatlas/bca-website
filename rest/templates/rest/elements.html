@@ -11,33 +11,20 @@
         <meta charset="utf-8">
         <meta name="viewport"
               content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="apple-mobile-web-app-title" content="BCA" />
 
         <script src="{{ js_dist }}"></script>
         <link rel="stylesheet" href="{{ css_dist }}">
 
-        <!-- Rubik typeface from Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-              rel="stylesheet">
-
+        <!-- External CSS libraries -->
         {% load static %}
+        <link rel="stylesheet" href="{% static 'app/js/index.css' %}">
+
+        <!-- Custom CSS -->
         <link rel="stylesheet" href="{% static 'app/css/base.css' %}">
         <link rel="stylesheet" href="{% static 'rest/css/base.css' %}">
 
-        <!-- Favicons -->
-        <link rel="icon"
-              type="image/png"
-              href="{% static 'app/images/favicons/favicon-96x96.png' %}"
-              sizes="96x96" />
-        <link rel="icon"
-              type="image/svg+xml"
-              href="{% static 'app/images/favicons/favicon.svg' %}" />
-        <link rel="shortcut icon"
-              href="{% static 'app/images/favicons/favicon.ico' %}" />
-        <link rel="apple-touch-icon"
-              sizes="180x180"
-              href="{% static 'app/images/favicons/apple-touch-icon.png' %}">
-        <meta name="apple-mobile-web-app-title" content="BCA" />
-        <link rel="manifest" href="{% static 'app/site.webmanifest' %}">
+        {% include "favicons.html" %}
 
         {# Plausible Tracking Snippet #}
         {% include "tracking.html" %}
