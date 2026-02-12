@@ -32,9 +32,7 @@ class IndexView(TemplateView):
         example = Dataset.objects.first()
         context["example_dataset"] = example
         context["example_gene"] = (
-            example.species.genes.first()
-            if example and example.species and example.species.genes
-            else None
+            example.species.genes.first() if example and example.species and example.species.genes else None
         )
 
         # Fetch number of cells, species and datasets
