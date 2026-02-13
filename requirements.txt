@@ -1,6 +1,6 @@
 Django==5.2.11
 django-colorfield==0.14.0
-gunicorn==23.0.0
+gunicorn==25.0.1
 h5py==3.15.1
 
 # Blog parsing
