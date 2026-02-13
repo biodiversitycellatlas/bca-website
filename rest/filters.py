@@ -68,9 +68,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
             ]
             choices = sorted(choices, key=lambda x: x[0])
 
-        super().__init__(
-            field_name=field_name, label=label, choices=choices, *args, **kwargs
-        )
+        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -121,9 +119,7 @@ class DatasetChoiceFilter(ChoiceFilter):
         label = label or f"The <a href='{anchor_url}'>dataset's slug</a>."
         choices = update_dataset_choices()
 
-        super().__init__(
-            field_name=field_name, label=label, choices=choices, *args, **kwargs
-        )
+        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""
@@ -308,9 +304,7 @@ class GeneModuleFilter(FilterSet):
     """Filter set for gene modules."""
 
     dataset = DatasetChoiceFilter()
-    order_by_gene_count = BooleanFilter(
-        method=skip_param, label="Order results by gene count (descending)."
-    )
+    order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (descending).")
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -325,9 +319,7 @@ class GeneModuleFilter(FilterSet):
         # Annotate and order by gene count
         order = self.form.cleaned_data.get("order_by_gene_count")
         if order:
-            queryset = queryset.annotate(
-                gene_count=Count("genes", distinct=True)
-            ).order_by("dataset", "-gene_count")
+            queryset = queryset.annotate(gene_count=Count("genes", distinct=True)).order_by("dataset", "-gene_count")
 
         return queryset
 
@@ -408,10 +400,7 @@ class GeneModuleEigenvalueFilter(FilterSet):
     sort_modules = SortAcrossMetacellFilter(
         field_name="module",
         order_field="eigenvalue",
-        label=(
-            "Sort gene modules based on their highest eigenvalue across metacells "
-            "(default: <kbd>false</kbd>)."
-        ),
+        label=("Sort gene modules based on their highest eigenvalue across metacells (default: <kbd>false</kbd>)."),
     )
 
     def sort_modules_across_metacells(self, queryset, name, value):

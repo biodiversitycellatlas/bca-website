@@ -45,9 +45,7 @@ urlpatterns += [
         views.AtlasGeneModuleView.as_view(),
         name="atlas_modules",
     ),
-    path(
-        "atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"
-    ),
+    path("atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
     path(
         "atlas/<str:dataset>/markers/",
         views.AtlasMarkersView.as_view(),
@@ -144,7 +142,5 @@ urlpatterns += [
 # Redirects
 urlpatterns += [
     path("blog/", RedirectView.as_view(url=f"{BCA_WEBSITE}/blog", permanent=True)),
-    path(
-        "about/legal/", RedirectView.as_view(url=f"{BCA_WEBSITE}/legal", permanent=True)
-    ),
+    path("about/legal/", RedirectView.as_view(url=f"{BCA_WEBSITE}/legal", permanent=True)),
 ]

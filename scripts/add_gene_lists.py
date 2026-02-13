@@ -26,9 +26,7 @@ gene_list_map = {
     "tfs": "Transcription factors",
     "myo": "Myosins",
 }
-gene_list_map = {
-    acronym: GeneList.objects.get(name=name) for acronym, name in gene_list_map.items()
-}
+gene_list_map = {acronym: GeneList.objects.get(name=name) for acronym, name in gene_list_map.items()}
 
 
 def update_gene_modules(file_path, species, gene_list):

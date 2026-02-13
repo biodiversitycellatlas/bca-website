@@ -20,9 +20,7 @@ def data_dropdown(id):
     return {"id": id}
 
 
-@register.inclusion_tag(
-    "app/components/buttons/copy_to_clipboard.html", takes_context=True
-)
+@register.inclusion_tag("app/components/buttons/copy_to_clipboard.html", takes_context=True)
 def clipboard_button(context, id="", text=""):
     """
     Button to copy current URL (optionally with hash #id) to clipboard.
@@ -77,13 +75,9 @@ def _render_heading(
 
 @register.inclusion_tag("app/components/heading.html", takes_context=True)
 def h1(context, title, id=None, clipboard_button=True, data_dropdown=True, help=None):
-    return _render_heading(
-        context, title, id, "h1", clipboard_button, data_dropdown, help=help
-    )
+    return _render_heading(context, title, id, "h1", clipboard_button, data_dropdown, help=help)
 
 
 @register.inclusion_tag("app/components/heading.html", takes_context=True)
 def h2(context, title, id=None, clipboard_button=True, data_dropdown=True, help=None):
-    return _render_heading(
-        context, title, id, "h2", clipboard_button, data_dropdown, help=help
-    )
+    return _render_heading(context, title, id, "h2", clipboard_button, data_dropdown, help=help)

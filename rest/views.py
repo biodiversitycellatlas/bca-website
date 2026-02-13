@@ -156,9 +156,7 @@ class GeneModuleViewSet(BaseReadOnlyModelViewSet):
 class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
     """List gene membership in gene modules."""
 
-    queryset = models.GeneModuleMembership.objects.prefetch_related(
-        "module", "module__dataset", "gene"
-    )
+    queryset = models.GeneModuleMembership.objects.prefetch_related("module", "module__dataset", "gene")
     serializer_class = serializers.GeneModuleMembershipSerializer
     filterset_class = filters.GeneModuleMembershipFilter
     lookup_field = "name"
@@ -194,9 +192,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
             "True",
         ]
         gene_attr = "gene" if list_genes else "gene_id"
-        module_genes = {
-            m.id: {getattr(mem, gene_attr) for mem in m.membership.all()} for m in qs
-        }
+        module_genes = {m.id: {getattr(mem, gene_attr) for mem in m.membership.all()} for m in qs}
 
         # Compute pairwise overlaps (upper triangle)
         overlaps = []
@@ -219,9 +215,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
                 elem = {
                     "module": m1_name,
                     "module2": m2_name,
-                    "similarity": round(len(intersecting) / len(union) * 100)
-                    if len(union) > 0
-                    else 0,
+                    "similarity": round(len(intersecting) / len(union) * 100) if len(union) > 0 else 0,
                     "intersecting_genes": len(intersecting),
                     "unique_genes_module": len(unique_m1),
                     "unique_genes_module2": len(unique_m2),

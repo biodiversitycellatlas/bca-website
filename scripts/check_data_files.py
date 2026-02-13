@@ -54,6 +54,6 @@ def check_species_files(species, data):
 
 
 for species in data:
-    if not "data_subdir" in data[species]:
+    if "data_subdir" not in data[species]:
         continue
     check_species_files(species, data)
