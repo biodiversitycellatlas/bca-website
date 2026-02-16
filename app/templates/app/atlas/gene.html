@@ -105,7 +105,15 @@ Input:
                                 Gene modules
                             </td>
                             <td>
-                                {{ gene.modules.all|join:", "|default:'—' }}
+                                {% for member in gene.modules.all %}
+                                    {% if member.module.dataset == dataset %}
+                                        {{ member.module.get_html_link }}:
+                                        <span title="Membership score">{{ member.membership_score }}</span>
+                                        <br>
+                                    {% endif %}
+                                {% empty %}
+                                    —
+                                {% endfor %}
                             </td>
                         </tr>
 
@@ -114,7 +122,7 @@ Input:
                                 Orthogroup
                             </td>
                             <td>
-                                {{ gene.orthogroup_html_link|default:"—" }}
+                                {{ gene.get_orthogroup_html_link|default:"—" }}
                             </td>
                         </tr>
                     </tbody>
