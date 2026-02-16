@@ -31,8 +31,11 @@ class DataTestCase(TestCase):
         cls.brca2.domains.add(*cls.brca2_domains)
 
         # Add gene modules
-        cls.gene_module = cls.brca1.modules.create(dataset=cls.adult_mouse, name="blue", membership_score="0.92")
-        cls.brca2.modules.create(dataset=cls.adult_mouse, name="green", membership_score="0.65")
+        cls.gene_module = cls.adult_mouse.gene_modules.create(name="blue")
+        cls.gene_module.membership.create(membership_score=0.92, gene=cls.brca1)
+
+        cls.gene_module2 = cls.adult_mouse.gene_modules.create(name="green")
+        cls.gene_module2.membership.create(membership_score=0.65, gene=cls.brca2)
 
         # Add gene list
         cls.gene_list = GeneList.objects.create(name="BRCA genes", description="BRCA-associated genes")
