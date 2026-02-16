@@ -10,7 +10,7 @@ register = template.Library()
 @register.simple_tag
 def dataset_gene_link(dataset, gene):
     """
-    Return HTML link for a gene within a dataset.
+    Return HTML link for a gene within a dataset, using the dataset as the label.
 
     Args:
         dataset: Dataset object.
@@ -21,6 +21,22 @@ def dataset_gene_link(dataset, gene):
     """
     url = dataset.get_gene_url(gene=gene.name)
     return dataset.get_html_link(url=url)
+
+
+@register.simple_tag
+def dataset_gene_link_with_gene_label(dataset, gene):
+    """
+    Return HTML link for a gene within a dataset, using the gene as the label.
+
+    Args:
+        dataset: Dataset object.
+        gene: Gene object.
+
+    Returns:
+        str: HTML link to the gene within the dataset context.
+    """
+    url = dataset.get_gene_url(gene=gene.name)
+    return gene.get_html_link(url=url)
 
 
 @register.simple_tag

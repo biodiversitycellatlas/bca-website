@@ -193,14 +193,14 @@ Input:
 <script type="module">
     import {
         handleFormSubmit,
-        initSubmitButtonToggler,
-        initMetacellSelectionLabelUpdater
+        initSubmitButtonToggler
     } from "{% static 'app/js/atlas/expression_panel.js' %}";
+    import { initMetacellSelectionUpdater } from "{% static 'app/js/utils/metacell.js' %}";
     import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
     document.addEventListener("DOMContentLoaded", () => {
         const select = document.querySelector("#metacells").tomselect;
-        initMetacellSelectionLabelUpdater(select);
+        initMetacellSelectionUpdater(select);
         {% if type == 'gene-lists' %}
             initSubmitButtonToggler("{{id}}", select);
         {% endif %}
