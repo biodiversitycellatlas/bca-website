@@ -719,9 +719,15 @@ class Gene(DynamicSlugMixin):
         return mark_safe(html)
 
     def get_domain_html_links(self):
-        """Return comma-separated domain links of a gene in HTML format."""
+        """Return comma-separated domain links for a gene in HTML format."""
         domains = self.domains.all()
         html = ", ".join(d.get_html_link() for d in domains)
+        return mark_safe(html)
+
+    def get_genelist_html_links(self):
+        """Return comma-separated gene list links for a gene in HTML format."""
+        lists = self.genelists.all()
+        html = ", ".join(e.get_html_link() for e in lists)
         return mark_safe(html)
 
     class Meta:

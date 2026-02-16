@@ -78,16 +78,7 @@ Input:
                                 Pfam domains
                             </td>
                             <td>
-                                {% if gene.domains.all %}
-                                    {% for domain in gene.domains.all %}
-                                        <a href="{{ domain.query_url }}" target="_blank">{{ domain }}</a>
-                                        {% if not forloop.last %}
-                                            ,
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    —
-                                {% endif %}
+                                {{ gene.get_domain_html_links|default:'—' }}
                             </td>
                         </tr>
 
@@ -96,7 +87,7 @@ Input:
                                 Gene lists
                             </td>
                             <td>
-                                {{ gene.genelists.all|join:", "|default:'—' }}
+                                {{ gene.get_genelist_html_links|default:'—' }}
                             </td>
                         </tr>
 
