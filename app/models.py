@@ -759,6 +759,14 @@ class GeneModule(models.Model):
         """Return top gene hubs."""
         return self.membership.order_by("-membership_score")[:n]
 
+    def get_top_transcription_factors(self, n=5):
+        """Return top transcription factors."""
+        tf_genes = self.membership.filter(
+            gene__species=self.dataset.species,
+            gene__genelists__name="Transcription factors"
+        )
+        return tf_genes.order_by("-membership_score")[:n]
+
     class Meta:
         """Meta options."""
 

@@ -24,7 +24,7 @@ Features:
 
     {% if dataset.gene_modules.count == 0 %}
         <p class="text-muted">
-            <i class="fa fa-circle-exclamation"></i> No gene modules for {{ dataset.get_html }}.
+            <i class="fa fa-circle-exclamation"></i> No gene modules available for {{ dataset.get_html }}.
         </p>
     {% else %}
         {% include "../components/plots/module_stats.html" with id="modules" %}

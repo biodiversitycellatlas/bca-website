@@ -3,6 +3,7 @@
  */
 
 import $ from "jquery";
+import "datatables.net-bs5";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { createStatsPlot } from "./plots/stats_plot.ts";
@@ -148,10 +149,10 @@ export function renderGeneModuleTable(id, dataset) {
         order_by_gene_count: 1,
     });
 
-    // Render n columns for gene hubs (returns empty column if not enough)
-    const geneHubs = (n) =>
+    // Render n columns for top transcription factors
+    const topTFs = (n) =>
         Array.from({ length: n }, (_, i) => ({
-            data: "gene_hubs",
+            data: "top_tf",
             render: (d) => renderGeneLink(dataset, d[i]),
         }));
 
@@ -163,7 +164,7 @@ export function renderGeneModuleTable(id, dataset) {
                 render: (d) => renderGeneModuleLink(dataset, d),
             },
             { data: "gene_count" },
-            ...geneHubs(5),
+            ...topTFs(5),
         ],
         responsive: true,
         pageLength: -1,
