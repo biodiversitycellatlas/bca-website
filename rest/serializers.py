@@ -306,6 +306,91 @@ class GeneListSerializer(serializers.ModelSerializer):
         fields = ["name", "description", "gene_count"]
 
 
+class GeneModuleSerializer(serializers.ModelSerializer):
+    """Gene module serializer."""
+
+    dataset = serializers.CharField(source="dataset.slug")
+    module = serializers.CharField(source="name")
+    gene_count = serializers.IntegerField(source="genes.count")
+    gene_hubs = serializers.SlugRelatedField(source="get_gene_hubs", many=True, slug_field="gene.name", read_only=True)
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModule
+        fields = ["dataset", "module", "gene_count", "gene_hubs"]
+
+
+class GeneModuleMembershipSerializer(serializers.ModelSerializer):
+    """Gene module membership serializer."""
+
+    gene = serializers.CharField()
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    score = serializers.CharField(source="membership_score")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleMembership
+        fields = ["dataset", "module", "gene", "score"]
+
+
+class GeneModuleSimilaritySerializer(serializers.Serializer):
+    """Gene module similarity serializer."""
+
+    module = serializers.CharField(help_text="Gene module 1.")
+    module2 = serializers.CharField(help_text="Gene module 2.")
+
+    similarity = serializers.IntegerField(help_text="Jaccard similarity index ( intersection / union ) in percentage.")
+
+    unique_genes_module = serializers.IntegerField(help_text="Number of unique genes for the first module.")
+    unique_genes_module_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the first module.",
+        required=False,
+    )
+
+    unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes for the second module.")
+    unique_genes_module2_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the second module.",
+        required=False,
+    )
+
+    intersecting_genes = serializers.IntegerField(help_text="Number of intersecting genes between modules.")
+    intersecting_genes_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of intersecting genes.",
+        required=False,
+    )
+
+
+class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
+    """Gene module eigenvalue serializer."""
+
+    metacell_name = serializers.CharField(source="metacell.name", default=None)
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None)
+    metacell_color = serializers.CharField(source="metacell.type.color", default=None)
+
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    eigenvalue = serializers.CharField()
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleEigenvalue
+        fields = [
+            "dataset",
+            "module",
+            "metacell_name",
+            "metacell_type",
+            "metacell_color",
+            "eigenvalue",
+        ]
+
+
 class BaseExpressionSerializer(serializers.ModelSerializer):
     """Base class to display gene expression for single cell and metacell serializers."""
 
@@ -454,7 +539,7 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
-    """Serializer for gene expression per metacell."""
+    """Serializer for gene expression for each metacell."""
 
     log2_fold_change = serializers.FloatField(required=False)
 
@@ -474,7 +559,7 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
-    """Serializer for gene expression per metacell (returned per dataset)."""
+    """Serializer for gene expression for each metacell (returned per dataset)."""
 
     dataset = serializers.CharField(source="dataset.slug")
 
