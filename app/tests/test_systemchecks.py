@@ -1,5 +1,4 @@
 import os
-
 import tempfile
 
 from django.core.files import File as DjangoFile
