@@ -122,7 +122,7 @@ export function renderGeneModuleStatsPlots(dataset) {
                 "#modules-plot",
                 data,
                 "gene_count",
-                "Genes per gene module",
+                "Genes per module",
                 "Gene count",
                 false,
             );
@@ -141,7 +141,7 @@ function renderGeneLink(dataset, gene, text = gene) {
     if (!gene) return "";
 
     const url = getDataPortalUrl("atlas_gene", dataset, gene);
-    return `<a href="${url}">${text}</a>`;
+    return `<a class="small" href="${url}">${text}</a>`;
 }
 
 export function renderGeneModuleTable(id, dataset) {
