@@ -4,7 +4,7 @@ from django.core.files import File as DjangoFile
 from django.test import TestCase
 
 from app.apps import AppConfig
-from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression, GeneModule
+from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.postgresql_tables import check_tables

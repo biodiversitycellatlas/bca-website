@@ -312,7 +312,13 @@ class GeneModuleSerializer(serializers.ModelSerializer):
     dataset = serializers.CharField(source="dataset.slug", help_text="Dataset.")
     module = serializers.CharField(source="name", help_text="Name of gene module.")
     gene_count = serializers.IntegerField(source="genes.count", help_text="Number of genes in gene module.")
-    top_tf = serializers.SlugRelatedField(source="get_top_transcription_factors", many=True, slug_field="gene.name", read_only=True, help_text="Top Transcription Factors ordered by their membership score.")
+    top_tf = serializers.SlugRelatedField(
+        source="get_top_transcription_factors",
+        many=True,
+        slug_field="gene.name",
+        read_only=True,
+        help_text="Top Transcription Factors ordered by their membership score.",
+    )
 
     class Meta:
         """Meta configuration."""

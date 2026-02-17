@@ -768,8 +768,7 @@ class GeneModule(models.Model):
     def get_top_transcription_factors(self, n=5):
         """Return top transcription factors."""
         tf_genes = self.membership.filter(
-            gene__species=self.dataset.species,
-            gene__genelists__name="Transcription factors"
+            gene__species=self.dataset.species, gene__genelists__name="Transcription factors"
         )
         return tf_genes.order_by("-membership_score")[:n]
 
