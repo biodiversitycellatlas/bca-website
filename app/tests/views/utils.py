@@ -1,11 +1,14 @@
 """Utilities for tests."""
 
-from django.test import TestCase, Client
+import tempfile
+
+from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from app.models import Species, Domain, GeneList
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class DataTestCase(TestCase):
     @classmethod
     def setup_datasets(cls):

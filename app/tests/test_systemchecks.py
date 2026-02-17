@@ -1,7 +1,9 @@
 import os
 
+import tempfile
+
 from django.core.files import File as DjangoFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from app.apps import AppConfig
 from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
@@ -10,6 +12,7 @@ from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.postgresql_tables import check_tables
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class FilesSystemCheckTest(TestCase):
     @classmethod
     def setUpTestData(cls):

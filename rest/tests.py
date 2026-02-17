@@ -353,6 +353,7 @@ class SAMapTests(APITestCase):
         self.assertSetEqual({s["samap"] for s in samaps}, {0.8, 0.7})
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class AlignTests(APITestCase):
     """Tests Alignment endpoint"""
 
