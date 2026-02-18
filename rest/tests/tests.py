@@ -338,7 +338,7 @@ class GeneModulesTests(APITestCase):
         modules3 = dataset1.gene_modules.create(name="module_123")
         modules4 = dataset1.gene_modules.create(name="module_000")
 
-        # Prepare transcription factor gene list<Ω
+        # Prepare transcription factor gene list
         tfs = GeneList.objects.create(name="Transcription factors")
 
         # Set up genes and their membership
