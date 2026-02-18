@@ -17,12 +17,13 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: Warn if REST version was not updated
               run: |
                   FILE="config/settings.py"
                   # Get diff for this file against the base branch
-                  if ! git diff origin/${{ github.base_ref }} -- "$FILE" | grep -q "VERSION"; then
+                  if ! git diff origin/${GITHUB_BASE_REF} -- "$FILE" | grep -q "VERSION"; then
                       # Find line number of VERSION in current file
                       LINE=$(grep -n "VERSION" "$FILE" | cut -d: -f1 | head -n1)
 
