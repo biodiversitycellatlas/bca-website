@@ -326,6 +326,92 @@ class OrthologsTests(APITestCase):
         self.assertEqual(ortholog_counts[0]["gene_count"], 4)
 
 
+class GeneModulesTests(APITestCase):
+    """Tests GeneModules, GeneModuleEigenvalues and GeneModuleMembership endpoint"""
+    @classmethod
+    def setUpTestData(cls):
+        species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
+        dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
+
+        modules1 = dataset1.gene_modules.create(name="module_xyz")
+        modules2 = dataset1.gene_modules.create(name="module_abc")
+        modules3 = dataset1.gene_modules.create(name="module_123")
+        modules4 = dataset1.gene_modules.create(name="module_000")
+
+        # Prepare transcription factor gene list<Ω
+        tfs = GeneList.objects.create(name="Transcription factors")
+
+        # Set up genes and their membership
+        scores = [0.09, 0.51, 0.14, 0.53, 0.16, 0.05, 0.05, 0.78, 0.23, 0.64, 0.12, 0.95]
+        for i, score in enumerate(scores, start=1):
+            gene = species1.genes.create(name=f"gene{i}")
+
+            # First 3 genes go to module1, rest to module2
+            if i <= 3:
+                m = modules1
+            elif i == 4:
+                m = modules2
+            else:
+                m = modules3
+            m.membership.create(gene=gene, membership_score=score)
+
+            # Label some genes as TFs
+            if i in [3, 5, 7, 8]:
+                tfs.genes.add(gene)
+
+        # Dataset without gene modules
+        species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
+        dataset2 = species2.datasets.create(name="dataset4", description="dataset4")
+
+    def test_retrieve(self):
+        url = "/api/v1/gene_modules/?dataset=species3-dataset3"
+        response = self.client.get(url, format="json")
+        modules = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(modules), 4)
+
+        # Test modules with different number of genes
+        expected = [
+            # (name, gene_count, top_tf, gene_hubs)
+            ("module_000", 0, set(), set()),
+            ("module_123", 8, {"gene5", "gene7", "gene8"}, {"gene5", "gene8", "gene9", "gene10", "gene12"}),
+            ("module_abc", 1, set(), {"gene4"}),
+            ("module_xyz", 3, {"gene3"}, {"gene1", "gene2", "gene3"}),
+        ]
+
+        for m, (name, gene_count, top_tf, gene_hubs) in zip(modules, expected):
+            self.assertEqual(m["module"], name)
+            self.assertEqual(m["gene_count"], gene_count)
+            self.assertSetEqual(set(m["top_tf"]), top_tf)
+            self.assertSetEqual(set(m["gene_hubs"]), gene_hubs)
+
+    def test_retrieve_ordered(self):
+        url = "/api/v1/gene_modules/?dataset=species3-dataset3&order_by_gene_count=true"
+        response = self.client.get(url, format="json")
+        modules = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(modules), 4)
+
+        # Test sorted modules
+        expected = [
+            # (name, gene_count)
+            ("module_123", 8),
+            ("module_xyz", 3),
+            ("module_abc", 1),
+            ("module_000", 0),
+        ]
+
+        for m, (name, gene_count) in zip(modules, expected):
+            self.assertEqual(m["module"], name)
+            self.assertEqual(m["gene_count"], gene_count)
+
+    def test_retrieve_empty(self):
+        url = "/api/v1/gene_modules/?dataset=species4-dataset4"
+        response = self.client.get(url, format="json")
+        modules = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(modules, [])
+
 class SAMapTests(APITestCase):
     """Tests SAMap endpoint"""
 
