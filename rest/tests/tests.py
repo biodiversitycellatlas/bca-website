@@ -328,15 +328,17 @@ class OrthologsTests(APITestCase):
 
 class GeneModulesTests(APITestCase):
     """Tests GeneModules, GeneModuleEigenvalues and GeneModuleMembership endpoint"""
+
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
 
-        modules1 = dataset1.gene_modules.create(name="module_xyz")
-        modules2 = dataset1.gene_modules.create(name="module_abc")
-        modules3 = dataset1.gene_modules.create(name="module_123")
-        modules4 = dataset1.gene_modules.create(name="module_000")
+        # Create modules with different number of genes
+        module1 = dataset1.gene_modules.create(name="module_xyz")
+        module2 = dataset1.gene_modules.create(name="module_abc")
+        module3 = dataset1.gene_modules.create(name="module_123")
+        dataset1.gene_modules.create(name="module_000")
 
         # Prepare transcription factor gene list
         tfs = GeneList.objects.create(name="Transcription factors")
@@ -348,11 +350,11 @@ class GeneModulesTests(APITestCase):
 
             # First 3 genes go to module1, rest to module2
             if i <= 3:
-                m = modules1
+                m = module1
             elif i == 4:
-                m = modules2
+                m = module2
             else:
-                m = modules3
+                m = module3
             m.membership.create(gene=gene, membership_score=score)
 
             # Label some genes as TFs
@@ -361,7 +363,7 @@ class GeneModulesTests(APITestCase):
 
         # Dataset without gene modules
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
-        dataset2 = species2.datasets.create(name="dataset4", description="dataset4")
+        species2.datasets.create(name="dataset4", description="dataset4")
 
     def test_retrieve(self):
         url = "/api/v1/gene_modules/?dataset=species3-dataset3"
@@ -411,6 +413,7 @@ class GeneModulesTests(APITestCase):
         modules = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(modules, [])
+
 
 class SAMapTests(APITestCase):
     """Tests SAMap endpoint"""
