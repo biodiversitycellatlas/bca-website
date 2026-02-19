@@ -747,7 +747,6 @@ class GeneModule(models.Model):
     name = models.CharField(max_length=100)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_modules")
     genes = models.ManyToManyField("Gene", through="GeneModuleMembership")
-    eigenvalues = models.ManyToManyField("Metacell", through="GeneModuleEigenvalue")
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -804,7 +803,7 @@ class GeneModuleMembership(models.Model):
 class GeneModuleEigenvalue(models.Model):
     """Gene module eigenvalue for each metacell."""
 
-    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE)
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="eigenvalues")
     metacell = models.ForeignKey("Metacell", on_delete=models.CASCADE)
     eigenvalue = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
 

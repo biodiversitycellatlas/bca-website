@@ -336,7 +336,7 @@ class GeneModuleMembershipFilter(FilterSet):
     """Filter set for gene module membership."""
 
     dataset = DatasetChoiceFilter(field_name="module")
-    module = CharFilter(field_name="module__name")
+    module = CharFilter(field_name="module__name", help_text="The module name to filter results.")
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -404,7 +404,7 @@ class GeneModuleEigenvalueFilter(FilterSet):
     """Filter set for gene module eigenvalue."""
 
     dataset = DatasetChoiceFilter(field_name="module")
-    module = CharFilter(field_name="module__name")
+    module = CharFilter(field_name="module__name", help_text="The module name to filter results.")
     sort_modules = SortAcrossMetacellFilter(
         field_name="module",
         order_field="eigenvalue",

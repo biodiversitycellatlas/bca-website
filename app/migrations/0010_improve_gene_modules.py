@@ -25,16 +25,11 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('eigenvalue', models.DecimalField(blank=True, decimal_places=3, max_digits=4, null=True)),
                 ('metacell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.metacell')),
-                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.genemodule')),
+                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='eigenvalues', to='app.genemodule')),
             ],
             options={
                 'unique_together': {('module', 'metacell')},
             },
-        ),
-        migrations.AddField(
-            model_name='genemodule',
-            name='eigenvalues',
-            field=models.ManyToManyField(through='app.GeneModuleEigenvalue', to='app.metacell'),
         ),
         migrations.CreateModel(
             name='GeneModuleMembership',
