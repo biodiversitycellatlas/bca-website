@@ -91,6 +91,13 @@ class AtlasPanelViewTest(DataTestCase):
         self.assertIn("metacell_dict", response.context)
 
 
+class AtlasModuleViewTest(DataTestCase):
+    def test_gene_modules(self):
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/modules/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Module activity", response.content.decode())
+
+
 class AtlasMarkersViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/markers/")

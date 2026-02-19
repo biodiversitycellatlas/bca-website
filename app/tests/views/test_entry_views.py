@@ -108,7 +108,8 @@ class GeneModuleViewTests(DataTestCase):
         # Check gene module
         self.assertContains(response, self.gene_module.name)
         self.assertContains(response, "Membership score")
-        self.assertContains(response, self.gene_module.membership_score)
+        membership_score = self.gene_module.membership.get(gene=self.brca1).membership_score
+        self.assertContains(response, membership_score)
 
         # Check for the expected gene and domains
         self.assertContains(response, self.brca1.get_html_link())

@@ -8,6 +8,7 @@
     --light-accent-color: #ffac3e;
     --bold-accent-color: #3ab064;
     --primary-color: var(--bold-dark-color);
+    --bs-primary-rgb: 35, 145, 132;
     --hover-color: var(--bold-light-color);
     --hover-border-color: #3bbcb277;
     --navbar-hover-color: #00000030;
@@ -130,6 +131,7 @@ body {
     --bs-btn-hover-bg: var(--hover-color);
     --bs-btn-hover-border-color: var(--primary-color);
     --bs-btn-focus-box-shadow: var(--button-box-shadow);
+    --bs-btn-disabled-color: var(--primary-color);
 }
 
 .btn.btn-primary.disabled,
@@ -251,6 +253,13 @@ a:active,
     background-color: lightgray;
     opacity: 1;
     cursor: default;
+}
+
+/* Links */
+
+.link-primary:focus,
+.link-primary:hover {
+    color: var(--hover-color) !important;
 }
 
 /* Lists */

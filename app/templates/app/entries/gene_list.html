@@ -19,6 +19,9 @@
     <th>
         Domains
     </th>
+    <th>
+        Gene lists
+    </th>
     {% if not species %}
         <th>
             Species
@@ -35,6 +38,9 @@
     </td>
     <td>
         {{ each.get_domain_html_links|default:'—' }}
+    </td>
+    <td>
+        {{ each.get_genelist_html_links|default:'—' }}
     </td>
     {% if not species %}
         <td>

@@ -212,6 +212,12 @@ class AtlasGeneView(BaseAtlasView):
         return context
 
 
+class AtlasGeneModuleView(BaseAtlasView):
+    """Gene modules page for a specific dataset."""
+
+    template_name = "app/atlas/modules.html"
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 

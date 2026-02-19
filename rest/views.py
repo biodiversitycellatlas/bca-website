@@ -142,6 +142,112 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
+@extend_schema(summary="List gene modules", tags=["Gene module"])
+class GeneModuleViewSet(BaseReadOnlyModelViewSet):
+    """List gene modules."""
+
+    queryset = models.GeneModule.objects.all()
+    serializer_class = serializers.GeneModuleSerializer
+    filterset_class = filters.GeneModuleFilter
+    lookup_field = "name"
+
+
+@extend_schema(summary="List gene module membership", tags=["Gene module"])
+class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
+    """List gene membership in gene modules."""
+
+    queryset = models.GeneModuleMembership.objects.prefetch_related("module", "module__dataset", "gene")
+    serializer_class = serializers.GeneModuleMembershipSerializer
+    filterset_class = filters.GeneModuleMembershipFilter
+    lookup_field = "name"
+
+
+@extend_schema(
+    summary="List gene module similarity",
+    tags=["Gene module"],
+    parameters=[
+        OpenApiParameter(
+            name="modules",
+            description="Comma-separated pair of modules.",
+            examples=[OpenApiExample("Example modules", value="black,blue")],
+        )
+    ],
+)
+class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
+    """List similarity between all gene modules in a dataset."""
+
+    queryset = models.GeneModule.objects.prefetch_related("membership")
+    serializer_class = serializers.GeneModuleSimilaritySerializer
+    filterset_class = filters.GeneModuleSimilarityFilter
+    lookup_field = "name"
+    pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        qs = self.filter_queryset(qs)
+
+        list_genes = self.request.query_params.get("list_genes") in [
+            "true",
+            "1",
+            "True",
+        ]
+        gene_attr = "gene" if list_genes else "gene_id"
+        module_genes = {m.id: {getattr(mem, gene_attr) for mem in m.membership.all()} for m in qs}
+
+        # Compute pairwise overlaps (upper triangle)
+        overlaps = []
+        module_list = list(qs)
+        for i in range(len(module_list)):
+            m1 = module_list[i]
+            m1_genes = set(module_genes[m1.id])
+            m1_name = m1.name
+
+            for j in range(i + 1, len(module_list)):
+                m2 = module_list[j]
+                m2_genes = set(module_genes[m2.id])
+                m2_name = m2.name
+
+                unique_m1 = m1_genes - m2_genes
+                unique_m2 = m2_genes - m1_genes
+                intersecting = m1_genes & m2_genes
+                union = m1_genes | m2_genes
+
+                elem = {
+                    "module": m1_name,
+                    "module2": m2_name,
+                    "similarity": round(len(intersecting) / len(union) * 100) if len(union) > 0 else 0,
+                    "intersecting_genes": len(intersecting),
+                    "unique_genes_module": len(unique_m1),
+                    "unique_genes_module2": len(unique_m2),
+                }
+
+                if list_genes:
+                    # Add list of genes
+                    elem.update(
+                        {
+                            "unique_genes_module_list": unique_m1,
+                            "unique_genes_module2_list": unique_m2,
+                            "intersecting_genes_list": intersecting,
+                        }
+                    )
+                overlaps.append(elem)
+
+        serializer = self.get_serializer(overlaps, many=True)
+        return Response(serializer.data)
+
+
+@extend_schema(summary="List gene module eigenvalues", tags=["Gene module"])
+class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
+    """List eigenvalues in gene modules for each metacell."""
+
+    queryset = models.GeneModuleEigenvalue.objects.prefetch_related(
+        "module", "module__dataset", "metacell", "metacell__type"
+    )
+    serializer_class = serializers.GeneModuleEigenvalueSerializer
+    filterset_class = filters.GeneModuleEigenvalueFilter
+    lookup_field = "name"
+
+
 @extend_schema(
     summary="List genes",
     tags=["Gene"],
