@@ -1,9 +1,11 @@
 from django.test import TestCase
 
-from app.models import Publication, Source, Species
+from app.models import Publication, Source, Species, GeneModule, GeneModuleMembership
 
 
 class SpeciesModelTest(TestCase):
+    """Test Species model."""
+
     @classmethod
     def setUpTestData(cls):
         cls.human = Species.objects.create(
@@ -22,10 +24,15 @@ class SpeciesModelTest(TestCase):
         self.assertEqual(self.sponge.slug, "amphineuron-queenslandicum")
 
 
-class DatasetModelTest(SpeciesModelTest):
+class DatasetModelTest(TestCase):
+    """Test Dataset model."""
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.human = Species.objects.create(scientific_name="Homo sapiens")
+        cls.sponge = Species.objects.create(scientific_name="Amphineuron queenslandicum")
+
         cls.baby = cls.human.datasets.create(
             name="baby", image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg"
         )
@@ -41,6 +48,8 @@ class DatasetModelTest(SpeciesModelTest):
 
 
 class PublicationModelTest(TestCase):
+    """Test Publication model."""
+
     @classmethod
     def setUpTestData(cls):
         # Create DOI source to test external source links
@@ -115,3 +124,35 @@ class PublicationModelTest(TestCase):
 
         # If no DOI, return just the short citation information without a link
         self.assertEqual(self.proteins.get_source_html_link(), "Dayhoff, 1976")
+
+
+class GeneModuleMembershipTest(TestCase):
+    """Test GeneModuleMembership model."""
+
+    @classmethod
+    def setUpTestData(cls):
+        human = Species.objects.create(scientific_name="Homo sapiens")
+        adult = human.datasets.create(name="adult")
+
+        module = GeneModule.objects.create(dataset=adult, name="black")
+        gene = human.genes.create(name="BRCA1")
+        cls.membership = gene.modules.create(module=module, membership_score=0.341)
+
+    def test_string_representation(self):
+        self.assertEqual(str(self.membership), "black - BRCA1 - 0.341")
+
+
+class GeneModuleEigenvalueTest(TestCase):
+    """Test GeneModuleEigenvalue model."""
+
+    @classmethod
+    def setUpTestData(cls):
+        human = Species.objects.create(scientific_name="Homo sapiens")
+        adult = human.datasets.create(name="adult")
+
+        module = GeneModule.objects.create(dataset=adult, name="black")
+        metacell = adult.metacells.create(name="1", x=0.34, y=0.23)
+        cls.eigenvalue = module.eigenvalues.create(metacell=metacell, eigenvalue=0.167)
+
+    def test_string_representation(self):
+        self.assertEqual(str(self.eigenvalue), "black - 1 - 0.167")

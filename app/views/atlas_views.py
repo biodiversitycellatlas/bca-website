@@ -217,15 +217,6 @@ class AtlasGeneModuleView(BaseAtlasView):
 
     template_name = "app/atlas/modules.html"
 
-    def get_context_data(self, **kwargs):
-        """Add gene info or warning if gene invalid."""
-        context = super().get_context_data(**kwargs)
-        dataset = context.get("dataset")
-        if not isinstance(dataset, Dataset):
-            return context
-
-        return context
-
 
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""

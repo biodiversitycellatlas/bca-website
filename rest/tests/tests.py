@@ -471,16 +471,19 @@ class GeneModuleSimilarity(GeneModulesData):
 
         # Test module eigenvalues
         expected = [
-            # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
-            ("module_000", "module_123", 0, 0, 8, 0),
-            ("module_000", "module_abc", 0, 0, 3, 0),
-            ("module_000", "module_xyz", 0, 0, 3, 0),
-            ("module_123", "module_abc", 22, 6, 1, 2),
-            ("module_123", "module_xyz", 0, 8, 3, 0),
-            ("module_abc", "module_xyz", 0, 3, 3, 0),
+            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            ("module_000", "module_123", 0, 8, 0),
+            ("module_000", "module_abc", 0, 3, 0),
+            ("module_000", "module_xyz", 0, 3, 0),
+            ("module_123", "module_abc", 6, 1, 2),
+            ("module_123", "module_xyz", 8, 3, 0),
+            ("module_abc", "module_xyz", 3, 3, 0),
         ]
 
-        for m, (module, module2, jaccard, uniq, uniq2, intersecting) in zip(sim, expected):
+        for m, (module, module2, uniq, uniq2, intersecting) in zip(sim, expected):
+            # Calculate Jaccard similarity index in percentage
+            jaccard = round(intersecting / (uniq + uniq2 + intersecting) * 100)
+
             self.assertEqual(m["module"], module)
             self.assertEqual(m["module2"], module2)
             self.assertEqual(m["similarity"], jaccard)
@@ -512,6 +515,39 @@ class GeneModuleSimilarity(GeneModulesData):
             self.assertEqual(m["unique_genes_module"], uniq)
             self.assertEqual(m["unique_genes_module2"], uniq2)
             self.assertEqual(m["intersecting_genes"], intersecting)
+
+    def test_retrieve_filtered_module_similarity_genes(self):
+        dataset = "species3-dataset3"
+        modules = "module_123,module_abc"
+        list_genes = 1
+
+        url = f"/api/v1/gene_modules_similarity/?dataset={dataset}&modules={modules}&list_genes={list_genes}"
+        response = self.client.get(url, format="json")
+        sim = response.data
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(sim), 1)
+
+        # Test module eigenvalues
+        expected = [
+            # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
+            ("module_123", "module_abc", 22, 6, 1, 2),
+        ]
+
+        genes_123 = ["gene5", "gene6", "gene7", "gene8", "gene9", "gene12"]
+        genes_abc = ["gene4"]
+        genes_both = ["gene10", "gene11"]
+
+        for m, (module, module2, jaccard, uniq, uniq2, intersecting) in zip(sim, expected):
+            self.assertEqual(m["module"], module)
+            self.assertEqual(m["module2"], module2)
+            self.assertEqual(m["similarity"], jaccard)
+            self.assertEqual(m["unique_genes_module"], len(genes_123))
+            self.assertEqual(m["unique_genes_module2"], len(genes_abc))
+            self.assertEqual(m["intersecting_genes"], len(genes_both))
+            self.assertEqual(m["unique_genes_module_list"], genes_123)
+            self.assertEqual(m["unique_genes_module2_list"], genes_abc)
+            self.assertEqual(m["intersecting_genes_list"], genes_both)
 
 
 class GeneModuleEigenvalues(GeneModulesData):

@@ -797,7 +797,7 @@ class GeneModuleMembership(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.gene}, {self.module}: {self.membership_score} "
+        return f"{self.module} - {self.gene} - {self.membership_score}"
 
 
 class GeneModuleEigenvalue(models.Model):
@@ -814,7 +814,7 @@ class GeneModuleEigenvalue(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.gene}, {self.module}: {self.membership_score} "
+        return f"{self.module} - {self.metacell} - {self.eigenvalue}"
 
 
 class GeneCorrelation(models.Model):

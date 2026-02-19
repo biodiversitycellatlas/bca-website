@@ -24,22 +24,6 @@ def dataset_gene_link(dataset, gene):
 
 
 @register.simple_tag
-def dataset_gene_link_with_gene_label(dataset, gene):
-    """
-    Return HTML link for a gene within a dataset, using the gene as the label.
-
-    Args:
-        dataset: Dataset object.
-        gene: Gene object.
-
-    Returns:
-        str: HTML link to the gene within the dataset context.
-    """
-    url = dataset.get_gene_url(gene=gene.name)
-    return gene.get_html_link(url=url)
-
-
-@register.simple_tag
 def species_genelist_link(species, genelist):
     """
     Return HTML link for a gene list within a species.
