@@ -17,7 +17,7 @@
         "jquery": "3.7.1",
         "postcss": "8.5.6",
         "postcss-cli": "11.0.1",
-        "tom-select": "2.4.5",
+        "tom-select": "2.5.1",
         "vega-embed": "7.1.0",
       },
       "devDependencies": {
@@ -267,7 +267,7 @@
 
     "to-regex-range": ["to-regex-range@5.0.1", "", { "dependencies": { "is-number": "^7.0.0" } }, "sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ=="],
 
-    "tom-select": ["tom-select@2.4.5", "", { "dependencies": { "@orchidjs/sifter": "^1.1.0", "@orchidjs/unicode-variants": "^1.1.2" } }, "sha512-ujZ5P10kRohKDFElklhkO4dRM+WkUEaytHhOuzbQkZ6MyiR8e2IwGKXab4v+ZNipE2queN8ztlb0MmRLqoM6QA=="],
+    "tom-select": ["tom-select@2.5.1", "", { "dependencies": { "@orchidjs/sifter": "^1.1.0", "@orchidjs/unicode-variants": "^1.1.2" } }, "sha512-63D5/Qf6bb6kLSgksEuas/60oawDcuUHrD90jZofeOpF6bkQFYriKrvtpJBQQ4xIA5dUGcjhBbk/yrlfOQsy3g=="],
 
     "topojson-client": ["topojson-client@3.1.0", "", { "dependencies": { "commander": "2" }, "bin": { "topo2geo": "bin/topo2geo", "topomerge": "bin/topomerge", "topoquantize": "bin/topoquantize" } }, "sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw=="],
 
