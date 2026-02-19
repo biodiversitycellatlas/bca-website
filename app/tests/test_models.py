@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from app.models import Publication, Source, Species, GeneModule, GeneModuleMembership
+from app.models import Publication, Source, Species, GeneModule
 
 
 class SpeciesModelTest(TestCase):
