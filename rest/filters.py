@@ -411,18 +411,6 @@ class GeneModuleEigenvalueFilter(FilterSet):
         label=("Sort gene modules based on their highest eigenvalue across metacells (default: <kbd>false</kbd>)."),
     )
 
-    def sort_modules_across_metacells(self, queryset, name, value):
-        """Sort gene modules by their highest eigenvalue across metacells."""
-
-        if value:
-            queryset = self.sort_across_metacells(
-                queryset,
-                field_name="module",
-                partition_field="module__name",
-                order_field="eigenvalue",
-            )
-        return queryset
-
     class Meta:
         """Configuration for model and filterable fields."""
 

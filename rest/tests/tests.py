@@ -449,6 +449,7 @@ class GeneModulesTests(GeneModulesData):
 
 class GeneModuleSimilarity(GeneModulesData):
     """Tests GeneModuleSimilarity endpoint"""
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -471,12 +472,37 @@ class GeneModuleSimilarity(GeneModulesData):
         # Test module eigenvalues
         expected = [
             # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
-            ("module_000", "module_123", 0,  0, 8, 0),
-            ("module_000", "module_abc", 0,  0, 3, 0),
-            ("module_000", "module_xyz", 0,  0, 3, 0),
+            ("module_000", "module_123", 0, 0, 8, 0),
+            ("module_000", "module_abc", 0, 0, 3, 0),
+            ("module_000", "module_xyz", 0, 0, 3, 0),
             ("module_123", "module_abc", 22, 6, 1, 2),
-            ("module_123", "module_xyz", 0,  8, 3, 0),
-            ("module_abc", "module_xyz", 0,  3, 3, 0),
+            ("module_123", "module_xyz", 0, 8, 3, 0),
+            ("module_abc", "module_xyz", 0, 3, 3, 0),
+        ]
+
+        for m, (module, module2, jaccard, uniq, uniq2, intersecting) in zip(sim, expected):
+            self.assertEqual(m["module"], module)
+            self.assertEqual(m["module2"], module2)
+            self.assertEqual(m["similarity"], jaccard)
+            self.assertEqual(m["unique_genes_module"], uniq)
+            self.assertEqual(m["unique_genes_module2"], uniq2)
+            self.assertEqual(m["intersecting_genes"], intersecting)
+
+    def test_retrieve_filtered_module_similarity(self):
+        dataset = "species3-dataset3"
+        modules = "module_123,module_abc"
+
+        url = f"/api/v1/gene_modules_similarity/?dataset={dataset}&modules={modules}"
+        response = self.client.get(url, format="json")
+        sim = response.data
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(sim), 1)
+
+        # Test module eigenvalues
+        expected = [
+            # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
+            ("module_123", "module_abc", 22, 6, 1, 2),
         ]
 
         for m, (module, module2, jaccard, uniq, uniq2, intersecting) in zip(sim, expected):
@@ -490,16 +516,17 @@ class GeneModuleSimilarity(GeneModulesData):
 
 class GeneModuleEigenvalues(GeneModulesData):
     """Tests GeneModuleEigenvalues endpoint"""
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        m1 = cls.dataset1.metacells.create(name="m1", x=0.2, y=0.5)
-        m2 = cls.dataset1.metacells.create(name="m2", x=0.6, y=0.2)
-        m3 = cls.dataset1.metacells.create(name="m3", x=0.1, y=0.8)
+        m1 = cls.dataset1.metacells.create(name="1", x=0.2, y=0.5)
+        m2 = cls.dataset1.metacells.create(name="2", x=0.6, y=0.2)
+        m3 = cls.dataset1.metacells.create(name="3", x=0.1, y=0.8)
 
         cls.module1.eigenvalues.create(metacell=m1, eigenvalue=0.167)
-        cls.module1.eigenvalues.create(metacell=m2, eigenvalue=0.235)
-        cls.module1.eigenvalues.create(metacell=m3, eigenvalue=0.853)
+        cls.module1.eigenvalues.create(metacell=m2, eigenvalue=0.135)
+        cls.module1.eigenvalues.create(metacell=m3, eigenvalue=0.153)
 
         cls.module2.eigenvalues.create(metacell=m1, eigenvalue=0.696)
         cls.module2.eigenvalues.create(metacell=m2, eigenvalue=0.897)
@@ -518,12 +545,12 @@ class GeneModuleEigenvalues(GeneModulesData):
         # Test module eigenvalues
         expected = [
             # (name, metacell, eigenvalue)
-            ("module_xyz", "m1", "0.167"),
-            ("module_xyz", "m2", "0.235"),
-            ("module_xyz", "m3", "0.853"),
-            ("module_abc", "m1", "0.696"),
-            ("module_abc", "m2", "0.897"),
-            ("module_abc", "m3", "0.336"),
+            ("module_xyz", "1", "0.167"),
+            ("module_xyz", "2", "0.135"),
+            ("module_xyz", "3", "0.153"),
+            ("module_abc", "1", "0.696"),
+            ("module_abc", "2", "0.897"),
+            ("module_abc", "3", "0.336"),
         ]
 
         for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
@@ -546,9 +573,38 @@ class GeneModuleEigenvalues(GeneModulesData):
         # Test module eigenvalues
         expected = [
             # (name, metacell, eigenvalue)
-            (module, "m1", "0.167"),
-            (module, "m2", "0.235"),
-            (module, "m3", "0.853"),
+            (module, "1", "0.167"),
+            (module, "2", "0.135"),
+            (module, "3", "0.153"),
+        ]
+
+        for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
+            self.assertEqual(m["dataset"], dataset)
+            self.assertEqual(m["module"], module)
+            self.assertEqual(m["metacell_name"], metacell)
+            self.assertEqual(m["eigenvalue"], eigenvalue)
+
+    def test_retrieve_sorted_module_eigenvalues(self):
+        module = "module_xyz"
+        dataset = "species3-dataset3"
+        sort_modules = "true"
+
+        url = f"/api/v1/gene_modules_eigenvalues/?dataset={dataset}&sort_modules={sort_modules}"
+        response = self.client.get(url, format="json")
+        eigenvalues = response.data["results"]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(eigenvalues), 6)
+
+        # Test module eigenvalues
+        expected = [
+            # (name, metacell, eigenvalue)
+            ("module_abc", "1", "0.696"),
+            ("module_abc", "2", "0.897"),
+            ("module_abc", "3", "0.336"),
+            ("module_xyz", "1", "0.167"),
+            ("module_xyz", "2", "0.135"),
+            ("module_xyz", "3", "0.153"),
         ]
 
         for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
