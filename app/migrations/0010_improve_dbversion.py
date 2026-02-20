@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dbversion',
             name='commit',
-            field=models.CharField(help_text='Git commit hash associated with this change.', max_length=40, null=True),
+            field=models.CharField(default=None, help_text='Git commit hash associated with this change.', max_length=40, null=True),
         ),
         migrations.AlterField(
             model_name='dbversion',
@@ -22,7 +22,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='dbversion',
+            name='description',
+            field=models.TextField(help_text='Notes on changes.'),
+        ),
+        migrations.AlterField(
+            model_name='dbversion',
             name='version',
-            field=models.CharField(help_text='e.g., 2026.02.11', max_length=50, null=True),
+            field=models.CharField(default=None, help_text='e.g., 2026.02.11', max_length=50, null=True),
         ),
     ]

@@ -10,6 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 
 class AutoSlugMixin(models.Model):
@@ -899,16 +900,34 @@ class SAMap(models.Model):
 class DBVersion(models.Model):
     """Log of all database changes."""
 
-    version = models.CharField(max_length=50, null=True, help_text="e.g., 2026.02.11")
-    description = models.TextField(blank=True, help_text="Notes on changes.")
+    version = models.CharField(max_length=50, null=True, default=None, help_text="e.g., 2026.02.11")
+    description = models.TextField(help_text="Notes on changes.")
     populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
-    commit = models.CharField(max_length=40, null=True, help_text="Git commit hash associated with this change.")
+    commit = models.CharField(max_length=40, null=True, default=None, help_text="Git commit hash associated with this change.")
+
+    def get_short_commit(self, length=7):
+        """Return abbreviated commit hash (first characters)."""
+        return self.commit[:length] if self.commit else None
 
     class Meta:
         # Orders so the latest version is always first
         ordering = ["-populated_at"]
         verbose_name = "Database Version Log"
 
+    def save(self, *args, **kwargs):
+        """Ensure that version or commit is defined before saving."""
+        if not self.version and not self.commit:
+            raise ValidationError("DBVersion must have a version or a git commit hash.")
+        super().save(*args, **kwargs)
+
     def __str__(self):
         """String representation."""
-        return f"{self.version} ({self.commit})"
+
+        short_commit = self.get_short_commit()
+        if self.version and short_commit:
+            res = f"{self.version} ({short_commit})"
+        elif self.version:
+            res = self.version
+        elif short_commit:
+            res = short_commit
+        return res
