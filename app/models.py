@@ -916,11 +916,14 @@ class DBVersion(models.Model):
         ordering = ["-populated_at"]
         verbose_name = "Database Version Log"
 
-    def save(self, *args, **kwargs):
-        """Ensure that version or commit is defined before saving."""
-        if not self.version and not self.commit:
-            raise ValidationError("DBVersion must have a version or a git commit hash.")
-        super().save(*args, **kwargs)
+        # Database-level constraint to require either version or git commit hash
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(version__isnull=False) | models.Q(commit__isnull=False),
+                name="require_version_or_commit",
+                violation_error_message="Either version or git commit hash must be provided.",
+            ),
+        ]
 
     def __str__(self):
         """String representation."""

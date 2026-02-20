@@ -30,4 +30,8 @@ class Migration(migrations.Migration):
             name='version',
             field=models.CharField(default=None, help_text='e.g., 2026.02.11', max_length=50, null=True),
         ),
+        migrations.AddConstraint(
+            model_name='dbversion',
+            constraint=models.CheckConstraint(condition=models.Q(('version__isnull', False), ('commit__isnull', False), _connector='OR'), name='require_version_or_commit', violation_error_message='Either version or git commit hash must be provided.'),
+        ),
     ]

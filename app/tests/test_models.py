@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import TestCase
 
 from datetime import datetime
@@ -173,7 +173,7 @@ class DBVersionModelTest(TestCase):
         self.assertEqual(str(self.no_version), "43cb01d")
 
     def test_invalid_dbversion(self):
-        """Creating without version and commit should raise ValidationError."""
-        with self.assertRaises(ValidationError) as context:
+        """Using NULL for both version and commit should violate database constraint."""
+        with self.assertRaises(IntegrityError) as context:
             DBVersion.objects.create(description="Invalid")
-        self.assertIn("DBVersion must have a version or a git commit hash.", str(context.exception))
+        self.assertIn("require_version_or_commit", str(context.exception))
