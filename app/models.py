@@ -897,13 +897,12 @@ class SAMap(models.Model):
 
 
 class DBVersion(models.Model):
-    """Log of all database version releases."""
+    """Log of all database changes."""
 
-    version = models.CharField(max_length=50, unique=True, help_text="e.g., 2026.02.11")
+    version = models.CharField(max_length=50, null=True, help_text="e.g., 2026.02.11")
     description = models.TextField(blank=True, help_text="Notes on changes.")
-    populated_at = models.DateTimeField(
-        auto_now_add=True, help_text="The timestamp when this data version was populated in the database."
-    )
+    populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
+    commit = models.CharField(max_length=40, null=True, help_text="Git commit hash associated with this change.")
 
     class Meta:
         # Orders so the latest version is always first
@@ -912,4 +911,4 @@ class DBVersion(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.version}"
+        return f"{self.version} ({self.commit})"
