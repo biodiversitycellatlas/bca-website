@@ -10,7 +10,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from django.core.exceptions import ValidationError
 
 
 class AutoSlugMixin(models.Model):
