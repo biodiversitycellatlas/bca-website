@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "@fontsource/rubik": "5.2.8",
-        "@fortawesome/fontawesome-free": "7.1.0",
+        "@fortawesome/fontawesome-free": "7.2.0",
         "@phosphor-icons/web": "2.1.2",
         "autoprefixer": "10.4.24",
         "bootstrap": "5.3.8",
