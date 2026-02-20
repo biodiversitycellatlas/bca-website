@@ -132,13 +132,11 @@ class DBVersionModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.first = DBVersion.objects.create(
-            version="v26.2.20", description="First version",
-            commit="cc4a78b24e0edfeb3f80fb5f91b9d4b06cda23ab"
+            version="v26.2.20", description="First version", commit="cc4a78b24e0edfeb3f80fb5f91b9d4b06cda23ab"
         )
         cls.no_commit = DBVersion.objects.create(version="v26.3.21-demo", description="DB changes")
         cls.no_version = DBVersion.objects.create(
-            description="Added new species",
-            commit="43cb01defdb95ca0e76dcfbe13ee4658950abddc"
+            description="Added new species", commit="43cb01defdb95ca0e76dcfbe13ee4658950abddc"
         )
         cls.shorter_commit = DBVersion.objects.create(description="Changed gene modules", commit="43cb")
 

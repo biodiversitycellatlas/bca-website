@@ -903,7 +903,9 @@ class DBVersion(models.Model):
     version = models.CharField(max_length=50, null=True, default=None, help_text="e.g., 2026.02.11")
     description = models.TextField(help_text="Notes on changes.")
     populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
-    commit = models.CharField(max_length=40, null=True, default=None, help_text="Git commit hash associated with this change.")
+    commit = models.CharField(
+        max_length=40, null=True, default=None, help_text="Git commit hash associated with this change."
+    )
 
     def get_short_commit(self, length=7):
         """Return abbreviated commit hash (first characters)."""
