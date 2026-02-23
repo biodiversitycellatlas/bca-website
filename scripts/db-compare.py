@@ -2,9 +2,10 @@
 """
 Compare two Postgres databases using services defined in .pg_service.conf.
 
-1. Check list of table names and report differences.
-2. Compare size of intersecting tables and report differing rows (if any) based on the
-last 10 000 rows (by default).
+1. Check list of table names and report tables unique to each database.
+2. Compare size of intersecting tables across datasets.
+4. For tables with different sizes, report columns unique to each database's table.
+3. If columns match, print differing rows based on the last 10 000 rows (by default).
 
 Usage:
     ./scripts/db-compare.py local bca
@@ -66,7 +67,7 @@ def get_last_rows(conn, table, nrows=10_000):
         return cur.fetchall()
 
 
-def check_row_differences(rows1, rows2, max_rows=10):
+def check_row_diff(rows1, rows2, max_rows=10):
     """Get difference between 10 (by default) rows."""
 
     diffs = []
@@ -117,15 +118,40 @@ def print_table_list_diff(db1, db2, tables1, tables2):
     print(f"    {GREEN}✔ {len(common_tables)} common tables{RESET}")
 
     if len(table1_tables) > 0:
-        print(f"    {YELLOW}✖ {len(table1_tables)} tables only in {db1}:{RESET}")
+        print(f"    {YELLOW}✖ {len(table1_tables)} table(s) only in {db1}:{RESET}")
         for table in table1_tables:
             print(f"        {table}")
 
     if len(table2_tables) > 0:
-        print(f"    {YELLOW}✖ {len(table2_tables)} tables only in {db2}:{RESET}")
+        print(f"    {YELLOW}✖ {len(table2_tables)} table(s) only in {db2}:{RESET}")
         for table in table2_tables:
             print(f"        {table}")
     return common_tables
+
+
+def print_column_diff(db1, db2, rows1, rows2):
+    """Print list of different columns between two tables."""
+
+    columns1 = set(rows1[0].keys())
+    columns2 = set(rows2[0].keys())
+
+    are_cols_diff = False
+    table1_cols = columns1 - columns2
+    table2_cols = columns2 - columns1
+
+    if len(table1_cols) > 0:
+        print(f"        {YELLOW}{len(table1_cols)} column(s) only in {db1}:{RESET}")
+        for table in table1_cols:
+            print(f"            {table}")
+            are_cols_diff = True
+
+    if len(table2_cols) > 0:
+        print(f"        {YELLOW}{len(table2_cols)} column(s) only in {db2}:{RESET}")
+        for table in table2_cols:
+            print(f"            {table}")
+            are_cols_diff = True
+
+    return are_cols_diff
 
 
 def print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=10_000):
@@ -138,20 +164,36 @@ def print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=10_000):
     size2 = get_table_size(conn2, table)
 
     if size1 != size2:
-        print(f"    {RED}✖ Size mismatch in '{table}':{RESET} {size1} vs {size2} bytes")
+        print(f"    {RED}✖ {table} size mismatch:{RESET} {size1} vs {size2} bytes")
     else:
-        print(f"    {GREEN}✔ '{table}' OK (size: {size1} bytes){RESET}")
+        print(f"    {GREEN}✔ {table} size: {size1} bytes{RESET}")
 
     rows1 = get_last_rows(conn1, table, check_nrows)
     rows2 = get_last_rows(conn2, table, check_nrows)
 
-    diffs = check_row_differences(rows1, rows2, max_rows=1)
-    if diffs:
-        print(f"        {CYAN}Differences in the last {check_nrows} rows -- example:{RESET}")
-        for r1, r2 in diffs:
-            print(f"        {YELLOW}{db1}:{RESET} {r1}\n        {YELLOW}{db2}:{RESET} {r2}\n")
-    elif size1 != size2:
-        print(f"        {CYAN}Last {check_nrows} rows are identical{RESET}")
+    if len(rows1) != len(rows2):
+        # Print if different row count in tables
+        print(f"        {YELLOW}Different row count: {len(rows1)} vs {len(rows2)} rows{RESET}")
+        return
+    elif len(rows1) == 0:
+        # Skip if both datasets are empty
+        return
+
+    # Print column differences
+    any_diff_col = print_column_diff(db1, db2, rows1, rows2)
+
+    # Print row differences
+    if not any_diff_col:
+        diffs = check_row_diff(rows1, rows2, max_rows=1)
+
+        row_number = f"The last {len(rows1)}" if len(rows1) == check_nrows else f"{len(rows1)}"
+
+        if diffs:
+            print(f"        {CYAN}Differences in {row_number.lower()} rows -- example:{RESET}")
+            for r1, r2 in diffs:
+                print(f"        {YELLOW}{db1}:{RESET} {r1}\n        {YELLOW}{db2}:{RESET} {r2}\n")
+        elif size1 != size2:
+            print(f"        {CYAN}{row_number} rows are identical{RESET}")
 
 
 def compare_databases(db1, db2, nrows=10_000):
