@@ -4,8 +4,8 @@ Compare two Postgres databases using services defined in .pg_service.conf.
 
 1. Check list of table names and report tables unique to each database.
 2. Compare size of intersecting tables across datasets.
-4. For tables with different sizes, report columns unique to each database's table.
-3. If columns match, print differing rows based on the last 10 000 rows (by default).
+3. For tables with different sizes, report columns unique to each database's table.
+4. If columns match, print differing rows based on the last 10 000 rows (by default).
 
 Usage:
     ./scripts/db-compare.py local bca
