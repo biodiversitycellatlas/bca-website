@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+"""
+Compare two Postgres databases using services defined in .pg_service.conf.
+
+1. Check list of table names and report differences.
+2. Compare size of intersecting tables and report differing rows (if any) based on the
+last 10 000 rows (by default).
+
+Usage:
+    ./scripts/db-compare.py local bca
+"""
 
 import argparse
 import sys
@@ -105,13 +115,16 @@ def print_table_list_diff(db1, db2, tables1, tables2):
     table2_tables = tables2 - tables1
 
     print(f"    {GREEN}✔ {len(common_tables)} common tables{RESET}")
-    print(f"    {YELLOW}✖ {len(table1_tables)} tables only in {db1}:{RESET}")
-    for table in table1_tables:
-        print(f"        {table}")
 
-    print(f"    {YELLOW}✖ {len(table2_tables)} tables only in {db2}:{RESET}")
-    for table in table2_tables:
-        print(f"        {table}")
+    if len(table1_tables) > 0:
+        print(f"    {YELLOW}✖ {len(table1_tables)} tables only in {db1}:{RESET}")
+        for table in table1_tables:
+            print(f"        {table}")
+
+    if len(table2_tables) > 0:
+        print(f"    {YELLOW}✖ {len(table2_tables)} tables only in {db2}:{RESET}")
+        for table in table2_tables:
+            print(f"        {table}")
     return common_tables
 
 
@@ -126,20 +139,19 @@ def print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=10_000):
 
     if size1 != size2:
         print(f"    {RED}✖ Size mismatch in '{table}':{RESET} {size1} vs {size2} bytes")
-
-        rows1 = get_last_rows(conn1, table, check_nrows)
-        rows2 = get_last_rows(conn2, table, check_nrows)
-
-        diffs = check_row_differences(rows1, rows2, max_rows=1)
-        if diffs:
-            print(f"        {CYAN}Example of differences in the last {check_nrows} rows:{RESET}")
-            for r1, r2 in diffs:
-                print(f"        {YELLOW}{db1}:{RESET} {r1}\n        {YELLOW}{db2}:{RESET} {r2}\n")
-        else:
-            print(f"        {CYAN}No difference between tables based on the last {check_nrows} rows{RESET}")
-
     else:
         print(f"    {GREEN}✔ '{table}' OK (size: {size1} bytes){RESET}")
+
+    rows1 = get_last_rows(conn1, table, check_nrows)
+    rows2 = get_last_rows(conn2, table, check_nrows)
+
+    diffs = check_row_differences(rows1, rows2, max_rows=1)
+    if diffs:
+        print(f"        {CYAN}Differences in the last {check_nrows} rows -- example:{RESET}")
+        for r1, r2 in diffs:
+            print(f"        {YELLOW}{db1}:{RESET} {r1}\n        {YELLOW}{db2}:{RESET} {r2}\n")
+    elif size1 != size2:
+        print(f"        {CYAN}Last {check_nrows} rows are identical{RESET}")
 
 
 def compare_databases(db1, db2, nrows=10_000):
@@ -164,8 +176,8 @@ def compare_databases(db1, db2, nrows=10_000):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Compare two PostgreSQL databases.",
-        epilog=f"Example usage:\n  {sys.argv[0]} local ssh-bca-staging --rows 100",
+        description=f"{CYAN}Compare two PostgreSQL databases.{RESET}",
+        epilog=f"{YELLOW}Example usage:{RESET}\n  {sys.argv[0]} local ssh-bca-staging --rows 100",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("db1", help="First database service name")
@@ -176,6 +188,11 @@ if __name__ == "__main__":
         default=10_000,
         help="Number of last rows to compare upon table size mismatch (default: 10000)",
     )
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(2)
+
     args = parser.parse_args()
 
     compare_databases(args.db1, args.db2, nrows=args.rows)
