@@ -25,7 +25,7 @@ Input:
 {% endcomment %}
 
 <!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="species-select"
+<select id="species-select-{{ id }}"
         class="mb-2 {{ class }}"
         style="margin-bottom: 23px !important;
                visibility: hidden;
@@ -55,9 +55,10 @@ Input:
     import { initSpeciesSelect }
         from "{% static 'app/js/select/species.js' %}";
     document.addEventListener('DOMContentLoaded', function() {
-        let species = "{{species.slug}}",
+        let id = "{{id}}",
+            species = "{{species.slug}}",
             redirect = "{{redirect}}",
             optgroup_columns = "{{optgroup_columns}}" === "true";
-        initSpeciesSelect(species, redirect, optgroup_columns);
+        initSpeciesSelect(id, species, redirect, optgroup_columns);
     });
 </script>
