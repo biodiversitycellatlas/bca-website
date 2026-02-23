@@ -37,6 +37,30 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
 }
 
 /**
+ * Prepare URL string with path parameters.
+ *
+ * @param {string} url - Base URL.
+ * @param {string|null} dataset - Dataset identifier to add as query param (if not null).
+ * @param {string} view - the particular entry (gene lists, gene modules, protein domains, etc.)
+ * @returns {string} The URL string with path parameters.
+ */
+function prepareEntryUrlPaths(url, dataset, view) {
+    let result = new URL(url, window.location.origin).toString();
+    const view_placeholder = {
+        gene_module_entry: "GENE_MODULE_PLACEHOLDER/",
+    };
+
+    if (dataset) {
+        result = result.replace("DATASET_PLACEHOLDER/", dataset);
+    } else {
+        result = result.replace("DATASET_PLACEHOLDER/", "");
+    }
+    result = result.replace(view_placeholder[view], "");
+
+    return result;
+}
+
+/**
  * Generate URL for a given view, optionally including dataset, gene, and limit.
  *
  * For certain REST API views, query parameters are appended.
@@ -45,6 +69,7 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
  * @param {string} view - View key to look up the base URL.
  * @param {string|null} dataset - Dataset identifier.
  * @param {string|null} gene - Gene identifier.
+ * @param {string|null} gene_module - Gene Module identifier.
  * @param {number|null} limit - Result limit.
  * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
  * @returns {string} Constructed URL.
@@ -77,6 +102,8 @@ export function getDataPortalUrl(
         url = prepareUrlParams(url, dataset, [gene], limit, extraParams);
     } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
+    } else if (["gene_module_entry"].includes(view)) {
+        url = prepareEntryUrlPaths(url, dataset, view);
     } else {
         if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
         if (gene) url = url.replace("GENE_PLACEHOLDER", gene);

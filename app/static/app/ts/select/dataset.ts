@@ -44,6 +44,13 @@ export function initDatasetSelect(
                     url.searchParams.set("dataset", value);
                     window.location.href = url;
                 }
+            } else if (redirect == "entry") {
+                if (value !== "" && value !== dataset) {
+                    window.location.href = getDataPortalUrl(
+                        "gene_module_entry",
+                        value,
+                    );
+                }
             }
         },
         onDropdownOpen: function () {
