@@ -235,7 +235,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Fetch pre-processed and processed [BCA](/) data",
     "CONTACT": {"name": "BCA", "url": f"{BCA_WEBSITE}/about"},
     "TOS": f"{BCA_WEBSITE}/legal",
-    "VERSION": get_env("BCA_REST_VERSION"),
+    "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "TAGS": sort_api_tags(),
 }
