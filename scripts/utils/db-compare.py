@@ -2,11 +2,11 @@
 """
 Compare two Postgres databases using services defined in .pg_service.conf.
 
-1. List tables unique to each database (if any).
-2. Compare size of common tables across datasets.
-3. If row counts differ, stop and report; otherwise, continue.
-4. List columns unique to each table (if any).
-5. If columns match, print differing rows from the last 10 000 rows (by default).
+- List tables unique to each database (if any).
+- Compare size of common tables across datasets.
+- If row counts differ, stop and report; otherwise, continue.
+- List columns unique to each table (if any).
+- If columns match, print differing rows from the last 10 000 rows (by default).
 
 Usage:
     ./scripts/db-compare.py local bca
@@ -224,8 +224,8 @@ if __name__ == "__main__":
         epilog=f"{YELLOW}Example usage:{RESET}\n  {sys.argv[0]} local ssh-bca-staging --rows 100",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("db1", help="First database service name")
-    parser.add_argument("db2", help="Second database service name")
+    parser.add_argument("source", help="Source database service name")
+    parser.add_argument("target", help="Target database service name")
     parser.add_argument(
         "--rows",
         type=int,
@@ -239,4 +239,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    compare_databases(args.db1, args.db2, nrows=args.rows)
+    try:
+        compare_databases(args.source, args.target, nrows=args.rows)
+    except Exception as e:
+        print(f"{RED}✖ Error: {e}{RESET}")
+        sys.exit(1)
