@@ -69,7 +69,6 @@ function prepareEntryUrlPaths(url, dataset, view) {
  * @param {string} view - View key to look up the base URL.
  * @param {string|null} dataset - Dataset identifier.
  * @param {string|null} gene - Gene identifier.
- * @param {string|null} gene_module - Gene Module identifier.
  * @param {number|null} limit - Result limit.
  * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
  * @returns {string} Constructed URL.

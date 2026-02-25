@@ -7,7 +7,7 @@
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Gene modules' paginator dataset %}
-    {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="entry" class="w-100 atlas-select home" optgroup_columns="true" %}
+    {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="entry" view="gene_module_entry" class="w-100 atlas-select home" optgroup_columns="true" %}
 {% endblock heading %}
 
 {% block header %}

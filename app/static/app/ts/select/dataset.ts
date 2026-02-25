@@ -29,6 +29,7 @@ export function initDatasetSelect(
     query,
     redirect,
     optgroup_columns,
+    view,
 ) {
     const select = new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
@@ -46,10 +47,7 @@ export function initDatasetSelect(
                 }
             } else if (redirect == "entry") {
                 if (value !== "" && value !== dataset) {
-                    window.location.href = getDataPortalUrl(
-                        "gene_module_entry",
-                        value,
-                    );
+                    window.location.href = getDataPortalUrl(view,value, null, null,null);
                 }
             }
         },
