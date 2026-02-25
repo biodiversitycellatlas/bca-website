@@ -47,7 +47,13 @@ export function initDatasetSelect(
                 }
             } else if (redirect == "entry") {
                 if (value !== "" && value !== dataset) {
-                    window.location.href = getDataPortalUrl(view,value, null, null,null);
+                    window.location.href = getDataPortalUrl(
+                        view,
+                        value,
+                        null,
+                        null,
+                        null,
+                    );
                 }
             }
         },
