@@ -8,8 +8,14 @@ Copy data between two Postgres databases using services defined in .pg_service.c
 - Truncates target table before inserting.
 
 Usage:
-    ./scripts/db-copy.py source target
-    ./scripts/db-copy.py source target --table users
+    ./scripts/db-copy.py bca local
+    ./scripts/db-copy.py bca local --tables app_species,app_dataset,app_publication
+
+    # Reset database and copy all tables and schema
+    ./scripts/db-copy.py bca local --reset
+
+    # Reset database and copy all tables and schema (except data from some large tables)
+    ./scripts/db-copy.py bca local --reset --exclude app_metacellgeneexpression,app_genecorrelation
 """
 
 import argparse
@@ -18,6 +24,8 @@ import os
 import tempfile
 import psycopg2
 import subprocess
+import time
+from datetime import timedelta
 from psycopg2.extras import execute_values
 
 GREEN = "\033[92m"
@@ -31,8 +39,11 @@ def get_connection(service_name):
     return psycopg2.connect(f"service={service_name}")
 
 
-def get_tables(conn):
+def get_tables(db):
     """Get tables ordered by less dependencies."""
+    conn = get_connection(db)
+    tables = None
+
     with conn.cursor() as cur:
         cur.execute("""
             SELECT c.relname AS table_name
@@ -44,61 +55,91 @@ def get_tables(conn):
             GROUP BY c.relname
             ORDER BY COUNT(fk.conname) ASC;
         """)
-        return [row[0] for row in cur.fetchall()]
+        tables = [row[0] for row in cur.fetchall()]
+
+    conn.close()
+    return tables
 
 
-def dump_data(db_src, db_dst, tables=None, dry_run=False):
-    """Dump data using pg_dump for full database if no tables were selected."""
+def reset_database(db, dry_run=False):
+    """Reset database by dropping and creating public schema."""
+    drop_schema_sql = "DROP SCHEMA public CASCADE;"
+    create_schema_sql = "CREATE SCHEMA public;"
+
+    print(f"{YELLOW}DATABASE RESET (SQL): {CYAN}{drop_schema_sql} {create_schema_sql}{RESET}")
+    if not dry_run:
+        conn = get_connection(db)
+        conn.autocommit = True # required for DROP SCHEMA
+
+        with conn.cursor() as cur:
+            cur.execute(drop_schema_sql)
+            cur.execute(create_schema_sql)
+
+        conn.close()
+
+
+def dump_data(db_src, db_dst, tables=[], exclude_table_data=[], dry_run=False):
+    """Dump data using pg_dump for selected (or all) tables."""
 
     # Run pg_dump and pipe output to psql
     pg = ["pg_dump", f"service={db_src}", "--clean", "--if-exists", "--no-owner", "--no-privileges", "--verbose"]
     ps = ["psql", f"service={db_dst}"]
 
-    if tables is not None:
-        for table in tables:
+    if tables or exclude_table_data:
+        for table in (tables or []):
             pg.extend(["-t", table])
-    else:
-        # Full database drop and create tables
-        pg.extend(["--create"])
+        for table in (exclude_table_data or []):
+            pg.extend(["--exclude-table-data", table])
 
-    # Fully drop and create database
-    create = "--create" if tables is None else ""
+    print(f"{YELLOW}DUMP DATA (SHELL):{CYAN} {" ".join(pg)} | {" ".join(ps)}{RESET}\n")
+    if not dry_run:
+        start = time.time()
 
-    if dry_run:
-        print(f"{YELLOW}DRY RUN:{RESET} {" ".join(pg)} | {" ".join(ps)}")
-    else:
         pg_proc = subprocess.Popen(pg, stdout=subprocess.PIPE)
         ps_proc = subprocess.Popen(ps, stdin=pg_proc.stdout)
         pg_proc.stdout.close()
         ps_proc.communicate()
-        print(f"{GREEN}✔ Database copied from {db_src} to {db_dst}{RESET}")
+
+        # Parse elapsed time
+        minutes, seconds = divmod(time.time() - start, 60)
+        elapsed = f"{int(minutes)}m {int(seconds)}s"
+
+        print(f"{GREEN}✔ Database copied from {db_src} to {db_dst} in {elapsed}{RESET}")
 
 
-def copy_database(db_src, db_dst, tables=None, dry_run=False):
+def check_tables_exist(tables, src_tables, db_src, excluded=False):
+    msg = "tables" if not excluded else "excluded tables"
+
+    if tables:
+        check_tables = set(tables) - set(src_tables)
+        if check_tables:
+            raise ValueError(f"User-provided {msg} not found in {db_src}: {", ".join(check_tables)}")
+
+
+def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], reset_db=False, dry_run=False):
     # Get tables in source database
-    conn_src = get_connection(db_src)
-    src_tables = get_tables(conn_src)
-    conn_src.close()
+    src_tables = get_tables(db_src)
+
+    # Check if user gave non-existing tables in source database
+    check_tables_exist(tables, src_tables, db_src)
+    check_tables_exist(exclude_table_data, src_tables, db_src, excluded=True)
 
     if tables:
         # Reorder so tables with less dependencies come first
-        sorted_tables = [t for t in src_tables if t in tables]
-        msg = " (ordered by fewer dependencies)"
+        list_tables = [t for t in src_tables if t in tables and t not in exclude_table_data]
+        dump_tables = list_tables
     else:
-        sorted_tables = None
-        msg = ""
+        list_tables = [t for t in src_tables if t not in exclude_table_data]
+        dump_tables = [] # dump all tables
 
-    print(f"{CYAN}Tables to copy from {db_src} to {db_dst}{msg}:{RESET}")
-    for i in (sorted_tables or src_tables):
+    print(f"{CYAN}Tables to copy from {db_src} to {db_dst} (ordered by fewer dependencies):{RESET}")
+    for i in list_tables:
         print(f"    - {i}")
     print()
 
-    try:
-        dump_data(db_src, db_dst, sorted_tables, dry_run)
-    except Exception as e:
-        print(f"{RED}✖ Error: {e}{RESET}")
-        sys.exit(1)
-
+    if reset_db:
+        reset_database(db_dst, dry_run)
+    dump_data(db_src, db_dst, dump_tables, exclude_table_data, dry_run)
 
 
 if __name__ == "__main__":
@@ -106,16 +147,27 @@ if __name__ == "__main__":
     parser.add_argument("source", help="Source database service name")
     parser.add_argument("target", help="Target database service name")
     parser.add_argument("--tables", "-t", help="Comma-separated list of tables to copy")
+    parser.add_argument("--exclude-table-data", help="Comma-separated list of tables to skip data dump (schema is still copied)")
+    parser.add_argument("--reset-db", "-r", action="store_true", help="Reset database")
     parser.add_argument("--dry-run", "-d", action="store_true", help="Print copy commands without executing them")
 
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(2)
-
     args = parser.parse_args()
+
+    if args.source == args.target:
+        print(f"{RED}✖ Error: source and target database cannot be the same{RESET}")
+        sys.exit(1)
 
     if args.dry_run:
         print(f"{YELLOW}=== DRY RUN MODE ==={RESET}\n")
 
-    tables = args.tables.split(',') if args.tables else None
-    copy_database(args.source, args.target, tables, args.dry_run)
+    tables = args.tables.split(',') if args.tables else []
+    exclude_table_data = args.exclude_table_data.split(',') if args.exclude_table_data else []
+
+    try:
+        copy_database(args.source, args.target, tables, exclude_table_data, args.reset_db, args.dry_run)
+    except Exception as e:
+        print(f"{RED}✖ Error: {e}{RESET}")
+        sys.exit(1)
