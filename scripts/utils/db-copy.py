@@ -73,12 +73,17 @@ def reset_database(db, dry_run=False):
         conn.close()
 
 
-def dump_data(db_src, db_dst, tables=[], exclude_table_data=[], dry_run=False):
+def dump_data(db_src, db_dst, tables=[], exclude_table_data=[], args=None):
     """Dump data using pg_dump for selected (or all) tables."""
 
     # Run pg_dump and pipe output to psql
-    pg = ["pg_dump", f"service={db_src}", "--clean", "--if-exists", "--no-owner", "--no-privileges", "--verbose"]
+    pg = ["pg_dump", f"service={db_src}", "--no-owner", "--no-privileges", "--verbose"]
     ps = ["psql", f"service={db_dst}"]
+
+    if args.data_only:
+        pg.extend(["--data-only"])
+    else:
+        pg.extend(["--clean", "--if-exists"])
 
     if tables or exclude_table_data:
         for table in tables or []:
@@ -87,7 +92,7 @@ def dump_data(db_src, db_dst, tables=[], exclude_table_data=[], dry_run=False):
             pg.extend(["--exclude-table-data", table])
 
     print(f"{YELLOW}DUMP DATA (SHELL):{CYAN} {' '.join(pg)} | {' '.join(ps)}{RESET}\n")
-    if not dry_run:
+    if not args.dry_run:
         start = time.time()
 
         pg_proc = subprocess.Popen(pg, stdout=subprocess.PIPE)
@@ -111,7 +116,7 @@ def check_tables_exist(tables, src_tables, db_src, excluded=False):
             raise ValueError(f"User-provided {msg} not found in {db_src}: {', '.join(check_tables)}")
 
 
-def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], reset_db=False, dry_run=False):
+def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], args=None):
     # Get tables in source database
     src_tables = get_tables(db_src)
 
@@ -132,9 +137,9 @@ def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], reset_db=Fal
         print(f"    - {i}")
     print()
 
-    if reset_db:
-        reset_database(db_dst, dry_run)
-    dump_data(db_src, db_dst, dump_tables, exclude_table_data, dry_run)
+    if args.reset_db:
+        reset_database(db_dst, args.dry_run)
+    dump_data(db_src, db_dst, dump_tables, exclude_table_data, args)
 
 
 if __name__ == "__main__":
@@ -142,6 +147,7 @@ if __name__ == "__main__":
     parser.add_argument("source", help="Source database service name")
     parser.add_argument("target", help="Target database service name")
     parser.add_argument("--tables", "-t", help="Comma-separated list of tables to copy")
+    parser.add_argument("--data-only", action="store_true", help="Dump only the data, not the schema or statistics")
     parser.add_argument(
         "--exclude-table-data", help="Comma-separated list of tables to skip data dump (schema is still copied)"
     )
@@ -164,7 +170,7 @@ if __name__ == "__main__":
     exclude_table_data = args.exclude_table_data.split(",") if args.exclude_table_data else []
 
     try:
-        copy_database(args.source, args.target, tables, exclude_table_data, args.reset_db, args.dry_run)
+        copy_database(args.source, args.target, tables, exclude_table_data, args)
     except Exception as e:
         print(f"{RED}✖ Error: {e}{RESET}")
         sys.exit(1)
