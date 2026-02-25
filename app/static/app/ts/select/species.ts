@@ -28,7 +28,7 @@ function renderOption(item, escape) {
     for (let i = 0; i < meta_array.length; i++) {
         const elem = meta_array[i];
         if (elem && !item.name.includes(elem) && !item.text.includes(elem)) {
-            badges = `
+            badges += `
                 <span class="species-meta badge rounded-pill text-bg-secondary">
                     <small>${meta_array[i]}</small>
                 </span>

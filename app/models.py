@@ -943,19 +943,41 @@ class SAMap(models.Model):
 
 
 class DBVersion(models.Model):
-    """Log of all database version releases."""
+    """Log of all database changes."""
 
-    version = models.CharField(max_length=50, unique=True, help_text="e.g., 2026.02.11")
-    description = models.TextField(blank=True, help_text="Notes on changes.")
-    populated_at = models.DateTimeField(
-        auto_now_add=True, help_text="The timestamp when this data version was populated in the database."
+    version = models.CharField(max_length=50, null=True, default=None, help_text="e.g., 2026.02.11")
+    description = models.TextField(help_text="Notes on changes.")
+    populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
+    commit = models.CharField(
+        max_length=40, null=True, default=None, help_text="Git commit hash associated with this change."
     )
+
+    def get_short_commit(self, length=7):
+        """Return abbreviated commit hash (first characters)."""
+        return self.commit[:length] if self.commit else None
 
     class Meta:
         # Orders so the latest version is always first
         ordering = ["-populated_at"]
         verbose_name = "Database Version Log"
 
+        # Database-level constraint to require either version or git commit hash
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(version__isnull=False) | models.Q(commit__isnull=False),
+                name="require_version_or_commit",
+                violation_error_message="Either version or git commit hash must be provided.",
+            ),
+        ]
+
     def __str__(self):
         """String representation."""
-        return f"{self.version}"
+
+        short_commit = self.get_short_commit()
+        if self.version and short_commit:
+            res = f"{self.version} ({short_commit})"
+        elif self.version:
+            res = self.version
+        elif short_commit:
+            res = short_commit
+        return res

@@ -1,6 +1,9 @@
+from django.db import IntegrityError
 from django.test import TestCase
 
-from app.models import Publication, Source, Species, GeneModule
+from datetime import datetime
+
+from app.models import Publication, Source, Species, DBVersion, GeneModule
 
 
 class SpeciesModelTest(TestCase):
@@ -156,3 +159,57 @@ class GeneModuleEigenvalueTest(TestCase):
 
     def test_string_representation(self):
         self.assertEqual(str(self.eigenvalue), "black - 1 - 0.167")
+
+
+class DBVersionModelTest(TestCase):
+    """Test DBVersion model."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.first = DBVersion.objects.create(
+            version="v26.2.20", description="First version", commit="cc4a78b24e0edfeb3f80fb5f91b9d4b06cda23ab"
+        )
+        cls.no_commit = DBVersion.objects.create(version="v26.3.21-demo", description="DB changes")
+        cls.no_version = DBVersion.objects.create(
+            description="Added new species", commit="43cb01defdb95ca0e76dcfbe13ee4658950abddc"
+        )
+        cls.shorter_commit = DBVersion.objects.create(description="Changed gene modules", commit="43cb")
+
+    def test_model(self):
+        self.assertEqual(self.first.version, "v26.2.20")
+        self.assertEqual(self.first.commit, "cc4a78b24e0edfeb3f80fb5f91b9d4b06cda23ab")
+        self.assertEqual(self.first.description, "First version")
+        self.assertIsInstance(self.first.populated_at, datetime)
+
+        self.assertEqual(self.no_commit.version, "v26.3.21-demo")
+        self.assertIsNone(self.no_commit.commit)
+        self.assertEqual(self.no_commit.description, "DB changes")
+        self.assertIsInstance(self.no_commit.populated_at, datetime)
+
+        self.assertIsNone(self.no_version.version)
+        self.assertEqual(self.no_version.commit, "43cb01defdb95ca0e76dcfbe13ee4658950abddc")
+        self.assertEqual(self.no_version.description, "Added new species")
+        self.assertIsInstance(self.no_version.populated_at, datetime)
+
+        self.assertIsNone(self.shorter_commit.version)
+        self.assertEqual(self.shorter_commit.commit, "43cb")
+        self.assertEqual(self.shorter_commit.description, "Changed gene modules")
+        self.assertIsInstance(self.shorter_commit.populated_at, datetime)
+
+    def test_get_short_commit_length(self):
+        self.assertEqual(self.first.get_short_commit(), "cc4a78b")
+        self.assertEqual(self.first.get_short_commit(length=10), "cc4a78b24e")
+        self.assertIsNone(self.no_commit.get_short_commit())
+        self.assertEqual(self.shorter_commit.get_short_commit(), "43cb")
+
+    def test_string_representaion(self):
+        self.assertEqual(str(self.first), "v26.2.20 (cc4a78b)")
+        self.assertEqual(str(self.no_commit), "v26.3.21-demo")
+        self.assertEqual(str(self.no_version), "43cb01d")
+
+    def test_invalid_dbversion(self):
+        """Using NULL for both version and commit should violate database constraint."""
+        with self.assertRaises(IntegrityError) as context:
+            DBVersion.objects.create(description="Invalid")
+        self.assertIn("require_version_or_commit", str(context.exception))
+
