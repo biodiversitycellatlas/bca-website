@@ -2,10 +2,9 @@
 """
 Copy data between two Postgres databases using services defined in .pg_service.conf.
 
-- Copies all tables (default) or a single table.
-- Verifies columns, indexes, and constraints match.
-- Raises error if schema mismatch.
-- Truncates target table before inserting.
+- Copies all tables (default) or a single table
+- Resets database with --reset (drops and creates public schema)
+- Excludes table data to be copied (useful to avoid copying large tables)
 
 Usage:
     ./scripts/db-copy.py bca local
@@ -20,13 +19,9 @@ Usage:
 
 import argparse
 import sys
-import os
-import tempfile
 import psycopg2
 import subprocess
 import time
-from datetime import timedelta
-from psycopg2.extras import execute_values
 
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -69,7 +64,7 @@ def reset_database(db, dry_run=False):
     print(f"{YELLOW}DATABASE RESET (SQL): {CYAN}{drop_schema_sql} {create_schema_sql}{RESET}")
     if not dry_run:
         conn = get_connection(db)
-        conn.autocommit = True # required for DROP SCHEMA
+        conn.autocommit = True  # required for DROP SCHEMA
 
         with conn.cursor() as cur:
             cur.execute(drop_schema_sql)
@@ -86,12 +81,12 @@ def dump_data(db_src, db_dst, tables=[], exclude_table_data=[], dry_run=False):
     ps = ["psql", f"service={db_dst}"]
 
     if tables or exclude_table_data:
-        for table in (tables or []):
+        for table in tables or []:
             pg.extend(["-t", table])
-        for table in (exclude_table_data or []):
+        for table in exclude_table_data or []:
             pg.extend(["--exclude-table-data", table])
 
-    print(f"{YELLOW}DUMP DATA (SHELL):{CYAN} {" ".join(pg)} | {" ".join(ps)}{RESET}\n")
+    print(f"{YELLOW}DUMP DATA (SHELL):{CYAN} {' '.join(pg)} | {' '.join(ps)}{RESET}\n")
     if not dry_run:
         start = time.time()
 
@@ -113,7 +108,7 @@ def check_tables_exist(tables, src_tables, db_src, excluded=False):
     if tables:
         check_tables = set(tables) - set(src_tables)
         if check_tables:
-            raise ValueError(f"User-provided {msg} not found in {db_src}: {", ".join(check_tables)}")
+            raise ValueError(f"User-provided {msg} not found in {db_src}: {', '.join(check_tables)}")
 
 
 def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], reset_db=False, dry_run=False):
@@ -130,7 +125,7 @@ def copy_database(db_src, db_dst, tables=[], exclude_table_data=[], reset_db=Fal
         dump_tables = list_tables
     else:
         list_tables = [t for t in src_tables if t not in exclude_table_data]
-        dump_tables = [] # dump all tables
+        dump_tables = []  # dump all tables
 
     print(f"{CYAN}Tables to copy from {db_src} to {db_dst} (ordered by fewer dependencies):{RESET}")
     for i in list_tables:
@@ -147,7 +142,9 @@ if __name__ == "__main__":
     parser.add_argument("source", help="Source database service name")
     parser.add_argument("target", help="Target database service name")
     parser.add_argument("--tables", "-t", help="Comma-separated list of tables to copy")
-    parser.add_argument("--exclude-table-data", help="Comma-separated list of tables to skip data dump (schema is still copied)")
+    parser.add_argument(
+        "--exclude-table-data", help="Comma-separated list of tables to skip data dump (schema is still copied)"
+    )
     parser.add_argument("--reset-db", "-r", action="store_true", help="Reset database")
     parser.add_argument("--dry-run", "-d", action="store_true", help="Print copy commands without executing them")
 
@@ -163,8 +160,8 @@ if __name__ == "__main__":
     if args.dry_run:
         print(f"{YELLOW}=== DRY RUN MODE ==={RESET}\n")
 
-    tables = args.tables.split(',') if args.tables else []
-    exclude_table_data = args.exclude_table_data.split(',') if args.exclude_table_data else []
+    tables = args.tables.split(",") if args.tables else []
+    exclude_table_data = args.exclude_table_data.split(",") if args.exclude_table_data else []
 
     try:
         copy_database(args.source, args.target, tables, exclude_table_data, args.reset_db, args.dry_run)

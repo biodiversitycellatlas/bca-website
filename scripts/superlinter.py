@@ -207,6 +207,9 @@ def parse_args():
     parser.add_argument("--all", action="store_true", help="Lint full codebase")
     parser.add_argument("--changed", action="store_true", help="Lint changed files only (default)")
     parser.add_argument("--log-level", choices=VALID_LOG_LEVELS, default="WARN", help="Set log level")
+    parser.add_argument(
+        "--version", help="Set Super-Linter version to run (default: same version as in Super-Linter workflow)"
+    )
 
     # Create groups of linters
     groups = {}
@@ -251,22 +254,24 @@ def prepare_env(args):
             "SAVE_SUPER_LINTER_SUMMARY": "true",
             "SAVE_SUPER_LINTER_OUTPUT": "true",
             "VALIDATE_ALL_CODEBASE": "true" if args.all else "false",
+            "SHELL": "/bin/bash",
         }
     )
 
     return env_files, env_vars
 
 
-def prepare_linter_cmd(env_files, env_vars):
+def prepare_linter_cmd(env_files, env_vars, version=None):
     """
     Build Podman command to run Super-Linter based on environment variables.
 
     Args:
         env_files (list): List of environment file paths.
         env_vars (dict): Dictionary of environment variables.
+        version (str): Super-Linter version to run.
 
-    Prints:
-        Full Podman command.
+    Returns:
+        Full Podman command and Super-Linter version to run.
     """
     env_list = []
 
@@ -276,6 +281,9 @@ def prepare_linter_cmd(env_files, env_vars):
 
     for k, v in env_vars.items():
         env_list.append(f"-e {k}={v}")
+
+    if version is None:
+        version = get_linter_version()
 
     cmd = [
         "time",
@@ -288,25 +296,26 @@ def prepare_linter_cmd(env_files, env_vars):
         "linux/amd64",
         "--pull",
         "newer",
-        f"ghcr.io/super-linter/super-linter:{get_linter_version()}",
+        f"ghcr.io/super-linter/super-linter:{version}",
     ]
-    return cmd
+    return cmd, version
 
 
-def run_linters(env_files, env_vars):
+def run_linters(env_files, env_vars, version=None):
     """
     Build and execute the Podman command to run Super-Linter.
 
     Args:
         env_files (list): List of environment file paths.
         env_vars (dict): Dictionary of environment variables.
+        version (str): Super-Linter version to run.
 
     Prints:
         Full Podman command and contents of the Super-Linter summary file.
     """
 
-    print(f"\n✨{YELLOW} Running Super-Linter {get_linter_version()} {RESET}✨")
-    cmd = prepare_linter_cmd(env_files, env_vars)
+    cmd, version = prepare_linter_cmd(env_files, env_vars, version=version)
+    print(f"\n✨{YELLOW} Running Super-Linter {version} {RESET}✨")
     print(CYAN + " ".join(cmd) + RESET + "\n")
 
     try:
@@ -340,7 +349,7 @@ def main():
     args = sys.argv[1:]
     args = parse_args()
     env_files, env_vars = prepare_env(args)
-    run_linters(env_files, env_vars)
+    run_linters(env_files, env_vars, version=args.version)
     print_summary_table("super-linter-output/super-linter-summary.md")
 
 
