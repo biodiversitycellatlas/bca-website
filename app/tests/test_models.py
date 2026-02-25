@@ -212,4 +212,3 @@ class DBVersionModelTest(TestCase):
         with self.assertRaises(IntegrityError) as context:
             DBVersion.objects.create(description="Invalid")
         self.assertIn("require_version_or_commit", str(context.exception))
-
