@@ -408,9 +408,7 @@ class GeneModuleEigengeneFilter(FilterSet):
     sort_modules = SortAcrossMetacellFilter(
         field_name="module",
         order_field="eigengene_value",
-        label=(
-            "Sort gene modules based on highest eigengene value across metacells (default: <kbd>false</kbd>)."
-        ),
+        label=("Sort gene modules based on highest eigengene value across metacells (default: <kbd>false</kbd>)."),
     )
 
     class Meta:
