@@ -53,7 +53,7 @@ def get_table_size(conn, table):
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT pg_total_relation_size(%s);
+            SELECT pg_relation_size(%s);
         """,
             (f"public.{table}",),
         )
