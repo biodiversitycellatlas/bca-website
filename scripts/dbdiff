@@ -1,0 +1,2 @@
+#!/bin/sh
+podman compose exec web python ./scripts/utils/db-compare.py "$@"
