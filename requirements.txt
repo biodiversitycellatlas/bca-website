@@ -26,7 +26,7 @@ coverage==7.13.4
 django-debug-toolbar==6.2.0
 django-extensions==4.1
 djlint==1.36.4
-pandas==3.0.0
+pandas==3.0.1
 psutil==7.2.2
 psycopg2==2.9.11
 rds2py==0.8.1
