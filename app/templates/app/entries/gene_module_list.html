@@ -7,7 +7,26 @@
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Gene modules' paginator dataset %}
-    {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="entry" view="gene_module_entry" class="w-100 atlas-select home" optgroup_columns="true" %}
+	<style>
+    .select-width {
+        width: 400px;
+    }
+	</style>
+
+    <div class="row g-2 mb-4 align-items-start">
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-kiwi-bird fa-fw"></i>
+                    Filter dataset
+                </label>
+            </div>
+
+            <div class="btn-group select-width" role="group">            
+                {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="entry" view="gene_module_entry" placeholder="Search..." prefix="" class="w-100" optgroup_columns="true" %}
+            </div>
+        </div>
+    </div>
 {% endblock heading %}
 
 {% block header %}
