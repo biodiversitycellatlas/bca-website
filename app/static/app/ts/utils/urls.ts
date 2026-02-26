@@ -36,29 +36,6 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
     return url;
 }
 
-/**
- * Prepare URL string with path parameters.
- *
- * @param {string} url - Base URL.
- * @param {string|null} dataset - Dataset identifier to add as query param (if not null).
- * @param {string} view - the particular entry (gene lists, gene modules, protein domains, etc.)
- * @returns {string} The URL string with path parameters.
- */
-function prepareEntryUrlPaths(url, dataset, view) {
-    let result = new URL(url, window.location.origin).toString();
-    const view_placeholder = {
-        gene_module_entry: "GENE_MODULE_PLACEHOLDER/",
-    };
-
-    if (dataset) {
-        result = result.replace("DATASET_PLACEHOLDER/", dataset);
-    } else {
-        result = result.replace("DATASET_PLACEHOLDER/", "");
-    }
-    result = result.replace(view_placeholder[view], "");
-
-    return result;
-}
 
 /**
  * Generate URL for a given view, optionally including dataset, gene, and limit.
