@@ -400,21 +400,21 @@ class SortAcrossMetacellFilter(BooleanFilter):
         return queryset.order_by(ArrayPosition(self.sort_field, array=sorted_field))
 
 
-class GeneModuleEigenvalueFilter(FilterSet):
-    """Filter set for gene module eigenvalue."""
+class GeneModuleEigengeneFilter(FilterSet):
+    """Filter set for module eigengenes."""
 
     dataset = DatasetChoiceFilter(field_name="module")
     module = CharFilter(field_name="module__name", help_text="The module name to filter results.")
     sort_modules = SortAcrossMetacellFilter(
         field_name="module",
-        order_field="eigenvalue",
-        label=("Sort gene modules based on their highest eigenvalue across metacells (default: <kbd>false</kbd>)."),
+        order_field="eigengene_value",
+        label=("Sort gene modules based on their highest module eigengene value across metacells (default: <kbd>false</kbd>)."),
     )
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.GeneModuleEigenvalue
+        model = models.GeneModuleEigengene
         fields = ["dataset", "module"]
 
 

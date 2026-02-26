@@ -46,12 +46,12 @@ class Migration(migrations.Migration):
             name='membership_score',
         ),
         migrations.CreateModel(
-            name='GeneModuleEigenvalue',
+            name='GeneModuleEigengene',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('eigenvalue', models.DecimalField(blank=True, decimal_places=3, max_digits=4, null=True)),
+                ('eigengene_value', models.DecimalField(blank=True, decimal_places=3, max_digits=4, null=True)),
                 ('metacell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.metacell')),
-                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='eigenvalues', to='app.genemodule')),
+                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='eigengene_values', to='app.genemodule')),
             ],
             options={
                 'unique_together': {('module', 'metacell')},

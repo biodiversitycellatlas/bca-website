@@ -191,8 +191,8 @@ export function createExpressionHeatmap(id, data, clip = [null, null]) {
  * Render heatmap of gene expression for a given dataset.
  *
  * @param {string} id - DOM element ID where the heatmap will be embedded.
- * @param {Array} data - Array of objects with metacell and gene module eigenvalues.
- * @param {Array} clip - Array with min and max scores to clip eigenvalues.
+ * @param {Array} data - Array of objects with metacell and module eigengenes.
+ * @param {Array} clip - Array with min and max scores to clip module eigengene values.
  */
 export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
     const chart = createMetacellHeatmap(
@@ -200,8 +200,8 @@ export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
         data,
         "module",
         "Gene Modules",
-        "eigenvalue",
-        "Eigenvalues",
+        "eigengene_value",
+        "Eigengene values",
         "black",
         clip,
     );

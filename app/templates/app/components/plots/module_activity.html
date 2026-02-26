@@ -1,6 +1,6 @@
 {% comment %}
 
-Heatmap plot of module activity (eigenvalues)
+Heatmap plot of module activity (module eigengenes)
 
 Input:
 - id: prefix used in the identifiers of all elements
@@ -18,6 +18,6 @@ Input:
 </div>
 
 <script type="module">
-    import { loadEigenvalues } from "{% static 'app/js/atlas/module_activity.js' %}";
-    loadEigenvalues("{{id}}", "{{dataset.slug}}");
+    import { loadEigengenes } from "{% static 'app/js/atlas/module_activity.js' %}";
+    loadEigengenes("{{id}}", "{{dataset.slug}}");
 </script>

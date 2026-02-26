@@ -469,7 +469,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), 6)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
             # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
             ("module_000", "module_123", 0, 8, 0),
@@ -502,7 +502,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), 1)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
             # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
             ("module_123", "module_abc", 22, 6, 1, 2),
@@ -528,7 +528,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), 1)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
             # (module, module2, jaccard, unique_genes_module, unique_genes_module2, intersecting)
             ("module_123", "module_abc", 22, 6, 1, 2),
@@ -550,8 +550,8 @@ class GeneModuleSimilarity(GeneModulesData):
             self.assertEqual(m["intersecting_genes_list"], genes_both)
 
 
-class GeneModuleEigenvalues(GeneModulesData):
-    """Tests GeneModuleEigenvalues endpoint"""
+class GeneModuleEigengene(GeneModulesData):
+    """Tests GeneModuleEigengene endpoint"""
 
     @classmethod
     def setUpTestData(cls):
@@ -560,27 +560,27 @@ class GeneModuleEigenvalues(GeneModulesData):
         m2 = cls.dataset1.metacells.create(name="2", x=0.6, y=0.2)
         m3 = cls.dataset1.metacells.create(name="3", x=0.1, y=0.8)
 
-        cls.module1.eigenvalues.create(metacell=m1, eigenvalue=0.167)
-        cls.module1.eigenvalues.create(metacell=m2, eigenvalue=0.135)
-        cls.module1.eigenvalues.create(metacell=m3, eigenvalue=0.153)
+        cls.module1.eigengene_values.create(metacell=m1, eigengene_value=0.167)
+        cls.module1.eigengene_values.create(metacell=m2, eigengene_value=0.135)
+        cls.module1.eigengene_values.create(metacell=m3, eigengene_value=0.153)
 
-        cls.module2.eigenvalues.create(metacell=m1, eigenvalue=0.696)
-        cls.module2.eigenvalues.create(metacell=m2, eigenvalue=0.897)
-        cls.module2.eigenvalues.create(metacell=m3, eigenvalue=0.336)
+        cls.module2.eigengene_values.create(metacell=m1, eigengene_value=0.696)
+        cls.module2.eigengene_values.create(metacell=m2, eigengene_value=0.897)
+        cls.module2.eigengene_values.create(metacell=m3, eigengene_value=0.336)
 
-    def test_retrieve_module_eigenvalues(self):
+    def test_retrieve_module_eigengenes(self):
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_eigenvalues/?dataset={dataset}"
+        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}"
         response = self.client.get(url, format="json")
-        eigenvalues = response.data["results"]
+        eigengenes = response.data["results"]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(eigenvalues), 6)
+        self.assertEqual(len(eigengenes), 6)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
-            # (name, metacell, eigenvalue)
+            # (name, metacell, eigengene_values)
             ("module_xyz", "1", "0.167"),
             ("module_xyz", "2", "0.135"),
             ("module_xyz", "3", "0.153"),
@@ -589,52 +589,52 @@ class GeneModuleEigenvalues(GeneModulesData):
             ("module_abc", "3", "0.336"),
         ]
 
-        for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
+        for m, (module, metacell, value) in zip(eigengenes, expected):
             self.assertEqual(m["dataset"], dataset)
             self.assertEqual(m["module"], module)
             self.assertEqual(m["metacell_name"], metacell)
-            self.assertEqual(m["eigenvalue"], eigenvalue)
+            self.assertEqual(m["eigengene_value"], value)
 
-    def test_retrieve_single_module_eigenvalues(self):
+    def test_retrieve_single_module_eigengene(self):
         module = "module_xyz"
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_eigenvalues/?dataset={dataset}&module={module}"
+        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}&module={module}"
         response = self.client.get(url, format="json")
-        eigenvalues = response.data["results"]
+        eigengene_values = response.data["results"]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(eigenvalues), 3)
+        self.assertEqual(len(eigengene_values), 3)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
-            # (name, metacell, eigenvalue)
+            # (name, metacell, value)
             (module, "1", "0.167"),
             (module, "2", "0.135"),
             (module, "3", "0.153"),
         ]
 
-        for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
+        for m, (module, metacell, value) in zip(eigengene_values, expected):
             self.assertEqual(m["dataset"], dataset)
             self.assertEqual(m["module"], module)
             self.assertEqual(m["metacell_name"], metacell)
-            self.assertEqual(m["eigenvalue"], eigenvalue)
+            self.assertEqual(m["eigengene_value"], value)
 
-    def test_retrieve_sorted_module_eigenvalues(self):
+    def test_retrieve_sorted_module_eigengenes(self):
         module = "module_xyz"
         dataset = "species3-dataset3"
         sort_modules = "true"
 
-        url = f"/api/v1/gene_modules_eigenvalues/?dataset={dataset}&sort_modules={sort_modules}"
+        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}&sort_modules={sort_modules}"
         response = self.client.get(url, format="json")
-        eigenvalues = response.data["results"]
+        eigengenes = response.data["results"]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(eigenvalues), 6)
+        self.assertEqual(len(eigengenes), 6)
 
-        # Test module eigenvalues
+        # Test module eigengenes
         expected = [
-            # (name, metacell, eigenvalue)
+            # (name, metacell, value)
             ("module_abc", "1", "0.696"),
             ("module_abc", "2", "0.897"),
             ("module_abc", "3", "0.336"),
@@ -643,11 +643,11 @@ class GeneModuleEigenvalues(GeneModulesData):
             ("module_xyz", "3", "0.153"),
         ]
 
-        for m, (module, metacell, eigenvalue) in zip(eigenvalues, expected):
+        for m, (module, metacell, value) in zip(eigengenes, expected):
             self.assertEqual(m["dataset"], dataset)
             self.assertEqual(m["module"], module)
             self.assertEqual(m["metacell_name"], metacell)
-            self.assertEqual(m["eigenvalue"], eigenvalue)
+            self.assertEqual(m["eigengene_value"], value)
 
 
 class SAMapTests(APITestCase):

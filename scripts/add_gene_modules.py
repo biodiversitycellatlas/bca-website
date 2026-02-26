@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add gene modules, gene membership scores and metacell eigenvalues to database."""
+"""Add gene modules, gene membership scores and module eigengenes to database."""
 
 import csv
 import fnmatch
@@ -15,7 +15,7 @@ from app.models import (
     Metacell,
     GeneModule,
     GeneModuleMembership,
-    GeneModuleEigenvalue,
+    GeneModuleEigengene,
 )
 
 # Auto-flush print statements
@@ -70,7 +70,7 @@ def update_gene_modules(file_path, species, dataset):
             )
 
 
-def update_gene_module_eigenvalues(file_path, species, dataset):
+def update_module_eigengenes(file_path, species, dataset):
     """Update gene module eiganvalues in the database."""
     try:
         dataset = Dataset.objects.get(species__scientific_name=species, name=dataset)
@@ -91,22 +91,22 @@ def update_gene_module_eigenvalues(file_path, species, dataset):
         module, _ = GeneModule.objects.get_or_create(dataset=dataset, name=module_name)
         values = module_arrays[m_idx]
 
-        for c_idx, eigenvalue in enumerate(values):
+        for c_idx, eigengene_value in enumerate(values):
             metacell_name = metacells[c_idx]
             try:
                 metacell = Metacell.objects.get(dataset=dataset, name=metacell_name)
             except Metacell.DoesNotExist:
                 continue
 
-            GeneModuleEigenvalue.objects.update_or_create(
+            GeneModuleEigengene.objects.update_or_create(
                 module=module,
                 metacell=metacell,
-                defaults={"eigenvalue": float(eigenvalue)},
+                defaults={"eigengene_value": float(eigengene_value)},
             )
 
 
 def main():
-    """For every dataset, add gene modules, gene membership scores and metacell eigenvalues."""
+    """For every dataset, add gene modules, gene membership scores and module eigengenes."""
     start_time = time.time()
 
     datasets = Dataset.objects.all()
@@ -124,7 +124,7 @@ def main():
             species, dataset = parse_dataset(dataset)
 
             wgcna_file = None
-            eigenvalues_file = None
+            eigengenes_file = None
 
             for file in base_path.iterdir():
                 if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.csv"):
@@ -133,9 +133,9 @@ def main():
                     update_gene_modules(wgcna_file, species, dataset)
 
                 if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.me.rds"):
-                    print("Updating gene module eigenvalues...")
-                    eigenvalues_file = file
-                    update_gene_module_eigenvalues(eigenvalues_file, species, dataset)
+                    print("Updating module eigengenes...")
+                    eigengenes_file = file
+                    update_module_eigengenes(eigengenes_file, species, dataset)
 
     elapsed = time.time() - start_time
     print(f"Finished! Elapsed time: {elapsed:.2f} seconds")

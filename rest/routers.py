@@ -20,7 +20,7 @@ router.register(
     views.GeneModuleSimilarityViewSet,
     basename="genemodulesimilarity",
 )
-router.register("gene_modules_eigenvalues", views.GeneModuleEigenvalueViewSet)
+router.register("gene_modules_eigengenes", views.GeneModuleEigengeneViewSet)
 
 router.register("orthologs", views.OrthologViewSet)
 router.register("ortholog_counts", views.OrthologCountViewSet, basename="orthologcount")

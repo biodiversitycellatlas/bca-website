@@ -145,8 +145,8 @@ class GeneModuleMembershipTest(TestCase):
         self.assertEqual(str(self.membership), "black - BRCA1 - 0.341")
 
 
-class GeneModuleEigenvalueTest(TestCase):
-    """Test GeneModuleEigenvalue model."""
+class GeneModuleEigengeneTest(TestCase):
+    """Test GeneModuleEigengene model."""
 
     @classmethod
     def setUpTestData(cls):
@@ -155,10 +155,10 @@ class GeneModuleEigenvalueTest(TestCase):
 
         module = GeneModule.objects.create(dataset=adult, name="black")
         metacell = adult.metacells.create(name="1", x=0.34, y=0.23)
-        cls.eigenvalue = module.eigenvalues.create(metacell=metacell, eigenvalue=0.167)
+        cls.eigengene_value = module.eigengene_values.create(metacell=metacell, eigengene_value=0.167)
 
     def test_string_representation(self):
-        self.assertEqual(str(self.eigenvalue), "black - 1 - 0.167")
+        self.assertEqual(str(self.eigengene_value), "black - 1 - 0.167")
 
 
 class DBVersionModelTest(TestCase):

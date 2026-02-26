@@ -800,12 +800,12 @@ class GeneModuleMembership(models.Model):
         return f"{self.module} - {self.gene} - {self.membership_score}"
 
 
-class GeneModuleEigenvalue(models.Model):
-    """Gene module eigenvalue for each metacell."""
+class GeneModuleEigengene(models.Model):
+    """Module eigengene values for each metacell."""
 
-    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="eigenvalues")
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="eigengene_values")
     metacell = models.ForeignKey("Metacell", on_delete=models.CASCADE)
-    eigenvalue = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+    eigengene_value = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
 
     class Meta:
         """Meta options."""
@@ -814,7 +814,7 @@ class GeneModuleEigenvalue(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.module} - {self.metacell} - {self.eigenvalue}"
+        return f"{self.module} - {self.metacell} - {self.eigengene_value}"
 
 
 class GeneCorrelation(models.Model):

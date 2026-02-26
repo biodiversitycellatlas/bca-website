@@ -236,15 +236,15 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-@extend_schema(summary="List gene module eigenvalues", tags=["Gene module"])
-class GeneModuleEigenvalueViewSet(BaseReadOnlyModelViewSet):
-    """List eigenvalues in gene modules for each metacell."""
+@extend_schema(summary="List module eigengenes", tags=["Gene module"])
+class GeneModuleEigengeneViewSet(BaseReadOnlyModelViewSet):
+    """List module eigengene values for each metacell."""
 
-    queryset = models.GeneModuleEigenvalue.objects.prefetch_related(
+    queryset = models.GeneModuleEigengene.objects.prefetch_related(
         "module", "module__dataset", "metacell", "metacell__type"
     )
-    serializer_class = serializers.GeneModuleEigenvalueSerializer
-    filterset_class = filters.GeneModuleEigenvalueFilter
+    serializer_class = serializers.GeneModuleEigengeneSerializer
+    filterset_class = filters.GeneModuleEigengeneFilter
     lookup_field = "name"
 
 

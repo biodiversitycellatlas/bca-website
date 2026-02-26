@@ -7,14 +7,14 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { createActivityHeatmap } from "./plots/metacell_heatmap.ts";
 
 /**
- * Fetch eigenvalues for the given dataset and create a heatmap plot.
+ * Fetch module eigengenes for the given dataset and create a heatmap plot.
  *
  * @param {string} id - Container ID for the heatmap plot.
  * @param {string} dataset - Dataset slug to fetch expression data for.
  */
-export function loadEigenvalues(id, dataset) {
+export function loadEigengenes(id, dataset) {
     const url = getDataPortalUrl(
-        "rest:genemoduleeigenvalue-list",
+        "rest:genemoduleeigengene-list",
         dataset,
         null,
         0,
@@ -28,5 +28,5 @@ export function loadEigenvalues(id, dataset) {
         })
         .catch((error) => console.error("Error fetching data:", error));
 
-    appendDataMenu(id, url, "Eigenvalues");
+    appendDataMenu(id, url, "Eigengenes");
 }

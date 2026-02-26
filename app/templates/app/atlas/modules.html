@@ -29,9 +29,9 @@ Features:
     {% else %}
         {% include "../components/plots/module_stats.html" with id="modules" %}
 
-        <!-- Eigenvalues heatmap -->
-        {% h1 "Module activity" id="eigenvalues" %}
-        {% include "../components/plots/module_activity.html" with id="eigenvalues" %}
+        <!-- Module eigengenes heatmap -->
+        {% h1 "Module activity" id="eigengenes" %}
+        {% include "../components/plots/module_activity.html" with id="eigengenes" %}
 
         <!-- Gene module comparison -->
         {% h1 "Compare gene modules" id="compare" help="Click a value in the plot to compare genes between two modules." %}

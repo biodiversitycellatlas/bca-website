@@ -69,7 +69,7 @@ export function getDataPortalUrl(
             "rest:ortholog-list",
             "rest:genemodule-list",
             "rest:genemodulemembership-list",
-            "rest:genemoduleeigenvalue-list",
+            "rest:genemoduleeigengene-list",
             "rest:genemodulesimilarity-list",
         ].includes(view)
     ) {

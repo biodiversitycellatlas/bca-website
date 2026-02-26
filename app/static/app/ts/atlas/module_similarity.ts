@@ -22,7 +22,7 @@ export function createClickHandler(id, dataset, callback) {
 }
 
 /**
- * Fetch eigenvalues for the given dataset and create a heatmap plot.
+ * Fetch module eigengenes for the given dataset and create a heatmap plot.
  *
  * @param {string} id - Container ID for the heatmap plot.
  * @param {string} dataset - Dataset slug to fetch expression data for.

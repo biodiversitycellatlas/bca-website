@@ -379,8 +379,8 @@ class GeneModuleSimilaritySerializer(serializers.Serializer):
     )
 
 
-class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
-    """Gene module eigenvalue serializer."""
+class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
+    """Gene module eigengene serializer."""
 
     metacell_name = serializers.CharField(source="metacell.name", default=None)
     metacell_type = serializers.CharField(source="metacell.type.name", default=None)
@@ -388,19 +388,19 @@ class GeneModuleEigenvalueSerializer(serializers.ModelSerializer):
 
     module = serializers.CharField()
     dataset = serializers.CharField(source="module.dataset.slug")
-    eigenvalue = serializers.CharField()
+    eigengene_value = serializers.CharField()
 
     class Meta:
         """Meta configuration."""
 
-        model = models.GeneModuleEigenvalue
+        model = models.GeneModuleEigengene
         fields = [
             "dataset",
             "module",
             "metacell_name",
             "metacell_type",
             "metacell_color",
-            "eigenvalue",
+            "eigengene_value",
         ]
 
 
