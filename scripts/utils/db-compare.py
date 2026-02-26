@@ -44,7 +44,11 @@ def get_tables(conn):
 
 
 def get_table_size(conn, table):
-    """Get table size."""
+    """
+    Get table size based on relation_size.
+
+    Indexes are ignored: their size may differ because of internal overhead.
+    """
 
     with conn.cursor() as cur:
         cur.execute(
@@ -175,7 +179,11 @@ def print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=10_000):
 
     if len(rows1) != len(rows2):
         # Print if different row count in tables
-        print(f"        {YELLOW}Different row count: {len(rows1)} vs {len(rows2)} rows{RESET}")
+        if len(rows2) == check_nrows:
+            msg = f"{len(rows2)}+"
+        else:
+            msg = len(rows2)
+        print(f"        {YELLOW}Different row count: {len(rows1)} vs {msg} rows{RESET}")
         return
     elif len(rows1) == 0:
         # Skip if both datasets are empty
@@ -188,7 +196,7 @@ def print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=10_000):
     if not any_diff_col:
         diffs = check_row_diff(rows1, rows2, max_rows=1)
 
-        row_number = f"The last {len(rows1)}" if len(rows1) == check_nrows else f"{len(rows1)}"
+        row_number = f"The last {len(rows1)}" if len(rows1) == check_nrows else f"All {len(rows1)}"
 
         if diffs:
             print(f"        {CYAN}Differences in {row_number.lower()} rows -- example:{RESET}")
@@ -210,7 +218,7 @@ def compare_databases(db1, db2, nrows=10_000):
     print(f"{CYAN}🔍 Comparing list of tables...{RESET}\n")
     common_tables = print_table_list_diff(db1, db2, tables1, tables2)
 
-    print(f"\n{CYAN}📦 Comparing size of {len(common_tables)} common tables...{RESET}\n")
+    print(f"\n{CYAN}📦 Comparing relation size of {len(common_tables)} common tables (ignoring indexes)...{RESET}\n")
     for table in common_tables:
         print_table_size_diff(db1, db2, conn1, conn2, table, check_nrows=nrows)
 
