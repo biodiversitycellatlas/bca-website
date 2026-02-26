@@ -101,8 +101,6 @@ export function getDataPortalUrl(
         url = prepareUrlParams(url, dataset, [gene], limit, extraParams);
     } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
-    } else if (["gene_module_entry"].includes(view)) {
-        url = prepareEntryUrlPaths(url, dataset, view);
     } else {
         if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
         if (gene) url = url.replace("GENE_PLACEHOLDER", gene);

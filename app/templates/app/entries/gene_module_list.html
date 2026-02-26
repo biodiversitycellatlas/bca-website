@@ -9,7 +9,7 @@
     {% render_header_counter 'Gene modules' paginator dataset %}
     <style>
     .select-width {
-        width: 400px;
+        width: 600px;
     }
     </style>
 
@@ -23,7 +23,7 @@
             </div>
 
             <div class="btn-group select-width" role="group">
-                {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="entry" view="gene_module_entry" placeholder="Search..." prefix="" class="w-100" optgroup_columns="true" %}
+                {% include "app/components/select/dataset.html" with dataset=dataset.slug redirect="arg" view="gene_module_entry" placeholder="Search..." prefix="" class="w-100" optgroup_columns="true" %}
             </div>
         </div>
     </div>
