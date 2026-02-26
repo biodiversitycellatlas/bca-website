@@ -6,6 +6,7 @@ import fnmatch
 import functools
 import rds2py
 import numpy as np
+import time
 from pathlib import Path
 
 from scripts.utils import load_config
@@ -109,7 +110,6 @@ def main():
     """For every dataset, add gene modules, gene membership scores and module eigengenes."""
     start_time = time.time()
 
-    datasets = Dataset.objects.all()
     for key in config:
         i = config[key]
         if "data_subdir" in i.keys():
