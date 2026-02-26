@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Add gene modules, gene membership scores and metacell eigenvalues to database."""
 
 import csv
 import fnmatch
@@ -27,6 +28,7 @@ dir = "data/raw"
 
 
 def parse_dataset(s):
+    """Parse species and dataset name from string."""
     if "(" in s:
         species = s.split("(")[0].strip()
         dataset = s.split("(")[1].rstrip(")").strip()
@@ -37,6 +39,7 @@ def parse_dataset(s):
 
 
 def update_gene_modules(file_path, species, dataset):
+    """Update gene modules and their gene membership scores in the database."""
     try:
         dataset = Dataset.objects.get(species__scientific_name=species, name=dataset)
     except Dataset.DoesNotExist:
@@ -68,6 +71,7 @@ def update_gene_modules(file_path, species, dataset):
 
 
 def update_gene_module_eigenvalues(file_path, species, dataset):
+    """Update gene module eiganvalues in the database."""
     try:
         dataset = Dataset.objects.get(species__scientific_name=species, name=dataset)
     except Dataset.DoesNotExist:
@@ -101,30 +105,41 @@ def update_gene_module_eigenvalues(file_path, species, dataset):
             )
 
 
-datasets = Dataset.objects.all()
-for key in config:
-    i = config[key]
-    if "data_subdir" in i.keys():
-        subdir = i["data_subdir"]
-        dataset = i["species"]
+def main():
+    """For every dataset, add gene modules, gene membership scores and metacell eigenvalues."""
+    start_time = time.time()
 
-        base_path = Path(f"{dir}/{subdir}/wgcna")
-        if not base_path.exists():
-            continue
+    datasets = Dataset.objects.all()
+    for key in config:
+        i = config[key]
+        if "data_subdir" in i.keys():
+            subdir = i["data_subdir"]
+            dataset = i["species"]
 
-        print(f"===== {dataset} =====")
-        species, dataset = parse_dataset(dataset)
+            base_path = Path(f"{dir}/{subdir}/wgcna")
+            if not base_path.exists():
+                continue
 
-        wgcna_file = None
-        eigenvalues_file = None
+            print(f"===== {dataset} =====")
+            species, dataset = parse_dataset(dataset)
 
-        for file in base_path.iterdir():
-            if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.csv"):
-                print("Updating gene module membership...")
-                wgcna_file = file
-                update_gene_modules(wgcna_file, species, dataset)
+            wgcna_file = None
+            eigenvalues_file = None
 
-            if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.me.rds"):
-                print("Updating gene module eigenvalues...")
-                eigenvalues_file = file
-                update_gene_module_eigenvalues(eigenvalues_file, species, dataset)
+            for file in base_path.iterdir():
+                if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.csv"):
+                    print("Updating gene module membership...")
+                    wgcna_file = file
+                    update_gene_modules(wgcna_file, species, dataset)
+
+                if fnmatch.fnmatch(file.name.lower(), f"wgcna*{key.lower()}*.me.rds"):
+                    print("Updating gene module eigenvalues...")
+                    eigenvalues_file = file
+                    update_gene_module_eigenvalues(eigenvalues_file, species, dataset)
+
+    elapsed = time.time() - start_time
+    print(f"Finished! Elapsed time: {elapsed:.2f} seconds")
+
+
+if __name__ == "__main__":
+    main()
