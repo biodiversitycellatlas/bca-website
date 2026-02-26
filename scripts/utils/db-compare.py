@@ -89,8 +89,8 @@ def check_row_diff(rows1, rows2, max_rows=10):
 def print_exclusive_db_items(db, items, label, indent=1, symbol="✖ "):
     """Print items exclusive to a single database."""
 
-    indent_str = ' ' * 4 * indent
-    indent_str_2 = ' ' * 4 * (indent + 1)
+    indent_str = " " * 4 * indent
+    indent_str_2 = " " * 4 * (indent + 1)
 
     any_diff = False
     if len(items) > 0:
@@ -125,10 +125,9 @@ def print_column_diff(db1, db2, rows1, rows2):
     table1_cols = columns1 - columns2
     table2_cols = columns2 - columns1
 
-    are_cols_diff = (
-        print_exclusive_db_items(db1, table1_cols, "column", indent=2, symbol="") or
-        print_exclusive_db_items(db2, table2_cols, "column", indent=2, symbol="")
-    )
+    are_cols_diff = print_exclusive_db_items(
+        db1, table1_cols, "column", indent=2, symbol=""
+    ) or print_exclusive_db_items(db2, table2_cols, "column", indent=2, symbol="")
 
     return are_cols_diff
 
