@@ -372,7 +372,7 @@ class GeneModulesTests(GeneModulesData):
     """Tests GeneModules and GeneModuleMembership endpoint"""
 
     def test_retrieve_modules(self):
-        url = "/api/v1/gene_modules/?dataset=species3-dataset3"
+        url = "/api/v1/modules/?dataset=species3-dataset3"
         response = self.client.get(url, format="json")
         modules = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -394,7 +394,7 @@ class GeneModulesTests(GeneModulesData):
             self.assertSetEqual(set(m["gene_hubs"]), gene_hubs)
 
     def test_retrieve_ordered_modules(self):
-        url = "/api/v1/gene_modules/?dataset=species3-dataset3&order_by_gene_count=true"
+        url = "/api/v1/modules/?dataset=species3-dataset3&order_by_gene_count=true"
         response = self.client.get(url, format="json")
         modules = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -414,7 +414,7 @@ class GeneModulesTests(GeneModulesData):
             self.assertEqual(m["gene_count"], gene_count)
 
     def test_retrieve_empty_module(self):
-        url = "/api/v1/gene_modules/?dataset=species4-dataset4"
+        url = "/api/v1/modules/?dataset=species4-dataset4"
         response = self.client.get(url, format="json")
         modules = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -425,7 +425,7 @@ class GeneModulesTests(GeneModulesData):
         module = "module_123"
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_membership/?dataset={dataset}&module={module}&limit={limit}"
+        url = f"/api/v1/module_membership/?dataset={dataset}&module={module}&limit={limit}"
         response = self.client.get(url, format="json")
         membership = response.data["results"]
 
@@ -462,7 +462,7 @@ class GeneModuleSimilarity(GeneModulesData):
     def test_retrieve_module_similarity(self):
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_similarity/?dataset={dataset}"
+        url = f"/api/v1/module_similarity/?dataset={dataset}"
         response = self.client.get(url, format="json")
         sim = response.data
 
@@ -495,7 +495,7 @@ class GeneModuleSimilarity(GeneModulesData):
         dataset = "species3-dataset3"
         modules = "module_123,module_abc"
 
-        url = f"/api/v1/gene_modules_similarity/?dataset={dataset}&modules={modules}"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&modules={modules}"
         response = self.client.get(url, format="json")
         sim = response.data
 
@@ -521,7 +521,7 @@ class GeneModuleSimilarity(GeneModulesData):
         modules = "module_123,module_abc"
         list_genes = 1
 
-        url = f"/api/v1/gene_modules_similarity/?dataset={dataset}&modules={modules}&list_genes={list_genes}"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&modules={modules}&list_genes={list_genes}"
         response = self.client.get(url, format="json")
         sim = response.data
 
@@ -571,7 +571,7 @@ class GeneModuleEigengene(GeneModulesData):
     def test_retrieve_module_eigengenes(self):
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}"
+        url = f"/api/v1/module_eigengenes/?dataset={dataset}"
         response = self.client.get(url, format="json")
         eigengenes = response.data["results"]
 
@@ -599,7 +599,7 @@ class GeneModuleEigengene(GeneModulesData):
         module = "module_xyz"
         dataset = "species3-dataset3"
 
-        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}&module={module}"
+        url = f"/api/v1/module_eigengenes/?dataset={dataset}&module={module}"
         response = self.client.get(url, format="json")
         eigengene_values = response.data["results"]
 
@@ -625,7 +625,7 @@ class GeneModuleEigengene(GeneModulesData):
         dataset = "species3-dataset3"
         sort_modules = "true"
 
-        url = f"/api/v1/gene_modules_eigengenes/?dataset={dataset}&sort_modules={sort_modules}"
+        url = f"/api/v1/module_eigengenes/?dataset={dataset}&sort_modules={sort_modules}"
         response = self.client.get(url, format="json")
         eigengenes = response.data["results"]
 
