@@ -29,7 +29,7 @@ export function initDatasetSelect(
     query,
     redirect,
     optgroup_columns,
-    view="atlas",
+    view = "atlas",
 ) {
     const select = new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
