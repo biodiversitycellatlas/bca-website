@@ -86,32 +86,20 @@ def check_row_diff(rows1, rows2, max_rows=10):
     return diffs
 
 
-def get_indexes(conn, table):
-    """Get list of indexes for a table."""
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT indexname, indexdef
-            FROM pg_indexes
-            WHERE schemaname = 'public' AND tablename = %s;
-        """,
-            (table,),
-        )
-        return {row[0]: row[1] for row in cur.fetchall()}
+def print_exclusive_db_items(db, items, label, indent=1, symbol="✖ "):
+    """Print items exclusive to a single database."""
 
+    indent_str = ' ' * 4 * indent
+    indent_str_2 = ' ' * 4 * (indent + 1)
 
-def get_constraints(conn, table):
-    """Get list of constraints for a table."""
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT conname, contype, pg_get_constraintdef(oid)
-            FROM pg_constraint
-            WHERE conrelid = %s::regclass;
-        """,
-            (f"public.{table}",),
-        )
-        return {row[0]: row[2] for row in cur.fetchall()}
+    any_diff = False
+    if len(items) > 0:
+        label += "s" if len(items) != 1 else ""
+        print(f"{indent_str}{YELLOW}{symbol}{len(items)} {label} only in {db}:{RESET}")
+        for each in items:
+            print(f"{indent_str_2}{each}")
+        any_diff = True
+    return any_diff
 
 
 def print_table_list_diff(db1, db2, tables1, tables2):
@@ -123,15 +111,8 @@ def print_table_list_diff(db1, db2, tables1, tables2):
 
     print(f"    {GREEN}✔ {len(common_tables)} common tables{RESET}")
 
-    if len(table1_tables) > 0:
-        print(f"    {YELLOW}✖ {len(table1_tables)} table(s) only in {db1}:{RESET}")
-        for table in table1_tables:
-            print(f"        {table}")
-
-    if len(table2_tables) > 0:
-        print(f"    {YELLOW}✖ {len(table2_tables)} table(s) only in {db2}:{RESET}")
-        for table in table2_tables:
-            print(f"        {table}")
+    print_exclusive_db_items(db1, table1_tables, "table")
+    print_exclusive_db_items(db2, table2_tables, "table")
     return common_tables
 
 
@@ -141,21 +122,13 @@ def print_column_diff(db1, db2, rows1, rows2):
     columns1 = set(rows1[0].keys())
     columns2 = set(rows2[0].keys())
 
-    are_cols_diff = False
     table1_cols = columns1 - columns2
     table2_cols = columns2 - columns1
 
-    if len(table1_cols) > 0:
-        print(f"        {YELLOW}{len(table1_cols)} column(s) only in {db1}:{RESET}")
-        for table in table1_cols:
-            print(f"            {table}")
-            are_cols_diff = True
-
-    if len(table2_cols) > 0:
-        print(f"        {YELLOW}{len(table2_cols)} column(s) only in {db2}:{RESET}")
-        for table in table2_cols:
-            print(f"            {table}")
-            are_cols_diff = True
+    are_cols_diff = (
+        print_exclusive_db_items(db1, table1_cols, "column", indent=2, symbol="") or
+        print_exclusive_db_items(db2, table2_cols, "column", indent=2, symbol="")
+    )
 
     return are_cols_diff
 
@@ -226,7 +199,9 @@ def compare_databases(db1, db2, nrows=10_000):
     conn2.close()
 
 
-if __name__ == "__main__":
+def parse_args():
+    """Parse command-line arguments."""
+
     parser = argparse.ArgumentParser(
         description=f"{CYAN}Compare two PostgreSQL databases.{RESET}",
         epilog=f"{YELLOW}Example usage:{RESET}\n  {sys.argv[0]} local ssh-bca-staging --rows 100",
@@ -245,9 +220,12 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(2)
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+if __name__ == "__main__":
     try:
+        args = parse_args()
         compare_databases(args.source, args.target, nrows=args.rows)
     except Exception as e:
         print(f"{RED}✖ Error: {e}{RESET}")
