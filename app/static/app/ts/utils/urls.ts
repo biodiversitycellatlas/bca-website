@@ -36,7 +36,6 @@ function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
     return url;
 }
 
-
 /**
  * Generate URL for a given view, optionally including dataset, gene, and limit.
  *
