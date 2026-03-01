@@ -21,6 +21,9 @@ Prepare URLs to be used in JavaScript scripts
         atlas_gene: "{% url 'atlas_gene' 'DATASET_PLACEHOLDER' 'GENE_PLACEHOLDER' %}",
         atlas_markers: "{% url 'atlas_markers' 'DATASET_PLACEHOLDER' %}",
 
+        // Entry views
+        gene_module_entry: "{% url 'gene_module_entry' 'DATASET_PLACEHOLDER' 'GENE_MODULE_PLACEHOLDER' %}",
+
         // REST data
         "rest:dataset-list": "{% url 'rest:dataset-list' %}",
         "rest:dataset-detail": "{% url 'rest:dataset-detail' 'DATASET_PLACEHOLDER' %}",
@@ -32,6 +35,11 @@ Prepare URLs to be used in JavaScript scripts
         "rest:ortholog-list": "{% url 'rest:ortholog-list' %}",
         "rest:correlated-list": "{% url 'rest:correlated-list' %}",
         "rest:align-list": "{% url 'rest:align-list' %}",
+
+        "rest:genemodule-list": "{% url 'rest:genemodule-list' %}",
+        "rest:genemodulemembership-list": "{% url 'rest:genemodulemembership-list' %}",
+        "rest:genemoduleeigengene-list": "{% url 'rest:genemoduleeigengene-list' %}",
+        "rest:genemodulesimilarity-list": "{% url 'rest:genemodulesimilarity-list' %}",
 
         "rest:samap-list": "{% url 'rest:samap-list' %}",
         "rest:singlecell-list": "{% url 'rest:singlecell-list' %}",

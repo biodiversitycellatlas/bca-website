@@ -697,9 +697,9 @@ class Gene(DynamicSlugMixin):
         """Return absolute URL for this entry."""
         return reverse("gene_entry", args=[self.species.slug, self.name])
 
-    def get_html_link(self):
+    def get_html_link(self, url=None):
         """Return link to this entry formatted in HTML."""
-        url = self.get_absolute_url()
+        url = self.get_absolute_url() if url is None else url
         label = self.name
 
         html = f'<a class="text-break" href="{url}">{label}</a>'
@@ -719,9 +719,15 @@ class Gene(DynamicSlugMixin):
         return mark_safe(html)
 
     def get_domain_html_links(self):
-        """Return comma-separated domain links of a gene in HTML format."""
+        """Return comma-separated domain links for a gene in HTML format."""
         domains = self.domains.all()
         html = ", ".join(d.get_html_link() for d in domains)
+        return mark_safe(html)
+
+    def get_genelist_html_links(self):
+        """Return comma-separated gene list links for a gene in HTML format."""
+        lists = self.genelists.all()
+        html = ", ".join(e.get_html_link() for e in lists)
         return mark_safe(html)
 
     class Meta:
@@ -738,15 +744,9 @@ class Gene(DynamicSlugMixin):
 class GeneModule(models.Model):
     """Gene module model."""
 
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="modules")
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_modules")
     name = models.CharField(max_length=100)
-    membership_score = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
-
-    @property
-    def gene_modules(self):
-        """Return all gene modules for the same module."""
-        return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_modules")
+    genes = models.ManyToManyField("Gene", through="GeneModuleMembership")
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -760,15 +760,61 @@ class GeneModule(models.Model):
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
 
+    def get_gene_hubs(self, n=5):
+        """Return top gene hubs."""
+        return self.membership.order_by("-membership_score")[:n]
+
+    def get_top_transcription_factors(self, n=5):
+        """Return top transcription factors."""
+        tf_genes = self.membership.filter(
+            gene__species=self.dataset.species, gene__genelists__name="Transcription factors"
+        )
+        return tf_genes.order_by("-membership_score")[:n]
+
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "dataset"]
+        ordering = ["dataset", "name"]
         indexes = [models.Index(fields=["name"], name="app_genemodule_name_idx")]
 
     def __str__(self):
         """String representation."""
         return str(self.name)
+
+
+class GeneModuleMembership(models.Model):
+    """Gene module membership for each gene."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="membership")
+    gene = models.ForeignKey("Gene", on_delete=models.CASCADE, related_name="modules")
+    membership_score = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ("gene", "module")
+        ordering = ["module__dataset__order", "module__name"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.module} - {self.gene} - {self.membership_score}"
+
+
+class GeneModuleEigengene(models.Model):
+    """Module eigengene values for each metacell."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="eigengene_values")
+    metacell = models.ForeignKey("Metacell", on_delete=models.CASCADE)
+    eigengene_value = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ("module", "metacell")
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.module} - {self.metacell} - {self.eigengene_value}"
 
 
 class GeneCorrelation(models.Model):

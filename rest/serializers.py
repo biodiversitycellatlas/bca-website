@@ -306,6 +306,104 @@ class GeneListSerializer(serializers.ModelSerializer):
         fields = ["name", "description", "gene_count"]
 
 
+class GeneModuleSerializer(serializers.ModelSerializer):
+    """Gene module serializer."""
+
+    dataset = serializers.CharField(source="dataset.slug", help_text="Dataset.")
+    module = serializers.CharField(source="name", help_text="Name of gene module.")
+    gene_count = serializers.IntegerField(source="genes.count", help_text="Number of genes in gene module.")
+    gene_hubs = serializers.SlugRelatedField(
+        source="get_gene_hubs",
+        many=True,
+        slug_field="gene.name",
+        read_only=True,
+        help_text="Top gene hubs ordered by their membership score.",
+    )
+    top_tf = serializers.SlugRelatedField(
+        source="get_top_transcription_factors",
+        many=True,
+        slug_field="gene.name",
+        read_only=True,
+        help_text="Top Transcription Factors ordered by their membership score.",
+    )
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModule
+        fields = ["dataset", "module", "gene_count", "top_tf", "gene_hubs"]
+
+
+class GeneModuleMembershipSerializer(serializers.ModelSerializer):
+    """Gene module membership serializer."""
+
+    gene = serializers.CharField()
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    score = serializers.CharField(source="membership_score")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleMembership
+        fields = ["dataset", "module", "gene", "score"]
+
+
+class GeneModuleSimilaritySerializer(serializers.Serializer):
+    """Gene module similarity serializer."""
+
+    module = serializers.CharField(help_text="Gene module 1.")
+    module2 = serializers.CharField(help_text="Gene module 2.")
+
+    similarity = serializers.IntegerField(help_text="Jaccard similarity index ( intersection / union ) in percentage.")
+
+    unique_genes_module = serializers.IntegerField(help_text="Number of unique genes for the first module.")
+    unique_genes_module_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the first module.",
+        required=False,
+    )
+
+    unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes for the second module.")
+    unique_genes_module2_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of unique genes in the second module.",
+        required=False,
+    )
+
+    intersecting_genes = serializers.IntegerField(help_text="Number of intersecting genes between modules.")
+    intersecting_genes_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of intersecting genes.",
+        required=False,
+    )
+
+
+class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
+    """Gene module eigengene serializer."""
+
+    metacell_name = serializers.CharField(source="metacell.name", default=None)
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None)
+    metacell_color = serializers.CharField(source="metacell.type.color", default=None)
+
+    module = serializers.CharField()
+    dataset = serializers.CharField(source="module.dataset.slug")
+    eigengene_value = serializers.CharField()
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.GeneModuleEigengene
+        fields = [
+            "dataset",
+            "module",
+            "metacell_name",
+            "metacell_type",
+            "metacell_color",
+            "eigengene_value",
+        ]
+
+
 class BaseExpressionSerializer(serializers.ModelSerializer):
     """Base class to display gene expression for single cell and metacell serializers."""
 
@@ -454,7 +552,7 @@ class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
-    """Serializer for gene expression per metacell."""
+    """Serializer for gene expression for each metacell."""
 
     log2_fold_change = serializers.FloatField(required=False)
 
@@ -474,7 +572,7 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
 
 
 class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
-    """Serializer for gene expression per metacell (returned per dataset)."""
+    """Serializer for gene expression for each metacell (returned per dataset)."""
 
     dataset = serializers.CharField(source="dataset.slug")
 

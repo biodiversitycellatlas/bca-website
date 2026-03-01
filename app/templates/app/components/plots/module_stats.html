@@ -1,0 +1,61 @@
+{% comment %}
+
+Gene module size plot
+
+Input:
+- id
+- dataset
+
+{% endcomment %}
+
+<style>
+    #modules_table_container table.dataTable th,
+    #modules_table_container table.dataTable td {
+        padding-right: 15px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-sm-2 col-lg-1 text-center">
+        <p id="n_modules" class="h3 mb-0">
+            0
+        </p>
+        <p>
+            gene
+            modules
+        </p>
+    </div>
+    <div class="col-sm-10 col-lg-4">
+        {% include "../plot_container.html" with height="270px" %}
+    </div>
+    <div id="modules_table_container" class="col-sm-12 col-lg-7">
+        <table id="modules_table" class="display nowrap w-100">
+            <thead>
+                <tr>
+                    <th>
+                        Module
+                    </th>
+                    <th>
+                        Genes
+                    </th>
+                    <th colspan="5">
+                        Top 5 Transcription Factors (ordered by membership)
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<script type="module">
+    {% load static %}
+    import {
+        loadGeneModuleSize,
+        renderGeneModuleStatsPlots,
+        renderGeneModuleTable
+    } from "{% static 'app/js/atlas/stats.js' %}";
+
+    loadGeneModuleSize("{{dataset.slug}}");
+    renderGeneModuleStatsPlots("{{dataset.slug}}");
+    renderGeneModuleTable("modules_table", "{{dataset.slug}}");
+</script>

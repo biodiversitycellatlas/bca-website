@@ -40,6 +40,11 @@ urlpatterns += [
         views.AtlasGeneView.as_view(),
         name="atlas_gene",
     ),
+    path(
+        "atlas/<str:dataset>/modules/",
+        views.AtlasGeneModuleView.as_view(),
+        name="atlas_modules",
+    ),
     path("atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
     path(
         "atlas/<str:dataset>/markers/",
