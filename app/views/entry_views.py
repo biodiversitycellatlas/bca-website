@@ -165,8 +165,7 @@ class GeneModuleListView(FilteredListView):
     template_name = "app/entries/gene_module_list.html"
 
 
-
-class GeneModuleDetailView(FilteredListView):
+class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
 
     model = GeneModuleMembership
