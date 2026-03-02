@@ -29,6 +29,7 @@ export function initDatasetSelect(
     query,
     redirect,
     optgroup_columns,
+    view = "atlas",
 ) {
     const select = new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
@@ -36,7 +37,7 @@ export function initDatasetSelect(
             if (redirect == "arg") {
                 if (value !== "" && value !== dataset) {
                     // Avoid jumping if value is empty or matches current dataset
-                    window.location.href = getDataPortalUrl("atlas", value);
+                    window.location.href = getDataPortalUrl(view, value);
                 }
             } else if (redirect == "query") {
                 if (value !== "" && value !== query) {

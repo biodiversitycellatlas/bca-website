@@ -3,7 +3,7 @@
 from django.views.generic import DetailView, ListView, TemplateView
 
 from ..models import Dataset, Domain, Gene, GeneList, GeneModule, Ortholog, Species
-from ..utils import get_dataset, get_gene_list, get_species
+from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict
 
 
 class EntryView(TemplateView):
@@ -158,6 +158,11 @@ class GeneModuleListView(FilteredListView):
     def get_queryset(self):
         """Return unique queryset items based on dataset and gene module name."""
         return super().get_queryset().distinct("dataset", "name")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dataset_dict"] = get_dataset_dict()
+        return context
 
 
 class GeneModuleDetailView(FilteredListView):
