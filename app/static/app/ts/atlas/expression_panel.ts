@@ -6,7 +6,7 @@ import $ from "jquery";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { createExpressionHeatmap } from "./plots/expression_heatmap.ts";
+import { createExpressionHeatmap } from "./plots/metacell_heatmap.ts";
 import { getUserLists } from "./modals/list_editor.ts";
 
 /**
@@ -41,7 +41,7 @@ export function loadExpressionData(id, dataset, genes = null) {
     fetch(apiURL)
         .then((response) => response.json())
         .then((data) => {
-            createExpressionHeatmap(`#${id}-plot`, dataset, data);
+            createExpressionHeatmap(`#${id}-plot`, data);
         })
         .catch((error) => console.error("Error fetching data:", error));
 
@@ -124,24 +124,5 @@ export function initSubmitButtonToggler(id, select) {
     toggleSubmitButton(id, select);
     select.on("change", function () {
         toggleSubmitButton(id, select);
-    });
-}
-
-function updateMetacellSelectionLabel(count) {
-    const label = count > 0 ? "Selected metacells" : "All metacells";
-    $("#metacells_filter").text(label);
-}
-
-/**
- * Update label based on number of selected metacells.
- */
-export function initMetacellSelectionLabelUpdater(select) {
-    // Change select label
-    const count = select.items.length;
-    updateMetacellSelectionLabel(count);
-
-    select.on("change", function () {
-        const count = this.items.length;
-        updateMetacellSelectionLabel(count);
     });
 }

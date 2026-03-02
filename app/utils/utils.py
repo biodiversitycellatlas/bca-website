@@ -160,6 +160,13 @@ def get_cell_atlas_links(url_name, dataset=None):
             "tooltip": "",
         },
         {
+            "name": "Gene modules",
+            "icon": "puzzle-piece",
+            "url_names": ["atlas_modules"],
+            "url_view": "atlas_modules",
+            "tooltip": "",
+        },
+        {
             "name": "Gene and orthologs",
             "icon": "bezier-curve",
             "url_names": ["atlas_gene"],
