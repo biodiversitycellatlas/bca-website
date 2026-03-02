@@ -64,8 +64,8 @@ services:
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
             # Postgres files
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
+            - ./.pgpass:/postgres/.pgpass:ro
+            - ./.pg_service.conf:/postgres/.pg_service.conf:ro
         environment:
             - PGPASSFILE=/postgres/.pgpass
             - PGSERVICEFILE=/postgres/.pg_service.conf
@@ -82,11 +82,11 @@ services:
         volumes:
             - db_data:/var/lib/postgresql
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
+            - .pgpass:/var/lib/postgresql/.pgpass:ro
+            - .pg_service.conf:/var/lib/postgresql/.pg_service.conf:ro
         environment:
-            - PGPASSFILE=/postgres/.pgpass
-            - PGSERVICEFILE=/postgres/.pg_service.conf
+            - PGPASSFILE=/var/lib/postgresql/.pgpass
+            - PGSERVICEFILE=/var/lib/postgresql/.pg_service.conf
             - POSTGRES_DB=bca
             - POSTGRES_HOST=db
             - POSTGRES_HOST_AUTH_METHOD=trust
