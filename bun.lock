@@ -21,7 +21,7 @@
         "vega-embed": "7.1.0",
       },
       "devDependencies": {
-        "@happy-dom/global-registrator": "20.6.1",
+        "@happy-dom/global-registrator": "20.6.3",
         "@types/bun": "1.3.9",
       },
     },
@@ -31,7 +31,7 @@
 
     "@fortawesome/fontawesome-free": ["@fortawesome/fontawesome-free@7.2.0", "", {}, "sha512-3DguDv/oUE+7vjMeTSOjCSG+KeawgVQOHrKRnvUuqYh1mfArrh7s+s8hXW3e4RerBA1+Wh+hBqf8sJNpqNrBWg=="],
 
-    "@happy-dom/global-registrator": ["@happy-dom/global-registrator@20.6.1", "", { "dependencies": { "@types/node": ">=20.0.0", "happy-dom": "^20.6.1" } }, "sha512-4Aji+soqukwUxq2DgHmkjxdGnG7hEiJuprqDlW4Wu6AQ0t8U9ItlICcM5to89pulIsEGrF1CkCoNrufQTcqb8A=="],
+    "@happy-dom/global-registrator": ["@happy-dom/global-registrator@20.6.3", "", { "dependencies": { "@types/node": ">=20.0.0", "happy-dom": "^20.6.3" } }, "sha512-CRuv8C6HqTd8BBA8pezx/tDtZQPjlr6oXxn3GshXoC6flVUnrCfe1MscDsqQNsRtQGt4lXT6agRTvDIxj+dvwg=="],
 
     "@orchidjs/sifter": ["@orchidjs/sifter@1.1.0", "", { "dependencies": { "@orchidjs/unicode-variants": "^1.1.2" } }, "sha512-mYwHCfr736cIWWdhhSZvDbf90AKt2xyrJspKFC3qyIJG1LtrJeJunYEqCGG4Aq2ijENbc4WkOjszcvNaIAS/pQ=="],
 
