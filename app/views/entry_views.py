@@ -12,7 +12,7 @@ from ..models import (
     Ortholog,
     Species,
 )
-from ..utils import get_dataset, get_gene_list, get_species
+from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict
 
 
 class EntryView(TemplateView):
@@ -165,7 +165,8 @@ class GeneModuleListView(FilteredListView):
     template_name = "app/entries/gene_module_list.html"
 
 
-class GeneModuleDetailView(ListView):
+
+class GeneModuleDetailView(FilteredListView):
     """Display list of genes for a specific gene module and dataset."""
 
     model = GeneModuleMembership
@@ -184,6 +185,7 @@ class GeneModuleDetailView(ListView):
         context = super().get_context_data(**kwargs)
         context["module"] = self.kwargs.get("gene_module")
         context["dataset"] = get_dataset(self.kwargs.get("dataset"))
+        context["dataset_dict"] = get_dataset_dict()
         return context
 
 
