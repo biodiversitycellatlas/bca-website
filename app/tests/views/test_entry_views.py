@@ -139,17 +139,26 @@ class OrthogroupViewTests(DataTestCase):
         self.assertEqual(response.status_code, 200)
 
         # Check orthologs
-        orthologs = self.mouse.orthologs.first().orthologs.all()
-        self.assertContains(response, orthologs.first().get_html_link())
+        orthogroup = self.mouse.orthologs.first().orthogroup
+        self.assertContains(response, orthogroup.get_html_link())
         self.assertContains(response, "Number of orthologs")
-        self.assertContains(response, orthologs.count())
+        self.assertContains(response, orthogroup.orthologs.count())
 
     def test_orthogroup_detail(self):
         # List orthologs from a specific orthogroup
-        response = self.client.get(f"/entry/orthogroup/{self.mouse.orthologs.first().orthogroup}/")
+        orthogroup = self.mouse.orthologs.first().orthogroup
+        response = self.client.get(f"/entry/orthogroup/{orthogroup.name}/")
         self.assertEqual(response.status_code, 200)
 
-        orthologs = self.mouse.orthologs.first().orthologs.all()
+        # Check ortholog count
+        orthologs = orthogroup.orthologs.all()
+        count = orthologs.count()
+        self.assertEqual(count, 2)
+
+        # Check if number of orthologs matches number of rows + 1 (header row)
+        self.assertContains(response, "<tr", count=count + 1)
+
+        # Check if all orthologs are detailed as expected
         for o in orthologs:
             self.assertContains(response, o.gene.get_html_link())
             self.assertContains(response, o.gene.get_domain_html_links())

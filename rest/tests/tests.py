@@ -18,7 +18,7 @@ from app.models import (
     GeneList,
     Domain,
     GeneCorrelation,
-    Ortholog,
+    Orthogroup,
     MetacellLink,
     MetacellGeneExpression,
     SAMap,
@@ -303,10 +303,12 @@ class OrthologsTests(APITestCase):
         gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
         gene3 = Gene.objects.create(species=species1, name="gene3", description="gene3")
         gene4 = Gene.objects.create(species=species1, name="gene4", description="gene4")
-        Ortholog.objects.create(species=species1, gene=gene1, orthogroup="orthogroup1")
-        Ortholog.objects.create(species=species1, gene=gene2, orthogroup="orthogroup1")
-        Ortholog.objects.create(species=species1, gene=gene3, orthogroup="orthogroup1")
-        Ortholog.objects.create(species=species1, gene=gene4, orthogroup="orthogroup1")
+
+        og1 = Orthogroup.objects.create(name="orthogroup1")
+        species1.orthologs.create(orthogroup=og1, gene=gene1)
+        species1.orthologs.create(orthogroup=og1, gene=gene2)
+        species1.orthologs.create(orthogroup=og1, gene=gene3)
+        species1.orthologs.create(orthogroup=og1, gene=gene4)
 
     def test_retrieve(self):
         url = "/api/v1/orthologs/"
