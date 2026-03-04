@@ -184,15 +184,22 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
+    def combine(self, a, b):
+        if isinstance(a, Counter):
+            return a + b
+        return a | b
+
     def count(self, x):
         """If using Counter, sum the counts; otherwise, get length of element."""
-        return sum(x.values()) if isinstance(m1_genes, Counter) else len(x)
+        if isinstance(x, Counter):
+            return sum(x.values())
+        return len(x)
 
     def compute_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
         unique_m1 = m1_genes - m2_genes
         unique_m2 = m2_genes - m1_genes
         intersecting = m1_genes & m2_genes
-        union = m1_genes | m2_genes
+        union = self.combine(m1_genes, m2_genes)
 
         unique_m1_values = self.count(unique_m1)
         unique_m2_values = self.count(unique_m2)
