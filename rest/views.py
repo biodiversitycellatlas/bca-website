@@ -184,19 +184,20 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
+    def count(self, x):
+        """If using Counter, sum the counts; otherwise, get length of element."""
+        return sum(x.values()) if isinstance(m1_genes, Counter) else len(x)
+
     def compute_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
         unique_m1 = m1_genes - m2_genes
         unique_m2 = m2_genes - m1_genes
         intersecting = m1_genes & m2_genes
         union = m1_genes | m2_genes
 
-        # If using Counter, sum the counts; otherwise, get length of element
-        count = lambda x: sum(x.values()) if isinstance(m1_genes, Counter) else len(x)
-
-        unique_m1_values = count(unique_m1)
-        unique_m2_values = count(unique_m2)
-        intersecting_values = count(intersecting)
-        union_values = count(union)
+        unique_m1_values = self.count(unique_m1)
+        unique_m2_values = self.count(unique_m2)
+        intersecting_values = self.count(intersecting)
+        union_values = self.count(union)
 
         elem = {
             "module": m1,
@@ -259,7 +260,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         dataset_slug = self.request.query_params.get("dataset")
-        dataset2_slug = self.request.query_params.get("dataset2") or dataset_slug # if not defined, use dataset
+        dataset2_slug = self.request.query_params.get("dataset2") or dataset_slug  # if undefined, use dataset
         list_genes = self.request.query_params.get("list_genes") in ["true", "1", "True"]
 
         dataset = parse_species_dataset(dataset_slug)
