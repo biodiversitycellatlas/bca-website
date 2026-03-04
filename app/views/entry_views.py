@@ -175,6 +175,7 @@ class GeneModuleListView(FilteredListView):
         context["dataset_dict"] = get_dataset_dict()
         return context
 
+
 class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
 
