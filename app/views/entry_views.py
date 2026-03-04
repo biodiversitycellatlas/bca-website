@@ -9,6 +9,7 @@ from ..models import (
     GeneList,
     GeneModule,
     GeneModuleMembership,
+    Orthogroup,
     Ortholog,
     Species,
 )
@@ -191,14 +192,9 @@ class GeneModuleDetailView(ListView):
 class OrthogroupListView(ListView):
     """Display list of unique orthogroups."""
 
-    model = Ortholog
+    model = Orthogroup
     paginate_by = 20
     template_name = "app/entries/orthogroup_list.html"
-
-    def get_queryset(self):
-        """Return distinct orthogroups ordered by name."""
-        qs = super().get_queryset()
-        return qs.order_by("orthogroup").distinct("orthogroup")
 
 
 class OrthogroupDetailView(ListView):
@@ -209,10 +205,10 @@ class OrthogroupDetailView(ListView):
     template_name = "app/entries/orthogroup_detail.html"
 
     def get_queryset(self):
-        """Filter queryset by orthogroup."""
+        """Filter queryset by domain."""
         qs = super().get_queryset()
         orthogroup = self.kwargs.get("orthogroup")
-        return qs.filter(orthogroup=orthogroup)
+        return qs.filter(orthogroup__name=orthogroup)
 
     def get_context_data(self, **kwargs):
         """Add orthogroup to context."""
