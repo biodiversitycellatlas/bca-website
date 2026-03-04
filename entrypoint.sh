@@ -23,6 +23,7 @@ bun install
 bun run build
 
 # Collect all Django static files
+chmod go+rx static
 python manage.py collectstatic --noinput
 
 # Deploy Django app
