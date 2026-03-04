@@ -12,7 +12,7 @@ from ..models import (
     Ortholog,
     Species,
 )
-from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict
+from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict, get_species_dict
 
 
 class EntryView(TemplateView):
@@ -86,6 +86,12 @@ class GeneListView(FilteredListView):
     paginate_by = 20
     template_name = "app/entries/gene_list.html"
     filter_by = "species"
+
+    def get_context_data(self, **kwargs):
+        """Add species to context."""
+        context = super().get_context_data(**kwargs)
+        context["species_dict"] = get_species_dict()
+        return context
 
 
 class GeneDetailView(DetailView):

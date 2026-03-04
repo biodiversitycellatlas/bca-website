@@ -58,7 +58,8 @@ Input:
         let id = "{{id}}",
             species = "{{species.slug}}",
             redirect = "{{redirect}}",
-            optgroup_columns = "{{optgroup_columns}}" === "true";
-        initSpeciesSelect(id, species, redirect, optgroup_columns);
+            optgroup_columns = "{{optgroup_columns}}" === "true",
+            view = "{{view}}";
+        initSpeciesSelect(id, species, redirect, optgroup_columns, view);
     });
 </script>
