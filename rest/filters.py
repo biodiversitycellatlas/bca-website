@@ -349,19 +349,12 @@ class GeneModuleSimilarityFilter(FilterSet):
     """Filter set to compare similarity between gene modules."""
 
     dataset = DatasetChoiceFilter(required=True)
+    dataset2 = DatasetChoiceFilter(required=True)
     modules = CharFilter(method="filter_modules")
     list_genes = BooleanFilter(
         label="List intersecting and unique gene names between modules.",
         method=skip_param,
     )
-
-    def filter_modules(self, queryset, name, value):
-        """Filter queryset by module names."""
-
-        if value:
-            modules = value.split(",")
-            queryset = queryset.filter(Q(name__in=modules)).distinct()
-        return queryset
 
     class Meta:
         """Configuration for model and filterable fields."""

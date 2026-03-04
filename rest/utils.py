@@ -1,5 +1,6 @@
 from django.db import connection
 from drf_spectacular.utils import OpenApiParameter
+from collections import Counter
 
 from app.utils import get_dataset
 
@@ -44,3 +45,36 @@ def get_path_param(name, filter_cls):
         description=get_enum_description(f.label, dict(f.extra["choices"])),
         enum=[i for (i, _) in f.field.choices if i],
     )
+
+
+def group_by_key(queryset, key_field, value_field, container=set):
+    """
+    Groups values from a queryset by a specified key field.
+
+    Args:
+        queryset: Django queryset to extract values from.
+        key_field (str): Field name for the dictionary key.
+        value_field (str): Field name for the dictionary value.
+        container (type or callable): Type of container for values:
+            - list: preserves duplicates
+            - set: keeps unique values
+            - Counter: count occurrences
+            - None: stores single value
+
+    Returns:
+        dict: Dictionary mapping keys to value sets (or a single value if flat=True).
+    """
+    result = {}
+    for key, value in queryset.values_list(key_field, value_field):
+        if container is None:
+            result[key] = value
+        else:
+            obj = container() if callable(container) else container
+            c = result.setdefault(key, obj)
+            if isinstance(c, Counter):
+                c[value] += 1
+            elif isinstance(c, set):
+                c.add(value)
+            else:
+                c.append(value)
+    return result
