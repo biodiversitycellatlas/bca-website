@@ -495,9 +495,10 @@ class GeneModuleSimilarity(GeneModulesData):
 
     def test_retrieve_filtered_module_similarity(self):
         dataset = "species3-dataset3"
-        modules = "module_123,module_abc"
+        module = "module_123"
+        module2 = "module_abc"
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&modules={modules}"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&module={module}&module2={module2}"
         response = self.client.get(url, format="json")
         sim = response.data
 
@@ -520,10 +521,11 @@ class GeneModuleSimilarity(GeneModulesData):
 
     def test_retrieve_filtered_module_similarity_genes(self):
         dataset = "species3-dataset3"
-        modules = "module_123,module_abc"
+        module = "module_123"
+        module2 = "module_abc"
         list_genes = 1
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&modules={modules}&list_genes={list_genes}"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&module={module}&module2={module2}&list_genes={list_genes}"
         response = self.client.get(url, format="json")
         sim = response.data
 
@@ -536,9 +538,9 @@ class GeneModuleSimilarity(GeneModulesData):
             ("module_123", "module_abc", 22, 6, 1, 2),
         ]
 
-        genes_123 = ["gene5", "gene6", "gene7", "gene8", "gene9", "gene12"]
-        genes_abc = ["gene4"]
-        genes_both = ["gene10", "gene11"]
+        genes_123 = {"gene5", "gene6", "gene7", "gene8", "gene9", "gene12"}
+        genes_abc = {"gene4"}
+        genes_both = {"gene10", "gene11"}
 
         for m, (module, module2, jaccard, uniq, uniq2, intersecting) in zip(sim, expected):
             self.assertEqual(m["module"], module)
@@ -547,9 +549,9 @@ class GeneModuleSimilarity(GeneModulesData):
             self.assertEqual(m["unique_genes_module"], len(genes_123))
             self.assertEqual(m["unique_genes_module2"], len(genes_abc))
             self.assertEqual(m["intersecting_genes"], len(genes_both))
-            self.assertEqual(m["unique_genes_module_list"], genes_123)
-            self.assertEqual(m["unique_genes_module2_list"], genes_abc)
-            self.assertEqual(m["intersecting_genes_list"], genes_both)
+            self.assertSetEqual(set(m["unique_genes_module_list"]), genes_123)
+            self.assertSetEqual(set(m["unique_genes_module2_list"]), genes_abc)
+            self.assertSetEqual(set(m["intersecting_genes_list"]), genes_both)
 
 
 class GeneModuleEigengene(GeneModulesData):

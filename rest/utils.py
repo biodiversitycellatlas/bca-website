@@ -56,25 +56,27 @@ def group_by_key(queryset, key_field, value_field, container=set):
         key_field (str): Field name for the dictionary key.
         value_field (str): Field name for the dictionary value.
         container (type or callable): Type of container for values:
-            - list: preserves duplicates
+            - list: keep duplicate values
             - set: keeps unique values
             - Counter: count occurrences
-            - None: stores single value
 
     Returns:
         dict: Dictionary mapping keys to value sets (or a single value if flat=True).
     """
     result = {}
     for key, value in queryset.values_list(key_field, value_field):
-        if container is None:
-            result[key] = value
+        obj = container() if callable(container) else container
+        c = result.setdefault(key, obj)
+
+        # Store empty object if there are no values
+        if value is None:
+            continue
+
+        if isinstance(c, Counter):
+            c[value] += 1
+        elif isinstance(c, set):
+            c.add(value)
         else:
-            obj = container() if callable(container) else container
-            c = result.setdefault(key, obj)
-            if isinstance(c, Counter):
-                c[value] += 1
-            elif isinstance(c, set):
-                c.add(value)
-            else:
-                c.append(value)
+            c.append(value)
+
     return result
