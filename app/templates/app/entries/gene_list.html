@@ -12,21 +12,17 @@
         width: 600px;
     }
     </style>
-
     <div class="row g-2 mb-4 align-items-start">
-        <div class="col-auto">
-            <div class="d-flex justify-content-between align-items-center small">
-                <label class="col-form-label">
-                    <i class="fa fa-kiwi-bird fa-fw"></i>
-                    Filter species
-                </label>
-            </div>
-
-            <div class="btn-group select-width" role="group">
-                {% include "app/components/select/species.html" with redirect="arg" placeholder="Search..." species=species view="gene_entry" %}
-            </div>
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-kiwi-bird fa-fw"></i>
+                Filter species
+            </label>
         </div>
-    </div>
+        <div class="col-auto select-width">
+            {% include "app/components/select/species.html" with redirect="arg" placeholder="Search..." species=species view="gene_entry" %}
+        </div>
+     </div>
 {% endblock heading %}
 
 {% block header %}
