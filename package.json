@@ -8,7 +8,7 @@
         "@fontsource/rubik": "5.2.8",
         "@fortawesome/fontawesome-free": "7.2.0",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.4.24",
+        "autoprefixer": "10.4.27",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "2.3.7",
