@@ -170,6 +170,11 @@ class GeneModuleListView(FilteredListView):
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dataset_dict"] = get_dataset_dict()
+        return context
+
 
 class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
@@ -190,7 +195,6 @@ class GeneModuleDetailView(ListView):
         context = super().get_context_data(**kwargs)
         context["module"] = self.kwargs.get("gene_module")
         context["dataset"] = get_dataset(self.kwargs.get("dataset"))
-        context["dataset_dict"] = get_dataset_dict()
         return context
 
 
