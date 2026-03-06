@@ -3,8 +3,8 @@ import os
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
-from collections import Counter
 from itertools import combinations
+from itertools import chain
 
 from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
@@ -177,27 +177,16 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
-    def combine(self, a, b):
-        if isinstance(a, Counter):
-            return a + b
-        return a | b
-
-    def count(self, x):
-        """If using Counter, sum the counts; otherwise, get length of element."""
-        if isinstance(x, Counter):
-            return sum(x.values())
-        return len(x)
-
-    def compute_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
+    def compute_gene_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
         unique_m1 = m1_genes - m2_genes
         unique_m2 = m2_genes - m1_genes
         intersecting = m1_genes & m2_genes
-        union = self.combine(m1_genes, m2_genes)
+        union = m1_genes | m2_genes
 
-        unique_m1_values = self.count(unique_m1)
-        unique_m2_values = self.count(unique_m2)
-        intersecting_values = self.count(intersecting)
-        union_values = self.count(union)
+        unique_m1_values = len(unique_m1)
+        unique_m2_values = len(unique_m2)
+        intersecting_values = len(intersecting)
+        union_values = len(union)
 
         elem = {
             "module": m1,
@@ -233,7 +222,8 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
             elif module2 and module2 not in (m1, m2):
                 continue
 
-            overlaps.append(self.compute_overlap(m1, m1_genes, m2, m2_genes, list_genes))
+            o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
+            overlaps.append(o)
         return overlaps
 
     def compare_within_species(self, dataset, dataset2, module=None, module2=None, list_genes=False):
@@ -251,25 +241,71 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         overlaps = []
         for m1, m1_genes in d1_module_genes.items():
             for m2, m2_genes in d2_module_genes.items():
-                overlaps.append(self.compute_overlap(m1, m1_genes, m2, m2_genes, list_genes))
+                o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
+                overlaps.append(o)
         return overlaps
+
+    def compute_orthogroup_overlap(self, m1, m1_orthogroups, m2, m2_orthogroups, list_genes=False):
+        m1_ogs = m1_orthogroups.keys() - {None}
+        m2_ogs = m2_orthogroups.keys() - {None}
+
+        # Calculate intersecting orthogroups
+        unique_m1_ogs = m1_ogs - m2_ogs
+        unique_m2_ogs = m2_ogs - m1_ogs
+        intersecting_ogs = m1_ogs & m2_ogs
+
+        # Retrieve corresponding genes
+        unique_m1 = list(chain.from_iterable(m1_orthogroups.get(i, []) for i in unique_m1_ogs))
+        unique_m1 += list(m1_orthogroups.get(None, [])) # include genes without orthogroups
+        unique_m2 = list(chain.from_iterable(m2_orthogroups.get(i, []) for i in unique_m2_ogs))
+        unique_m2 += list(m2_orthogroups.get(None, [])) # include genes without orthogroups
+        intersecting = list(chain.from_iterable(m1_orthogroups.get(i, set()) | m2_orthogroups.get(i, set()) for i in intersecting_ogs))
+
+        # Count values
+        unique_m1_values = len(unique_m1)
+        unique_m2_values = len(unique_m2)
+        intersecting_values = len(intersecting)
+
+        # Assuming previous values are correct, this is quicker but equal to:
+        # sum([len(i) for i in m1_orthogroups.values()]) + sum([len(i) for i in m2_orthogroups.values()])
+        union_values = unique_m1_values + unique_m2_values + intersecting_values
+
+        elem = {
+            "module": m1,
+            "module2": m2,
+            "similarity": round(intersecting_values / union_values * 100) if union_values > 0 else 0,
+            "intersecting_genes": intersecting_values,
+            "unique_genes_module": unique_m1_values,
+            "unique_genes_module2": unique_m2_values,
+        }
+
+        if list_genes:
+            elem.update(
+                {
+                    "unique_genes_module_list": unique_m1,
+                    "unique_genes_module2_list": unique_m2,
+                    "intersecting_genes_list": intersecting,
+                }
+            )
+        return elem
 
     def compare_across_species(self, dataset, dataset2, module=None, module2=None, list_genes=False):
         """Compare pairwise orthogroup overlaps for each gene across species."""
         d1_modules = dataset.gene_modules.prefetch_related("genes")
         if module:
             d1_modules = d1_modules.filter(name=module)
-        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroup__name", container=Counter)
+        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroup", "genes__name")
 
         d2_modules = dataset2.gene_modules.prefetch_related("genes")
         if module2:
             d2_modules = d2_modules.filter(name=module2)
-        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroup__name", container=Counter)
+        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroup", "genes__name")
 
         overlaps = []
         for m1, m1_orthogroups in d1_module_orthogroups.items():
             for m2, m2_orthogroups in d2_module_orthogroups.items():
-                overlaps.append(self.compute_overlap(m1, m1_orthogroups, m2, m2_orthogroups, list_genes))
+                o = self.compute_orthogroup_overlap(m1, m1_orthogroups, m2, m2_orthogroups, list_genes)
+                overlaps.append(o)
         return overlaps
 
     def list(self, request, *args, **kwargs):
@@ -285,7 +321,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
 
         # Check if gene modules exist
         for m, d in ((module, dataset), (module2, dataset2)):
-            if m is not None and not dataset.gene_modules.filter(name=m).exists():
+            if m is not None and not d.gene_modules.filter(name=m).exists():
                 raise ValueError(f"Error: module {m} does not exist in {d}")
 
         # Different comparison methods of gene module similarity

@@ -352,10 +352,7 @@ class GeneModuleSimilarityFilter(FilterSet):
     dataset2 = DatasetChoiceFilter(required=True)
     module = CharFilter(method=skip_param, help_text="The reference module name to filter results.")
     module2 = CharFilter(method=skip_param, help_text="The compared module name to filter results.")
-    list_genes = BooleanFilter(
-        label="List intersecting and unique gene names between modules.",
-        method=skip_param,
-    )
+    list_genes = BooleanFilter(label="List intersecting and unique gene names between modules.", method=skip_param)
 
     class Meta:
         """Configuration for model and filterable fields."""

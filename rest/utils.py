@@ -47,7 +47,7 @@ def get_path_param(name, filter_cls):
     )
 
 
-def group_by_key(queryset, key_field, value_field, container=set):
+def group_by_key(queryset, key_field, value_field, extra_field=None):
     """
     Groups values from a queryset by a specified key field.
 
@@ -55,28 +55,26 @@ def group_by_key(queryset, key_field, value_field, container=set):
         queryset: Django queryset to extract values from.
         key_field (str): Field name for the dictionary key.
         value_field (str): Field name for the dictionary value.
-        container (type or callable): Type of container for values:
-            - list: keep duplicate values
-            - set: keeps unique values
-            - Counter: count occurrences
+        extra_field (str, optional): Field name for extra value to nest.
 
     Returns:
-        dict: Dictionary mapping keys to value sets (or a single value if flat=True).
+        dict: Dictionary mapping keys to values or dictionary of dictionaries if extra_field is used.
     """
     result = {}
-    for key, value in queryset.values_list(key_field, value_field):
-        obj = container() if callable(container) else container
-        c = result.setdefault(key, obj)
+    fields = [key_field, value_field] + ([extra_field] if extra_field else [])
 
-        # Store empty object if there are no values
-        if value is None:
-            continue
+    for values in queryset.values_list(*fields):
+        key, value = values[0], values[1]
 
-        if isinstance(c, Counter):
-            c[value] += 1
-        elif isinstance(c, set):
-            c.add(value)
+        if extra_field:
+            extra = values[2]
+            c = result.setdefault(key, {})
+            v = c.setdefault(value, set())
+            if extra is not None:  # avoid adding None to get empty set
+                v.add(extra)
         else:
-            c.append(value)
+            c = result.setdefault(key, set())
+            if value is not None:  # avoid adding None to get empty set
+                c.add(value)
 
     return result
