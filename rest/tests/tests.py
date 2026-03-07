@@ -618,17 +618,14 @@ class GeneModuleSimilarity(GeneModulesData):
             ("module_000", "module_green", 0, 7, 0),
             ("module_000", "module_orange", 0, 0, 0),
             ("module_000", "module_yellow", 0, 5, 0),
-
             ("module_123", "module_blue", 5, 2, 3),
             ("module_123", "module_green", 4, 3, 4),
             ("module_123", "module_orange", 8, 0, 0),
             ("module_123", "module_yellow", 4, 1, 4),
-
             ("module_abc", "module_blue", 2, 4, 1),
             ("module_abc", "module_green", 1, 5, 2),
             ("module_abc", "module_orange", 3, 0, 0),
             ("module_abc", "module_yellow", 3, 5, 0),
-
             ("module_xyz", "module_blue", 1, 3, 2),
             ("module_xyz", "module_green", 1, 5, 2),
             ("module_xyz", "module_orange", 3, 0, 0),
@@ -683,15 +680,12 @@ class GeneModuleSimilarity(GeneModulesData):
             ("module_blue", "modalpha", 4, 3, 3),
             ("module_blue", "modbeta", 5, 0, 0),
             ("module_blue", "modgamma", 4, 3, 3),
-
             ("module_green", "modalpha", 5, 2, 5),
             ("module_green", "modbeta", 7, 0, 0),
             ("module_green", "modgamma", 6, 3, 3),
-
             ("module_orange", "modalpha", 0, 5, 0),
             ("module_orange", "modbeta", 0, 0, 0),
             ("module_orange", "modgamma", 0, 5, 0),
-
             ("module_yellow", "modalpha", 4, 4, 2),
             ("module_yellow", "modbeta", 5, 0, 0),
             ("module_yellow", "modgamma", 5, 5, 0),

@@ -256,9 +256,9 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
 
         # Retrieve corresponding genes
         unique_m1 = list(chain.from_iterable(m1_orthogroups.get(i, []) for i in unique_m1_ogs))
-        unique_m1 += list(m1_orthogroups.get(None, [])) # include genes without orthogroups
+        unique_m1 += list(m1_orthogroups.get(None, []))  # include genes without orthogroups
         unique_m2 = list(chain.from_iterable(m2_orthogroups.get(i, []) for i in unique_m2_ogs))
-        unique_m2 += list(m2_orthogroups.get(None, [])) # include genes without orthogroups
+        unique_m2 += list(m2_orthogroups.get(None, []))  # include genes without orthogroups
         intersecting_m1 = list(chain.from_iterable(m1_orthogroups.get(i, []) for i in intersecting_ogs))
         intersecting_m2 = list(chain.from_iterable(m2_orthogroups.get(i, []) for i in intersecting_ogs))
         intersecting = intersecting_m1 + intersecting_m2

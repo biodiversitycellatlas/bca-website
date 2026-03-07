@@ -1,6 +1,5 @@
 from django.db import connection
 from drf_spectacular.utils import OpenApiParameter
-from collections import Counter
 
 from app.utils import get_dataset
 
