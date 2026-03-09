@@ -150,9 +150,10 @@ function createModuleGeneLists(id, dataset, data) {
  *
  * @param {string} id - Container ID for the heatmap plot.
  * @param {string} dataset - Dataset slug to fetch expression data for.
+ * @param {string} dataset - Dataset2 slug to fetch expression data for.
  * @param {Array} modules - Name of gene modules to compare.
  */
-export function loadModuleGeneLists(id, dataset, modules = null) {
+export function loadModuleGeneLists(id, dataset, dataset2 = null, modules = null) {
     if (!modules) return;
 
     const url = getDataPortalUrl(
@@ -160,7 +161,7 @@ export function loadModuleGeneLists(id, dataset, modules = null) {
         dataset,
         null,
         0,
-        { list_genes: 1, modules: modules.join(",") },
+        { list_genes: 1, module: modules[0], module2: modules[1], ...(dataset2 && { dataset2 }) },
     );
 
     fetch(url)

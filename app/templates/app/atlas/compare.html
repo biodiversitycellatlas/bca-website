@@ -14,4 +14,7 @@ Comparison page between multiple species
     {% load headings %}
     {% h1 "SAMap alignment scores" id="samap" %}
     {% include "../components/plots/samap_plot.html" with id="samap" %}
+
+    {% h1 "Compare gene modules" id="modules" help="Click a value in the plot to compare genes between two modules." %}
+    {% include "../components/plots/module_compare.html" with id="modules" %}
 {% endblock content %}
