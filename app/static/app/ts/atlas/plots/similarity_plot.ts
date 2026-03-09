@@ -1,5 +1,5 @@
 /**
- * Gene module similarity heatmap
+ * Gene module similarity heatmap.
  */
 
 import vegaEmbed from "vega-embed";
@@ -15,9 +15,11 @@ let lastClicked = null;
  *
  * @param {string} id - DOM element ID where the heatmap will be embedded.
  * @param {Array} data - Array of objects with similarity across gene modules.
+ * @param {string} dataset_label - Label to annotate the first dataset
+ * @param {string} dataset2_label - Label to annotate the second dataset
  * @param {function} clickListener - Function to call when user clicks in the plot.
  */
-export function createSimilarityPlot(id, data, clickListener = null) {
+export function createSimilarityPlot(id, data, dataset_label, dataset2_label = null, clickListener = null) {
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         description: "Bubble chart of module similarities",
@@ -27,7 +29,8 @@ export function createSimilarityPlot(id, data, clickListener = null) {
         transform: [
             {
                 joinaggregate: [
-                    { op: "distinct", field: "module", as: "count" },
+                    { op: "distinct", field: "module", as: "x_count" },
+                    { op: "distinct", field: "module2", as: "y_count" },
                 ],
             },
         ],
@@ -43,10 +46,12 @@ export function createSimilarityPlot(id, data, clickListener = null) {
                 axis: {
                     labels: true,
                     labelExpr:
-                        "data('data_0')[0].count < 30 ? datum.label : ''",
+                        "data('data_0')[0].x_count < 30 ? datum.label : ''",
                     ticks: false,
                     domain: false,
-                    title: "Gene Modules",
+                    title: {
+                        expr: `data('data_0')[0].x_count + ' Gene Modules: ${dataset_label}'`,
+                    },
                 },
                 sort: { field: "index" },
             },
@@ -56,10 +61,12 @@ export function createSimilarityPlot(id, data, clickListener = null) {
                 axis: {
                     labels: true,
                     labelExpr:
-                        "data('data_0')[0].count < 30 ? datum.label : ''",
+                        "data('data_0')[0].y_count < 30 ? datum.label : ''",
                     ticks: false,
                     domain: false,
-                    title: "Gene Modules",
+                    title: {
+                        expr: `data('data_0')[0].y_count + ' Gene Modules: ${dataset2_label}'`,
+                    },
                 },
                 sort: { field: "index" },
             },

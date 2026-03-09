@@ -25,10 +25,13 @@ export function createClickHandler(id, dataset, dataset2, callback) {
  * Fetch module eigengenes for the given dataset and create a heatmap plot.
  *
  * @param {string} id - Container ID for the heatmap plot.
- * @param {string} dataset - Dataset slug to fetch expression data for.
+ * @param {string} dataset - Slug for the first dataset.
+ * @param {string} label - Label for the first dataset
+ * @param {string} dataset2 - Slug for the second dataset.
+ * @param {string} label2 - Label for the second dataset.
  * @param {function} onClick - Function to call when user selects two modules in the plot.
  */
-export function loadModuleSimilarityPlot(id, dataset, dataset2 = null, onClick = null) {
+export function loadModuleSimilarityPlot(id, dataset, label, dataset2 = null, label2 = null, onClick = null) {
     // Add cross-dataset comparison if dataset2 is not null
     const url = getDataPortalUrl(
         "rest:genemodulesimilarity-list",
@@ -42,7 +45,7 @@ export function loadModuleSimilarityPlot(id, dataset, dataset2 = null, onClick =
         .then((response) => response.json())
         .then((data) => {
             const clickHandler = createClickHandler(id, dataset, dataset2, onClick);
-            createSimilarityPlot(`#${id}-plot`, data, clickHandler);
+            createSimilarityPlot(`#${id}-plot`, data, label, label2, clickHandler);
 
             // Automatically compare modules with highest similarity score
             const mostSimilar = data.reduce((a, b) =>
