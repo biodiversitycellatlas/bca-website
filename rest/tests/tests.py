@@ -654,7 +654,13 @@ class GeneModuleSimilarity(GeneModulesData):
         genes2 = {"gene2", "gene3", "gene5", "gene6", "gene10"}
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}&list_genes=1"
+        url = (
+            f"/api/v1/module_similarity/?dataset={dataset}"
+            f"&dataset2={dataset2}"
+            f"&module={ma.name}"
+            f"&module2={mb.name}"
+            f"&list_genes=1"
+        )
         response = self.client.get(url)
         sim = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -713,7 +719,13 @@ class GeneModuleSimilarity(GeneModulesData):
         genes2 = {"geneC", "geneD", "geneH", "geneI", "geneJ"}
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}&list_genes=1"
+        url = (
+            f"/api/v1/module_similarity/?dataset={dataset}"
+            f"&dataset2={dataset2}"
+            f"&module={ma.name}"
+            f"&module2={mb.name}"
+            f"&list_genes=1"
+        )
         response = self.client.get(url)
         sim = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
