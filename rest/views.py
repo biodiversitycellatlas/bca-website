@@ -3,8 +3,8 @@ import os
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
-from itertools import combinations
-from itertools import chain
+from itertools import combinations, chain
+from collections import defaultdict
 
 from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
@@ -316,9 +316,10 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         # Parse query parameters
         dataset_slug = self.request.query_params.get("dataset")
         dataset2_slug = self.request.query_params.get("dataset2") or dataset_slug  # if undefined, use dataset
-        list_genes = self.request.query_params.get("list_genes") in ["true", "1", "True"]
         module = self.request.query_params.get("module")
         module2 = self.request.query_params.get("module2")
+        list_genes = self.request.query_params.get("list_genes") in ["true", "1", "True"]
+        sort_modules = self.request.query_params.get("sort_modules") in ["true", "1", "True"]
 
         dataset = parse_species_dataset(dataset_slug)
         dataset2 = parse_species_dataset(dataset2_slug)
@@ -335,6 +336,10 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
             overlaps = self.compare_within_species(dataset, dataset2, module, module2, list_genes)
         else:
             overlaps = self.compare_across_species(dataset, dataset2, module, module2, list_genes)
+
+        # Sort modules based on highest similarity score
+        if sort_modules:
+            overlaps = sorted(overlaps, key=lambda x: x['similarity'], reverse=True)
 
         serializer = self.get_serializer(overlaps, many=True)
         return Response(serializer.data)

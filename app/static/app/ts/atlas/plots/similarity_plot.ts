@@ -1,5 +1,5 @@
 /**
- * Tree of Life visualization
+ * Gene module similarity heatmap
  */
 
 import vegaEmbed from "vega-embed";
@@ -48,6 +48,7 @@ export function createSimilarityPlot(id, data, clickListener = null) {
                     domain: false,
                     title: "Gene Modules",
                 },
+                sort: { field: "index" },
             },
             y: {
                 field: "module2",
@@ -60,6 +61,7 @@ export function createSimilarityPlot(id, data, clickListener = null) {
                     domain: false,
                     title: "Gene Modules",
                 },
+                sort: { field: "index" },
             },
             size: {
                 field: "similarity",
