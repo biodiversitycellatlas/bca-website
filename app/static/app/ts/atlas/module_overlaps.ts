@@ -11,17 +11,22 @@ function createModuleHeader(
     modules,
     count,
     collapseId = null,
+    textEnd = false,
     collapseN = 10,
 ) {
     const template = document.getElementById(`${id}-module-header-template`);
     const clone = template.content.cloneNode(true);
 
-    const name = modules.length > 1 ? "Intersecting" : modules[0];
-    clone.querySelector(".module-name").textContent = name;
+    const name = modules.length > 1 ? "Shared" : modules[0];
+    const moduleName = clone.querySelector(".module-name");
+    moduleName.textContent = name;
+    if (textEnd) moduleName.classList.add("text-end");
 
     let label = modules.length > 1 ? "shared" : "unique";
     label = `${count} ${label} gene` + (count == 1 ? "" : "s");
-    clone.querySelector(".gene-count").textContent = label;
+    const geneCount = clone.querySelector(".gene-count")
+    geneCount.textContent = label;
+    if (textEnd) geneCount.classList.add("text-end");
 
     if (collapseId) {
         const showBtn = clone.querySelector(".show-genes-btn");
@@ -40,10 +45,11 @@ function createModuleHeader(
     return clone;
 }
 
-function createGeneList(id, dataset, genes, collapseId = null, collapseN = 10) {
+function createGeneList(id, dataset, genes, collapseId = null, textEnd = false, collapseN = 10) {
     const template = document.getElementById(`${id}-module-genes-template`);
     const clone = template.content.cloneNode(true);
     const ul = clone.querySelector(".gene-list");
+    if (textEnd) ul.classList.add("text-end");
 
     genes.forEach((gene, index) => {
         const li = document.createElement("li");
@@ -74,6 +80,7 @@ function populateModuleGeneList(
     headerEl,
     geneListEl,
     collapseId,
+    textEnd = false,
     collapseN = 10,
 ) {
     const header = createModuleHeader(
@@ -81,9 +88,10 @@ function populateModuleGeneList(
         modules,
         genes.length,
         collapseId,
+        textEnd,
         collapseN,
     );
-    const geneList = createGeneList(id, dataset, genes, collapseId, collapseN);
+    const geneList = createGeneList(id, dataset, genes, collapseId, textEnd, collapseN);
 
     headerEl.appendChild(header);
     geneListEl.appendChild(geneList);
@@ -132,6 +140,7 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
         headerEl,
         geneListEl,
         "collapseIntersectingModule2",
+        true,
     );
     populateModuleGeneList(
         id,
@@ -141,6 +150,7 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
         headerEl,
         geneListEl,
         "collapseModule2",
+        true,
     );
 
     // Style header element to be sticky for long genes list
@@ -148,7 +158,7 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
     headerEl.style.top = "100px";
     headerEl.style.backgroundColor = "var(--subnavbar-bg-color)";
     headerEl.style.backdropFilter = "var(--subnavbar-blur)";
-    headerEl.style.zIndex = "1000";
+    headerEl.style.zIndex = "999";
 
     // Append horizontal line to header element
     const hr = document.createElement("hr");
