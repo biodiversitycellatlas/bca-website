@@ -22,6 +22,7 @@ import { getDataPortalUrl } from "../utils/urls.ts";
  *   "arg"   : redirect to dataset page via atlas URL.
  *   "query" : update `dataset` query parameter in current URL.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
+ * @param {string} anchor - Anchor to add to URL.
  */
 export function initDatasetSelect(
     id,
@@ -29,22 +30,29 @@ export function initDatasetSelect(
     query,
     redirect,
     optgroup_columns,
+    anchor = "",
 ) {
+    if (anchor && !anchor.startsWith("#")) anchor = "#" + anchor;
+
     const select = new TomSelect(`#dataset-select-${id}`, {
         onChange: function (value) {
-            // Jump to dataset page upon selection
-            if (redirect == "arg") {
-                if (value !== "" && value !== dataset) {
-                    // Avoid jumping if value is empty or matches current dataset
-                    window.location.href = getDataPortalUrl("atlas", value);
-                }
-            } else if (redirect == "query") {
-                if (value !== "" && value !== query) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("dataset", value);
-                    window.location.href = url;
-                }
+            // Avoid redirect if value is empty
+            if (!value) return;
+
+            // Redirect to dataset unless it matches current dataset/query
+            let url;
+            if (redirect == "arg" && value !== dataset) {
+                url = getDataPortalUrl("atlas", value);
+                url.hash = anchor || url.hash;
+                window.location.href = url;
+            } else if (redirect == "query" && value !== query) {
+                url = new URL(window.location.href);
+                url.searchParams.set("dataset", value);
             }
+
+            if (!url) return;
+            url.hash = anchor || url.hash;
+            window.location.href = url;
         },
         onDropdownOpen: function () {
             this.clear();
