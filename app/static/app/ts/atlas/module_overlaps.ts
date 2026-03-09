@@ -103,8 +103,8 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
         module2 = data.module2,
         module2_genes = data.unique_genes_module2_list,
         intersecting_genes = data.intersecting_genes_list,
-        intersecting_module_genes = data.intersecting_genes_module_list,
-        intersecting_module2_genes = data.intersecting_genes_module2_list;
+        intersecting_module_genes = data.intersecting_genes_module_list || intersecting_genes,
+        intersecting_module2_genes = data.intersecting_genes_module2_list || intersecting_genes;
 
     const headerEl = document.getElementById(`${id}-module-header`);
     const geneListEl = document.getElementById(`${id}-module-genes`);
