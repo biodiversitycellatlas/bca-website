@@ -19,7 +19,7 @@ function createModuleHeader(
     const name = modules.length > 1 ? "Intersecting" : modules[0];
     clone.querySelector(".module-name").textContent = name;
 
-    let label = modules.length > 1 ? "intersecting" : "unique";
+    let label = modules.length > 1 ? "shared" : "unique";
     label = `${count} ${label} gene` + (count == 1 ? "" : "s");
     clone.querySelector(".gene-count").textContent = label;
 
@@ -89,12 +89,14 @@ function populateModuleGeneList(
     geneListEl.appendChild(geneList);
 }
 
-function createModuleGeneLists(id, dataset, data) {
+function createModuleGeneLists(id, dataset, dataset2, data) {
     const module = data.module,
         module_genes = data.unique_genes_module_list,
         module2 = data.module2,
         module2_genes = data.unique_genes_module2_list,
-        intersecting_genes = data.intersecting_genes_list;
+        intersecting_genes = data.intersecting_genes_list,
+        intersecting_module_genes = data.intersecting_genes_module_list,
+        intersecting_module2_genes = data.intersecting_genes_module2_list;
 
     const headerEl = document.getElementById(`${id}-module-header`);
     const geneListEl = document.getElementById(`${id}-module-genes`);
@@ -117,14 +119,23 @@ function createModuleGeneLists(id, dataset, data) {
         id,
         dataset,
         [module, module2],
-        intersecting_genes,
+        intersecting_module_genes,
         headerEl,
         geneListEl,
-        "collapseIntersecting",
+        "collapseIntersectingModule",
     );
     populateModuleGeneList(
         id,
-        dataset,
+        dataset2,
+        [module, module2],
+        intersecting_module2_genes,
+        headerEl,
+        geneListEl,
+        "collapseIntersectingModule2",
+    );
+    populateModuleGeneList(
+        id,
+        dataset2,
         [module2],
         module2_genes,
         headerEl,
@@ -167,7 +178,7 @@ export function loadModuleGeneLists(id, dataset, dataset2 = null, modules = null
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            createModuleGeneLists(id, dataset, data[0]);
+            createModuleGeneLists(id, dataset, dataset2, data[0]);
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));

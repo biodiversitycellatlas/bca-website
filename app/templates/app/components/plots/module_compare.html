@@ -44,7 +44,7 @@ Input:
 
 <!-- Template for module header -->
 <template id="{{ id }}-module-header-template">
-    <div class="col-4">
+    <div class="col-3">
         <p class="p-0 m-0 module-name">
             Module
         </p>
@@ -58,13 +58,19 @@ Input:
                 <a class="btn btn-outline-primary btn-xs show-genes-btn"
                    data-bs-toggle="collapse"
                    href="#">
-                    <i class="fa fa-eye"></i> Show all genes
+                    <i class="fa fa-eye"></i>
+                    <span class="d-none d-xl-inline">Show all genes</span>
+                    <span class="d-inline d-xl-none">Show all</span>
                 </a>
                 <a class="btn btn-outline-primary btn-xs gene-list-btn" href="#">
-                    <i class="fa fa-list"></i> Create gene list
+                    <i class="fa fa-list"></i>
+                    <span class="d-none d-xl-inline">Create gene list</span>
+                    <span class="d-inline d-xl-none">Create list</span>
                 </a>
                 <a class="btn btn-outline-primary btn-xs plot-expression-btn" href="#">
-                    <i class="fa fa-solar-panel"></i> Plot expression
+                    <i class="fa fa-solar-panel"></i>
+                    <span class="d-none d-xl-inline">Plot expression</span>
+                    <span class="d-inline d-xl-none">Plot</span>
                 </a>
             </li>
         </ul>
@@ -73,7 +79,7 @@ Input:
 
 <!-- Template for gene list -->
 <template id="{{ id }}-module-genes-template">
-    <div class="col-4">
+    <div class="col-3">
         <ul class="list-unstyled gene-list">
             <!-- List of genes is inserted here -->
         </ul>
