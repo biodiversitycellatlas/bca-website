@@ -177,7 +177,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
-    def compute_gene_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
+    def compute_gene_overlap(self, dataset, m1, m1_genes, m2, m2_genes, list_genes=False):
         unique_m1 = m1_genes - m2_genes
         unique_m2 = m2_genes - m1_genes
         intersecting = m1_genes & m2_genes
@@ -189,7 +189,9 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         union_values = len(union)
 
         elem = {
+            "dataset": dataset,
             "module": m1,
+            "dataset2": dataset,
             "module2": m2,
             "similarity": round(intersecting_values / union_values * 100) if union_values > 0 else 0,
             "intersecting_genes": intersecting_values,
@@ -222,7 +224,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
             elif module2 and module2 not in (m1, m2):
                 continue
 
-            o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
+            o = self.compute_gene_overlap(dataset, m1, m1_genes, m2, m2_genes, list_genes)
             overlaps.append(o)
         return overlaps
 
@@ -241,11 +243,11 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         overlaps = []
         for m1, m1_genes in d1_module_genes.items():
             for m2, m2_genes in d2_module_genes.items():
-                o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
+                o = self.compute_gene_overlap(dataset, m1, m1_genes, m2, m2_genes, list_genes)
                 overlaps.append(o)
         return overlaps
 
-    def compute_orthogroup_overlap(self, m1, m1_orthogroups, m2, m2_orthogroups, list_genes=False):
+    def compute_orthogroup_overlap(self, d1, m1, m1_orthogroups, d2, m2, m2_orthogroups, list_genes=False):
         m1_ogs = m1_orthogroups.keys() - {None}
         m2_ogs = m2_orthogroups.keys() - {None}
 
@@ -273,7 +275,9 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         union_values = unique_m1_values + unique_m2_values + intersecting_values
 
         elem = {
+            "dataset": d1,
             "module": m1,
+            "dataset2": d2,
             "module2": m2,
             "similarity": round(intersecting_values / union_values * 100) if union_values > 0 else 0,
             "intersecting_genes": intersecting_values,
@@ -308,7 +312,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         overlaps = []
         for m1, m1_orthogroups in d1_module_orthogroups.items():
             for m2, m2_orthogroups in d2_module_orthogroups.items():
-                o = self.compute_orthogroup_overlap(m1, m1_orthogroups, m2, m2_orthogroups, list_genes)
+                o = self.compute_orthogroup_overlap(dataset, m1, m1_orthogroups, dataset2, m2, m2_orthogroups, list_genes)
                 overlaps.append(o)
         return overlaps
 

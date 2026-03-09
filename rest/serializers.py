@@ -352,7 +352,9 @@ class GeneModuleMembershipSerializer(serializers.ModelSerializer):
 class GeneModuleSimilaritySerializer(serializers.Serializer):
     """Gene module similarity serializer."""
 
+    dataset = serializers.CharField(help_text="Dataset 1.")
     module = serializers.CharField(help_text="Gene module 1.")
+    dataset2 = serializers.CharField(help_text="Dataset 2.")
     module2 = serializers.CharField(help_text="Gene module 2.")
 
     similarity = serializers.IntegerField(help_text="Jaccard similarity index ( intersection / union ) in percentage.")
