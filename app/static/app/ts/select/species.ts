@@ -3,6 +3,7 @@
  */
 
 import TomSelect from "tom-select";
+import { getDataPortalUrl } from "../utils/urls.ts";
 
 /**
  * Render a dropdown option for a species.
@@ -83,15 +84,32 @@ function renderItem(item, escape) {
  * @param {string} query - Current query parameter value for dataset (used when `redirect` is `"query"`).
  * @param {boolean} redirect - Redirect to selected species or not.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
+ * @param {view} view - (Entry) View calling the component
  */
-export function initSpeciesSelect(id, species, redirect, optgroup_columns) {
+export function initSpeciesSelect(
+    id,
+    species,
+    redirect,
+    optgroup_columns,
+    view,
+) {
     const select = new TomSelect(`#species-select-${id}`, {
         onChange: function (value) {
             // Jump to species page upon selection
-            if (redirect && value !== "" && value !== species) {
+            if (redirect == "query" && value !== "" && value !== species) {
                 const url = new URL(window.location.href);
                 url.searchParams.set("species", value);
                 window.location.href = url;
+            }
+            if (redirect == "arg" && value !== "" && value !== species) {
+                const extra = { species: value };
+                window.location.href = getDataPortalUrl(
+                    view,
+                    null,
+                    null,
+                    null,
+                    extra,
+                );
             }
         },
         onDropdownOpen: function () {

@@ -22,6 +22,7 @@ import { getDataPortalUrl } from "../utils/urls.ts";
  *   "arg"   : redirect to dataset page via atlas URL.
  *   "query" : update `dataset` query parameter in current URL.
  * @param {boolean} optgroup_columns - Enable optgroup columns layout plugin if true.
+ * @param {string} view - View to redirect when redirect="arg".
  * @param {string} anchor - Anchor to add to URL.
  */
 export function initDatasetSelect(
@@ -30,6 +31,7 @@ export function initDatasetSelect(
     query,
     redirect,
     optgroup_columns,
+    view = "atlas",
     anchor = "",
 ) {
     if (anchor && !anchor.startsWith("#")) anchor = "#" + anchor;
@@ -42,7 +44,7 @@ export function initDatasetSelect(
             // Redirect to dataset unless it matches current dataset/query
             let url;
             if (redirect == "arg" && value !== dataset) {
-                url = getDataPortalUrl("atlas", value);
+                url = getDataPortalUrl(view, value);
             } else if (redirect == "query" && value !== query) {
                 url = new URL(window.location.href);
                 url.searchParams.set("dataset", value);

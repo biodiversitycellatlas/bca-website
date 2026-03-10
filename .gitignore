@@ -5,7 +5,8 @@
 __pycache__
 db.sqlite3
 media
-**/data
+data/
+!scripts/data/
 app/static/app/js
 app/static/app/images/logos/BCA/PNG/*
 app/static/app/images/logos/BCA/EPS/*
