@@ -205,7 +205,7 @@ class OrthogroupDetailView(ListView):
     template_name = "app/entries/orthogroup_detail.html"
 
     def get_queryset(self):
-        """Filter queryset by domain."""
+        """Filter queryset by orthogroup."""
         qs = super().get_queryset()
         orthogroup = self.kwargs.get("orthogroup")
         return qs.filter(orthogroup__name=orthogroup)
