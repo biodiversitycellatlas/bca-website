@@ -31,27 +31,48 @@ export function createClickHandler(id, dataset, dataset2, callback) {
  * @param {string} label2 - Label for the second dataset.
  * @param {function} onClick - Function to call when user selects two modules in the plot.
  */
-export function loadModuleSimilarityPlot(id, dataset, label, dataset2 = null, label2 = null, onClick = null) {
+export function loadModuleSimilarityPlot(
+    id,
+    dataset,
+    label,
+    dataset2 = null,
+    label2 = null,
+    onClick = null,
+) {
     // Add cross-dataset comparison if dataset2 is not null
     const url = getDataPortalUrl(
         "rest:genemodulesimilarity-list",
         dataset,
         null,
         0,
-        { ...(dataset2 && { dataset2 }), sort_modules: 1 }
+        { ...(dataset2 && { dataset2 }), sort_modules: 1 },
     );
 
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            const clickHandler = createClickHandler(id, dataset, dataset2, onClick);
-            createSimilarityPlot(`#${id}-plot`, data, label, label2, clickHandler);
+            const clickHandler = createClickHandler(
+                id,
+                dataset,
+                dataset2,
+                onClick,
+            );
+            createSimilarityPlot(
+                `#${id}-plot`,
+                data,
+                label,
+                label2,
+                clickHandler,
+            );
 
             // Automatically compare modules with highest similarity score
             const mostSimilar = data.reduce((a, b) =>
                 a.similarity > b.similarity ? a : b,
             );
-            onClick(id, dataset, dataset2, [mostSimilar.module, mostSimilar.module2]);
+            onClick(id, dataset, dataset2, [
+                mostSimilar.module,
+                mostSimilar.module2,
+            ]);
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));

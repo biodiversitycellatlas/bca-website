@@ -19,7 +19,13 @@ let lastClicked = null;
  * @param {string} dataset2_label - Label to annotate the second dataset
  * @param {function} clickListener - Function to call when user clicks in the plot.
  */
-export function createSimilarityPlot(id, data, dataset_label, dataset2_label = null, clickListener = null) {
+export function createSimilarityPlot(
+    id,
+    data,
+    dataset_label,
+    dataset2_label = null,
+    clickListener = null,
+) {
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         description: "Bubble chart of module similarities",

@@ -24,7 +24,7 @@ function createModuleHeader(
 
     let label = modules.length > 1 ? "shared" : "unique";
     label = `${count} ${label} gene` + (count == 1 ? "" : "s");
-    const geneCount = clone.querySelector(".gene-count")
+    const geneCount = clone.querySelector(".gene-count");
     geneCount.textContent = label;
     if (textEnd) geneCount.classList.add("text-end");
 
@@ -45,7 +45,14 @@ function createModuleHeader(
     return clone;
 }
 
-function createGeneList(id, dataset, genes, collapseId = null, textEnd = false, collapseN = 10) {
+function createGeneList(
+    id,
+    dataset,
+    genes,
+    collapseId = null,
+    textEnd = false,
+    collapseN = 10,
+) {
     const template = document.getElementById(`${id}-module-genes-template`);
     const clone = template.content.cloneNode(true);
     const ul = clone.querySelector(".gene-list");
@@ -91,7 +98,14 @@ function populateModuleGeneList(
         textEnd,
         collapseN,
     );
-    const geneList = createGeneList(id, dataset, genes, collapseId, textEnd, collapseN);
+    const geneList = createGeneList(
+        id,
+        dataset,
+        genes,
+        collapseId,
+        textEnd,
+        collapseN,
+    );
 
     headerEl.appendChild(header);
     geneListEl.appendChild(geneList);
@@ -103,8 +117,10 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
         module2 = data.module2,
         module2_genes = data.unique_genes_module2_list,
         intersecting_genes = data.intersecting_genes_list,
-        intersecting_module_genes = data.intersecting_genes_module_list || intersecting_genes,
-        intersecting_module2_genes = data.intersecting_genes_module2_list || intersecting_genes;
+        intersecting_module_genes =
+            data.intersecting_genes_module_list || intersecting_genes,
+        intersecting_module2_genes =
+            data.intersecting_genes_module2_list || intersecting_genes;
 
     const headerEl = document.getElementById(`${id}-module-header`);
     const geneListEl = document.getElementById(`${id}-module-genes`);
@@ -174,7 +190,12 @@ function createModuleGeneLists(id, dataset, dataset2, data) {
  * @param {string} dataset - Dataset2 slug to fetch expression data for.
  * @param {Array} modules - Name of gene modules to compare.
  */
-export function loadModuleGeneLists(id, dataset, dataset2 = null, modules = null) {
+export function loadModuleGeneLists(
+    id,
+    dataset,
+    dataset2 = null,
+    modules = null,
+) {
     if (!modules) return;
 
     const url = getDataPortalUrl(
@@ -182,7 +203,12 @@ export function loadModuleGeneLists(id, dataset, dataset2 = null, modules = null
         dataset,
         null,
         0,
-        { list_genes: 1, module: modules[0], module2: modules[1], ...(dataset2 && { dataset2 }) },
+        {
+            list_genes: 1,
+            module: modules[0],
+            module2: modules[1],
+            ...(dataset2 && { dataset2 }),
+        },
     );
 
     fetch(url)

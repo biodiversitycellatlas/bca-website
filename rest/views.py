@@ -4,7 +4,6 @@ import subprocess
 import tempfile
 from urllib.parse import unquote_plus
 from itertools import combinations, chain
-from collections import defaultdict
 
 from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
@@ -312,7 +311,9 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         overlaps = []
         for m1, m1_orthogroups in d1_module_orthogroups.items():
             for m2, m2_orthogroups in d2_module_orthogroups.items():
-                o = self.compute_orthogroup_overlap(dataset, m1, m1_orthogroups, dataset2, m2, m2_orthogroups, list_genes)
+                o = self.compute_orthogroup_overlap(
+                    dataset, m1, m1_orthogroups, dataset2, m2, m2_orthogroups, list_genes
+                )
                 overlaps.append(o)
         return overlaps
 
@@ -343,7 +344,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
 
         # Sort modules based on highest similarity score
         if sort_modules:
-            overlaps = sorted(overlaps, key=lambda x: x['similarity'], reverse=True)
+            overlaps = sorted(overlaps, key=lambda x: x["similarity"], reverse=True)
 
         serializer = self.get_serializer(overlaps, many=True)
         return Response(serializer.data)

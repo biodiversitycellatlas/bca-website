@@ -353,7 +353,9 @@ class GeneModuleSimilarityFilter(FilterSet):
     module = CharFilter(method=skip_param, help_text="The reference module name to filter results.")
     module2 = CharFilter(method=skip_param, help_text="The compared module name to filter results.")
     list_genes = BooleanFilter(label="List intersecting and unique gene names between modules.", method=skip_param)
-    sort_modules = BooleanFilter(label="Sort gene modules based on highest similarity score (default: <kbd>false</kbd>).", method=skip_param)
+    sort_modules = BooleanFilter(
+        label="Sort gene modules based on highest similarity score (default: <kbd>false</kbd>).", method=skip_param
+    )
 
     class Meta:
         """Configuration for model and filterable fields."""
