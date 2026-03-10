@@ -43,15 +43,13 @@ export function initDatasetSelect(
             let url;
             if (redirect == "arg" && value !== dataset) {
                 url = getDataPortalUrl("atlas", value);
-                url.hash = anchor || url.hash;
-                window.location.href = url;
             } else if (redirect == "query" && value !== query) {
                 url = new URL(window.location.href);
                 url.searchParams.set("dataset", value);
             }
 
             if (!url) return;
-            url.hash = anchor || url.hash;
+            if (anchor) url.hash = anchor;
             window.location.href = url;
         },
         onDropdownOpen: function () {
