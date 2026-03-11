@@ -82,17 +82,13 @@ export function getDataPortalUrl(
     } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
     } else {
-        if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
-        if (gene) url = url.replace("GENE_PLACEHOLDER", gene);
-        if (extraParams?.gene_module) {
-            url = url.replace(
-                "GENE_MODULE_PLACEHOLDER",
-                extraParams.gene_module,
-            );
-        }
-        if (extraParams?.species) {
-            url = url.replace("SPECIES_PLACEHOLDER", extraParams.species);
-        }
+        url = url
+            .replace("DATASET_PLACEHOLDER", dataset || "")
+            .replace("GENE_PLACEHOLDER", gene || "")
+            .replace("MODULE_PLACEHOLDER", extraParams.gene_module || "")
+            .replace("SPECIES_PLACEHOLDER", extraParams.species || "")
+            // Replace consecutive slashes with a single slash
+            .replace(/\/+/g, "/");
     }
     return url;
 }
