@@ -643,7 +643,9 @@ class GeneModuleSimilarity(GeneModulesData):
         dataset2 = self.d2.slug
         self.assertEqual(self.d1.species, self.d2.species)
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&list_genes=1&sort_modules={sort_modules}"
+        url = (
+            f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&list_genes=1&sort_modules={sort_modules}"
+        )
         response = self.client.get(url)
         sim = response.data
 
