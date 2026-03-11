@@ -636,6 +636,41 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(len(sim), len(expected))
         self.run_expected_tests(sim, expected)
 
+    def test_compare_same_species_sorted(self):
+        """Compare datasets from same species."""
+        sort_modules = "true"
+        dataset = self.d1.slug
+        dataset2 = self.d2.slug
+        self.assertEqual(self.d1.species, self.d2.species)
+
+        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&list_genes=1&sort_modules={sort_modules}"
+        response = self.client.get(url)
+        sim = response.data
+
+        expected = [
+            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            ("module_123", "module_yellow", 4, 1, 4),
+            ("module_123", "module_green", 4, 3, 4),
+            ("module_xyz", "module_blue", 1, 3, 2),
+            ("module_123", "module_blue", 5, 2, 3),
+            ("module_abc", "module_green", 1, 5, 2),
+            ("module_xyz", "module_green", 1, 5, 2),
+            ("module_abc", "module_blue", 2, 4, 1),
+            ("module_xyz", "module_yellow", 2, 4, 1),
+            ("module_000", "module_blue", 0, 5, 0),
+            ("module_000", "module_green", 0, 7, 0),
+            ("module_000", "module_orange", 0, 0, 0),
+            ("module_000", "module_yellow", 0, 5, 0),
+            ("module_123", "module_orange", 8, 0, 0),
+            ("module_abc", "module_orange", 3, 0, 0),
+            ("module_abc", "module_yellow", 3, 5, 0),
+            ("module_xyz", "module_orange", 3, 0, 0),
+        ]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(sim), len(expected))
+        self.run_expected_tests(sim, expected)
+
     def test_compare_same_species_filter(self):
         """Compare datasets from same species with module filtering."""
         dataset = self.d1.slug
