@@ -83,7 +83,7 @@ jobs:
                       python manage.py check --deploy
 
     bun-ci:
-        name: Typescript Tests via Bun
+        name: Bun Tests (Typescript)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -91,14 +91,39 @@ jobs:
               with:
                   persist-credentials: false
 
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v2
+            - name: Prepare environment
+              run: |
+                  cp .pgpass.template .pgpass
+                  chmod 600 .pgpass
+                  cp .pg_service.conf.template .pg_service.conf
+                  # Fix for local db not loading in GitHub Actions
+                  cp .env.template .env
+                  sed -i '/POSTGRES_SERVICE/d' .env
+                  cat <<EOF >> .env
+                  POSTGRES_DB=bca
+                  POSTGRES_HOST=db
+                  POSTGRES_HOST_AUTH_METHOD=trust
+                  POSTGRES_PORT=5432
+                  PGUSER=postgres
+                  POSTGRES_USER=postgres
+                  POSTGRES_PASSWORD=mypassword
+                  EOF
+
+            - name: Set up Docker Compose
+              uses: docker/setup-compose-action@v1
+
+            - name: Start services
+              run: DOCKER_WEB_USER=root docker compose up -d --build
 
             - name: Install JS/CSS dependencies
-              run: bun install
+              run: |
+                  docker compose exec web \
+                      bun install
 
             - name: Run tests with coverage
-              run: bun test --coverage --coverage-reporter=lcov
+              run: |
+                  docker compose exec web \
+                      bun test --coverage --coverage-reporter=lcov
 
             - name: Upload coverage to Codecov
               uses: codecov/codecov-action@v5
