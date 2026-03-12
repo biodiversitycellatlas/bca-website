@@ -273,6 +273,27 @@ class GeneSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
 
+class GeneTableSerializer(serializers.ModelSerializer):
+    """Gene serializer returning HTML code for rich display of genes in a table."""
+
+    name = serializers.StringRelatedField(source="get_html_link")
+    genelists = serializers.StringRelatedField(source="get_genelist_html_links")
+    domains = serializers.StringRelatedField(source="get_domain_html_links")
+    orthogroup = serializers.CharField(source="get_orthogroup_html_link")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Gene
+        fields = [
+            "name",
+            "description",
+            "domains",
+            "genelists",
+            "orthogroup",
+        ]
+
+
 class DomainSerializer(serializers.ModelSerializer):
     """Protein domain serializer."""
 
