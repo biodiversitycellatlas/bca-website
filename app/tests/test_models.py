@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from datetime import datetime
 
-from app.models import Publication, Source, Species, DBVersion, GeneModule
+from app.models import Publication, Source, Species, DBVersion, GeneModule, Orthogroup
 
 
 class SpeciesModelTest(TestCase):
@@ -159,6 +159,41 @@ class GeneModuleEigengeneTest(TestCase):
 
     def test_string_representation(self):
         self.assertEqual(str(self.eigengene_value), "black - 1 - 0.167")
+
+
+class OrthologTest(TestCase):
+    """Test Ortholog and Orthogroup models."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.human = Species.objects.create(scientific_name="Homo sapiens")
+        mouse = Species.objects.create(scientific_name="Mus musculus")
+        rat = Species.objects.create(scientific_name="Rattus norvegicus")
+        zebrafish = Species.objects.create(scientific_name="Danio rerio")
+
+        cls.human_brca1 = cls.human.genes.create(name="BRCA1")
+        mouse_brca1 = mouse.genes.create(name="Brca1")
+        rat_brca1 = rat.genes.create(name="Brca1")
+        zebrafish_brca1 = zebrafish.genes.create(name="brca1")
+
+        cls.orthogroup = Orthogroup.objects.create(name="OG1")
+        cls.orthogroup.orthologs.create(species=cls.human, gene=cls.human_brca1)
+        cls.orthogroup.orthologs.create(species=mouse, gene=mouse_brca1)
+        cls.orthogroup.orthologs.create(species=rat, gene=rat_brca1)
+        cls.orthogroup.orthologs.create(species=zebrafish, gene=zebrafish_brca1)
+
+    def test_string_representation(self):
+        self.assertEqual(str(self.orthogroup), "OG1 (4 orthologs)")
+        for o in self.orthogroup.orthologs.all():
+            self.assertEqual(str(o), f"OG1:{o.gene.name} ({o.species.scientific_name})")
+
+    def test_orthogroup_duplicates(self):
+        with self.assertRaises(IntegrityError):
+            Orthogroup.objects.create(name="OG1")
+
+    def test_ortholog_duplicates(self):
+        with self.assertRaises(IntegrityError):
+            self.orthogroup.orthologs.create(species=self.human, gene=self.human_brca1)
 
 
 class DBVersionModelTest(TestCase):
