@@ -85,7 +85,22 @@ Input:
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
-{% if dataset2 %}
+{% if not dataset2 %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Choose a dataset to compare.
+    </p>
+{% elif dataset2 == dataset %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Choose a dataset different than the current one to compare.
+    </p>
+{% elif dataset2.species == dataset.species %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Choose a dataset from a different species to compare.
+    </p>
+{% else %}
     <div class="row">
         <div class="col-10 col-sm-11">
             {% include "../plot_container.html" with id=id ratio="16/9" %}
@@ -96,9 +111,4 @@ Input:
         import { initSAMap } from "{% static 'app/js/atlas/samap_compare.js' %}";
         initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
     </script>
-{% else %}
-    <p class="text-muted">
-        <i class="fa fa-circle-exclamation"></i>
-        Select dataset to compare against.
-    </p>
 {% endif %}
