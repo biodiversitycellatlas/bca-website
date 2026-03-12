@@ -93,6 +93,9 @@ export function getDataPortalUrl(
         if (extraParams?.species) {
             url = url.replace("SPECIES_PLACEHOLDER", extraParams.species);
         }
+        if (extraParams?.gene_list) {
+            url = url.replace("GENE_LIST_PLACEHOLDER", extraParams.gene_list);
+        }
     }
     return url;
 }

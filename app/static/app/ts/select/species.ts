@@ -92,6 +92,7 @@ export function initSpeciesSelect(
     redirect,
     optgroup_columns,
     view,
+    extraParams,
 ) {
     const select = new TomSelect(`#species-select-${id}`, {
         onChange: function (value) {
@@ -102,7 +103,15 @@ export function initSpeciesSelect(
                 window.location.href = url;
             }
             if (redirect == "arg" && value !== "" && value !== species) {
-                const extra = { species: value };
+                let extra;
+                if (view == "gene_list_entry") {
+                    extra = {
+                        species: value,
+                        gene_list: extraParams,
+                    };
+                } else {
+                    extra = { species: value };
+                }
                 window.location.href = getDataPortalUrl(
                     view,
                     null,
