@@ -87,6 +87,7 @@ export function getDataPortalUrl(
             .replace("GENE_PLACEHOLDER", gene || "")
             .replace("MODULE_PLACEHOLDER", extraParams.gene_module || "")
             .replace("SPECIES_PLACEHOLDER", extraParams.species || "")
+            .replace("GENE_LIST_PLACEHOLDER", extraParams.gene_list || "")
             // Replace consecutive slashes with a single slash
             .replace(/\/+/g, "/");
     }

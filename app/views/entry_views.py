@@ -131,6 +131,7 @@ class GeneListDetailView(FilteredListView):
         """Add gene list to context."""
         context = super().get_context_data(**kwargs)
         context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
+        context["species_dict"] = get_species_dict()
         return context
 
 
