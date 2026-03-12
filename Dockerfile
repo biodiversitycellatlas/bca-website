@@ -1,13 +1,13 @@
 # checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
 
 # Get postgreSQL client
-FROM postgres:18.1-trixie AS postgres
+FROM postgres:18.3-trixie AS postgres
 
 # Get diamond aligner
-FROM buchfink/diamond:version2.1.21 AS diamond
+FROM buchfink/diamond:version2.1.24 AS diamond
 
 # Get bun
-FROM oven/bun:1.3.9-slim AS bun
+FROM oven/bun:1.3.10-slim AS bun
 
 # Serve website
 FROM python:3.13.12-trixie
