@@ -356,6 +356,7 @@ class GeneModuleSimilarityFilter(FilterSet):
     sort_modules = BooleanFilter(
         label="Sort gene modules based on highest similarity score (default: <kbd>false</kbd>).", method=skip_param
     )
+    html = BooleanFilter(label="Show HTML content for rendering results", method=skip_param)
 
     class Meta:
         """Configuration for model and filterable fields."""
