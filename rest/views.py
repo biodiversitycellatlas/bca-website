@@ -190,7 +190,6 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         module = self.request.query_params.get("module")
         module2 = self.request.query_params.get("module2")
         sort_modules = self.request.query_params.get("sort_modules") in ["true", "1", "True"]
-        html = self.request.query_params.get("html") in ["true", "1", "True"]
 
         dataset = parse_species_dataset(dataset_slug)
         dataset2 = parse_species_dataset(dataset2_slug)
@@ -201,13 +200,17 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
                 raise ValueError(f"Error: module {m} does not exist in {d}")
 
         service = services.GeneModuleSimilarityService()
-        overlaps = service.compare(dataset, dataset2, module, module2, self.list_genes, html)
+        overlaps = service.compare(dataset, dataset2, module, module2, self.list_genes)
+
+        if self.list_genes:
+            # Already serialized
+            return Response(overlaps)
 
         # Sort modules based on highest similarity score
         if sort_modules:
             overlaps = sorted(overlaps, key=lambda x: x["similarity"], reverse=True)
 
-        serializer = self.get_serializer(overlaps[0][0:2], many=True)
+        serializer = self.get_serializer(overlaps, many=True)
         return Response(serializer.data)
 
 
