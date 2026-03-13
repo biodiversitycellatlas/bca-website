@@ -349,25 +349,26 @@ class GeneModuleSimilarityFilter(FilterSet):
     """Filter set to compare similarity between gene modules."""
 
     dataset = DatasetChoiceFilter(required=True)
-    modules = CharFilter(method="filter_modules")
-    list_genes = BooleanFilter(
-        label="List intersecting and unique gene names between modules.",
-        method=skip_param,
+    dataset2 = DatasetChoiceFilter(required=True)
+    module = CharFilter(method=skip_param, help_text="The module names to filter results for the first dataset.")
+    module2 = CharFilter(method=skip_param, help_text="The module names to filter results for the second dataset.")
+    sort_modules = BooleanFilter(
+        label="Sort gene modules based on highest similarity score (default: <kbd>false</kbd>).", method=skip_param
     )
-
-    def filter_modules(self, queryset, name, value):
-        """Filter queryset by module names."""
-
-        if value:
-            modules = value.split(",")
-            queryset = queryset.filter(Q(name__in=modules)).distinct()
-        return queryset
 
     class Meta:
         """Configuration for model and filterable fields."""
 
         model = models.GeneModule
         fields = ["dataset"]
+
+
+class GeneModuleSimilarityGenesFilter(GeneModuleSimilarityFilter):
+    """Filter set to return unique and shared genes between gene modules."""
+
+    module = CharFilter(method=skip_param, help_text="The reference module name to filter results.", required=True)
+    module2 = CharFilter(method=skip_param, help_text="The compared module name to filter results.", required=True)
+    sort_modules = None
 
 
 class SortAcrossMetacellFilter(BooleanFilter):

@@ -245,7 +245,10 @@ class GeneSerializer(serializers.ModelSerializer):
     species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
-    orthogroup = serializers.CharField()
+    orthogroup = serializers.SerializerMethodField()
+
+    def get_orthogroup(self, obj):
+        return getattr(obj.orthogroup, "name", None)
 
     class Meta:
         """Meta configuration."""
@@ -271,6 +274,27 @@ class GeneSerializer(serializers.ModelSerializer):
                 self.fields.pop("species")
 
         super().__init__(*args, **kwargs)
+
+
+class GeneTableSerializer(serializers.ModelSerializer):
+    """Gene serializer returning HTML code for rich display of genes in a table."""
+
+    name = serializers.StringRelatedField()
+    genelists = serializers.StringRelatedField(many=True)
+    domains = serializers.StringRelatedField(many=True)
+    orthogroup = serializers.CharField(source="orthogroup.name")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Gene
+        fields = [
+            "name",
+            "description",
+            "domains",
+            "genelists",
+            "orthogroup",
+        ]
 
 
 class DomainSerializer(serializers.ModelSerializer):
@@ -352,31 +376,36 @@ class GeneModuleMembershipSerializer(serializers.ModelSerializer):
 class GeneModuleSimilaritySerializer(serializers.Serializer):
     """Gene module similarity serializer."""
 
+    dataset = serializers.CharField(help_text="Dataset 1.")
     module = serializers.CharField(help_text="Gene module 1.")
+    dataset2 = serializers.CharField(help_text="Dataset 2.")
     module2 = serializers.CharField(help_text="Gene module 2.")
 
     similarity = serializers.IntegerField(help_text="Jaccard similarity index ( intersection / union ) in percentage.")
 
     unique_genes_module = serializers.IntegerField(help_text="Number of unique genes for the first module.")
-    unique_genes_module_list = serializers.ListField(
-        child=serializers.CharField(),
-        help_text="List of unique genes in the first module.",
-        required=False,
-    )
-
     unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes for the second module.")
-    unique_genes_module2_list = serializers.ListField(
-        child=serializers.CharField(),
-        help_text="List of unique genes in the second module.",
-        required=False,
-    )
-
     intersecting_genes = serializers.IntegerField(help_text="Number of intersecting genes between modules.")
-    intersecting_genes_list = serializers.ListField(
-        child=serializers.CharField(),
-        help_text="List of intersecting genes.",
-        required=False,
-    )
+
+
+class GeneModuleSimilarityGeneSerializer(GeneSerializer):
+    """Gene module similarity genes serializer."""
+
+    overlap = serializers.CharField(help_text="Category of overlap: unique to one module or shared between both.")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Gene
+        fields = [
+            "overlap",
+            "species",
+            "name",
+            "description",
+            "domains",
+            "genelists",
+            "orthogroup",
+        ]
 
 
 class GeneModuleEigengeneSerializer(serializers.ModelSerializer):

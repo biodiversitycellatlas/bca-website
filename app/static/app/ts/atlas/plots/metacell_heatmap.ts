@@ -1,5 +1,5 @@
 /**
- * Heatmaps.
+ * Metacell heatmaps.
  */
 
 import vegaEmbed from "vega-embed";
