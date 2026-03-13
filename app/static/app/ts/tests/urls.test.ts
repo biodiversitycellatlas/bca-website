@@ -4,7 +4,8 @@ import { getDataPortalUrl } from "../utils/urls";
 // Mock global variables
 beforeAll(() => {
     window.APP_URLS = {
-        gene_module_entry: "/entry/gene-module/DATASET_PLACEHOLDER/MODULE_PLACEHOLDER/",
+        gene_module_entry:
+            "/entry/gene-module/DATASET_PLACEHOLDER/MODULE_PLACEHOLDER/",
         "rest:metacellcount-list": "/api/metacellcount",
         "rest:metacellgeneexpression-list": "/api/metacellgeneexpression",
         "rest:genelist-list": "/api/genelist",
