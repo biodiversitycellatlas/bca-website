@@ -3,15 +3,12 @@ import { getDataPortalUrl } from "../utils/urls";
 
 // Mock global variables
 beforeAll(() => {
-    globalThis.window = {
-        location: { origin: "http://localhost" },
-        APP_URLS: {
-            gene_module_entry:
-                "/entry/gene-module/DATASET_PLACEHOLDER/MODULE_PLACEHOLDER/",
-            "rest:metacellcount-list": "/api/metacellcount",
-            "rest:metacellgeneexpression-list": "/api/metacellgeneexpression",
-            "rest:genelist-list": "/api/genelist",
-        },
+    window.APP_URLS = {
+        gene_module_entry:
+            "/entry/gene-module/DATASET_PLACEHOLDER/MODULE_PLACEHOLDER/",
+        "rest:metacellcount-list": "/api/metacellcount",
+        "rest:metacellgeneexpression-list": "/api/metacellgeneexpression",
+        "rest:genelist-list": "/api/genelist",
     };
 });
 
