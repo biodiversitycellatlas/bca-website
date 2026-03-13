@@ -1,6 +1,6 @@
 """REST API services logic."""
 
-from itertools import combinations, chain
+from itertools import chain
 
 from . import serializers
 from .utils import group_by_key
@@ -33,21 +33,13 @@ class GeneModuleSimilarityService:
         info,
         intersect_split=None,
     ):
-        all_groups = [
-            ("unique_module", unique1),
-            ("unique_module2", unique2)
-        ]
+        all_groups = [("unique_module", unique1), ("unique_module2", unique2)]
 
         if intersect_split:
             im1, im2 = intersect_split
-            all_groups.extend([
-                ("shared_module", im1),
-                ("shared_module2", im2)
-            ])
+            all_groups.extend([("shared_module", im1), ("shared_module2", im2)])
         else:
-            all_groups.extend([
-                ("shared", intersect)
-            ])
+            all_groups.extend([("shared", intersect)])
 
         genes = [
             {"overlap": cat, **g_data}
@@ -121,9 +113,7 @@ class GeneModuleSimilarityService:
         fn = self.list_shared_genes if list_genes else self.calculate_similarity
         return fn(d1, m1, unique1, d2, m2, unique2, intersect, genes_info)
 
-    def calculate_orthogroup_similarity(
-        self, d1, m1, orthogroups1, d2, m2, orthogroups2, genes_info, list_genes=False
-    ):
+    def calculate_orthogroup_similarity(self, d1, m1, orthogroups1, d2, m2, orthogroups2, genes_info, list_genes=False):
         """
         Compute overlap statistics between two modules using orthogroup mappings.
 
@@ -164,7 +154,9 @@ class GeneModuleSimilarityService:
         fn = self.list_shared_genes if list_genes else self.calculate_similarity
         return fn(*args)
 
-    def compare_modules(self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False):
+    def compare_modules(
+        self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False
+    ):
         results = [
             similarity_fn(dataset1, m1, g1, dataset2, m2, g2, genes_info, list_genes)
             for m1, g1 in module_dict1.items()
@@ -184,7 +176,9 @@ class GeneModuleSimilarityService:
         else:
             filtered = module_genes
 
-        return self.compare_modules(filtered, filtered, genes_info, self.calculate_gene_similarity, dataset, dataset, list_genes=list_genes)
+        return self.compare_modules(
+            filtered, filtered, genes_info, self.calculate_gene_similarity, dataset, dataset, list_genes=list_genes
+        )
 
     def compare_within_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
         """Compare pairwise gene overlaps between two datasets of the same species."""
@@ -199,7 +193,9 @@ class GeneModuleSimilarityService:
         d2_module_genes = group_by_key(d2_modules, "name", "genes")
 
         genes_info = self.prepare_genes_info(list(d1_modules.all()) + list(d2_modules.all()))
-        return self.compare_modules(d1_module_genes, d2_module_genes, genes_info, self.calculate_gene_similarity, dataset1, dataset2, list_genes)
+        return self.compare_modules(
+            d1_module_genes, d2_module_genes, genes_info, self.calculate_gene_similarity, dataset1, dataset2, list_genes
+        )
 
     def compare_across_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
         """Compare pairwise orthogroup overlaps for each gene across species."""
@@ -216,7 +212,15 @@ class GeneModuleSimilarityService:
         modules = list(d1_modules.all()) + list(d2_modules.all())
         genes_info = self.prepare_genes_info(modules)
 
-        return self.compare_modules(d1_module_orthogroups, d2_module_orthogroups, genes_info, self.calculate_orthogroup_similarity, dataset1, dataset2, list_genes)
+        return self.compare_modules(
+            d1_module_orthogroups,
+            d2_module_orthogroups,
+            genes_info,
+            self.calculate_orthogroup_similarity,
+            dataset1,
+            dataset2,
+            list_genes,
+        )
 
     def compare(self, dataset, dataset2, module, module2, list_genes):
         # Different comparison methods of gene module similarity
