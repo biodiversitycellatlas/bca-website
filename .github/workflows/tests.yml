@@ -23,20 +23,7 @@ jobs:
                   persist-credentials: false
 
             - name: Prepare environment
-              run: |
-                  ./scripts/setup.sh
-
-                  # Django bug: testing does not support DB services: https://code.djangoproject.com/ticket/33685
-                  sed -i '/POSTGRES_SERVICE/d' .env
-                  cat <<EOF >> .env
-                  POSTGRES_DB=bca
-                  POSTGRES_HOST=db
-                  POSTGRES_HOST_AUTH_METHOD=trust
-                  POSTGRES_PORT=5432
-                  PGUSER=postgres
-                  POSTGRES_USER=postgres
-                  POSTGRES_PASSWORD=mypassword
-                  EOF
+              run: ./scripts/setup.sh
 
             - name: Set up Docker Compose
               uses: docker/setup-compose-action@v2

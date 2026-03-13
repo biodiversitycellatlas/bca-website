@@ -130,7 +130,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 POSTGRES_SERVICE = get_env("POSTGRES_SERVICE")
 
-if POSTGRES_SERVICE:
+# Django bug: services not supported in tests: https://code.djangoproject.com/ticket/33685
+if POSTGRES_SERVICE and not TESTING:
     DATABASES = {
         "default": {
             "ENGINE": "django_prometheus.db.backends.postgresql",
