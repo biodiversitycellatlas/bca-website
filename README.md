@@ -50,14 +50,9 @@ Then, download the project directory from GitHub and follow these steps:
 # Go to the project directory
 cd bca-website
 
-# Copy the *.template files to avoid the .template suffix
-cp .env.template .env
-cp nginx/nginx.conf.template nginx/nginx.conf
-cp .pg_service.conf.template .pg_service.conf
-cp .pgpass.template .pgpass
-
-# Fix the permissions for .pgpass
-chmod 600 .pgpass
+# Run setup.sh to setup configuration files from *.template files (edit them afterwards as needed):
+# env.template, nginx/nginx.conf, .pg_service.conf, .pgpass
+./scripts/setup.sh
 
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
