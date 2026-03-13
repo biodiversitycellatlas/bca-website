@@ -680,7 +680,7 @@ class Gene(DynamicSlugMixin):
     @property
     def orthogroup(self):
         """Return orthogroup for this gene."""
-        return getattr(self.ortholog_set.first(), "orthogroup", None)
+        return getattr(self.orthologs.first(), "orthogroup", None)
 
     @property
     def slug(self):
@@ -707,15 +707,11 @@ class Gene(DynamicSlugMixin):
 
     def get_orthogroup_html_link(self):
         """Return link to orthogroup in HTML format."""
-        # Get a ortholog object based on orthogroup
-        ortholog = self.ortholog_set.first()
-        if ortholog is None:
+        orthogroup = self.orthogroup
+        if orthogroup is None:
             return ""
 
-        url = ortholog.get_absolute_url()
-        label = ortholog.orthogroup
-
-        html = f'<a href="{url}">{label}</a>'
+        html = orthogroup.get_html_link(str(orthogroup))
         return mark_safe(html)
 
     def get_domain_html_links(self):
@@ -879,36 +875,48 @@ class SingleCellGeneExpression(models.Model):
         return f"{self.gene} {self.single_cell}"
 
 
+class Orthogroup(models.Model):
+    """Orthogroup model."""
+
+    name = models.CharField(max_length=100, unique=True)
+    genes = models.ManyToManyField(Gene, through="Ortholog")
+
+    def get_absolute_url(self):
+        """Return absolute URL for this entry."""
+        return reverse("orthogroup_entry", args=[self.name])
+
+    def get_html_link(self, label=None):
+        """Return link to this entry formatted in HTML."""
+        # Get a ortholog object based on orthogroup
+        url = self.get_absolute_url()
+        label = label or self.name
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)
+
+    class Meta:
+        """Meta options."""
+
+        ordering = ["name"]
+
+    def __str__(self):
+        """String representation."""
+        count = self.orthologs.count()
+        label = "orthologs" if count != 1 else "ortholog"
+        return f"{self.name} ({count} {label})"
+
+
 class Ortholog(models.Model):
     """Ortholog model."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="orthologs")
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    orthogroup = models.CharField()
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="orthologs")
+    orthogroup = models.ForeignKey(Orthogroup, on_delete=models.CASCADE, related_name="orthologs")
 
     @property
     def expression(self):
         """Return all values of metacell gene expression."""
         return self.gene.mge.all()
-
-    @property
-    def orthologs(self):
-        """Return all ortholog genes for this object's orthogroup."""
-        orthogroup = self.orthogroup
-        return Ortholog.objects.filter(orthogroup=orthogroup)
-
-    def get_absolute_url(self):
-        """Return absolute URL for this entry."""
-        return reverse("orthogroup_entry", args=[self.orthogroup])
-
-    def get_html_link(self):
-        """Return link to this entry formatted in HTML."""
-        # Get a ortholog object based on orthogroup
-        url = self.get_absolute_url()
-        label = self.orthogroup
-
-        html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
 
     class Meta:
         """Meta options."""
@@ -919,7 +927,7 @@ class Ortholog(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.orthogroup} {self.gene}"
+        return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
 class SAMap(models.Model):

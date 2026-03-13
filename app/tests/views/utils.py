@@ -5,7 +5,7 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from app.models import Species, Domain, GeneList
+from app.models import Species, Domain, GeneList, Orthogroup
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -46,8 +46,9 @@ class DataTestCase(TestCase):
 
         # Add orthologs
         cls.brca1_human = cls.human.genes.create(name="BRCA1")
-        cls.human.orthologs.create(orthogroup="OG1", gene=cls.brca1_human)
-        cls.mouse.orthologs.create(orthogroup="OG1", gene=cls.brca1)
+        cls.og1 = Orthogroup.objects.create(name="OG1")
+        cls.human.orthologs.create(orthogroup=cls.og1, gene=cls.brca1_human)
+        cls.mouse.orthologs.create(orthogroup=cls.og1, gene=cls.brca1)
 
     @classmethod
     def setup_fasta(cls):

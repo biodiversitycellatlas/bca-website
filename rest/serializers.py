@@ -377,6 +377,16 @@ class GeneModuleSimilaritySerializer(serializers.Serializer):
         help_text="List of intersecting genes.",
         required=False,
     )
+    intersecting_genes_module_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of intersecting genes from the first module (cross-species only).",
+        required=False,
+    )
+    intersecting_genes_module2_list = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="List of intersecting genes from the second module (cross-species only).",
+        required=False,
+    )
 
 
 class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
