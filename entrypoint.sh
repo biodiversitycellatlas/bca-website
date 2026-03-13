@@ -23,6 +23,7 @@ bun install
 bun run build
 
 # Collect all Django static files
+chmod go+rx static # Fix permissions for nginx when creating this folder in Django
 python manage.py collectstatic --noinput
 
 # Deploy Django app
