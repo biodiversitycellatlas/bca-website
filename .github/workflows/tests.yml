@@ -26,7 +26,7 @@ jobs:
               run: |
                   ./scripts/setup.sh
 
-                  # Fix for local db not loading in GitHub Actions
+                  # Django bug: testing does not support DB services: https://code.djangoproject.com/ticket/33685
                   sed -i '/POSTGRES_SERVICE/d' .env
                   cat <<EOF >> .env
                   POSTGRES_DB=bca
