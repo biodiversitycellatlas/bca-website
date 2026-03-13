@@ -79,7 +79,7 @@ class GeneModuleSimilarityService:
         unique1_count = len(unique1)
         unique2_count = len(unique2)
         intersect_count = len(intersect)
-        union_count = len(unique1) + len(unique2) + intersect_count
+        union_count = unique1_count + unique2_count + intersect_count
 
         # Calculate Jaccard similarity index
         jaccard = round(intersect_count / union_count * 100) if union_count else 0
@@ -91,8 +91,8 @@ class GeneModuleSimilarityService:
             "module2": module2,
             "similarity": jaccard,
             "intersecting_genes": intersect_count,
-            "unique_genes_module": len(unique1),
-            "unique_genes_module2": len(unique2),
+            "unique_genes_module": unique1_count,
+            "unique_genes_module2": unique2_count,
         }
         return results
 
