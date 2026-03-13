@@ -144,7 +144,7 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List gene modules", tags=["Gene module"])
+@extend_schema(summary="List modules", tags=["Gene module"])
 class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     """List gene modules."""
 
@@ -154,7 +154,7 @@ class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List gene module membership", tags=["Gene module"])
+@extend_schema(summary="List module membership", tags=["Gene module"])
 class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
     """List gene membership in gene modules."""
 
@@ -165,11 +165,15 @@ class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="List gene module similarity",
+    summary="List module similarity",
     tags=["Gene module"],
 )
 class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
-    """List similarity between all gene modules in a dataset."""
+    """
+    List similarity between multiple gene modules across datasets.
+
+    For datasets from different species, comparisons are based on common [orthologs](#/operations/orthologs_list).
+    """
 
     queryset = models.GeneModule.objects.prefetch_related("membership")
     serializer_class = serializers.GeneModuleSimilaritySerializer
@@ -177,33 +181,51 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
+    list_genes = False
+
     def list(self, request, *args, **kwargs):
         # Parse query parameters
         dataset_slug = self.request.query_params.get("dataset")
         dataset2_slug = self.request.query_params.get("dataset2") or dataset_slug  # if undefined, use dataset
         module = self.request.query_params.get("module")
         module2 = self.request.query_params.get("module2")
-        list_genes = self.request.query_params.get("list_genes") in ["true", "1", "True"]
         sort_modules = self.request.query_params.get("sort_modules") in ["true", "1", "True"]
         html = self.request.query_params.get("html") in ["true", "1", "True"]
 
         dataset = parse_species_dataset(dataset_slug)
         dataset2 = parse_species_dataset(dataset2_slug)
 
-        # Check if gene modules exist
+        # Check if selected gene modules exist
         for m, d in ((module, dataset), (module2, dataset2)):
             if m is not None and not d.gene_modules.filter(name=m).exists():
                 raise ValueError(f"Error: module {m} does not exist in {d}")
 
         service = services.GeneModuleSimilarityService()
-        overlaps = service.compare(dataset, dataset2, module, module2, list_genes, html)
+        overlaps = service.compare(dataset, dataset2, module, module2, self.list_genes, html)
 
         # Sort modules based on highest similarity score
         if sort_modules:
             overlaps = sorted(overlaps, key=lambda x: x["similarity"], reverse=True)
 
-        serializer = self.get_serializer(overlaps, many=True)
+        serializer = self.get_serializer(overlaps[0][0:2], many=True)
         return Response(serializer.data)
+
+
+@extend_schema(
+    summary="List module similarity genes",
+    tags=["Gene module"],
+)
+class GeneModuleSimilarityGenesViewSet(GeneModuleSimilarityViewSet):
+    """
+    List unique and shared genes between gene modules across datasets.
+
+    For datasets from different species, comparisons are based on common [orthologs](#/operations/orthologs_list).
+    """
+
+    serializer_class = serializers.GeneModuleSimilarityGeneSerializer
+    filterset_class = filters.GeneModuleSimilarityGenesFilter
+
+    list_genes = True
 
 
 @extend_schema(summary="List module eigengenes", tags=["Gene module"])

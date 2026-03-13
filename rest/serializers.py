@@ -276,10 +276,10 @@ class GeneSerializer(serializers.ModelSerializer):
 class GeneTableSerializer(serializers.ModelSerializer):
     """Gene serializer returning HTML code for rich display of genes in a table."""
 
-    name = serializers.StringRelatedField(source="get_html_link")
-    genelists = serializers.StringRelatedField(source="get_genelist_html_links")
-    domains = serializers.StringRelatedField(source="get_domain_html_links")
-    orthogroup = serializers.CharField(source="get_orthogroup_html_link")
+    name = serializers.StringRelatedField()
+    genelists = serializers.StringRelatedField(many=True)
+    domains = serializers.StringRelatedField(many=True)
+    orthogroup = serializers.CharField(source="orthogroup.name")
 
     class Meta:
         """Meta configuration."""
@@ -410,6 +410,12 @@ class GeneModuleSimilaritySerializer(serializers.Serializer):
         help_text="List of intersecting genes from the second module (cross-species only).",
         required=False,
     )
+
+
+class GeneModuleSimilarityGeneSerializer(GeneTableSerializer):
+    """Gene module similarity genes serializer."""
+
+    pass
 
 
 class GeneModuleEigengeneSerializer(serializers.ModelSerializer):

@@ -67,6 +67,8 @@ class GeneModuleSimilarityService:
         }
 
         if list_genes:
+            return [g for g in map(genes_info.get, unique1) if g]
+
             results.update(
                 {
                     "unique_genes_module_list": self.serialize_genes(unique1, genes_info, html),
