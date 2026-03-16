@@ -199,8 +199,9 @@ Input:
     import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
 
     document.addEventListener("DOMContentLoaded", () => {
+        const label = document.querySelector("#metacells_filter");
         const select = document.querySelector("#metacells").tomselect;
-        initMetacellSelectionUpdater(select);
+        initMetacellSelectionUpdater(label, select);
         {% if type == 'gene-lists' %}
             initSubmitButtonToggler("{{id}}", select);
         {% endif %}
