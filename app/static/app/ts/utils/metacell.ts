@@ -4,7 +4,7 @@
 
 function updateLabel(select, count) {
     const label = count > 0 ? "Selected metacells" : "All metacells";
-    select.text(label);
+    select.text = label;
 }
 
 /**
