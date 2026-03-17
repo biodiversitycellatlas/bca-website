@@ -200,7 +200,8 @@ Input:
 
     document.addEventListener("DOMContentLoaded", () => {
         const select = document.querySelector("#metacells").tomselect;
-        initMetacellSelectionUpdater(select);
+        const metacellsFilter = document.querySelector("#metacells_filter");
+        initMetacellSelectionUpdater(select, metacellsFilter);
         {% if type == 'gene-lists' %}
             initSubmitButtonToggler("{{id}}", select);
         {% endif %}
