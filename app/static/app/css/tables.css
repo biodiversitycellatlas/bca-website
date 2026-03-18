@@ -3,12 +3,11 @@
 .table td,
 .table th {
     border-style: none;
-
     --bs-table-striped-bg: var(--table-row-color);
 }
 
 /* DataTables */
-
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > *,
 table.dataTable.display tbody tr:nth-child(odd) > * {
     background-color: var(--table-row-color);
     box-shadow: none !important;
@@ -29,4 +28,10 @@ table.dataTable .selected a:hover {
 
 div.dt-container div.dt-processing > div > div {
     background: var(--primary-color) !important;
+}
+
+table.dataTable tr.dtrg-group td {
+    /* Row groups */
+    background: var(--bold-light-color) !important;
+    cursor: pointer;
 }

@@ -43,19 +43,7 @@ Input:
 
         <!-- Module comparison table -->
         <div class="col-12 col-md-7 col-lg-6">
-            <table id="{{ id }}-module-compare-table" class="table table-sm table-striped">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Species</th>
-                        <th>Gene</th>
-                        <th>Description</th>
-                        <th>Domains</th>
-                        <th>Gene lists</th>
-                        <th>Orthogroup</th>
-                    </tr>
-                </thead>
-            </table>
+            <table id="{{ id }}-module-compare-table" class="table table-sm table-striped small"></table>
         </div>
     </div>
 
@@ -63,7 +51,7 @@ Input:
     <script type="module">
         {% load static %}
         import { loadModuleSimilarityPlot } from "{% static 'app/js/atlas/module_similarity.js' %}";
-        import { loadModuleGeneLists } from "{% static 'app/js/atlas/module_overlaps.js' %}";
+        import { loadModuleGeneTable } from "{% static 'app/js/atlas/module_overlaps.js' %}";
 
         // Load intersecting and unique genes from selected modules in the plot
         const id = "{{ id }}";
@@ -77,6 +65,6 @@ Input:
             const label2 = null;
         {% endif %}
 
-        loadModuleSimilarityPlot(id, dataset, label, dataset2, label2, loadModuleGeneLists);
+        loadModuleSimilarityPlot(id, dataset, label, dataset2, label2, loadModuleGeneTable);
     </script>
 {% endif %}

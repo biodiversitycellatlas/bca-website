@@ -9,6 +9,20 @@ import "datatables.net-select-bs5";
 import { getDataPortalUrl } from "../../utils/urls.ts";
 
 /**
+ * Creates an HTML anchor element as a string.
+ *
+ * @param {string} text - The text to display for the link.
+ * @param {string} url - The URL the link should point to.
+ * @returns {string} HTML string of the anchor element.
+ */
+function linkElement(text, url) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.textContent = text;
+    return a.outerHTML;
+}
+
+/**
  * Factory function that returns a renderer linking gene names to the data portal.
  *
  * @param {Object} dataset - Dataset reference for constructing gene URLs.
@@ -18,12 +32,44 @@ export function makeLinkGene(dataset) {
     return function linkGene(data, type) {
         if (type === "display") {
             const url = getDataPortalUrl("atlas_gene", dataset, data);
-            if (url) {
-                data = `<a href=${url}>${data}</a>`;
-            }
+            if (url) linkElement(data, url);
         }
         return data;
     };
+}
+
+/**
+ * Converts an array of domain names into HTML links pointing to the data portal.
+ *
+ * @param {Array<string>} domains - Array of domain names to link.
+ * @param {string} type - The DataTables rendering type (e.g., "display").
+ * @returns {string|Array<string>} Comma-separated HTML links if type is "display"; otherwise, returns the original domains array.
+ */
+export function linkDomains(domains, type) {
+    let domainLinks = [];
+    if (type === "display") {
+        for (const domain of domains) {
+            console.log(domain);
+            const url = getDataPortalUrl("domain_entry", null, null, null, { domain });
+            if (url) domainLinks.push(linkElement(domain, url));
+        }
+    }
+    return domainLinks.length ? domainLinks.join(", ") : domains;
+}
+
+/**
+ * Converts an orthogroup identifier into an HTML link pointing to the data portal.
+ *
+ * @param {string} orthogroup - The orthogroup identifier.
+ * @param {string} type - The DataTables rendering type (e.g., "display").
+ * @returns {string} HTML link if type is "display"; otherwise, returns the original orthogroup string.
+ */
+export function linkOrthogroup(orthogroup, type) {
+    if (type === "display") {
+        const url = getDataPortalUrl("orthogroup_entry", null, null, null, { orthogroup });
+        if (url) orthogroup = linkElement(orthogroup, url);
+    }
+    return orthogroup;
 }
 
 /**
