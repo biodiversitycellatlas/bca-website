@@ -49,7 +49,6 @@ export function linkDomains(domains, type) {
     let domainLinks = [];
     if (type === "display") {
         for (const domain of domains) {
-            console.log(domain);
             const url = getDataPortalUrl("domain_entry", null, null, null, { domain });
             if (url) domainLinks.push(linkElement(domain, url));
         }

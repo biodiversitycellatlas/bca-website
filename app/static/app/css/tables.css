@@ -32,6 +32,6 @@ div.dt-container div.dt-processing > div > div {
 
 table.dataTable tr.dtrg-group td {
     /* Row groups */
-    background: var(--bold-light-color) !important;
+    background: #dddddd !important;
     cursor: pointer;
 }

@@ -54,17 +54,20 @@ Input:
         import { loadModuleGeneTable } from "{% static 'app/js/atlas/module_overlaps.js' %}";
 
         // Load intersecting and unique genes from selected modules in the plot
-        const id = "{{ id }}";
-        const dataset = "{{ dataset.slug }}";
-        const label = "{{ dataset }}";
+        const id = "{{ id }}",
+              d1 = "{{ dataset.slug }}",
+              d1html = `{{ dataset.get_inline_html_link }}`,
+              d1label = "{{ dataset }}";
         {% if dataset2 %}
-            const dataset2 = "{{ dataset2.slug }}";
-            const label2 = "{{ dataset2 }}";
+            const d2 = "{{ dataset2.slug }}",
+                  d2html = `{{ dataset2.get_inline_html_link }}`,
+                  d2label = "{{ dataset2 }}";
         {% else %}
-            const dataset2 = null;
-            const label2 = null;
+            const d2 = null,
+                  d2html = null,
+                  d2label = null;
         {% endif %}
 
-        loadModuleSimilarityPlot(id, dataset, label, dataset2, label2, loadModuleGeneTable);
+        loadModuleSimilarityPlot(id, d1, d1label, d1html, d2, d2label, d2html, loadModuleGeneTable);
     </script>
 {% endif %}

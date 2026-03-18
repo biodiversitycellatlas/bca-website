@@ -276,6 +276,17 @@ class GeneSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
 
+class GeneNoSpeciesSerializer(GeneSerializer):
+    """Gene serializer without returning species."""
+
+    species = None
+
+    class Meta(GeneSerializer.Meta):
+        """Meta configuration."""
+
+        fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
+
+
 class GeneTableSerializer(serializers.ModelSerializer):
     """Gene serializer returning HTML code for rich display of genes in a table."""
 
@@ -399,7 +410,8 @@ class GeneModuleSimilarityGeneSerializer(GeneSerializer):
         model = models.Gene
         fields = [
             "overlap",
-            "species",
+            "dataset",
+            "module",
             "name",
             "description",
             "domains",

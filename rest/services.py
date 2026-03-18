@@ -33,19 +33,35 @@ class GeneModuleSimilarityService:
         info,
         intersect_split=None,
     ):
-        all_groups = [("unique_module", unique1), ("unique_module2", unique2)]
+        groups = [
+            (f"unique_{dataset1}_{module1}", dataset1, module1, unique1),
+            (f"unique_{dataset2}_{module2}", dataset2, module2, unique2),
+        ]
 
         if intersect_split:
             im1, im2 = intersect_split
-            all_groups.extend([("shared_module", im1), ("shared_module2", im2)])
+            groups.extend([
+                (f"shared_{dataset1}_{module1}", dataset1, module1, im1),
+                (f"shared_{dataset2}_{module2}", dataset2, module2, im2),
+            ])
         else:
-            all_groups.extend([("shared", intersect)])
+            groups.append(("shared", None, None, intersect))
 
-        genes = [
-            {"overlap": cat, **g_data}
-            for cat, group in all_groups
-            for g_data in serializers.GeneSerializer([info[g] for g in group if info.get(g)], many=True).data
-        ]
+        genes = []
+        for overlap, dataset, module, group in groups:
+            data = [info[g] for g in group if g in info]
+            serialized = serializers.GeneNoSpeciesSerializer(data, many=True).data
+
+            genes.extend(
+                {
+                    "overlap": overlap,
+                    "dataset": dataset,
+                    "module": module,
+                    **g,
+                }
+                for g in serialized
+            )
+
         return genes
 
     def calculate_similarity(
@@ -158,7 +174,7 @@ class GeneModuleSimilarityService:
         self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False
     ):
         results = [
-            similarity_fn(dataset1, m1, g1, dataset2, m2, g2, genes_info, list_genes)
+            similarity_fn(dataset1.slug, m1, g1, dataset2.slug, m2, g2, genes_info, list_genes)
             for m1, g1 in module_dict1.items()
             for m2, g2 in module_dict2.items()
         ]

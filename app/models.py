@@ -115,8 +115,8 @@ class ExternalQueryMixin:
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
-    def get_html_link(self, url=None, show_common_name=False):
-        """Return HTML representation linking to the Dataset."""
+    def get_html_link(self, url=None, show_common_name=False, inline=False):
+        """Return HTML representation linking to species or dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.get_image_url()
         html = self.get_html()
@@ -130,10 +130,12 @@ class HtmlLinkMixin:
                 <span class="text-secondary small">{name}</span>
             """
 
+        # Inline other HTML elements or not
+        link_class = "d-flex align-items-center gap-1" if not inline else ""
+
         html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {label}"
-                     width="25px" src="{image_url}">
+            <a class="{link_class}" href="{url}">
+                <img class="rounded" alt="Image of {label}" width="25px" src="{image_url}">
                 <span>{html}</span>
             </a>
         """
@@ -142,6 +144,10 @@ class HtmlLinkMixin:
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
         return self.get_html_link(url=url, show_common_name=True)
+
+    def get_inline_html_link(self, url=None):
+        """Return inline HTML representation."""
+        return self.get_html_link(url=url, inline=True)
 
 
 class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):

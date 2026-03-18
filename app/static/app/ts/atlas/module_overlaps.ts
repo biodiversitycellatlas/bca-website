@@ -10,49 +10,63 @@ import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { linkDomains, linkOrthogroup } from "./tables/utils.ts"
 
-function renderCollapsibleRowGroups(rows, group) {
+function toggleRowGroupVisibility(rows, collapsed, group = null) {
+    rows.every(function () {
+        if (!group || this.data().overlap === group) {
+            this.node().style.display = collapsed ? "none" : "";
+        }
+    });
+}
+
+function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     // Row groups always start expanded
     const collapsed = false;
+    toggleRowGroupVisibility(rows, collapsed);
 
-    // Hide/show rows based on collapsed state
-    Array.from(rows.nodes()).forEach(function (r) {
-        r.style.display = collapsed ? "none" : "";
-    });
-
-    // Create the group row
+    // Create the group row with position-sticky
     const tr = document.createElement("tr");
     tr.dataset.name = group;
     tr.classList.add("group");
-    if (collapsed) tr.classList.add("collapsed");
+    tr.classList.add("collapsed");
 
-    // Add arrow and text
     const td = document.createElement("td");
+    td.className = "position-sticky top-0";
     td.colSpan = rows.nodes()[0].cells.length;
+
+    // Add group label with arrow to indicate if group is collapsed
+    const div = document.createElement("div");
+    div.className = "d-flex flex-wrap justify-content-between align-items-center";
 
     const icon = document.createElement("i");
     const arrow = collapsed ? "right" : "down";
     icon.className = `fa fa-caret-${arrow}`;
-    td.appendChild(icon);
-    td.appendChild(document.createTextNode(` ${group} (${rows.count()} genes)`));
 
-    tr.appendChild(td);
+    const [category, dataset, module] = group.split("_");
+    const groupLabel = category;
+    const label = document.createElement("span");
+    label.className = "position-sticky start-0 ps-1";
+    label.innerHTML = `${icon.outerHTML} ${datasetHtml[dataset]} ${module}`;
+    div.appendChild(label);
+
+    // Add gene count to the right side (as sticky element)
+    const count = document.createElement("span");
+    count.innerHTML = `${rows.count()} ${category} genes`;
+    count.className = "position-sticky end-0 pe-1";
+    div.appendChild(count);
+    td.appendChild(div);
 
     // Add click handler to collapse/expand row groups
+    tr.appendChild(td);
     tr.addEventListener('click', function () {
         tr.classList.toggle("collapsed");
         const collapsed = tr.classList.contains("collapsed");
 
         // Update arrow icon
-        const icon = td.querySelector("i.fa");
         const arrow = collapsed ? "right" : "down";
-        if (icon) icon.className = `fa fa-caret-${arrow}`;
+        td.querySelector("i.fa").className = `fa fa-caret-${arrow}`;
 
         // Collapse/expand row groups
-        rows.every(function () {
-            if (this.data().overlap === group) {
-                this.node().style.display = collapsed ? "none" : "";
-            }
-        });
+        toggleRowGroupVisibility(rows, collapsed, group);
     });
     return tr;
 }
@@ -61,21 +75,23 @@ function renderCollapsibleRowGroups(rows, group) {
  * Load table with shared and unique genes
  *
  * @param {string} id - Container ID for the heatmap plot.
- * @param {string} dataset - Dataset slug to fetch expression data for.
- * @param {string} dataset - Dataset2 slug to fetch expression data for.
+ * @param {string} dataset1 - Dataset slug to fetch expression data for.
+ * @param {string} dataset2 - Dataset 2 slug to fetch expression data for.
  * @param {Array} modules - Name of gene modules to compare.
  */
 export function loadModuleGeneTable(
     id,
-    dataset,
+    dataset1,
+    dataset1html,
     dataset2 = null,
+    dataset2html = null,
     modules = null,
 ) {
     if (!modules) return;
 
     const url = getDataPortalUrl(
         "rest:genemodulesimilaritygenes-list",
-        dataset,
+        dataset1,
         null,
         0,
         {
@@ -98,19 +114,28 @@ export function loadModuleGeneTable(
         columns: [
             { title: "Category", data: "overlap", visible: false },
             { title: "Gene", data: "name" },
-            { title: "Description", data: "description", visible: false },
+            { title: "Description", data: "description", visible: true },
             { title: "Domains", data: "domains", render: linkDomains },
-            { title: "Gene Lists", data: "genelists" },
+            { title: "Gene lists", data: "genelists", render: value => value.join(", ") },
             { title: "Orthogroup", data: "orthogroup", render: linkOrthogroup },
         ],
         orderFixed: [[0, "asc"]],
         rowGroup: {
             dataSrc: "overlap",
-            startRender: renderCollapsibleRowGroups,
+            startRender: function (rows, group) {
+                // Create dictionary with HTML of both datasets
+                const datasetHtml = {
+                    [dataset1]: dataset1html,
+                    ...(dataset2 ? { [dataset2]: dataset2html } : {})
+                };
+                return renderCollapsibleRowGroups(rows, group, datasetHtml);
+            }
+
         },
         responsive: true,
         scrollX: true,
         scrollY: "400px",
         paging: false,
+        language: { search: "", searchPlaceholder: "Search table..." },
     });
 }
