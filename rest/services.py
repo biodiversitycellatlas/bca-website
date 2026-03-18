@@ -40,10 +40,12 @@ class GeneModuleSimilarityService:
 
         if intersect_split:
             im1, im2 = intersect_split
-            groups.extend([
-                (f"shared_{dataset1}_{module1}", dataset1, module1, im1),
-                (f"shared_{dataset2}_{module2}", dataset2, module2, im2),
-            ])
+            groups.extend(
+                [
+                    (f"shared_{dataset1}_{module1}", dataset1, module1, im1),
+                    (f"shared_{dataset2}_{module2}", dataset2, module2, im2),
+                ]
+            )
         else:
             groups.append(("shared", None, None, intersect))
 

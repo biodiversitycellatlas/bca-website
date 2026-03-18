@@ -17,7 +17,14 @@ import { hideSpinner } from "./plots/plot_container.ts";
  * @param {string} dataset2html - Dataset 1 HTML representation.
  * @param {function} callback - Function to call with id, dataset and selected modules as arguments.
  */
-export function createClickHandler(id, dataset1, dataset1html, dataset2, dataset2html, callback) {
+export function createClickHandler(
+    id,
+    dataset1,
+    dataset1html,
+    dataset2,
+    dataset2html,
+    callback,
+) {
     return function handleClick(event, item) {
         const modules = [item.datum.module, item.datum.module2];
         callback(id, dataset1, dataset1html, dataset2, dataset2html, modules);
@@ -58,12 +65,30 @@ export function loadModuleSimilarityPlot(
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            const clickHandler = createClickHandler(id, dataset1, dataset1html, dataset2, dataset2html, onClick);
-            createSimilarityPlot(`#${id}-plot`, data, label1, label2, clickHandler);
+            const clickHandler = createClickHandler(
+                id,
+                dataset1,
+                dataset1html,
+                dataset2,
+                dataset2html,
+                onClick,
+            );
+            createSimilarityPlot(
+                `#${id}-plot`,
+                data,
+                label1,
+                label2,
+                clickHandler,
+            );
 
             // Automatically compare modules with highest similarity score
-            const mostSimilar = data.reduce((a, b) => a.similarity > b.similarity ? a : b);
-            onClick(id, dataset1, dataset1html, dataset2, dataset2html, [mostSimilar.module, mostSimilar.module2]);
+            const mostSimilar = data.reduce((a, b) =>
+                a.similarity > b.similarity ? a : b,
+            );
+            onClick(id, dataset1, dataset1html, dataset2, dataset2html, [
+                mostSimilar.module,
+                mostSimilar.module2,
+            ]);
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));

@@ -46,10 +46,12 @@ export function makeLinkGene(dataset) {
  * @returns {string|Array<string>} Comma-separated HTML links if type is "display"; otherwise, returns the original domains array.
  */
 export function linkDomains(domains, type) {
-    let domainLinks = [];
+    const domainLinks = [];
     if (type === "display") {
         for (const domain of domains) {
-            const url = getDataPortalUrl("domain_entry", null, null, null, { domain });
+            const url = getDataPortalUrl("domain_entry", null, null, null, {
+                domain,
+            });
             if (url) domainLinks.push(linkElement(domain, url));
         }
     }
@@ -65,7 +67,9 @@ export function linkDomains(domains, type) {
  */
 export function linkOrthogroup(orthogroup, type) {
     if (type === "display") {
-        const url = getDataPortalUrl("orthogroup_entry", null, null, null, { orthogroup });
+        const url = getDataPortalUrl("orthogroup_entry", null, null, null, {
+            orthogroup,
+        });
         if (url) orthogroup = linkElement(orthogroup, url);
     }
     return orthogroup;

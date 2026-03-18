@@ -8,7 +8,7 @@ import "datatables.net-rowgroup-bs5";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
-import { linkDomains, linkOrthogroup } from "./tables/utils.ts"
+import { linkDomains, linkOrthogroup } from "./tables/utils.ts";
 
 function toggleRowGroupVisibility(rows, collapsed, group = null) {
     rows.every(function () {
@@ -35,7 +35,8 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
 
     // Add group label with arrow to indicate if group is collapsed
     const div = document.createElement("div");
-    div.className = "d-flex flex-wrap justify-content-between align-items-center";
+    div.className =
+        "d-flex flex-wrap justify-content-between align-items-center";
 
     const icon = document.createElement("i");
     const arrow = collapsed ? "right" : "down";
@@ -57,7 +58,7 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
 
     // Add click handler to collapse/expand row groups
     tr.appendChild(td);
-    tr.addEventListener('click', function () {
+    tr.addEventListener("click", function () {
         tr.classList.toggle("collapsed");
         const collapsed = tr.classList.contains("collapsed");
 
@@ -116,7 +117,11 @@ export function loadModuleGeneTable(
             { title: "Gene", data: "name" },
             { title: "Description", data: "description", visible: true },
             { title: "Domains", data: "domains", render: linkDomains },
-            { title: "Gene lists", data: "genelists", render: value => value.join(", ") },
+            {
+                title: "Gene lists",
+                data: "genelists",
+                render: (value) => value.join(", "),
+            },
             { title: "Orthogroup", data: "orthogroup", render: linkOrthogroup },
         ],
         orderFixed: [[0, "asc"]],
@@ -126,11 +131,10 @@ export function loadModuleGeneTable(
                 // Create dictionary with HTML of both datasets
                 const datasetHtml = {
                     [dataset1]: dataset1html,
-                    ...(dataset2 ? { [dataset2]: dataset2html } : {})
+                    ...(dataset2 ? { [dataset2]: dataset2html } : {}),
                 };
                 return renderCollapsibleRowGroups(rows, group, datasetHtml);
-            }
-
+            },
         },
         responsive: true,
         scrollX: true,
