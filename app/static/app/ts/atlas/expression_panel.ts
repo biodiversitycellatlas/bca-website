@@ -108,21 +108,3 @@ export function handleFormSubmit(id, dataset, type) {
         modifyFormQuery(this, e, id, dataset, multiple);
     });
 }
-
-function toggleSubmitButton(id, select) {
-    const isEmpty = select.items.length === 0;
-    $(`#${id}_submit`).prop("disabled", isEmpty);
-}
-
-/**
- * Toggle the gene selection submit button based on current selection.
- *
- * @param {string} select - Select element.
- */
-export function initSubmitButtonToggler(id, select) {
-    // Enable/disable submit button
-    toggleSubmitButton(id, select);
-    select.on("change", function () {
-        toggleSubmitButton(id, select);
-    });
-}
