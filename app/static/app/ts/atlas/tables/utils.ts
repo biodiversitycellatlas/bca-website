@@ -28,13 +28,14 @@ function linkElement(text, url) {
  * @param {Object} dataset - Dataset reference for constructing gene URLs.
  * @returns {Function} A render function for DataTables.
  */
-export function makeLinkGene(dataset) {
-    return function linkGene(data, type) {
+export function makeLinkGene(fixedDataset = null) {
+    return function linkGene(gene, type, row, meta) {
         if (type === "display") {
-            const url = getDataPortalUrl("atlas_gene", dataset, data);
-            if (url) linkElement(data, url);
+            const dataset = fixedDataset || row.dataset;
+            const url = getDataPortalUrl("atlas_gene", dataset, gene);
+            if (url) gene = linkElement(gene, url);
         }
-        return data;
+        return gene;
     };
 }
 

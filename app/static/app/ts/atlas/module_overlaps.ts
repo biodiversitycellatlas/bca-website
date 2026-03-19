@@ -8,11 +8,11 @@ import "datatables.net-rowgroup-bs5";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
-import { linkDomains, linkOrthogroup } from "./tables/utils.ts";
+import { makeLinkGene, linkDomains, linkOrthogroup } from "./tables/utils.ts";
 
 function toggleRowGroupVisibility(rows, collapsed, group = null) {
     rows.every(function () {
-        if (!group || this.data().overlap === group) {
+        if (group === null || this.data().overlap === group) {
             this.node().style.display = collapsed ? "none" : "";
         }
     });
@@ -27,7 +27,6 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     const tr = document.createElement("tr");
     tr.dataset.name = group;
     tr.classList.add("group");
-    tr.classList.add("collapsed");
 
     const td = document.createElement("td");
     td.className = "position-sticky top-0";
@@ -45,8 +44,14 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     const [category, dataset, module] = group.split("_");
     const groupLabel = category;
     const label = document.createElement("span");
+
+    const labelHtml =
+        dataset && module
+            ? `${datasetHtml[dataset]} ${module}`
+            : `Intersecting genes`;
+    label.innerHTML = `${icon.outerHTML} ${labelHtml}`;
+
     label.className = "position-sticky start-0 ps-1";
-    label.innerHTML = `${icon.outerHTML} ${datasetHtml[dataset]} ${module}`;
     div.appendChild(label);
 
     // Add gene count to the right side (as sticky element)
@@ -114,8 +119,13 @@ export function loadModuleGeneTable(
         },
         columns: [
             { title: "Category", data: "overlap", visible: false },
-            { title: "Gene", data: "name" },
-            { title: "Description", data: "description", visible: true },
+            { title: "Gene", data: "name", render: makeLinkGene() },
+            {
+                title: "Description",
+                data: "description",
+                visible: true,
+                className: "truncate",
+            },
             { title: "Domains", data: "domains", render: linkDomains },
             {
                 title: "Gene lists",
