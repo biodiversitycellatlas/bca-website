@@ -8,7 +8,7 @@ import "datatables.net-rowgroup-bs5";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
-import { makeLinkGene, linkDomains, linkOrthogroup } from "./tables/utils.ts";
+import { makeLinkGene, linkGeneModule, linkGeneLists, linkDomains, linkOrthogroup } from "./tables/utils.ts";
 
 function toggleRowGroupVisibility(rows, collapsed, group = null) {
     rows.every(function () {
@@ -47,7 +47,7 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
 
     const labelHtml =
         dataset && module
-            ? `${datasetHtml[dataset]} ${module}`
+            ? `${datasetHtml[dataset]} • Gene module: ${linkGeneModule(dataset, module)}`
             : `Intersecting genes`;
     label.innerHTML = `${icon.outerHTML} ${labelHtml}`;
 
@@ -127,11 +127,7 @@ export function loadModuleGeneTable(
                 className: "truncate",
             },
             { title: "Domains", data: "domains", render: linkDomains },
-            {
-                title: "Gene lists",
-                data: "genelists",
-                render: (value) => value.join(", "),
-            },
+            { title: "Gene lists", data: "genelists", render: linkGeneLists },
             { title: "Orthogroup", data: "orthogroup", render: linkOrthogroup },
         ],
         orderFixed: [[0, "asc"]],

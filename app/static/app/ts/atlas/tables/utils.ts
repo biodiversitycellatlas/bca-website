@@ -28,16 +28,39 @@ function linkElement(text, url) {
  * @param {Object} dataset - Dataset reference for constructing gene URLs.
  * @returns {Function} A render function for DataTables.
  */
-export function makeLinkGene(fixedDataset = null) {
-    return function linkGene(gene, type, row, meta) {
-        if (type === "display") {
-            const dataset = fixedDataset || row.dataset;
-            const url = getDataPortalUrl("atlas_gene", dataset, gene);
-            if (url) gene = linkElement(gene, url);
-        }
-        return gene;
-    };
+export function makeLinkGene(dataset = null) {
+    return linkGene.bind(null, dataset)
 }
+
+/**
+ * Factory function that returns a renderer linking gene modules to the data portal.
+ *
+ * @param {Object} dataset - Dataset reference for constructing gene URLs.
+ * @returns {Function} A render function for DataTables.
+ */
+export function makeLinkGeneModule(dataset = null) {
+    return linkGeneModule.bind(null, dataset)
+}
+
+export function linkGene(dataset, gene, type = "display", row = null) {
+    if (type === "display") {
+        dataset ||= row?.dataset;
+        const url = getDataPortalUrl("atlas_gene", dataset, gene);
+        if (url) gene = linkElement(gene, url);
+    }
+    return gene;
+};
+
+export function linkGeneModule(dataset, gene_module, type = "display", row = null) {
+    if (type === "display") {
+        dataset ||= row?.dataset;
+        const url = getDataPortalUrl("gene_module_entry", dataset, null, null, {
+            gene_module
+        });
+        if (url) gene_module = linkElement(gene_module, url);
+    }
+    return gene_module;
+};
 
 /**
  * Converts an array of domain names into HTML links pointing to the data portal.
@@ -46,7 +69,7 @@ export function makeLinkGene(fixedDataset = null) {
  * @param {string} type - The DataTables rendering type (e.g., "display").
  * @returns {string|Array<string>} Comma-separated HTML links if type is "display"; otherwise, returns the original domains array.
  */
-export function linkDomains(domains, type) {
+export function linkDomains(domains, type = "display") {
     const domainLinks = [];
     if (type === "display") {
         for (const domain of domains) {
@@ -59,6 +82,19 @@ export function linkDomains(domains, type) {
     return domainLinks.length ? domainLinks.join(", ") : domains;
 }
 
+export function linkGeneLists(gene_lists, type = "display") {
+    const links = [];
+    if (type === "display") {
+        for (const gene_list of gene_lists) {
+            const url = getDataPortalUrl("gene_list_entry", null, null, null, {
+                gene_list,
+            });
+            if (url) links.push(linkElement(gene_list, url));
+        }
+    }
+    return links.length ? links.join(", ") : gene_lists;
+}
+
 /**
  * Converts an orthogroup identifier into an HTML link pointing to the data portal.
  *
@@ -66,7 +102,7 @@ export function linkDomains(domains, type) {
  * @param {string} type - The DataTables rendering type (e.g., "display").
  * @returns {string} HTML link if type is "display"; otherwise, returns the original orthogroup string.
  */
-export function linkOrthogroup(orthogroup, type) {
+export function linkOrthogroup(orthogroup, type = "display") {
     if (type === "display") {
         const url = getDataPortalUrl("orthogroup_entry", null, null, null, {
             orthogroup,
