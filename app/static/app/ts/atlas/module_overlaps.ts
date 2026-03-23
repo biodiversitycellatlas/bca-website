@@ -119,7 +119,7 @@ export function loadModuleGeneTable(
         },
         columns: [
             { title: "Category", data: "overlap", visible: false },
-            { title: "Gene", data: "name", render: makeLinkGene() },
+            { title: "Gene", data: "gene", render: makeLinkGene() },
             {
                 title: "Description",
                 data: "description",

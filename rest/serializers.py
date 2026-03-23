@@ -242,10 +242,11 @@ class StatsSerializer(serializers.ModelSerializer):
 class GeneSerializer(serializers.ModelSerializer):
     """Gene serializer."""
 
+    gene = serializers.CharField(source="name")
     species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
-    orthogroup = serializers.SerializerMethodField()
+    orthogroup = serializers.SerializerMethodField(help_text="Gene orthogroup")
 
     def get_orthogroup(self, obj):
         return getattr(obj.orthogroup, "name", None)
@@ -256,7 +257,7 @@ class GeneSerializer(serializers.ModelSerializer):
         model = models.Gene
         fields = [
             "species",
-            "name",
+            "gene",
             "description",
             "domains",
             "genelists",
@@ -285,27 +286,6 @@ class GeneNoSpeciesSerializer(GeneSerializer):
         """Meta configuration."""
 
         fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
-
-
-class GeneTableSerializer(serializers.ModelSerializer):
-    """Gene serializer returning HTML code for rich display of genes in a table."""
-
-    name = serializers.StringRelatedField()
-    genelists = serializers.StringRelatedField(many=True)
-    domains = serializers.StringRelatedField(many=True)
-    orthogroup = serializers.CharField(source="orthogroup.name")
-
-    class Meta:
-        """Meta configuration."""
-
-        model = models.Gene
-        fields = [
-            "name",
-            "description",
-            "domains",
-            "genelists",
-            "orthogroup",
-        ]
 
 
 class DomainSerializer(serializers.ModelSerializer):
@@ -402,6 +382,8 @@ class GeneModuleSimilaritySerializer(serializers.Serializer):
 class GeneModuleSimilarityGeneSerializer(GeneSerializer):
     """Gene module similarity genes serializer."""
 
+    dataset = serializers.SerializerMethodField(help_text="Dataset.")
+    module = serializers.SerializerMethodField(help_text="Module.")
     overlap = serializers.CharField(help_text="Category of overlap: unique to one module or shared between both.")
 
     class Meta:
