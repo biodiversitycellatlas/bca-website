@@ -175,12 +175,18 @@ class GeneModuleSimilarityService:
     def compare_modules(
         self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False
     ):
-        results = [
-            similarity_fn(dataset1.slug, m1, g1, dataset2.slug, m2, g2, genes_info, list_genes)
-            for m1, g1 in module_dict1.items()
-            for m2, g2 in module_dict2.items()
-        ]
-        return list(chain.from_iterable(results)) if list_genes else list(results)
+        # If module dictionaries are the same, avoid repeating calculations
+        skip_duplicates = module_dict1 == module_dict2
+
+        results = []
+        for i, (m1, g1) in enumerate(module_dict1.items()):
+            for j, (m2, g2) in enumerate(module_dict2.items()):
+                if skip_duplicates and j <= i:  # skip same module and tested pairs
+                    continue
+                r = similarity_fn(dataset1.slug, m1, g1, dataset2.slug, m2, g2, genes_info, list_genes)
+                results.append(r)
+
+        return list(chain.from_iterable(results)) if list_genes else results
 
     def compare_within_dataset(self, dataset, module=None, module2=None, list_genes=False):
         """Compare pairwise gene overlaps within a dataset."""
@@ -189,13 +195,18 @@ class GeneModuleSimilarityService:
         genes_info = self.prepare_genes_info(modules.all())
 
         # Filter module pairs if module/module2 specified
-        if module or module2:
-            filtered = {name: genes for name, genes in module_genes.items() if name in (module, module2)}
+        if module and module2:
+            filtered1 = {name: genes for name, genes in module_genes.items() if name in module}
+            filtered2 = {name: genes for name, genes in module_genes.items() if name in module2}
+        elif module:
+            filtered1 = {name: genes for name, genes in module_genes.items() if name in module}
+            filtered2 = filtered1
         else:
-            filtered = module_genes
+            filtered1 = module_genes
+            filtered2 = filtered1
 
         return self.compare_modules(
-            filtered, filtered, genes_info, self.calculate_gene_similarity, dataset, dataset, list_genes=list_genes
+            filtered1, filtered2, genes_info, self.calculate_gene_similarity, dataset, dataset, list_genes=list_genes
         )
 
     def compare_within_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
