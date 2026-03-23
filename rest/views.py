@@ -194,6 +194,10 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
         dataset = parse_species_dataset(dataset_slug)
         dataset2 = parse_species_dataset(dataset2_slug)
 
+        # Require modules when listing genes (to avoid slowdowns)
+        if self.list_genes and not (module and module2):
+            raise ValueError(f"Error: please define 'module' and 'module2' parameters")
+
         # Check if selected gene modules exist
         for m, d in ((module, dataset), (module2, dataset2)):
             if m is not None and not d.gene_modules.filter(name=m).exists():
