@@ -23,12 +23,15 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-# Copy binaries and dependencies
-COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
-COPY --from=postgres /usr/lib/*/libpq.so.5* /usr/lib/aarch64-linux-gnu/
+# Copy binaries and dependencies from other container images
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
-RUN ldconfig
+
+COPY --from=postgres /usr/lib/postgresql/*/bin/ /usr/bin/
+COPY --from=postgres /usr/lib/*/libpq.so* /usr/lib/
+RUN arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
+    ldconfig
 
 # Install JavaScript and CSS dependencies
 RUN bun install
