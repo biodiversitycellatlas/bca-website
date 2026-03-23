@@ -1,7 +1,7 @@
 Django==5.2.12
 django-colorfield==0.14.0
 gunicorn==25.1.0
-h5py==3.15.1
+h5py==3.16.0
 
 # Blog parsing
 beautifulsoup4==4.14.3
