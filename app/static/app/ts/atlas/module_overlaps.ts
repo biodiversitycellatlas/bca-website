@@ -80,7 +80,13 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     return tr;
 }
 
-function renderLinkGene(gene, type = "display", row = null, dataset1 = null, dataset2 = null) {
+function renderLinkGene(
+    gene,
+    type = "display",
+    row = null,
+    dataset1 = null,
+    dataset2 = null,
+) {
     if (type === "display") {
         const dataset = row?.dataset;
         if (dataset) {
@@ -88,8 +94,14 @@ function renderLinkGene(gene, type = "display", row = null, dataset1 = null, dat
         } else {
             const d1Label = dataset1.split("-").slice(2).join(" ");
             const d2Label = dataset2.split("-").slice(2).join(" ");
-            const d1Link = linkElement(d1Label, getDataPortalUrl("atlas_gene", dataset1, gene));
-            const d2Link = linkElement(d2Label, getDataPortalUrl("atlas_gene", dataset2, gene));
+            const d1Link = linkElement(
+                d1Label,
+                getDataPortalUrl("atlas_gene", dataset1, gene),
+            );
+            const d2Link = linkElement(
+                d2Label,
+                getDataPortalUrl("atlas_gene", dataset2, gene),
+            );
             gene = `${gene} (${d1Link}, ${d2Link})`;
         }
     }
@@ -115,8 +127,14 @@ export function loadModuleGeneTable(
     if (!modules) return;
 
     // Update span text
-    document.getElementById(`${id}-dataset-module`).innerHTML = linkGeneModule(dataset1, modules[0]);
-    document.getElementById(`${id}-dataset2-module`).innerHTML = linkGeneModule(dataset2, modules[1]);
+    document.getElementById(`${id}-dataset-module`).innerHTML = linkGeneModule(
+        dataset1,
+        modules[0],
+    );
+    document.getElementById(`${id}-dataset2-module`).innerHTML = linkGeneModule(
+        dataset2,
+        modules[1],
+    );
 
     const url = getDataPortalUrl(
         "rest:genemodulesimilaritygenes-list",
@@ -142,9 +160,12 @@ export function loadModuleGeneTable(
         },
         columns: [
             { title: "Category", data: "overlap", visible: false },
-            { title: "Gene", data: "gene", render: function(gene, type, row) {
-                    return renderLinkGene(gene, type, row, dataset1, dataset2)
-                }
+            {
+                title: "Gene",
+                data: "gene",
+                render: function (gene, type, row) {
+                    return renderLinkGene(gene, type, row, dataset1, dataset2);
+                },
             },
             {
                 title: "Description",
@@ -154,7 +175,11 @@ export function loadModuleGeneTable(
             },
             { title: "Domains", data: "domains", render: linkDomains },
             { title: "Gene lists", data: "genelists", render: linkGeneLists },
-            { title: "Orthogroups", data: "orthogroups", render: linkOrthogroups },
+            {
+                title: "Orthogroups",
+                data: "orthogroups",
+                render: linkOrthogroups,
+            },
         ],
         orderFixed: [[0, "asc"]],
         rowGroup: {

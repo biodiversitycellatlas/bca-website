@@ -82,10 +82,10 @@ VALIDATORS = {
         "help": "Enable Zizmor",
     },
     "javascript": {
-        "flags": ("--javascript", "--js"),
-        "env": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER"],
-        "category": "JavaScript",
-        "help": "Enable all JavaScript linters",
+        "flags": ("--javascript", "--js", "--typescript", "--ts"),
+        "env": ["JAVASCRIPT_ES", "JAVASCRIPT_PRETTIER", "TYPESCRIPT_ES", "TYPESCRIPT_PRETTIER"],
+        "category": "JavaScript/TypeScript",
+        "help": "Enable all JavaScript/TypeScript linters",
     },
     "javascript-es": {
         "flags": "--javascript-es",
@@ -98,6 +98,18 @@ VALIDATORS = {
         "env": ["JAVASCRIPT_PRETTIER"],
         "category": "JavaScript",
         "help": "Enable JavaScript Prettier",
+    },
+    "typescript-es": {
+        "flags": "--typescript-es",
+        "env": ["TYPESCRIPT_ES"],
+        "category": "TypeScript",
+        "help": "Enable TypeScript ES",
+    },
+    "typescript-prettier": {
+        "flags": "--typescript-prettier",
+        "env": ["TYPESCRIPT_PRETTIER"],
+        "category": "TypeScript",
+        "help": "Enable TypeScript Prettier",
     },
 }
 
