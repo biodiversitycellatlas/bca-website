@@ -247,10 +247,7 @@ class GeneSerializer(serializers.ModelSerializer):
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
     orthogroups = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name",
-        help_text="Gene orthogroups"
+        many=True, read_only=True, slug_field="name", help_text="Gene orthogroups"
     )
 
     class Meta:
