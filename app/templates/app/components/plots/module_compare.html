@@ -43,6 +43,33 @@ Input:
 
         <!-- Module comparison table -->
         <div class="col-12 col-lg-7">
+            <div class="d-flex justify-content-center gap-3 align-items-center flex-wrap small">
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset.get_html_link }}
+                    </div>
+                    <div>
+                        Gene module: <span id="{{ id }}-dataset-module">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                     style="width:50px;
+                            height:50px;
+                            background-color: var(--primary-color)">
+                    VS
+                </div>
+
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset2.get_html_link }}
+                    </div>
+                    <div>
+                        Gene module: <span id="{{ id }}-dataset2-module">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
             <table id="{{ id }}-module-compare-table"
                    class="table table-sm table-striped small">
             </table>

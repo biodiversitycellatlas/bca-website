@@ -114,6 +114,10 @@ export function loadModuleGeneTable(
 ) {
     if (!modules) return;
 
+    // Update span text
+    document.getElementById(`${id}-dataset-module`).innerHTML = linkGeneModule(dataset1, modules[0]);
+    document.getElementById(`${id}-dataset2-module`).innerHTML = linkGeneModule(dataset2, modules[1]);
+
     const url = getDataPortalUrl(
         "rest:genemodulesimilaritygenes-list",
         dataset1,
