@@ -29,7 +29,7 @@ function linkElement(text, url) {
  * @returns {Function} A render function for DataTables.
  */
 export function makeLinkGene(dataset = null) {
-    return linkGene.bind(null, dataset)
+    return linkGene.bind(null, dataset);
 }
 
 /**
@@ -39,7 +39,7 @@ export function makeLinkGene(dataset = null) {
  * @returns {Function} A render function for DataTables.
  */
 export function makeLinkGeneModule(dataset = null) {
-    return linkGeneModule.bind(null, dataset)
+    return linkGeneModule.bind(null, dataset);
 }
 
 export function linkGene(dataset, gene, type = "display", row = null) {
@@ -49,18 +49,23 @@ export function linkGene(dataset, gene, type = "display", row = null) {
         if (url) gene = linkElement(gene, url);
     }
     return gene;
-};
+}
 
-export function linkGeneModule(dataset, gene_module, type = "display", row = null) {
+export function linkGeneModule(
+    dataset,
+    gene_module,
+    type = "display",
+    row = null,
+) {
     if (type === "display") {
         dataset ||= row?.dataset;
         const url = getDataPortalUrl("gene_module_entry", dataset, null, null, {
-            gene_module
+            gene_module,
         });
         if (url) gene_module = linkElement(gene_module, url);
     }
     return gene_module;
-};
+}
 
 /**
  * Converts an array of domain names into HTML links pointing to the data portal.

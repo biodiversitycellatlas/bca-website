@@ -528,7 +528,7 @@ class GeneModuleSimilarity(GeneModulesData):
     def group_genes(self, sim):
         grouped = defaultdict(set)
         for row in sim:
-            grouped[row['overlap']].add(row['gene'])
+            grouped[row["overlap"]].add(row["gene"])
         return dict(grouped)
 
     def test_retrieve(self):
@@ -625,15 +625,12 @@ class GeneModuleSimilarity(GeneModulesData):
     def test_compare_within_species_genes_no_modules(self):
         """Raise error when listing genes without module parameters."""
         dataset = "species3-dataset3"
-        module = "module_123"
 
         # Raise error for not inputting modules to compare
-        module2 = "not_a_real_module"
         url = f"/api/v1/module_similarity_genes/?dataset={dataset}"
         with self.assertRaises(ValueError) as context:
             self.client.get(url)
         self.assertIn("please define 'module' and 'module2' parameters", str(context.exception))
-
 
     def test_compare_same_species(self):
         """Compare datasets from same species."""
@@ -676,9 +673,7 @@ class GeneModuleSimilarity(GeneModulesData):
         dataset2 = self.d2.slug
         self.assertEqual(self.d1.species, self.d2.species)
 
-        url = (
-            f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&sort_modules={sort_modules}"
-        )
+        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&sort_modules={sort_modules}"
         response = self.client.get(url)
         sim = response.data
 
@@ -725,10 +720,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
         url = (
-            f"/api/v1/module_similarity_genes/?dataset={dataset}"
-            f"&dataset2={dataset2}"
-            f"&module={ma.name}"
-            f"&module2={mb.name}"
+            f"/api/v1/module_similarity_genes/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}"
         )
         response = self.client.get(url)
         sim = response.data
@@ -741,7 +733,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(len(result), 3)
         self.assertSetEqual(result[f"unique_{dataset}_{ma.name}"], genes1 - genes2)
         self.assertSetEqual(result[f"unique_{dataset2}_{mb.name}"], genes2 - genes1)
-        self.assertSetEqual(result[f"shared"], genes1 & genes2)
+        self.assertSetEqual(result["shared"], genes1 & genes2)
 
     def test_compare_different_species(self):
         """Compare datasets from different species via orthologs."""
@@ -792,10 +784,7 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
         url = (
-            f"/api/v1/module_similarity_genes/?dataset={dataset}"
-            f"&dataset2={dataset2}"
-            f"&module={ma.name}"
-            f"&module2={mb.name}"
+            f"/api/v1/module_similarity_genes/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}"
         )
         response = self.client.get(url)
         sim = response.data

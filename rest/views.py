@@ -196,7 +196,7 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
 
         # Require modules when listing genes (to avoid slowdowns)
         if self.list_genes and not (module and module2):
-            raise ValueError(f"Error: please define 'module' and 'module2' parameters")
+            raise ValueError("Error: please define 'module' and 'module2' parameters")
 
         # Check if selected gene modules exist
         for m, d in ((module, dataset), (module2, dataset2)):

@@ -7,8 +7,13 @@ import "datatables.net-rowgroup-bs5";
 
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
-import { hideSpinner } from "./plots/plot_container.ts";
-import { makeLinkGene, linkGeneModule, linkGeneLists, linkDomains, linkOrthogroup } from "./tables/utils.ts";
+import {
+    makeLinkGene,
+    linkGeneModule,
+    linkGeneLists,
+    linkDomains,
+    linkOrthogroup,
+} from "./tables/utils.ts";
 
 function toggleRowGroupVisibility(rows, collapsed, group = null) {
     rows.every(function () {
@@ -42,7 +47,6 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     icon.className = `fa fa-caret-${arrow}`;
 
     const [category, dataset, module] = group.split("_");
-    const groupLabel = category;
     const label = document.createElement("span");
 
     const labelHtml =
@@ -148,4 +152,5 @@ export function loadModuleGeneTable(
         paging: false,
         language: { search: "", searchPlaceholder: "Search table..." },
     });
+    return table;
 }
