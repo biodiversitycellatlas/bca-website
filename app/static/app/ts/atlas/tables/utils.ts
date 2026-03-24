@@ -15,7 +15,7 @@ import { getDataPortalUrl } from "../../utils/urls.ts";
  * @param {string} url - The URL the link should point to.
  * @returns {string} HTML string of the anchor element.
  */
-function linkElement(text, url) {
+export function linkElement(text, url) {
     const a = document.createElement("a");
     a.href = url;
     a.textContent = text;

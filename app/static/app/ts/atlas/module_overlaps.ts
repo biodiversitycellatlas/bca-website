@@ -8,7 +8,8 @@ import "datatables.net-rowgroup-bs5";
 import { getDataPortalUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import {
-    makeLinkGene,
+    linkElement,
+    linkGene,
     linkGeneModule,
     linkGeneLists,
     linkDomains,
@@ -79,6 +80,22 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     return tr;
 }
 
+function renderLinkGene(gene, type = "display", row = null, dataset1 = null, dataset2 = null) {
+    if (type === "display") {
+        const dataset = row?.dataset;
+        if (dataset) {
+            gene = linkGene(dataset, gene, type, row);
+        } else {
+            const d1Label = dataset1.split("-").slice(2).join(" ");
+            const d2Label = dataset2.split("-").slice(2).join(" ");
+            const d1Link = linkElement(d1Label, getDataPortalUrl("atlas_gene", dataset1, gene));
+            const d2Link = linkElement(d2Label, getDataPortalUrl("atlas_gene", dataset2, gene));
+            gene = `${gene} (${d1Link}, ${d2Link})`;
+        }
+    }
+    return gene;
+}
+
 /**
  * Load table with shared and unique genes
  *
@@ -121,7 +138,10 @@ export function loadModuleGeneTable(
         },
         columns: [
             { title: "Category", data: "overlap", visible: false },
-            { title: "Gene", data: "gene", render: makeLinkGene() },
+            { title: "Gene", data: "gene", render: function(gene, type, row) {
+                    return renderLinkGene(gene, type, row, dataset1, dataset2)
+                }
+            },
             {
                 title: "Description",
                 data: "description",
