@@ -37,35 +37,33 @@ function renderCollapsibleRowGroups(rows, group, datasetHtml) {
     td.className = "position-sticky top-0";
     td.colSpan = rows.nodes()[0].cells.length;
 
-    // Add group label with arrow to indicate if group is collapsed
+    // Add label with arrow to indicate if group is collapsed
     const div = document.createElement("div");
     div.className =
         "d-flex flex-wrap justify-content-between align-items-center";
 
+    const [category, dataset, module] = group.split("_");
+    const label = document.createElement("span");
+
+    // Add gene count
     const icon = document.createElement("i");
     const arrow = collapsed ? "right" : "down";
     icon.className = `fa fa-caret-${arrow}`;
 
-    const [category, dataset, module] = group.split("_");
-    const label = document.createElement("span");
-
-    const labelHtml =
-        dataset && module
-            ? `${datasetHtml[dataset]} • Gene module: ${linkGeneModule(dataset, module)}`
-            : `Intersecting genes`;
-    label.innerHTML = `${icon.outerHTML} ${labelHtml}`;
-
-    label.className = "position-sticky start-0 ps-1";
-    div.appendChild(label);
-
-    // Add gene count to the right side (as sticky element)
     const count = document.createElement("span");
-    count.innerHTML = `${rows.count()} ${category} genes`;
-    count.className = "position-sticky end-0 pe-1";
+    count.innerHTML = `${icon.outerHTML} ${rows.count()} ${category} genes`;
+    count.className = "position-sticky start-0 ps-1";
     div.appendChild(count);
-    td.appendChild(div);
+
+    // Add group label
+    if (dataset && module) {
+        label.innerHTML = `${datasetHtml[dataset]} • Gene module: ${linkGeneModule(dataset, module)}`;
+        label.className = "position-sticky end-0 pe-1";
+        div.appendChild(label);
+    }
 
     // Add click handler to collapse/expand row groups
+    td.appendChild(div);
     tr.appendChild(td);
     tr.addEventListener("click", function () {
         tr.classList.toggle("collapsed");
