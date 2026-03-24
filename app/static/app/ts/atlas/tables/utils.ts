@@ -101,20 +101,23 @@ export function linkGeneLists(gene_lists, type = "display") {
 }
 
 /**
- * Converts an orthogroup identifier into an HTML link pointing to the data portal.
+ * Converts orthogroup identifiers into HTML links.
  *
  * @param {string} orthogroup - The orthogroup identifier.
  * @param {string} type - The DataTables rendering type (e.g., "display").
  * @returns {string} HTML link if type is "display"; otherwise, returns the original orthogroup string.
  */
-export function linkOrthogroup(orthogroup, type = "display") {
+export function linkOrthogroups(orthogroups, type = "display") {
+    const links = [];
     if (type === "display") {
-        const url = getDataPortalUrl("orthogroup_entry", null, null, null, {
-            orthogroup,
-        });
-        if (url) orthogroup = linkElement(orthogroup, url);
+        for (const orthogroup of orthogroups) {
+            const url = getDataPortalUrl("orthogroup_entry", null, null, null, {
+                orthogroup,
+            });
+            if (url) links.push(linkElement(orthogroup, url));
+        }
     }
-    return orthogroup;
+    return links.length ? links.join(", ") : orthogroups;
 }
 
 /**

@@ -496,13 +496,17 @@ class GeneModuleSimilarity(GeneModulesData):
         og1 = Orthogroup.objects.create(name="og1")
         og2 = Orthogroup.objects.create(name="og2")
         og3 = Orthogroup.objects.create(name="og3")
+        og4 = Orthogroup.objects.create(name="og4")
 
         genes[3].orthologs.create(species=cls.d2.species, orthogroup=og1)
         genes[4].orthologs.create(species=cls.d2.species, orthogroup=og3)
         s3_genes[5].orthologs.create(species=s3, orthogroup=og1)
         s3_genes[6].orthologs.create(species=s3, orthogroup=og2)
         s3_genes[7].orthologs.create(species=s3, orthogroup=og3)
+
+        # Create gene with multiple orthogroups to test similarity comparison case
         s3_genes[8].orthologs.create(species=s3, orthogroup=og3)
+        s3_genes[8].orthologs.create(species=s3, orthogroup=og4)
 
     def run_similarity_tests(self, sim, expected):
         for m, (module, module2, uniq, uniq2, intersecting) in zip(sim, expected):
@@ -523,7 +527,7 @@ class GeneModuleSimilarity(GeneModulesData):
             self.assertEqual(m["dataset"], dataset)
             self.assertEqual(m["module"], module)
             self.assertEqual(m["gene"], gene)
-            self.assertEqual(m["orthogroup"], og)
+            self.assertEqual(m["orthogroups"], og)
 
     def group_genes(self, sim):
         grouped = defaultdict(set)
@@ -597,15 +601,15 @@ class GeneModuleSimilarity(GeneModulesData):
         # Test module eigengenes
         expected = [
             # (overlap, dataset, module, gene, orthogroup)
-            (f"unique_{dataset}_{module}", dataset, module, "gene5", None),
-            (f"unique_{dataset}_{module}", dataset, module, "gene6", None),
-            (f"unique_{dataset}_{module}", dataset, module, "gene7", None),
-            (f"unique_{dataset}_{module}", dataset, module, "gene8", None),
-            (f"unique_{dataset}_{module}", dataset, module, "gene9", None),
-            (f"unique_{dataset}_{module}", dataset, module, "gene12", "og1"),
-            (f"unique_{dataset}_{module2}", dataset, module2, "gene4", None),
-            ("shared", None, None, "gene10", None),
-            ("shared", None, None, "gene11", None),
+            (f"unique_{dataset}_{module}", dataset, module, "gene5", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene6", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene7", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene8", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene9", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene12", ["og1"]),
+            (f"unique_{dataset}_{module2}", dataset, module2, "gene4", []),
+            ("shared", None, None, "gene10", []),
+            ("shared", None, None, "gene11", []),
         ]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -791,9 +795,9 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check orthologues
-        genes1_ogs = set(ma.genes.filter(orthogroup__isnull=False).values_list("name", flat=True))
+        genes1_ogs = set(ma.genes.filter(orthogroups__isnull=False).values_list("name", flat=True))
         self.assertSetEqual(genes1_ogs, {"gene2"})
-        genes2_ogs = set(mb.genes.filter(orthogroup__isnull=False).values_list("name", flat=True))
+        genes2_ogs = set(mb.genes.filter(orthogroups__isnull=False).values_list("name", flat=True))
         self.assertSetEqual(genes2_ogs, {"geneH", "geneI"})
 
         # Test results

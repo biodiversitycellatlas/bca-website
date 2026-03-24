@@ -13,7 +13,7 @@ import {
     linkGeneModule,
     linkGeneLists,
     linkDomains,
-    linkOrthogroup,
+    linkOrthogroups,
 } from "./tables/utils.ts";
 
 function toggleRowGroupVisibility(rows, collapsed, group = null) {
@@ -154,7 +154,7 @@ export function loadModuleGeneTable(
             },
             { title: "Domains", data: "domains", render: linkDomains },
             { title: "Gene lists", data: "genelists", render: linkGeneLists },
-            { title: "Orthogroup", data: "orthogroup", render: linkOrthogroup },
+            { title: "Orthogroups", data: "orthogroups", render: linkOrthogroups },
         ],
         orderFixed: [[0, "asc"]],
         rowGroup: {

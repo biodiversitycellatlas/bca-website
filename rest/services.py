@@ -21,6 +21,9 @@ class GeneModuleSimilarityService:
     def prepare_genes_info(self, modules):
         return {g.id: g for m in modules for g in m.genes.all()}
 
+    def flat(self, d, keys):
+        return list(chain.from_iterable(d.get(k, []) for k in keys))
+
     def list_shared_genes(
         self,
         dataset1,
@@ -157,20 +160,25 @@ class GeneModuleSimilarityService:
         unique2_ogs = ogs2_set - ogs1_set
         shared_ogs = ogs1_set & ogs2_set
 
-        # Retrieve corresponding genes
-        unique1 = list(chain.from_iterable(orthogroups1.get(i, []) for i in unique1_ogs))
-        unique1 += list(orthogroups1.get(None, []))  # include genes without orthogroups
-        unique2 = list(chain.from_iterable(orthogroups2.get(i, []) for i in unique2_ogs))
-        unique2 += list(orthogroups2.get(None, []))  # include genes without orthogroups
-        shared1 = list(chain.from_iterable(orthogroups1.get(i, []) for i in shared_ogs))
-        shared2 = list(chain.from_iterable(orthogroups2.get(i, []) for i in shared_ogs))
+        # Retrieve shared genes
+        shared1 = self.flat(orthogroups1, shared_ogs)
+        shared2 = self.flat(orthogroups2, shared_ogs)
         shared = shared1 + shared2
 
+        # Retrieve unique genes including those without orthogroups
+        unique1 = self.flat(orthogroups1, unique1_ogs) + list(orthogroups1.get(None, []))
+        unique2 = self.flat(orthogroups2, unique2_ogs) + list(orthogroups2.get(None, []))
+
+        # Remove duplicate genes and those from shared (e.g., multi-orthogroup genes)
+        unique1 = list(set(unique1) - set(shared1))
+        unique2 = list(set(unique2) - set(shared2))
+
+        # Prepare arguments to run functions
         args = (d1, m1, unique1, d2, m2, unique2, shared, genes_info)
+
         if list_genes:
-            args += ((shared1, shared2),)
-        fn = self.list_shared_genes if list_genes else self.calculate_similarity
-        return fn(*args)
+            return self.list_shared_genes(*args, (shared1, shared2))
+        return self.calculate_similarity(*args)
 
     def compare_modules(
         self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False
@@ -231,12 +239,12 @@ class GeneModuleSimilarityService:
         d1_modules = dataset1.gene_modules.prefetch_related("genes")
         if module:
             d1_modules = d1_modules.filter(name=module)
-        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroup", "genes")
+        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroups", "genes")
 
         d2_modules = dataset2.gene_modules.prefetch_related("genes")
         if module2:
             d2_modules = d2_modules.filter(name=module2)
-        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroup", "genes")
+        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroups", "genes")
 
         modules = list(d1_modules.all()) + list(d2_modules.all())
         genes_info = self.prepare_genes_info(modules)

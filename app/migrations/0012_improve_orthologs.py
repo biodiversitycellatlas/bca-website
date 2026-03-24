@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100, unique=True)),
-                ('genes', models.ManyToManyField(through='app.Ortholog', to='app.gene')),
+                ('genes', models.ManyToManyField(related_name='orthogroups', through='app.Ortholog', to='app.gene')),
             ],
             options={
                 'ordering': ['name'],

@@ -246,10 +246,12 @@ class GeneSerializer(serializers.ModelSerializer):
     species = serializers.CharField(required=False)
     genelists = serializers.StringRelatedField(many=True)
     domains = serializers.StringRelatedField(many=True)
-    orthogroup = serializers.SerializerMethodField(help_text="Gene orthogroup")
-
-    def get_orthogroup(self, obj):
-        return getattr(obj.orthogroup, "name", None)
+    orthogroups = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        help_text="Gene orthogroups"
+    )
 
     class Meta:
         """Meta configuration."""
@@ -261,7 +263,7 @@ class GeneSerializer(serializers.ModelSerializer):
             "description",
             "domains",
             "genelists",
-            "orthogroup",
+            "orthogroups",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -398,7 +400,7 @@ class GeneModuleSimilarityGeneSerializer(GeneSerializer):
             "description",
             "domains",
             "genelists",
-            "orthogroup",
+            "orthogroups",
         ]
 
 
