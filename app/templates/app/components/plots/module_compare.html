@@ -10,6 +10,14 @@ Input:
 
 {% load static %}
 
+<style>
+    #{{ id }}-vs-module {
+        width:50px;
+        height:50px;
+        background-color: var(--primary-color)
+    }
+</style>
+
 <div class="row g-2 mb-4 align-items-start">
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -53,10 +61,8 @@ Input:
                     </div>
                 </div>
 
-                <div class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow"
-                     style="width:50px;
-                            height:50px;
-                            background-color: var(--primary-color)">
+                <div id="{{ id }}-vs-module"
+                     class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow">
                     VS
                 </div>
 
