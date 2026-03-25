@@ -56,8 +56,10 @@ Input:
                     <div>
                         {{ dataset.get_html_link }}
                     </div>
-                    <div>
-                        Gene module: <span id="{{ id }}-dataset-module">Loading...</span>
+                    <div id="{{ id }}-dataset-module">
+                        Loading module...
+                    </div>
+                    <div id="{{ id }}-dataset-module-genes">
                     </div>
                 </div>
 
@@ -70,10 +72,14 @@ Input:
                     <div>
                         {{ dataset2.get_html_link }}
                     </div>
-                    <div>
-                        Gene module: <span id="{{ id }}-dataset2-module">Loading...</span>
+                    <div id="{{ id }}-dataset2-module">
+                        Loading module...
+                    </div>
+                    <div id="{{ id }}-dataset2-module-genes">
                     </div>
                 </div>
+            </div>
+            <div id="{{ id }}-jaccard" class="text-center small">
             </div>
 
             <table id="{{ id }}-module-compare-table"

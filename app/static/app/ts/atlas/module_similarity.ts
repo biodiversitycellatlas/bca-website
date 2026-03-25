@@ -17,17 +17,9 @@ import { hideSpinner } from "./plots/plot_container.ts";
  * @param {string} dataset2html - Dataset 1 HTML representation.
  * @param {function} callback - Function to call with id, dataset and selected modules as arguments.
  */
-export function createClickHandler(
-    id,
-    dataset1,
-    dataset1html,
-    dataset2,
-    dataset2html,
-    callback,
-) {
+export function createClickHandler(id, dataset1html, dataset2html, callback) {
     return function handleClick(event, item) {
-        const modules = [item.datum.module, item.datum.module2];
-        callback(id, dataset1, dataset1html, dataset2, dataset2html, modules);
+        callback(id, dataset1html, dataset2html, item.datum);
     };
 }
 
@@ -67,9 +59,7 @@ export function loadModuleSimilarityPlot(
         .then((data) => {
             const clickHandler = createClickHandler(
                 id,
-                dataset1,
                 dataset1html,
-                dataset2,
                 dataset2html,
                 onClick,
             );
@@ -85,10 +75,7 @@ export function loadModuleSimilarityPlot(
             const mostSimilar = data.reduce((a, b) =>
                 a.similarity > b.similarity ? a : b,
             );
-            onClick(id, dataset1, dataset1html, dataset2, dataset2html, [
-                mostSimilar.module,
-                mostSimilar.module2,
-            ]);
+            onClick(id, dataset1html, dataset2html, mostSimilar);
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));

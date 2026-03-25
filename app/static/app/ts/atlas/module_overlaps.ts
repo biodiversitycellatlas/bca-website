@@ -118,23 +118,28 @@ function renderLinkGene(
  */
 export function loadModuleGeneTable(
     id,
-    dataset1,
     dataset1html,
-    dataset2 = null,
     dataset2html = null,
-    modules = null,
+    data = null,
 ) {
     if (!modules) return;
 
-    // Update span text
-    document.getElementById(`${id}-dataset-module`).innerHTML = linkGeneModule(
-        dataset1,
-        modules[0],
-    );
-    document.getElementById(`${id}-dataset2-module`).innerHTML = linkGeneModule(
-        dataset2,
-        modules[1],
-    );
+    console.log(data);
+    const dataset1 = data.dataset,
+        dataset2 = data.dataset2;
+
+    console.log(data);
+    // Update module information
+    document.getElementById(`${id}-dataset-module`).innerHTML =
+        `${linkGeneModule(dataset1, data.module)} module`;
+    document.getElementById(`${id}-dataset-module-genes`).innerHTML =
+        `Genes: ${data.shared_genes_module} shared, ${data.unique_genes_module} unique`;
+    document.getElementById(`${id}-dataset2-module`).innerHTML =
+        `${linkGeneModule(dataset2, data.module2)} module`;
+    document.getElementById(`${id}-dataset2-module-genes`).innerHTML =
+        `Genes: ${data.shared_genes_module2} shared, ${data.unique_genes_module2} unique`;
+    document.getElementById(`${id}-jaccard`).innerHTML =
+        `Jaccard similarity index: ${Math.round(data.similarity * 100)}%`;
 
     const url = getDataPortalUrl(
         "rest:genemodulesimilaritygenes-list",
@@ -143,8 +148,8 @@ export function loadModuleGeneTable(
         0,
         {
             list_genes: 1,
-            module: modules[0],
-            module2: modules[1],
+            module: data.module,
+            module2: data.module2,
             ...(dataset2 && { dataset2 }),
         },
     );

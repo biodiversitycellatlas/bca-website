@@ -76,18 +76,12 @@ export function createSimilarityPlot(
                 },
                 sort: { field: "index" },
             },
-            size: {
-                field: "similarity",
-                type: "quantitative",
-                title: "Similarity",
-            },
             color: {
                 field: "similarity",
                 type: "quantitative",
                 scale: { range: COLOR_SCALE },
-                title: "Similarity",
+                legend: { title: "Similarity", format: ".0%" },
             },
-            text: { field: "similarity", type: "quantitative", format: "d'%'" },
         },
         view: { stroke: null },
     };

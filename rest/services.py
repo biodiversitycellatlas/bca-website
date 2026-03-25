@@ -32,17 +32,17 @@ class GeneModuleSimilarityService:
         dataset2,
         module2,
         unique2,
-        intersect,
+        shared,
         info,
-        intersect_split=None,
+        shared_split=None,
     ):
         groups = [
             (f"unique_{dataset1}_{module1}", dataset1, module1, unique1),
             (f"unique_{dataset2}_{module2}", dataset2, module2, unique2),
         ]
 
-        if intersect_split:
-            im1, im2 = intersect_split
+        if shared_split:
+            im1, im2 = shared_split
             groups.extend(
                 [
                     (f"shared_{dataset1}_{module1}", dataset1, module1, im1),
@@ -50,7 +50,7 @@ class GeneModuleSimilarityService:
                 ]
             )
         else:
-            groups.append(("shared", None, None, intersect))
+            groups.append(("shared", None, None, shared))
 
         genes = []
         for overlap, dataset, module, group in groups:
@@ -77,8 +77,9 @@ class GeneModuleSimilarityService:
         dataset2,
         module2,
         unique2,
-        intersect,
+        shared,
         genes_info,
+        shared_split=None,
     ):
         """
         Compute overlap statistics between two gene sets or modules.
@@ -91,11 +92,20 @@ class GeneModuleSimilarityService:
         """
         unique1_count = len(unique1)
         unique2_count = len(unique2)
-        intersect_count = len(intersect)
-        union_count = unique1_count + unique2_count + intersect_count
+        shared_count = len(shared)
+        union_count = unique1_count + unique2_count + shared_count
 
         # Calculate Jaccard similarity index
-        jaccard = round(intersect_count / union_count * 100) if union_count else 0
+        jaccard = round(shared_count / union_count, 2) if union_count else 0
+
+        # Split shared genes
+        if shared_split:
+            shared1, shared2 = shared_split
+        else:
+            shared1 = shared
+            shared2 = shared
+        shared1_count = len(shared1)
+        shared2_count = len(shared2)
 
         results = {
             "dataset": dataset1,
@@ -103,7 +113,8 @@ class GeneModuleSimilarityService:
             "dataset2": dataset2,
             "module2": module2,
             "similarity": jaccard,
-            "intersecting_genes": intersect_count,
+            "shared_genes_module": shared1_count,
+            "shared_genes_module2": shared2_count,
             "unique_genes_module": unique1_count,
             "unique_genes_module2": unique2_count,
         }
@@ -125,14 +136,14 @@ class GeneModuleSimilarityService:
 
         Returns:
             dict: Overlap statistics including similarity percentage,
-            counts of unique/intersecting genes, and optionally gene lists.
+            counts of unique/shared genes, and optionally gene lists.
         """
         unique1 = m1_genes - m2_genes
         unique2 = m2_genes - m1_genes
-        intersect = m1_genes & m2_genes
+        shared = m1_genes & m2_genes
 
         fn = self.list_shared_genes if list_genes else self.calculate_similarity
-        return fn(d1, m1, unique1, d2, m2, unique2, intersect, genes_info)
+        return fn(d1, m1, unique1, d2, m2, unique2, shared, genes_info)
 
     def calculate_orthogroup_similarity(self, d1, m1, orthogroups1, d2, m2, orthogroups2, genes_info, list_genes=False):
         """
@@ -150,9 +161,9 @@ class GeneModuleSimilarityService:
 
         Returns:
             dict: Overlap statistics based on orthogroups, including similarity
-            percentage, counts of unique/intersecting genes, and optionally gene lists.
+            percentage, counts of unique/shared genes, and optionally gene lists.
         """
-        # Calculate intersecting orthogroups
+        # Calculate shared orthogroups
         ogs1_set = orthogroups1.keys() - {None}
         ogs2_set = orthogroups2.keys() - {None}
 
@@ -174,11 +185,10 @@ class GeneModuleSimilarityService:
         unique2 = list(set(unique2) - set(shared2))
 
         # Prepare arguments to run functions
-        args = (d1, m1, unique1, d2, m2, unique2, shared, genes_info)
+        args = (d1, m1, unique1, d2, m2, unique2, shared, genes_info, (shared1, shared2))
 
-        if list_genes:
-            return self.list_shared_genes(*args, (shared1, shared2))
-        return self.calculate_similarity(*args)
+        fn = self.list_shared_genes if list_genes else self.calculate_similarity
+        return fn(*args)
 
     def compare_modules(
         self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False

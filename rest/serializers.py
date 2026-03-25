@@ -371,11 +371,12 @@ class GeneModuleSimilaritySerializer(serializers.Serializer):
     dataset2 = serializers.CharField(help_text="Dataset 2.")
     module2 = serializers.CharField(help_text="Gene module 2.")
 
-    similarity = serializers.IntegerField(help_text="Jaccard similarity index ( intersection / union ) in percentage.")
+    similarity = serializers.FloatField(help_text="Jaccard similarity index ( shared / union ).")
 
+    shared_genes_module = serializers.IntegerField(help_text="Number of shared genes from module 1.")
+    shared_genes_module2 = serializers.IntegerField(help_text="Number of shared genes from module 2.")
     unique_genes_module = serializers.IntegerField(help_text="Number of unique genes for the first module.")
     unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes for the second module.")
-    intersecting_genes = serializers.IntegerField(help_text="Number of intersecting genes between modules.")
 
 
 class GeneModuleSimilarityGeneSerializer(GeneSerializer):
