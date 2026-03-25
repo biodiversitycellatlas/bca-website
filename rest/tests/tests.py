@@ -509,17 +509,26 @@ class GeneModuleSimilarity(GeneModulesData):
         s3_genes[8].orthologs.create(species=s3, orthogroup=og4)
 
     def run_similarity_tests(self, sim, expected):
-        for m, (module, module2, uniq, uniq2, intersecting) in zip(sim, expected):
+        for m, (module, module2, uniq, uniq2, shared, *shared_split) in zip(sim, expected):
+            if shared_split:
+                # Jaccard similarity index via othorgroups
+                shared1, shared2 = shared_split
+            else:
+                # Jaccard similarity index via genes directly
+                shared1 = shared
+                shared2 = shared
+
             # Calculate Jaccard similarity index in percentage
-            total = uniq + uniq2 + intersecting
-            jaccard = 0 if total == 0 else round(intersecting / total * 100)
+            total = uniq + uniq2 + shared
+            jaccard = round(shared / total, 2) if total else 0
 
             self.assertEqual(m["module"], module)
             self.assertEqual(m["module2"], module2)
             self.assertEqual(m["similarity"], jaccard)
             self.assertEqual(m["unique_genes_module"], uniq)
             self.assertEqual(m["unique_genes_module2"], uniq2)
-            self.assertEqual(m["intersecting_genes"], intersecting)
+            self.assertEqual(m["shared_genes_module"], shared1)
+            self.assertEqual(m["shared_genes_module2"], shared2)
 
     def run_similarity_genes_tests(self, sim, expected):
         for m, (type, dataset, module, gene, og) in zip(sim, expected):
@@ -544,7 +553,7 @@ class GeneModuleSimilarity(GeneModulesData):
 
         # Test module eigengenes
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_000", "module_123", 0, 8, 0),
             ("module_000", "module_abc", 0, 3, 0),
             ("module_000", "module_xyz", 0, 3, 0),
@@ -580,7 +589,7 @@ class GeneModuleSimilarity(GeneModulesData):
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_123", "module_abc", 6, 1, 2),
         ]
 
@@ -647,7 +656,7 @@ class GeneModuleSimilarity(GeneModulesData):
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_000", "module_blue", 0, 5, 0),
             ("module_000", "module_green", 0, 7, 0),
             ("module_000", "module_orange", 0, 0, 0),
@@ -682,7 +691,7 @@ class GeneModuleSimilarity(GeneModulesData):
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_123", "module_yellow", 4, 1, 4),
             ("module_123", "module_green", 4, 3, 4),
             ("module_xyz", "module_blue", 1, 3, 2),
@@ -750,19 +759,19 @@ class GeneModuleSimilarity(GeneModulesData):
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
-            ("module_blue", "modalpha", 4, 3, 3),
-            ("module_blue", "modbeta", 5, 0, 0),
-            ("module_blue", "modgamma", 4, 3, 3),
-            ("module_green", "modalpha", 5, 2, 5),
-            ("module_green", "modbeta", 7, 0, 0),
-            ("module_green", "modgamma", 6, 3, 3),
-            ("module_orange", "modalpha", 0, 5, 0),
-            ("module_orange", "modbeta", 0, 0, 0),
-            ("module_orange", "modgamma", 0, 5, 0),
-            ("module_yellow", "modalpha", 4, 4, 2),
-            ("module_yellow", "modbeta", 5, 0, 0),
-            ("module_yellow", "modgamma", 5, 5, 0),
+            # (module, module2, unique_genes_module, unique_genes_module2, shared, shared1, shared2)
+            ("module_blue", "modalpha", 4, 3, 3, 1, 2),
+            ("module_blue", "modbeta", 5, 0, 0, 0, 0),
+            ("module_blue", "modgamma", 4, 3, 3, 1, 2),
+            ("module_green", "modalpha", 5, 2, 5, 2, 3),
+            ("module_green", "modbeta", 7, 0, 0, 0, 0),
+            ("module_green", "modgamma", 6, 3, 3, 1, 2),
+            ("module_orange", "modalpha", 0, 5, 0, 0, 0),
+            ("module_orange", "modbeta", 0, 0, 0, 0, 0),
+            ("module_orange", "modgamma", 0, 5, 0, 0, 0),
+            ("module_yellow", "modalpha", 4, 4, 2, 1, 1),
+            ("module_yellow", "modbeta", 5, 0, 0, 0, 0),
+            ("module_yellow", "modgamma", 5, 5, 0, 0, 0),
         ]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
