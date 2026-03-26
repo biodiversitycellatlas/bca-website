@@ -67,7 +67,7 @@ jobs:
                       python manage.py check --deploy
 
     bun-ci:
-        name: Typescript Tests via Bun
+        name: Bun Tests (Typescript)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code

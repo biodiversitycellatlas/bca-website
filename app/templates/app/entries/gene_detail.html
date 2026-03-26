@@ -35,14 +35,14 @@
 
         <div class="col-md-8">
             <h2 class="h4">
-                Orthogroup
+                Orthogroups
             </h2>
 
             <p>
-                {% if gene.orthogroup %}
-                    {{ gene.get_orthogroup_html_link }}
+                {% if gene.orthogroups.all %}
+                    {{ gene.get_orthogroup_html_links }}
                 {% else %}
-                    No orthogroup.
+                    No orthogroups.
                 {% endif %}
             </p>
 

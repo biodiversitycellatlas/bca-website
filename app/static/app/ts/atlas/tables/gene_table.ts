@@ -6,7 +6,7 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
-import { makeLinkGene, parseArray } from "./utils.ts";
+import { makeLinkGene, linkDomains } from "./utils.ts";
 
 function buildDataQuery(data) {
     let ordering;
@@ -53,8 +53,8 @@ export function createGeneTable(
     // Columns to display
     let cols = [
         {
-            name: "name",
-            data: "name",
+            name: "gene",
+            data: "gene",
             title: "Gene",
             orderable: false,
             render: linkGene,
@@ -71,7 +71,7 @@ export function createGeneTable(
             data: "domains",
             title: "Domains",
             orderable: false,
-            render: parseArray,
+            render: linkDomains,
             className: "truncate",
         },
     ];

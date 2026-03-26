@@ -71,6 +71,7 @@ export function getDataPortalUrl(
             "rest:genemodulemembership-list",
             "rest:genemoduleeigengene-list",
             "rest:genemodulesimilarity-list",
+            "rest:genemodulesimilaritygenes-list",
         ].includes(view)
     ) {
         url = prepareUrlParams(url, dataset, gene, limit, extraParams);
@@ -82,20 +83,16 @@ export function getDataPortalUrl(
     } else if (["rest:genelist-list"].includes(view)) {
         url = prepareUrlParams(url, null, null, limit, extraParams);
     } else {
-        if (dataset) url = url.replace("DATASET_PLACEHOLDER", dataset);
-        if (gene) url = url.replace("GENE_PLACEHOLDER", gene);
-        if (extraParams?.gene_module) {
-            url = url.replace(
-                "GENE_MODULE_PLACEHOLDER",
-                extraParams.gene_module,
-            );
-        }
-        if (extraParams?.species) {
-            url = url.replace("SPECIES_PLACEHOLDER", extraParams.species);
-        }
-        if (extraParams?.gene_list) {
-            url = url.replace("GENE_LIST_PLACEHOLDER", extraParams.gene_list);
-        }
+        url = url
+            .replace("DATASET_PLACEHOLDER", dataset || "")
+            .replace("GENE_PLACEHOLDER", gene || "")
+            .replace("MODULE_PLACEHOLDER", extraParams.gene_module || "")
+            .replace("SPECIES_PLACEHOLDER", extraParams.species || "")
+            .replace("GENE_LIST_PLACEHOLDER", extraParams.gene_list || "")
+            .replace("ORTHOGROUP_PLACEHOLDER", extraParams.orthogroup || "")
+            .replace("DOMAIN_PLACEHOLDER", extraParams.domain || "")
+            // Replace consecutive slashes with a single slash
+            .replace(/\/+/g, "/");
     }
     return url;
 }

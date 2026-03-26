@@ -1,5 +1,4 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import $ from "jquery";
 import { initRangeSlider } from "../utils/range_slider";
 
 describe("Range Slider Utils", () => {
@@ -13,8 +12,8 @@ describe("Range Slider Utils", () => {
 
     test("initRangeSlider initializes slider", () => {
         // Check initial label
-        const label = $("#label");
-        expect(label.text()).toBe("5 eggs");
+        const label = document.getElementById("label");
+        expect(label.textContent).toBe("5 eggs");
 
         // Initialize slider
         const opts = { min: 0, max: 5, from: 3, step: 0.1 };
@@ -34,7 +33,7 @@ describe("Range Slider Utils", () => {
 
         // Update label
         expect(label).toBeDefined();
-        expect(label.text()).toBe("3 eggs");
+        expect(label.textContent).toBe("3 eggs");
 
         // Update slider's from_min based on slider2's from value
         const slider2 = initRangeSlider("#slider2", opts, [

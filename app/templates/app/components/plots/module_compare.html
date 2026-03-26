@@ -10,67 +10,105 @@ Input:
 
 {% load static %}
 
-<div class="row">
-    <div class="col-12 col-md-5 col-lg-6">
-        {% include "../plot_container.html" with id=id ratio="16/9" %}
-    </div>
+<style>
+    #{{ id }}-vs-module {
+        width:50px;
+        height:50px;
+        background-color: var(--primary-color)
+    }
+</style>
 
-    <div class="col">
-        <div id="{{ id }}-module-header" class="row">
-            <span class="text-secondary small">
-                <i class="fa fa-question-circle"></i>
-                Please click a value in the plot to compare genes between two modules.
-            </span>
+<div class="row g-2 mb-4 align-items-start">
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-list-check"></i>
+                Dataset for comparison
+            </label>
         </div>
-        <div id="{{ id }}-module-genes" class="row small">
+
+        <div class="btn-group w-400px" role="group">
+            {% include "../select/dataset.html" with id="modules" redirect="query" placeholder="Search..." prefix="" class="w-100" dataset=dataset2.slug anchor="modules" %}
         </div>
     </div>
 </div>
 
-<!-- Template for module header -->
-<template id="{{ id }}-module-header-template">
-    <div class="col-4">
-        <p class="p-0 m-0 module-name">
-            Module
-        </p>
-        <ul class="list-unstyled text-secondary small m-0">
-            <li class="gene-count">
-                20 unique genes
-            </li>
+{% if not dataset2 %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Choose a dataset to compare.
+    </p>
+{% elif dataset2 == dataset %}
+    <p class="text-muted">
+        <i class="fa fa-circle-exclamation"></i>
+        Choose a dataset different than the current one to compare.
+    </p>
+{% else %}
+    <div class="row">
+        <div class="col-12 col-lg-5">
+            {% include "../plot_container.html" with id=id ratio="16/9" %}
+        </div>
 
-            <li class="btn-group-vertical w-100" role="group">
-                <!-- Buttons -->
-                <a class="btn btn-outline-primary btn-xs show-genes-btn"
-                   data-bs-toggle="collapse"
-                   href="#">
-                    <i class="fa fa-eye"></i> Show all genes
-                </a>
-                <a class="btn btn-outline-primary btn-xs gene-list-btn" href="#">
-                    <i class="fa fa-list"></i> Create gene list
-                </a>
-                <a class="btn btn-outline-primary btn-xs plot-expression-btn" href="#">
-                    <i class="fa fa-solar-panel"></i> Plot expression
-                </a>
-            </li>
-        </ul>
+        <!-- Module comparison table -->
+        <div class="col-12 col-lg-7">
+            <div class="d-flex justify-content-center gap-3 align-items-center text-center small">
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-dataset-module">
+                        Loading module...
+                    </div>
+                    <div id="{{ id }}-dataset-module-genes">
+                    </div>
+                </div>
+
+                <div id="{{ id }}-vs-module"
+                     class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow">
+                    VS
+                </div>
+
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset2.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-dataset2-module">
+                        Loading module...
+                    </div>
+                    <div id="{{ id }}-dataset2-module-genes">
+                    </div>
+                </div>
+            </div>
+            <div id="{{ id }}-jaccard" class="text-center small">
+            </div>
+
+            <table id="{{ id }}-module-compare-table"
+                   class="table table-sm table-striped small">
+            </table>
+        </div>
     </div>
-</template>
 
-<!-- Template for gene list -->
-<template id="{{ id }}-module-genes-template">
-    <div class="col-4">
-        <ul class="list-unstyled gene-list">
-            <!-- List of genes is inserted here -->
-        </ul>
-    </div>
-</template>
+    <!-- JavaScript code -->
+    <script type="module">
+        {% load static %}
+        import { loadModuleSimilarityPlot } from "{% static 'app/js/atlas/module_similarity.js' %}";
+        import { loadModuleGeneTable } from "{% static 'app/js/atlas/module_overlaps.js' %}";
 
-<!-- JavaScript code -->
-<script type="module">
-    {% load static %}
-    import { loadModuleSimilarityPlot } from "{% static 'app/js/atlas/module_similarity.js' %}";
-    import { loadModuleGeneLists } from "{% static 'app/js/atlas/module_overlaps.js' %}";
+        // Load intersecting and unique genes from selected modules in the plot
+        const id = "{{ id }}",
+              d1 = "{{ dataset.slug }}",
+              d1html = `{{ dataset.get_inline_html_link }}`,
+              d1label = "{{ dataset }}";
+        {% if dataset2 %}
+            const d2 = "{{ dataset2.slug }}",
+                  d2html = `{{ dataset2.get_inline_html_link }}`,
+                  d2label = "{{ dataset2 }}";
+        {% else %}
+            const d2 = null,
+                  d2html = null,
+                  d2label = null;
+        {% endif %}
 
-    // Load intersecting and unique genes from selected modules in the plot
-    loadModuleSimilarityPlot("{{ id }}", "{{ dataset.slug }}", loadModuleGeneLists);
-</script>
+        loadModuleSimilarityPlot(id, d1, d1label, d1html, d2, d2label, d2html, loadModuleGeneTable);
+    </script>
+{% endif %}

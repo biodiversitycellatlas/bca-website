@@ -57,6 +57,10 @@ body {
     z-index: 999 !important;
 }
 
+.vega-embed.has-actions {
+    padding-right: 12px !important;
+}
+
 .pagination {
     --bs-pagination-color: var(--primary-color);
     --bs-pagination-active-color: white;
@@ -68,7 +72,7 @@ body {
 .truncate {
     max-width: 200px;
     white-space: nowrap;
-    overflow: auto;
+    overflow: clip;
     text-overflow: ellipsis;
 }
 

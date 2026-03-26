@@ -1,10 +1,10 @@
+"""REST API views."""
+
 import logging
 import os
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
-from itertools import combinations
-from itertools import chain
 
 from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
@@ -15,8 +15,8 @@ from rest_framework.response import Response
 
 from app.managers import ExpressionDataManager
 from app import models
-from . import filters, serializers
-from .utils import get_enum_description, get_path_param, parse_species_dataset, group_by_key
+from . import filters, serializers, services
+from .utils import get_enum_description, get_path_param, parse_species_dataset
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -144,7 +144,7 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List gene modules", tags=["Gene module"])
+@extend_schema(summary="List modules", tags=["Gene module"])
 class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     """List gene modules."""
 
@@ -154,7 +154,7 @@ class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List gene module membership", tags=["Gene module"])
+@extend_schema(summary="List module membership", tags=["Gene module"])
 class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
     """List gene membership in gene modules."""
 
@@ -165,11 +165,15 @@ class GeneModuleMembershipViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="List gene module similarity",
+    summary="List module similarity",
     tags=["Gene module"],
 )
 class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
-    """List similarity between all gene modules in a dataset."""
+    """
+    List similarity between multiple gene modules across datasets.
+
+    For datasets from different species, comparisons are based on common [orthologs](#/operations/orthologs_list).
+    """
 
     queryset = models.GeneModule.objects.prefetch_related("membership")
     serializer_class = serializers.GeneModuleSimilaritySerializer
@@ -177,167 +181,58 @@ class GeneModuleSimilarityViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
     pagination_class = None
 
-    def compute_gene_overlap(self, m1, m1_genes, m2, m2_genes, list_genes=False):
-        unique_m1 = m1_genes - m2_genes
-        unique_m2 = m2_genes - m1_genes
-        intersecting = m1_genes & m2_genes
-        union = m1_genes | m2_genes
-
-        unique_m1_values = len(unique_m1)
-        unique_m2_values = len(unique_m2)
-        intersecting_values = len(intersecting)
-        union_values = len(union)
-
-        elem = {
-            "module": m1,
-            "module2": m2,
-            "similarity": round(intersecting_values / union_values * 100) if union_values > 0 else 0,
-            "intersecting_genes": intersecting_values,
-            "unique_genes_module": unique_m1_values,
-            "unique_genes_module2": unique_m2_values,
-        }
-
-        if list_genes:
-            elem.update(
-                {
-                    "unique_genes_module_list": unique_m1,
-                    "unique_genes_module2_list": unique_m2,
-                    "intersecting_genes_list": intersecting,
-                }
-            )
-        return elem
-
-    def compare_within_dataset(self, dataset, module=None, module2=None, list_genes=False):
-        """Compare pairwise gene overlaps within a dataset."""
-        modules = dataset.gene_modules.prefetch_related("genes")
-        module_genes = group_by_key(modules, "name", "genes__name")
-
-        # Calculate for each unique combination (avoid calculating overlaps twice)
-        overlaps = []
-        pairs = combinations(module_genes.items(), 2)
-
-        for (m1, m1_genes), (m2, m2_genes) in pairs:
-            if module and module not in (m1, m2):
-                continue
-            elif module2 and module2 not in (m1, m2):
-                continue
-
-            o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
-            overlaps.append(o)
-        return overlaps
-
-    def compare_within_species(self, dataset, dataset2, module=None, module2=None, list_genes=False):
-        """Compare pairwise gene overlaps between two datasets of the same species."""
-        d1_modules = dataset.gene_modules.prefetch_related("genes")
-        if module:
-            d1_modules = d1_modules.filter(name=module)
-        d1_module_genes = group_by_key(d1_modules, "name", "genes__name")
-
-        d2_modules = dataset2.gene_modules.prefetch_related("genes")
-        if module2:
-            d2_modules = d2_modules.filter(name=module2)
-        d2_module_genes = group_by_key(d2_modules, "name", "genes__name")
-
-        overlaps = []
-        for m1, m1_genes in d1_module_genes.items():
-            for m2, m2_genes in d2_module_genes.items():
-                o = self.compute_gene_overlap(m1, m1_genes, m2, m2_genes, list_genes)
-                overlaps.append(o)
-        return overlaps
-
-    def compute_orthogroup_overlap(self, m1, m1_orthogroups, m2, m2_orthogroups, list_genes=False):
-        m1_ogs = m1_orthogroups.keys() - {None}
-        m2_ogs = m2_orthogroups.keys() - {None}
-
-        # Calculate intersecting orthogroups
-        unique_m1_ogs = m1_ogs - m2_ogs
-        unique_m2_ogs = m2_ogs - m1_ogs
-        intersecting_ogs = m1_ogs & m2_ogs
-
-        # Retrieve corresponding genes
-        unique_m1 = list(chain.from_iterable(m1_orthogroups.get(i, []) for i in unique_m1_ogs))
-        unique_m1 += list(m1_orthogroups.get(None, []))  # include genes without orthogroups
-        unique_m2 = list(chain.from_iterable(m2_orthogroups.get(i, []) for i in unique_m2_ogs))
-        unique_m2 += list(m2_orthogroups.get(None, []))  # include genes without orthogroups
-        intersecting_m1 = list(chain.from_iterable(m1_orthogroups.get(i, []) for i in intersecting_ogs))
-        intersecting_m2 = list(chain.from_iterable(m2_orthogroups.get(i, []) for i in intersecting_ogs))
-        intersecting = intersecting_m1 + intersecting_m2
-
-        # Count values
-        unique_m1_values = len(unique_m1)
-        unique_m2_values = len(unique_m2)
-        intersecting_values = len(intersecting)
-
-        # Assuming previous values are correct, this is quicker but equal to:
-        # sum([len(i) for i in m1_orthogroups.values()]) + sum([len(i) for i in m2_orthogroups.values()])
-        union_values = unique_m1_values + unique_m2_values + intersecting_values
-
-        elem = {
-            "module": m1,
-            "module2": m2,
-            "similarity": round(intersecting_values / union_values * 100) if union_values > 0 else 0,
-            "intersecting_genes": intersecting_values,
-            "unique_genes_module": unique_m1_values,
-            "unique_genes_module2": unique_m2_values,
-        }
-
-        if list_genes:
-            elem.update(
-                {
-                    "unique_genes_module_list": unique_m1,
-                    "unique_genes_module2_list": unique_m2,
-                    "intersecting_genes_list": intersecting,
-                    "intersecting_genes_module_list": intersecting_m1,
-                    "intersecting_genes_module2_list": intersecting_m2,
-                }
-            )
-        return elem
-
-    def compare_across_species(self, dataset, dataset2, module=None, module2=None, list_genes=False):
-        """Compare pairwise orthogroup overlaps for each gene across species."""
-        d1_modules = dataset.gene_modules.prefetch_related("genes")
-        if module:
-            d1_modules = d1_modules.filter(name=module)
-        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroup", "genes__name")
-
-        d2_modules = dataset2.gene_modules.prefetch_related("genes")
-        if module2:
-            d2_modules = d2_modules.filter(name=module2)
-        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroup", "genes__name")
-
-        overlaps = []
-        for m1, m1_orthogroups in d1_module_orthogroups.items():
-            for m2, m2_orthogroups in d2_module_orthogroups.items():
-                o = self.compute_orthogroup_overlap(m1, m1_orthogroups, m2, m2_orthogroups, list_genes)
-                overlaps.append(o)
-        return overlaps
+    list_genes = False
 
     def list(self, request, *args, **kwargs):
         # Parse query parameters
         dataset_slug = self.request.query_params.get("dataset")
         dataset2_slug = self.request.query_params.get("dataset2") or dataset_slug  # if undefined, use dataset
-        list_genes = self.request.query_params.get("list_genes") in ["true", "1", "True"]
         module = self.request.query_params.get("module")
         module2 = self.request.query_params.get("module2")
+        sort_modules = self.request.query_params.get("sort_modules") in ["true", "1", "True"]
 
         dataset = parse_species_dataset(dataset_slug)
         dataset2 = parse_species_dataset(dataset2_slug)
 
-        # Check if gene modules exist
+        # Require modules when listing genes (to avoid slowdowns)
+        if self.list_genes and not (module and module2):
+            raise ValueError("Error: please define 'module' and 'module2' parameters")
+
+        # Check if selected gene modules exist
         for m, d in ((module, dataset), (module2, dataset2)):
             if m is not None and not d.gene_modules.filter(name=m).exists():
                 raise ValueError(f"Error: module {m} does not exist in {d}")
 
-        # Different comparison methods of gene module similarity
-        if dataset == dataset2:
-            overlaps = self.compare_within_dataset(dataset, module, module2, list_genes)
-        elif dataset.species == dataset2.species:
-            overlaps = self.compare_within_species(dataset, dataset2, module, module2, list_genes)
-        else:
-            overlaps = self.compare_across_species(dataset, dataset2, module, module2, list_genes)
+        service = services.GeneModuleSimilarityService()
+        overlaps = service.compare(dataset, dataset2, module, module2, self.list_genes)
+
+        if self.list_genes:
+            # Already serialized
+            return Response(overlaps)
+
+        # Sort modules based on highest similarity score
+        if sort_modules:
+            overlaps = sorted(overlaps, key=lambda x: x["similarity"], reverse=True)
 
         serializer = self.get_serializer(overlaps, many=True)
         return Response(serializer.data)
+
+
+@extend_schema(
+    summary="List module similarity genes",
+    tags=["Gene module"],
+)
+class GeneModuleSimilarityGenesViewSet(GeneModuleSimilarityViewSet):
+    """
+    List unique and shared genes between gene modules across datasets.
+
+    For datasets from different species, comparisons are based on common [orthologs](#/operations/orthologs_list).
+    """
+
+    serializer_class = serializers.GeneModuleSimilarityGeneSerializer
+    filterset_class = filters.GeneModuleSimilarityGenesFilter
+
+    list_genes = True
 
 
 @extend_schema(summary="List module eigengenes", tags=["Gene module"])

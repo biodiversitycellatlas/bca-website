@@ -1,6 +1,7 @@
 import math
 import tempfile
 import os.path
+from collections import defaultdict
 
 from django.core.files import File as DjangoFile
 from django.test import override_settings
@@ -109,7 +110,7 @@ class GeneTests(APITestCase):
         genes = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(genes), 2)
-        self.assertSetEqual({s["name"] for s in genes}, {"Gene1", "Gene2"})
+        self.assertSetEqual({s["gene"] for s in genes}, {"Gene1", "Gene2"})
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -450,7 +451,7 @@ class GeneModulesTests(GeneModulesData):
 
 
 class GeneModuleSimilarity(GeneModulesData):
-    """Tests GeneModuleSimilarity endpoint"""
+    """Tests GeneModuleSimilarity and GeneModuleSimilarityGenes endpoints"""
 
     @classmethod
     def setUpTestData(cls):
@@ -495,26 +496,53 @@ class GeneModuleSimilarity(GeneModulesData):
         og1 = Orthogroup.objects.create(name="og1")
         og2 = Orthogroup.objects.create(name="og2")
         og3 = Orthogroup.objects.create(name="og3")
+        og4 = Orthogroup.objects.create(name="og4")
 
         genes[3].orthologs.create(species=cls.d2.species, orthogroup=og1)
         genes[4].orthologs.create(species=cls.d2.species, orthogroup=og3)
         s3_genes[5].orthologs.create(species=s3, orthogroup=og1)
         s3_genes[6].orthologs.create(species=s3, orthogroup=og2)
         s3_genes[7].orthologs.create(species=s3, orthogroup=og3)
-        s3_genes[8].orthologs.create(species=s3, orthogroup=og3)
 
-    def run_expected_tests(self, sim, expected):
-        for m, (module, module2, uniq, uniq2, intersecting) in zip(sim, expected):
+        # Create gene with multiple orthogroups to test similarity comparison case
+        s3_genes[8].orthologs.create(species=s3, orthogroup=og3)
+        s3_genes[8].orthologs.create(species=s3, orthogroup=og4)
+
+    def run_similarity_tests(self, sim, expected):
+        for m, (module, module2, uniq, uniq2, shared, *shared_split) in zip(sim, expected):
+            if shared_split:
+                # Jaccard similarity index via othorgroups
+                shared1, shared2 = shared_split
+            else:
+                # Jaccard similarity index via genes directly
+                shared1 = shared
+                shared2 = shared
+
             # Calculate Jaccard similarity index in percentage
-            total = uniq + uniq2 + intersecting
-            jaccard = 0 if total == 0 else round(intersecting / total * 100)
+            total = uniq + uniq2 + shared
+            jaccard = round(shared / total, 2) if total else 0
 
             self.assertEqual(m["module"], module)
             self.assertEqual(m["module2"], module2)
             self.assertEqual(m["similarity"], jaccard)
             self.assertEqual(m["unique_genes_module"], uniq)
             self.assertEqual(m["unique_genes_module2"], uniq2)
-            self.assertEqual(m["intersecting_genes"], intersecting)
+            self.assertEqual(m["shared_genes_module"], shared1)
+            self.assertEqual(m["shared_genes_module2"], shared2)
+
+    def run_similarity_genes_tests(self, sim, expected):
+        for m, (type, dataset, module, gene, og) in zip(sim, expected):
+            self.assertEqual(m["overlap"], type)
+            self.assertEqual(m["dataset"], dataset)
+            self.assertEqual(m["module"], module)
+            self.assertEqual(m["gene"], gene)
+            self.assertEqual(m["orthogroups"], og)
+
+    def group_genes(self, sim):
+        grouped = defaultdict(set)
+        for row in sim:
+            grouped[row["overlap"]].add(row["gene"])
+        return dict(grouped)
 
     def test_retrieve(self):
         dataset = "species3-dataset3"
@@ -525,7 +553,7 @@ class GeneModuleSimilarity(GeneModulesData):
 
         # Test module eigengenes
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_000", "module_123", 0, 8, 0),
             ("module_000", "module_abc", 0, 3, 0),
             ("module_000", "module_xyz", 0, 3, 0),
@@ -536,7 +564,7 @@ class GeneModuleSimilarity(GeneModulesData):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), len(expected))
-        self.run_expected_tests(sim, expected)
+        self.run_similarity_tests(sim, expected)
 
     def test_nonexisting_module(self):
         """Raise error when using non-existing modules."""
@@ -561,46 +589,61 @@ class GeneModuleSimilarity(GeneModulesData):
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_123", "module_abc", 6, 1, 2),
         ]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), len(expected))
-        self.run_expected_tests(sim, expected)
+        self.run_similarity_tests(sim, expected)
 
-    def test_gene_list(self):
+    def test_compare_within_species_genes(self):
         """Retrieve list of genes."""
         dataset = "species3-dataset3"
         module = "module_123"
         module2 = "module_abc"
-        list_genes = 1
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&module={module}&module2={module2}&list_genes={list_genes}"
+        url = f"/api/v1/module_similarity_genes/?dataset={dataset}&module={module}&module2={module2}"
         response = self.client.get(url)
         sim = response.data
 
         # Test module eigengenes
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
-            ("module_123", "module_abc", 6, 1, 2),
+            # (overlap, dataset, module, gene, orthogroup)
+            (f"unique_{dataset}_{module}", dataset, module, "gene5", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene6", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene7", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene8", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene9", []),
+            (f"unique_{dataset}_{module}", dataset, module, "gene12", ["og1"]),
+            (f"unique_{dataset}_{module2}", dataset, module2, "gene4", []),
+            ("shared", None, None, "gene10", []),
+            ("shared", None, None, "gene11", []),
         ]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), len(expected))
-        self.run_expected_tests(sim, expected)
+        self.run_similarity_genes_tests(sim, expected)
 
         genes_123 = {"gene5", "gene6", "gene7", "gene8", "gene9", "gene12"}
         genes_abc = {"gene4"}
         genes_both = {"gene10", "gene11"}
 
-        for m in sim:
-            self.assertEqual(m["unique_genes_module"], len(genes_123))
-            self.assertEqual(m["unique_genes_module2"], len(genes_abc))
-            self.assertEqual(m["intersecting_genes"], len(genes_both))
-            self.assertSetEqual(set(m["unique_genes_module_list"]), genes_123)
-            self.assertSetEqual(set(m["unique_genes_module2_list"]), genes_abc)
-            self.assertSetEqual(set(m["intersecting_genes_list"]), genes_both)
+        result = self.group_genes(sim)
+        self.assertEqual(len(result), 3)
+        self.assertSetEqual(result["unique_species3-dataset3_module_123"], genes_123)
+        self.assertSetEqual(result["unique_species3-dataset3_module_abc"], genes_abc)
+        self.assertSetEqual(result["shared"], genes_both)
+
+    def test_compare_within_species_genes_no_modules(self):
+        """Raise error when listing genes without module parameters."""
+        dataset = "species3-dataset3"
+
+        # Raise error for not inputting modules to compare
+        url = f"/api/v1/module_similarity_genes/?dataset={dataset}"
+        with self.assertRaises(ValueError) as context:
+            self.client.get(url)
+        self.assertIn("please define 'module' and 'module2' parameters", str(context.exception))
 
     def test_compare_same_species(self):
         """Compare datasets from same species."""
@@ -608,12 +651,12 @@ class GeneModuleSimilarity(GeneModulesData):
         dataset2 = self.d2.slug
         self.assertEqual(self.d1.species, self.d2.species)
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&list_genes=1"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}"
         response = self.client.get(url)
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
             ("module_000", "module_blue", 0, 5, 0),
             ("module_000", "module_green", 0, 7, 0),
             ("module_000", "module_orange", 0, 0, 0),
@@ -634,10 +677,45 @@ class GeneModuleSimilarity(GeneModulesData):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), len(expected))
-        self.run_expected_tests(sim, expected)
+        self.run_similarity_tests(sim, expected)
 
-    def test_compare_same_species_filter(self):
-        """Compare datasets from same species with module filtering."""
+    def test_compare_same_species_sorted(self):
+        """Compare datasets from same species."""
+        sort_modules = "true"
+        dataset = self.d1.slug
+        dataset2 = self.d2.slug
+        self.assertEqual(self.d1.species, self.d2.species)
+
+        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&sort_modules={sort_modules}"
+        response = self.client.get(url)
+        sim = response.data
+
+        expected = [
+            # (module, module2, unique_genes_module, unique_genes_module2, shared)
+            ("module_123", "module_yellow", 4, 1, 4),
+            ("module_123", "module_green", 4, 3, 4),
+            ("module_xyz", "module_blue", 1, 3, 2),
+            ("module_123", "module_blue", 5, 2, 3),
+            ("module_abc", "module_green", 1, 5, 2),
+            ("module_xyz", "module_green", 1, 5, 2),
+            ("module_abc", "module_blue", 2, 4, 1),
+            ("module_xyz", "module_yellow", 2, 4, 1),
+            ("module_000", "module_blue", 0, 5, 0),
+            ("module_000", "module_green", 0, 7, 0),
+            ("module_000", "module_orange", 0, 0, 0),
+            ("module_000", "module_yellow", 0, 5, 0),
+            ("module_123", "module_orange", 8, 0, 0),
+            ("module_abc", "module_orange", 3, 0, 0),
+            ("module_abc", "module_yellow", 3, 5, 0),
+            ("module_xyz", "module_orange", 3, 0, 0),
+        ]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(sim), len(expected))
+        self.run_similarity_tests(sim, expected)
+
+    def test_compare_same_species_genes(self):
+        """Compare genes from same species with module filtering."""
         dataset = self.d1.slug
         dataset2 = self.d2.slug
         self.assertEqual(self.d1.species, self.d2.species)
@@ -655,21 +733,20 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
         url = (
-            f"/api/v1/module_similarity/?dataset={dataset}"
-            f"&dataset2={dataset2}"
-            f"&module={ma.name}"
-            f"&module2={mb.name}"
-            f"&list_genes=1"
+            f"/api/v1/module_similarity_genes/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}"
         )
         response = self.client.get(url)
         sim = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Test results
-        self.assertEqual(len(sim), 1)
-        self.assertSetEqual(set(sim[0]["unique_genes_module_list"]), genes1 - genes2)
-        self.assertSetEqual(set(sim[0]["unique_genes_module2_list"]), genes2 - genes1)
-        self.assertSetEqual(set(sim[0]["intersecting_genes_list"]), genes1 & genes2)
+        self.assertEqual(len(sim), len(genes1 | genes2))
+
+        result = self.group_genes(sim)
+        self.assertEqual(len(result), 3)
+        self.assertSetEqual(result[f"unique_{dataset}_{ma.name}"], genes1 - genes2)
+        self.assertSetEqual(result[f"unique_{dataset2}_{mb.name}"], genes2 - genes1)
+        self.assertSetEqual(result["shared"], genes1 & genes2)
 
     def test_compare_different_species(self):
         """Compare datasets from different species via orthologs."""
@@ -677,31 +754,31 @@ class GeneModuleSimilarity(GeneModulesData):
         dataset2 = self.d3.slug
         self.assertNotEqual(self.d2.species, self.d3.species)
 
-        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}&list_genes=1"
+        url = f"/api/v1/module_similarity/?dataset={dataset}&dataset2={dataset2}"
         response = self.client.get(url)
         sim = response.data
 
         expected = [
-            # (module, module2, unique_genes_module, unique_genes_module2, intersecting)
-            ("module_blue", "modalpha", 4, 3, 3),
-            ("module_blue", "modbeta", 5, 0, 0),
-            ("module_blue", "modgamma", 4, 3, 3),
-            ("module_green", "modalpha", 5, 2, 5),
-            ("module_green", "modbeta", 7, 0, 0),
-            ("module_green", "modgamma", 6, 3, 3),
-            ("module_orange", "modalpha", 0, 5, 0),
-            ("module_orange", "modbeta", 0, 0, 0),
-            ("module_orange", "modgamma", 0, 5, 0),
-            ("module_yellow", "modalpha", 4, 4, 2),
-            ("module_yellow", "modbeta", 5, 0, 0),
-            ("module_yellow", "modgamma", 5, 5, 0),
+            # (module, module2, unique_genes_module, unique_genes_module2, shared, shared1, shared2)
+            ("module_blue", "modalpha", 4, 3, 3, 1, 2),
+            ("module_blue", "modbeta", 5, 0, 0, 0, 0),
+            ("module_blue", "modgamma", 4, 3, 3, 1, 2),
+            ("module_green", "modalpha", 5, 2, 5, 2, 3),
+            ("module_green", "modbeta", 7, 0, 0, 0, 0),
+            ("module_green", "modgamma", 6, 3, 3, 1, 2),
+            ("module_orange", "modalpha", 0, 5, 0, 0, 0),
+            ("module_orange", "modbeta", 0, 0, 0, 0, 0),
+            ("module_orange", "modgamma", 0, 5, 0, 0, 0),
+            ("module_yellow", "modalpha", 4, 4, 2, 1, 1),
+            ("module_yellow", "modbeta", 5, 0, 0, 0, 0),
+            ("module_yellow", "modgamma", 5, 5, 0, 0, 0),
         ]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(sim), len(expected))
-        self.run_expected_tests(sim, expected)
+        self.run_similarity_tests(sim, expected)
 
-    def test_compare_different_species_filter(self):
+    def test_compare_different_species_genes(self):
         """Compare datasets from different species via orthologs."""
         dataset = self.d2.slug
         dataset2 = self.d3.slug
@@ -720,29 +797,27 @@ class GeneModuleSimilarity(GeneModulesData):
         self.assertSetEqual(set(mb.genes.values_list("name", flat=True)), genes2)
 
         url = (
-            f"/api/v1/module_similarity/?dataset={dataset}"
-            f"&dataset2={dataset2}"
-            f"&module={ma.name}"
-            f"&module2={mb.name}"
-            f"&list_genes=1"
+            f"/api/v1/module_similarity_genes/?dataset={dataset}&dataset2={dataset2}&module={ma.name}&module2={mb.name}"
         )
         response = self.client.get(url)
         sim = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check orthologues
-        genes1_ogs = set(ma.genes.filter(orthogroup__isnull=False).values_list("name", flat=True))
+        genes1_ogs = set(ma.genes.filter(orthogroups__isnull=False).values_list("name", flat=True))
         self.assertSetEqual(genes1_ogs, {"gene2"})
-        genes2_ogs = set(mb.genes.filter(orthogroup__isnull=False).values_list("name", flat=True))
+        genes2_ogs = set(mb.genes.filter(orthogroups__isnull=False).values_list("name", flat=True))
         self.assertSetEqual(genes2_ogs, {"geneH", "geneI"})
 
         # Test results
-        self.assertEqual(len(sim), 1)
-        self.assertSetEqual(set(sim[0]["unique_genes_module_list"]), genes1 - genes1_ogs)
-        self.assertSetEqual(set(sim[0]["unique_genes_module2_list"]), genes2 - genes2_ogs)
-        self.assertSetEqual(set(sim[0]["intersecting_genes_module_list"]), genes1_ogs)
-        self.assertSetEqual(set(sim[0]["intersecting_genes_module2_list"]), genes2_ogs)
-        self.assertSetEqual(set(sim[0]["intersecting_genes_list"]), genes1_ogs | genes2_ogs)
+        self.assertEqual(len(sim), len(genes1 | genes2))
+
+        result = self.group_genes(sim)
+        self.assertEqual(len(result), 4)
+        self.assertSetEqual(result[f"unique_{dataset}_{ma.name}"], genes1 - genes1_ogs)
+        self.assertSetEqual(result[f"unique_{dataset2}_{mb.name}"], genes2 - genes2_ogs)
+        self.assertSetEqual(result[f"shared_{dataset}_{ma.name}"], genes1_ogs)
+        self.assertSetEqual(result[f"shared_{dataset2}_{mb.name}"], genes2_ogs)
 
 
 class GeneModuleEigengene(GeneModulesData):

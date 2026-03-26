@@ -115,8 +115,8 @@ class ExternalQueryMixin:
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
-    def get_html_link(self, url=None, show_common_name=False):
-        """Return HTML representation linking to the Dataset."""
+    def get_html_link(self, url=None, show_common_name=False, inline=False):
+        """Return HTML representation linking to species or dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.get_image_url()
         html = self.get_html()
@@ -130,10 +130,12 @@ class HtmlLinkMixin:
                 <span class="text-secondary small">{name}</span>
             """
 
+        # Inline other HTML elements or not
+        link_class = "d-flex align-items-center gap-1" if not inline else ""
+
         html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {label}"
-                     width="25px" src="{image_url}">
+            <a class="{link_class}" href="{url}">
+                <img class="rounded" alt="Image of {label}" width="25px" src="{image_url}">
                 <span>{html}</span>
             </a>
         """
@@ -142,6 +144,10 @@ class HtmlLinkMixin:
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
         return self.get_html_link(url=url, show_common_name=True)
+
+    def get_inline_html_link(self, url=None):
+        """Return inline HTML representation."""
+        return self.get_html_link(url=url, inline=True)
 
 
 class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
@@ -678,11 +684,6 @@ class Gene(DynamicSlugMixin):
     correlations = models.ManyToManyField("self", through="GeneCorrelation", symmetrical=True)
 
     @property
-    def orthogroup(self):
-        """Return orthogroup for this gene."""
-        return getattr(self.orthologs.first(), "orthogroup", None)
-
-    @property
     def slug(self):
         """Slugify gene based on species and gene name."""
         return slugify(f"{self.species.slug}_{str(self)}")
@@ -705,13 +706,10 @@ class Gene(DynamicSlugMixin):
         html = f'<a class="text-break" href="{url}">{label}</a>'
         return mark_safe(html)
 
-    def get_orthogroup_html_link(self):
-        """Return link to orthogroup in HTML format."""
-        orthogroup = self.orthogroup
-        if orthogroup is None:
-            return ""
-
-        html = orthogroup.get_html_link(str(orthogroup))
+    def get_orthogroup_html_links(self):
+        """Return link to orthogroups in HTML format."""
+        orthogroups = self.orthogroups.all()
+        html = ", ".join(o.get_html_link() for o in orthogroups)
         return mark_safe(html)
 
     def get_domain_html_links(self):
@@ -879,7 +877,7 @@ class Orthogroup(models.Model):
     """Orthogroup model."""
 
     name = models.CharField(max_length=100, unique=True)
-    genes = models.ManyToManyField(Gene, through="Ortholog")
+    genes = models.ManyToManyField(Gene, through="Ortholog", related_name="orthogroups")
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -889,7 +887,7 @@ class Orthogroup(models.Model):
         """Return link to this entry formatted in HTML."""
         # Get a ortholog object based on orthogroup
         url = self.get_absolute_url()
-        label = label or self.name
+        label = label or str(self)
 
         html = f'<a href="{url}">{label}</a>'
         return mark_safe(html)
