@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
@@ -54,8 +54,7 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
         threshold: $("#samap_min").val(),
         limit: 0,
     });
-    const apiURL =
-        getDataPortalUrl("rest:samap-list") + "?" + params.toString();
+    const apiURL = getRestUrl("rest:samap-list") + "?" + params.toString();
 
     fetch(apiURL)
         .then((response) => response.json())

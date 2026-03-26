@@ -5,9 +5,10 @@
 import $ from "jquery";
 import "datatables.net-bs5";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { createStatsPlot } from "./plots/stats_plot.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
+import { makeLinkGene, makeLinkGeneModule } from "./tables/utils.ts";
 
 /**
  * Animate number incrementing from 0 up to the target value.
@@ -40,9 +41,9 @@ function animateNumber(id, target) {
  */
 export function loadDatasetStats(dataset) {
     const urls = {
-        info: getDataPortalUrl("rest:dataset-detail", dataset),
-        stats: getDataPortalUrl("rest:stats-detail", dataset),
-        counts: getDataPortalUrl("rest:metacellcount-list", dataset),
+        info: getRestUrl("rest:dataset-detail", { dataset }),
+        stats: getRestUrl("rest:stats-detail", { dataset }),
+        counts: getRestUrl("rest:metacellcount-list", { dataset }),
     };
 
     appendDataMenu("info", urls, [
@@ -68,7 +69,7 @@ export function loadDatasetStats(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderStatsPlots(dataset) {
-    const url = getDataPortalUrl("rest:metacellcount-list", dataset, null, 0);
+    const url = getRestUrl("rest:metacellcount-list", { dataset, limit: 0 });
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
@@ -96,7 +97,7 @@ export function renderStatsPlots(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function loadGeneModuleSize(dataset) {
-    const url = getDataPortalUrl("rest:genemodule-list", dataset);
+    const url = getRestUrl("rest:genemodule-list", { dataset });
 
     fetch(url)
         .then((response) => response.json())
@@ -110,7 +111,9 @@ export function loadGeneModuleSize(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderGeneModuleStatsPlots(dataset) {
-    const url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
+    const url = getRestUrl("rest:genemodule-list", {
+        dataset,
+        limit: 0,
         order_by_gene_count: 1,
     });
     appendDataMenu("modules", url, "Gene modules");
@@ -130,22 +133,10 @@ export function renderGeneModuleStatsPlots(dataset) {
         .catch((error) => console.error("Error:", error));
 }
 
-function renderGeneModuleLink(dataset, module, text = module) {
-    const url = getDataPortalUrl("gene_module_entry", dataset, null, null, {
-        gene_module: module,
-    });
-    return `<a href="${url}">${text}</a>`;
-}
-
-function renderGeneLink(dataset, gene, text = gene) {
-    if (!gene) return "";
-
-    const url = getDataPortalUrl("atlas_gene", dataset, gene);
-    return `<a class="small" href="${url}">${text}</a>`;
-}
-
 export function renderGeneModuleTable(id, dataset) {
-    const url = getDataPortalUrl("rest:genemodule-list", dataset, null, 0, {
+    const url = getRestUrl("rest:genemodule-list", {
+        dataset,
+        limit: 0,
         order_by_gene_count: 1,
     });
 
@@ -153,7 +144,7 @@ export function renderGeneModuleTable(id, dataset) {
     const topTFs = (n) =>
         Array.from({ length: n }, (_, i) => ({
             data: "top_tf",
-            render: (d) => renderGeneLink(dataset, d[i]),
+            render: (d) => makeLinkGene(dataset)(d[i]),
         }));
 
     $(`#${id}`).DataTable({
@@ -161,7 +152,7 @@ export function renderGeneModuleTable(id, dataset) {
         columns: [
             {
                 data: "module",
-                render: (d) => renderGeneModuleLink(dataset, d),
+                render: (d) => makeLinkGeneModule(dataset)(d),
             },
             { data: "gene_count" },
             ...topTFs(5),

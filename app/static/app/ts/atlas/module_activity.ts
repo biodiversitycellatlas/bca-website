@@ -2,7 +2,7 @@
  * Module activity.
  */
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { createActivityHeatmap } from "./plots/metacell_heatmap.ts";
 
@@ -13,13 +13,11 @@ import { createActivityHeatmap } from "./plots/metacell_heatmap.ts";
  * @param {string} dataset - Dataset slug to fetch expression data for.
  */
 export function loadEigengenes(id, dataset) {
-    const url = getDataPortalUrl(
-        "rest:genemoduleeigengene-list",
+    const url = getRestUrl("rest:genemoduleeigengene-list", {
         dataset,
-        null,
-        0,
-        { sort_modules: 1 },
-    );
+        limit: 0,
+        sort_modules: 1,
+    });
 
     fetch(url)
         .then((response) => response.json())

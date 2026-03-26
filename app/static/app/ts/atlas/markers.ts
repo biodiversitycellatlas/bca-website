@@ -6,7 +6,7 @@ import $ from "jquery";
 import "ion-rangeslider";
 window.$ = $;
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { createMarkersTable } from "./tables/markers_table.ts";
 import { convertToRange } from "../select/metacell.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
@@ -87,18 +87,15 @@ export function initMarkersTable(
     fc_max_bg_type,
     fc_max_bg,
 ) {
-    const url = getDataPortalUrl("rest:metacellmarker-list");
-    const params = new URLSearchParams({
+    const url = getRestUrl("rest:metacellmarker-list", {
         dataset: dataset,
         metacells: metacells,
         fc_min_type: fc_min_type,
         fc_min: fc_min,
         fc_max_bg_type: fc_max_bg_type,
         fc_max_bg: fc_max_bg,
-        limit: 0,
+        limit: 0
     });
-    const apiURL = url + "?" + params.toString();
-
-    createMarkersTable("markers", dataset, apiURL);
-    appendDataMenu("markers", apiURL, "Metacell markers");
+    createMarkersTable("markers", dataset, url);
+    appendDataMenu("markers", url, "Metacell markers");
 }

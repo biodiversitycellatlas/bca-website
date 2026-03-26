@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionHeatmap } from "./plots/metacell_heatmap.ts";
 import { getUserLists } from "./modals/list_editor.ts";
@@ -18,7 +18,7 @@ import { getUserLists } from "./modals/list_editor.ts";
  * @param {string|null} genes - Optional comma-separated list of gene names to include.
  */
 export function loadExpressionData(id, dataset, genes = null) {
-    const url = getDataPortalUrl("rest:metacellgeneexpression-list");
+    const url = getRestUrl("rest:metacellgeneexpression-list");
 
     const params = new URLSearchParams({
         dataset: dataset,

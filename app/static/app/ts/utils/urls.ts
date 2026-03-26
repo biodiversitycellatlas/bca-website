@@ -3,96 +3,54 @@
  */
 
 /**
- * Prepare URL string with query parameters.
+ * Generate Data Portal URL for a given view.
  *
- * @param {string} url - Base URL.
- * @param {string|null} dataset - Dataset identifier to add as query param (if not null).
- * @param {string|null} gene - Gene identifier to add as query param (if not null).
- * @param {number|null} limit - Limit value to add as query param (if not null).
- * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
- * @returns {string} The URL string with appended query parameters.
+ * URL placeholders are replaced.
+ *
+ * @param {string} view - View key to look up the base URL.
+ * @param {Object} [params={}] - Key-value pairs to append as query parameters.
+ * @returns {string} Constructed URL.
  */
-function prepareUrlParams(url, dataset, gene, limit, extraParams = {}) {
-    url = new URL(url, window.location.origin);
-    if (dataset) url.searchParams.append("dataset", dataset);
-    if (gene !== null) {
-        if (Array.isArray(gene)) {
-            url.searchParams.append("genes", gene[[0]]);
-        } else {
-            url.searchParams.append("gene", gene);
-        }
-    }
-    if (limit !== null) url.searchParams.append("limit", limit);
+export function getDataPortalUrl(view, params = {}) {
+    let url = window.APP_URLS[view];
+    if (!url) throw new Error(`URL for view "${view}" not found in APP_URLS.`);
 
-    // Append extra parameters
-    if (Object.keys(extraParams).length > 0) {
-        for (const [key, value] of Object.entries(extraParams)) {
-            if (value !== null && value !== undefined) {
-                url.searchParams.append(key, value);
-            }
-        }
-    }
-    url = url.toString().replaceAll("%2C", ",");
+    // Replace placeholders with parameters
+    url = url
+        .replace("DATASET_PLACEHOLDER", params.dataset || "")
+        .replace("GENE_PLACEHOLDER", params.gene || "")
+        .replace("MODULE_PLACEHOLDER", params.gene_module || "")
+        .replace("SPECIES_PLACEHOLDER", params.species || "")
+        .replace("GENE_LIST_PLACEHOLDER", params.gene_list || "")
+        .replace("ORTHOGROUP_PLACEHOLDER", params.orthogroup || "")
+        .replace("DOMAIN_PLACEHOLDER", params.domain || "");
+
+    // Replace consecutive slashes with a single slash
+    url = url.replace(/\/+/g, "/");
+
     return url;
 }
 
 /**
- * Generate URL for a given view, optionally including dataset, gene, and limit.
+ * Generate REST API URL for a given view.
  *
- * For certain REST API views, query parameters are appended.
- * For other views, placeholders in the URL are replaced with provided values.
+ * URL placeholders are replaced and query parameters are appended.
  *
- * @param {string} view - View key to look up the base URL.
- * @param {string|null} dataset - Dataset identifier.
- * @param {string|null} gene - Gene identifier.
- * @param {number|null} limit - Result limit.
- * @param {Object} [extraParams={}] - Key-value pairs to append as query parameters.
- * @returns {string} Constructed URL.
+ * @param {string} url - Base URL.
+ * @param {Object} [params={}] - Key-value pairs to append as query parameters.
+ * @returns {string} The URL string with appended query parameters.
  */
-export function getDataPortalUrl(
-    view,
-    dataset = null,
-    gene = null,
-    limit = null,
-    extraParams = {},
-) {
-    let url = window.APP_URLS[view];
-    if (!url) throw new Error(`URL for view "${view}" not found in APP_URLS.`);
+export function getRestUrl(view, params = {}) {
+    let url = getDataPortalUrl(view, params);
+    url = new URL(url, window.location.origin);
 
-    if (
-        [
-            "rest:metacellcount-list",
-            "rest:correlated-list",
-            "rest:singlecell-list",
-            "rest:metacell-list",
-            "rest:metacelllink-list",
-            "rest:ortholog-list",
-            "rest:genemodule-list",
-            "rest:genemodulemembership-list",
-            "rest:genemoduleeigengene-list",
-            "rest:genemodulesimilarity-list",
-            "rest:genemodulesimilaritygenes-list",
-        ].includes(view)
-    ) {
-        url = prepareUrlParams(url, dataset, gene, limit, extraParams);
-    } else if (
-        ["rest:metacellgeneexpression-list"].includes(view) &&
-        gene !== null
-    ) {
-        url = prepareUrlParams(url, dataset, [gene], limit, extraParams);
-    } else if (["rest:genelist-list"].includes(view)) {
-        url = prepareUrlParams(url, null, null, limit, extraParams);
-    } else {
-        url = url
-            .replace("DATASET_PLACEHOLDER", dataset || "")
-            .replace("GENE_PLACEHOLDER", gene || "")
-            .replace("MODULE_PLACEHOLDER", extraParams.gene_module || "")
-            .replace("SPECIES_PLACEHOLDER", extraParams.species || "")
-            .replace("GENE_LIST_PLACEHOLDER", extraParams.gene_list || "")
-            .replace("ORTHOGROUP_PLACEHOLDER", extraParams.orthogroup || "")
-            .replace("DOMAIN_PLACEHOLDER", extraParams.domain || "")
-            // Replace consecutive slashes with a single slash
-            .replace(/\/+/g, "/");
+    // Append query parameters
+    if (Object.keys(params).length > 0) {
+        for (const key in params) {
+            const value = params[key];
+            if (value != null) url.searchParams.append(key, value);
+        }
     }
+    url = url.toString().replaceAll("%2C", ",");
     return url;
 }

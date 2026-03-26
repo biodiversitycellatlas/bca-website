@@ -5,7 +5,7 @@
 
 import $ from "jquery";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getDataPortalUrl, getRestUrl } from "../utils/urls.ts";
 import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
 
 /**
@@ -116,7 +116,7 @@ export function loadSearchResults(
 
     if (category === "datasets") {
         const datasetsURL = new URL(
-            getDataPortalUrl("rest:dataset-list"),
+            getRestUrl("rest:dataset-list"),
             window.location.href,
         );
         datasetsURL.search = params;
@@ -140,7 +140,7 @@ export function loadSearchResults(
                                 !subtitle.includes(item),
                         );
 
-                    const dataset_url = getDataPortalUrl("atlas", item.slug);
+                    const dataset_url = getDataPortalUrl("atlas", { dataset: item.slug });
                     appendResult(
                         title,
                         dataset_url,
@@ -178,8 +178,8 @@ export function loadSearchResults(
                     const slug = item.species
                         ? item.species.scientific_name.slug
                         : species.slug;
-                    const species_url = getDataPortalUrl("atlas", slug);
-                    const gene_url = getDataPortalUrl("atlas_gene", slug, gene);
+                    const species_url = getDataPortalUrl("atlas", { dataset: slug });
+                    const gene_url = getDataPortalUrl("atlas_gene", { dataset: slug, gene });
                     appendResult(
                         gene,
                         gene_url,

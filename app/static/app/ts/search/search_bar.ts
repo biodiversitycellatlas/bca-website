@@ -4,7 +4,7 @@
 
 import TomSelect from "tom-select";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getDataPortalUrl, getRestUrl } from "../utils/urls.ts";
 
 /**
  * Render search result options for TomSelect input.
@@ -113,7 +113,7 @@ export function initSearch() {
         labelField: "slug",
         searchField: [
             "species",
-            "name",
+            "gene",
             "description",
             "domains",
             "scientific_name",
@@ -147,7 +147,7 @@ export function initSearch() {
 
             const params = new URLSearchParams({ q: query, limit: 5 });
             const datasetsURL = new URL(
-                getDataPortalUrl("rest:dataset-list"),
+                getRestUrl("rest:dataset-list"),
                 window.location.href,
             );
             datasetsURL.search = params;
@@ -181,14 +181,10 @@ export function initSearch() {
             if (item.group === "gene") {
                 const gene = item.name;
                 const dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = getDataPortalUrl(
-                    "atlas_gene",
-                    dataset,
-                    gene,
-                );
+                window.location.href = getDataPortalUrl("atlas_gene", { dataset, gene });
             } else if (item.group === "dataset") {
                 const dataset = item.slug;
-                window.location.href = getDataPortalUrl("atlas", dataset);
+                window.location.href = getDataPortalUrl("atlas", { dataset });
             }
         },
         optgroupField: "group",

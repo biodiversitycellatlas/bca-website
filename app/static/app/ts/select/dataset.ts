@@ -44,7 +44,7 @@ export function initDatasetSelect(
             // Redirect to dataset unless it matches current dataset/query
             let url;
             if (redirect == "arg" && value !== dataset) {
-                url = getDataPortalUrl(view, value);
+                url = getDataPortalUrl(view, { dataset: value });
             } else if (redirect == "query" && value !== query) {
                 url = new URL(window.location.href);
                 url.searchParams.set("dataset", value);

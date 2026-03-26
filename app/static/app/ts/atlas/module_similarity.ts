@@ -2,7 +2,7 @@
  * Module activity.
  */
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getRestUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { createSimilarityPlot } from "./plots/similarity_plot.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
@@ -46,13 +46,12 @@ export function loadModuleSimilarityPlot(
     onClick = null,
 ) {
     // Add cross-dataset comparison if dataset2 is not null
-    const url = getDataPortalUrl(
-        "rest:genemodulesimilarity-list",
-        dataset1,
-        null,
-        0,
-        { ...(dataset2 && { dataset2 }), sort_modules: 1 },
-    );
+    const url = getRestUrl("rest:genemodulesimilarity-list", {
+        dataset: dataset1,
+        limit: 0,
+        ...(dataset2 && { dataset2 }),
+        sort_modules: 1,
+    });
 
     fetch(url)
         .then((response) => response.json())

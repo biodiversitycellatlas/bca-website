@@ -45,7 +45,7 @@ export function makeLinkGeneModule(dataset = null) {
 export function linkGene(dataset, gene, type = "display", row = null) {
     if (type === "display") {
         dataset ||= row?.dataset;
-        const url = getDataPortalUrl("atlas_gene", dataset, gene);
+        const url = getDataPortalUrl("atlas_gene", { dataset, gene });
         if (url) gene = linkElement(gene, url);
     }
     return gene;
@@ -59,7 +59,8 @@ export function linkGeneModule(
 ) {
     if (type === "display") {
         dataset ||= row?.dataset;
-        const url = getDataPortalUrl("gene_module_entry", dataset, null, null, {
+        const url = getDataPortalUrl("gene_module_entry", {
+            dataset,
             gene_module,
         });
         if (url) gene_module = linkElement(gene_module, url);
@@ -78,9 +79,7 @@ export function linkDomains(domains, type = "display") {
     const domainLinks = [];
     if (type === "display") {
         for (const domain of domains) {
-            const url = getDataPortalUrl("domain_entry", null, null, null, {
-                domain,
-            });
+            const url = getDataPortalUrl("domain_entry", { domain });
             if (url) domainLinks.push(linkElement(domain, url));
         }
     }
@@ -91,9 +90,7 @@ export function linkGeneLists(gene_lists, type = "display") {
     const links = [];
     if (type === "display") {
         for (const gene_list of gene_lists) {
-            const url = getDataPortalUrl("gene_list_entry", null, null, null, {
-                gene_list,
-            });
+            const url = getDataPortalUrl("gene_list_entry", { gene_list });
             if (url) links.push(linkElement(gene_list, url));
         }
     }
@@ -111,9 +108,7 @@ export function linkOrthogroups(orthogroups, type = "display") {
     const links = [];
     if (type === "display") {
         for (const orthogroup of orthogroups) {
-            const url = getDataPortalUrl("orthogroup_entry", null, null, null, {
-                orthogroup,
-            });
+            const url = getDataPortalUrl("orthogroup_entry", { orthogroup });
             if (url) links.push(linkElement(orthogroup, url));
         }
     }
