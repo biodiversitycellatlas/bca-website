@@ -124,11 +124,9 @@ export function loadModuleGeneTable(
 ) {
     if (!modules) return;
 
-    console.log(data);
     const dataset1 = data.dataset,
         dataset2 = data.dataset2;
 
-    console.log(data);
     // Update module information
     document.getElementById(`${id}-dataset-module`).innerHTML =
         `${linkGeneModule(dataset1, data.module)} module`;
