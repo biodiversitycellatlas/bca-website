@@ -20,7 +20,7 @@ function displayGeneInfo(item, escape) {
         // Display gene lists
         return `
             <div class='option'>
-                ${escape(item.name)}
+                ${escape(item.gene)}
                 <span class="text-muted small">${escape(item.count)} genes</span>
             </div>
         `;
@@ -44,7 +44,7 @@ function displayGeneInfo(item, escape) {
                     <span class="text-muted small">
                         ${escape(item.description)}
                     </span>`;
-        return `<div class='option'>${escape(item.name)} ${desc} ${badges}</div>`;
+        return `<div class='option'>${escape(item.gene)} ${desc} ${badges}</div>`;
     }
 }
 
@@ -65,7 +65,7 @@ function displayGeneName(item, escape) {
             </span>
         `;
     }
-    return `<div class='option'>${escape(item.name)}${badges}</div>`;
+    return `<div class='option'>${escape(item.gene)}${badges}</div>`;
 }
 
 /**
@@ -102,19 +102,19 @@ function prependGeneLists(id, select, callback, genes, domains, preset) {
  * Add a default gene to select input and set it as current.
  *
  * @param {string} select - Select element.
- * @param {string} name - Gene name.
+ * @param {string} gene - Gene name.
  * @param {string} description - Gene description.
  * @param {array} domains - Array of gene domains.
  */
-function setDefaultGene(select, name, description, domains) {
+function setDefaultGene(select, gene, description, domains) {
     const geneOptions = {
-        name: name,
+        gene: gene,
         description: description,
         domains: domains,
     };
 
     select.addOption(geneOptions);
-    select.setValue(name);
+    select.setValue(gene);
 }
 
 /**
@@ -140,7 +140,7 @@ function initGeneSelectValues(select, items) {
             for (const i in missingValues) {
                 const elem = missingValues[i];
                 missingValuesArray.push({
-                    name: elem,
+                    gene: elem,
                     description: "",
                     domains: [],
                 });
@@ -200,7 +200,7 @@ export function initGeneSelect(
     const select = new TomSelect(`#${id}_gene_selection`, {
         onChange: function (value) {
             // Avoid jumping if value is empty or matches current gene
-            if (value !== "" && value !== gene.name) {
+            if (value !== "" && value !== gene.gene) {
                 if (redirect == "arg") {
                     const url = getDataPortalUrl("atlas_gene", dataset, value);
                     if (window.location.pathname != url) {
@@ -225,7 +225,7 @@ export function initGeneSelect(
             onBlur: function () {
                 // Set current gene if no value is selected
                 if (!this.getValue()) {
-                    this.setValue(gene.name);
+                    this.setValue(gene.gene);
                 }
             },
             onType: function () {
@@ -238,8 +238,8 @@ export function initGeneSelect(
             item: display ? displayGeneInfo : displayGeneName,
             option: displayGeneInfo,
         },
-        valueField: "name",
-        searchField: ["name", "description", "domains"],
+        valueField: "gene",
+        searchField: ["gene", "description", "domains"],
         respect_word_boundaries: false,
         preload: true,
         plugins: {
@@ -296,8 +296,8 @@ export function initGeneSelect(
                 });
         },
     });
-    if (gene.name)
-        setDefaultGene(select, gene.name, gene.description, gene.domains);
+    if (gene.gene)
+        setDefaultGene(select, gene.gene, gene.description, gene.domains);
     if (multiple) initGeneSelectValues(select, selected);
     return select;
 }
