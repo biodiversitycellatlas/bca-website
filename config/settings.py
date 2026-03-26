@@ -223,6 +223,7 @@ def sort_api_tags():
         "Species",
         "Dataset",
         "Gene",
+        "Gene module",
         "Metacell",
         "Single cell",
         "Cross-species",
