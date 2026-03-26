@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "[NGINX] Preparing config..."
+echo "[NGINX] Preparing production config..."
 
 # Enforce secure TLS in production
 if [ "$ENVIRONMENT" = "prod" ] && [ "$NODE_TLS_REJECT_UNAUTHORIZED" != "1" ]; then
@@ -13,7 +13,7 @@ mkdir -p /etc/nginx/conf.d
 
 # Substitute variables into config
 envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $GHOST_INTERNAL_URL $PLAUSIBLE_HOSTNAME' \
-    </etc/nginx/nginx.conf.template \
+    </etc/nginx/nginx.prod.conf.template \
     >/etc/nginx/conf.d/default.conf
 
 echo "[NGINX] Final NGINX config:"

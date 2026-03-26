@@ -350,8 +350,8 @@ class GeneModuleSimilarityFilter(FilterSet):
 
     dataset = DatasetChoiceFilter(required=True)
     dataset2 = DatasetChoiceFilter(required=True)
-    module = CharFilter(method=skip_param, help_text="The module names to filter results for the first dataset.")
-    module2 = CharFilter(method=skip_param, help_text="The module names to filter results for the second dataset.")
+    module = CharFilter(method=skip_param, help_text="The reference module name to filter results.")
+    module2 = CharFilter(method=skip_param, help_text="The compared module name to filter results.")
     sort_modules = BooleanFilter(
         label="Sort gene modules based on highest similarity score (default: <kbd>false</kbd>).", method=skip_param
     )

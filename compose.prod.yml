@@ -4,7 +4,7 @@ services:
             - "443:443"
         env_file: [.env]
         volumes:
-            - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+            - ./nginx/nginx.prod.conf.template:/etc/nginx/nginx.prod.conf.template:ro
             - ./nginx/entrypoint.sh:/entrypoint.sh:ro
             # Mount entire cert directory
             - ${CERT_DIR}:/certs:ro

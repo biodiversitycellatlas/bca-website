@@ -5,6 +5,8 @@ import os
 import subprocess
 import tempfile
 from urllib.parse import unquote_plus
+from itertools import combinations
+from itertools import chain
 
 from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
