@@ -53,8 +53,8 @@ export function createGeneTable(
     // Columns to display
     let cols = [
         {
-            name: "name",
-            data: "name",
+            name: "gene",
+            data: "gene",
             title: "Gene",
             orderable: false,
             render: linkGene,
