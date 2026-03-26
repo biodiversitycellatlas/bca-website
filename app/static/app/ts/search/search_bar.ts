@@ -181,7 +181,10 @@ export function initSearch() {
             if (item.group === "gene") {
                 const gene = item.name;
                 const dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = getDataPortalUrl("atlas_gene", { dataset, gene });
+                window.location.href = getDataPortalUrl("atlas_gene", {
+                    dataset,
+                    gene,
+                });
             } else if (item.group === "dataset") {
                 const dataset = item.slug;
                 window.location.href = getDataPortalUrl("atlas", { dataset });

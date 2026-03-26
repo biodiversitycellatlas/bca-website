@@ -73,10 +73,11 @@ function plotGeneExpressionComparison(table, id, dataset, gene) {
  */
 function loadExpressionComparison(id, dataset, gene, gene2, stats) {
     // Create URL to fetch expression data for both genes
-    let apiURL = getRestUrl(
-        "rest:metacellgeneexpression-list",
-        { dataset, genes: `${gene},${gene2}`, limit: 0 },
-    );
+    let apiURL = getRestUrl("rest:metacellgeneexpression-list", {
+        dataset,
+        genes: `${gene},${gene2}`,
+        limit: 0,
+    });
     apiURL = apiURL.replaceAll("%2C", ",");
     updateDataMenu(id, apiURL, "Expression comparison (plot data)");
 

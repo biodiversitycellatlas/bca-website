@@ -202,7 +202,10 @@ export function initGeneSelect(
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
-                    const url = getDataPortalUrl("atlas_gene", { dataset, gene: value });
+                    const url = getDataPortalUrl("atlas_gene", {
+                        dataset,
+                        gene: value,
+                    });
                     if (window.location.pathname != url) {
                         window.location.href = url;
                     }

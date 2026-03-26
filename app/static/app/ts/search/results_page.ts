@@ -140,7 +140,9 @@ export function loadSearchResults(
                                 !subtitle.includes(item),
                         );
 
-                    const dataset_url = getDataPortalUrl("atlas", { dataset: item.slug });
+                    const dataset_url = getDataPortalUrl("atlas", {
+                        dataset: item.slug,
+                    });
                     appendResult(
                         title,
                         dataset_url,
@@ -178,8 +180,13 @@ export function loadSearchResults(
                     const slug = item.species
                         ? item.species.scientific_name.slug
                         : species.slug;
-                    const species_url = getDataPortalUrl("atlas", { dataset: slug });
-                    const gene_url = getDataPortalUrl("atlas_gene", { dataset: slug, gene });
+                    const species_url = getDataPortalUrl("atlas", {
+                        dataset: slug,
+                    });
+                    const gene_url = getDataPortalUrl("atlas_gene", {
+                        dataset: slug,
+                        gene,
+                    });
                     appendResult(
                         gene,
                         gene_url,

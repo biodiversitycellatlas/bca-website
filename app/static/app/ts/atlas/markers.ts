@@ -94,7 +94,7 @@ export function initMarkersTable(
         fc_min: fc_min,
         fc_max_bg_type: fc_max_bg_type,
         fc_max_bg: fc_max_bg,
-        limit: 0
+        limit: 0,
     });
     createMarkersTable("markers", dataset, url);
     appendDataMenu("markers", url, "Metacell markers");
