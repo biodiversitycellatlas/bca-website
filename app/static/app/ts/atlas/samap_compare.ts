@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 
-import { getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
@@ -48,15 +48,14 @@ export function handleFormSubmit() {
  * @param {string} dataset2 - Name of the second dataset
  */
 export function initSAMap(id, label, dataset, label2, dataset2) {
-    const params = new URLSearchParams({
-        dataset: dataset,
-        dataset2: dataset2,
+    const url = getViewUrl("rest:samap-list", {
+        dataset,
+        dataset2,
         threshold: $("#samap_min").val(),
         limit: 0,
     });
-    const apiURL = getRestUrl("rest:samap-list") + "?" + params.toString();
 
-    fetch(apiURL)
+    fetch(url)
         .then((response) => response.json())
         .then((data) => {
             if (data.length) {
@@ -69,9 +68,7 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
             }
         })
         .catch((error) => console.error("Error fetching data:", error))
-        .finally(() => {
-            hideSpinner(id);
-        });
+        .finally(() => hideSpinner(id));
 
-    appendDataMenu(id, apiURL, "SAMap scores");
+    appendDataMenu(id, url, "SAMap scores");
 }

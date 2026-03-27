@@ -5,7 +5,7 @@
 import $ from "jquery";
 import TomSelect from "tom-select";
 
-import { getDataPortalUrl, getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { getAllLists } from "../atlas/modals/list_editor.ts";
 
 /**
@@ -202,7 +202,7 @@ export function initGeneSelect(
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
-                    const url = getDataPortalUrl("atlas_gene", {
+                    const url = getViewUrl("atlas_gene", {
                         dataset,
                         gene: value,
                     });
@@ -250,7 +250,7 @@ export function initGeneSelect(
         },
         load: function (query, callback) {
             const genes = $.ajax({
-                url: getRestUrl("rest:gene-list"),
+                url: getViewUrl("rest:gene-list"),
                 data: {
                     species: species,
                     q: query || gene,
@@ -259,7 +259,7 @@ export function initGeneSelect(
             });
 
             const preset = $.ajax({
-                url: getRestUrl("rest:genelist-list"),
+                url: getViewUrl("rest:genelist-list"),
                 data: {
                     species: species,
                     limit: limit,
@@ -268,7 +268,7 @@ export function initGeneSelect(
 
             const domains = multiple
                 ? $.ajax({
-                      url: getRestUrl("rest:domain-list"),
+                      url: getViewUrl("rest:domain-list"),
                       data: {
                           species: species,
                           q: query || gene,

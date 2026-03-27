@@ -6,7 +6,7 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
-import { getDataPortalUrl } from "../../utils/urls.ts";
+import { getViewUrl } from "../../utils/urls.ts";
 
 /**
  * Creates an HTML anchor element as a string.
@@ -45,7 +45,7 @@ export function makeLinkGeneModule(dataset = null) {
 export function linkGene(dataset, gene, type = "display", row = null) {
     if (type === "display") {
         dataset ||= row?.dataset;
-        const url = getDataPortalUrl("atlas_gene", { dataset, gene });
+        const url = getViewUrl("atlas_gene", { dataset, gene });
         if (url) gene = linkElement(gene, url);
     }
     return gene;
@@ -59,7 +59,7 @@ export function linkGeneModule(
 ) {
     if (type === "display") {
         dataset ||= row?.dataset;
-        const url = getDataPortalUrl("gene_module_entry", {
+        const url = getViewUrl("gene_module_entry", {
             dataset,
             gene_module,
         });
@@ -79,7 +79,7 @@ export function linkDomains(domains, type = "display") {
     const domainLinks = [];
     if (type === "display") {
         for (const domain of domains) {
-            const url = getDataPortalUrl("domain_entry", { domain });
+            const url = getViewUrl("domain_entry", { domain });
             if (url) domainLinks.push(linkElement(domain, url));
         }
     }
@@ -90,7 +90,7 @@ export function linkGeneLists(gene_lists, type = "display") {
     const links = [];
     if (type === "display") {
         for (const gene_list of gene_lists) {
-            const url = getDataPortalUrl("gene_list_entry", { gene_list });
+            const url = getViewUrl("gene_list_entry", { gene_list });
             if (url) links.push(linkElement(gene_list, url));
         }
     }
@@ -108,7 +108,7 @@ export function linkOrthogroups(orthogroups, type = "display") {
     const links = [];
     if (type === "display") {
         for (const orthogroup of orthogroups) {
-            const url = getDataPortalUrl("orthogroup_entry", { orthogroup });
+            const url = getViewUrl("orthogroup_entry", { orthogroup });
             if (url) links.push(linkElement(orthogroup, url));
         }
     }

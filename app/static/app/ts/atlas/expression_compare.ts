@@ -5,7 +5,7 @@
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
-import { getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu, updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createGeneTable } from "./tables/gene_table.ts";
 import { createExpressionComparisonPlot } from "./plots/expression_plot.ts";
@@ -27,7 +27,7 @@ import {
  */
 function createGeneCorrelationTable(id, dataset, gene) {
     // Get lists from API
-    const corrURL = getRestUrl("rest:correlated-list", { dataset, gene });
+    const corrURL = getViewUrl("rest:correlated-list", { dataset, gene });
     appendDataMenu(id, corrURL, "Correlation table (current page)");
     const table = createGeneTable(
         `${id}_table`,
@@ -73,7 +73,7 @@ function plotGeneExpressionComparison(table, id, dataset, gene) {
  */
 function loadExpressionComparison(id, dataset, gene, gene2, stats) {
     // Create URL to fetch expression data for both genes
-    let apiURL = getRestUrl("rest:metacellgeneexpression-list", {
+    let apiURL = getViewUrl("rest:metacellgeneexpression-list", {
         dataset,
         genes: `${gene},${gene2}`,
         limit: 0,

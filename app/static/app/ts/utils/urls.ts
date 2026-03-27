@@ -3,54 +3,48 @@
  */
 
 /**
- * Generate Data Portal URL for a given view.
+ * Generate a URL for a given view.
  *
- * URL placeholders are replaced.
+ * URL building:
+ * - Define Base URLs in `app/templates/app/components/javascript_urls.html`.
+ * - Provide parameters as key-value pairs: `{metacell: "17", species: "fox"}`.
+ * - Matching placeholders (e.g. `METACELL_PLACEHOLDER`) are replaced with the
+ *   corresponding values in the URL path.
+ * - Remaining parameters are appended as query parameters (`?species=fox`).
  *
  * @param {string} view - View key to look up the base URL.
- * @param {Object} [params={}] - Key-value pairs to append as query parameters.
+ * @param {Object} [params={}] - Key-value pairs as path and query parameters.
  * @returns {string} Constructed URL.
  */
-export function getDataPortalUrl(view, params = {}) {
+export function getViewUrl(view, params = {}) {
     let url = window.APP_URLS[view];
     if (!url) throw new Error(`URL for view "${view}" not found in APP_URLS.`);
 
-    // Replace placeholders with parameters
-    url = url
-        .replace("DATASET_PLACEHOLDER", params.dataset || "")
-        .replace("GENE_PLACEHOLDER", params.gene || "")
-        .replace("MODULE_PLACEHOLDER", params.gene_module || "")
-        .replace("SPECIES_PLACEHOLDER", params.species || "")
-        .replace("GENE_LIST_PLACEHOLDER", params.gene_list || "")
-        .replace("ORTHOGROUP_PLACEHOLDER", params.orthogroup || "")
-        .replace("DOMAIN_PLACEHOLDER", params.domain || "");
+    // Find all placeholders
+    const placeholders = url.match(/\b[A-Z0-9_]+_PLACEHOLDER\b/g) || [];
 
-    // Replace consecutive slashes with a single slash
+    // Replace placeholders with parameters (path parameters)
+    for (const placeholder of placeholders) {
+        const key = placeholder.replace("_PLACEHOLDER", "").toLowerCase();
+        const value = params[key] ?? "";
+        url = url.replace(placeholder, value);
+
+        // Remove used parameter
+        delete params[key];
+    }
+
+    // Fix consecutive slashes to ignore placeholders with no value
     url = url.replace(/\/+/g, "/");
 
-    return url;
-}
-
-/**
- * Generate REST API URL for a given view.
- *
- * URL placeholders are replaced and query parameters are appended.
- *
- * @param {string} url - Base URL.
- * @param {Object} [params={}] - Key-value pairs to append as query parameters.
- * @returns {string} The URL string with appended query parameters.
- */
-export function getRestUrl(view, params = {}) {
-    let url = getDataPortalUrl(view, params);
-    url = new URL(url, window.location.origin);
-
-    // Append query parameters
-    if (Object.keys(params).length > 0) {
-        for (const key in params) {
-            const value = params[key];
-            if (value != null) url.searchParams.append(key, value);
-        }
+    // Append remaining parameters as query parameters
+    let finalUrl = new URL(url, window.location.origin);
+    for (const key in params) {
+        const value = params[key];
+        if (value != null) finalUrl.searchParams.append(key, value);
     }
-    url = url.toString().replaceAll("%2C", ",");
-    return url;
+
+    // Replace with final URL
+    finalUrl = finalUrl.pathname + finalUrl.search + finalUrl.hash;
+    finalUrl = finalUrl.replaceAll("%2C", ",");
+    return finalUrl;
 }

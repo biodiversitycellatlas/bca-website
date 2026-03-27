@@ -2,7 +2,7 @@
  * Load and visualize ortholog gene expression.
  */
 
-import { getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
@@ -64,7 +64,7 @@ function processOrtholog(baseGene, header, template, container, item) {
  * @param {string} gene - Reference gene.
  */
 export function loadOrthologExpression(gene) {
-    const apiURL = getRestUrl("rest:ortholog-list", {
+    const apiURL = getViewUrl("rest:ortholog-list", {
         gene,
         limit: 0,
         expression: true,

@@ -5,7 +5,7 @@
 import $ from "jquery";
 import "datatables.net-bs5";
 
-import { getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { createStatsPlot } from "./plots/stats_plot.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { makeLinkGene, makeLinkGeneModule } from "./tables/utils.ts";
@@ -41,9 +41,9 @@ function animateNumber(id, target) {
  */
 export function loadDatasetStats(dataset) {
     const urls = {
-        info: getRestUrl("rest:dataset-detail", { dataset }),
-        stats: getRestUrl("rest:stats-detail", { dataset }),
-        counts: getRestUrl("rest:metacellcount-list", { dataset }),
+        info: getViewUrl("rest:dataset-detail", { dataset }),
+        stats: getViewUrl("rest:stats-detail", { dataset }),
+        counts: getViewUrl("rest:metacellcount-list", { dataset }),
     };
 
     appendDataMenu("info", urls, [
@@ -69,7 +69,7 @@ export function loadDatasetStats(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderStatsPlots(dataset) {
-    const url = getRestUrl("rest:metacellcount-list", { dataset, limit: 0 });
+    const url = getViewUrl("rest:metacellcount-list", { dataset, limit: 0 });
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
@@ -97,7 +97,7 @@ export function renderStatsPlots(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function loadGeneModuleSize(dataset) {
-    const url = getRestUrl("rest:genemodule-list", { dataset });
+    const url = getViewUrl("rest:genemodule-list", { dataset });
 
     fetch(url)
         .then((response) => response.json())
@@ -111,7 +111,7 @@ export function loadGeneModuleSize(dataset) {
  * @param {string} dataset - Dataset name.
  */
 export function renderGeneModuleStatsPlots(dataset) {
-    const url = getRestUrl("rest:genemodule-list", {
+    const url = getViewUrl("rest:genemodule-list", {
         dataset,
         limit: 0,
         order_by_gene_count: 1,
@@ -134,7 +134,7 @@ export function renderGeneModuleStatsPlots(dataset) {
 }
 
 export function renderGeneModuleTable(id, dataset) {
-    const url = getRestUrl("rest:genemodule-list", {
+    const url = getViewUrl("rest:genemodule-list", {
         dataset,
         limit: 0,
         order_by_gene_count: 1,

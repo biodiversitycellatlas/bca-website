@@ -6,7 +6,7 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
-import { getRestUrl } from "../../utils/urls.ts";
+import { getViewUrl } from "../../utils/urls.ts";
 import { highlightMatch } from "../../utils/utils.ts";
 import { createGeneTable } from "../tables/gene_table.ts";
 import { getSelectedRows } from "../tables/utils.ts";
@@ -462,7 +462,7 @@ function renderListDetail(id, species) {
     const name = $(`#${id}_options`).find(".active").data("list");
     const group = $(`#${id}_options`).find(".active").data("group");
 
-    let url = getRestUrl("rest:gene-list");
+    let url = getViewUrl("rest:gene-list");
     if (group === "preset") {
         url = getGenesFromListURL(url, species, name);
     } else {
@@ -568,7 +568,7 @@ function updateTable(id, dataset) {
  * @param {Object} dataset - Dataset reference for table creation.
  */
 export function loadGeneLists(id, species, dataset) {
-    const url = getRestUrl("rest:genelist-list", { species: species });
+    const url = getViewUrl("rest:genelist-list", { species: species });
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
@@ -669,7 +669,7 @@ export function loadMenuActions(id, species, maxFileSize) {
         const name = activeItem.data("list");
         const group = activeItem.data("group");
 
-        const url = getRestUrl("rest:gene-list");
+        const url = getViewUrl("rest:gene-list");
         fetchAllGenesFromList(id, species, url, name, group)
             .then((genes) => {
                 appendUserList(id, species, name, genes);

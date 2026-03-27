@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 
-import { getDataPortalUrl, getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import {
@@ -103,9 +103,10 @@ function handleSelectedMetacell(url) {
  */
 function listMarkers(dataset) {
     $("#list_markers").on("click", function () {
-        const url =
-            getDataPortalUrl("atlas_markers", { dataset }) +
-            "?metacells=METACELL_PLACEHOLDER";
+        const url = getViewUrl("atlas_markers", {
+            dataset,
+            metacells: "METACELL_PLACEHOLDER",
+        });
         handleSelectedMetacell(url);
     });
 }
@@ -139,9 +140,9 @@ export function initProjection(id, dataset, label, gene) {
 
     const limit = 0;
     const urls = {
-        sc_data: getRestUrl("rest:singlecell-list", { dataset, gene, limit }),
-        mc_data: getRestUrl("rest:metacell-list", { dataset, gene, limit }),
-        mc_links: getRestUrl("rest:metacelllink-list", { dataset, limit }),
+        sc_data: getViewUrl("rest:singlecell-list", { dataset, gene, limit }),
+        mc_data: getViewUrl("rest:metacell-list", { dataset, gene, limit }),
+        mc_links: getViewUrl("rest:metacelllink-list", { dataset, limit }),
     };
 
     appendDataMenu(id, urls, [

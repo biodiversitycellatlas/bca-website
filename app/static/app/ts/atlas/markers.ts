@@ -6,7 +6,7 @@ import $ from "jquery";
 import "ion-rangeslider";
 window.$ = $;
 
-import { getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { createMarkersTable } from "./tables/markers_table.ts";
 import { convertToRange } from "../select/metacell.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
@@ -87,13 +87,13 @@ export function initMarkersTable(
     fc_max_bg_type,
     fc_max_bg,
 ) {
-    const url = getRestUrl("rest:metacellmarker-list", {
-        dataset: dataset,
-        metacells: metacells,
-        fc_min_type: fc_min_type,
-        fc_min: fc_min,
-        fc_max_bg_type: fc_max_bg_type,
-        fc_max_bg: fc_max_bg,
+    const url = getViewUrl("rest:metacellmarker-list", {
+        dataset,
+        metacells,
+        fc_min_type,
+        fc_min,
+        fc_max_bg_type,
+        fc_max_bg,
         limit: 0,
     });
     createMarkersTable("markers", dataset, url);

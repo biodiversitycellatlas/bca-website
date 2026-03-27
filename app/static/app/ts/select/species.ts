@@ -3,7 +3,7 @@
  */
 
 import TomSelect from "tom-select";
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 
 /**
  * Render a dropdown option for a species.
@@ -109,7 +109,7 @@ export function initSpeciesSelect(
                 } else {
                     params = { species: value };
                 }
-                window.location.href = getDataPortalUrl(view, params);
+                window.location.href = getViewUrl(view, params);
             }
         },
         onDropdownOpen: function () {

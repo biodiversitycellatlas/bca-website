@@ -4,7 +4,7 @@
 
 import TomSelect from "tom-select";
 
-import { getDataPortalUrl, getRestUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 
 /**
  * Render search result options for TomSelect input.
@@ -129,7 +129,7 @@ export function initSearch() {
             option: displaySearchResults,
             optgroup_header: function (data) {
                 const query = this.inputValue();
-                const search = getDataPortalUrl("search");
+                const search = getViewUrl("search");
                 const count = `
                     <a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}">
                         <span class="badge rounded-pill pt-1 background-primary">
@@ -145,14 +145,11 @@ export function initSearch() {
         load: function (query, callback) {
             if (!query.length) return callback();
 
-            const params = new URLSearchParams({ q: query, limit: 5 });
-            const datasetsURL = new URL(
-                getRestUrl("rest:dataset-list"),
-                window.location.href,
-            );
-            datasetsURL.search = params;
-
-            Promise.all([fetch(datasetsURL).then((res) => res.json())])
+            const datasetsUrl = getViewUrl("rest:dataset-list", {
+                q: query,
+                limit: 5,
+            });
+            Promise.all([fetch(datasetsUrl).then((res) => res.json())])
                 .then(([dataset_data]) => {
                     const options = dataset_data.results.map((item) => ({
                         ...item,
@@ -181,13 +178,13 @@ export function initSearch() {
             if (item.group === "gene") {
                 const gene = item.name;
                 const dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = getDataPortalUrl("atlas_gene", {
+                window.location.href = getViewUrl("atlas_gene", {
                     dataset,
                     gene,
                 });
             } else if (item.group === "dataset") {
                 const dataset = item.slug;
-                window.location.href = getDataPortalUrl("atlas", { dataset });
+                window.location.href = getViewUrl("atlas", { dataset });
             }
         },
         optgroupField: "group",

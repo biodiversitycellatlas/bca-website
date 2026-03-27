@@ -4,7 +4,7 @@
 
 import $ from "jquery";
 
-import { getRestUrl } from "../../utils/urls.ts";
+import { getViewUrl } from "../../utils/urls.ts";
 import { appendUserList } from "./list_editor.ts";
 
 /**
@@ -136,7 +136,7 @@ export function alignSequence(id, species, type) {
     $(`#${id}_align_btn`).on("click", function () {
         startLoadingState(id);
 
-        const url = getRestUrl("rest:align-list");
+        const url = getViewUrl("rest:align-list");
         fetch(url, {
             method: "POST",
             headers: {
