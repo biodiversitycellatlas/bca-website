@@ -4,7 +4,7 @@
 
 import TomSelect from "tom-select";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 
 /**
  * Initializes a TomSelect dropdown for dataset selection.
@@ -44,7 +44,7 @@ export function initDatasetSelect(
             // Redirect to dataset unless it matches current dataset/query
             let url;
             if (redirect == "arg" && value !== dataset) {
-                url = getDataPortalUrl(view, value);
+                url = getViewUrl(view, { dataset: value });
             } else if (redirect == "query" && value !== query) {
                 url = new URL(window.location.href);
                 url.searchParams.set("dataset", value);

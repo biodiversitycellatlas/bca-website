@@ -2,7 +2,7 @@
  * Visualize single-gene expression data.
  */
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
@@ -16,12 +16,11 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
  * @param {string} geneLabel - Gene name.
  */
 export function loadGeneExpression(dataset, datasetLabel, gene, geneLabel) {
-    const url = getDataPortalUrl(
-        "rest:metacellgeneexpression-list",
+    const url = getViewUrl("rest:metacellgeneexpression-list", {
         dataset,
-        geneLabel,
-        0,
-    );
+        gene: geneLabel,
+        limit: 0,
+    });
     appendDataMenu("expression", url, "gene expression");
 
     fetch(url)

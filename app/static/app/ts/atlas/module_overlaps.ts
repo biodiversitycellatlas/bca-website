@@ -5,7 +5,7 @@
 import DataTable from "datatables.net-bs5";
 import "datatables.net-rowgroup-bs5";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import {
     linkElement,
@@ -96,11 +96,11 @@ function renderLinkGene(
             const d2Label = dataset2.split("-").slice(2).join(" ");
             const d1Link = linkElement(
                 d1Label,
-                getDataPortalUrl("atlas_gene", dataset1, gene),
+                getViewUrl("atlas_gene", { dataset: dataset1, gene }),
             );
             const d2Link = linkElement(
                 d2Label,
-                getDataPortalUrl("atlas_gene", dataset2, gene),
+                getViewUrl("atlas_gene", { dataset: dataset2, gene }),
             );
             gene = `${gene} (${d1Link}, ${d2Link})`;
         }
@@ -139,18 +139,14 @@ export function loadModuleGeneTable(
     document.getElementById(`${id}-jaccard`).innerHTML =
         `Jaccard similarity index: ${Math.round(data.similarity * 100)}%`;
 
-    const url = getDataPortalUrl(
-        "rest:genemodulesimilaritygenes-list",
-        dataset1,
-        null,
-        0,
-        {
-            list_genes: 1,
-            module: data.module,
-            module2: data.module2,
-            ...(dataset2 && { dataset2 }),
-        },
-    );
+    const url = getViewUrl("rest:genemodulesimilaritygenes-list", {
+        dataset: dataset1,
+        limit: 0,
+        list_genes: 1,
+        module: data.module,
+        module2: data.module2,
+        dataset2,
+    });
     updateDataMenu(id, url, "Gene lists");
 
     const tableId = `#${id}-module-compare-table`;

@@ -3,7 +3,7 @@
  */
 
 import TomSelect from "tom-select";
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 
 /**
  * Render a dropdown option for a species.
@@ -92,7 +92,7 @@ export function initSpeciesSelect(
     redirect,
     optgroup_columns,
     view,
-    extraParams,
+    gene_list,
 ) {
     const select = new TomSelect(`#species-select-${id}`, {
         onChange: function (value) {
@@ -103,22 +103,13 @@ export function initSpeciesSelect(
                 window.location.href = url;
             }
             if (redirect == "arg" && value !== "" && value !== species) {
-                let extra;
+                let params;
                 if (view == "gene_list_entry") {
-                    extra = {
-                        species: value,
-                        gene_list: extraParams,
-                    };
+                    params = { species: value, gene_list };
                 } else {
-                    extra = { species: value };
+                    params = { species: value };
                 }
-                window.location.href = getDataPortalUrl(
-                    view,
-                    null,
-                    null,
-                    null,
-                    extra,
-                );
+                window.location.href = getViewUrl(view, params);
             }
         },
         onDropdownOpen: function () {

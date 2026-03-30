@@ -5,7 +5,7 @@
 
 import $ from "jquery";
 
-import { getDataPortalUrl } from "../utils/urls.ts";
+import { getViewUrl } from "../utils/urls.ts";
 import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
 
 /**
@@ -107,21 +107,16 @@ export function loadSearchResults(
     category = "datasets",
 ) {
     // Fetch data from API
-    const params = new URLSearchParams({
+    const params = {
         q: encodeURIComponent(query),
         limit: limit,
         offset: offset,
         species: species.replace("_", " "),
-    });
+    };
 
     if (category === "datasets") {
-        const datasetsURL = new URL(
-            getDataPortalUrl("rest:dataset-list"),
-            window.location.href,
-        );
-        datasetsURL.search = params;
-
-        fetch(datasetsURL)
+        const datasetsUrl = getViewUrl("rest:dataset-list", params);
+        fetch(datasetsUrl)
             .then((res) => res.json())
             .then((data) => {
                 data.results.forEach((item) => {
@@ -140,7 +135,9 @@ export function loadSearchResults(
                                 !subtitle.includes(item),
                         );
 
-                    const dataset_url = getDataPortalUrl("atlas", item.slug);
+                    const dataset_url = getViewUrl("atlas", {
+                        dataset: item.slug,
+                    });
                     appendResult(
                         title,
                         dataset_url,
@@ -158,13 +155,8 @@ export function loadSearchResults(
                 console.error("Error loading data:", err);
             });
     } else if (category === "genes") {
-        const genesURL = new URL(
-            getDataPortalUrl("gene_list"),
-            window.location.href,
-        );
-        genesURL.search = params;
-
-        fetch(genesURL)
+        const genesUrl = getViewUrl("gene_list", params);
+        fetch(genesUrl)
             .then((res) => res.json())
             .then((data) => {
                 data.results.forEach((item) => {
@@ -178,8 +170,13 @@ export function loadSearchResults(
                     const slug = item.species
                         ? item.species.scientific_name.slug
                         : species.slug;
-                    const species_url = getDataPortalUrl("atlas", slug);
-                    const gene_url = getDataPortalUrl("atlas_gene", slug, gene);
+                    const species_url = getViewUrl("atlas", {
+                        dataset: slug,
+                    });
+                    const gene_url = getViewUrl("atlas_gene", {
+                        dataset: slug,
+                        gene,
+                    });
                     appendResult(
                         gene,
                         gene_url,
