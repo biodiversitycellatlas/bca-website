@@ -10,7 +10,8 @@ FROM buchfink/diamond:version2.1.24 AS diamond
 FROM oven/bun:1.3.11-slim AS bun
 
 # Serve website
-FROM python:3.13.12-trixie
+#FROM python:3.13.12-trixie
+FROM  dhi.io/python:3.13.12-debian13-dev
 
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
@@ -19,8 +20,10 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install Python dependencies
 WORKDIR /usr/src/app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+#COPY requirements.txt ./
+COPY pyproject.toml ./
+#RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir .
 COPY . .
 
 # Copy binaries and dependencies from other container images

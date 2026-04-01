@@ -1,0 +1,73 @@
+#[build-system]
+#requires = ["hatchling"]
+#build-backend = "hatchling.build"
+
+[project]
+name = "bcawebsite"
+version = "0.1"
+dependencies = [
+  "Django==5.2.12",
+  "django-colorfield==0.14.0",
+  "gunicorn==25.3.0",
+  "h5py==3.16.0",
+
+  # Blog parsing
+  "beautifulsoup4==4.14.3",
+  "feedparser==6.0.12",
+
+  # Documentation pages
+  "mistune==3.2.0",
+  "Pygments==2.20.0",
+  "python-frontmatter==1.1.0",
+
+  # REST
+  "djangorestframework==3.17.1",
+  "django-filter==25.2",
+  "drf-spectacular==0.29.0",
+  "drf-orjson-renderer==1.8.0",
+
+  # Monitoring
+  "django-prometheus==2.4.1",
+]
+requires-python = ">=3.13"
+authors = [
+  {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
+  {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+]
+maintainers = [
+  {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
+  {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+]
+description = "BCA Data Portal - Explore and download single-cell datasets across the eukaryotic tree of life."
+readme = "README.md"
+license = "Apache-2.0"
+#license = {file = "LICENSE"}
+license-files = ["LICENSE"]
+keywords = ["biodiversity", "cell", "atlas", "single-cell", "bioinformatics", "data"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+#[project.optional-dependencies]
+#gui = ["PyQt5"]
+#cli = [
+#  "rich",
+#  "click",
+#]
+
+[project.urls]
+Homepage = "https://portal.biodiversitycellatlas.org/"
+Documentation = "https://biodiversitycellatlas.org/blog/"
+Repository = "https://github.com/biodiversitycellatlas/bca-website"
+"Bug Tracker" = "https://github.com/biodiversitycellatlas/bca-website/issues"
+Changelog = "https://github.com/biodiversitycellatlas/bca-website/blob/master/CHANGELOG.md"
+
+#[project.scripts]
+#spam-cli = "spam:main_cli"
+
+#[project.gui-scripts]
+#spam-gui = "spam:main_gui"
+
+#[project.entry-points."spam.magical"]
+#tomatoes = "spam:main_tomatoes"
