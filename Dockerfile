@@ -7,7 +7,7 @@ FROM postgres:18.1-trixie AS postgres
 FROM buchfink/diamond:version2.1.24 AS diamond
 
 # Get bun
-FROM oven/bun:1.3.10-slim AS bun
+FROM oven/bun:1.3.11-slim AS bun
 
 # Serve website
 FROM python:3.13.12-trixie
