@@ -19,7 +19,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install dependencies
 RUN apt-get  update  && apt-get install -y --no-install-recommends git=1:2.47.3-0+deb13u1
-# Install Python dependencieshowho
+# Install Python dependencies
 WORKDIR /usr/src/app
 COPY pyproject.toml ./
 RUN pip install --no-cache-dir .
@@ -29,7 +29,7 @@ COPY . .
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 
-COPY --from=postgres  /opt/postgresql/18/bin/ /usr/bin/
+COPY --from=postgres  /opt/postgresql/18/bin/psql /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 
 
