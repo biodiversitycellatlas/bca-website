@@ -29,7 +29,7 @@ COPY . .
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 
-COPY --from=postgres  /opt/postgresql/18/bin/psql /usr/bin/
+COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 
 
