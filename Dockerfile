@@ -7,7 +7,7 @@ FROM dhi.io/postgres:18-debian13-dev AS postgres
 FROM buchfink/diamond:version2.1.24 AS diamond
 
 # Get bun
-FROM oven/bun:1.3.11-slim AS bun
+FROM dhi.io/bun:1-debian13-dev AS bun
 
 # Serve website
 FROM  dhi.io/python:3.13.12-debian13-dev

@@ -2,7 +2,7 @@
 name = "bcawebsite"
 version = "0.1"
 dependencies = [
-  "Django==5.2.12",
+  "Django==5.2.13",
   "django-colorfield==0.14.0",
   "gunicorn==25.3.0",
   "h5py==3.16.0",
