@@ -1,6 +1,6 @@
 services:
     nginx:
-        image: nginx:1.29
+        image: dhi.io/nginx:1.29.7-debian13-dev
         ports:
             - "${WEB_PORT:-8080}:80"
         volumes:
@@ -40,7 +40,7 @@ services:
             - mail__transport=${GHOST_MAIL_TRANSPORT}
 
     mailpit:
-        image: axllent/mailpit:v1.28
+        image: axllent/mailpit:v1.29.5
         env_file: [.env]
         container_name: mailpit
         restart: unless-stopped
