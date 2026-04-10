@@ -31,7 +31,7 @@ dependencies = [
   "django-debug-toolbar==6.3.0",
   "django-extensions==4.1",
   "djlint==1.36.4",
-  "pandas==3.0.1",
+  "pandas==3.0.2",
   "psutil==7.2.2",
   "rds2py==0.8.1",
   "scipy==1.17.1",
