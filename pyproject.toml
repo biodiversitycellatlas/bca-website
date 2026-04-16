@@ -23,8 +23,9 @@ dependencies = [
   "drf-spectacular==0.29.0",
   "drf-orjson-renderer==1.8.0",
 
-  # Gene ontology enrichment analysis
+  # GO enrichment
   "GOATOOLS==1.5.2",
+  "scikit-learn==1.8.0",
 
   # Monitoring
   "django-prometheus==2.4.1",

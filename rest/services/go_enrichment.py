@@ -3,6 +3,7 @@
 import gzip
 import random
 import math
+from sklearn.manifold import MDS
 
 from goatools.base import download_go_basic_obo, download_ncbi_associations
 from goatools.obo_parser import GODag
@@ -12,7 +13,34 @@ from goatools.gosubdag.gosubdag import GoSubDag
 
 
 class GeneOntologyEnrichmentService:
-    """Analyse GO term enrichment."""
+    """Analyze GO term enrichment."""
+
+    def __init__(self, obo_path, annotation_path, background_genes=None, methods=["bonferroni"], qvalue=0.05, load_obsolete=False):
+        """Load input files."""
+        self.obodag = GODag(obo_path, load_obsolete=load_obsolete)
+        self.gene2go = self.read_emapper(annotation_path)
+
+        if background_genes is None:
+             background_genes = set(self.gene2go.keys())
+
+        # Prepare GO enrichment
+        self.gostudy = GOEnrichmentStudy(background_genes, self.gene2go, self.obodag, methods=methods, alpha=qvalue)
+        self.qvalue = qvalue
+
+    def run(self, query_genes):
+        """Calculate GO term enrichment and semantic similarity."""
+
+        # Run GO term enrichment test
+        results = self.gostudy.run_study(query_genes)
+
+        # Keep only significant terms
+        results = [r for r in results if r.p_bonferroni <= self.qvalue]
+
+        # Prune redundant GO terms
+        reduced, semantic_dict = self.prune_go_terms(results, self.obodag)
+
+        # Append semantic similarity coordinates
+        return self.calculate_semantic_coords(reduced, semantic_dict)
 
     def read_emapper(self, f):
         """Read eggnog-mapper output."""
@@ -48,52 +76,36 @@ class GeneOntologyEnrichmentService:
                 gene2go[gene] = set(gos.split(","))
         return(gene2go)
 
-    def run(self, obo_path, annotation_path, query_genes, background_genes=None, methods=["bonferroni"], qvalue=0.05, load_obsolete=False):
-        # Read input files
-        obodag = GODag(obo_path, load_obsolete=load_obsolete)
-        gene2go = self.read_emapper(annotation_path)
-
-        if background_genes is None:
-             background_genes = set(gene2go.keys())
-
-        # Run enrichment test
-        gostudy = GOEnrichmentStudy(background_genes, gene2go, obodag, methods=methods, alpha=qvalue)
-        results = gostudy.run_study(query_genes)
-
-        # Keep only significant terms
-        results = [r for r in results if r.p_bonferroni <= qvalue]
-
-        # Add level and parents from ontology
-        for r in results:
-            r.parents = [i.id for i in r.goterm.parents]
-
-        reduced, sim_matrix = self.prune(results, obodag)
-        dist_matrix = self.create_distance_matrix(reduced, sim_matrix)
-
-        coords = MDS(
-            n_components=2,
-            dissimilarity="precomputed",
-            random_state=0
-        ).fit_transform(dist_matrix)
-
-        return reduced, coords
-
-    def create_distance_matrix(self, results, sim_matrix):
+    def calculate_semantic_coords(self, results, semantic_dict):
+        """Calculate semantic similarity coordinates using MDS."""
         n = len(results)
-        gos = [r.GO for r in results]
-        #dist_matrix = np.zeros((n, n))
-        dist_matrix = [[0.0] * n for _ in range(n)]
+        go_terms = [r.GO for r in results]
 
+        # Create distance matrix
+        dist_matrix = [[0.0] * n for _ in range(n)]
         for i in range(n):
-            go_i = gos[i]
+            go_i = go_terms[i]
             for j in range(i + 1, n):
-                go_j = gos[j]
+                go_j = go_terms[j]
                 key = tuple(sorted((go_i, go_j)))
-                dist = 1 - (sim_matrix.get(key) or 0)
+                dist = 1 - (semantic_dict.get(key) or 0)
                 dist_matrix[i][j] = dist
                 dist_matrix[j][i] = dist
 
-        return dist_matrix
+        # Calculate semantic similarity coordinates using MDS
+        semantic_mds = MDS(
+            n_components=2,
+            metric="precomputed",
+            random_state=0,
+            init="classical_mds",
+            n_init=1
+        ).fit_transform(dist_matrix)
+
+        # Integrate coordinates into the results
+        for i in range(len(results)):
+            results[i].semantic_coords = semantic_mds[i]
+
+        return results
 
     def _prune_parent_child_GO_terms(self, go_parent, go_child, overlap_cutoff=0.75):
         is_enrichment = go_parent.enrichment == "e"
@@ -111,26 +123,29 @@ class GeneOntologyEnrichmentService:
             reason = f"redundant child (overlapping genes: {go_child.study_count}/{go_parent.study_count})"
         return discard, reason
 
-    def prune(self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, seed=42, ci=0.1):
+    def prune_go_terms(self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, seed=42, ci=0.1):
         """
-        Prune GO terms similar to REVIGO.
+        Prune GO terms using a REVIGO-like strategy.
+
+        Calculates semantic similarity between all pairs of GO terms.
 
         Args:
             results (list): GO enrichment objects with GO, parents, pop_count, p_bonferroni.
             obodag (GODag): Full ontology.
-            sim_cutoff (float): Max pairwise semantic similarity.
+            sim_cutoff (float): Ignore GO semantic similarities below this threshold.
             freq_cutoff (float): Frequency threshold for removal.
             seed (int): Random seed.
 
         Returns:
             list[str]: Pruned GO IDs.
+            dict[str, float]: Semantic similarity between GO term pairs.
         """
         random.seed(seed)
 
         # Compute GO similarity matrix (upper triangle)
         n = len(results)
         discarded_gos = set()
-        sim_matrix = {}
+        semantic_dict = {}
 
         for i in range(n):
             go_i = results[i]
@@ -139,16 +154,16 @@ class GeneOntologyEnrichmentService:
 
                 # Calculate and cache semantic similarity value
                 key = tuple(sorted((go_i.GO, go_j.GO)))
-                if key not in sim_matrix:
+                if key not in semantic_dict:
                     try:
-                        sim_matrix[key] = semantic_similarity(go_i.GO, go_j.GO, obodag)
+                        semantic_dict[key] = semantic_similarity(go_i.GO, go_j.GO, obodag)
                     except ValueError:
-                        sim_matrix[key] = 0
-                    s = sim_matrix[key]
+                        semantic_dict[key] = 0
+                    sim = semantic_dict[key]
 
                 # Skip redundancy checks for this pair of GO terms
                 if (
-                    s is None or s < sim_cutoff or
+                    sim is None or sim < sim_cutoff or
                     go_i.goterm.level <= 3 or go_j.goterm.level <= 3 or
                     go_i in discarded_gos or go_j in discarded_gos
                 ):
@@ -197,5 +212,5 @@ class GeneOntologyEnrichmentService:
                 if go_i in discarded_gos:
                     break
 
-            reduced = set(results) - discarded_gos
-        return reduced, sim_matrix
+        reduced = list(set(results) - discarded_gos) if discarded_gos else results
+        return reduced, semantic_dict
