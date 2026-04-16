@@ -1,14 +1,14 @@
-"""REST API services logic."""
+"""Compare gene modules."""
 
 from itertools import chain
 
-from . import serializers
-from .utils import group_by_key
+from rest import serializers
+from rest.utils import group_by_key
 
 
 class GeneModuleSimilarityService:
     """
-    Service class to compute gene module similarity.
+    Compute gene module similarity.
 
     Handles:
     - Serializing genes
