@@ -20,8 +20,8 @@ class GeneOntologyEnrichmentService:
         obo_path,
         annotation_path,
         background_genes=None,
-        methods=["bonferroni"],
         qvalue=0.05,
+        methods=["bonferroni"],
         load_obsolete=False,
     ):
         """Load input files."""
@@ -40,8 +40,8 @@ class GeneOntologyEnrichmentService:
     def run(self, query_genes):
         """Calculate GO term enrichment and semantic similarity."""
 
-        # Run GO term enrichment test
-        results = self.gostudy.run_study(query_genes)
+        # Run GO term enrichment test (silently)
+        results = self.gostudy.run_study(query_genes, prt=None)
 
         # Keep only significant terms
         results = [r for r in results if r.p_bonferroni <= self.qvalue]
@@ -50,7 +50,8 @@ class GeneOntologyEnrichmentService:
         reduced, semantic_dict = self.prune_go_terms(results, self.obodag)
 
         # Append semantic similarity coordinates
-        return self.calculate_semantic_coords(reduced, semantic_dict)
+        results = self.calculate_semantic_coords(reduced, semantic_dict)
+        return results
 
     def read_emapper(self, f):
         """Read eggnog-mapper output."""

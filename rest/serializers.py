@@ -850,3 +850,21 @@ class AlignResponseSerializer(serializers.Serializer):
     target_end = serializers.IntegerField(help_text="End position of the hit sequence in the alignment.")
     e_value = serializers.FloatField(help_text="Statistical significance.")
     bit_score = serializers.FloatField(help_text="Alignment quality.")
+
+
+class EnrichmentAnalysisSerializer(serializers.Serializer):
+    """Serializer for GO enrichment analysis response."""
+
+    namespace = serializers.CharField(help_text="Namespace: BP for biological process, MF for molecular function, CC for cellular component.", source="NS")
+    term = serializers.CharField(help_text="Term ID.", source="GO")
+    name = serializers.CharField(help_text="Term name.")
+    enrichment = serializers.CharField(help_text="Term enrichment: enriched (significantly higher compared to the population) or purified (significantly lower).")
+
+    pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
+    qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
+
+    query_ratio = serializers.CharField(help_text="Query ratio.", source="ratio_in_study")
+    pop_ratio = serializers.CharField(help_text="Population ratio.", source="ratio_in_pop")
+
+    #genes = serializers.CharField(help_text="Genes.", source="study_items")
+    genes = serializers.ListField(child=serializers.CharField(), help_text="Genes.", source="study_items")

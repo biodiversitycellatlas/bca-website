@@ -546,7 +546,7 @@ class MetacellCountViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="Submit sequences for alignment",
+    summary="Align sequences",
     description="Align query sequences against the protein sequences in the BCA database "
     + f"using [DIAMOND {settings.DIAMOND_VERSION}](https://github.com/bbuchfink/diamond).",
     tags=["Sequence alignment"],
@@ -672,3 +672,47 @@ class AlignViewSet(viewsets.ViewSet):
                     os.remove(f)
 
         return results
+
+
+@extend_schema(
+    summary="Analyze GO enrichment",
+    tags=["Gene ontology"],
+)
+class EnrichmentAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Perform Gene Ontology (GO) enrichment analysis on a set of genes.
+
+    Processing may take a few seconds depending on input size.
+    Use responsibly to avoid excessive load.
+    """
+
+    queryset = models.Gene.objects.all()
+    serializer_class = serializers.EnrichmentAnalysisSerializer
+    filterset_class = filters.EnrichmentAnalysisFilter
+    pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        # Parse query parameters
+        dataset_slug = self.request.query_params.get("dataset")
+        dataset = parse_species_dataset(dataset_slug)
+
+        qvalue = self.request.query_params.get("qvalue") or 0.05
+
+        #background = list(dataset.mge.values_list('gene__name', flat=True).distinct())
+        background = None
+        genes = list(dataset.gene_modules.get(name="black").genes.values_list("name", flat=True))
+
+        # go_obo = File.objects.get(name="go-basic.obo")
+        go_obo = "data/go-basic.obo"
+
+        # annot = dataset.species.files.get(type="emapper")
+        annot = "data/Aque_long.pep.emapper.annotations.gz"
+
+        service = services.GeneOntologyEnrichmentService(go_obo, annot, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False)
+        results = service.run(genes)
+
+        # Sort results based on adjusted p-value
+        results = sorted(results, key=lambda x: x.get_pvalue())
+
+        serializer = self.serializer_class(results, many=True)
+        return Response(serializer.data)
