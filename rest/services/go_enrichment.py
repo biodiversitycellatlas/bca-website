@@ -26,16 +26,16 @@ class GeneOntologyEnrichmentService:
     ):
         """Load input files."""
         self.obodag = GODag(obo_path, load_obsolete=load_obsolete)
-        self.gene2go = self.read_emapper(annotation_path)
+        gene2go = self.read_emapper(annotation_path)
 
         if background_genes is None:
-            background_genes = set(self.gene2go.keys())
+            background_genes = gene2go.keys()
 
         # Prepare GO enrichment
-        self.gostudy = GOEnrichmentStudy(
-            background_genes, self.gene2go, self.obodag, methods=methods, alpha=qvalue
-        )
         self.qvalue = qvalue
+        self.gostudy = GOEnrichmentStudy(
+            background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue
+        )
 
     def run(self, query_genes):
         """Calculate GO term enrichment and semantic similarity."""
