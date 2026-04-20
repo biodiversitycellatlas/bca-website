@@ -1,6 +1,6 @@
 version: 2
 registries:
-    dhi-registry:
+    dhi:
         type: docker-registry
         url: https://dhi.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -22,7 +22,8 @@ updates:
           default-days: 7
 
     - package-ecosystem: "docker"
-      registries: "*"
+      registries:
+          - dhi
       directory: "/"
       schedule:
           interval: "weekly"
@@ -30,7 +31,8 @@ updates:
           default-days: 7
 
     - package-ecosystem: "docker-compose"
-      registries: "*"
+      registries:
+          - dhi
       directory: "/"
       schedule:
           interval: "weekly"
