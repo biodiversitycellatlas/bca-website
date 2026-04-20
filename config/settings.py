@@ -18,6 +18,7 @@ import sys
 import orjson
 
 from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
+from rest.settings import sort_api_tags
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_DOMAIN = "biodiversitycellatlas.org"
@@ -214,23 +215,6 @@ REST_FRAMEWORK = {
         orjson.OPT_SERIALIZE_NUMPY,
     ),
 }
-
-
-def sort_api_tags():
-    """Return sorted API tags."""
-
-    tags = [
-        "Species",
-        "Dataset",
-        "Gene",
-        "Gene module",
-        "Metacell",
-        "Single cell",
-        "Cross-species",
-        "Sequence alignment",
-    ]
-    return [{"name": tag} for tag in tags]
-
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Biodiversity Cell Atlas: Data Portal API",
