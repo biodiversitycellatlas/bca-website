@@ -888,12 +888,3 @@ class MetacellMarkerFilter(FilterSet):
 
         model = models.Gene
         fields = ["dataset"]
-
-class EnrichmentAnalysisFilter(FilterSet):
-    """Filter set for enrichment analysis."""
-
-    dataset = DatasetChoiceFilter(required=True)
-    qvalue = NumberFilter(
-        label="Adjusted p-value threshold. `0.05` by default.",
-        method=skip_param,
-    )

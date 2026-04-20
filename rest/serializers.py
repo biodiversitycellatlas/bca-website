@@ -852,23 +852,77 @@ class AlignResponseSerializer(serializers.Serializer):
     bit_score = serializers.FloatField(help_text="Alignment quality.")
 
 
-class EnrichmentAnalysisSerializer(serializers.Serializer):
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Example",
+            value={
+                "dataset": "amphimedon-queenslandica-adult",
+                "qvalue": 0.05,
+                "genes": [
+                    "Aque_Aqu2.1.19027_001",
+                    "Aque_Aqu2.1.23371_001",
+                    "Aque_Aqu2.1.23228_001"
+                ]
+            },
+        ),
+    ]
+)
+class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
+    """Filter set for enrichment analysis."""
+
+    dataset = serializers.CharField(help_text="The [dataset's slug](#/operations/datasets_list).")
+    qvalue = serializers.FloatField(help_text="Adjusted p-value threshold. `0.05` by default.", required=False)
+
+    # Available gene input options
+    genes = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        help_text="List of gene identifiers. These genes are combined with genes from `gene_modules` and `gene_lists` if provided."
+    )
+    gene_modules = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        help_text="List of gene module names."
+    )
+    gene_lists = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        help_text="List of preset gene list names."
+    )
+
+    def validate(self, attrs):
+        genes = attrs.get("genes")
+        gene_modules = attrs.get("gene_modules")
+        gene_lists = attrs.get("gene_lists")
+
+        if not any([genes, gene_modules, gene_lists]):
+            raise serializers.ValidationError(
+                "At least one of 'genes', 'gene_modules', or 'gene_lists' must be provided."
+            )
+
+        return attrs
+
+
+class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     """Serializer for GO enrichment analysis response."""
 
-    namespace = serializers.CharField(help_text="Namespace: BP for biological process, MF for molecular function, CC for cellular component.", source="NS")
+    namespace = serializers.CharField(help_text="`BP` for biological process, `MF` for molecular function, `CC` for cellular component.", source="NS")
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
     enrichment = serializers.CharField(help_text="Term enrichment: enriched (significantly higher compared to background genes) or purified (significantly lower).")
 
+    depth = serializers.IntegerField(help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth")
+
     pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
 
-    query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the GO term.")
+    query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the term.")
     query_count = serializers.SerializerMethodField(help_text="Number of input genes.")
-    background_hit_count = serializers.SerializerMethodField(help_text="Number of background genes associated with the GO term.")
+    background_hit_count = serializers.SerializerMethodField(help_text="Number of background genes associated with the term.")
     background_count = serializers.SerializerMethodField(help_text="Number of background genes.")
 
-    genes = serializers.ListField(child=serializers.CharField(), help_text="Input genes associated with the GO term.", source="study_items")
+    genes = serializers.ListField(child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items")
 
     def _get_ratio(self, obj):
         if not hasattr(obj, "_ratio"):
@@ -878,14 +932,14 @@ class EnrichmentAnalysisSerializer(serializers.Serializer):
             }
         return obj._ratio
 
-    def get_query_hit_count(self, obj):
+    def get_query_hit_count(self, obj) -> int:
         return self._get_ratio(obj)["study"][0]
 
-    def get_query_count(self, obj):
+    def get_query_count(self, obj) -> int:
         return self._get_ratio(obj)["study"][1]
 
-    def get_background_hit_count(self, obj):
+    def get_background_hit_count(self, obj) -> int:
         return self._get_ratio(obj)["pop"][0]
 
-    def get_background_count(self, obj):
+    def get_background_count(self, obj) -> int:
         return self._get_ratio(obj)["pop"][1]

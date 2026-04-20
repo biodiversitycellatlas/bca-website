@@ -454,7 +454,11 @@ class SpeciesFile(FileMixin):
     """File model for a species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+    file_types = {
+        "Proteome": "Proteome",
+        "DIAMOND": "DIAMOND database",
+        "eggnog-mapper": "eggNOG-mapper functional annotation",
+    }
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
 
     class Meta:
