@@ -1,4 +1,11 @@
 version: 2
+registries:
+  docker-registry:
+    type: docker-registry
+    url: https://dhi.io
+    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    replaces-base: true
 updates:
     - package-ecosystem: "pip"
       directory: "/"
