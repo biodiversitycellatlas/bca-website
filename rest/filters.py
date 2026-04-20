@@ -894,6 +894,6 @@ class EnrichmentAnalysisFilter(FilterSet):
 
     dataset = DatasetChoiceFilter(required=True)
     qvalue = NumberFilter(
-        label="Adjusted p-value threshold. 0.05 by default.",
+        label="Adjusted p-value threshold. `0.05` by default.",
         method=skip_param,
     )

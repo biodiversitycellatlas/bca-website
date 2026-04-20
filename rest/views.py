@@ -678,12 +678,14 @@ class AlignViewSet(viewsets.ViewSet):
     summary="Analyze GO enrichment",
     tags=["Gene ontology"],
 )
-class EnrichmentAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
+class EnrichmentAnalysisViewSet(BaseReadOnlyModelViewSet):
     """
-    Perform Gene Ontology (GO) enrichment analysis on a set of genes.
+    Perform **Gene Ontology (GO) enrichment analysis** on a set of genes.
 
-    Processing may take a few seconds depending on input size.
-    Use responsibly to avoid excessive load.
+    Backgroung genes are derived from all the genes in the selected dataset's metacell gene expression.
+
+    > Processing may take 10+ seconds depending on input.
+    > Please use responsibly to avoid excessive server load.
     """
 
     queryset = models.Gene.objects.all()
@@ -697,9 +699,7 @@ class EnrichmentAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
         dataset = parse_species_dataset(dataset_slug)
 
         qvalue = self.request.query_params.get("qvalue") or 0.05
-
-        #background = list(dataset.mge.values_list('gene__name', flat=True).distinct())
-        background = None
+        background = list(dataset.mge.values_list('gene__name', flat=True).distinct())
         genes = list(dataset.gene_modules.get(name="black").genes.values_list("name", flat=True))
 
         # go_obo = File.objects.get(name="go-basic.obo")
@@ -709,10 +709,7 @@ class EnrichmentAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
         annot = "data/Aque_long.pep.emapper.annotations.gz"
 
         service = services.GeneOntologyEnrichmentService(go_obo, annot, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False)
-        results = service.run(genes)
-
-        # Sort results based on adjusted p-value
-        results = sorted(results, key=lambda x: x.get_pvalue())
+        results = service.run(genes, sort=True)
 
         serializer = self.serializer_class(results, many=True)
         return Response(serializer.data)

@@ -858,13 +858,34 @@ class EnrichmentAnalysisSerializer(serializers.Serializer):
     namespace = serializers.CharField(help_text="Namespace: BP for biological process, MF for molecular function, CC for cellular component.", source="NS")
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
-    enrichment = serializers.CharField(help_text="Term enrichment: enriched (significantly higher compared to the population) or purified (significantly lower).")
+    enrichment = serializers.CharField(help_text="Term enrichment: enriched (significantly higher compared to background genes) or purified (significantly lower).")
 
     pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
 
-    query_ratio = serializers.CharField(help_text="Query ratio.", source="ratio_in_study")
-    pop_ratio = serializers.CharField(help_text="Population ratio.", source="ratio_in_pop")
+    query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the GO term.")
+    query_count = serializers.SerializerMethodField(help_text="Number of input genes.")
+    background_hit_count = serializers.SerializerMethodField(help_text="Number of background genes associated with the GO term.")
+    background_count = serializers.SerializerMethodField(help_text="Number of background genes.")
 
-    #genes = serializers.CharField(help_text="Genes.", source="study_items")
-    genes = serializers.ListField(child=serializers.CharField(), help_text="Genes.", source="study_items")
+    genes = serializers.ListField(child=serializers.CharField(), help_text="Input genes associated with the GO term.", source="study_items")
+
+    def _get_ratio(self, obj):
+        if not hasattr(obj, "_ratio"):
+            obj._ratio = {
+                "study": obj.ratio_in_study,
+                "pop": obj.ratio_in_pop,
+            }
+        return obj._ratio
+
+    def get_query_hit_count(self, obj):
+        return self._get_ratio(obj)["study"][0]
+
+    def get_query_count(self, obj):
+        return self._get_ratio(obj)["study"][1]
+
+    def get_background_hit_count(self, obj):
+        return self._get_ratio(obj)["pop"][0]
+
+    def get_background_count(self, obj):
+        return self._get_ratio(obj)["pop"][1]

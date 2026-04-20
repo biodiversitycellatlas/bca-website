@@ -1,4 +1,4 @@
-"""GO term enrichment analysis."""
+"""GO enrichment analysis."""
 
 import gzip
 import random
@@ -13,7 +13,7 @@ from goatools.gosubdag.gosubdag import GoSubDag
 
 
 class GeneOntologyEnrichmentService:
-    """Analyze GO term enrichment."""
+    """Analyze GO enrichment."""
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class GeneOntologyEnrichmentService:
         methods=["bonferroni"],
         load_obsolete=False,
     ):
-        """Load input files."""
+        """Load input files (allows to run GO enrichment analysis multiple times)."""
         self.obodag = GODag(obo_path, load_obsolete=load_obsolete)
         gene2go = self.read_emapper(annotation_path)
 
@@ -37,10 +37,10 @@ class GeneOntologyEnrichmentService:
             background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue
         )
 
-    def run(self, query_genes):
-        """Calculate GO term enrichment and semantic similarity."""
+    def run(self, query_genes, sort=False):
+        """Calculate GO enrichment and semantic similarity."""
 
-        # Run GO term enrichment test (silently)
+        # Run GO enrichment test (silently)
         results = self.gostudy.run_study(query_genes, prt=None)
 
         # Keep only significant terms
@@ -51,6 +51,10 @@ class GeneOntologyEnrichmentService:
 
         # Append semantic similarity coordinates
         results = self.calculate_semantic_coords(reduced, semantic_dict)
+
+        # Sort results based on adjusted p-value
+        if sort:
+            results = sorted(results, key=lambda x: x.get_pvalue())
         return results
 
     def read_emapper(self, f):
@@ -143,11 +147,11 @@ class GeneOntologyEnrichmentService:
         Calculates semantic similarity between all pairs of GO terms.
 
         Args:
-            results (list): GO enrichment objects with GO, parents, pop_count, p_bonferroni.
-            obodag (GODag): Full ontology.
+            results (list): GO enrichment results.
+            obodag (GODag): Full ontology parsed by GODag.
             sim_cutoff (float): Ignore GO semantic similarities below this threshold.
             freq_cutoff (float): Frequency threshold for removal.
-            seed (int): Random seed.
+            seed (int): Random seed to ensure consistent results.
 
         Returns:
             list[str]: Pruned GO IDs.
