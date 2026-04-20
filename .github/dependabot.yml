@@ -30,6 +30,7 @@ updates:
           default-days: 7
 
     - package-ecosystem: "docker-compose"
+      registries: "*"
       directory: "/"
       schedule:
           interval: "weekly"
