@@ -859,11 +859,7 @@ class AlignResponseSerializer(serializers.Serializer):
             value={
                 "dataset": "amphimedon-queenslandica-adult",
                 "qvalue": 0.05,
-                "genes": [
-                    "Aque_Aqu2.1.19027_001",
-                    "Aque_Aqu2.1.23371_001",
-                    "Aque_Aqu2.1.23228_001"
-                ]
+                "genes": ["Aque_Aqu2.1.19027_001", "Aque_Aqu2.1.23371_001", "Aque_Aqu2.1.23228_001"],
             },
         ),
     ]
@@ -878,17 +874,16 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
     genes = serializers.ListField(
         child=serializers.CharField(),
         required=False,
-        help_text="List of gene identifiers. These genes are combined with genes from `gene_modules` and `gene_lists` if provided."
+        help_text=(
+            "List of gene identifiers. "
+            "These genes are combined with genes from `gene_modules` and `gene_lists` if provided."
+        ),
     )
     gene_modules = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text="List of gene module names."
+        child=serializers.CharField(), required=False, help_text="List of gene module names."
     )
     gene_lists = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text="List of preset gene list names."
+        child=serializers.CharField(), required=False, help_text="List of preset gene list names."
     )
 
     def validate(self, attrs):
@@ -907,22 +902,35 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
 class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     """Serializer for GO enrichment analysis response."""
 
-    namespace = serializers.CharField(help_text="`BP` for biological process, `MF` for molecular function, `CC` for cellular component.", source="NS")
+    namespace = serializers.CharField(
+        help_text="`BP` for biological process, `MF` for molecular function, `CC` for cellular component.", source="NS"
+    )
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
-    enrichment = serializers.CharField(help_text="Term enrichment: enriched (significantly higher compared to background genes) or purified (significantly lower).")
+    enrichment = serializers.CharField(
+        help_text=(
+            "Term enrichment: enriched (significantly higher compared to background genes) "
+            "or purified (significantly lower)."
+        )
+    )
 
-    depth = serializers.IntegerField(help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth")
+    depth = serializers.IntegerField(
+        help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth"
+    )
 
     pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
 
     query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the term.")
     query_count = serializers.SerializerMethodField(help_text="Number of input genes.")
-    background_hit_count = serializers.SerializerMethodField(help_text="Number of background genes associated with the term.")
+    background_hit_count = serializers.SerializerMethodField(
+        help_text="Number of background genes associated with the term."
+    )
     background_count = serializers.SerializerMethodField(help_text="Number of background genes.")
 
-    genes = serializers.ListField(child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items")
+    genes = serializers.ListField(
+        child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items"
+    )
 
     def _get_ratio(self, obj):
         if not hasattr(obj, "_ratio"):

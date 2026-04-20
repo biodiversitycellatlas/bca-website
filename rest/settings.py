@@ -1,5 +1,6 @@
 """Custom django-filter filter sets and utilities for the API."""
 
+
 def sort_api_tags():
     """Return sorted API tags."""
 

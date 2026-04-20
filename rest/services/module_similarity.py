@@ -120,9 +120,7 @@ class GeneModuleSimilarityService:
         }
         return results
 
-    def calculate_gene_similarity(
-        self, d1, m1, m1_genes, d2, m2, m2_genes, genes_info, list_genes=False
-    ):
+    def calculate_gene_similarity(self, d1, m1, m1_genes, d2, m2, m2_genes, genes_info, list_genes=False):
         """
         Compute overlap statistics between two gene modules.
 
@@ -147,9 +145,7 @@ class GeneModuleSimilarityService:
         fn = self.list_shared_genes if list_genes else self.calculate_similarity
         return fn(d1, m1, unique1, d2, m2, unique2, shared, genes_info)
 
-    def calculate_orthogroup_similarity(
-        self, d1, m1, orthogroups1, d2, m2, orthogroups2, genes_info, list_genes=False
-    ):
+    def calculate_orthogroup_similarity(self, d1, m1, orthogroups1, d2, m2, orthogroups2, genes_info, list_genes=False):
         """
         Compute overlap statistics between two modules using orthogroup mappings.
 
@@ -181,12 +177,8 @@ class GeneModuleSimilarityService:
         shared = shared1 + shared2
 
         # Retrieve unique genes including those without orthogroups
-        unique1 = self.flat(orthogroups1, unique1_ogs) + list(
-            orthogroups1.get(None, [])
-        )
-        unique2 = self.flat(orthogroups2, unique2_ogs) + list(
-            orthogroups2.get(None, [])
-        )
+        unique1 = self.flat(orthogroups1, unique1_ogs) + list(orthogroups1.get(None, []))
+        unique2 = self.flat(orthogroups2, unique2_ogs) + list(orthogroups2.get(None, []))
 
         # Remove duplicate genes and those from shared (e.g., multi-orthogroup genes)
         unique1 = list(set(unique1) - set(shared1))
@@ -226,16 +218,12 @@ class GeneModuleSimilarityService:
             for j, (m2, g2) in enumerate(module_dict2.items()):
                 if skip_duplicates and j <= i:  # skip same module and tested pairs
                     continue
-                r = similarity_fn(
-                    dataset1.slug, m1, g1, dataset2.slug, m2, g2, genes_info, list_genes
-                )
+                r = similarity_fn(dataset1.slug, m1, g1, dataset2.slug, m2, g2, genes_info, list_genes)
                 results.append(r)
 
         return list(chain.from_iterable(results)) if list_genes else results
 
-    def compare_within_dataset(
-        self, dataset, module=None, module2=None, list_genes=False
-    ):
+    def compare_within_dataset(self, dataset, module=None, module2=None, list_genes=False):
         """Compare pairwise gene overlaps within a dataset."""
         modules = dataset.gene_modules.prefetch_related("genes")
         module_genes = group_by_key(modules, "name", "genes")
@@ -243,16 +231,10 @@ class GeneModuleSimilarityService:
 
         # Filter module pairs if module/module2 specified
         if module and module2:
-            filtered1 = {
-                name: genes for name, genes in module_genes.items() if name in module
-            }
-            filtered2 = {
-                name: genes for name, genes in module_genes.items() if name in module2
-            }
+            filtered1 = {name: genes for name, genes in module_genes.items() if name in module}
+            filtered2 = {name: genes for name, genes in module_genes.items() if name in module2}
         elif module:
-            filtered1 = {
-                name: genes for name, genes in module_genes.items() if name in module
-            }
+            filtered1 = {name: genes for name, genes in module_genes.items() if name in module}
             filtered2 = filtered1
         else:
             filtered1 = module_genes
@@ -268,9 +250,7 @@ class GeneModuleSimilarityService:
             list_genes=list_genes,
         )
 
-    def compare_within_species(
-        self, dataset1, dataset2, module=None, module2=None, list_genes=False
-    ):
+    def compare_within_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
         """Compare pairwise gene overlaps between two datasets of the same species."""
         d1_modules = dataset1.gene_modules.prefetch_related("genes")
         if module:
@@ -282,9 +262,7 @@ class GeneModuleSimilarityService:
             d2_modules = d2_modules.filter(name=module2)
         d2_module_genes = group_by_key(d2_modules, "name", "genes")
 
-        genes_info = self.prepare_genes_info(
-            list(d1_modules.all()) + list(d2_modules.all())
-        )
+        genes_info = self.prepare_genes_info(list(d1_modules.all()) + list(d2_modules.all()))
         return self.compare_modules(
             d1_module_genes,
             d2_module_genes,
@@ -295,23 +273,17 @@ class GeneModuleSimilarityService:
             list_genes,
         )
 
-    def compare_across_species(
-        self, dataset1, dataset2, module=None, module2=None, list_genes=False
-    ):
+    def compare_across_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
         """Compare pairwise orthogroup overlaps for each gene across species."""
         d1_modules = dataset1.gene_modules.prefetch_related("genes")
         if module:
             d1_modules = d1_modules.filter(name=module)
-        d1_module_orthogroups = group_by_key(
-            d1_modules, "name", "genes__orthogroups", "genes"
-        )
+        d1_module_orthogroups = group_by_key(d1_modules, "name", "genes__orthogroups", "genes")
 
         d2_modules = dataset2.gene_modules.prefetch_related("genes")
         if module2:
             d2_modules = d2_modules.filter(name=module2)
-        d2_module_orthogroups = group_by_key(
-            d2_modules, "name", "genes__orthogroups", "genes"
-        )
+        d2_module_orthogroups = group_by_key(d2_modules, "name", "genes__orthogroups", "genes")
 
         modules = list(d1_modules.all()) + list(d2_modules.all())
         genes_info = self.prepare_genes_info(modules)
@@ -331,11 +303,7 @@ class GeneModuleSimilarityService:
         if dataset == dataset2:
             overlaps = self.compare_within_dataset(dataset, module, module2, list_genes)
         elif dataset.species == dataset2.species:
-            overlaps = self.compare_within_species(
-                dataset, dataset2, module, module2, list_genes
-            )
+            overlaps = self.compare_within_species(dataset, dataset2, module, module2, list_genes)
         else:
-            overlaps = self.compare_across_species(
-                dataset, dataset2, module, module2, list_genes
-            )
+            overlaps = self.compare_across_species(dataset, dataset2, module, module2, list_genes)
         return overlaps

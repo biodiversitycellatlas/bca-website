@@ -682,7 +682,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
     """
     Perform **Gene Ontology (GO) enrichment analysis** on a set of genes.
 
-    Backgroung genes are derived from all the genes in the selected dataset's metacell gene expression.
+    Background genes are derived from all the genes in the selected dataset's metacell gene expression.
 
     > Processing may take 10+ seconds depending on input.
     > Please use responsibly to avoid excessive server load.
@@ -703,9 +703,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         responses={200: serializers.EnrichmentAnalysisResponseSerializer(many=True)},
     )
     def create(self, request, *args, **kwargs):
-        input_serializer = serializers.EnrichmentAnalysisRequestSerializer(
-            data=request.data
-        )
+        input_serializer = serializers.EnrichmentAnalysisRequestSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         validated = input_serializer.validated_data
 
@@ -726,7 +724,9 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
         gene_lists = validated.get("gene_lists")
         if gene_lists:
-            genes = self._get_gene_names(models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists))
+            genes = self._get_gene_names(
+                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
+            )
             if len(genes) == 0:
                 raise NotFound(detail=f"Gene lists {gene_lists} not found.")
             query += genes
@@ -735,7 +735,9 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         go_obo = "data/go-basic.obo"
         emapper = dataset.species.files.get(type="eggnog-mapper").file
 
-        service = services.GeneOntologyEnrichmentService(go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False)
+        service = services.GeneOntologyEnrichmentService(
+            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False
+        )
         results = service.run(query, sort=True)
 
         serializer = self.serializer_class(results, many=True)

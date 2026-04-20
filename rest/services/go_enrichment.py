@@ -5,11 +5,13 @@ import random
 import math
 from sklearn.manifold import MDS
 
-from goatools.base import download_go_basic_obo, download_ncbi_associations
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.semantic import TermCounts, get_info_content, semantic_similarity
-from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.semantic import semantic_similarity
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class GeneOntologyEnrichmentService:
@@ -33,9 +35,7 @@ class GeneOntologyEnrichmentService:
 
         # Prepare GO enrichment
         self.qvalue = qvalue
-        self.gostudy = GOEnrichmentStudy(
-            background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue
-        )
+        self.gostudy = GOEnrichmentStudy(background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue)
 
     def run(self, query_genes, sort=False):
         """Calculate GO enrichment and semantic similarity."""
@@ -82,7 +82,7 @@ class GeneOntologyEnrichmentService:
                     kegg_module,
                     kegg_reaction,
                     kegg_rclass,
-                    brite,
+                    kegg_brite,
                     kegg_tc,
                     cazy,
                     bigg_reaction,
@@ -138,9 +138,7 @@ class GeneOntologyEnrichmentService:
             reason = f"redundant child (overlapping genes: {go_child.study_count}/{go_parent.study_count})"
         return discard, reason
 
-    def prune_go_terms(
-        self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, seed=42, ci=0.1
-    ):
+    def prune_go_terms(self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, seed=42, ci=0.1):
         """
         Prune GO terms using a REVIGO-like strategy.
 
@@ -173,9 +171,7 @@ class GeneOntologyEnrichmentService:
                 key = tuple(sorted((go_i.GO, go_j.GO)))
                 if key not in semantic_dict:
                     try:
-                        semantic_dict[key] = semantic_similarity(
-                            go_i.GO, go_j.GO, obodag
-                        )
+                        semantic_dict[key] = semantic_similarity(go_i.GO, go_j.GO, obodag)
                     except ValueError:
                         semantic_dict[key] = 0
                     sim = semantic_dict[key]
@@ -201,8 +197,7 @@ class GeneOntologyEnrichmentService:
                 relative_change = (
                     0
                     if go_sum_abs_log_prop == 0
-                    else abs(go_i_abs_log_prop - go_j_abs_log_prop)
-                    / (go_sum_abs_log_prop / 2)
+                    else abs(go_i_abs_log_prop - go_j_abs_log_prop) / (go_sum_abs_log_prop / 2)
                 )
                 significant_change = relative_change >= ci
 
@@ -217,32 +212,25 @@ class GeneOntologyEnrichmentService:
                 # Remove term with less significant p-value
                 elif significant_change and go_i_abs_log_prop > go_j_abs_log_prop:
                     discard = go_i
-                    reason = (
-                        f"lower pval i ({go_i_abs_log_prop} vs {go_j_abs_log_prop})"
-                    )
+                    reason = f"lower pval i ({go_i_abs_log_prop} vs {go_j_abs_log_prop})"
                 elif significant_change and go_i_abs_log_prop < go_j_abs_log_prop:
                     discard = go_j
-                    reason = (
-                        f"lower pval j ({go_i_abs_log_prop} vs {go_j_abs_log_prop})"
-                    )
+                    reason = f"lower pval j ({go_i_abs_log_prop} vs {go_j_abs_log_prop})"
                 # Remove parent or child term if they are in parent-child relationship
                 elif go_j.GO in (parent.id for parent in go_i.goterm.parents):
                     go_parent = go_j
                     go_child = go_i
-                    discard, reason = self._prune_parent_child_GO_terms(
-                        go_parent, go_child
-                    )
+                    discard, reason = self._prune_parent_child_GO_terms(go_parent, go_child)
                 elif go_i.GO in (parent.id for parent in go_j.goterm.parents):
                     go_parent = go_i
                     go_child = go_j
-                    discard, reason = self._prune_parent_child_GO_terms(
-                        go_parent, go_child
-                    )
+                    discard, reason = self._prune_parent_child_GO_terms(go_parent, go_child)
                 # Remove first term (deterministic tie-breaker)
                 else:
                     discard = random.choice([go_i, go_j])
                     reason = "randomness"
 
+                logger.debug(f"Discarded {discard.GO} for", reason)
                 discarded_gos.add(discard)
                 if go_i in discarded_gos:
                     break
