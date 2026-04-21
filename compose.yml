@@ -49,7 +49,10 @@ services:
             - "8025:8025" # Web UI
 
     web:
-        build: .
+        build:
+            context: .
+            args:
+                OPTIONAL_DEPENDENCY_GROUPS: ${OPTIONAL_DEPENDENCY_GROUPS}
         # user: "${DOCKER_WEB_USER:-bca}"
         restart: always
         env_file: [.env]
