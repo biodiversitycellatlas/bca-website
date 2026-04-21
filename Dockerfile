@@ -22,7 +22,7 @@ RUN apt-get  update  && apt-get install -y --no-install-recommends git=1:2.47.3-
 # Install Python dependencies
 WORKDIR /usr/src/app
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir .
+RUN pip install .[dev,test] --no-cache-dir .
 COPY . .
 
 # Copy binaries and dependencies from other container images
