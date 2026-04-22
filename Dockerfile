@@ -22,9 +22,9 @@ RUN apt-get  update  && apt-get install -y --no-install-recommends git=1:2.47.3-
 # Install Python dependencies
 WORKDIR /usr/src/app
 COPY pyproject.toml ./
-ARG OPTIONAL_DEPENDENCY_GROUPS
-ENV OPTIONAL_DEPENDENCY_GROUPS=${OPTIONAL_DEPENDENCY_GROUPS}
-RUN pip install .${OPTIONAL_DEPENDENCY_GROUPS} --no-cache-dir .
+ARG DJANGO_DEPENDENCIES=".[dev,test]"
+ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
+RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 COPY . .
 
 # Copy binaries and dependencies from other container images
