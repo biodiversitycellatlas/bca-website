@@ -242,12 +242,12 @@ class StatsSerializer(serializers.ModelSerializer):
 class GeneSerializer(serializers.ModelSerializer):
     """Gene serializer."""
 
-    gene = serializers.CharField(source="name")
-    species = serializers.CharField(required=False)
-    genelists = serializers.StringRelatedField(many=True)
-    domains = serializers.StringRelatedField(many=True)
+    gene = serializers.CharField(source="name", help_text="Gene name.")
+    species = serializers.CharField(required=False, help_text="Species.")
+    genelists = serializers.StringRelatedField(many=True, help_text="Gene lists.")
+    domains = serializers.StringRelatedField(many=True, help_text="Protein domains.")
     orthogroups = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="name", help_text="Gene orthogroups"
+        many=True, read_only=True, slug_field="name", help_text="Gene orthogroups."
     )
 
     class Meta:
@@ -323,23 +323,20 @@ class GeneListSerializer(serializers.ModelSerializer):
 class GeneModuleSerializer(serializers.ModelSerializer):
     """Gene module serializer."""
 
-    dataset = serializers.CharField(source="dataset.slug", help_text="Dataset.")
-    module = serializers.CharField(source="name", help_text="Name of gene module.")
+    dataset = serializers.CharField(source="dataset.slug", help_text="Dataset slug.")
+    module = serializers.CharField(source="name", help_text="Gene module name.")
     gene_count = serializers.IntegerField(source="genes.count", help_text="Number of genes in gene module.")
-    gene_hubs = serializers.SlugRelatedField(
-        source="get_gene_hubs",
-        many=True,
-        slug_field="gene.name",
-        read_only=True,
-        help_text="Top gene hubs ordered by their membership score.",
-    )
-    top_tf = serializers.SlugRelatedField(
-        source="get_top_transcription_factors",
-        many=True,
-        slug_field="gene.name",
-        read_only=True,
-        help_text="Top Transcription Factors ordered by their membership score.",
-    )
+    gene_hubs = serializers.SerializerMethodField(help_text="Top 5 genes ordered by membership score.")
+    top_tf = serializers.SerializerMethodField(help_text="Top 5 transcription factors ordered by membership score.")
+
+    def _get_gene_names(self, genes) -> list[str]:
+        return [each.gene.name for each in genes]
+
+    def get_gene_hubs(self, obj) -> list[str]:
+        return self._get_gene_names(obj.get_gene_hubs())
+
+    def get_top_tf(self, obj) -> list[str]:
+        return self._get_gene_names(obj.get_top_transcription_factors())
 
     class Meta:
         """Meta configuration."""
@@ -351,10 +348,13 @@ class GeneModuleSerializer(serializers.ModelSerializer):
 class GeneModuleMembershipSerializer(serializers.ModelSerializer):
     """Gene module membership serializer."""
 
-    gene = serializers.CharField()
-    module = serializers.CharField()
-    dataset = serializers.CharField(source="module.dataset.slug")
-    score = serializers.CharField(source="membership_score")
+    gene = serializers.CharField(help_text="Gene name.")
+    module = serializers.CharField(help_text="Gene module name.")
+    dataset = serializers.CharField(source="module.dataset.slug", help_text="Dataset slug.")
+    score = serializers.CharField(
+        source="membership_score",
+        help_text=("Module membership score. Measures gene-module association: 0 → weak, 1 → strong."),
+    )
 
     class Meta:
         """Meta configuration."""
@@ -366,24 +366,24 @@ class GeneModuleMembershipSerializer(serializers.ModelSerializer):
 class GeneModuleSimilaritySerializer(serializers.Serializer):
     """Gene module similarity serializer."""
 
-    dataset = serializers.CharField(help_text="Dataset 1.")
-    module = serializers.CharField(help_text="Gene module 1.")
-    dataset2 = serializers.CharField(help_text="Dataset 2.")
-    module2 = serializers.CharField(help_text="Gene module 2.")
+    dataset = serializers.CharField(help_text="Reference dataset slug.")
+    module = serializers.CharField(help_text="Reference gene module name.")
+    dataset2 = serializers.CharField(help_text="Comparison dataset slug.")
+    module2 = serializers.CharField(help_text="Comparison gene module name.")
 
     similarity = serializers.FloatField(help_text="Jaccard similarity index ( shared / union ).")
 
-    shared_genes_module = serializers.IntegerField(help_text="Number of shared genes from module 1.")
-    shared_genes_module2 = serializers.IntegerField(help_text="Number of shared genes from module 2.")
-    unique_genes_module = serializers.IntegerField(help_text="Number of unique genes for the first module.")
-    unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes for the second module.")
+    shared_genes_module = serializers.IntegerField(help_text="Number of shared genes in reference gene module.")
+    shared_genes_module2 = serializers.IntegerField(help_text="Number of shared genes in comparison gene module.")
+    unique_genes_module = serializers.IntegerField(help_text="Number of unique genes in reference gene module.")
+    unique_genes_module2 = serializers.IntegerField(help_text="Number of unique genes in comparison gene module.")
 
 
 class GeneModuleSimilarityGeneSerializer(GeneSerializer):
     """Gene module similarity genes serializer."""
 
-    dataset = serializers.SerializerMethodField(help_text="Dataset.")
-    module = serializers.SerializerMethodField(help_text="Module.")
+    dataset = serializers.CharField(help_text="Dataset slug.")
+    module = serializers.CharField(help_text="Gene module name.")
     overlap = serializers.CharField(help_text="Category of overlap: unique to one module or shared between both.")
 
     class Meta:
@@ -394,7 +394,7 @@ class GeneModuleSimilarityGeneSerializer(GeneSerializer):
             "overlap",
             "dataset",
             "module",
-            "name",
+            "gene",
             "description",
             "domains",
             "genelists",
@@ -405,13 +405,13 @@ class GeneModuleSimilarityGeneSerializer(GeneSerializer):
 class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
     """Gene module eigengene serializer."""
 
-    metacell_name = serializers.CharField(source="metacell.name", default=None)
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None)
-    metacell_color = serializers.CharField(source="metacell.type.color", default=None)
+    metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Metacell type.")
+    metacell_color = serializers.CharField(source="metacell.type.color", default=None, help_text="Metacell color.")
 
-    module = serializers.CharField()
-    dataset = serializers.CharField(source="module.dataset.slug")
-    eigengene_value = serializers.CharField()
+    module = serializers.CharField(help_text="Gene module name.")
+    dataset = serializers.CharField(source="module.dataset.slug", help_text="Dataset slug.")
+    eigengene_value = serializers.CharField(help_text="Eigengene value.")
 
     class Meta:
         """Meta configuration."""
@@ -885,7 +885,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         help_text=(
             "Array of [gene modules](#/operations/modules_list) to use as query genes. "
             "Genes from the selected modules are combined with genes from `genes` and `gene_lists`."
-        )
+        ),
     )
     gene_lists = serializers.ListField(
         child=serializers.CharField(),
@@ -893,7 +893,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         help_text=(
             "Array of [preset gene lists](#/operations/gene_lists_list) to use as query genes. "
             "Genes from the selected lists are combined with genes from `genes` and `gene_modules`."
-        )
+        ),
     )
 
     def validate(self, attrs):
@@ -949,7 +949,7 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
             "Computed from a distance matrix of pairwise GO term similarities. "
             "The matrix is transformed using MDS (Multi-Dimensional Scaling)."
         ),
-        source="semantic_sim_coords"
+        source="semantic_sim_coords",
     )
 
     def _get_ratio(self, obj):
