@@ -50,7 +50,7 @@ class GeneOntologyEnrichmentService:
         reduced, semantic_dict = self.prune_go_terms(results, self.obodag)
 
         # Append semantic similarity coordinates
-        results = self.calculate_semantic_coords(reduced, semantic_dict)
+        results = self.calculate_semantic_similarity_coords(reduced, semantic_dict)
 
         # Sort results based on adjusted p-value
         if sort:
@@ -91,7 +91,7 @@ class GeneOntologyEnrichmentService:
                 gene2go[gene] = set(gos.split(","))
         return gene2go
 
-    def calculate_semantic_coords(self, results, semantic_dict):
+    def calculate_semantic_similarity_coords(self, results, semantic_dict):
         """Calculate semantic similarity coordinates using MDS."""
         n = len(results)
         go_terms = [r.GO for r in results]
@@ -118,7 +118,7 @@ class GeneOntologyEnrichmentService:
 
         # Integrate coordinates into the results
         for i in range(len(results)):
-            results[i].semantic_coords = semantic_mds[i]
+            results[i].semantic_sim_coords = semantic_mds[i]
 
         return results
 

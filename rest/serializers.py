@@ -942,6 +942,16 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
         child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items"
     )
 
+    similarity_coords = serializers.ListField(
+        child=serializers.FloatField(),
+        help_text=(
+            "GO term semantic similarity coordinates. "
+            "Computed from a distance matrix of pairwise GO term similarities. "
+            "The matrix is transformed using MDS (Multi-Dimensional Scaling)."
+        ),
+        source="semantic_sim_coords"
+    )
+
     def _get_ratio(self, obj):
         if not hasattr(obj, "_ratio"):
             obj._ratio = {
