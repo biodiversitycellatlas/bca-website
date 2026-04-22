@@ -699,7 +699,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
     @extend_schema(
         request=serializers.EnrichmentAnalysisRequestSerializer,
-        operation_id="align_post",
+        operation_id="enrichment_post",
         responses={200: serializers.EnrichmentAnalysisResponseSerializer(many=True)},
     )
     def create(self, request, *args, **kwargs):

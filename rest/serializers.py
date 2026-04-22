@@ -875,15 +875,25 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         child=serializers.CharField(),
         required=False,
         help_text=(
-            "List of gene identifiers. "
-            "These genes are combined with genes from `gene_modules` and `gene_lists` if provided."
+            "Array of genes to use as query genes. "
+            "These genes are combined with genes from `gene_modules` and `gene_lists`."
         ),
     )
     gene_modules = serializers.ListField(
-        child=serializers.CharField(), required=False, help_text="List of gene module names."
+        child=serializers.CharField(),
+        required=False,
+        help_text=(
+            "Array of [gene modules](#/operations/modules_list) to use as query genes. "
+            "Genes from the selected modules are combined with genes from `genes` and `gene_lists`."
+        )
     )
     gene_lists = serializers.ListField(
-        child=serializers.CharField(), required=False, help_text="List of preset gene list names."
+        child=serializers.CharField(),
+        required=False,
+        help_text=(
+            "Array of [preset gene lists](#/operations/gene_lists_list) to use as query genes. "
+            "Genes from the selected lists are combined with genes from `genes` and `gene_modules`."
+        )
     )
 
     def validate(self, attrs):
