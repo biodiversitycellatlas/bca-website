@@ -42,7 +42,9 @@ jobs:
               run: docker compose up -d
 
             - name: Show container logs
-              run: docker compose logs
+              run: |
+                  sleep 10
+                  docker compose logs
 
             - name: Check for missing migrations
               run: |
