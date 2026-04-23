@@ -74,11 +74,6 @@ services:
         image: dhi.io/postgres:18.1-debian13-dev
         restart: always
         env_file: [.env]
-        command: |
-            postgres
-                -c max_wal_size=2GB
-                -c maintenance_work_mem=4GB
-                -c work_mem=64MB
         volumes:
             - db_data:/var/lib/postgresql
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
