@@ -1,7 +1,7 @@
 # checkov:skip=CKV_DOCKER_3 "Skipping temporarily"
 
 # Get postgreSQL client
-FROM dhi.io/postgres:18-debian13-dev AS postgres
+FROM dhi.io/postgres:18.1-debian13-dev AS postgres
 
 # Get diamond aligner
 FROM buchfink/diamond:version2.1.24 AS diamond
@@ -18,7 +18,10 @@ LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install dependencies
-RUN apt-get  update  && apt-get install -y --no-install-recommends git=1:2.47.3-0+deb13u1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git=1:2.47.3-0+deb13u1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Python dependencies
 WORKDIR /usr/src/app
 COPY pyproject.toml ./

@@ -71,7 +71,7 @@ services:
             - PGSERVICEFILE=/postgres/.pg_service.conf
 
     db:
-        image: postgres:18.1-trixie
+        image: dhi.io/postgres:18.1-debian13-dev
         restart: always
         env_file: [.env]
         command: |
