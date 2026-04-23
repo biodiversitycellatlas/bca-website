@@ -41,12 +41,8 @@ jobs:
             - name: Start services
               run: docker compose up -d
 
-            - name: Wait for database
-              run: |
-                  until docker compose exec db pg_isready; do
-                      echo "Waiting for postgres..."
-                      sleep 1
-                  done
+            - name: Show container logs
+              run: docker compose logs
 
             - name: Check for missing migrations
               run: |
