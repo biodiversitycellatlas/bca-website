@@ -22,6 +22,7 @@ classifiers = [
 dependencies = [
   "Django==5.2.13",
   "django-colorfield==0.14.0",
+  "django-extensions==4.1",
   "gunicorn==25.3.0",
   "h5py==3.16.0",
   "psycopg[binary,pool]==3.3.3",
@@ -52,7 +53,6 @@ dependencies = [
   ]
   dev = [
     "django-debug-toolbar==6.3.0",
-    "django-extensions==4.1",
     "djlint==1.36.4",
   ]
   dataload = [
