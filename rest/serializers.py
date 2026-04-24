@@ -869,6 +869,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
 
     dataset = serializers.CharField(help_text="The [dataset's slug](#/operations/datasets_list).")
     qvalue = serializers.FloatField(help_text="Adjusted p-value threshold. `0.05` by default.", required=False)
+    obsolete = serializers.BooleanField(required=False, default=False, help_text="If true, obsolete terms will be included in the analysis.")
 
     # Available gene input options
     genes = serializers.ListField(
@@ -927,6 +928,9 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     depth = serializers.IntegerField(
         help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth"
     )
+    is_obsolete = serializers.BooleanField(
+        help_text="Whether the term is obsolete. Obsolete terms are excluded from the analysis by default unless `obsolete = true`.", source="goterm.is_obsolete", required=False
+    )
 
     pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
@@ -971,3 +975,12 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
 
     def get_background_count(self, obj) -> int:
         return self._get_ratio(obj)["pop"][1]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Avoid showing obsolete if not loading obsolete terms
+        if not self.context.get("obsolete"):
+            data.pop("is_obsolete", None)
+
+        return data

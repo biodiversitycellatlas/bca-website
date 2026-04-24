@@ -711,6 +711,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         dataset = parse_species_dataset(validated["dataset"])
         qvalue = validated.get("qvalue", 0.05)
         background = self._get_gene_names(dataset.mge)
+        obsolete = validated["obsolete"] or False
 
         # Combine genes from genes, gene_modules and gene_lists
         query = validated.get("genes", [])
@@ -735,9 +736,9 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         emapper = dataset.species.files.get(type="eggnog-mapper").file.path
 
         service = services.GeneOntologyEnrichmentService(
-            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False
+            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
         )
         results = service.run(query, sort=True)
 
-        serializer = self.serializer_class(results, many=True)
+        serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
         return Response(serializer.data)
