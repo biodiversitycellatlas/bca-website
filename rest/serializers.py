@@ -869,7 +869,11 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
 
     dataset = serializers.CharField(help_text="The [dataset's slug](#/operations/datasets_list).")
     qvalue = serializers.FloatField(help_text="Adjusted p-value threshold. `0.05` by default.", required=False)
-    obsolete = serializers.BooleanField(required=False, default=False, help_text="If true, obsolete terms will be included in the analysis.")
+    obsolete = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="If true, obsolete terms will be included in the analysis.",
+    )
 
     # Available gene input options
     genes = serializers.ListField(
@@ -930,7 +934,12 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
         help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth"
     )
     is_obsolete = serializers.BooleanField(
-        help_text="Whether the term is obsolete. Obsolete terms are excluded from the analysis by default unless `obsolete = true`.", source="goterm.is_obsolete", required=False
+        source="goterm.is_obsolete",
+        required=False,
+        help_text=(
+            "Whether the term is obsolete."
+            "Obsolete terms are excluded from the analysis by default unless `obsolete = true`."
+        ),
     )
 
     pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")

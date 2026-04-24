@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class GeneOntologyEnrichmentService:
     """Analyze GO enrichment."""
 
-    seed = 42 # Consistent results
+    seed = 42  # Consistent results
 
     def __init__(
         self,
