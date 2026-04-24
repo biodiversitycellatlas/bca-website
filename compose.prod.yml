@@ -1,4 +1,8 @@
 services:
+    web:
+        build:
+            args:
+                DJANGO_DEPENDENCIES: .
     nginx:
         ports:
             - "443:443"
