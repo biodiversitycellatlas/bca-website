@@ -898,6 +898,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
+        # Validate if defining at least one of: genes, gene_modules or gene_lists
         genes = attrs.get("genes")
         gene_modules = attrs.get("gene_modules")
         gene_lists = attrs.get("gene_lists")

@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 class GeneOntologyEnrichmentService:
     """Analyze GO enrichment."""
 
+    seed = 42 # Consistent results
+
     def __init__(
         self,
         obo_path,
@@ -111,7 +113,7 @@ class GeneOntologyEnrichmentService:
         semantic_mds = MDS(
             n_components=2,
             metric="precomputed",
-            random_state=0,
+            random_state=self.seed,
             init="classical_mds",
             n_init=1,
         ).fit_transform(dist_matrix)
@@ -138,7 +140,7 @@ class GeneOntologyEnrichmentService:
             reason = f"redundant child (overlapping genes: {go_child.study_count}/{go_parent.study_count})"
         return discard, reason
 
-    def prune_go_terms(self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, seed=42, ci=0.1):
+    def prune_go_terms(self, results, obodag, sim_cutoff=0.7, freq_cutoff=0.05, ci=0.1):
         """
         Prune GO terms using a REVIGO-like strategy.
 
@@ -155,7 +157,8 @@ class GeneOntologyEnrichmentService:
             list[str]: Pruned GO IDs.
             dict[str, float]: Semantic similarity between GO term pairs.
         """
-        random.seed(seed)
+        # Random seed to ensure consistent results
+        random.seed(self.seed)
 
         # Compute GO similarity matrix (upper triangle)
         n = len(results)
