@@ -49,7 +49,9 @@ services:
             - "8025:8025" # Web UI
 
     web:
-        build: .
+        build:
+            context: .
+            target: "${ENVIRONMENT-dev}"
         # user: "${DOCKER_WEB_USER:-bca}"
         restart: always
         env_file: [.env]
