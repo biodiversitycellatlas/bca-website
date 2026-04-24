@@ -731,9 +731,8 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
                 raise NotFound(detail=f"Gene lists {gene_lists} not found.")
             query += genes
 
-        # go_obo = File.objects.get(name="go-basic.obo")
-        go_obo = "data/go-basic.obo"
-        emapper = dataset.species.files.get(type="eggnog-mapper").file
+        go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
+        emapper = dataset.species.files.get(type="eggnog-mapper").file.path
 
         service = services.GeneOntologyEnrichmentService(
             go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=False
