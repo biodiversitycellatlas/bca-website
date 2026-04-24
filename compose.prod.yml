@@ -1,6 +1,7 @@
 services:
     web:
         build:
+            target: "prod"
             args:
                 DJANGO_DEPENDENCIES: .
     nginx:

@@ -51,7 +51,7 @@ services:
     web:
         build:
             context: .
-            target: "${ENVIRONMENT-dev}"
+            target: "dev"
         # user: "${DOCKER_WEB_USER:-bca}"
         restart: always
         env_file: [.env]
