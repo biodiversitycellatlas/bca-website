@@ -18,19 +18,13 @@ has_table() {
         );" | grep -q t
 }
 
+run_django_migrations
+
 # Deploy Django app
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
-    # Create tables with data models if they do not exist
-    #if ! has_table 'species'; then
-        run_django_migrations
-    #fi
-
     # Serve Django apps using gunicorn
     gunicorn -w 4 config.wsgi --bind 0.0.0.0:8000
 else
-    # Update data models in dev
-    run_django_migrations
-
     # Prepare JavaScript and CSS static files
     bun install
     bun run build
