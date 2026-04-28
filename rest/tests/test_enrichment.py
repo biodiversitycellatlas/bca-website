@@ -244,3 +244,53 @@ class EnrichmentAnalysisTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
 
+    def test_post_invalid(self):
+        """Test invalid input."""
+        url = "/api/v1/enrichment/"
+
+        # No dataset in request
+        data = dict(genes=[])
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("This field is required.", response.data["dataset"])
+
+        # Wrong dataset name
+        genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001", "Aque_Aqu2.1.30269_001"}
+        data = dict(dataset="random-dataset", genes=genes)
+
+        with self.assertRaises(ValueError) as ctx:
+            response = self.client.post(url, data, format="json")
+
+        self.assertIn(
+            "Cannot find dataset for random-dataset",
+            str(ctx.exception)
+        )
+
+        # No genes in request
+        data = dict(dataset="amphimedon-queenslandica-adult")
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+        self.assertIn(
+            "At least one of 'genes', 'gene_modules', or 'gene_lists' must be provided.",
+            response.data["non_field_errors"],
+        )
+
+        # Empty gene array
+        data = dict(dataset="amphimedon-queenslandica-adult", genes=[])
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+
+        # Non-existing genes
+        genes = ["random", "arbitrary", "gene"]
+        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("not found", response.data["detail"])
+
+        # Array with valid genes: silently ignores invalid genes
+        genes = {"random", "arbitrary", "gene", "Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001", "Aque_Aqu2.1.30269_001"}
+        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

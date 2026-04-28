@@ -694,8 +694,49 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
     def _get_gene_names(self, qs):
         model = qs.model
-        field = "genes" if hasattr(model, "genes") else "gene"
-        return list(qs.values_list(f"{field}__name", flat=True).distinct())
+
+        if qs.model == models.Gene:
+            value = "name"
+        elif hasattr(model, "genes"):
+            value = "genes__name"
+        elif hasattr(model, "gene"):
+            value = "gene__name"
+        return list(qs.values_list(value, flat=True).distinct())
+
+    def _prepare_gene_query(self, dataset, validated):
+        """Create array of gene names from genes, gene_modules and gene_lists."""
+        query = []
+
+        gene_names = validated.get("genes", [])
+        gene_modules = validated.get("gene_modules")
+        gene_lists = validated.get("gene_lists")
+
+        if not gene_names and not gene_modules and not gene_lists:
+            raise ValueError("Error: please define 'genes', 'gene_modules' or 'gene_lists'")
+
+        if gene_names:
+            genes = self._get_gene_names(dataset.species.genes.filter(name__in=gene_names))
+            if len(genes) == 0:
+                raise NotFound(detail=f"Genes {gene_names} not found.")
+            query += genes
+
+        if gene_modules:
+            genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
+            if len(genes) == 0:
+                raise NotFound(detail=f"Gene modules {gene_modules} not found.")
+            query += genes
+
+        if gene_lists:
+            genes = self._get_gene_names(
+                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
+            )
+            if len(genes) == 0:
+                raise NotFound(detail=f"Gene lists {gene_lists} not found.")
+            query += genes
+
+        if not query:
+            raise ValueError("Error: your input returned 0 genes")
+        return query
 
     @extend_schema(
         request=serializers.EnrichmentAnalysisRequestSerializer,
@@ -709,28 +750,11 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
         # Parse query parameters
         dataset = parse_species_dataset(validated["dataset"])
+        genes = self._prepare_gene_query(dataset, validated)
+
         qvalue = validated.get("qvalue", 0.05)
         background = self._get_gene_names(dataset.mge)
         obsolete = validated["obsolete"] or False
-
-        # Combine genes from genes, gene_modules and gene_lists
-        query = validated.get("genes", [])
-
-        gene_modules = validated.get("gene_modules")
-        if gene_modules:
-            genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene modules {gene_modules} not found.")
-            query += genes
-
-        gene_lists = validated.get("gene_lists")
-        if gene_lists:
-            genes = self._get_gene_names(
-                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
-            )
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene lists {gene_lists} not found.")
-            query += genes
 
         go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
         emapper = dataset.species.files.get(type="eggnog-mapper").file.path
@@ -738,7 +762,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         service = services.GeneOntologyEnrichmentService(
             go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
         )
-        results = service.run(query, sort=True)
+        results = service.run(genes, sort=True)
 
         serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
         return Response(serializer.data)
