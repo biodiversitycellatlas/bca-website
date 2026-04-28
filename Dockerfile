@@ -10,7 +10,7 @@ FROM buchfink/diamond:version2.1.24 AS diamond
 FROM dhi.io/bun:1-debian13-dev AS bun
 
 # Builder and development
-FROM  dhi.io/python:3.13.13-debian13-dev as dev
+FROM  dhi.io/python:3.13.13-debian13-dev AS dev
 # Install dependencies
 RUN apt-get  update  && apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u2 \
@@ -25,11 +25,11 @@ ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 # Install frontend dependencies and prepare files
-RUN chmod go+rx static && bun install && bun run build
+RUN mkdir -p static && chmod go+rx static && bun install && bun run build
 CMD ["python", "manage.py", "collectstatic", "--noinput"]
 
 # Production image
-FROM dhi.io/python:3.13.13-debian13 as prod
+FROM dhi.io/python:3.13.13-debian13 AS prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
 # Copy binaries and dependencies from other container images
