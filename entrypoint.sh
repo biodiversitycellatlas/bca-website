@@ -18,14 +18,6 @@ has_table() {
         );" | grep -q t
 }
 
-# Prepare JavaScript and CSS static files
-bun install
-bun run build
-
-# Collect all Django static files
-chmod go+rx static # Fix permissions for nginx when creating this folder in Django
-python manage.py collectstatic --noinput
-
 # Deploy Django app
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
     # Create tables with data models if they do not exist
@@ -38,6 +30,14 @@ if [ "${ENVIRONMENT:-}" = "prod" ]; then
 else
     # Update data models in dev
     run_django_migrations
+
+    # Prepare JavaScript and CSS static files
+    bun install
+    bun run build
+
+    # Collect all Django static files
+    chmod go+rx static # Fix permissions for nginx when creating this folder in Django
+    python manage.py collectstatic --noinput
 
     # Run server directly in Django (insecure, dev only)
     python manage.py runserver 0.0.0.0:8000
