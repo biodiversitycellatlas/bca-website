@@ -270,10 +270,7 @@ class EnrichmentAnalysisTests(APITestCase):
         with self.assertRaises(ValueError) as ctx:
             response = self.client.post(url, data, format="json")
 
-        self.assertIn(
-            "Cannot find dataset for random-dataset",
-            str(ctx.exception)
-        )
+        self.assertIn("Cannot find dataset for random-dataset", str(ctx.exception))
 
         # No genes in request
         data = dict(dataset="amphimedon-queenslandica-adult")
