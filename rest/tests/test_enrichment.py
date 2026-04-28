@@ -265,7 +265,12 @@ class EnrichmentAnalysisTests(APITestCase):
         for gene in self.aque_adult.species.genes.filter(name=all_genes[2]):
             module.genes.add(gene)
 
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=[genes], gene_lists=[genelist_name], gene_modules=[module_name])
+        data = dict(
+            dataset="amphimedon-queenslandica-adult",
+            genes=[genes],
+            gene_lists=[genelist_name],
+            gene_modules=[module_name],
+        )
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.check_enrichment_response(response, set(all_genes))
