@@ -1,5 +1,4 @@
 import tempfile
-import os.path
 import gzip
 import requests
 import re
