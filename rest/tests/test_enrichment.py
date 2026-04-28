@@ -47,7 +47,7 @@ class EnrichmentAnalysisTests(APITestCase):
             return output_path
 
         url = "https://purl.obolibrary.org/obo/go/go-basic.obo"
-        with requests.get(url, stream=True) as r:
+        with requests.get(url, stream=True, timeout=30) as r:
             r.raise_for_status()
             with open(output_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=1024 * 1024):  # 1MB chunks
