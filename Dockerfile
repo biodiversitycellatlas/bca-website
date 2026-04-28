@@ -25,7 +25,7 @@ ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 # Install frontend dependencies and prepare files
-RUN chmod go+rx static
+CMD ["chmod", "go+rx", "static"]
 CMD ["bun", "install"]
 CMD ["bun", "run", "build"]
 CMD ["python", "manage.py", "collectstatic", "--noinput"]
