@@ -34,7 +34,6 @@ CMD ["python", "manage.py", "collectstatic", "--noinput"]
 FROM dhi.io/python:3.13.13-debian13 as prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
-#USER nonroot
 # Copy binaries and dependencies from other container images
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=dev /usr/bin/bash /usr/bin/
