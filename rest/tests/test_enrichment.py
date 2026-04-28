@@ -233,3 +233,14 @@ class EnrichmentAnalysisTests(APITestCase):
                 },
                 "Expected GO terms",
             )
+
+    def test_post_no_enrichment(self):
+        """Test no enrichment results."""
+
+        url = "/api/v1/enrichment/"
+        genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001"}
+        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+

@@ -66,6 +66,8 @@ class GeneOntologyEnrichmentService:
 
         # Prune redundant GO terms
         reduced, semantic_dict = self.prune_go_terms(results, self.obodag)
+        if len(reduced) == 0:
+            return results
 
         # Append semantic similarity coordinates
         results = self.calculate_semantic_similarity_coords(reduced, semantic_dict)
