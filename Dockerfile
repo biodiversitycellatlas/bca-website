@@ -26,8 +26,6 @@ ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 # Install Python dependencies
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
-RUN chown -R nonroot:nonroot .pgpass
-RUN chmod 600 .pgpass
 
 
 FROM dhi.io/python:3.13.13-debian13 as prod
