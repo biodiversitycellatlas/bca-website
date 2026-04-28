@@ -707,25 +707,21 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         """Create array of gene names from genes, gene_modules and gene_lists."""
         query = []
 
-        gene_names = validated.get("genes", [])
-        gene_modules = validated.get("gene_modules")
-        gene_lists = validated.get("gene_lists")
-
-        if not gene_names and not gene_modules and not gene_lists:
-            raise ValueError("Error: please define 'genes', 'gene_modules' or 'gene_lists'")
-
+        gene_names = validated.get("genes")
         if gene_names:
             genes = self._get_gene_names(dataset.species.genes.filter(name__in=gene_names))
             if len(genes) == 0:
                 raise NotFound(detail=f"Genes {gene_names} not found.")
             query += genes
 
+        gene_modules = validated.get("gene_modules")
         if gene_modules:
             genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
             if len(genes) == 0:
                 raise NotFound(detail=f"Gene modules {gene_modules} not found.")
             query += genes
 
+        gene_lists = validated.get("gene_lists")
         if gene_lists:
             genes = self._get_gene_names(
                 models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
@@ -734,8 +730,6 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
                 raise NotFound(detail=f"Gene lists {gene_lists} not found.")
             query += genes
 
-        if not query:
-            raise ValueError("Error: your input returned 0 genes")
         return query
 
     @extend_schema(

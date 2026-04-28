@@ -14,6 +14,7 @@ from goatools.obo_parser import GODag
 from app.models import (
     Species,
     GlobalFile,
+    GeneList,
 )
 
 
@@ -105,7 +106,7 @@ class EnrichmentAnalysisTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         aque = Species.objects.create(scientific_name="Amphimedon queenslandica")
-        aque_adult = aque.datasets.create(name="adult")
+        cls.aque_adult = aque.datasets.create(name="adult")
 
         # Get OBO file with GO term definitions
         go_obo_compressed = Path(__file__).parent / "test_fixtures" / "go-basic-subset.obo.gz"
@@ -122,7 +123,7 @@ class EnrichmentAnalysisTests(APITestCase):
         )
 
         # Prepare background genes: add genes to metacell gene expression based on functional annotation
-        mc1 = aque_adult.metacells.create(name="mc1", x="1", y="5")
+        mc1 = cls.aque_adult.metacells.create(name="mc1", x="1", y="5")
         cls.genes = []
         with gzip.open(emapper_file, "rt") as f:
             for line in f:
@@ -130,11 +131,12 @@ class EnrichmentAnalysisTests(APITestCase):
                     continue
                 gene = line.split("\t")[0]
                 g = aque.genes.create(name=gene)
-                aque_adult.mge.create(gene=g, metacell=mc1)
+                cls.aque_adult.mge.create(gene=g, metacell=mc1)
                 cls.genes.append(gene)
 
     def check_enrichment_response(self, response, genes, obsolete=False):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data, [], "Expect non-empty results")
 
         for d in response.data:
             self.assertRegex(d["term"], r"^GO:\d{7}$", "Expected GO term name")
@@ -181,26 +183,23 @@ class EnrichmentAnalysisTests(APITestCase):
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, genes)
 
+        go_terms = {
+            "GO:0006436",
+            "GO:0006518",
+            "GO:0006412",
+            "GO:0048813",
+            "GO:0004830",
+            "GO:0010835",
+            "GO:0016874",
+            "GO:0031334",
+            "GO:0016875",
+            "GO:0043043",
+            "GO:0043038",
+            "GO:0140101",
+            "GO:0043039",
+        }
         for d in response.data:
-            self.assertIn(
-                d["term"],
-                {
-                    "GO:0006436",
-                    "GO:0006518",
-                    "GO:0006412",
-                    "GO:0048813",
-                    "GO:0004830",
-                    "GO:0010835",
-                    "GO:0016874",
-                    "GO:0031334",
-                    "GO:0016875",
-                    "GO:0043043",
-                    "GO:0043038",
-                    "GO:0140101",
-                    "GO:0043039",
-                },
-                "Expected GO terms",
-            )
+            self.assertIn(d["term"], go_terms, "Expected GO terms")
 
         # Test with valid and invalid genes: silently ignores invalid genes
         invalid_genes = {"random", "arbitrary", "gene"}
@@ -220,28 +219,25 @@ class EnrichmentAnalysisTests(APITestCase):
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, genes, obsolete=True)
 
+        go_terms = {
+            "GO:0048813",
+            "GO:0004830",
+            "GO:0031334",
+            "GO:0006412",
+            "GO:0010835",
+            "GO:0043604",
+            "GO:0043603",
+            "GO:0006436",
+            "GO:0016875",
+            "GO:0043038",
+            "GO:0016874",
+            "GO:0043043",
+            "GO:0043039",
+            "GO:0006518",
+            "GO:0140101",
+        }
         for d in response.data:
-            self.assertIn(
-                d["term"],
-                {
-                    "GO:0048813",
-                    "GO:0004830",
-                    "GO:0031334",
-                    "GO:0006412",
-                    "GO:0010835",
-                    "GO:0043604",
-                    "GO:0043603",
-                    "GO:0006436",
-                    "GO:0016875",
-                    "GO:0043038",
-                    "GO:0016874",
-                    "GO:0043043",
-                    "GO:0043039",
-                    "GO:0006518",
-                    "GO:0140101",
-                },
-                "Expected GO terms",
-            )
+            self.assertIn(d["term"], go_terms, "Expected GO terms")
 
     def test_post_no_enrichment(self):
         """Test no enrichment results."""
@@ -252,6 +248,27 @@ class EnrichmentAnalysisTests(APITestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+
+    def test_post_gene_queries(self):
+        """Test multiple types of gene queries."""
+        url = "/api/v1/enrichment/"
+        all_genes = ["Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30269_001", "Aque_Aqu2.1.30264_001"]
+        genes = all_genes[0]
+
+        genelist_name = "random list"
+        genelist = GeneList.objects.create(name=genelist_name)
+        for gene in self.aque_adult.species.genes.filter(name=all_genes[1]):
+            genelist.genes.add(gene)
+
+        module_name = "GM23"
+        module = self.aque_adult.gene_modules.create(name=module_name)
+        for gene in self.aque_adult.species.genes.filter(name=all_genes[2]):
+            module.genes.add(gene)
+
+        data = dict(dataset="amphimedon-queenslandica-adult", genes=[genes], gene_lists=[genelist_name], gene_modules=[module_name])
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_enrichment_response(response, set(all_genes))
 
     def test_post_invalid(self):
         """Test invalid input."""
