@@ -14,10 +14,16 @@ FROM  dhi.io/python:3.13.13-debian13-dev AS dev
 # Install dependencies
 RUN apt-get  update  && apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u2 \
+    dpkg-dev=1.22.22 \
     git=1:2.47.3-0+deb13u1
 # Copy tools
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
+COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
+COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
+RUN arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
+    ldconfig
 WORKDIR /usr/src/app
 COPY --chown=nonroot:nonroot . .
 # Install Python dependencies
@@ -32,6 +38,7 @@ CMD ["python", "manage.py", "collectstatic", "--noinput"]
 FROM dhi.io/python:3.13.13-debian13 AS prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
       description="Biodiversity Cell Atlas website and data portal"
+USER nonroot
 # Copy binaries and dependencies from other container images
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=dev /usr/bin/bash /usr/bin/
