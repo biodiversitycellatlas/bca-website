@@ -192,6 +192,28 @@ class EnrichmentAnalysisTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.check_enrichment_response(response, set(all_genes))
 
+        # Invalid gene module name
+        data = dict(
+            dataset="amphimedon-queenslandica-adult",
+            genes=[genes],
+            gene_lists=[genelist_name],
+            gene_modules=["wrong name"],
+        )
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("not found", response.data["detail"])
+
+        # Invalid gene list name
+        data = dict(
+            dataset="amphimedon-queenslandica-adult",
+            genes=[genes],
+            gene_lists=["rbp"],
+            gene_modules=[module_name],
+        )
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("not found", response.data["detail"])
+
     def test_post_invalid(self):
         """Test invalid input."""
         url = "/api/v1/enrichment/"
