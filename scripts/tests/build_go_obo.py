@@ -11,7 +11,6 @@ Python usage:
     builder.prepare_filtered_go_obo()
 """
 
-from pathlib import Path
 import gzip
 import re
 import requests
@@ -19,17 +18,18 @@ import requests
 from goatools.obo_parser import GODag
 from scripts.utils.project import get_project_root
 
+
 class GeneOntologyOboBuilder:
     """Build a filtered GO basic OBO file for testing."""
 
     def __init__(
         self,
-        obo_url = "https://purl.obolibrary.org/obo/go/go-basic.obo",
-        base_dir = None,
-        emapper_file = None,
-        obo_file = None,
-        output_file = None,
-        skip_fields = None,
+        obo_url="https://purl.obolibrary.org/obo/go/go-basic.obo",
+        base_dir=None,
+        emapper_file=None,
+        obo_file=None,
+        output_file=None,
+        skip_fields=None,
     ):
         self.base_dir = base_dir or get_project_root() / "rest" / "tests" / "test_fixtures"
 
@@ -40,8 +40,14 @@ class GeneOntologyOboBuilder:
         self.obo_url = obo_url
 
         self.skip_fields = skip_fields or {
-            "def", "comment", "xref", "synonym",
-            "property_value", "consider", "subset", "alt_id",
+            "def",
+            "comment",
+            "xref",
+            "synonym",
+            "property_value",
+            "consider",
+            "subset",
+            "alt_id",
         }
 
     def extract_go_from_emapper_file(self):
@@ -76,7 +82,7 @@ class GeneOntologyOboBuilder:
 
         return self.obo_file
 
-    def prepare_filtered_go_obo(self, cleanup = True):
+    def prepare_filtered_go_obo(self, cleanup=True):
         """Create gzipped subset OBO containing only relevant GO terms."""
         self.download_go_obo()
         go_ids = self.extract_go_from_emapper_file()
