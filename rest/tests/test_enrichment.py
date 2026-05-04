@@ -20,6 +20,24 @@ from app.models import (
 class EnrichmentAnalysisTests(APITestCase):
     """Tests enrichment endpoint."""
 
+    go_terms = {
+        "GO:0004830",
+        "GO:0006412",
+        "GO:0006436",
+        "GO:0006518",
+        "GO:0010835",
+        "GO:0016874",
+        "GO:0016875",
+        "GO:0031334",
+        "GO:0043038",
+        "GO:0043039",
+        "GO:0043043",
+        "GO:0043603",
+        "GO:0043604",
+        "GO:0048813",
+        "GO:0140101",
+    }
+
     @classmethod
     def setUpTestData(cls):
         aque = Species.objects.create(scientific_name="Amphimedon queenslandica")
@@ -99,24 +117,7 @@ class EnrichmentAnalysisTests(APITestCase):
         data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, genes)
-
-        go_terms = {
-            "GO:0006436",
-            "GO:0006518",
-            "GO:0006412",
-            "GO:0048813",
-            "GO:0004830",
-            "GO:0010835",
-            "GO:0016874",
-            "GO:0031334",
-            "GO:0016875",
-            "GO:0043043",
-            "GO:0043038",
-            "GO:0140101",
-            "GO:0043039",
-        }
-        for d in response.data:
-            self.assertIn(d["term"], go_terms, "Expected GO terms")
+        self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
 
         # Test with valid and invalid genes: silently ignores invalid genes
         invalid_genes = {"random", "arbitrary", "gene"}
@@ -135,26 +136,7 @@ class EnrichmentAnalysisTests(APITestCase):
         data = dict(dataset="amphimedon-queenslandica-adult", genes=genes, obsolete=True)
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, genes, obsolete=True)
-
-        go_terms = {
-            "GO:0048813",
-            "GO:0004830",
-            "GO:0031334",
-            "GO:0006412",
-            "GO:0010835",
-            "GO:0043604",
-            "GO:0043603",
-            "GO:0006436",
-            "GO:0016875",
-            "GO:0043038",
-            "GO:0016874",
-            "GO:0043043",
-            "GO:0043039",
-            "GO:0006518",
-            "GO:0140101",
-        }
-        for d in response.data:
-            self.assertIn(d["term"], go_terms, "Expected GO terms")
+        self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
 
     def test_post_no_enrichment(self):
         """Test no enrichment results."""
