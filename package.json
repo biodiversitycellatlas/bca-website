@@ -18,7 +18,7 @@
         "jquery": "3.7.1",
         "postcss": "8.5.10",
         "postcss-cli": "11.0.1",
-        "tom-select": "2.5.2",
+        "tom-select": "2.6.0",
         "vega-embed": "7.1.0"
     },
     "devDependencies": {
