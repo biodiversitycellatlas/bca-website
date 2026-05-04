@@ -1,14 +1,14 @@
-"""REST API services logic."""
+"""Compare gene modules."""
 
 from itertools import chain
 
-from . import serializers
-from .utils import group_by_key
+from rest import serializers
+from rest.utils import group_by_key
 
 
 class GeneModuleSimilarityService:
     """
-    Service class to compute gene module similarity.
+    Compute gene module similarity.
 
     Handles:
     - Serializing genes
@@ -185,13 +185,30 @@ class GeneModuleSimilarityService:
         unique2 = list(set(unique2) - set(shared2))
 
         # Prepare arguments to run functions
-        args = (d1, m1, unique1, d2, m2, unique2, shared, genes_info, (shared1, shared2))
+        args = (
+            d1,
+            m1,
+            unique1,
+            d2,
+            m2,
+            unique2,
+            shared,
+            genes_info,
+            (shared1, shared2),
+        )
 
         fn = self.list_shared_genes if list_genes else self.calculate_similarity
         return fn(*args)
 
     def compare_modules(
-        self, module_dict1, module_dict2, genes_info, similarity_fn, dataset1=None, dataset2=None, list_genes=False
+        self,
+        module_dict1,
+        module_dict2,
+        genes_info,
+        similarity_fn,
+        dataset1=None,
+        dataset2=None,
+        list_genes=False,
     ):
         # If module dictionaries are the same, avoid repeating calculations
         skip_duplicates = module_dict1 == module_dict2
@@ -224,7 +241,13 @@ class GeneModuleSimilarityService:
             filtered2 = filtered1
 
         return self.compare_modules(
-            filtered1, filtered2, genes_info, self.calculate_gene_similarity, dataset, dataset, list_genes=list_genes
+            filtered1,
+            filtered2,
+            genes_info,
+            self.calculate_gene_similarity,
+            dataset,
+            dataset,
+            list_genes=list_genes,
         )
 
     def compare_within_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):
@@ -241,7 +264,13 @@ class GeneModuleSimilarityService:
 
         genes_info = self.prepare_genes_info(list(d1_modules.all()) + list(d2_modules.all()))
         return self.compare_modules(
-            d1_module_genes, d2_module_genes, genes_info, self.calculate_gene_similarity, dataset1, dataset2, list_genes
+            d1_module_genes,
+            d2_module_genes,
+            genes_info,
+            self.calculate_gene_similarity,
+            dataset1,
+            dataset2,
+            list_genes,
         )
 
     def compare_across_species(self, dataset1, dataset2, module=None, module2=None, list_genes=False):

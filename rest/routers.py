@@ -33,3 +33,4 @@ router.register("single_cells", views.SingleCellViewSet)
 router.register("single_cell_expression", views.SingleCellGeneExpressionViewSet)
 
 router.register("align", views.AlignViewSet, basename="align")
+router.register("enrichment", views.EnrichmentAnalysisViewSet, basename="enrichment")

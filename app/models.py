@@ -431,13 +431,14 @@ class FileMixin(models.Model):
             self.checksum = hasher.hexdigest()
 
             if not self.slug:
-                if isinstance(self, SpeciesFile):
-                    base = f"{self.species.scientific_name}-{self.type}"
-                if isinstance(self, DatasetFile):
-                    base = f"{self.dataset.get_label()}-{self.type}"
-                self.slug = slugify(base)
+                self.slug = slugify(self.label)
         self.full_clean()
         super().save(*args, **kwargs)
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return self.type
 
     @property
     def ext(self):
@@ -449,31 +450,53 @@ class FileMixin(models.Model):
         """Return filename."""
         return f"{self}.{self.ext}"
 
+    def __str__(self):
+        """String representation."""
+        return self.label
+
+
+class GlobalFile(FileMixin):
+    """File model for global files."""
+
+    file_types = {
+        "go-basic-obo": "Gene Ontology OBO file (basic version)",
+    }
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
 
 class SpeciesFile(FileMixin):
     """File model for a species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+    file_types = {
+        "Proteome": "Proteome",
+        "DIAMOND": "DIAMOND database",
+        "eggnog-mapper": "eggNOG-mapper functional annotation",
+    }
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return f"{self.species.scientific_name} - {self.type}"
 
     class Meta:
         """Meta options."""
 
         unique_together = ["species", "type"]
 
-    def __str__(self):
-        """String representation."""
-        return f"{self.species.scientific_name} - {self.type}"
-
 
 class DatasetFile(FileMixin):
     """File model for a Dataset."""
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
-
     file_types = {"singlecell_umifrac": "singlecell_umifrac"}
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return f"{self.dataset.get_label()} - {self.type}"
 
     class Meta:
         """Meta options."""
