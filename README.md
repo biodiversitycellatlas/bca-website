@@ -34,7 +34,7 @@ This project uses:
 - [PostgreSQL][], a relational database
 - [Nginx][], a reverse proxy
 
-The project configuration is defined in [`compose.yml`](compose.yml).
+The project configuration is defined in [`compose.yml`](compose.yml) and [`compose.prod.yml`](compose.prod.yml).
 
 ### Initial setup
 
@@ -54,6 +54,9 @@ cd bca-website
 # env.template, nginx/nginx.conf, .pg_service.conf, .pgpass
 ./scripts/setup.sh
 
+# Log in to the Docker Hardened Images registry using your Docker credentials
+podman login dhi.io
+
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
 # - `-d`: starts the containers in detached mode
@@ -63,6 +66,18 @@ podman compose up -d --build
 # Create a superuser (only required once for database setup)
 podman compose exec web python manage.py createsuperuser
 ```
+
+#### Docker Hardened Images for GitHub Actions and Dependabot
+
+[Docker Hardened Images (DHI)][DHI] are security-hardened images provided by Docker.
+This repository uses images hosted on the `dhi.io` registry, so Docker
+authentication is required to run the project:
+
+1. Log in to your Docker account and [create a Personal Action Token (PAT)][Docker PAT]
+2. Add the following secrets to **GitHub Action** ([Settings → Secrets and variables → Actions][GitHub Actions secrets]):
+    - `DOCKER_USERNAME`: your Docker account username
+    - `DOCKER_PASSWORD`: your Docker PAT (not your account password)
+3. Add the same secrets to **Dependabot** ([Settings → Secrets and variables → Actions][Dependabot secrets])
 
 ### Development
 
@@ -363,6 +378,10 @@ The environment files that Super-Linter automatically loads are available in
 [Podman Desktop]: https://podman-desktop.io
 [Docker Compose]: https://docs.docker.com/compose
 [docker-compose]: https://docs.docker.com/compose/install/standalone/
+[DHI]: https://www.docker.com/products/hardened-images/
+[Docker PAT]: https://docs.docker.com/security/access-tokens/
+[GitHub Actions secrets]: https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
+[Dependabot secrets]: https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/configuring-access-to-private-registries-for-dependabot#adding-a-repository-secret-for-dependabot
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
