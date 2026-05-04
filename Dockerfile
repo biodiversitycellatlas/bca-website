@@ -9,42 +9,50 @@ FROM buchfink/diamond:version2.1.24 AS diamond
 # Get bun
 FROM dhi.io/bun:1-debian13-dev AS bun
 
-# Serve website
-FROM  dhi.io/python:3.13.12-debian13-dev
-
-LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
-      description="Biodiversity Cell Atlas website and data portal"
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
+# Builder and development
+FROM  dhi.io/python:3.13.13-debian13-dev AS dev
 # Install dependencies
-RUN apt-get  update  && apt-get install -y --no-install-recommends git=1:2.47.3-0+deb13u1
-# Install Python dependencies
+RUN apt-get  update  && apt-get install -y --no-install-recommends \
+    curl=8.14.1-2+deb13u2 \
+    dpkg-dev=1.22.22 \
+    git=1:2.47.3-0+deb13u1
+# Copy tools
+COPY --from=bun /usr/local/bin/bun* /usr/bin/
+COPY --from=diamond /usr/local/bin/diamond /usr/bin/
+COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
+COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
+RUN arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
+    ldconfig
 WORKDIR /usr/src/app
-COPY pyproject.toml ./
+COPY --chown=nonroot:nonroot . .
+# Install Python dependencies
 ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
-COPY . .
+# Install frontend dependencies and prepare files
+RUN mkdir -p static && chmod go+rx static && bun install && bun run build
+CMD ["python", "manage.py", "collectstatic", "--noinput"]
 
+# Production image
+FROM dhi.io/python:3.13.13-debian13 AS prod
+LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
+      description="Biodiversity Cell Atlas website and data portal"
+USER nonroot
 # Copy binaries and dependencies from other container images
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
-COPY --from=bun /usr/local/bin/bun* /usr/bin/
-
-COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
-COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
-
-
-# Install JavaScript and CSS dependencies
-RUN bun install
-
-# Switch to non-root user
-#RUN useradd -m bca \
-#    && chown -R bca:bca /usr/src/app
-#USER bca
-
+COPY --from=dev /usr/bin/bash /usr/bin/
+COPY --from=dev /usr/bin/curl /usr/bin/
+COPY --from=dev /usr/bin/find /usr/bin/
+COPY --from=dev /usr/bin/git /usr/bin/
+COPY --from=dev /usr/bin/grep /usr/bin/
+# Python packages
+COPY --from=dev /opt/python-3.13.13/lib/python3.13/site-packages  /opt/python-3.13.13/lib/python3.13/
+COPY --from=dev /opt/python-3.13.13/bin/gunicorn* /opt/python-3.13.13/bin/
+WORKDIR /usr/src/app
+COPY --from=dev --chown=nonroot:nonroot /usr/src/app/ .
+SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health/ || exit 1
-
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
