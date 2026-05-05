@@ -21,7 +21,6 @@ from app.models import (
     GeneCorrelation,
     Orthogroup,
     MetacellLink,
-    MetacellGeneExpression,
     SAMap,
     SpeciesFile,
 )
