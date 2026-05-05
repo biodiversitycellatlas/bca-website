@@ -98,7 +98,7 @@ TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
 if DEBUG and not TESTING:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
-    INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
+    INTERNAL_IPS = type("c", (), {"__contains__": lambda *a: True})()
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": "debug_toolbar.middleware.show_toolbar_with_docker",
     }
