@@ -62,6 +62,9 @@ dependencies = [
     "scipy==1.17.1",
   ]
 
+[tool.setuptools]
+py-modules = []
+
 [project.urls]
 Homepage = "https://portal.biodiversitycellatlas.org/"
 Documentation = "https://biodiversitycellatlas.org/blog/"

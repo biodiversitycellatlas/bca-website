@@ -23,22 +23,18 @@ bun install
 bun run build
 
 # Collect all Django static files
+mkdir -p static
 chmod go+rx static # Fix permissions for nginx when creating this folder in Django
 python manage.py collectstatic --noinput
 
+# Migrate database
+run_django_migrations
+
 # Deploy Django app
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
-    # Create tables with data models if they do not exist
-    if ! has_table 'species'; then
-        run_django_migrations
-    fi
-
     # Serve Django apps using gunicorn
     gunicorn -w 4 config.wsgi --bind 0.0.0.0:8000
 else
-    # Update data models in dev
-    run_django_migrations
-
     # Run server directly in Django (insecure, dev only)
     python manage.py runserver 0.0.0.0:8000
 fi
