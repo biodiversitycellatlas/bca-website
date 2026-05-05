@@ -22,8 +22,8 @@ COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 RUN arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
-    cp /usr/lib/${arch}/libpcre2* /usr/lib/ && \	
-    cp /usr/lib/${arch}/libselinux* /usr/lib/ && \	
+    cp /usr/lib/${arch}/libpcre2* /usr/lib/ && \
+    cp /usr/lib/${arch}/libselinux* /usr/lib/ && \
     mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
     ldconfig
 
