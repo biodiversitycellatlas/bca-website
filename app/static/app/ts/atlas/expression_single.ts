@@ -18,7 +18,7 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
 export function loadGeneExpression(dataset, datasetLabel, gene, geneLabel) {
     const url = getViewUrl("rest:metacellgeneexpression-list", {
         dataset,
-        gene: geneLabel,
+        genes: geneLabel,
         limit: 0,
     });
     appendDataMenu("expression", url, "gene expression");

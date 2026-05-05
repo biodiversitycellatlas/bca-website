@@ -52,7 +52,7 @@ function plotGeneExpressionComparison(table, id, dataset, gene) {
         if (type === "row") {
             const selected = dt.rows({ selected: true }).data();
             if (selected && selected.length > 0) {
-                const gene2 = selected[0].name;
+                const gene2 = selected[0].gene;
                 loadExpressionComparison(id, dataset, gene, gene2, selected[0]);
             }
         }
