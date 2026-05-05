@@ -1,0 +1,77 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Gene ontology enrichment page
+
+Features:
+- Form to set genes and other enrichment analysis settings
+- Mockup table if no analyses is loaded
+- Gene ontology enrichment analysis as per the user input:
+    - Fetches via REST API
+    - Table for the data with links to supporting genes
+    - Auxiliary plots
+    - Download data button
+    - Copy link to clipboard button
+
+{% endcomment %}
+
+{% block title %}
+    {{ dataset }} GO enrichment
+{% endblock title %}
+
+{% block content %}
+
+    {% load static %}
+    {% include "../components/warning_alert.html" %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <form>
+                <fieldset>
+                    <legend class="h5">
+                        Gene selection
+                    </legend>
+                    <div class="mb-3">
+                        <label class="col-form-label" for="genes">
+                            Genes
+                        </label>
+                        {% include "../components/select/gene.html" with multiple='true' selected=query.genes %}
+                    </div>
+                    <button type="submit" class="btn btn-primary my-3 w-100">
+                        Analyse enrichment
+                    </button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-md-9">
+            {% if genes %}
+                <div class="row g-0 d-flex justify-content-end mb-3">
+                    <div class="col-auto">
+                        {% load headings %}
+                        {% clipboard_button %}
+                        {% data_dropdown id='enrichment' %}
+                    </div>
+                </div>
+                <table id="enrichment_table" class="display w-100">
+                </table>
+            {% else %}
+                {% include "../components/mockup/table.html" %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="module">
+        import { handleFormSubmit, initEnrichmentTable }
+            from "{% static 'app/js/atlas/enrichment.js' %}";
+
+        handleFormSubmit();
+        {% if genes %}
+            initEnrichmentTable(
+                "{{dataset.slug}}",
+                "{{query.genes}}",
+            );
+        {% endif %}
+    </script>
+
+{% endblock content %}

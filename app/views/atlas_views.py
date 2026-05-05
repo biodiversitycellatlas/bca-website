@@ -218,6 +218,42 @@ class AtlasGeneModuleView(BaseAtlasView):
     template_name = "app/atlas/modules.html"
 
 
+class AtlasEnrichmentView(BaseAtlasView):
+    """Gene ontology enrichment page for a specific dataset."""
+
+    template_name = "app/atlas/enrichment.html"
+
+    def get_context_data(self, **kwargs):
+        """Add metacell dictionary, selected metacells, or warnings."""
+        context = super().get_context_data(**kwargs)
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
+            return context
+
+        # Get URL query parameters and prepare table with cell markers
+        query = self.request.GET
+        if query:
+            context["query"] = query
+            if "genes" in query.keys():
+                # get selected genes
+                genes = query["genes"].split(",")
+                selected = list(
+                    dataset.species.genes.filter(Q(name__in=genes))
+                    .values_list("name", flat=True)
+                    .distinct()
+                )
+                selected = [s for s in selected]
+                selected.sort()
+
+                context["genes"] = selected
+            else:
+                context["warning"] = {
+                    "title": "Invalid URL!",
+                    "description": (f"Missing <code>genes</code> in your query: <code>{query.urlencode()}</code>"),
+                }
+        return context
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 
