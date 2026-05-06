@@ -46,20 +46,20 @@ export function createEnrichmentTable(id, dataset, url, payload) {
         pageLength: 25,
         scrollX: true,
         columns: [
-            { data: "namespace", title: "Namespace" },
             { data: "term", title: "GO term", render: linkExternalGOterm },
+            { data: "namespace", title: "Namespace" },
             { data: "name", title: "Name", className: "truncate", },
+            { data: "pvalue", title: "p-value", render: roundSignificantDigits, className: "dt-nowrap" },
+            { data: "qvalue", title: "FDR", render: roundSignificantDigits, className: "dt-nowrap" },
+            { data: "query_hit_count", title: "Query" },
+            { data: "background_hit_count", title: "Background" },
+            { data: "genes", title: "Genes", render: linkGeneArray },
             { data: "enrichment", title: "Enrichment" },
             { data: "depth", title: "Depth" },
-            { data: "pvalue", title: "p-value", render: roundSignificantDigits },
-            { data: "qvalue", title: "q-value", render: roundSignificantDigits },
-            { data: "query_hit_count", title: "Query hit count" },
             { data: "query_count", title: "Query count" },
-            { data: "background_hit_count", title: "Background hit count" },
             { data: "background_count", title: "Background count" },
-            { data: "genes", title: "Genes", render: linkGeneArray },
         ],
-        //order: [[5, "des"]],
+        order: [[5, "asc"]],
         createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);

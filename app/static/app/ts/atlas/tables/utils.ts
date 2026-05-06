@@ -145,7 +145,7 @@ export function round(data, type) {
  */
 export function roundSignificantDigits(data, type) {
     if (type === "display" || type === "filter") {
-        return parseFloat(data).toPrecision(2);
+        return parseFloat(data).toExponential(2).replace("e", "E");
     }
     return data;
 }
