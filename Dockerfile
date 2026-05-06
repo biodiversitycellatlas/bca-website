@@ -61,6 +61,9 @@ ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 
+# Install Playwright for End-to-End testing
+RUN playwright install --with-deps || true
+
 # Production image
 FROM dhi.io/python:3.14.5-debian13 AS prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
