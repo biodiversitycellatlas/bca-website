@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u3 \
     dpkg-dev=1.22.22 \
     git=1:2.47.3-0+deb13u1 \
+    net-tools=2.10-1.3 \
+    procps=2:4.0.4-9 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy tools and libraries
@@ -60,6 +62,9 @@ COPY --chown=nonroot:nonroot . .
 ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
+
+# Install Playwright for End-to-End testing
+RUN playwright install --with-deps || true
 
 # Production image
 FROM dhi.io/python:3.14.5-debian13 AS prod

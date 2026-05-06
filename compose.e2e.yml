@@ -1,0 +1,7 @@
+services:
+    web:
+        user: "0"
+        build:
+            target: dev
+            args:
+                DJANGO_DEPENDENCIES: .[e2e,dev]

@@ -4,3 +4,8 @@ rules:
         config:
             policies:
                 "*": ref-pin
+    secrets-outside-env:
+        config:
+            allow:
+                - DOCKERHUB_USERNAME
+                - DOCKERHUB_PASSWORD
