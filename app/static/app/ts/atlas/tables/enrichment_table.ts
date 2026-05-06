@@ -4,9 +4,14 @@
 
 import $ from "jquery";
 import "datatables.net-bs5";
-import "datatables.net-select-bs5";
+import "datatables.net-responsive-bs5";
 
-import { makeLinkGene, round, parseArray } from "./utils.ts";
+import { linkElement, makeLinkGene, roundSignificantDigits, parseArray } from "./utils.ts";
+
+function linkExternalGOterm(term) {
+    const url = "https://amigo.geneontology.org/amigo/term/" + term;
+    return linkElement(term, url);
+}
 
 /**
  * Initialize a DataTable for displaying marker gene information.
@@ -18,7 +23,14 @@ import { makeLinkGene, round, parseArray } from "./utils.ts";
  */
 export function createEnrichmentTable(id, dataset, url, payload) {
     const linkGene = makeLinkGene(dataset);
-    console.log(url);
+    const linkGeneArray = (genes) => {
+        if (!genes) return "";
+        if (Array.isArray(genes)) {
+            return genes.map(g => linkGene(g)).join(', ');
+        }
+        return linkGene(genes);
+    };
+
     $(`#${id}_table`).dataTable({
         ajax: {
             url: url,
@@ -35,17 +47,17 @@ export function createEnrichmentTable(id, dataset, url, payload) {
         scrollX: true,
         columns: [
             { data: "namespace", title: "Namespace" },
-            { data: "term", title: "GO term" },
+            { data: "term", title: "GO term", render: linkExternalGOterm },
             { data: "name", title: "Name", className: "truncate", },
             { data: "enrichment", title: "Enrichment" },
             { data: "depth", title: "Depth" },
-            { data: "pvalue", title: "p-value", render: round },
-            { data: "qvalue", title: "q-value", render: round },
+            { data: "pvalue", title: "p-value", render: roundSignificantDigits },
+            { data: "qvalue", title: "q-value", render: roundSignificantDigits },
             { data: "query_hit_count", title: "Query hit count" },
             { data: "query_count", title: "Query count" },
             { data: "background_hit_count", title: "Background hit count" },
             { data: "background_count", title: "Background count" },
-            { data: "genes", title: "Genes", render: parseArray },
+            { data: "genes", title: "Genes", render: linkGeneArray },
         ],
         //order: [[5, "des"]],
         createdCell: function (td, cellData) {
@@ -53,5 +65,6 @@ export function createEnrichmentTable(id, dataset, url, payload) {
                 $(td).attr("title", cellData);
             }
         },
+        responsive: true,
     });
 }

@@ -19,6 +19,13 @@ export function linkElement(text, url) {
     const a = document.createElement("a");
     a.href = url;
     a.textContent = text;
+
+    // Link to an external webpage
+    const isExternal = a.host !== window.location.host;
+    if (isExternal) {
+        a.target = "_blank";
+        a.rel = "noopener";
+    }
     return a.outerHTML;
 }
 
@@ -116,7 +123,7 @@ export function linkOrthogroups(orthogroups, type = "display") {
 }
 
 /**
- * Round numeric values to two decimal places for display or filtering.
+ * Round numeric value to 2 decimal places for display or filtering.
  *
  * @param {number|string} data - The numeric value to round.
  * @param {string} type - Rendering type: "display", "filter", etc.
@@ -125,6 +132,20 @@ export function linkOrthogroups(orthogroups, type = "display") {
 export function round(data, type) {
     if (type === "display" || type === "filter") {
         return parseFloat(data).toFixed(2);
+    }
+    return data;
+}
+
+/**
+ * Round numeric value to 2 significant digits for display or filtering.
+ *
+ * @param {number|string} data - The numeric value to round.
+ * @param {string} type - Rendering type: "display", "filter", etc.
+ * @returns {string|number} Rounded value for display or original for other types.
+ */
+export function roundSignificantDigits(data, type) {
+    if (type === "display" || type === "filter") {
+        return parseFloat(data).toPrecision(2);
     }
     return data;
 }
