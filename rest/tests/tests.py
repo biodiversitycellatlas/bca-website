@@ -21,7 +21,6 @@ from app.models import (
     GeneCorrelation,
     Orthogroup,
     MetacellLink,
-    MetacellGeneExpression,
     SAMap,
     SpeciesFile,
 )
@@ -174,24 +173,26 @@ class SingleCellTests(APITestCase):
         self.assertListEqual([s["name"] for s in single_cells], ["singleCell"])
 
 
-class MetaCellTests(APITestCase):
+class MetacellTests(APITestCase):
     """Test Metacell endpoint"""
 
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
-        dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
-        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
-        type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        meta1 = Metacell.objects.create(name="meta1", dataset=dataset1, type=type1, x=1, y=1)
-        meta2 = Metacell.objects.create(name="meta2", dataset=dataset1, type=type1, x=2, y=2)
+        dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
+
+        type1 = dataset1.metacell_types.create(name="type1")
+        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1)
+        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2)
         MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
-        MetacellGeneExpression.objects.create(
-            dataset=dataset1, gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4
-        )
-        MetacellGeneExpression.objects.create(
-            dataset=dataset1, gene=gene1, metacell=meta2, umi_raw=1, umifrac=1.41, fold_change=5
-        )
+
+        gene1 = species1.genes.create(name="gene1", description="gene1")
+        dataset1.mge.create(gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4)
+        dataset1.mge.create(gene=gene1, metacell=meta2, umi_raw=1, umifrac=1.41, fold_change=5)
+
+        gene2 = species1.genes.create(name="gene2", description="gene2")
+        dataset1.mge.create(gene=gene2, metacell=meta1, umi_raw=6, umifrac=2.34, fold_change=2.10)
+        dataset1.mge.create(gene=gene2, metacell=meta2, umi_raw=3, umifrac=1.01, fold_change=1.85)
 
     def test_retrieve(self):
         url = "/api/v1/metacells/?dataset=species3-dataset3"
@@ -215,7 +216,17 @@ class MetaCellTests(APITestCase):
         response = self.client.get(url, format="json")
         metacell_gene_expression = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(metacell_gene_expression), 4)
+        self.assertSetEqual({s["gene_name"] for s in metacell_gene_expression}, {"gene1", "gene2"})
+        self.assertSetEqual({s["metacell_name"] for s in metacell_gene_expression}, {"meta1", "meta2"})
+
+    def test_retrieve_gene_expression_single_gene(self):
+        url = "/api/v1/metacell_expression/?dataset=species3-dataset3&genes=gene2"
+        response = self.client.get(url, format="json")
+        metacell_gene_expression = response.data["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(metacell_gene_expression), 2)
+        self.assertSetEqual({s["gene_name"] for s in metacell_gene_expression}, {"gene2"})
         self.assertSetEqual({s["metacell_name"] for s in metacell_gene_expression}, {"meta1", "meta2"})
 
     def test_retrieve_cell_markers(self):
@@ -223,7 +234,7 @@ class MetaCellTests(APITestCase):
         response = self.client.get(url, format="json")
         markers = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(markers), 1)
+        self.assertEqual(len(markers), 2)
         self.assertEqual(markers[0]["name"], "gene1")
 
 
@@ -290,6 +301,7 @@ class CorrelatedGenesTest(APITestCase):
         correlations = response.data["results"]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(correlations), 3)
+        self.assertSetEqual({s["gene"] for s in correlations}, {"gene3", "gene2", "gene4"})
         self.assertSetEqual({s["spearman"] for s in correlations}, {0.5, 0.4, 0.56})
         self.assertSetEqual({s["pearson"] for s in correlations}, {0.8, 0.7, 0.6})
 
