@@ -22,8 +22,8 @@ jobs:
               with:
                   persist-credentials: false
 
-            - name: Prepare environment
-              run: ./scripts/setup.sh
+            - name: Prepare production environment
+              run: ./scripts/setup.sh prod
 
             - name: Log in to Docker Hub
               uses: docker/login-action@v4
