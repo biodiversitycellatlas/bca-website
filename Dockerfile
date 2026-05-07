@@ -62,8 +62,7 @@ COPY --from=dev /usr/lib/libpcre2*  /usr/lib/
 COPY --from=dev /usr/lib/libselinux*  /usr/lib/
 
 # Copy Python packages
-COPY --from=dev /opt/python-3.13.13/lib/python3.13/site-packages  /opt/python-3.13.13/lib/python3.13/
-COPY --from=dev /opt/python-3.13.13/bin/gunicorn* /opt/python-3.13.13/bin/
+COPY --from=dev /opt/python/ /opt/python/
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
