@@ -4,4 +4,4 @@ services:
         build:
             target: prod
             args:
-                DJANGO_DEPENDENCIES: .[test]
+                DJANGO_DEPENDENCIES: .[test,dev]
