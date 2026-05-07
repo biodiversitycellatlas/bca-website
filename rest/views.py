@@ -546,7 +546,7 @@ class MetacellCountViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(
-    summary="Submit sequences for alignment",
+    summary="Align sequences",
     description="Align query sequences against the protein sequences in the BCA database "
     + f"using [DIAMOND {settings.DIAMOND_VERSION}](https://github.com/bbuchfink/diamond).",
     tags=["Sequence alignment"],
@@ -672,3 +672,91 @@ class AlignViewSet(viewsets.ViewSet):
                     os.remove(f)
 
         return results
+
+
+@extend_schema(
+    summary="Analyze GO enrichment",
+    tags=["Gene ontology"],
+)
+class EnrichmentAnalysisViewSet(viewsets.ViewSet):
+    """
+    Perform **Gene Ontology (GO) enrichment analysis** on a set of genes.
+
+    Background genes are derived from all the genes in the selected dataset's metacell gene expression.
+
+    > Processing may take 10+ seconds depending on input.
+    > Please use responsibly to avoid excessive server load.
+    """
+
+    queryset = models.Gene.objects.all()
+    serializer_class = serializers.EnrichmentAnalysisResponseSerializer
+    pagination_class = None
+
+    def _get_gene_names(self, qs):
+        model = qs.model
+
+        if qs.model == models.Gene:
+            value = "name"
+        elif hasattr(model, "genes"):
+            value = "genes__name"
+        elif hasattr(model, "gene"):
+            value = "gene__name"
+        return list(qs.values_list(value, flat=True).distinct())
+
+    def _prepare_gene_query(self, dataset, validated):
+        """Create array of gene names from genes, gene_modules and gene_lists."""
+        query = []
+
+        gene_names = validated.get("genes")
+        if gene_names:
+            genes = self._get_gene_names(dataset.species.genes.filter(name__in=gene_names))
+            if len(genes) == 0:
+                raise NotFound(detail=f"Genes {gene_names} not found.")
+            query += genes
+
+        gene_modules = validated.get("gene_modules")
+        if gene_modules:
+            genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
+            if len(genes) == 0:
+                raise NotFound(detail=f"Gene modules {gene_modules} not found.")
+            query += genes
+
+        gene_lists = validated.get("gene_lists")
+        if gene_lists:
+            genes = self._get_gene_names(
+                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
+            )
+            if len(genes) == 0:
+                raise NotFound(detail=f"Gene lists {gene_lists} not found.")
+            query += genes
+
+        return query
+
+    @extend_schema(
+        request=serializers.EnrichmentAnalysisRequestSerializer,
+        operation_id="enrichment_post",
+        responses={200: serializers.EnrichmentAnalysisResponseSerializer(many=True)},
+    )
+    def create(self, request, *args, **kwargs):
+        input_serializer = serializers.EnrichmentAnalysisRequestSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        validated = input_serializer.validated_data
+
+        # Parse query parameters
+        dataset = parse_species_dataset(validated["dataset"])
+        genes = self._prepare_gene_query(dataset, validated)
+
+        qvalue = validated.get("qvalue", 0.05)
+        background = self._get_gene_names(dataset.mge)
+        obsolete = validated["obsolete"] or False
+
+        go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
+        emapper = dataset.species.files.get(type="eggnog-mapper").file.path
+
+        service = services.GeneOntologyEnrichmentService(
+            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
+        )
+        results = service.run(genes, sort=True)
+
+        serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
+        return Response(serializer.data)
