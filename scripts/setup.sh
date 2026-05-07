@@ -6,8 +6,10 @@ cp nginx/nginx.conf.template nginx/nginx.conf
 cp .pg_service.conf.template .pg_service.conf
 cp .pgpass.template .pgpass
 
-# If "prod" argument is passed, modify COMPOSE_FILE to include compose.prod.yml
-if [ "$1" = "prod" ]; then
+# Modify COMPOSE_FILE based on environment
+if [ "$1" = "test" ]; then
+    echo "COMPOSE_FILE=compose.yml:compose.test.yml" >> .env
+elif [ "$1" = "prod" ]; then
     echo "COMPOSE_FILE=compose.yml:compose.prod.yml" >> .env
 fi
 

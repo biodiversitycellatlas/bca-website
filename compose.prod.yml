@@ -13,7 +13,7 @@ services:
             - ./nginx/nginx.prod.conf.template:/etc/nginx/nginx.prod.conf.template:ro
             - ./nginx/entrypoint.sh:/entrypoint.sh:ro
             # Mount entire cert directory
-            - ${CERT_DIR:-./certs}:/certs:ro
+            - ${CERT_DIR}:/certs:ro
         entrypoint: ["/bin/sh", "/entrypoint.sh"]
         depends_on:
             - plausible
