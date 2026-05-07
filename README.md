@@ -23,16 +23,19 @@ hundreds of species.
 
 This project uses:
 
-- [Podman Compose][] to manage multiple [Podman][] containers (using
+- [Podman Compose][] to manage multiple [Podman][] containers (using the
   [docker-compose][Docker Compose] backend for compatibility)
-- [Ghost][], a blog-focused Content Management System (CMS) for the main website
-    - [Mailpit][] provides a web interface to read Ghost transactional emails
-- [Django][], a high-level Python web framework powering the data portal, with additional dependencies (see [`Dockerfile`](Dockerfile))
+- [Nginx][] as a reverse proxy
+- [Ghost][] Content Management System (CMS) to serve the project website and blog
+  (see [`ghost/Dockerfile`](ghost/Dockerfile))
+    - [Mailpit][] to provide a web interface for Ghost transactional emails
+- [Django][] to power the Data Portal (see [`Dockerfile`](Dockerfile))
+  with the following dependencies:
     - [Bun][] to build JavaScript and CSS assets from external libraries
-    - [DIAMOND][] for fast sequence alignment
+    - [DIAMOND][] to quickly align user-provided sequences
     - [Gunicorn][] to serve the Django app in production
-- [PostgreSQL][], a relational database
-- [Nginx][], a reverse proxy
+- [PostgreSQL][] as the relational database system supporting the Data Portal
+- [Plausible][] to store visitor analytics
 
 The project configuration is defined in [`compose.yml`](compose.yml) and [`compose.prod.yml`](compose.prod.yml).
 
@@ -134,13 +137,13 @@ production-specific settings:
 podman compose -d
 ```
 
-## Main website (Ghost)
+## Project website (Ghost)
 
-The main website is built with the [Ghost][] blogging platform. Base templates
+The project website is built with the [Ghost][] blogging platform. Base templates
 in the [`ghost/`](ghost) folder modify the default theme.
 
 Transactional emails (like those sent to reset passwords and create new user
-accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+accounts) can be read by opening the [Mailpit][] web interface at localhost:1025.
 
 ## Data Portal (Django app)
 
@@ -385,6 +388,7 @@ The environment files that Super-Linter automatically loads are available in
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
+[Plausible]: https://plausible.io
 [Bun]: https://bun.com
 [Gunicorn]: https://gunicorn.org
 [DIAMOND]: https://github.com/bbuchfink/diamond
