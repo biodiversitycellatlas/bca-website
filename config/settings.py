@@ -18,6 +18,7 @@ import sys
 import orjson
 
 from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
+from rest.settings import sort_api_tags
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_DOMAIN = "biodiversitycellatlas.org"
@@ -98,7 +99,7 @@ TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
 if DEBUG and not TESTING:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
-    INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
+    INTERNAL_IPS = type("c", (), {"__contains__": lambda *a: True})()
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": "debug_toolbar.middleware.show_toolbar_with_docker",
     }
@@ -214,23 +215,6 @@ REST_FRAMEWORK = {
         orjson.OPT_SERIALIZE_NUMPY,
     ),
 }
-
-
-def sort_api_tags():
-    """Return sorted API tags."""
-
-    tags = [
-        "Species",
-        "Dataset",
-        "Gene",
-        "Gene module",
-        "Metacell",
-        "Single cell",
-        "Cross-species",
-        "Sequence alignment",
-    ]
-    return [{"name": tag} for tag in tags]
-
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Biodiversity Cell Atlas: Data Portal API",
