@@ -27,14 +27,15 @@ mkdir -p static
 chmod go+rx static # Fix permissions for nginx when creating this folder in Django
 python manage.py collectstatic --noinput
 
-# Migrate database
-run_django_migrations
 
 # Deploy Django app
 if [ "${ENVIRONMENT:-}" = "prod" ]; then
     # Serve Django apps using gunicorn
     gunicorn -w 4 config.wsgi --bind 0.0.0.0:8000
 else
+    # Migrate database
+    run_django_migrations
+
     # Run server directly in Django (insecure, dev only)
     python manage.py runserver 0.0.0.0:8000
 fi
