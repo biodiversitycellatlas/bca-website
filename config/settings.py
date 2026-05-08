@@ -191,7 +191,7 @@ STORAGES = {
     },
     "staticfiles": {
         "BACKEND": "config.storage.JSModuleManifestStorage",
-    }
+    },
 }
 
 STATIC_URL = "static/"
