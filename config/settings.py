@@ -185,6 +185,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 # https://docs.djangoproject.com/en/5.1/topics/files/
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "config.storage.JSModuleManifestStorage",
+    }
+}
+
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
