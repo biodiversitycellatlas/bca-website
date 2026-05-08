@@ -50,8 +50,8 @@ function createColorCircle(color) {
 /**
  * Initialize a TomSelect dropdown for metacells.
  *
- * @param {string} selected - Comma-separated pre-selected metacell values.
- * @param {string} selected2 - Alternative comma-separated pre-selected metacell values.
+ * @param {string} selected - Comma-separated preselected metacell values.
+ * @param {string} selected2 - Alternative comma-separated preselected metacell values.
  */
 export function initMetacellSelect(selected, selected2) {
     const select = new TomSelect("#metacells", {
