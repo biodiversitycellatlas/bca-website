@@ -3,7 +3,7 @@
     "scripts": {
         "clean": "bun -e \"import { rm } from 'node:fs/promises'; await rm('app/static/app/dist', { recursive: true, force: true })\"",
         "list": "find app/static/app/src/ -type f -not -path '*/tests/*' -not -name '.*'",
-        "bundle": "bun build $(bun run list) --outdir app/static/app/dist --outbase app/static/app/src/ --minify --splitting --chunk-naming 'chunk-[hash].[ext]'",
+        "bundle": "bun build $(bun run list) --outdir app/static/app/dist --outbase app/static/app/src/ --sourcemap --minify --splitting --chunk-naming 'chunk-[hash].[ext]'",
         "build": "bun run clean && bun run bundle"
     },
     "dependencies": {
