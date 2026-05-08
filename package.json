@@ -1,8 +1,10 @@
 {
-    "name": "app",
+    "name": "portal",
     "scripts": {
-        "list": "find app/static/app/ts/ -name '*.ts' -not -path '*/tests/*'",
-        "build": "bun build $(bun run list) --outdir app/static/app/js --outbase app/static/app/ts/ --minify --splitting --chunk-naming 'chunk-[hash].[ext]'",
+        "clean": "bun -e \"import { rm } from 'node:fs/promises'; await rm('app/static/app/dist', { recursive: true, force: true })\"",
+        "list": "find app/static/app/ts/ -type f -not -path '*/tests/*' -not -name '.*'",
+        "bundle": "bun build $(bun run list) --outdir app/static/app/js --outbase app/static/app/ts/ --minify --splitting --chunk-naming 'chunk-[hash].[ext]'",
+        "build": "bun run clean && bun run bundle"
     },
     "dependencies": {
         "@fontsource/rubik": "5.2.8",
