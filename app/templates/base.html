@@ -40,7 +40,7 @@ Dynamic blocks:
 
         <!-- External CSS libraries -->
         {% load static %}
-        <link rel="stylesheet" href="{% static 'app/js/index.css' %}">
+        <link rel="stylesheet" href="{% static 'app/dist/index.css' %}">
 
         <!-- Custom CSS and scripts -->
         <link rel="stylesheet" href="{% static 'app/css/base.css' %}">
@@ -76,7 +76,7 @@ Dynamic blocks:
         {% endblock footer %}
 
         <!-- External JavaScript libraries -->
-        <script type="module" src="{% static 'app/js/index.js' %}"></script>
+        <script type="module" src="{% static 'app/dist/index.js' %}"></script>
         {% include "app/components/javascript_urls.html" %}
     </body>
 </html>

@@ -53,7 +53,7 @@ Input:
         loadGeneModuleSize,
         renderGeneModuleStatsPlots,
         renderGeneModuleTable
-    } from "{% static 'app/js/atlas/stats.js' %}";
+    } from "{% static 'app/dist/atlas/stats.js' %}";
 
     loadGeneModuleSize("{{dataset.slug}}");
     renderGeneModuleStatsPlots("{{dataset.slug}}");
