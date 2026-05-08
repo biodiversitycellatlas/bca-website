@@ -186,6 +186,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/topics/files/
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "config.storage.JSModuleManifestStorage",
     }
@@ -245,6 +248,10 @@ if get_env("DJANGO_LOGGING", type="bool"):
             },
         },
         "loggers": {
+            "django.request": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
             "django.db.backends": {
                 "handlers": ["console"],
                 "level": "DEBUG",
