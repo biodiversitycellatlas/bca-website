@@ -44,7 +44,7 @@ dependencies = [
   "drf-orjson-renderer==1.8.0",
 
   # GO enrichment
-  "GOATOOLS==1.5.2",
+  "GOATOOLS==1.6.4",
   "scikit-learn==1.8.0",
 
   # Monitoring
