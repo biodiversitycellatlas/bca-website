@@ -1,23 +1,26 @@
 changelog:
     categories:
-        - title: ✨ Features
+        - title: 🐣 Features
           labels:
               - feature
-        - title: 🛠️ Enhancements
+        - title: 🌸 Enhancements
           labels:
               - enhancement
         - title: 🐞 Bug fixes
           labels:
               - bug
-        - title: 📚 Documentation
+        - title: 🦉 Documentation
           labels:
               - documentation
-        - title: 🤖 Automation
+        - title: 🦫 Infrastructure
+          labels:
+              - infrastructure
+        - title: 🐝 Automation
           labels:
               - automation
-        - title: 📦 Dependencies
+        - title: 🪸 Dependencies
           labels:
               - dependencies
-        - title: 📌 Other changes
+        - title: 🦎 Other changes
           labels:
               - "*"
