@@ -1,5 +1,5 @@
 # Get postgreSQL client
-FROM dhi.io/postgres:18-debian13-dev AS postgres
+FROM dhi.io/postgres:18.1-debian13-dev AS postgres
 
 # Get diamond aligner
 FROM buchfink/diamond:version2.1.24 AS diamond
@@ -11,17 +11,18 @@ FROM dhi.io/bun:1-debian13-dev AS bun
 FROM  dhi.io/python:3.13.13-debian13-dev AS dev
 
 # Install dependencies
-RUN apt-get  update  && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u2 \
     dpkg-dev=1.22.22 \
-    git=1:2.47.3-0+deb13u1
+    git=1:2.47.3-0+deb13u1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy tools and libraries
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
-RUN arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
     cp /usr/lib/${arch}/libpcre2* /usr/lib/ && \
     cp /usr/lib/${arch}/libselinux* /usr/lib/ && \
     mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
@@ -61,8 +62,7 @@ COPY --from=dev /usr/lib/libpcre2*  /usr/lib/
 COPY --from=dev /usr/lib/libselinux*  /usr/lib/
 
 # Copy Python packages
-COPY --from=dev /opt/python-3.13.13/lib/python3.13/site-packages  /opt/python-3.13.13/lib/python3.13/
-COPY --from=dev /opt/python-3.13.13/bin/gunicorn* /opt/python-3.13.13/bin/
+COPY --from=dev /opt/python/ /opt/python/
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
