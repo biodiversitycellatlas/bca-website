@@ -1,70 +1,76 @@
 [project]
-name = "bcawebsite"
-version = "0.1"
+name = "bca-data-portal"
 requires-python = ">=3.13"
+
 authors = [
-  {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
-  {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+    {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
+    {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+    {name = "Clemente Borges Perdomo", email = "clemente.borges@crg.eu"},
+    {name = "Antonio Hermoso Pulido", email = "toni.hermoso@crg.eu"},
 ]
 maintainers = [
-  {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
-  {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+    {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
+    {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
 ]
-description = "BCA Data Portal - Explore and download single-cell datasets across the eukaryotic tree of life."
+
+description = "Explore and download single-cell datasets across the eukaryotic tree of life."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["biodiversity", "cell", "atlas", "single-cell", "bioinformatics", "data"]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python"
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python"
 ]
+
 dependencies = [
-  "Django==5.2.13",
-  "django-colorfield==0.14.0",
-  "django-extensions==4.1",
-  "gunicorn==25.3.0",
-  "h5py==3.16.0",
-  "psycopg[binary,pool]==3.3.3",
-  "python-dateutil==2.9.0.post0",
+    "Django==5.2.13",
+    "django-colorfield==0.14.0",
+    "django-extensions==4.1",
+    "gunicorn==25.3.0",
+    "h5py==3.16.0",
+    "psycopg[binary,pool]==3.3.3",
+    "python-dateutil==2.9.0.post0",
 
-  # Blog parsing
-  "beautifulsoup4==4.14.3",
-  "feedparser==6.0.12",
+    # Blog parsing
+    "beautifulsoup4==4.14.3",
+    "feedparser==6.0.12",
 
-  # Documentation pages
-  "mistune==3.2.1",
-  "Pygments==2.20.0",
-  "python-frontmatter==1.1.0",
+    # Documentation pages
+    "mistune==3.2.1",
+    "Pygments==2.20.0",
+    "python-frontmatter==1.1.0",
 
-  # REST
-  "djangorestframework==3.17.1",
-  "django-filter==25.2",
-  "drf-spectacular==0.29.0",
-  "drf-orjson-renderer==1.8.0",
+    # REST
+    "djangorestframework==3.17.1",
+    "django-filter==25.2",
+    "drf-spectacular==0.29.0",
+    "drf-orjson-renderer==1.8.0",
 
-  # GO enrichment
-  "GOATOOLS==1.6.4",
-  "scikit-learn==1.8.0",
+    # GO enrichment
+    "GOATOOLS==1.6.4",
+    "scikit-learn==1.8.0",
 
-  # Monitoring
-  "django-prometheus==2.4.1",
+    # Monitoring
+    "django-prometheus==2.4.1",
 ]
 
 [project.optional-dependencies]
-  test = [
+test = [
     "coverage==7.13.5",
-  ]
-  dev = [
+]
+
+dev = [
     "django-debug-toolbar==6.3.0",
     "djlint==1.36.4",
-  ]
-  dataload = [
+]
+
+dataload = [
     "pandas==3.0.2",
     "psutil==7.2.2",
     "rds2py==0.9.0",
     "scipy==1.17.1",
-  ]
+]
 
 [tool.setuptools]
 py-modules = []
