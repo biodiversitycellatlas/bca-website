@@ -48,9 +48,9 @@ dependencies = [
     "drf-spectacular==0.29.0",
     "drf-orjson-renderer==1.8.0",
 
-    # GO enrichment
-    "GOATOOLS==1.6.4",
-    "scikit-learn==1.8.0",
+  # GO enrichment
+  "GOATOOLS==1.6.5",
+  "scikit-learn==1.8.0",
 
     # Monitoring
     "django-prometheus==2.4.1",
