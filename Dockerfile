@@ -23,32 +23,32 @@ COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
-    cp /usr/lib/${arch}/libpcre2* /usr/lib/ && \
-    cp /usr/lib/${arch}/libselinux* /usr/lib/ && \
-    cp /usr/lib/${arch}/libbrotlicommon* /usr/lib/ && \
-    cp /usr/lib/${arch}/libbrotlidec* /usr/lib/ && \
-    cp /usr/lib/${arch}/libcom_err* /usr/lib/ && \
-    cp /usr/lib/${arch}/libgnutls* /usr/lib/ && \
-    cp /usr/lib/${arch}/libgssapi_krb5* /usr/lib/ && \
-    cp /usr/lib/${arch}/libhogweed* /usr/lib/ && \
-    cp /usr/lib/${arch}/libidn2* /usr/lib/ && \
-    cp /usr/lib/${arch}/libk5crypto* /usr/lib/ && \
-    cp /usr/lib/${arch}/libkeyutils* /usr/lib/ && \
-    cp /usr/lib/${arch}/libkrb5* /usr/lib/ && \
-    cp /usr/lib/${arch}/libkrb5support* /usr/lib/ && \
-    cp /usr/lib/${arch}/liblber* /usr/lib/ && \
-    cp /usr/lib/${arch}/libldap* /usr/lib/ && \
-    cp /usr/lib/${arch}/libnettle* /usr/lib/ && \
-    cp /usr/lib/${arch}/libnghttp2* /usr/lib/ && \
-    cp /usr/lib/${arch}/libnghttp3* /usr/lib/ && \
-    cp /usr/lib/${arch}/libp11-kit* /usr/lib/ && \
-    cp /usr/lib/${arch}/libpsl* /usr/lib/ && \
-    cp /usr/lib/${arch}/librtmp* /usr/lib/ && \
-    cp /usr/lib/${arch}/libsasl2* /usr/lib/ && \
-    cp /usr/lib/${arch}/libssh2* /usr/lib/ && \
-    cp /usr/lib/${arch}/libtasn1* /usr/lib/ && \
-    cp /usr/lib/${arch}/libunistring* /usr/lib/ && \
-    cp /usr/lib/${arch}/libcurl* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libselinux* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libbrotlicommon* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libbrotlidec* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libcom_err* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libgnutls* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libgssapi_krb5* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libhogweed* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libidn2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libk5crypto* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkeyutils* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkrb5* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkrb5support* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/liblber* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libldap* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libnettle* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libnghttp2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libnghttp3* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libp11-kit* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libpsl* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/librtmp* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libsasl2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libssh2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libtasn1* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libunistring* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libcurl* /usr/lib/ && \
     mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
     ldconfig
 
