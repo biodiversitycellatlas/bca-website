@@ -12,12 +12,9 @@ changelog:
         - title: 🦉 Documentation
           labels:
               - documentation
-        - title: 🦫 Infrastructure
+        - title: 🐝 Infrastructure
           labels:
               - infrastructure
-        - title: 🐝 Automation
-          labels:
-              - automation
         - title: 🪸 Dependencies
           labels:
               - dependencies
