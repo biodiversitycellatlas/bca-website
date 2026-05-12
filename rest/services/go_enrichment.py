@@ -1,6 +1,5 @@
 """GO enrichment analysis."""
 
-import os
 import gzip
 import random
 import math
@@ -40,20 +39,9 @@ class GeneOntologyEnrichmentService:
         self.qvalue = qvalue
 
         # Silently prepare GO enrichment analysis
-        with open(os.devnull, "w") as devnull:
-            old_out = os.dup(1)
-            old_err = os.dup(2)
-
-            os.dup2(devnull.fileno(), 1)
-            os.dup2(devnull.fileno(), 2)
-
-            try:
-                self.gostudy = GOEnrichmentStudy(
-                    background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue, log=None, prt=None
-                )
-            finally:
-                os.dup2(old_out, 1)
-                os.dup2(old_err, 2)
+        self.gostudy = GOEnrichmentStudy(
+            background_genes, gene2go, self.obodag, methods=methods, alpha=self.qvalue, log=None
+        )
 
     def run(self, query_genes, sort=False):
         """Calculate GO enrichment and semantic similarity."""
