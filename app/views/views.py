@@ -265,10 +265,11 @@ class DocumentationView(TemplateView):
         if os.path.exists(file_path):
             # Fetch corresponding static location
             static_path = self.request.path
+            static_dir = static(static_path.lstrip("/"))
+
             if os.path.basename(file_path) != self.index_file:
                 # If not index page, go back once to fix path
-                static_path = os.path.join(static_path, "..")
-            static_dir = static(static_path.lstrip("/"))
+                static_dir = os.path.dirname(os.path.dirname(static_dir))
 
             # Parse Markdown page
             md = MarkdownPage(file_path, static_dir=static_dir)

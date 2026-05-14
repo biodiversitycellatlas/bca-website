@@ -80,7 +80,7 @@ Input:
 
 {% load static %}
 <script type="module">
-    import { initProjection } from "{% static 'app/js/atlas/projection.js' %}";
+    import { initProjection } from "{% static 'app/dist/atlas/projection.js' %}";
     initProjection(
         "{{id}}", "{{dataset.slug}}", "{{dataset}}",
         {% if gene %}"{{ gene }}"{% else %}null{% endif %}

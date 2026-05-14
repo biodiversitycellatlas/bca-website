@@ -43,6 +43,6 @@ Input:
 {% load static %}
 <script type="module">
     // Create URL to fetch ortholog data
-    import { loadOrthologExpression } from "{% static 'app/js/atlas/expression_ortholog.js' %}";
+    import { loadOrthologExpression } from "{% static 'app/dist/atlas/expression_ortholog.js' %}";
     loadOrthologExpression("{{gene}}");
 </script>
