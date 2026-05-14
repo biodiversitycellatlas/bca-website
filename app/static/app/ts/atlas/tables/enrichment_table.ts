@@ -8,9 +8,13 @@ import "datatables.net-responsive-bs5";
 
 import { linkElement, makeLinkGene, roundSignificantDigits, parseArray } from "./utils.ts";
 
-function linkExternalGOterm(term) {
-    const url = "https://amigo.geneontology.org/amigo/term/" + term;
-    return linkElement(term, url);
+function linkExternalGOterm(name, type = "display", row = null) {
+    if (type === "display") {
+        const term = row?.term;
+        const url = "https://amigo.geneontology.org/amigo/term/" + term;
+        name = linkElement(name, url);
+    }
+    return name;
 }
 
 /**
@@ -46,9 +50,9 @@ export function createEnrichmentTable(id, dataset, url, payload) {
         pageLength: 25,
         scrollX: true,
         columns: [
-            { data: "term", title: "GO term", render: linkExternalGOterm },
+            //{ data: "term", title: "GO term" },
             { data: "namespace", title: "Namespace" },
-            { data: "name", title: "Name", className: "truncate", },
+            { data: "name", title: "Name", className: "truncate", render: linkExternalGOterm },
             { data: "pvalue", title: "p-value", render: roundSignificantDigits, className: "dt-nowrap" },
             { data: "qvalue", title: "FDR", render: roundSignificantDigits, className: "dt-nowrap" },
             { data: "query_hit_count", title: "Query" },
@@ -56,10 +60,10 @@ export function createEnrichmentTable(id, dataset, url, payload) {
             { data: "genes", title: "Genes", render: linkGeneArray },
             { data: "enrichment", title: "Enrichment" },
             { data: "depth", title: "Depth" },
-            { data: "query_count", title: "Query count" },
-            { data: "background_count", title: "Background count" },
+            //{ data: "query_count", title: "Query count" },
+            //{ data: "background_count", title: "Background count" },
         ],
-        order: [[5, "asc"]],
+        order: [[3, "asc"]],
         createdCell: function (td, cellData) {
             if ($(td).hasClass("truncate")) {
                 $(td).attr("title", cellData);
