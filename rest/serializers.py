@@ -613,7 +613,7 @@ class DatasetMetacellGeneExpressionSerializer(MetacellGeneExpressionSerializer):
 class CorrelatedGenesSerializer(serializers.ModelSerializer):
     """Serializer for correlated genes."""
 
-    name = serializers.SerializerMethodField()
+    gene = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     domains = serializers.SerializerMethodField()
     spearman = serializers.FloatField()
@@ -623,7 +623,7 @@ class CorrelatedGenesSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.GeneCorrelation
-        exclude = ["dataset", "id", "gene", "gene2"]
+        exclude = ["dataset", "id", "gene2"]
 
     def get_non_selected_gene(self, obj):
         """Return non-selected gene."""
@@ -632,7 +632,7 @@ class CorrelatedGenesSerializer(serializers.ModelSerializer):
         # Return the gene that was not selected in the input
         return obj.gene2 if obj.gene.name == selected else obj.gene
 
-    def get_name(self, obj) -> str:
+    def get_gene(self, obj) -> str:
         """Return gene name from non-selected gene."""
 
         gene = self.get_non_selected_gene(obj)

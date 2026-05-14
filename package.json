@@ -8,7 +8,7 @@
         "@fontsource/rubik": "5.2.8",
         "@fortawesome/fontawesome-free": "7.2.0",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.4.27",
+        "autoprefixer": "10.5.0",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "2.3.7",
@@ -17,14 +17,14 @@
         "datatables.net-responsive-bs5": "3.0.8",
         "ion-rangeslider": "2.3.1",
         "jquery": "3.7.1",
-        "postcss": "8.5.9",
+        "postcss": "8.5.13",
         "postcss-cli": "11.0.1",
-        "tom-select": "2.5.2",
+        "tom-select": "2.6.0",
         "vega-embed": "7.1.0"
     },
     "devDependencies": {
-        "@happy-dom/global-registrator": "20.8.9",
-        "@types/bun": "1.3.12"
+        "@happy-dom/global-registrator": "20.9.0",
+        "@types/bun": "1.3.13"
     },
     "private": true,
     "type": "module"
