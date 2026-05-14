@@ -30,7 +30,7 @@ dependencies = [
     "django-extensions==4.1",
     "gunicorn==25.3.0",
     "h5py==3.16.0",
-    "psycopg[binary,pool]==3.3.3",
+    "psycopg[binary,pool]==3.3.4",
     "python-dateutil==2.9.0.post0",
 
     # Blog parsing
