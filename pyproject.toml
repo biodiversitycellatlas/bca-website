@@ -58,7 +58,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-    "coverage==7.13.5",
+    "coverage==7.14.0",
 ]
 
 dev = [
