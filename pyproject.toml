@@ -67,7 +67,7 @@ dev = [
 ]
 
 dataload = [
-    "pandas==3.0.2",
+    "pandas==3.0.3",
     "psutil==7.2.2",
     "rds2py==0.9.0",
     "scipy==1.17.1",
