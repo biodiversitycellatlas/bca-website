@@ -12,7 +12,7 @@ FROM  dhi.io/python:3.13.13-debian13-dev AS dev
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl=8.14.1-2+deb13u2 \
+    curl=8.14.1-2+deb13u3 \
     dpkg-dev=1.22.22 \
     git=1:2.47.3-0+deb13u1 \
     && rm -rf /var/lib/apt/lists/*
