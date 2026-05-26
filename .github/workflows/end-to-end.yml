@@ -42,4 +42,4 @@ jobs:
               run: docker compose up -d
 
             - name: Run tests with playwright
-              run: bash -c "sleep 40; docker ps --filter status=running"
+              run: bash -c "sleep 60; docker compose logs web"
