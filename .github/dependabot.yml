@@ -6,6 +6,7 @@ registries:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
         replaces-base: true
+
 updates:
     - package-ecosystem: "pip"
       directory: "/"
@@ -13,6 +14,10 @@ updates:
           interval: "weekly"
       cooldown:
           default-days: 7
+      ignore:
+          # Ignore non-LTS Django updates
+          - dependency-name: "django"
+            versions: ["[6.0,6.2)", "[7.0,7.2)"]
 
     - package-ecosystem: "bun"
       directory: "/"
@@ -29,6 +34,8 @@ updates:
           interval: "weekly"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "postgres"
 
     - package-ecosystem: "docker-compose"
       registries:
@@ -38,6 +45,8 @@ updates:
           interval: "weekly"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "postgres"
 
     - package-ecosystem: "github-actions"
       directory: "/"
