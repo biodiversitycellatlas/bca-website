@@ -1,5 +1,5 @@
 # Get postgreSQL client
-FROM dhi.io/postgres:18.4-debian13-dev AS postgres
+FROM dhi.io/postgres:18.1-debian13-dev AS postgres
 
 # Get diamond aligner
 FROM buchfink/diamond:version2.1.24 AS diamond
