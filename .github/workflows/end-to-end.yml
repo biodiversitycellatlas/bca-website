@@ -51,6 +51,7 @@ jobs:
                   bash -c "sleep 80"
                   docker compose exec web pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
+
             - uses: actions/upload-artifact@v4
               if: ${{ !cancelled() }}
               with:
