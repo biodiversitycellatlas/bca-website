@@ -47,4 +47,13 @@ jobs:
                   ENVIRONMENT: test
 
             - name: Run tests with playwright
-              run: bash -c "sleep 80; docker compose exec web pytest e2e/ -v"
+              run: |
+                  bash -c "sleep 80"
+                  docker compose exec web pytest --tracing  retain-on-failure e2e/ -v
+                  docker compose exec web pytest --tracing  retain-on-failure --browser firefox e2e/ -v
+                  docker compose exec web pytest --tracing  retain-on-failure --browser webkit e2e/ -v
+            - uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                name: playwright-traces
+                path: test-results/
