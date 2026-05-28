@@ -238,9 +238,7 @@ class AtlasEnrichmentView(BaseAtlasView):
                 # get selected genes
                 genes = query["genes"].split(",")
                 selected = list(
-                    dataset.species.genes.filter(Q(name__in=genes))
-                    .values_list("name", flat=True)
-                    .distinct()
+                    dataset.species.genes.filter(Q(name__in=genes)).values_list("name", flat=True).distinct()
                 )
                 selected = [s for s in selected]
                 selected.sort()

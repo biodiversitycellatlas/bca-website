@@ -6,7 +6,12 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-responsive-bs5";
 
-import { linkElement, makeLinkGene, roundSignificantDigits, parseArray } from "./utils.ts";
+import {
+    linkElement,
+    makeLinkGene,
+    roundSignificantDigits,
+    parseArray,
+} from "./utils.ts";
 
 function linkExternalGOterm(name, type = "display", row = null) {
     if (type === "display") {
@@ -22,39 +27,43 @@ function linkExternalGOterm(name, type = "display", row = null) {
  *
  * @param {string} id - HTML element ID to attach the table.
  * @param {Object} dataset - Dataset reference for linking genes.
- * @param {string} url - URL to fetch gene marker data.
- * @param {Object} payload - Data object sent as the POST request body.
+ * @param {Object} data - Data object.
  */
-export function createEnrichmentTable(id, dataset, url, payload) {
+export function createEnrichmentTable(id, dataset, data) {
     const linkGene = makeLinkGene(dataset);
     const linkGeneArray = (genes) => {
         if (!genes) return "";
         if (Array.isArray(genes)) {
-            return genes.map(g => linkGene(g)).join(', ');
+            return genes.map((g) => linkGene(g)).join(", ");
         }
         return linkGene(genes);
     };
 
     $(`#${id}_table`).dataTable({
-        ajax: {
-            url: url,
-            type: "POST",
-            contentType: "application/json",
-            data: function () {
-                return JSON.stringify(payload);
-            },
-            dataSrc: function (json) {
-                return json;
-            },
-        },
+        data,
         pageLength: 25,
         scrollX: true,
         columns: [
             //{ data: "term", title: "GO term" },
             { data: "namespace", title: "Namespace" },
-            { data: "name", title: "Name", className: "truncate", render: linkExternalGOterm },
-            { data: "pvalue", title: "p-value", render: roundSignificantDigits, className: "dt-nowrap" },
-            { data: "qvalue", title: "FDR", render: roundSignificantDigits, className: "dt-nowrap" },
+            {
+                data: "name",
+                title: "Name",
+                className: "truncate",
+                render: linkExternalGOterm,
+            },
+            {
+                data: "pvalue",
+                title: "p-value",
+                render: roundSignificantDigits,
+                className: "dt-nowrap",
+            },
+            {
+                data: "qvalue",
+                title: "FDR",
+                render: roundSignificantDigits,
+                className: "dt-nowrap",
+            },
             { data: "query_hit_count", title: "Query" },
             { data: "background_hit_count", title: "Background" },
             { data: "genes", title: "Genes", render: linkGeneArray },

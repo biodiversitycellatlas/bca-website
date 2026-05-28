@@ -53,6 +53,20 @@ Features:
                         {% data_dropdown id='enrichment' %}
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <!-- Semantic similarity plot -->
+                        {% include "../components/plot_container.html" with id="semantic" ratio="16/9" %}
+                    </div>
+
+                    <div class="col-lg-6">
+                        <!-- Word cloud -->
+                        {% include "../components/plot_container.html" with id="words" ratio="16/9" %}
+                    </div>
+                </div>
+
+                <!-- Results in table format -->
                 <table id="enrichment_table" class="display w-100 small">
                 </table>
             {% else %}
@@ -62,15 +76,14 @@ Features:
     </div>
 
     <script type="module">
-        import { handleFormSubmit, initEnrichmentTable }
+        import { handleFormSubmit, prepareEnrichmentResults }
             from "{% static 'app/js/atlas/enrichment.js' %}";
 
         handleFormSubmit();
         {% if genes %}
-            initEnrichmentTable(
-                "{{dataset.slug}}",
-                "{{query.genes}}",
-            );
+            const dataset = "{{dataset.slug}}";
+            const genes = "{{query.genes}}";
+            prepareEnrichmentResults(dataset, genes);
         {% endif %}
     </script>
 

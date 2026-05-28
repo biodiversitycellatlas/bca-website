@@ -8,6 +8,8 @@ window.$ = $;
 
 import { getViewUrl } from "../utils/urls.ts";
 import { createEnrichmentTable } from "./tables/enrichment_table.ts";
+import { createWordCloud } from "./plots/word_cloud.ts";
+import { createSemanticSimilarityPlot } from "./plots/semantic_similarity.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 
 /**
@@ -37,21 +39,25 @@ export function handleFormSubmit() {
     });
 }
 
-/**
- * Fetch marker data for selected metacells and create the markers table.
- *
- * @param {string} dataset - Dataset slug.
- * @param {string} metacells - Comma-separated list of selected metacells.
- * @param {string} fc_min_type - Type of minimum fold-change filtering.
- * @param {number} fc_min - Minimum fold-change value.
- * @param {string} fc_max_bg_type - Type of maximum background fold-change filtering.
- * @param {number} fc_max_bg - Maximum background fold-change value.
- */
-export function initEnrichmentTable(
-    dataset,
-    genes,
-) {
+export function prepareEnrichmentResults(dataset, genes) {
     const url = getViewUrl("rest:enrichment-list");
-    genes = genes.split(",");
-    createEnrichmentTable("enrichment", dataset, url, { "dataset": dataset, "genes": genes });
+    const payload = { dataset: dataset, genes: genes.split(",") };
+
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    })
+        .then((res) => {
+            if (!res.ok) throw new Error("Request failed");
+            return res.json();
+        })
+        .then((data) => {
+            createSemanticSimilarityPlot("#semantic-plot", data);
+            createWordCloud("#words-plot", data);
+            createEnrichmentTable("enrichment", dataset, data);
+        })
+        .catch((err) => {
+            console.error("Error loading enrichment data:", err);
+        });
 }
