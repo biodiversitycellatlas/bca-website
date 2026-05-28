@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 
 from app.managers import ExpressionDataManager
@@ -525,13 +525,131 @@ class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
     ],
 )
 class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
-    """List gene markers of selected metacells."""
+    """List gene markers of selected metacells.
 
-    # Gene as model (easier to perform gene-wise operations)
-    queryset = models.Gene.objects.prefetch_related("domains", "genelists")
+    Runs a single CTE-based query against PostgreSQL instead of the
+    django-filter annotation pipeline. The ORM equivalent still lives in
+    ``filters.MetacellMarkerFilter.select_metacells`` for reference.
+    """
 
     serializer_class = serializers.MetacellMarkerSerializer
-    filterset_class = filters.MetacellMarkerFilter
+    filterset_class = filters.MetacellMarkerFilter  # kept for OpenAPI parameter docs
+    queryset = models.Gene.objects.none()
+
+    _MARKER_SQL = """
+        WITH fg_metacells AS (
+            SELECT mc.id AS metacell_id
+            FROM app_metacell mc
+            LEFT JOIN app_metacelltype mct ON mc.type_id = mct.id
+            WHERE mc.dataset_id = %(dataset_id)s
+              AND (mc.name = ANY(%(names)s) OR mct.name = ANY(%(names)s))
+        ),
+        qualifying AS (
+            SELECT
+                e.gene_id,
+                sum(e.umi_raw)
+                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_sum_umi,
+                sum(e.umi_raw)
+                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_sum_umi,
+                avg(e.fold_change)
+                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_mean_fc,
+                avg(e.fold_change)
+                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_mean_fc
+            FROM app_metacellgeneexpression e
+            WHERE e.dataset_id = %(dataset_id)s
+            GROUP BY e.gene_id
+        ),
+        medians AS (
+            SELECT
+                e.gene_id,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
+                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_median_fc,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
+                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_median_fc
+            FROM app_metacellgeneexpression e
+            WHERE e.dataset_id = %(dataset_id)s
+              AND e.gene_id IN (SELECT gene_id FROM qualifying)
+            GROUP BY e.gene_id
+        )
+        SELECT
+            g.id,
+            q.bg_sum_umi,
+            q.fg_sum_umi,
+            CASE WHEN q.fg_sum_umi + q.bg_sum_umi = 0 THEN NULL
+                 ELSE q.fg_sum_umi::float / (q.fg_sum_umi + q.bg_sum_umi) * 100
+            END AS umi_perc,
+            q.fg_mean_fc,
+            q.bg_mean_fc,
+            m.fg_median_fc,
+            m.bg_median_fc
+        FROM qualifying q
+        JOIN medians m ON m.gene_id = q.gene_id
+        JOIN app_gene g ON g.id = q.gene_id
+        WHERE q.{having_col} >= %(fc_min)s
+    """
+
+    _ANNOTATION_FIELDS = (
+        "bg_sum_umi",
+        "fg_sum_umi",
+        "umi_perc",
+        "fg_mean_fc",
+        "bg_mean_fc",
+        "fg_median_fc",
+        "bg_median_fc",
+    )
+
+    def filter_queryset(self, queryset):
+        # django-filter is bypassed; query parameters are read in get_queryset().
+        return queryset
+
+    def get_queryset(self):
+        params = self.request.query_params
+        dataset_slug = params.get("dataset")
+        metacells = params.get("metacells")
+        if not dataset_slug or not metacells:
+            raise ValidationError({"detail": "Both 'dataset' and 'metacells' are required."})
+
+        fc_min_type = params.get("fc_min_type") or "mean"
+        if fc_min_type not in ("mean", "median"):
+            raise ValidationError({"fc_min_type": "Must be 'mean' or 'median'."})
+        having_col = "fg_median_fc" if fc_min_type == "median" else "fg_mean_fc"
+
+        try:
+            fc_min = float(params.get("fc_min") or 2)
+        except (TypeError, ValueError):
+            raise ValidationError({"fc_min": "Must be a number."})
+
+        dataset = parse_species_dataset(dataset_slug)
+        names = [n.strip() for n in metacells.split(",") if n.strip()]
+
+        sql = self._MARKER_SQL.format(having_col=having_col)
+        return models.Gene.objects.raw(
+            sql,
+            params={"dataset_id": dataset.id, "names": names, "fc_min": fc_min},
+        )
+
+    def list(self, request, *args, **kwargs):
+        raw_rows = list(self.get_queryset())
+
+        ids = [g.id for g in raw_rows]
+        prefetched = {
+            g.id: g
+            for g in models.Gene.objects.filter(id__in=ids).prefetch_related("domains", "genelists")
+        }
+        results = []
+        for raw in raw_rows:
+            gene = prefetched.get(raw.id)
+            if gene is None:
+                continue
+            for attr in self._ANNOTATION_FIELDS:
+                setattr(gene, attr, getattr(raw, attr, None))
+            results.append(gene)
+
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(self.get_serializer(results, many=True).data)
 
     @extend_schema(exclude=True)
     def retrieve(self, request, *args, **kwargs):

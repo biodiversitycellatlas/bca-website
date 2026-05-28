@@ -412,3 +412,116 @@ class AlignTests(APITestCase):
         response = self.client.post(url, data, format="json")
 
         self.check_expected_alignment(response)
+
+
+class MetacellMarkerRawSQLTests(APITestCase):
+    """Cover the raw-SQL ``MetacellMarkerViewSet`` (CTE-based markers query)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(
+            common_name="cellb", scientific_name="cellb", description="cellb"
+        )
+        dataset = species.datasets.create(name="atlas3", description="atlas3")
+
+        bcell = dataset.metacell_types.create(name="B cell")
+        tcell = dataset.metacell_types.create(name="T cell")
+
+        mb1 = dataset.metacells.create(name="mb1", type=bcell, x=1, y=1)
+        mb2 = dataset.metacells.create(name="mb2", type=bcell, x=2, y=2)
+        mt1 = dataset.metacells.create(name="mt1", type=tcell, x=3, y=3)
+        mt2 = dataset.metacells.create(name="mt2", type=tcell, x=4, y=4)
+
+        gene_marker = species.genes.create(name="gene_marker", description="B cell marker")
+        gene_low = species.genes.create(name="gene_low", description="below threshold")
+        gene_t = species.genes.create(name="gene_t", description="T cell marker")
+
+        # gene_marker: high fold-change in B cells, low in T cells
+        dataset.mge.create(gene=gene_marker, metacell=mb1, umi_raw=5, umifrac=0.5, fold_change=4)
+        dataset.mge.create(gene=gene_marker, metacell=mb2, umi_raw=3, umifrac=0.3, fold_change=5)
+        dataset.mge.create(gene=gene_marker, metacell=mt1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_marker, metacell=mt2, umi_raw=2, umifrac=0.2, fold_change=1.2)
+
+        # gene_low: never crosses fc_min=2 in B cells
+        dataset.mge.create(gene=gene_low, metacell=mb1, umi_raw=1, umifrac=0.1, fold_change=0.5)
+        dataset.mge.create(gene=gene_low, metacell=mb2, umi_raw=1, umifrac=0.1, fold_change=0.4)
+        dataset.mge.create(gene=gene_low, metacell=mt1, umi_raw=1, umifrac=0.1, fold_change=0.6)
+        dataset.mge.create(gene=gene_low, metacell=mt2, umi_raw=1, umifrac=0.1, fold_change=0.5)
+
+        # gene_t: foreground for T cells only — must NOT appear for B cell query
+        dataset.mge.create(gene=gene_t, metacell=mb1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_t, metacell=mb2, umi_raw=1, umifrac=0.1, fold_change=0.9)
+        dataset.mge.create(gene=gene_t, metacell=mt1, umi_raw=5, umifrac=0.5, fold_change=4.0)
+        dataset.mge.create(gene=gene_t, metacell=mt2, umi_raw=4, umifrac=0.4, fold_change=4.5)
+
+    def _get_markers(self, **params):
+        # ``data`` is URL-encoded by the test client, which matters for values
+        # containing spaces (e.g., ``metacells="B cell"``).
+        return self.client.get("/api/v1/markers/", data=params, format="json")
+
+    def test_select_by_metacell_type_name(self):
+        """Foreground selection via metacell *type* name ('B cell') uses the mct.name branch."""
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual(len(markers), 1)
+        self.assertEqual(markers[0]["name"], "gene_marker")
+
+    def test_select_by_metacell_name(self):
+        """Foreground selection via metacell name uses the mc.name branch."""
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="mb1,mb2", fc_min_type="mean", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual(len(markers), 1)
+        self.assertEqual(markers[0]["name"], "gene_marker")
+
+    def test_annotation_values(self):
+        """The raw query returns the expected sum/mean/median/percentage stats."""
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        marker = response.data["results"][0]
+        self.assertEqual(marker["name"], "gene_marker")
+        # fg metacells: mb1 (umi=5), mb2 (umi=3); bg metacells: mt1 (umi=1), mt2 (umi=2)
+        self.assertAlmostEqual(marker["fg_sum_umi"], 8.0, places=4)
+        self.assertAlmostEqual(marker["bg_sum_umi"], 3.0, places=4)
+        self.assertAlmostEqual(marker["umi_perc"], 8.0 / 11.0 * 100, places=4)
+        # fg fold_changes: 4, 5 → mean 4.5, median 4.5
+        self.assertAlmostEqual(marker["fg_mean_fc"], 4.5, places=4)
+        self.assertAlmostEqual(marker["fg_median_fc"], 4.5, places=4)
+
+    def test_median_threshold_filters_same_genes(self):
+        """fc_min_type=median routes the HAVING to fg_median_fc."""
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="B cell", fc_min_type="median", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual({m["name"] for m in markers}, {"gene_marker"})
+
+    def test_fc_min_excludes_all(self):
+        """A high fc_min returns an empty result set."""
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=10
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"], [])
+
+    def test_missing_dataset_returns_400(self):
+        response = self.client.get("/api/v1/markers/?metacells=B cell", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_missing_metacells_returns_400(self):
+        response = self.client.get("/api/v1/markers/?dataset=cellb-atlas3", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_invalid_fc_min_type_returns_400(self):
+        response = self._get_markers(
+            dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
