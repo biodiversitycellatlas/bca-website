@@ -14,7 +14,7 @@ jobs:
     e2e-tests:
         name: End-to-end tests with Playwright
         runs-on: ubuntu-latest
-        environment: e2e
+        environment: test
 
         steps:
             - name: Checkout code
