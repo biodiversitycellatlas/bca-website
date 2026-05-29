@@ -585,7 +585,7 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
         FROM qualifying q
         JOIN medians m ON m.gene_id = q.gene_id
         JOIN app_gene g ON g.id = q.gene_id
-        WHERE q.{having_col} >= %(fc_min)s
+        WHERE {having_col} >= %(fc_min)s
     """
 
     _ANNOTATION_FIELDS = (
@@ -612,7 +612,7 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
         fc_min_type = params.get("fc_min_type") or "mean"
         if fc_min_type not in ("mean", "median"):
             raise ValidationError({"fc_min_type": "Must be 'mean' or 'median'."})
-        having_col = "fg_median_fc" if fc_min_type == "median" else "fg_mean_fc"
+        having_col = "m.fg_median_fc" if fc_min_type == "median" else "q.fg_mean_fc"
 
         try:
             fc_min = float(params.get("fc_min") or 2)
