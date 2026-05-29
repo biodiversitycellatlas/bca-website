@@ -15,7 +15,9 @@ jobs:
     django-ci:
         name: Django Tests
         runs-on: ubuntu-latest
-        environment: test
+        environment:
+            name: test
+            deployment: false
 
         steps:
             - name: Checkout code
@@ -80,7 +82,9 @@ jobs:
     bun-ci:
         name: Bun Tests (Typescript)
         runs-on: ubuntu-latest
-        environment: test
+        environment:
+            name: test
+            deployment: false
 
         steps:
             - name: Checkout code
