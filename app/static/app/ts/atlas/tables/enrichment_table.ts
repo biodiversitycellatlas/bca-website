@@ -6,12 +6,7 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-responsive-bs5";
 
-import {
-    linkElement,
-    makeLinkGene,
-    roundSignificantDigits,
-    parseArray,
-} from "./utils.ts";
+import { linkElement, makeLinkGene, roundSignificantDigits } from "./utils.ts";
 
 function linkExternalGOterm(name, type = "display", row = null) {
     if (type === "display") {

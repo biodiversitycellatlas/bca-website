@@ -10,7 +10,6 @@ import { getViewUrl } from "../utils/urls.ts";
 import { createEnrichmentTable } from "./tables/enrichment_table.ts";
 import { createWordCloud } from "./plots/word_cloud.ts";
 import { createSemanticSimilarityPlot } from "./plots/semantic_similarity.ts";
-import { appendDataMenu } from "../buttons/data_dropdown.ts";
 
 /**
  * Simplify multiple select values into a comma-separated string

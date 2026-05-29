@@ -118,7 +118,7 @@ function setDefaultGene(select, gene, description, domains) {
 }
 
 /**
- * Initialize select input with pre-selected genes and add optgroups.
+ * Initialize select input with preselected genes and add optgroups.
  *
  * @param {string} select - Select element.
  * @param {string} items - Comma-separated selected genes.
@@ -180,7 +180,7 @@ function initGeneSelectValues(select, items) {
  * @param {string} species - Species name.
  * @param {string} dataset - Dataset name.
  * @param {object} gene - Current gene object.
- * @param {string} selected - Pre-selected genes (comma-separated).
+ * @param {string} selected - Preselected genes (comma-separated).
  * @param {number} limit - Maximum results to load from server.
  * @param {boolean} multiple - Allow multiple selection.
  * @param {boolean} display - Toggle detailed info display.
