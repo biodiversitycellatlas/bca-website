@@ -1,3 +1,4 @@
+---
 name: Data Portal tests
 
 on:
@@ -14,7 +15,9 @@ jobs:
     e2e-tests:
         name: End-to-end tests with Playwright
         runs-on: ubuntu-latest
-        environment: test
+        environment:
+            name: test
+            deployment: false
 
         steps:
             - name: Checkout code
