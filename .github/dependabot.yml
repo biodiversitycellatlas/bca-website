@@ -17,7 +17,7 @@ updates:
       ignore:
           # Ignore non-LTS Django updates
           - dependency-name: "django"
-            versions: ["[6.0,6.2)", "[7.0,7.2)"]
+            versions: [">= 6.0, < 6.2", ">= 7.0, < 7.2"]
 
     - package-ecosystem: "bun"
       directory: "/"
