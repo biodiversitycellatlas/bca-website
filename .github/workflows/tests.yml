@@ -15,6 +15,7 @@ jobs:
     django-ci:
         name: Django Tests
         runs-on: ubuntu-latest
+        environment: test
 
         steps:
             - name: Checkout code
@@ -79,6 +80,8 @@ jobs:
     bun-ci:
         name: Bun Tests (Typescript)
         runs-on: ubuntu-latest
+        environment: test
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v6
