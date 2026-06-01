@@ -29,85 +29,85 @@ class IndexViewTest(DataTestCase):
         with redirect_stdout(f), redirect_stderr(f):
             response = self.client.get("/")
 
-        self.assertIn("dataset_dict", response.context)
-        self.assertIn("posts", response.context)
+        assert "dataset_dict" in response.context
+        assert "posts" in response.context
 
         # Check context keys
-        self.assertIn("dataset_dict", response.context)
-        self.assertIn("posts", response.context)
+        assert "dataset_dict" in response.context
+        assert "posts" in response.context
 
         # Check posts keys
         categories = ["latest", "publications", "meetings", "tutorials"]
-        self.assertEqual(set(response.context["posts"].keys()), set(categories))
+        assert set(response.context["posts"].keys()) == set(categories)
 
         # Check dataset_dict is a dict
-        self.assertIsInstance(response.context["dataset_dict"], dict)
+        assert isinstance(response.context["dataset_dict"], dict)
 
         # Check response contains some text
-        self.assertIn("<body", response.content.decode())
+        assert "<body" in response.content.decode()
 
 
-class StatusViewsTest(TestCase):
+class TestStatusViews(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
 
     def test_health_json(self):
         response = self.client.get("/health/")
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertJSONEqual(response.content, {"status": "ok"})
 
     def test_robots(self):
         response = self.client.get("/robots.txt")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "text/plain")
-        self.assertIn("User-agent", response.content.decode())
+        assert response.status_code == 200
+        assert response["Content-Type"] == "text/plain"
+        assert "User-agent" in response.content.decode()
 
     def test_403(self):
         response = self.client.get("/403/")
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
         self.assertTemplateUsed(response, "403.html")
 
     def test_404(self):
         response = self.client.get("/404/")
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
         self.assertTemplateUsed(response, "404.html")
 
     def test_random_404(self):
         response = self.client.get("/some-random-page/")
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
         self.assertTemplateUsed(response, "404.html")
 
     def test_500(self):
         response = self.client.get("/500/")
-        self.assertEqual(response.status_code, 500)
+        assert response.status_code == 500
         self.assertTemplateUsed(response, "500.html")
 
 
-class DownloadsViewTests(TestCase):
+class TestDownloadsView(TestCase):
     def test_downloads(self):
         response = self.client.get("/downloads/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("species_all", response.context)
-        self.assertIn("datasets_all", response.context)
+        assert response.status_code == 200
+        assert "species_all" in response.context
+        assert "datasets_all" in response.context
 
 
 class SpeciesFileDownloadViewTests(DataTestCase):
     def test_file_download(self):
         response = self.client.get("/downloads/mus-musculus-proteome/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response, FileResponse)
+        assert response.status_code == 200
+        assert isinstance(response, FileResponse)
 
         filename = self.mouse_fasta.filename
-        self.assertEqual(response.get("Content-Disposition"), f'attachment; filename="{filename}"')
+        assert response.get("Content-Disposition") == f'attachment; filename="{filename}"'
 
         # Test file content
         expected = (">Brca1\nMACDEFGHIK\nLMNPQRSTVW\n>Brca2\nMACDEFGHIK\n").encode("utf-8")
         content = b"".join(response.streaming_content)
-        self.assertEqual(content, expected)
+        assert content == expected
 
 
-class DocumentationViewTest(TestCase):
+class TestDocumentationView(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
@@ -115,88 +115,96 @@ class DocumentationViewTest(TestCase):
 
     def test_docs_index(self):
         response = self.client.get("/docs/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("<ul>", response.context["index"])
+        assert response.status_code == 200
+        assert "<ul>" in response.context["index"]
 
     def test_docs_dir(self):
         response = self.client.get("/docs/tutorials/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("List of tutorials", response.context["content"])
-        self.assertIn("Tutorials", response.context["index"])
+        assert response.status_code == 200
+        assert "List of tutorials" in response.context["content"]
+        assert "Tutorials" in response.context["index"]
 
         # Test breadcrumbs
-        self.assertIn("breadcrumb-nav", response.content.decode())
+        assert "breadcrumb-nav" in response.content.decode()
 
     def test_docs_page(self):
         response = self.client.get("/docs/tutorials/metacell/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("Metacell tutorial", response.context["content"])
-        self.assertIn("Metacells", response.context["index"])
+        assert response.status_code == 200
+        assert "Metacell tutorial" in response.context["content"]
+        assert "Metacells" in response.context["index"]
 
         metadata = response.context["metadata"]
-        self.assertIn("title", metadata.keys())
-        self.assertIn("linkTitle", metadata.keys())
+        assert "title" in metadata.keys()
+        assert "linkTitle" in metadata.keys()
 
     def test_404(self):
         # Test 404 on non-existing page
         response = self.client.get("/docs/random-page/")
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
 
-class AboutViewTest(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.response = self.client.get("/about/")
+class TestAboutView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
 
     def test_about_view_context(self):
+        response = self.client.get("/about/")
+
+        assert response.status_code == 200
         # Check that context contains "info"
-        self.assertIn("info", self.response.context)
-        info = self.response.context["info"]
+        assert "info" in response.context
+
+        info = response.context["info"]
 
         # Check main sections exist
-        self.assertIn("contact", info)
-        self.assertIn("legal", info)
-        self.assertIn("licenses", info)
+        assert "contact" in info
+        assert "legal" in info
+        assert "licenses" in info
 
         # Check that contact section contains the Email entry
         email_entry = info["contact"][0]
-        self.assertEqual(email_entry["url"], settings.FEEDBACK_URL)
+        assert email_entry["url"] == settings.FEEDBACK_URL
 
         # Check licenses section
         fa_entry = next((x for x in info["licenses"] if "Font Awesome" in x["label"]), None)
-        self.assertIsNotNone(fa_entry)
+        assert fa_entry is not None
 
         rubik_entry = next((x for x in info["licenses"] if "Rubik font" in x["label"]), None)
-        self.assertIsNotNone(rubik_entry)
+        assert rubik_entry is not None
 
         # Check URLs
         for section in info.values():
             for item in section:
-                self.assertIsInstance(item["url"], str)
-                self.assertIsInstance(item["label"], str)
-                self.assertIsInstance(item["icon"], str)
+                assert isinstance(item["url"], str)
+                assert isinstance(item["label"], str)
+                assert isinstance(item["icon"], str)
 
     def test_last_updated(self):
+        response = self.client.get("/about/")
+        assert response.status_code == 200
+
         # Check if last modified time for template is correctly being used
-        template = self.response.templates[0].origin.name
+        template = response.templates[0].origin.name
+
         mtime = os.path.getmtime(template)
         mtime_str = datetime.fromtimestamp(mtime).strftime("%d %B %Y")
 
-        content = self.response.content.decode()
-        self.assertIn("Last updated", content)
-        self.assertIn(mtime_str, content)
+        content = response.content.decode()
+        assert "Last updated" in content
+        assert mtime_str in content
 
 
 class SearchViewTest(DataTestCase):
     def test_search_view_context_without_query(self):
         response = self.client.get("/search/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("species_dict", response.context)
-        self.assertNotIn("query", response.context)
+        assert response.status_code == 200
+        assert "species_dict" in response.context
+        assert "query" not in response.context
 
     def test_search_view_context_with_query(self):
         response = self.client.get("/search/", {"q": "test"})
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("species_dict", response.context)
-        self.assertIn("query", response.context)
-        self.assertEqual(response.context["query"]["q"], "test")
+        assert response.status_code == 200
+        assert "species_dict" in response.context
+        assert "query" in response.context
+        assert response.context["query"]["q"] == "test"

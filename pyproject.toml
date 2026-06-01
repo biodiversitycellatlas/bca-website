@@ -85,7 +85,7 @@ py-modules = []
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE="config.settings"
-testpaths = "e2e"
+testpaths = "app/tests"
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
