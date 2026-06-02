@@ -65,11 +65,11 @@ dev = [
 test = [
     "coverage==7.14.0",
     "pytest==9.0.3",
+    "pytest_django==4.12.0",
 ]
 
 e2e = [
     "playwright==1.60.0",
-    "pytest_django==4.12.0",
     "pytest_playwright==0.8.0",
 ]
 
