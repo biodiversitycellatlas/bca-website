@@ -83,6 +83,9 @@ dataload = [
 [tool.setuptools]
 py-modules = []
 
+[tool.pytest]
+DJANGO_SETTINGS_MODULE="config.settings"
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE="config.settings"
 testpaths = "app/tests"
