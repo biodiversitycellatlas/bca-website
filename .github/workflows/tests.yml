@@ -52,7 +52,7 @@ jobs:
             - name: Run tests with coverage
               run: |
                   docker compose exec web \
-                      coverage run /opt/python/bin/pytest
+                      coverage run -m pytest
 
             - name: Create XML coverage file
               run: |
