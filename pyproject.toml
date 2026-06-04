@@ -91,6 +91,9 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--tb=short", "--ignore=scripts", "-s"]
 
+[tool.bandit.assert_used]
+skips = ["*/*test_*.py"]
+
 [project.urls]
 Homepage = "https://portal.biodiversitycellatlas.org/"
 Documentation = "https://biodiversitycellatlas.org/blog/"
