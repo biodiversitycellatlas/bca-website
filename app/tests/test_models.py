@@ -117,10 +117,13 @@ class TestPublicationModel(TestCase):
         assert str(self.mouse) == self.mouse.create_short_citation()
 
     def test_get_source_html_link(self):
-        assert "<a href=" in self.dna.get_source_html_link()
-        assert "https://doi.org/10.1038/171737a0" in self.dna.get_source_html_link()
-        assert "Watson & Crick, 1953" in self.dna.get_source_html_link()
-        assert "</a>" in self.dna.get_source_html_link()
+        assert(
+            self.dna.get_source_html_link().strip() == """
+            <a href="https://doi.org/10.1038/171737a0" target="_blank">
+                Watson & Crick, 1953
+            </a>
+            """.strip()
+        )
 
         # If no DOI, return just the short citation information without a link
         assert self.proteins.get_source_html_link() == "Dayhoff, 1976"
