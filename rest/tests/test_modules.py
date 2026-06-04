@@ -256,7 +256,7 @@ class GeneModuleSimilarity(GeneModulesData):
         # Raise error for a non-existing module
         module2 = "not_a_real_module"
         url = f"/api/v1/module_similarity/?dataset={dataset}&module={module}&module2={module2}"
-        with pytest.raises(ValueError) as context:
+        with pytest.raises(ValueError):
             self.client.get(url)
 
     def test_filter(self):
@@ -322,7 +322,7 @@ class GeneModuleSimilarity(GeneModulesData):
 
         # Raise error for not inputting modules to compare
         url = f"/api/v1/module_similarity_genes/?dataset={dataset}"
-        with pytest.raises(ValueError) as context:
+        with pytest.raises(ValueError):
             self.client.get(url)
 
     def test_compare_same_species(self):
