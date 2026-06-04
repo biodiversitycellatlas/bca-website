@@ -53,7 +53,7 @@ dependencies = [
     "scikit-learn==1.8.0",
 
     # Monitoring
-    "django-prometheus==2.4.1",
+    "django-prometheus==2.5.0",
 ]
 
 [project.optional-dependencies]
