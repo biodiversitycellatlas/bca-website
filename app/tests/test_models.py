@@ -117,8 +117,9 @@ class TestPublicationModel(TestCase):
         assert str(self.mouse) == self.mouse.create_short_citation()
 
     def test_get_source_html_link(self):
-        assert(
-            self.dna.get_source_html_link().strip() == """
+        assert (
+            self.dna.get_source_html_link().strip()
+            == """
             <a href="https://doi.org/10.1038/171737a0" target="_blank">
                 Watson & Crick, 1953
             </a>
