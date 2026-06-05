@@ -4,4 +4,4 @@ services:
         build:
             target: dev
             args:
-                DJANGO_DEPENDENCIES: .[e2e,dev]
+                DJANGO_DEPENDENCIES: .[dev,e2e,test]

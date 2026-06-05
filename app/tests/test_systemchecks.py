@@ -12,7 +12,7 @@ from app.systemchecks.postgresql_tables import check_tables
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class FilesSystemCheckTest(TestCase):
+class TestFilesSystemCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(
@@ -25,11 +25,11 @@ class FilesSystemCheckTest(TestCase):
 
     def test_execution(self):
         errors = check_application_files([AppConfig], deploy=True)
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "bca.E001")
+        assert len(errors) == 1
+        assert errors[0].id == "bca.E001"
 
 
-class MetacellGeneExpressionCheckTest(TestCase):
+class TestMetacellGeneExpressionCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(
@@ -47,11 +47,11 @@ class MetacellGeneExpressionCheckTest(TestCase):
 
     def test_execution(self):
         errors = check_negative_umis([AppConfig], deploy=True)
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "bca.E002")
+        assert len(errors) == 1
+        assert errors[0].id == "bca.E002"
 
 
-class PostgresTablesCheckTest(TestCase):
+class TestPostgresTablesCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         speciesP = Species.objects.create(
@@ -70,4 +70,4 @@ class PostgresTablesCheckTest(TestCase):
         errors = check_tables([AppConfig], deploy=True)
         for error in errors:
             if error.obj == "genemodule":
-                self.assertEqual(error.id, "bca.E003")
+                assert error.id == "bca.E003"
