@@ -23,7 +23,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.2
               with:
                   # needs full git history
                   fetch-depth: 0
@@ -46,7 +46,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.2
               with:
                   # needs full git history
                   fetch-depth: 0
@@ -83,7 +83,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.2
               with:
                   fetch-depth: 0
                   persist-credentials: false
@@ -112,7 +112,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.2
               with:
                   persist-credentials: false
 
