@@ -15,6 +15,9 @@ jobs:
     check_changes_and_alert:
         name: Alert if watched files change
         runs-on: ubuntu-latest
+        environment:
+            name: test
+            deployment: false
 
         steps:
             - name: Checkout code
