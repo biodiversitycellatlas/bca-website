@@ -63,7 +63,7 @@ dev = [
 ]
 
 test = [
-    "coverage==7.14.0",
+    "coverage==7.14.1",
     "factory_boy==3.3.3",
 ]
 
