@@ -1,10 +1,10 @@
 from typing import TextIO
 
-from django.core.management.base import BaseCommand
 import factory.random
+from django.core.management.base import BaseCommand
 
 from app.management.commands import factories
-from app.models import Species, Dataset, Publication
+from app.models import Species, Dataset, Domain, Publication, GeneList, Gene
 
 
 def setup_test_environment():
@@ -34,6 +34,8 @@ class Command(BaseCommand):
         setup_test_environment()
         self.create_datasets()
         self.create_genes()
+        self.create_gene_modules()
+        self.create_orthogroups()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -87,5 +89,50 @@ class Command(BaseCommand):
         )
 
     def create_genes(self):
-        factories.GenesFactory.create_batch(10, species=self.sponge)
-        factories.GenesFactory.create_batch(12, species=self.homo)
+        factories.DomainFactory.create_batch(6)
+        factories.GeneListFactory.create_batch(8)
+        domains = list(Domain.objects.all())
+        genelists = list(GeneList.objects.all())
+        factories.GenesFactory.create_batch(
+            size=10,
+            species=self.sponge,
+            domains=(domains[0], domains[2]),
+            genelists=(genelists[1], genelists[4]),
+        )
+        factories.GenesFactory.create_batch(
+            size=12,
+            species=self.homo,
+            domains=(domains[1], domains[3]),
+            genelists=(genelists[0], genelists[3]),
+        )
+
+    def create_gene_modules(self):
+        sponge_dataset = Dataset.objects.get(species=self.sponge)
+        homo_dataset = Dataset.objects.get(species=self.homo)
+        sponge_genes = list(Gene.objects.filter(species=self.sponge))
+        homo_genes = list(Gene.objects.filter(species=self.homo))
+        factories.GeneModuleFactory.create_batch(
+            size=3,
+            dataset=sponge_dataset,
+            genes=(sponge_genes[0], sponge_genes[1]),
+        )
+        factories.GeneModuleFactory.create_batch(
+            size=4,
+            dataset=homo_dataset,
+            genes=(homo_genes[1], homo_genes[2], homo_genes[3]),
+        )
+
+    def create_orthogroups(self):
+        sponge_genes = list(Gene.objects.filter(species=self.sponge))
+        homo_genes = list(Gene.objects.filter(species=self.homo))
+
+        orthogroup0 = factories.OrthoGroupFactory.create()
+        orthogroup1 = factories.OrthoGroupFactory.create()
+
+        factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[0], orthogroup=orthogroup0)
+        factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[1], orthogroup=orthogroup0)
+        factories.OrthologFactory.create(species=self.homo, gene=homo_genes[1], orthogroup=orthogroup0)
+
+        factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[2], orthogroup=orthogroup1)
+        factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
+        factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
