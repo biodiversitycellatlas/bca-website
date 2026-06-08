@@ -92,6 +92,9 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--tb=short", "--ignore=scripts", "-s"]
 
+[tool.bandit]
+skips = ["B101"]
+
 [tool.bandit.assert_used]
 skips = ["*/*test_*.py"]
 
