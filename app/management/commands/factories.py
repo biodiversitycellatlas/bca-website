@@ -1,6 +1,9 @@
+from random import randint, random
+
 import factory
 
-from app.models import Gene, Domain, GeneList, GeneCorrelation, GeneModule, Orthogroup, Ortholog
+from app.models import Gene, Domain, GeneList, GeneCorrelation, GeneModule, Orthogroup, Ortholog, Metacell, \
+    MetacellType, MetacellCount
 
 
 class DomainFactory(factory.django.DjangoModelFactory):
@@ -72,3 +75,31 @@ class OrthoGroupFactory(factory.django.DjangoModelFactory):
         if not create or not extracted:
             return
         self.genes.add(*extracted)
+
+
+class MetaCellTypeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellType
+
+    name = factory.Iterator(["Sperm", "Neuron", "Immune", "Gland", "Epidermis",
+        "Fiber", "Precursor", "Muscle", "Gastrodermis"])
+    color = factory.Faker("color")
+
+
+class MetacellFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Metacell
+
+    name = factory.LazyAttributeSequence(lambda obj, n: "metacell__%03d" % n)
+    type = factory.Iterator(MetacellType.objects.all())
+    x = random()
+    y = random()
+
+
+class MetacellCountFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellCount
+
+    cells = randint(1,200)
+    umis = randint(10000,130000)
+    metacell = factory.SubFactory(MetacellFactory, dataset=factory.SelfAttribute("..dataset"))

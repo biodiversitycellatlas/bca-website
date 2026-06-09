@@ -1,10 +1,12 @@
+import itertools
+from random import random
 from typing import TextIO
 
 import factory.random
 from django.core.management.base import BaseCommand
 
 from app.management.commands import factories
-from app.models import Species, Dataset, Domain, Publication, GeneList, Gene
+from app.models import Species, Dataset, Domain, Publication, GeneList, Gene, Metacell, MetacellLink
 
 
 def setup_test_environment():
@@ -36,6 +38,7 @@ class Command(BaseCommand):
         self.create_genes()
         self.create_gene_modules()
         self.create_orthogroups()
+        self.create_metacells()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -136,3 +139,28 @@ class Command(BaseCommand):
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[2], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
+
+
+    def create_metacell_links(self, dataset, metacells):
+        for m1, m2 in itertools.combinations(metacells, 2):
+            if random() < 0.2:
+                MetacellLink.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
+
+
+    def create_metacells(self):
+        sponge_dataset = Dataset.objects.get(species=self.sponge)
+        homo_dataset = Dataset.objects.get(species=self.homo)
+
+        factories.MetaCellTypeFactory.create_batch(size=9, dataset=sponge_dataset)
+        factories.MetaCellTypeFactory.create_batch(size=9, dataset=homo_dataset)
+
+        factories.MetacellCountFactory.create_batch(size=12, dataset=homo_dataset)
+        factories.MetacellCountFactory.create_batch(size=18, dataset=sponge_dataset)
+
+        sponge_metacells = Metacell.objects.filter(dataset=sponge_dataset)
+        homo_metacells = Metacell.objects.filter(dataset=homo_dataset)
+        self.create_metacell_links(sponge_dataset, sponge_metacells)
+        self.create_metacell_links(homo_dataset, homo_metacells)
+
+
+
