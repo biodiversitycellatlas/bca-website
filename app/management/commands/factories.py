@@ -13,6 +13,8 @@ from app.models import (
     Metacell,
     MetacellType,
     MetacellCount,
+    MetacellGeneExpression,
+    SingleCell,
 )
 
 
@@ -114,3 +116,20 @@ class MetacellCountFactory(factory.django.DjangoModelFactory):
     cells = randint(1, 200)
     umis = randint(10000, 130000)
     metacell = factory.SubFactory(MetacellFactory, dataset=factory.SelfAttribute("..dataset"))
+
+
+class MetacellGeneExpressionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellGeneExpression
+
+    umi_raw = 0.0
+    umifrac = 0.0
+    fold_change = 0.0
+
+
+class SingleCellFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SingleCell
+
+    name = factory.Faker("bothify", text="????????????-@", letters="ACTG")
+    metacell = factory.Iterator(Metacell.objects.all())

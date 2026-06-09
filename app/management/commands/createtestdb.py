@@ -1,9 +1,9 @@
 import itertools
-from random import random
+import random
 from typing import TextIO
 
-import factory.random
 from django.core.management.base import BaseCommand
+import factory.random
 
 from app.management.commands import factories
 from app.models import Species, Dataset, Domain, Publication, GeneList, Gene, Metacell, MetacellLink
@@ -28,6 +28,8 @@ class Command(BaseCommand):
         super().__init__(stdout, stderr, no_color, force_color)
         self.sponge = None
         self.homo = None
+        self.sponge_dataset = None
+        self.homo_dataset = None
 
     def handle(self, *args, **options):
         """
@@ -39,6 +41,7 @@ class Command(BaseCommand):
         self.create_gene_modules()
         self.create_orthogroups()
         self.create_metacells()
+        self.create_singlecells()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -73,7 +76,7 @@ class Command(BaseCommand):
             pmid=181279,
         )
 
-        Dataset.objects.create(
+        self.homo_dataset = Dataset.objects.create(
             species=self.homo,
             name="Baby",
             description="human",
@@ -82,7 +85,7 @@ class Command(BaseCommand):
             order=0,
         )
 
-        Dataset.objects.create(
+        self.sponge_dataset = Dataset.objects.create(
             species=self.sponge,
             name=None,
             description="random sponge",
@@ -110,18 +113,16 @@ class Command(BaseCommand):
         )
 
     def create_gene_modules(self):
-        sponge_dataset = Dataset.objects.get(species=self.sponge)
-        homo_dataset = Dataset.objects.get(species=self.homo)
         sponge_genes = list(Gene.objects.filter(species=self.sponge))
         homo_genes = list(Gene.objects.filter(species=self.homo))
         factories.GeneModuleFactory.create_batch(
             size=3,
-            dataset=sponge_dataset,
+            dataset=self.sponge_dataset,
             genes=(sponge_genes[0], sponge_genes[1]),
         )
         factories.GeneModuleFactory.create_batch(
             size=4,
-            dataset=homo_dataset,
+            dataset=self.homo_dataset,
             genes=(homo_genes[1], homo_genes[2], homo_genes[3]),
         )
 
@@ -142,20 +143,34 @@ class Command(BaseCommand):
 
     def create_metacell_links(self, dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
-            if random() < 0.2:
+            if random.random() < 0.2:
                 MetacellLink.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
 
     def create_metacells(self):
-        sponge_dataset = Dataset.objects.get(species=self.sponge)
-        homo_dataset = Dataset.objects.get(species=self.homo)
+        factories.MetaCellTypeFactory.create_batch(size=9, dataset=self.sponge_dataset)
+        factories.MetaCellTypeFactory.create_batch(size=9, dataset=self.homo_dataset)
 
-        factories.MetaCellTypeFactory.create_batch(size=9, dataset=sponge_dataset)
-        factories.MetaCellTypeFactory.create_batch(size=9, dataset=homo_dataset)
+        factories.MetacellCountFactory.create_batch(size=12, dataset=self.homo_dataset)
+        factories.MetacellCountFactory.create_batch(size=18, dataset=self.sponge_dataset)
 
-        factories.MetacellCountFactory.create_batch(size=12, dataset=homo_dataset)
-        factories.MetacellCountFactory.create_batch(size=18, dataset=sponge_dataset)
+        sponge_metacells = Metacell.objects.filter(dataset=self.sponge_dataset)
+        homo_metacells = Metacell.objects.filter(dataset=self.homo_dataset)
+        self.create_metacell_links(self.sponge_dataset, sponge_metacells)
+        self.create_metacell_links(self.homo_dataset, homo_metacells)
 
-        sponge_metacells = Metacell.objects.filter(dataset=sponge_dataset)
-        homo_metacells = Metacell.objects.filter(dataset=homo_dataset)
-        self.create_metacell_links(sponge_dataset, sponge_metacells)
-        self.create_metacell_links(homo_dataset, homo_metacells)
+        sponge_genes = Gene.objects.filter(species=self.sponge)
+        homo_genes = Gene.objects.filter(species=self.homo)
+
+        for gene in homo_genes:
+            for metacell in sponge_metacells:
+                factories.MetacellGeneExpressionFactory.create(dataset=self.homo_dataset, gene=gene, metacell=metacell)
+
+        for gene in sponge_genes:
+            for metacell in sponge_metacells:
+                factories.MetacellGeneExpressionFactory.create(
+                    dataset=self.sponge_dataset, gene=gene, metacell=metacell
+                )
+
+    def create_singlecells(self):
+        factories.SingleCellFactory.create_batch(size=100, dataset=self.homo_dataset)
+        factories.SingleCellFactory.create_batch(size=120, dataset=self.sponge_dataset)
