@@ -91,8 +91,9 @@ class MetaCellTypeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MetacellType
 
-    name = factory.Iterator(["Sperm", "Neuron", "Immune", "Gland", "Epidermis",
-        "Fiber", "Precursor", "Muscle", "Gastrodermis"])
+    name = factory.Iterator(
+        ["Sperm", "Neuron", "Immune", "Gland", "Epidermis", "Fiber", "Precursor", "Muscle", "Gastrodermis"]
+    )
     color = factory.Faker("color")
 
 
