@@ -111,6 +111,6 @@ class MetacellCountFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MetacellCount
 
-    cells = randint(1,200)
-    umis = randint(10000,130000)
+    cells = randint(1, 200)
+    umis = randint(10000, 130000)
     metacell = factory.SubFactory(MetacellFactory, dataset=factory.SelfAttribute("..dataset"))
