@@ -2,8 +2,18 @@ from random import randint, random
 
 import factory
 
-from app.models import Gene, Domain, GeneList, GeneCorrelation, GeneModule, Orthogroup, Ortholog, Metacell, \
-    MetacellType, MetacellCount
+from app.models import (
+    Gene,
+    Domain,
+    GeneList,
+    GeneCorrelation,
+    GeneModule,
+    Orthogroup,
+    Ortholog,
+    Metacell,
+    MetacellType,
+    MetacellCount,
+)
 
 
 class DomainFactory(factory.django.DjangoModelFactory):
