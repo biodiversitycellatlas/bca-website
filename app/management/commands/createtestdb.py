@@ -140,7 +140,6 @@ class Command(BaseCommand):
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
 
-
     def create_metacell_links(self, dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
             if random() < 0.2:
