@@ -159,6 +159,3 @@ class Command(BaseCommand):
         homo_metacells = Metacell.objects.filter(dataset=homo_dataset)
         self.create_metacell_links(sponge_dataset, sponge_metacells)
         self.create_metacell_links(homo_dataset, homo_metacells)
-
-
-
