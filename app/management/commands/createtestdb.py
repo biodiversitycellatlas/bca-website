@@ -145,7 +145,6 @@ class Command(BaseCommand):
             if random() < 0.2:
                 MetacellLink.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
 
-
     def create_metacells(self):
         sponge_dataset = Dataset.objects.get(species=self.sponge)
         homo_dataset = Dataset.objects.get(species=self.homo)
