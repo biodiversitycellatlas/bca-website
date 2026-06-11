@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 import factory.random
 
 from app.management.commands import factories
-from app.models import Species, Dataset, Domain, Publication, GeneList, Gene, Metacell, MetacellLink
+from app.models import Species, Dataset, Domain, Publication, GeneList, Gene, Metacell, MetacellLink, Source
 
 
 def setup_test_environment():
@@ -59,6 +59,10 @@ class Command(BaseCommand):
             image_url="https://upload.wikimedia.org/wikipedia/commons/b/b4/Amphimedon_queenslandica_adult.png",
         )
 
+        Source.objects.create(
+            name="DOI", description="DOI Foundation", url="https://doi.org", query_url="https://doi.org/{{id}}"
+        )
+
         HomoPub = Publication.objects.create(
             title="Human Atlas",
             authors="James Gunn",
@@ -74,6 +78,7 @@ class Command(BaseCommand):
             year=2025,
             journal="Fed Proc",
             pmid=181279,
+            doi="10.1038/89764301",
         )
 
         self.homo_dataset = Dataset.objects.create(
@@ -162,7 +167,7 @@ class Command(BaseCommand):
         homo_genes = Gene.objects.filter(species=self.homo)
 
         for gene in homo_genes:
-            for metacell in sponge_metacells:
+            for metacell in homo_metacells:
                 factories.MetacellGeneExpressionFactory.create(dataset=self.homo_dataset, gene=gene, metacell=metacell)
 
         for gene in sponge_genes:

@@ -1,5 +1,3 @@
-from random import randint, random
-
 import factory
 
 from app.models import (
@@ -103,18 +101,18 @@ class MetacellFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Metacell
 
-    name = factory.LazyAttributeSequence(lambda obj, n: "metacell__%03d" % n)
+    name = factory.LazyAttributeSequence(lambda obj, n: str(n))
     type = factory.Iterator(MetacellType.objects.all())
-    x = random()
-    y = random()
+    x = factory.Faker("random_int", min=-20, max=1200)
+    y = factory.Faker("random_int", min=-20, max=1200)
 
 
 class MetacellCountFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MetacellCount
 
-    cells = randint(1, 200)
-    umis = randint(10000, 130000)
+    cells = factory.Faker("random_int", min=0, max=200)
+    umis = factory.Faker("random_int", min=10000, max=130000)
     metacell = factory.SubFactory(MetacellFactory, dataset=factory.SelfAttribute("..dataset"))
 
 
@@ -122,9 +120,9 @@ class MetacellGeneExpressionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MetacellGeneExpression
 
-    umi_raw = 0.0
-    umifrac = 0.0
-    fold_change = 0.0
+    umi_raw = factory.Faker("random_int", min=0, max=1000)
+    umifrac = factory.Faker("pyfloat", min_value=0.00001, max_value=0.1)
+    fold_change = factory.Faker("pyfloat", min_value=0.00001, max_value=0.1)
 
 
 class SingleCellFactory(factory.django.DjangoModelFactory):
