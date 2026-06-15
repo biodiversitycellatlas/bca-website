@@ -221,6 +221,7 @@ class Command(BaseCommand):
         homo_genes = [gene.name for gene in Gene.objects.filter(species=self.homo)]
         file1 = self.create_HDF_file(self.homo_dataset, homo_genes, homo_singlecells)
         self.save_HDF_file(self.homo_dataset, self.homo, file1)
+
         sponge_singlecells = [sc.name for sc in SingleCell.objects.filter(dataset=self.sponge_dataset)]
         sponge_genes = [gene.name for gene in Gene.objects.filter(species=self.sponge)]
         file2 = self.create_HDF_file(self.sponge_dataset, sponge_genes, sponge_singlecells)
