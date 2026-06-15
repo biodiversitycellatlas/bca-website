@@ -194,7 +194,7 @@ class Command(BaseCommand):
                     dataset=self.sponge_dataset, gene=gene, metacell=metacell
                 )
 
-    def save_HDF_file(self, dataset, species, path):
+    def save_hdf5_file(self, dataset, species, path):
         with open(path, "rb") as f:
             django_file = DjangoFile(f, name=os.path.basename(path))
             DatasetFile.objects.get_or_create(
