@@ -1,6 +1,19 @@
 import factory
 
-from app.models import Gene, Domain, GeneList, GeneCorrelation, GeneModule, Orthogroup, Ortholog
+from app.models import (
+    Gene,
+    Domain,
+    GeneList,
+    GeneCorrelation,
+    GeneModule,
+    Orthogroup,
+    Ortholog,
+    Metacell,
+    MetacellType,
+    MetacellCount,
+    MetacellGeneExpression,
+    SingleCell,
+)
 
 
 class DomainFactory(factory.django.DjangoModelFactory):
@@ -72,3 +85,49 @@ class OrthoGroupFactory(factory.django.DjangoModelFactory):
         if not create or not extracted:
             return
         self.genes.add(*extracted)
+
+
+class MetaCellTypeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellType
+
+    name = factory.Iterator(
+        ["Sperm", "Neuron", "Immune", "Gland", "Epidermis", "Fiber", "Precursor", "Muscle", "Gastrodermis"]
+    )
+    color = factory.Faker("color")
+
+
+class MetacellFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Metacell
+
+    name = factory.LazyAttributeSequence(lambda obj, n: str(n))
+    type = factory.Iterator(MetacellType.objects.all())
+    x = factory.Faker("random_int", min=-20, max=1200)
+    y = factory.Faker("random_int", min=-20, max=1200)
+
+
+class MetacellCountFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellCount
+
+    cells = factory.Faker("random_int", min=0, max=200)
+    umis = factory.Faker("random_int", min=10000, max=130000)
+    metacell = factory.SubFactory(MetacellFactory, dataset=factory.SelfAttribute("..dataset"))
+
+
+class MetacellGeneExpressionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MetacellGeneExpression
+
+    umi_raw = factory.Faker("random_int", min=0, max=1000)
+    umifrac = factory.Faker("pyfloat", min_value=0.00001, max_value=0.1)
+    fold_change = factory.Faker("pyfloat", min_value=0.00001, max_value=0.1)
+
+
+class SingleCellFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SingleCell
+
+    name = factory.Faker("bothify", text="????????????-@", letters="ACTG")
+    metacell = factory.Iterator(Metacell.objects.all())
