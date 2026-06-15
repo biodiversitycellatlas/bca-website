@@ -194,7 +194,7 @@ class Command(BaseCommand):
                     dataset=self.sponge_dataset, gene=gene, metacell=metacell
                 )
 
-    def save_hdf5_file(self, dataset, species, path):
+    def save_hdf5_file(self, dataset, path):
         with open(path, "rb") as f:
             django_file = DjangoFile(f, name=os.path.basename(path))
             DatasetFile.objects.get_or_create(
@@ -208,24 +208,22 @@ class Command(BaseCommand):
             num_sc = len(singlecells) // 10
             fake = Faker()
             for gene in genes:
-                dataset = np.empty(shape=num_sc, dtype=[("c", np.int32), ("e", np.float32)])
+                data = np.empty(shape=num_sc, dtype=[("c", np.int32), ("e", np.float32)])
                 for j in range(num_sc):
                     position = fake.random_int(min=0, max=len(singlecells) - 1)
                     expression = fake.pyfloat(min_value=0.01, max_value=21.0)
-                    dataset[j] = (position, expression)
-                root.create_dataset(name=gene, data=dataset)
-        return output_file
+                    data[j] = (position, expression)
+                root.create_dataset(name=gene, data=data)
+        self.save_hdf5_file(dataset, output_file)
 
     def create_expression_files(self):
         homo_singlecells = [sc.name for sc in SingleCell.objects.filter(dataset=self.homo_dataset)]
         homo_genes = [gene.name for gene in Gene.objects.filter(species=self.homo)]
-        file1 = self.create_HDF_file(self.homo_dataset, homo_genes, homo_singlecells)
-        self.save_HDF_file(self.homo_dataset, self.homo, file1)
+        self.create_hdf5_file(self.homo_dataset, homo_genes, homo_singlecells)
 
         sponge_singlecells = [sc.name for sc in SingleCell.objects.filter(dataset=self.sponge_dataset)]
         sponge_genes = [gene.name for gene in Gene.objects.filter(species=self.sponge)]
-        file2 = self.create_HDF_file(self.sponge_dataset, sponge_genes, sponge_singlecells)
-        self.save_HDF_file(self.sponge_dataset, self.sponge, file2)
+        self.create_hdf5_file(self.sponge_dataset, sponge_genes, sponge_singlecells)
 
     def create_singlecells(self):
         factories.SingleCellFactory.create_batch(size=100, dataset=self.homo_dataset)
