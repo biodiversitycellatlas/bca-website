@@ -201,7 +201,7 @@ class Command(BaseCommand):
                 dataset=dataset, type="singlecell_umifrac", defaults={"file": django_file}
             )
 
-    def create_HDF_file(self, dataset, genes, singlecells):
+    def create_hdf5_file(self, dataset, genes, singlecells):
         output_file = f"{dataset.slug}-singlecell_umifrac.hdf5"
         with h5py.File(output_file, "w") as root:
             root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
