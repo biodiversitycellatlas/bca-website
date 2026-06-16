@@ -218,7 +218,7 @@ server {
 
     # Plausible requires specific proxy headers for correct operation,
     # especially for X-Forwarded-Proto to handle the HTTPS connection.
-    
+
     # Restrict event ingestion to our own domains — prevents third-party sites
     # from polluting analytics by spoofing this endpoint.
     location = /api/event {
