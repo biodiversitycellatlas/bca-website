@@ -29,7 +29,9 @@ updates:
     - package-ecosystem: "docker"
       registries:
           - dhi
-      directory: "/"
+      directories:
+          - "/"
+          - "/ghost"
       schedule:
           interval: "weekly"
       cooldown:
