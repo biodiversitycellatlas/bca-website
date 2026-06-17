@@ -55,6 +55,39 @@ map $bad_bot $bot_limit_key {
     0   "";
 }
 
+# --- Known bot-farm CIDR ranges (Chinese cloud providers) ---
+# Only applied to /api/event — blocks fake Plausible event injection from data
+# centre IPs while leaving the rest of the site fully accessible.
+geo $remote_addr $bot_farm_cidr {
+    default         0;
+
+    # Tencent Cloud
+    43.128.0.0/14   1;
+    43.132.0.0/14   1;
+    43.152.0.0/15   1;
+    43.156.0.0/14   1;
+    43.164.0.0/14   1;
+    43.192.0.0/15   1;
+    49.51.0.0/16    1;
+    113.186.0.0/16  1;
+    170.106.0.0/16  1;
+
+    # Alibaba Cloud
+    8.210.0.0/15    1;
+    8.216.0.0/14    1;
+    47.236.0.0/15   1;
+    47.238.0.0/16   1;
+    47.243.0.0/16   1;
+    47.245.0.0/16   1;
+    150.5.0.0/16    1;
+
+    # China Telecom
+    101.47.0.0/16   1;
+
+    # China Unicom
+    163.7.0.0/16    1;
+}
+
 # --- Plausible origin allowlist ---
 map $http_origin $valid_plausible_origin {
     "https://${DJANGO_HOSTNAME}"  1;
@@ -222,9 +255,8 @@ server {
     # Restrict event ingestion to our own domains — prevents third-party sites
     # from polluting analytics by spoofing this endpoint.
     location = /api/event {
-        if ($valid_plausible_origin = 0) {
-            return 403;
-        }
+        if ($bot_farm_cidr) { return 403; }
+        if ($valid_plausible_origin = 0) { return 403; }
 
         proxy_pass http://plausible:8000;
         proxy_set_header Host $host;
