@@ -2,7 +2,7 @@
 FROM dhi.io/postgres:18.1-debian13-dev AS postgres
 
 # Get diamond aligner
-FROM buchfink/diamond:version2.1.24 AS diamond
+FROM docker.io/buchfink/diamond:version2.1.24 AS diamond
 
 # Get bun
 FROM dhi.io/bun:1-debian13-dev AS bun
