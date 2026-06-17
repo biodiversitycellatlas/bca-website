@@ -23,6 +23,15 @@ from app.models import (
     SingleCell,
     Source,
     DatasetFile,
+    QualityControl,
+    DatasetQualityControl,
+    DBVersion,
+    SAMap,
+    MetacellType,
+    GeneCorrelation,
+    GeneModule,
+    GeneModuleEigengene,
+    Meta,
 )
 
 
@@ -43,6 +52,7 @@ class Command(BaseCommand):
         force_color: bool = False,
     ):
         super().__init__(stdout, stderr, no_color, force_color)
+        self.fake = Faker()
         self.sponge = None
         self.homo = None
         self.sponge_dataset = None
@@ -54,11 +64,16 @@ class Command(BaseCommand):
         """
         setup_test_environment()
         self.create_datasets()
+        self.create_metadata()
         self.create_genes()
         self.create_gene_modules()
         self.create_orthogroups()
         self.create_metacells()
         self.create_singlecells()
+        self.create_quality_data()
+        self.create_samaps()
+        self.create_all_genecorrelations()
+        self.create_all_eigengene_values()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -80,7 +95,7 @@ class Command(BaseCommand):
             name="DOI", description="DOI Foundation", url="https://doi.org", query_url="https://doi.org/{{id}}"
         )
 
-        HomoPub = Publication.objects.create(
+        homo_pub = Publication.objects.create(
             title="Human Atlas",
             authors="James Gunn",
             year=2024,
@@ -89,7 +104,7 @@ class Command(BaseCommand):
             doi="10.1038/171737a0",
         )
 
-        SpongePub = Publication.objects.create(
+        sponge_pub = Publication.objects.create(
             title="Sponge Atlas",
             authors="Mafalda Quin",
             year=2025,
@@ -103,7 +118,7 @@ class Command(BaseCommand):
             name="Baby",
             description="human",
             image_url="https://upload.wikimedia.org/wikipedia/commons/2/2e/Baby.jpg",
-            publication=HomoPub,
+            publication=homo_pub,
             order=0,
         )
 
@@ -112,7 +127,7 @@ class Command(BaseCommand):
             name=None,
             description="random sponge",
             image_url="https://upload.wikimedia.org/wikipedia/commons/b/b4/Amphimedon_queenslandica_adult.png",
-            publication=SpongePub,
+            publication=sponge_pub,
             order=0,
         )
 
@@ -194,7 +209,8 @@ class Command(BaseCommand):
                     dataset=self.sponge_dataset, gene=gene, metacell=metacell
                 )
 
-    def save_hdf5_file(self, dataset, path):
+    @staticmethod
+    def save_hdf5_file(dataset, path):
         with open(path, "rb") as f:
             django_file = DjangoFile(f, name=os.path.basename(path))
             DatasetFile.objects.get_or_create(
@@ -206,12 +222,11 @@ class Command(BaseCommand):
         with h5py.File(output_file, "w") as root:
             root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
             num_sc = len(singlecells) // 10
-            fake = Faker()
             for gene in genes:
                 data = np.empty(shape=num_sc, dtype=[("c", np.int32), ("e", np.float32)])
                 for j in range(num_sc):
-                    position = fake.random_int(min=0, max=len(singlecells) - 1)
-                    expression = fake.pyfloat(min_value=0.01, max_value=21.0)
+                    position = self.fake.random_int(min=0, max=len(singlecells) - 1)
+                    expression = self.fake.pyfloat(min_value=0.01, max_value=21.0)
                     data[j] = (position, expression)
                 root.create_dataset(name=gene, data=data)
         self.save_hdf5_file(dataset, output_file)
@@ -229,3 +244,69 @@ class Command(BaseCommand):
         factories.SingleCellFactory.create_batch(size=100, dataset=self.homo_dataset)
         factories.SingleCellFactory.create_batch(size=120, dataset=self.sponge_dataset)
         self.create_expression_files()
+
+    def create_quality_data(self):
+
+        qc = QualityControl.objects.create(type="Cell metrics", name="Number of cells", description="Number of cells")
+        DatasetQualityControl.objects.create(
+            metric=qc, value=self.fake.random_int(min=2001, max=30153), dataset=self.homo_dataset
+        )
+        DatasetQualityControl.objects.create(
+            metric=qc, value=self.fake.random_int(min=2001, max=30153), dataset=self.sponge_dataset
+        )
+
+    def create_metadata(self):
+        DBVersion.objects.create(
+            version="e2e_db",
+            description="Data Base for e2e tests",
+            populated_at=self.fake.date_this_month(),
+            commit="e2e tests",
+        )
+        ncbi = Source.objects.create(
+            name="NCBI Taxonomy",
+            description="NCBI Taxonomy Database",
+            url="https://www.ncbi.nlm.nih.gov/",
+            query_url="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/{{id}}",
+        )
+
+        Meta.objects.create(species=self.homo, key="taxon_id", value="9606", source=ncbi, query_term="9606")
+        Meta.objects.create(species=self.sponge, key="taxon_id", value="400682", source=ncbi, query_term="400682")
+
+    def create_samaps(self):
+        metacelltypes = MetacellType.objects.all()
+        for t1, t2 in itertools.combinations(metacelltypes, 2):
+            SAMap.objects.create(
+                metacelltype=t1,
+                metacelltype2=t2,
+                samap=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=50),
+            )
+
+    def create_genecorrelations(self, species, dataset):
+        genes = Gene.objects.filter(species=species)
+        for g1, g2 in itertools.combinations(genes, 2):
+            GeneCorrelation.objects.create(
+                gene=g1,
+                gene2=g2,
+                dataset=dataset,
+                pearson=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=1.0),
+                spearman=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=1.0),
+            )
+
+    def create_all_genecorrelations(self):
+        self.create_genecorrelations(self.sponge, self.sponge_dataset)
+        self.create_genecorrelations(self.homo, self.homo_dataset)
+
+    def create_eigengene_values(self, species, dataset):
+        modules = GeneModule.objects.filter(dataset=dataset)
+        metacells = Metacell.objects.filter(dataset=dataset)
+        for metacell in metacells:
+            for module in modules:
+                GeneModuleEigengene.objects.create(
+                    module=module,
+                    metacell=metacell,
+                    eigengene_value=self.fake.pyfloat(left_digits=2, right_digits=3, min_value=0.01, max_value=1.0),
+                )
+
+    def create_all_eigengene_values(self):
+        self.create_eigengene_values(self.sponge, self.sponge_dataset)
+        self.create_eigengene_values(self.homo, self.homo_dataset)
