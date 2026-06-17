@@ -1,12 +1,29 @@
 import itertools
+import os
 import random
 from typing import TextIO
 
-from django.core.management.base import BaseCommand
 import factory.random
+import h5py
+import numpy as np
+from django.core.files import File as DjangoFile
+from django.core.management.base import BaseCommand
+from faker import Faker
 
 from app.management.commands import factories
-from app.models import Species, Dataset, Domain, Publication, GeneList, Gene, Metacell, MetacellLink, Source
+from app.models import (
+    Species,
+    Dataset,
+    Domain,
+    Publication,
+    GeneList,
+    Gene,
+    Metacell,
+    MetacellLink,
+    SingleCell,
+    Source,
+    DatasetFile,
+)
 
 
 def setup_test_environment():
@@ -146,7 +163,8 @@ class Command(BaseCommand):
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
 
-    def create_metacell_links(self, dataset, metacells):
+    @staticmethod
+    def create_metacell_links(dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
             if random.random() < 0.2:
                 MetacellLink.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
@@ -176,6 +194,38 @@ class Command(BaseCommand):
                     dataset=self.sponge_dataset, gene=gene, metacell=metacell
                 )
 
+    def save_hdf5_file(self, dataset, path):
+        with open(path, "rb") as f:
+            django_file = DjangoFile(f, name=os.path.basename(path))
+            DatasetFile.objects.get_or_create(
+                dataset=dataset, type="singlecell_umifrac", defaults={"file": django_file}
+            )
+
+    def create_hdf5_file(self, dataset, genes, singlecells):
+        output_file = f"{dataset.slug}-singlecell_umifrac.hdf5"
+        with h5py.File(output_file, "w") as root:
+            root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
+            num_sc = len(singlecells) // 10
+            fake = Faker()
+            for gene in genes:
+                data = np.empty(shape=num_sc, dtype=[("c", np.int32), ("e", np.float32)])
+                for j in range(num_sc):
+                    position = fake.random_int(min=0, max=len(singlecells) - 1)
+                    expression = fake.pyfloat(min_value=0.01, max_value=21.0)
+                    data[j] = (position, expression)
+                root.create_dataset(name=gene, data=data)
+        self.save_hdf5_file(dataset, output_file)
+
+    def create_expression_files(self):
+        homo_singlecells = [sc.name for sc in SingleCell.objects.filter(dataset=self.homo_dataset)]
+        homo_genes = [gene.name for gene in Gene.objects.filter(species=self.homo)]
+        self.create_hdf5_file(self.homo_dataset, homo_genes, homo_singlecells)
+
+        sponge_singlecells = [sc.name for sc in SingleCell.objects.filter(dataset=self.sponge_dataset)]
+        sponge_genes = [gene.name for gene in Gene.objects.filter(species=self.sponge)]
+        self.create_hdf5_file(self.sponge_dataset, sponge_genes, sponge_singlecells)
+
     def create_singlecells(self):
         factories.SingleCellFactory.create_batch(size=100, dataset=self.homo_dataset)
         factories.SingleCellFactory.create_batch(size=120, dataset=self.sponge_dataset)
+        self.create_expression_files()
