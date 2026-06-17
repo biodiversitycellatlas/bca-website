@@ -4,7 +4,6 @@ from app.models import (
     Gene,
     Domain,
     GeneList,
-    GeneCorrelation,
     GeneModule,
     Orthogroup,
     Ortholog,
@@ -21,11 +20,6 @@ class DomainFactory(factory.django.DjangoModelFactory):
         model = Domain
 
     name = factory.Faker("word")
-
-
-class GeneCorrelationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = GeneCorrelation
 
 
 class GeneListFactory(factory.django.DjangoModelFactory):
