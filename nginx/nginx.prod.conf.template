@@ -88,6 +88,14 @@ geo $remote_addr $bot_farm_cidr {
     163.7.0.0/16    1;
 }
 
+# --- Fake Chrome UA fingerprint (bots spoofing Chrome with major.0.0.0 version) ---
+# Real Chrome always uses 4-part build numbers, e.g. Chrome/131.0.6778.70.
+# The exact X.0.0.0 pattern is never emitted by a real browser.
+map $http_user_agent $fake_chrome_bot {
+    default                         0;
+    ~*"Chrome/[0-9]+\.0\.0\.0"     1;
+}
+
 # --- Plausible origin allowlist ---
 map $http_origin $valid_plausible_origin {
     "https://${DJANGO_HOSTNAME}"  1;
@@ -256,6 +264,7 @@ server {
     # from polluting analytics by spoofing this endpoint.
     location = /api/event {
         if ($bot_farm_cidr) { return 403; }
+        if ($fake_chrome_bot) { return 403; }
         if ($valid_plausible_origin = 0) { return 403; }
 
         proxy_pass http://plausible:8000;
