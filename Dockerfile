@@ -8,7 +8,7 @@ FROM docker.io/buchfink/diamond:version2.1.24 AS diamond
 FROM dhi.io/bun:1-debian13-dev AS bun
 
 # Builder and development
-FROM  dhi.io/python:3.14.6-debian13-dev AS dev
+FROM dhi.io/python:3.14.6-debian13-dev AS dev
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy tools and libraries
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
-COPY --from=postgres  /opt/postgresql/18/bin/* /usr/bin/
+COPY --from=postgres /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
     cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
@@ -103,11 +103,11 @@ COPY --from=dev /usr/lib/libnettle* /usr/lib/
 COPY --from=dev /usr/lib/libnghttp2* /usr/lib/
 COPY --from=dev /usr/lib/libnghttp3* /usr/lib/
 COPY --from=dev /usr/lib/libp11-kit* /usr/lib/
-COPY --from=dev /usr/lib/libpcre2*  /usr/lib/
+COPY --from=dev /usr/lib/libpcre2* /usr/lib/
 COPY --from=dev /usr/lib/libpsl* /usr/lib/
 COPY --from=dev /usr/lib/librtmp* /usr/lib/
 COPY --from=dev /usr/lib/libsasl2* /usr/lib/
-COPY --from=dev /usr/lib/libselinux*  /usr/lib/
+COPY --from=dev /usr/lib/libselinux* /usr/lib/
 COPY --from=dev /usr/lib/libssh2* /usr/lib/
 COPY --from=dev /usr/lib/libtasn1* /usr/lib/
 COPY --from=dev /usr/lib/libunistring* /usr/lib/
