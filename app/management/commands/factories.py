@@ -116,7 +116,7 @@ class MetacellGeneExpressionFactory(factory.django.DjangoModelFactory):
 
     umi_raw = factory.Faker("random_int", min=0, max=1000)
     umifrac = factory.Faker("pyfloat", min_value=0.00001, max_value=0.1)
-    fold_change = factory.Faker("pyfloat", min_value=2.1, max_value=2050)
+    fold_change = factory.Faker("pyfloat", min_value=0.5, max_value=2050)
 
 
 class SingleCellFactory(factory.django.DjangoModelFactory):
