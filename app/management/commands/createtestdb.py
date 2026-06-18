@@ -18,6 +18,7 @@ from app.models import (
     Publication,
     GeneList,
     Gene,
+    GeneModuleMembership,
     Metacell,
     MetacellLink,
     SingleCell,
@@ -152,6 +153,7 @@ class Command(BaseCommand):
     def create_gene_modules(self):
         sponge_genes = list(Gene.objects.filter(species=self.sponge))
         homo_genes = list(Gene.objects.filter(species=self.homo))
+
         factories.GeneModuleFactory.create_batch(
             size=3,
             dataset=self.sponge_dataset,
@@ -162,6 +164,11 @@ class Command(BaseCommand):
             dataset=self.homo_dataset,
             genes=(homo_genes[1], homo_genes[2], homo_genes[3]),
         )
+
+        for gmm in GeneModuleMembership.objects.all():
+            score = self.fake.pyfloat(left_digits=1, right_digits=3, min_value=0.001, max_value=1.0)
+            gmm.membership_score = score
+            gmm.save()
 
     def create_orthogroups(self):
         sponge_genes = list(Gene.objects.filter(species=self.sponge))
@@ -271,6 +278,8 @@ class Command(BaseCommand):
 
         Meta.objects.create(species=self.homo, key="taxon_id", value="9606", source=ncbi, query_term="9606")
         Meta.objects.create(species=self.sponge, key="taxon_id", value="400682", source=ncbi, query_term="400682")
+        Meta.objects.create(species=self.homo, key="phylum", value="Chordata", source=ncbi, query_term="7711")
+        Meta.objects.create(species=self.sponge, key="phylum", value="Porifera", source=ncbi, query_term="6040")
 
     def create_samaps(self):
         metacelltypes = MetacellType.objects.all()
