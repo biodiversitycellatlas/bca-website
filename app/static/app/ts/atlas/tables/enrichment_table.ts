@@ -2,11 +2,11 @@
  * Create interactive DataTables for results from an enrichment analysis.
  */
 
-import $ from "jquery";
-import "datatables.net-bs5";
-import "datatables.net-responsive-bs5";
+import DataTable from "datatables.net-bs5";
 
 import { linkElement, makeLinkGene, roundSignificantDigits } from "./utils.ts";
+import { createGeneTable } from "./gene_table.ts";
+
 
 function linkExternalGOterm(name, type = "display", row = null) {
     if (type === "display") {
@@ -34,7 +34,7 @@ export function createEnrichmentTable(id, dataset, data) {
         return linkGene(genes);
     };
 
-    $(`#${id}_table`).dataTable({
+    const table = new DataTable(`#${id}_table`, {
         data,
         pageLength: 25,
         scrollX: true,
@@ -59,9 +59,8 @@ export function createEnrichmentTable(id, dataset, data) {
                 render: roundSignificantDigits,
                 className: "dt-nowrap",
             },
-            { data: "query_hit_count", title: "Query" },
+            { data: "query_hit_count", title: "Genes", className: "dt-control d-flex align-items-center gap-1 justify-content-end" },
             { data: "background_hit_count", title: "Background" },
-            { data: "genes", title: "Genes", render: linkGeneArray },
             { data: "enrichment", title: "Enrichment" },
             { data: "depth", title: "Depth" },
             //{ data: "query_count", title: "Query count" },
@@ -69,10 +68,34 @@ export function createEnrichmentTable(id, dataset, data) {
         ],
         order: [[3, "asc"]],
         createdCell: function (td, cellData) {
-            if ($(td).hasClass("truncate")) {
-                $(td).attr("title", cellData);
+            if (td.classList.contains("truncate")) {
+                td.setAttribute("title", cellData);
             }
         },
-        responsive: true,
+    });
+
+    table.on("click", "tbody td.dt-control", function (e) {
+        let tr = e.target.closest("tr");
+        let row = table.row(tr);
+
+        // Toggle genes when clicking the genes row
+        if (row.child.isShown()) {
+            row.child.hide();
+        } else {
+            const data = row.data();
+            const term = data.term.replaceAll(":", "-");
+            const childId = `genes-${term}`;
+
+            // Create child table within row
+            row.child(`
+                <div class="dt-child-container p-1 ps-4 bg-white overflow-hidden">
+                    <table id="${childId}" class="dt-child-table display compact"></table>
+                </div>
+            `).show();
+
+            const genes = encodeURIComponent(data.genes);
+            const url = `/api/v1/genes/?genes=${genes}`;
+            createGeneTable(childId, dataset, url, false, false);
+        }
     });
 }

@@ -2,8 +2,7 @@
  * Create interactive gene tables using DataTables.
  */
 
-import $ from "jquery";
-import "datatables.net-bs5";
+import DataTable from "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
 import { makeLinkGene, linkDomains } from "./utils.ts";
@@ -97,14 +96,12 @@ export function createGeneTable(
         selectParam = false;
     }
 
-    const table = $(`#${id}`).DataTable({
+    const table = new DataTable(`#${id}`, {
         ajax: {
             url: url,
             data: buildDataQuery,
             dataFilter: filterData,
-            dataSrc: function (json) {
-                return json.results;
-            },
+            dataSrc: "results",
             cache: true,
         },
         pageLength: 10,
@@ -137,10 +134,10 @@ export function createGeneTable(
         columns: cols,
         order: order,
         createdCell: function (td, cellData) {
-            if ($(td).hasClass("truncate")) {
-                $(td).attr("title", cellData);
+            if (td.classList.contains("truncate")) {
+                td.setAttribute("title", cellData);
             }
-        },
+        }
     });
     return table;
 }
