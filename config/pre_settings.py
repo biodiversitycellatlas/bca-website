@@ -25,6 +25,13 @@ def get_diamond_version():
     return version
 
 
+def get_goatools_version():
+    """Get version of GOATOOLS installed."""
+    output = get_command_output(["goatools", "--version"])
+    version = re.search(r"[\w\.]+", output.split()[-1]).group()
+    return version
+
+
 def get_latest_git_tag():
     """Get latest GitHub tag of this project."""
 

@@ -745,16 +745,18 @@ class AlignViewSet(viewsets.ViewSet):
 @extend_schema(
     summary="Analyze GO enrichment",
     tags=["Gene ontology"],
+    description=f"""
+Perform **Gene Ontology (GO) enrichment analysis** on a set of genes
+using [GOATOOLS {settings.GOATOOLS_VERSION}](https://github.com/tanghaibao/goatools).
+
+Background genes are derived from all the genes in the selected dataset's metacell gene expression.
+
+> Processing may take 10+ seconds depending on input.
+> Please use responsibly to avoid excessive server load.
+""",
 )
 class EnrichmentAnalysisViewSet(viewsets.ViewSet):
-    """
-    Perform **Gene Ontology (GO) enrichment analysis** on a set of genes.
-
-    Background genes are derived from all the genes in the selected dataset's metacell gene expression.
-
-    > Processing may take 10+ seconds depending on input.
-    > Please use responsibly to avoid excessive server load.
-    """
+    """Perform enrichment analysis."""
 
     queryset = models.Gene.objects.all()
     serializer_class = serializers.EnrichmentAnalysisResponseSerializer
