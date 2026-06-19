@@ -40,7 +40,7 @@ services:
             - mail__transport=${GHOST_MAIL_TRANSPORT}
 
     mailpit:
-        image: docker.io/axllent/mailpit:v1.29.5
+        image: docker.io/axllent/mailpit:v1.30.2
         env_file: [.env]
         container_name: mailpit
         restart: unless-stopped
