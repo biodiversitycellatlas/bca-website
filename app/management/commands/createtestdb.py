@@ -363,7 +363,7 @@ class Command(BaseCommand):
         output_file = f"{self.sponge.scientific_name} - DIAMOND.dmnd"
         self.create_diamond_database(self.sponge, input_file, output_file)
 
-        homo_genes = [gene.name for gene in Gene.objects.filter(species=self.homo)]
+        homo_genes = list(self.homo.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.homo, homo_genes)
         output_file = f"{self.homo.scientific_name} - DIAMOND.dmnd"
         self.create_diamond_database(self.homo, input_file, output_file)
