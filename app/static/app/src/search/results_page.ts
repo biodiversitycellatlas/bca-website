@@ -155,7 +155,7 @@ export function loadSearchResults(
                 console.error("Error loading data:", err);
             });
     } else if (category === "genes") {
-        const genesUrl = getViewUrl("gene_list", params);
+        const genesUrl = getViewUrl("rest:gene-list", params);
         fetch(genesUrl)
             .then((res) => res.json())
             .then((data) => {
