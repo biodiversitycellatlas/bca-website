@@ -358,7 +358,7 @@ class Command(BaseCommand):
             self.save_species_file(species, "DIAMOND", output_file)
 
     def create_species_files(self):
-        sponge_genes = [gene.name for gene in Gene.objects.filter(species=self.sponge)]
+        sponge_genes = list(self.sponge.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.sponge, sponge_genes)
         output_file = f"{self.sponge.scientific_name} - DIAMOND.dmnd"
         self.create_diamond_database(self.sponge, input_file, output_file)
