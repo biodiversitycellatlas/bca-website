@@ -144,7 +144,18 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List modules", tags=["Gene module"])
+@extend_schema(
+    summary="List modules",
+    tags=["Gene module"],
+    parameters=[
+        OpenApiParameter(
+            "q",
+            str,
+            description=filters.GeneModuleFilter().base_filters["q"].label,
+            examples=[OpenApiExample("Example", value="GM5")],
+        ),
+    ],
+)
 class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     """List gene modules."""
 
@@ -543,6 +554,63 @@ class MetacellCountViewSet(BaseReadOnlyModelViewSet):
     queryset = models.MetacellCount.objects.prefetch_related("metacell", "metacell__type")
     serializer_class = serializers.MetacellCountSerializer
     filterset_class = filters.MetacellCountFilter
+
+
+@extend_schema(summary="Search gene-associated data", tags=["Gene", "Gene module"])
+class GeneSearchViewSet(BaseReadOnlyModelViewSet):
+    """Search query across gene annotation, preset lists, modules and domains."""
+
+    SEARCHES = {
+        "gene_modules": (filters.GeneModuleFilter, models.GeneModule.objects.all(), serializers.GeneModuleSerializer),
+        "gene_lists": (filters.GeneListFilter, models.GeneList.objects.all(), serializers.GeneListSerializer),
+        "domains": (filters.DomainFilter, models.Domain.objects.all(), serializers.DomainSerializer),
+        "genes": (filters.GeneFilter, models.Gene.objects.all(), serializers.GeneSerializer),
+    }
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "dataset",
+                str,
+                required=True,
+                description="The [dataset's slug](#/operations/datasets_list).",
+                examples=[OpenApiExample("Dataset", value="amphimedon-queenslandica-adult")],
+            ),
+            OpenApiParameter(
+                "q",
+                str,
+                description="Query string to search.",
+                examples=[OpenApiExample("Query", value="ATP")],
+            ),
+            OpenApiParameter(
+                "limit",
+                int,
+                description="Number of results to return per category (`3` by default).",
+            ),
+        ],
+    )
+    def list(self, request):
+        q = request.query_params.get("q")
+        dataset = request.query_params.get("dataset")
+        limit = int(request.query_params.get("limit", 3))
+
+        species = parse_species_dataset(dataset).species.scientific_name
+        params = {
+            "q": q,
+            "species": species,
+            "dataset": dataset,
+            "order_by_gene_count": True,
+        }
+
+        resp = Response({
+            key: serializer(
+                filterset(data=params, queryset=queryset).qs[:limit],
+                many=True,
+                context={"species": species}
+            ).data
+            for key, (filterset, queryset, serializer) in self.SEARCHES.items()
+        })
+        return resp
 
 
 @extend_schema(

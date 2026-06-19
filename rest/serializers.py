@@ -307,10 +307,15 @@ class GeneListSerializer(serializers.ModelSerializer):
     def get_gene_count(self, obj) -> int:
         """Return number of genes in gene list."""
 
+        request = self.context.get("request")
+        species = self.context.get("species")
+        if species is None and request:
+            species = request.query_params.get("species")
+
         genes = obj.genes
-        species = self.context.get("request").query_params.get("species", None)
         if species:
             genes = genes.filter(species__scientific_name=species)
+
         return genes.count()
 
     class Meta:

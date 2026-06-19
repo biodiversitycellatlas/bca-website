@@ -291,10 +291,15 @@ class DomainFilter(QueryFilterSet):
         return queryset
 
 
-class GeneListFilter(FilterSet):
+class GeneListFilter(QueryFilterSet):
     """Filter set for gene lists."""
 
     species = SpeciesChoiceFilter(field_name="genes")
+    q = CharFilter(
+        method="query",
+        label=("Query string to filter results. The string will be searched and ranked across gene list names."),
+    )
+    query_fields = ["name"]
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -308,11 +313,20 @@ class GeneListFilter(FilterSet):
         return queryset.distinct()
 
 
-class GeneModuleFilter(FilterSet):
+class GeneModuleFilter(QueryFilterSet):
     """Filter set for gene modules."""
 
     dataset = DatasetChoiceFilter()
     order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (descending).")
+
+    q = CharFilter(
+        method="query",
+        label=(
+            "Query string to filter results. The string will be searched and "
+            "ranked across gene module names."
+        ),
+    )
+    query_fields = [ "name" ]
 
     class Meta:
         """Configuration for model and filterable fields."""
