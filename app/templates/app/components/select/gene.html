@@ -33,7 +33,7 @@ Input:
         class="{{ class|default:'mb-3' }}"
         name="{{ name|default:'gene' }}"
         style="width: {{ width|default:'100%' }}"
-        placeholder="{{ placeholder|default:'Search gene...' }}"
+        placeholder="{% if placeholder %}{{ placeholder }}{% elif multiple == 'true' %}Search genes, lists, and modules...{% else %}Search gene...{% endif %}"
         {% if multiple == 'true' %}multiple{% endif %}
         {% if disabled == 'true' %}disabled{% endif %}>
     <option value="">
