@@ -81,19 +81,11 @@ function displayGeneName(item, escape) {
  */
 function prependGeneLists(id, select, callback, genes, preset, domains) {
     const res = getAllLists(`${id}_gene_lists`)
+        .concat(preset.map((obj) => ({ ...obj, group: "preset" })))
+        .concat(domains.map((obj) => ({ ...obj, group: "domains" })))
         .concat(
-            preset.map((obj) => ({
-                ...obj,
-                group: "preset",
-            })),
-        )
-        .concat(
-            domains.map((obj) => ({
-                ...obj,
-                group: "domains",
-            })),
-        )
-        .concat(genes.map((obj) => ({ ...obj, name: obj.gene, group: "genes" })));
+            genes.map((obj) => ({ ...obj, name: obj.gene, group: "genes" })),
+        );
     callback(res);
 }
 
@@ -106,12 +98,7 @@ function prependGeneLists(id, select, callback, genes, preset, domains) {
  * @param {array} domains - Array of gene domains.
  */
 function setDefaultGene(select, gene, description, domains) {
-    const geneOptions = {
-        gene: gene,
-        description: description,
-        domains: domains,
-    };
-
+    const geneOptions = { gene, description, domains };
     select.addOption(geneOptions);
     select.setValue(gene);
 }
@@ -249,32 +236,27 @@ export function initGeneSelect(
             ...(multiple === "true" && { remove_button: { label: " ×" } }),
         },
         load: function (query, callback) {
+            const q = query || gene;
+
             const genes = $.ajax({
                 url: getViewUrl("rest:gene-list"),
-                data: {
-                    species: species,
-                    q: query || gene,
-                    limit: limit,
-                },
+                data: { species, q, limit },
             });
 
             const preset = $.ajax({
                 url: getViewUrl("rest:genelist-list"),
-                data: {
-                    species: species,
-                    limit: limit,
-                },
+                data: { species, limit: 0, order_by_gene_count: true },
+            });
+
+            const modules = $.ajax({
+                url: getViewUrl("rest:genemodules-list"),
+                data: { dataset, limit, order_by_gene_count: true },
             });
 
             const domains = multiple
                 ? $.ajax({
                       url: getViewUrl("rest:domain-list"),
-                      data: {
-                          species: species,
-                          q: query || gene,
-                          limit: 10,
-                          order_by_gene_count: true,
-                      },
+                      data: { species, q, limit, order_by_gene_count: true },
                   })
                 : undefined;
 
@@ -286,7 +268,7 @@ export function initGeneSelect(
                             this,
                             callback,
                             genesData.results,
-                            presetData.results,
+                            presetData,
                             domainsData.results,
                         );
                     } else {

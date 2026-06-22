@@ -561,8 +561,8 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
     """Search query across gene annotation, preset lists, modules and domains."""
 
     SEARCHES = {
-        "gene_modules": (filters.GeneModuleFilter, models.GeneModule.objects.all(), serializers.GeneModuleSerializer),
         "gene_lists": (filters.GeneListFilter, models.GeneList.objects.all(), serializers.GeneListSerializer),
+        "gene_modules": (filters.GeneModuleFilter, models.GeneModule.objects.all(), serializers.GeneModuleSerializer),
         "domains": (filters.DomainFilter, models.Domain.objects.all(), serializers.DomainSerializer),
         "genes": (filters.GeneFilter, models.Gene.objects.all(), serializers.GeneSerializer),
     }
@@ -602,14 +602,14 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
             "order_by_gene_count": True,
         }
 
-        resp = Response({
-            key: serializer(
-                filterset(data=params, queryset=queryset).qs[:limit],
-                many=True,
-                context={"species": species}
-            ).data
-            for key, (filterset, queryset, serializer) in self.SEARCHES.items()
-        })
+        resp = Response(
+            {
+                key: serializer(
+                    filterset(data=params, queryset=queryset).qs[:limit], many=True, context={"species": species}
+                ).data
+                for key, (filterset, queryset, serializer) in self.SEARCHES.items()
+            }
+        )
         return resp
 
 

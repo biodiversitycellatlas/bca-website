@@ -263,7 +263,7 @@ class DomainFilter(QueryFilterSet):
     species = SpeciesChoiceFilter(field_name="gene")
     q = CharFilter(
         method="query",
-        label=("Query string to filter results. The string will be searched and ranked across domain names."),
+        label="Query string to filter results. The string will be searched and ranked across domain names.",
     )
     query_fields = ["name"]
     order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (ascending).")
@@ -297,7 +297,7 @@ class GeneListFilter(QueryFilterSet):
     species = SpeciesChoiceFilter(field_name="genes")
     q = CharFilter(
         method="query",
-        label=("Query string to filter results. The string will be searched and ranked across gene list names."),
+        label="Query string to filter results. The string will be searched and ranked across gene list names.",
     )
     query_fields = ["name"]
 
@@ -321,12 +321,9 @@ class GeneModuleFilter(QueryFilterSet):
 
     q = CharFilter(
         method="query",
-        label=(
-            "Query string to filter results. The string will be searched and "
-            "ranked across gene module names."
-        ),
+        label="Query string to filter results. The string will be searched and ranked across gene module names.",
     )
-    query_fields = [ "name" ]
+    query_fields = ["name"]
 
     class Meta:
         """Configuration for model and filterable fields."""

@@ -7,7 +7,6 @@ import DataTable from "datatables.net-bs5";
 import { linkElement, makeLinkGene, roundSignificantDigits } from "./utils.ts";
 import { createGeneTable } from "./gene_table.ts";
 
-
 function linkExternalGOterm(name, type = "display", row = null) {
     if (type === "display") {
         const term = row?.term;
@@ -59,7 +58,12 @@ export function createEnrichmentTable(id, dataset, data) {
                 render: roundSignificantDigits,
                 className: "dt-nowrap",
             },
-            { data: "query_hit_count", title: "Genes", className: "dt-control d-flex align-items-center gap-1 justify-content-end" },
+            {
+                data: "query_hit_count",
+                title: "Genes",
+                className:
+                    "dt-control d-flex align-items-center gap-1 justify-content-end",
+            },
             { data: "background_hit_count", title: "Background" },
             { data: "enrichment", title: "Enrichment" },
             { data: "depth", title: "Depth" },
@@ -75,8 +79,8 @@ export function createEnrichmentTable(id, dataset, data) {
     });
 
     table.on("click", "tbody td.dt-control", function (e) {
-        let tr = e.target.closest("tr");
-        let row = table.row(tr);
+        const tr = e.target.closest("tr");
+        const row = table.row(tr);
 
         // Toggle genes when clicking the genes row
         if (row.child.isShown()) {
@@ -87,11 +91,13 @@ export function createEnrichmentTable(id, dataset, data) {
             const childId = `genes-${term}`;
 
             // Create child table within row
-            row.child(`
+            row.child(
+                `
                 <div class="dt-child-container p-1 ps-4 bg-white overflow-hidden">
                     <table id="${childId}" class="dt-child-table display compact"></table>
                 </div>
-            `).show();
+            `,
+            ).show();
 
             const genes = encodeURIComponent(data.genes);
             const url = `/api/v1/genes/?genes=${genes}`;

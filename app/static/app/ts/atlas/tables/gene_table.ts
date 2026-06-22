@@ -137,7 +137,7 @@ export function createGeneTable(
             if (td.classList.contains("truncate")) {
                 td.setAttribute("title", cellData);
             }
-        }
+        },
     });
     return table;
 }

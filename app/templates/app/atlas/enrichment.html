@@ -58,7 +58,7 @@ Features:
                             </div>
                         </div>
 
-                        {% include "../components/select/gene.html" with id=id name="gene_lists" multiple="true" selected=query.genes %}
+                        {% include "../components/select/gene.html" with id=id name="gene_lists" multiple="true" selected=query.genes limit=3 %}
                     </div>
                     <button type="submit" class="btn btn-primary my-3 w-100">
                         Analyse enrichment
