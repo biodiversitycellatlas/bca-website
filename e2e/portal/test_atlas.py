@@ -28,12 +28,17 @@ class TestAtlaspage:
         )
 
         expect(page.locator("#info").get_by_text("Homo sapiens (Baby)")).to_be_visible()
-        (expect(page.get_by_role("link", name="Gunn,")).
-         to_have_attribute("href", "https://doi.org/10.1038/171737a0"))
-        (expect(page.get_by_role("link", name="9606"))
-         .to_have_attribute("href", "https://www.ncbi.nlm.nih.gov/datasets/taxonomy/9606"))
-        (expect(page.get_by_role("link", name="Chordata"))
-         .to_have_attribute("href", "https://www.ncbi.nlm.nih.gov/datasets/taxonomy/7711"))
+        (expect(page.get_by_role("link", name="Gunn,")).to_have_attribute("href", "https://doi.org/10.1038/171737a0"))
+        (
+            expect(page.get_by_role("link", name="9606")).to_have_attribute(
+                "href", "https://www.ncbi.nlm.nih.gov/datasets/taxonomy/9606"
+            )
+        )
+        (
+            expect(page.get_by_role("link", name="Chordata")).to_have_attribute(
+                "href", "https://www.ncbi.nlm.nih.gov/datasets/taxonomy/7711"
+            )
+        )
         expect(page.locator("#n_cells")).to_contain_text("100")
         expect(page.locator("#n_metacells")).to_contain_text("12")
         expect(page.locator("#n_genes")).to_contain_text("12")
