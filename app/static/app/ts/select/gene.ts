@@ -69,23 +69,19 @@ function displayGeneName(item, escape) {
 }
 
 /**
- * Prepend gene lists and domains to TomSelect options.
+ * Prepend gene lists, modules and domains to TomSelect options.
  *
  * @param {string} id - Element ID prefix.
  * @param {object} select - TomSelect instance.
  * @param {function} callback - Function to call with options.
- * @param {array} genes - Array of gene objects.
- * @param {array} modules - Array of gene module objects.
- * @param {array} domains - Array of domain objects.
- * @param {array} preset - Array of preset gene list objects.
+ * @param {array} data - Object with array of genes, modules, lists and domains.
  */
-function prependGeneLists(id, select, callback, genes, preset, domains) {
+function prependGeneLists(id, select, callback, data) {
     const res = getAllLists(`${id}_gene_lists`)
-        .concat(preset.map((obj) => ({ ...obj, group: "preset" })))
-        .concat(domains.map((obj) => ({ ...obj, group: "domains" })))
-        .concat(
-            genes.map((obj) => ({ ...obj, name: obj.gene, group: "genes" })),
-        );
+        .concat(data.gene_lists.map((obj) => ({ ...obj, group: "preset" })))
+        .concat(data.gene_modules.map((obj) => ({ ...obj, name: obj.module, group: "modules" })))
+        .concat(data.domains.map((obj) => ({ ...obj, group: "domains" })))
+        .concat(data.genes.map((obj) => ({ ...obj, name: obj.gene, group: "genes" })));
     callback(res);
 }
 
@@ -145,6 +141,7 @@ function initGeneSelectValues(select, items) {
         const labelMap = {
             preset: "Preset gene lists",
             custom: "Custom gene lists",
+            modules: "Gene modules",
             genes: "Genes",
             domains: "Domains",
         };
@@ -236,43 +233,19 @@ export function initGeneSelect(
             ...(multiple === "true" && { remove_button: { label: " ×" } }),
         },
         load: function (query, callback) {
+            // Use gene search endpoint to return gene lists, modules, and domains
+            const url = getViewUrl(multiple ? "rest:genesearch-list" : "rest:gene-list");
+
             const q = query || gene;
+            const data = { species, dataset, q, limit };
 
-            const genes = $.ajax({
-                url: getViewUrl("rest:gene-list"),
-                data: { species, q, limit },
-            });
-
-            const preset = $.ajax({
-                url: getViewUrl("rest:genelist-list"),
-                data: { species, limit: 0, order_by_gene_count: true },
-            });
-
-            const modules = $.ajax({
-                url: getViewUrl("rest:genemodules-list"),
-                data: { dataset, limit, order_by_gene_count: true },
-            });
-
-            const domains = multiple
-                ? $.ajax({
-                      url: getViewUrl("rest:domain-list"),
-                      data: { species, q, limit, order_by_gene_count: true },
-                  })
-                : undefined;
-
-            Promise.all([genes, preset, domains])
-                .then(([genesData, presetData, domainsData]) => {
+            $.ajax({url, data})
+                .then((res) => {
                     if (multiple) {
-                        prependGeneLists(
-                            id,
-                            this,
-                            callback,
-                            genesData.results,
-                            presetData,
-                            domainsData.results,
-                        );
+                        prependGeneLists(id, this, callback, res);
                     } else {
-                        callback(genesData.results);
+                        const genes = res.results.map((obj) => ({ ...obj, name: obj.gene }));
+                        callback(genes);
                     }
                 })
                 .catch((error) => {
