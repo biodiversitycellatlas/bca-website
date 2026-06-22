@@ -7,20 +7,25 @@ class TestAtlaspage:
     def test_atlas_loads(self, page, live_server_url):
         page.goto(self.base_url)
 
-        expect(page.get_by_role("link", name="Atlas overview")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/overview/")
-        expect(page.get_by_role("link", name="Atlas overview")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/overview/")
-        expect(page.get_by_role("link", name="Gene lists")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/panel/")
-        expect(page.get_by_role("link", name="Gene modules")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/modules/")
-        expect(page.get_by_role("link", name="Gene and orthologs")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/gene/")
-        expect(page.get_by_role("link", name="Cell type markers")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/markers/")
-        expect(page.get_by_role("link", name="Cross-species")).to_have_attribute("href",
-            "/atlas/homo-sapiens-baby/compare/")
+        expect(page.get_by_role("link", name="Atlas overview")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/overview/"
+        )
+        expect(page.get_by_role("link", name="Atlas overview")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/overview/"
+        )
+        expect(page.get_by_role("link", name="Gene lists")).to_have_attribute("href", "/atlas/homo-sapiens-baby/panel/")
+        expect(page.get_by_role("link", name="Gene modules")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/modules/"
+        )
+        expect(page.get_by_role("link", name="Gene and orthologs")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/gene/"
+        )
+        expect(page.get_by_role("link", name="Cell type markers")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/markers/"
+        )
+        expect(page.get_by_role("link", name="Cross-species")).to_have_attribute(
+            "href", "/atlas/homo-sapiens-baby/compare/"
+        )
 
         expect(page.locator("#info").get_by_text("Homo sapiens (Baby)")).to_be_visible()
         (expect(page.get_by_role("link", name="Gunn,")).
