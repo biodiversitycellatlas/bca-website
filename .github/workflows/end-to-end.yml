@@ -49,6 +49,7 @@ jobs:
             - name: Run tests with playwright
               run: |
                   bash -c "sleep 80"
+                  docker compose exec web python manage.py createtestdb
                   docker compose exec web pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
 
