@@ -885,8 +885,8 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         child=serializers.CharField(),
         required=False,
         help_text=(
-            "Array of genes to use as query genes. "
-            "These genes are combined with genes from `gene_modules` and `gene_lists`."
+            "Array of [genes](#/operations/genes_list) to use as query genes. "
+            "These genes are combined with those from `gene_modules` and `gene_lists`."
         ),
     )
     gene_modules = serializers.ListField(
@@ -894,7 +894,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         required=False,
         help_text=(
             "Array of [gene modules](#/operations/modules_list) to use as query genes. "
-            "Genes from the selected modules are combined with genes from `genes` and `gene_lists`."
+            "Genes from the selected modules are combined with those from `genes` and `gene_lists`."
         ),
     )
     gene_lists = serializers.ListField(
@@ -902,7 +902,7 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         required=False,
         help_text=(
             "Array of [preset gene lists](#/operations/gene_lists_list) to use as query genes. "
-            "Genes from the selected lists are combined with genes from `genes` and `gene_modules`."
+            "Genes from the selected lists are combined with those from `genes` and `gene_modules`."
         ),
     )
 
