@@ -560,6 +560,10 @@ class MetacellCountViewSet(BaseReadOnlyModelViewSet):
 class GeneSearchViewSet(BaseReadOnlyModelViewSet):
     """Search query across gene annotation, preset lists, modules and domains."""
 
+    queryset = models.Gene.objects.none()
+    serializer_class = serializers.GeneSearchSerializer
+    pagination_class = None
+
     SEARCHES = {
         "gene_lists": (filters.GeneListFilter, models.GeneList.objects.all(), serializers.GeneListSerializer),
         "gene_modules": (filters.GeneModuleFilter, models.GeneModule.objects.all(), serializers.GeneModuleSerializer),
