@@ -900,11 +900,8 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     )
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
-    enrichment = serializers.CharField(
-        help_text=(
-            "Term enrichment: enriched (significantly higher compared to background genes) "
-            "or purified (significantly lower)."
-        )
+    fold_enrichment = serializers.FloatField(
+        help_text="Fold enrichment: >1 indicates enrichment, <1 depletion."
     )
 
     depth = serializers.IntegerField(
@@ -923,14 +920,16 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
 
     query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the term.")
-    query_count = serializers.SerializerMethodField(help_text="Number of input genes.")
+    query_count = serializers.SerializerMethodField(help_text="Total number of input genes.")
     background_hit_count = serializers.SerializerMethodField(
         help_text="Number of background genes associated with the term."
     )
-    background_count = serializers.SerializerMethodField(help_text="Number of background genes.")
+    background_count = serializers.SerializerMethodField(help_text="Total number of background genes.")
 
     genes = serializers.ListField(
-        child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items"
+        child=serializers.CharField(),
+        help_text="Name of input genes associated with the term.",
+        source="study_items",
     )
 
     similarity_coords = serializers.ListField(

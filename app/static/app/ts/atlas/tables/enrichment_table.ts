@@ -4,9 +4,16 @@
 
 import DataTable from "datatables.net-bs5";
 
-import { linkElement, makeLinkGene, roundSignificantDigits } from "./utils.ts";
+import { linkElement, makeLinkGene, round, roundSignificantDigits } from "./utils.ts";
 import { createGeneTable } from "./gene_table.ts";
 
+/**
+ * Create an external link to a GO term.
+ *
+ * @param {string} name - The text to display.
+ * @param {string} [type="display"] - Rendering mode.
+ * @param {Object|null} [row=null] - Row containing the GO term.
+ */
 function linkExternalGOterm(name, type = "display", row = null) {
     if (type === "display") {
         const term = row?.term;
@@ -38,7 +45,6 @@ export function createEnrichmentTable(id, dataset, data) {
         pageLength: 25,
         scrollX: true,
         columns: [
-            //{ data: "term", title: "GO term" },
             { data: "namespace", title: "Namespace" },
             {
                 data: "name",
@@ -65,10 +71,8 @@ export function createEnrichmentTable(id, dataset, data) {
                     "dt-control d-flex align-items-center gap-1 justify-content-end",
             },
             { data: "background_hit_count", title: "Background" },
-            { data: "enrichment", title: "Enrichment" },
+            { data: "fold_enrichment", title: "Fold Enrichment", render: round },
             { data: "depth", title: "Depth" },
-            //{ data: "query_count", title: "Query count" },
-            //{ data: "background_count", title: "Background count" },
         ],
         order: [[3, "asc"]],
         createdCell: function (td, cellData) {
