@@ -24,6 +24,7 @@ from rest.settings import sort_api_tags
 BCA_DOMAIN = "biodiversitycellatlas.org"
 BCA_WEBSITE = f"https://{BCA_DOMAIN}"
 BCA_EMAIL = f"bca@{BCA_DOMAIN}"
+ENVIRONMENT = get_env("ENVIRONMENT")
 FEEDBACK_URL = get_env("BCA_APP_FEEDBACK_URL", required=True)
 GHOST_INTERNAL_URL = get_env("GHOST_INTERNAL_URL", "http://ghost:2368")
 
@@ -49,7 +50,7 @@ ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "", type="array")
 DEBUG = get_env("DJANGO_DEBUG", type="bool")
 SECRET_KEY = get_env("DJANGO_SECRET_KEY")
 
-if get_env("ENVIRONMENT") == "prod":
+if ENVIRONMENT == "prod":
     # Production environment
     DEBUG = False
 
@@ -95,7 +96,7 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
-TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
+TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ or ENVIRONMENT == "test"
 if DEBUG and not TESTING:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
