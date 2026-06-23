@@ -879,45 +879,17 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         default=False,
         help_text="If true, obsolete terms will be included in the analysis.",
     )
-
-    # Available gene input options
     genes = serializers.ListField(
         child=serializers.CharField(),
-        required=False,
+        required=True,
         help_text=(
-            "Array of [genes](#/operations/genes_list) to use as query genes. "
-            "These genes are combined with those from `gene_modules` and `gene_lists`."
+            "Comma-separated list of [genes](#/operations/genes_list), "
+            "[gene lists](#/operations/gene_lists_list), "
+            "[gene modules](#/operations/modules_list), "
+            "[domains](#/operations/domains_list) to retrieve data for. "
+            "If not provided, data is returned for all genes."
         ),
     )
-    gene_modules = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text=(
-            "Array of [gene modules](#/operations/modules_list) to use as query genes. "
-            "Genes from the selected modules are combined with those from `genes` and `gene_lists`."
-        ),
-    )
-    gene_lists = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text=(
-            "Array of [preset gene lists](#/operations/gene_lists_list) to use as query genes. "
-            "Genes from the selected lists are combined with those from `genes` and `gene_modules`."
-        ),
-    )
-
-    def validate(self, attrs):
-        # Validate if defining at least one of: genes, gene_modules or gene_lists
-        genes = attrs.get("genes")
-        gene_modules = attrs.get("gene_modules")
-        gene_lists = attrs.get("gene_lists")
-
-        if not any([genes, gene_modules, gene_lists]):
-            raise serializers.ValidationError(
-                "At least one of 'genes', 'gene_modules', or 'gene_lists' must be provided."
-            )
-
-        return attrs
 
 
 class EnrichmentAnalysisResponseSerializer(serializers.Serializer):

@@ -7,7 +7,7 @@ import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
+from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound
@@ -605,7 +605,9 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
         resp = Response(
             {
                 key: serializer(
-                    filterset(data=params, queryset=queryset).qs[:limit], many=True, context={"species": species}
+                    filterset(data=params, queryset=queryset).qs[:limit],
+                    many=True,
+                    context={"species": species},
                 ).data
                 for key, (filterset, queryset, serializer) in self.SEARCHES.items()
             }
@@ -762,44 +764,21 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
     serializer_class = serializers.EnrichmentAnalysisResponseSerializer
     pagination_class = None
 
-    def _get_gene_names(self, qs):
-        model = qs.model
+    def _prepare_gene_query(self, dataset, genes):
+        """Create array of gene names from genes, modules, lists and domains."""
 
-        if qs.model == models.Gene:
-            value = "name"
-        elif hasattr(model, "genes"):
-            value = "genes__name"
-        elif hasattr(model, "gene"):
-            value = "gene__name"
-        return list(qs.values_list(value, flat=True).distinct())
+        if len(genes) == 0:
+            raise NotFound(detail=f"Genes not found.")
 
-    def _prepare_gene_query(self, dataset, validated):
-        """Create array of gene names from genes, gene_modules and gene_lists."""
-        query = []
+        queryset = dataset.species.genes.filter(modules__module__dataset=dataset).filter(
+            Q(name__in=genes) |
+            Q(domains__name__in=genes) |
+            Q(genelists__name__in=genes) |
+            Q(modules__module__name__in=genes)
+        ).distinct()
 
-        gene_names = validated.get("genes")
-        if gene_names:
-            genes = self._get_gene_names(dataset.species.genes.filter(name__in=gene_names))
-            if len(genes) == 0:
-                raise NotFound(detail=f"Genes {gene_names} not found.")
-            query += genes
-
-        gene_modules = validated.get("gene_modules")
-        if gene_modules:
-            genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene modules {gene_modules} not found.")
-            query += genes
-
-        gene_lists = validated.get("gene_lists")
-        if gene_lists:
-            genes = self._get_gene_names(
-                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
-            )
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene lists {gene_lists} not found.")
-            query += genes
-
+        # Get name of selected genes
+        query = list(queryset.values_list("name", flat=True))
         return query
 
     @extend_schema(
@@ -813,11 +792,12 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         validated = input_serializer.validated_data
 
         # Parse query parameters
-        dataset = parse_species_dataset(validated["dataset"])
-        genes = self._prepare_gene_query(dataset, validated)
+        dataset = parse_species_dataset(validated.get("dataset"))
+        genes = self._prepare_gene_query(dataset, validated.get("genes"))
 
         qvalue = validated.get("qvalue", 0.05)
-        background = self._get_gene_names(dataset.mge)
+        background = list(dataset.mge.values_list("gene__name", flat=True).distinct())
+
         obsolete = validated["obsolete"] or False
 
         go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
