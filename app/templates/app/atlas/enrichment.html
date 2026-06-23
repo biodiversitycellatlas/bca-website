@@ -67,7 +67,7 @@ Features:
             </form>
         </div>
         <div class="col-md-9">
-            {% if genes %}
+            {% if query.genes %}
                 <div class="row g-0 d-flex justify-content-end mb-3">
                     <div class="col-auto">
                         {% load headings %}
@@ -101,11 +101,10 @@ Features:
         import { handleFormSubmit, prepareEnrichmentResults }
             from "{% static 'app/js/atlas/enrichment.js' %}";
 
-        handleFormSubmit();
-        {% if genes %}
-            const dataset = "{{dataset.slug}}";
-            const genes = "{{query.genes}}";
-            prepareEnrichmentResults(dataset, genes);
+        const dataset = "{{dataset.slug}}";
+        handleFormSubmit("", dataset);
+        {% if query.genes %}
+            prepareEnrichmentResults(dataset, "{{query.genes}}");
         {% endif %}
     </script>
 

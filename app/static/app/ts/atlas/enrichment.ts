@@ -7,6 +7,8 @@ import "ion-rangeslider";
 window.$ = $;
 
 import { getViewUrl } from "../utils/urls.ts";
+import { getUserLists } from "./modals/list_editor.ts";
+
 import { createEnrichmentTable } from "./tables/enrichment_table.ts";
 import { createWordCloud } from "./plots/word_cloud.ts";
 import { createSemanticSimilarityPlot } from "./plots/semantic_similarity.ts";
@@ -15,22 +17,41 @@ import { createSemanticSimilarityPlot } from "./plots/semantic_similarity.ts";
  * Simplify multiple select values into a comma-separated string
  * and update form submission.
  */
-export function handleFormSubmit() {
+export function handleFormSubmit(id, dataset) {
     // Simplify multiple select data into a single comma-separated value
     $("form").on("submit", function (e) {
         e.preventDefault();
 
-        // Get values
-        const formData = new FormData(this);
-        const values = formData.getAll("gene").join(",");
-
         // Modify form URL
+        const formData = new FormData(this);
         const url = new URL(e.target.action);
         for (const [key, value] of formData.entries()) {
-            if (key === "gene") continue; // do not add gene back to URL
             url.searchParams.set(key, value);
         }
-        url.searchParams.set("genes", values);
+
+        // Get values
+        const multiple = [ "gene_lists" ]
+        for (const i in multiple) {
+            const param = multiple[i];
+            const values = formData.getAll(param);
+            url.searchParams.set(param, values.join(","));
+
+            // Process values from user lists as hidden query parameters
+            if (param == "gene_lists") {
+                // Get genes from user lists
+                const lists = getUserLists(`${id}_${param}`, dataset);
+                const matches = lists.filter((list) => values.includes(list.name));
+                let genes = matches.flatMap((list) => list.items);
+
+                // Get remaining lists
+                const names = matches.flatMap((list) => list.name);
+                const diff = values.filter((value) => !names.includes(value));
+                genes = diff.concat(genes);
+
+                // Set query parameter
+                url.searchParams.set("genes", genes.join(","));
+            }
+        }
 
         // Maintain commas in query params
         const href = url.href.replaceAll("%2C", ",");
