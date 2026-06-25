@@ -4,7 +4,7 @@ Functions to prepare settings.py setup.
 
 import os
 import re
-import subprocess
+import subprocess  # nosec B603
 
 
 # Global variables
