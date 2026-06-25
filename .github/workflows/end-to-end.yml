@@ -45,7 +45,7 @@ jobs:
               run: docker compose up -d
               env:
                   ENVIRONMENT: test
-                  E2E: true
+                  E2E: True
 
             - name: Run tests with playwright
               run: |
