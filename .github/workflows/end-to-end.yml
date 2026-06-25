@@ -53,6 +53,8 @@ jobs:
                   docker compose exec web python manage.py createtestdb
                   docker compose exec web pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
+              env:
+                  E2E: True
 
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
