@@ -1,7 +1,7 @@
 # checkov:skip=CKV_DOCKER_2 "Healthcheck should come from Ghost"
 # checkov:skip=CKV_DOCKER_3 "Skip user check"
 
-FROM ghost:6.4-alpine
+FROM docker.io/ghost:6.45-alpine
 
 # Build argument for Plausible URL
 ARG PLAUSIBLE_SCRIPT_URL

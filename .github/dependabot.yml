@@ -1,11 +1,16 @@
 version: 2
 registries:
+    dockerhub:
+        type: docker-registry
+        url: https://registry.hub.docker.com
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
     dhi:
         type: docker-registry
         url: https://dhi.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        replaces-base: true
 
 updates:
     - package-ecosystem: "pip"
@@ -17,7 +22,7 @@ updates:
       ignore:
           # Ignore non-LTS Django updates
           - dependency-name: "django"
-            versions: ["[6.0,6.2)", "[7.0,7.2)"]
+            versions: [">= 6.0, < 6.2", ">= 7.0, < 7.2"]
 
     - package-ecosystem: "bun"
       directory: "/"
@@ -28,8 +33,11 @@ updates:
 
     - package-ecosystem: "docker"
       registries:
+          - dockerhub
           - dhi
-      directory: "/"
+      directories:
+          - "/"
+          - "/ghost"
       schedule:
           interval: "weekly"
       cooldown:
@@ -39,6 +47,7 @@ updates:
 
     - package-ecosystem: "docker-compose"
       registries:
+          - dockerhub
           - dhi
       directory: "/"
       schedule:

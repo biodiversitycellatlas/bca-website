@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "Django==5.2.14",
+    "Django==5.2.15",
     "django-colorfield==0.14.0",
     "django-extensions==4.1",
     "gunicorn==26.0.0",
@@ -34,13 +34,13 @@ dependencies = [
     "python-dateutil==2.9.0.post0",
 
     # Blog parsing
-    "beautifulsoup4==4.14.3",
+    "beautifulsoup4==4.15.0",
     "feedparser==6.0.12",
 
     # Documentation pages
     "mistune==3.2.1",
     "Pygments==2.20.0",
-    "python-frontmatter==1.1.0",
+    "python-frontmatter==1.3.0",
 
     # REST
     "djangorestframework==3.17.1",
@@ -50,46 +50,53 @@ dependencies = [
 
     # GO enrichment
     "GOATOOLS==1.6.5",
-    "scikit-learn==1.8.0",
+    "scikit-learn==1.9.0",
 
     # Monitoring
-    "django-prometheus==2.4.1",
+    "django-prometheus==2.5.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "django-debug-toolbar==6.3.0",
-    "djlint==1.36.4",
+    "djlint==1.39.2",
 ]
 
 test = [
-    "coverage==7.14.0",
+    "coverage==7.14.1",
+    "factory_boy==3.3.3",
+    "pytest==9.0.3",
+    "pytest_django==4.12.0",
 ]
 
 e2e = [
-    "playwright==1.59",
-    "pytest==9.0.3",
-    "pytest_django==4.12.0",
-    "pytest_playwright==0.7.2",
+    "playwright==1.60.0",
+    "pytest_playwright==0.8.0",
 ]
 
 dataload = [
     "pandas==3.0.3",
     "psutil==7.2.2",
-    "rds2py==0.9.0",
+    "rds2py==0.9.1",
     "scipy==1.17.1",
 ]
 
 [tool.setuptools]
 py-modules = []
 
-[tool.pytest.ini_options]
+[tool.pytest]
 DJANGO_SETTINGS_MODULE="config.settings"
-testpaths = "e2e"
+testpaths = ["app/tests", "rest/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--tb=short", "--ignore=scripts", "-s"]
+
+[tool.bandit]
+skips = ["B101"]
+
+[tool.bandit.assert_used]
+skips = ["*/*test_*.py"]
 
 [project.urls]
 Homepage = "https://portal.biodiversitycellatlas.org/"

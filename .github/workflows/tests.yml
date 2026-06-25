@@ -15,10 +15,13 @@ jobs:
     django-ci:
         name: Django Tests
         runs-on: ubuntu-latest
+        environment:
+            name: test
+            deployment: false
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.3
               with:
                   persist-credentials: false
 
@@ -26,14 +29,14 @@ jobs:
               run: ./scripts/setup.sh test
 
             - name: Log in to Docker Hub
-              uses: docker/login-action@v4
+              uses: docker/login-action@v4.2.0
               with:
                   registry: dhi.io
                   username: ${{ secrets.DOCKERHUB_USERNAME }}
                   password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
             - name: Set up Docker Compose
-              uses: docker/setup-compose-action@v2
+              uses: docker/setup-compose-action@v2.2.0
 
             - name: Build from Dockerfile
               run: docker compose build
@@ -49,7 +52,7 @@ jobs:
             - name: Run tests with coverage
               run: |
                   docker compose exec web \
-                      coverage run manage.py test
+                      coverage run -m pytest
 
             - name: Create XML coverage file
               run: |
@@ -59,7 +62,7 @@ jobs:
                       web:/usr/src/app/coverage.xml coverage.xml
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v6
+              uses: codecov/codecov-action@v7.0.0
               with:
                   files: coverage.xml
                   token: ${{ secrets.CODECOV_TOKEN }}
@@ -79,9 +82,13 @@ jobs:
     bun-ci:
         name: Bun Tests (Typescript)
         runs-on: ubuntu-latest
+        environment:
+            name: test
+            deployment: false
+
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v6.0.3
               with:
                   persist-credentials: false
 
@@ -95,7 +102,7 @@ jobs:
               run: bun test --coverage --coverage-reporter=lcov
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v6
+              uses: codecov/codecov-action@v7.0.0
               with:
                   files: ./coverage/lcov.info
                   token: ${{ secrets.CODECOV_TOKEN }}
