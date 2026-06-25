@@ -42,7 +42,7 @@ class AtlasView(TemplateView):
                 "spider",
                 "hippo",
             ]
-            species = random.choice(species)
+            species = random.choice(species)  # nosec B311
         return species
 
     def get_context_data(self, **kwargs):
