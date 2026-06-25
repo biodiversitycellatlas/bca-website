@@ -275,7 +275,6 @@ class GeneSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-
 class GeneNoSpeciesSerializer(GeneSerializer):
     """Gene serializer without returning species."""
 
@@ -285,6 +284,26 @@ class GeneNoSpeciesSerializer(GeneSerializer):
         """Meta configuration."""
 
         fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
+
+
+class GeneRequestSerializer(serializers.ModelSerializer):
+    """Gene request serializer."""
+
+    genes = serializers.ListField(
+        child=serializers.CharField(),
+        help_text=(
+            "Comma-separated list of [genes](#/operations/genes_list), "
+            "[gene lists](#/operations/gene_lists_list), "
+            "[domains](#/operations/domains_list) to retrieve data for. "
+            "If not provided, data is returned for all genes."
+        ),
+    )
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Gene
+        fields = ["genes"]
 
 
 class DomainSerializer(serializers.ModelSerializer):

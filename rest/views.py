@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
@@ -283,6 +284,31 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
     serializer_class = serializers.GeneSerializer
     filterset_class = filters.GeneFilter
     lookup_field = "name"
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("q", exclude=True),
+            OpenApiParameter("genes", exclude=True),
+        ],
+        request=serializers.GeneRequestSerializer,
+        operation_id="genes_post",
+        responses={200: serializers.GeneSerializer(many=True)},
+    )
+    def create(self, request, *args, **kwargs):
+        """Inject POST request data into GET parameters and call GET method."""
+
+        genes = request.data.get("genes")
+        if not genes:
+            return Response(
+                {"genes": ["This field is required."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        query_params = request.query_params.copy()
+        query_params.update({ **request.data, "genes": ",".join(genes) })
+
+        request._request.GET = query_params
+        return self.list(request, *args, **kwargs)
 
 
 @extend_schema(summary="List orthologs", tags=["Gene", "Cross-species"])

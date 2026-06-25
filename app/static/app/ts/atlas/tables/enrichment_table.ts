@@ -6,6 +6,7 @@ import DataTable from "datatables.net-bs5";
 
 import { linkElement, makeLinkGene, round, roundSignificantDigits } from "./utils.ts";
 import { createGeneTable } from "./gene_table.ts";
+import { getViewUrl } from "../../utils/urls.ts";
 
 /**
  * Create an external link to a GO term.
@@ -103,9 +104,8 @@ export function createEnrichmentTable(id, dataset, data) {
             `,
             ).show();
 
-            const genes = encodeURIComponent(data.genes);
-            const url = `/api/v1/genes/?genes=${genes}`;
-            createGeneTable(childId, dataset, url, false, false);
+            const url = getViewUrl("rest:gene-list");
+            createGeneTable(childId, dataset, url, false, false, data.genes);
         }
     });
 }
