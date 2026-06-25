@@ -13,7 +13,7 @@ urlpatterns = [
     path("", include("django_prometheus.urls")),
 ]
 
-if settings.DEBUG and not settings.E2E:
+if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
