@@ -69,7 +69,7 @@ jobs:
                       super-linter-output/super-linter-summary.md
 
             - name: Suggest changes
-              uses: reviewdog/action-suggester@v1
+              uses: reviewdog/action-suggester@v1.24.0
               with:
                   tool_name: Super-Linter
                   filter_mode: diff_context
@@ -96,7 +96,7 @@ jobs:
               continue-on-error: true
 
             - name: Suggest changes
-              uses: reviewdog/action-suggester@v1
+              uses: reviewdog/action-suggester@v1.24.0
               with:
                   tool_name: djlint (Django HTML)
                   filter_mode: diff_context
@@ -126,7 +126,7 @@ jobs:
               run: bunx postcss ./**/*.css --use autoprefixer --no-map --replace
 
             - name: Suggest changes
-              uses: reviewdog/action-suggester@v1
+              uses: reviewdog/action-suggester@v1.24.0
               with:
                   tool_name: autoprefixer (CSS)
                   fail_level: error
