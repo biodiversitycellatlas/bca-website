@@ -45,6 +45,7 @@ jobs:
               run: docker compose up -d
               env:
                   ENVIRONMENT: test
+                  DJANGO_DEBUG: False
                   E2E: True
 
             - name: Run tests with playwright
@@ -53,8 +54,6 @@ jobs:
                   docker compose exec web python manage.py createtestdb
                   docker compose exec web pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
-              env:
-                  E2E: True
 
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
