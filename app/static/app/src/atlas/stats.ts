@@ -157,7 +157,6 @@ export function renderGeneModuleTable(id, dataset) {
             { data: "gene_count" },
             ...topTFs(5),
         ],
-        responsive: true,
         pageLength: -1,
         paging: false,
         info: false,
