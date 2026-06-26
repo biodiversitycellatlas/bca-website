@@ -7,7 +7,7 @@ import "datatables.net-select-bs5";
 
 import { makeLinkGene, linkDomains } from "./utils.ts";
 
-function buildDataQuery(data, species, genes) {
+function buildDataQuery(data, species, genes, method = "POST") {
     let ordering;
     if (data.order && data.order[0]) {
         const o = data.order[0];
@@ -23,7 +23,7 @@ function buildDataQuery(data, species, genes) {
         q: data.search.value,
         ordering: ordering,
     };
-    return JSON.stringify(params);
+    return method === "POST" ? JSON.stringify(params) : params;
 }
 
 function filterData(data) {
@@ -41,19 +41,22 @@ function filterData(data) {
  * @param {string} id - Table element ID.
  * @param {Object} dataset - Dataset reference used for linking genes.
  * @param {string} species - Species slug.
- * @param {string} [url=""] - Data source URL for AJAX loading.
- * @param {boolean} [correlation=false] - Whether to include correlation columns.
- * @param {string} [select="multiple"] - Selection mode: "multiple", "single", or "none".
- * @param {Array[string]} [genes=[]] - Array of genes to send to POST.
+ * @param {string} url - Data source URL for AJAX loading.
+ * @param {Object} [options]
+ * @param {boolean} [options.correlation=false] - Whether to include correlation columns.
+ * @param {string} [options.select="none"] - Selection mode: "multiple", "single", or "none".
+ * @param {Array[string]} [options.genes=null] - Array of genes to send to POST.
  */
 export function createGeneTable(
     id,
     species,
     dataset,
-    url = "",
-    correlation = false,
-    select = "multiple",
-    genes = [],
+    url,
+    {
+        correlation = false,
+        select = "none",
+        genes = null,
+    } = {}
 ) {
     const linkGene = makeLinkGene(dataset);
     // Columns to display
@@ -103,13 +106,14 @@ export function createGeneTable(
         selectParam = false;
     }
 
+    const method = (genes && Array.isArray(genes)) ? "POST" : "GET";
     const table = new DataTable(`#${id}`, {
         ajax: {
             url: url,
-            type: (genes && Array.isArray(genes)) ? "POST" : "GET",
+            type: method,
             contentType: "application/json",
             data: function (d) {
-                return buildDataQuery(d, species, genes);
+                return buildDataQuery(d, species, genes, method);
             },
             dataFilter: filterData,
             dataSrc: "results",
@@ -160,9 +164,10 @@ export function createGeneTable(
  * @param {Array} genes - Gene names to include.
  */
 export function updateGeneTable(table, genes) {
-    //table.settings()[0].ajax.type = "POST";
     const species = JSON.parse(table.ajax.params()).species;
-    table.settings()[0].ajax.data = d => buildDataQuery(d, species, genes);
-    console.log(table);
+    const method = table.settings()[0].ajax.type;
+    table.settings()[0].ajax.data = d => buildDataQuery(d, species, genes, method);
     table.ajax.reload();
+
+    console.log(table, table.ajax, table.ajax.params());
 }

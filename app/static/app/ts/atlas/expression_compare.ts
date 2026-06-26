@@ -28,16 +28,12 @@ import {
  */
 function createGeneCorrelationTable(id, species, dataset, gene) {
     // Get lists from API
-    const corrURL = getViewUrl("rest:correlated-list", { dataset, gene });
-    appendDataMenu(id, corrURL, "Correlation table (current page)");
-    const table = createGeneTable(
-        `${id}_table`,
-        species,
-        dataset,
-        corrURL,
-        true,
-        "single",
-    );
+    const url = getViewUrl("rest:correlated-list", { dataset, gene });
+    appendDataMenu(id, url, "Correlation table (current page)");
+    const table = createGeneTable(`${id}_table`, species, dataset, url, {
+        correlation: true,
+        select: "single",
+    });
     return table;
 }
 

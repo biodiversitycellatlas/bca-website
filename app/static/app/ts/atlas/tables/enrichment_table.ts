@@ -106,7 +106,7 @@ export function createEnrichmentTable(id, species, dataset, data) {
             ).show();
 
             const url = getViewUrl("rest:gene-list");
-            createGeneTable(childId, species, dataset, url, false, false, data.genes);
+            createGeneTable(childId, species, dataset, url, { genes: data.genes });
         }
     });
 }

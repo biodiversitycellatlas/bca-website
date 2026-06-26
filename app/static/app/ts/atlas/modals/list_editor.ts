@@ -523,7 +523,10 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
 function initTable(id, species, dataset) {
     // Create gene table
     const url = getViewUrl("rest:gene-list");
-    const table = createGeneTable(`${id}_editor_table`, species, dataset, url);
+    const table = createGeneTable(`${id}_editor_table`, species, dataset, url, {
+        select: "multiple",
+        genes: [],
+    });
 
     // Update interface based on selection
     table.on("select deselect", function (e, dt, type) {
