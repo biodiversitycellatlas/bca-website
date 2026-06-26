@@ -10,6 +10,7 @@ Features:
 - Gene ontology enrichment analysis as per the user input:
     - Fetches via REST API
     - Table for the data with links to supporting genes
+    - Auxiliary plots
     - Download data button
     - Copy link to clipboard button
 
@@ -72,6 +73,18 @@ Features:
                         {% load headings %}
                         {% clipboard_button %}
                         {% data_dropdown id='enrichment' %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <!-- Semantic similarity plot -->
+                        {% include "../components/plot_container.html" with id="semantic" ratio="16/9" %}
+                    </div>
+
+                    <div class="col-lg-6">
+                        <!-- Word cloud -->
+                        {% include "../components/plot_container.html" with id="words" ratio="16/9" %}
                     </div>
                 </div>
 
