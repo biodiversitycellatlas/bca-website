@@ -843,6 +843,15 @@ class GeneSearchSerializer(serializers.Serializer):
     genes = GeneSerializer(many=True)
 
 
+class GeneSearchSerializer(serializers.Serializer):
+    """Serializer for gene search."""
+
+    gene_lists = GeneListSerializer(many=True)
+    gene_modules = GeneModuleSerializer(many=True)
+    domains = DomainSerializer(many=True)
+    genes = GeneSerializer(many=True)
+
+
 @extend_schema_serializer(
     examples=[
         OpenApiExample(
