@@ -10,6 +10,8 @@ import { getViewUrl } from "../utils/urls.ts";
 import { getUserLists } from "./modals/list_editor.ts";
 
 import { createEnrichmentTable } from "./tables/enrichment_table.ts";
+import { createWordCloud } from "./plots/word_cloud.ts";
+import { createSemanticSimilarityPlot } from "./plots/semantic_similarity.ts";
 
 /**
  * Simplify multiple select values into a comma-separated string
@@ -73,6 +75,8 @@ export function prepareEnrichmentResults(species, dataset, genes) {
             return res.json();
         })
         .then((data) => {
+            createSemanticSimilarityPlot("#semantic-plot", data);
+            createWordCloud("#words-plot", data);
             createEnrichmentTable("enrichment", species, dataset, data);
         })
         .catch((err) => {
