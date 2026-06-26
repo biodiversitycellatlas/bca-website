@@ -144,7 +144,7 @@ export function parseArray(data) {
 /**
  * Get the currently selected rows from a DataTable.
  *
- * @param {string} id - HTML element ID of the DataTable.
+ * @param {string} table - DataTable element.
  * @returns {Array} Array of selected row data.
  */
 export function getSelectedRows(table) {
