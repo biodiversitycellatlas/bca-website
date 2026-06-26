@@ -122,7 +122,7 @@ function initGeneSelectValues(select, items) {
             for (const i in missingValues) {
                 const elem = missingValues[i];
                 missingValuesArray.push({
-                    gene: elem,
+                    name: elem,
                     description: "",
                     domains: [],
                 });
@@ -254,8 +254,8 @@ export function initGeneSelect(
                 });
         },
     });
-    if (gene.name)
-        setDefaultGene(select, gene.name, gene.description, gene.domains);
+
+    if (gene.name) setDefaultGene(select, gene.name, gene.description, gene.domains);
     if (multiple) initGeneSelectValues(select, selected);
     return select;
 }
