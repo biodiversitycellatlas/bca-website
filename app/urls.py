@@ -34,18 +34,19 @@ urlpatterns += [
         views.AtlasOverviewView.as_view(),
         name="atlas_overview",
     ),
+    path("atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
+    path(
+        "atlas/<str:dataset>/modules/",
+        views.AtlasGeneModuleView.as_view(),
+        name="atlas_modules",
+    ),
+    path("atlas/<str:dataset>/enrichment/", views.AtlasEnrichmentView.as_view(), name="atlas_enrichment"),
     path("atlas/<str:dataset>/gene/", views.AtlasGeneView.as_view(), name="atlas_gene"),
     path(
         "atlas/<str:dataset>/gene/<str:gene>/",
         views.AtlasGeneView.as_view(),
         name="atlas_gene",
     ),
-    path(
-        "atlas/<str:dataset>/modules/",
-        views.AtlasGeneModuleView.as_view(),
-        name="atlas_modules",
-    ),
-    path("atlas/<str:dataset>/panel/", views.AtlasPanelView.as_view(), name="atlas_panel"),
     path(
         "atlas/<str:dataset>/markers/",
         views.AtlasMarkersView.as_view(),

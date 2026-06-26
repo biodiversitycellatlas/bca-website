@@ -218,6 +218,12 @@ class AtlasGeneModuleView(BaseAtlasView):
     template_name = "app/atlas/modules.html"
 
 
+class AtlasEnrichmentView(BaseAtlasView):
+    """Gene ontology enrichment page for a specific dataset."""
+
+    template_name = "app/atlas/enrichment.html"
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 
