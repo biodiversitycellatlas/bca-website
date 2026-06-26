@@ -279,7 +279,7 @@ class DomainFilter(QueryFilterSet):
     species = SpeciesChoiceFilter(field_name="gene")
     q = CharFilter(
         method="query",
-        label=("Query string to filter results. The string will be searched and ranked across domain names."),
+        label="Query string to filter results. The string will be searched and ranked across domain names.",
     )
     query_fields = ["name"]
     order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (ascending).")
@@ -307,10 +307,15 @@ class DomainFilter(QueryFilterSet):
         return queryset
 
 
-class GeneListFilter(FilterSet):
+class GeneListFilter(QueryFilterSet):
     """Filter set for gene lists."""
 
     species = SpeciesChoiceFilter(field_name="genes")
+    q = CharFilter(
+        method="query",
+        label="Query string to filter results. The string will be searched and ranked across gene list names.",
+    )
+    query_fields = ["name"]
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -324,11 +329,17 @@ class GeneListFilter(FilterSet):
         return queryset.distinct()
 
 
-class GeneModuleFilter(FilterSet):
+class GeneModuleFilter(QueryFilterSet):
     """Filter set for gene modules."""
 
     dataset = DatasetChoiceFilter()
     order_by_gene_count = BooleanFilter(method=skip_param, label="Order results by gene count (descending).")
+
+    q = CharFilter(
+        method="query",
+        label="Query string to filter results. The string will be searched and ranked across gene module names.",
+    )
+    query_fields = ["name"]
 
     class Meta:
         """Configuration for model and filterable fields."""
@@ -604,19 +615,20 @@ class MetacellGeneExpressionFilter(FilterSet):
     dataset = DatasetChoiceFilter(required=True)
     genes = CharFilter(
         label=(
-            "Comma-separated list of <a href='#/operations/genes_list'>genes</a>, "
-            "<a href='#/operations/gene_lists_list'>gene lists</a> and "
-            "<a href='#/operations/domains_list'>domains</a> to retrieve data for. "
+            "Comma-separated list of [genes](#/operations/genes_list), "
+            "[gene lists](#/operations/gene_lists_list), "
+            "[gene modules](#/operations/modules_list), "
+            "[domains](#/operations/domains_list) to retrieve data for. "
             "If not provided, data is returned for all genes."
         ),
         method="filter_genes",
     )
     metacells = CharFilter(
-        label=("Comma-separated list of <a href='#/operations/metacells_list'>metacell names and cell types</a>."),
+        label="Comma-separated list of [metacell names and cell types](#/operations/metacells_list).",
         method="filter_metacells",
     )
     fc_min = NumberFilter(
-        label="Filter expression data by minimum fold-change (default: <kbd>0</kbd>).",
+        label="Filter expression data by minimum fold-change (default: `0`).",
         field_name="fold_change",
         lookup_expr="gte",
     )
@@ -627,28 +639,31 @@ class MetacellGeneExpressionFilter(FilterSet):
     sort_genes = SortAcrossMetacellFilter(
         field_name="gene",
         order_field="fold_change",
-        label=("Sort genes based on their highest expression value across metacells (default: <kbd>false</kbd>)."),
+        label="Sort genes based on their highest expression value across metacells (default: `false`).",
     )
     log2 = BooleanFilter(
-        label="Log2-transform <kbd>fold_change</kbd> (default: <kbd>false</kbd>).",
+        label="Log2-transform `fold_change` (default: `false`).",
         method="log2_transform",
     )
     clip_log2 = NumberFilter(
         label=(
-            "Set the maximum limit for <kbd>log2_fold_change</kbd> values "
-            "(requires <kbd>log2=true</kbd>). If <kbd>fc_min</kbd> is higher, "
-            "<kbd>clip_log2</kbd> is set to <kbd>fc_min</kbd>."
+            "Set the maximum limit for `log2_fold_change` values (requires `log2=true`). "
+            "If `fc_min` is higher, `clip_log2` is set to `fc_min`."
         ),
         method="clip_expression",
     )
 
     def filter_genes(self, queryset, name, value):
-        """Filter queryset by gene names, domains or gene lists."""
+        """Filter queryset by gene names, domains, gene lists and gene modules."""
 
         if value:
             genes = value.split(",")
+
             queryset = queryset.filter(
-                Q(gene__name__in=genes) | Q(gene__domains__name__in=genes) | Q(gene__genelists__name__in=genes)
+                Q(gene__name__in=genes)
+                | Q(gene__domains__name__in=genes)
+                | Q(gene__genelists__name__in=genes)
+                | Q(gene__modules__module__name__in=genes)
             ).distinct()
         return queryset
 
@@ -718,7 +733,7 @@ class CorrelatedGenesFilter(QueryFilterSet):
 
     dataset = DatasetChoiceFilter(required=True)
     gene = CharFilter(
-        label=("<a href='#/operations/genes_list'>Gene symbol</a> to retrieve top correlated genes for."),
+        label="[Gene symbol](#/operations/genes_list) to retrieve top correlated genes for.",
         method="filter_gene",
         required=True,
     )

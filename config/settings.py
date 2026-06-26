@@ -17,7 +17,7 @@ import sys
 
 import orjson
 
-from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
+from .pre_settings import get_diamond_version, get_goatools_version, get_env, get_latest_git_tag
 from rest.settings import sort_api_tags
 
 # GLOBAL VARIABLES: registered in context_processors.py
@@ -33,6 +33,7 @@ GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
 
 DIAMOND_VERSION = get_diamond_version()
+GOATOOLS_VERSION = get_goatools_version()
 
 # Max sequences for alignment
 MAX_ALIGNMENT_SEQS = get_env("BCA_APP_MAX_ALIGNMENT_SEQS", 100, type="int")
