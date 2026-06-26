@@ -23,7 +23,6 @@ function buildDataQuery(data, species, genes) {
         q: data.search.value,
         ordering: ordering,
     };
-    console.log(params);
     return JSON.stringify(params);
 }
 
@@ -107,7 +106,7 @@ export function createGeneTable(
     const table = new DataTable(`#${id}`, {
         ajax: {
             url: url,
-            type: "POST",
+            type: (genes && Array.isArray(genes)) ? "POST" : "GET",
             contentType: "application/json",
             data: function (d) {
                 return buildDataQuery(d, species, genes);
@@ -135,7 +134,7 @@ export function createGeneTable(
                 this.api().row(0).select();
             }
         },
-        rowId: "name",
+        rowId: "gene",
         scrollX: true,
         language: {
             info: "Total entries: _TOTAL_",
@@ -152,4 +151,18 @@ export function createGeneTable(
         },
     });
     return table;
+}
+
+/**
+ * Update DataTable AJAX query to include selected genes.
+ *
+ * @param {DataTable} table - The DataTable instance to update.
+ * @param {Array} genes - Gene names to include.
+ */
+export function updateGeneTable(table, genes) {
+    //table.settings()[0].ajax.type = "POST";
+    const species = JSON.parse(table.ajax.params()).species;
+    table.settings()[0].ajax.data = d => buildDataQuery(d, species, genes);
+    console.log(table);
+    table.ajax.reload();
 }

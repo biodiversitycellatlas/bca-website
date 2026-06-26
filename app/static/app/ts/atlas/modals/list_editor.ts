@@ -8,7 +8,7 @@ import "datatables.net-select-bs5";
 
 import { getViewUrl } from "../../utils/urls.ts";
 import { highlightMatch } from "../../utils/utils.ts";
-import { createGeneTable } from "../tables/gene_table.ts";
+import { createGeneTable, updateGeneTable } from "../tables/gene_table.ts";
 import { getSelectedRows } from "../tables/utils.ts";
 
 /**
@@ -387,22 +387,6 @@ function getGenesFromListURL(url, species, genelist, limit = undefined) {
 }
 
 /**
- * Construct a URL for fetching a set of genes.
- *
- * @param {string} url - Base API endpoint.
- * @param {string} species - Species identifier.
- * @param {Array<string>} genes - Gene names.
- * @returns {string} Full request URL.
- */
-function getGenesURL(url, species, genes) {
-    const params = new URLSearchParams({
-        species: species,
-        genes: genes.join(","),
-    });
-    return url + "?" + params.toString();
-}
-
-/**
  * Fetch information on all genes from a specific list.
  *
  * @param {string} id - Base identifier.
@@ -418,7 +402,7 @@ async function fetchAllGenesFromList(id, species, apiURL, name, group) {
         const url = getGenesFromListURL(apiURL, species, name, 0);
         const response = await fetch(url);
         const data = await response.json();
-        genes = data.map((item) => item.name);
+        genes = data.map((item) => item.gene);
     } else {
         genes = getUserLists(id, species, name).items;
     }
@@ -431,7 +415,7 @@ async function fetchAllGenesFromList(id, species, apiURL, name, group) {
  * @param {string} id - Base identifier.
  * @param {string} species - Species identifier.
  */
-export function renderActiveList(id, species) {
+export function renderActiveList(id, table, species) {
     // Get data and render table for active group list
     let previousActiveList = null;
 
@@ -443,7 +427,7 @@ export function renderActiveList(id, species) {
             return;
         }
         previousActiveList = $(this);
-        renderListDetail(id, species);
+        renderListDetail(id, table, species);
     });
 }
 
@@ -453,8 +437,7 @@ export function renderActiveList(id, species) {
  * @param {string} id - Identifier.
  * @param {string} species - Species.
  */
-function renderListDetail(id, species) {
-    const table = $(`#${id}_editor_table`).DataTable();
+function renderListDetail(id, table, species) {
     table.search("").columns().search(""); // Clear search
     table.clear(); // Clear data
 
@@ -463,13 +446,10 @@ function renderListDetail(id, species) {
     const group = $(`#${id}_options`).find(".active").data("group");
 
     let url = getViewUrl("rest:gene-list");
-    if (group === "preset") {
-        url = getGenesFromListURL(url, species, name);
-    } else {
-        const genes = getUserLists(id, species, name).items;
-        url = genes.length === 0 ? "" : getGenesURL(url, species, genes);
-    }
-    table.ajax.url(url || "").load();
+
+    // Reload table with genes from selected list
+    const genes = group === "preset" ? [name] : getUserLists(id, species, name).items;
+    updateGeneTable(table, genes);
 
     // Update list-specific controls
     $(`#${id}_controls`).prop("disabled", group === "preset");
@@ -534,20 +514,21 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
 }
 
 /**
- * Update table based on selection.
+ * Initialise table and prepare to update it based on selection.
  *
  * @param {string} id - Base identifier.
  * @param {string} species - Species identifier.
  * @param {Object} dataset - Dataset reference for table creation.
  */
-function updateTable(id, species, dataset) {
+function initTable(id, species, dataset) {
     // Create gene table
-    const table = createGeneTable(`${id}_editor_table`, species, dataset);
+    const url = getViewUrl("rest:gene-list");
+    const table = createGeneTable(`${id}_editor_table`, species, dataset, url);
 
     // Update interface based on selection
     table.on("select deselect", function (e, dt, type) {
         if (type === "row") {
-            const len = getSelectedRows(`${id}_editor_table`).length;
+            const len = getSelectedRows(table).length;
             const label = `${len} selected gene` + (len === 1 ? "" : "s");
             $(`#${id}_new_selected_count`).text(label);
 
@@ -559,6 +540,7 @@ function updateTable(id, species, dataset) {
             }
         }
     });
+    return table;
 }
 
 /**
@@ -570,7 +552,7 @@ function updateTable(id, species, dataset) {
  */
 export function loadGeneLists(id, species, dataset) {
     const url = getViewUrl("rest:genelist-list", { species: species });
-    fetch(url)
+    const table = fetch(url)
         .then((response) => response.json())
         .then((data) => {
             appendListGroupHeading(id, "preset");
@@ -579,9 +561,18 @@ export function loadGeneLists(id, species, dataset) {
             });
             drawUserLists(id, species);
         })
-        .then(() => updateTable(id, species, dataset))
-        .catch((error) => {
-            console.error("Error fetching data:", error);
+        .then(() => initTable(id, species, dataset))
+    return table;
+}
+
+export function initGeneListEditor(id, species, dataset, maxFileSize) {
+    loadGeneLists(id, species, dataset)
+        .then((table) => {
+            renderActiveList(id, table, species);
+            loadMenuActions(id, table, species, maxFileSize);
+        })
+        .catch((err) => {
+            console.error(err);
         });
 }
 
@@ -592,14 +583,14 @@ export function loadGeneLists(id, species, dataset) {
  * @param {string} species - Species identifier.
  * @param {number} maxFileSize - Maximum upload size in MB.
  */
-export function loadMenuActions(id, species, maxFileSize) {
+export function loadMenuActions(id, table, species, maxFileSize) {
     // Menu action: New list
     $(`#${id}_new_empty`).on("click", function () {
         appendUserList(id, species, "Empty list", []);
     });
 
     $(`#${id}_new_selected`).on("click", function () {
-        const selected = getSelectedRows(`${id}_editor_table`);
+        const selected = getSelectedRows(table);
         appendUserList(id, species, "Selected genes", selected);
     });
 

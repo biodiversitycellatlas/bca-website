@@ -298,14 +298,10 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
         """Inject POST request data into GET parameters and call GET method."""
 
         genes = request.data.get("genes")
-        if not genes:
-            return Response(
-                {"genes": ["This field is required."]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        genes = ",".join(genes) if genes and genes != [""] else [""]
 
         query_params = request.query_params.copy()
-        query_params.update({ **request.data, "genes": ",".join(genes) })
+        query_params.update({ **request.data, "genes": genes })
 
         request._request.GET = query_params
         return self.list(request, *args, **kwargs)
