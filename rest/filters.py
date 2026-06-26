@@ -660,10 +660,10 @@ class MetacellGeneExpressionFilter(FilterSet):
             genes = value.split(",")
 
             queryset = queryset.filter(
-                Q(gene__name__in=genes) |
-                Q(gene__domains__name__in=genes) |
-                Q(gene__genelists__name__in=genes) |
-                Q(gene__modules__module__name__in=genes)
+                Q(gene__name__in=genes)
+                | Q(gene__domains__name__in=genes)
+                | Q(gene__genelists__name__in=genes)
+                | Q(gene__modules__module__name__in=genes)
             ).distinct()
         return queryset
 

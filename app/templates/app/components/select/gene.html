@@ -33,7 +33,9 @@ Input:
 <select id="{{ id }}_gene_selection"
         class="{{ class|default:'mb-3' }}"
         name="{{ name|default:'gene' }}"
-        style="width: {{ width|default:'100%' }}; visibility: hidden; margin-top: 12px;"
+        style="width: {{ width|default:'100%' }};
+               visibility: hidden;
+               margin-top: 12px"
         placeholder="{% if placeholder %}{{ placeholder }}{% elif multiple == 'true' %}Search gene lists, modules, domains...{% else %}Search gene...{% endif %}"
         {% if multiple == 'true' %}multiple{% endif %}
         {% if disabled == 'true' %}disabled{% endif %}>

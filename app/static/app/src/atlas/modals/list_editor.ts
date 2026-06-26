@@ -445,10 +445,9 @@ function renderListDetail(id, table, species) {
     const name = $(`#${id}_options`).find(".active").data("list");
     const group = $(`#${id}_options`).find(".active").data("group");
 
-    let url = getViewUrl("rest:gene-list");
-
     // Reload table with genes from selected list
-    const genes = group === "preset" ? [name] : getUserLists(id, species, name).items;
+    const genes =
+        group === "preset" ? [name] : getUserLists(id, species, name).items;
     updateGeneTable(table, genes);
 
     // Update list-specific controls
@@ -564,7 +563,7 @@ export function loadGeneLists(id, species, dataset) {
             });
             drawUserLists(id, species);
         })
-        .then(() => initTable(id, species, dataset))
+        .then(() => initTable(id, species, dataset));
     return table;
 }
 

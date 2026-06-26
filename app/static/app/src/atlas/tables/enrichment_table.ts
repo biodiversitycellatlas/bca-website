@@ -4,7 +4,7 @@
 
 import DataTable from "datatables.net-bs5";
 
-import { linkElement, makeLinkGene, round, roundSignificantDigits } from "./utils.ts";
+import { linkElement, round, roundSignificantDigits } from "./utils.ts";
 import { createGeneTable } from "./gene_table.ts";
 import { getViewUrl } from "../../utils/urls.ts";
 
@@ -25,7 +25,7 @@ function linkExternalGOterm(name, type = "display", row = null) {
 }
 
 /**
- * Initialize a DataTable for displaying marker gene information.
+ * Initialize DataTable to display enrichment analysis results.
  *
  * @param {string} id - HTML element ID to attach the table.
  * @param {string} species - Species identifier.
@@ -33,15 +33,6 @@ function linkExternalGOterm(name, type = "display", row = null) {
  * @param {Object} data - Data object.
  */
 export function createEnrichmentTable(id, species, dataset, data) {
-    const linkGene = makeLinkGene(dataset);
-    const linkGeneArray = (genes) => {
-        if (!genes) return "";
-        if (Array.isArray(genes)) {
-            return genes.map((g) => linkGene(g)).join(", ");
-        }
-        return linkGene(genes);
-    };
-
     const table = new DataTable(`#${id}_table`, {
         data,
         pageLength: 25,
@@ -73,7 +64,11 @@ export function createEnrichmentTable(id, species, dataset, data) {
                     "dt-control d-flex align-items-center gap-1 justify-content-end",
             },
             { data: "background_hit_count", title: "Background" },
-            { data: "fold_enrichment", title: "Fold Enrichment", render: round },
+            {
+                data: "fold_enrichment",
+                title: "Fold Enrichment",
+                render: round,
+            },
             { data: "depth", title: "Depth" },
         ],
         order: [[3, "asc"]],
@@ -106,7 +101,9 @@ export function createEnrichmentTable(id, species, dataset, data) {
             ).show();
 
             const url = getViewUrl("rest:gene-list");
-            createGeneTable(childId, species, dataset, url, { genes: data.genes });
+            createGeneTable(childId, species, dataset, url, {
+                genes: data.genes,
+            });
         }
     });
 }

@@ -275,6 +275,7 @@ class GeneSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+
 class GeneNoSpeciesSerializer(GeneSerializer):
     """Gene serializer without returning species."""
 
@@ -928,9 +929,7 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     )
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
-    fold_enrichment = serializers.FloatField(
-        help_text="Fold enrichment: >1 indicates enrichment, <1 depletion."
-    )
+    fold_enrichment = serializers.FloatField(help_text="Fold enrichment: >1 indicates enrichment, <1 depletion.")
 
     depth = serializers.IntegerField(
         help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth"

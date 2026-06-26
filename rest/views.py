@@ -10,7 +10,6 @@ from django.conf import settings
 from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
@@ -301,7 +300,7 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
         genes = ",".join(genes) if genes and genes != [""] else [""]
 
         query_params = request.query_params.copy()
-        query_params.update({ **request.data, "genes": genes })
+        query_params.update({**request.data, "genes": genes})
 
         request._request.GET = query_params
         return self.list(request, *args, **kwargs)
@@ -794,14 +793,18 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         """Create array of gene names from genes, modules, lists and domains."""
 
         if len(genes) == 0:
-            raise NotFound(detail=f"Genes not found.")
+            raise NotFound(detail="Genes not found.")
 
-        queryset = dataset.species.genes.filter(modules__module__dataset=dataset).filter(
-            Q(name__in=genes) |
-            Q(domains__name__in=genes) |
-            Q(genelists__name__in=genes) |
-            Q(modules__module__name__in=genes)
-        ).distinct()
+        queryset = (
+            dataset.species.genes.filter(modules__module__dataset=dataset)
+            .filter(
+                Q(name__in=genes)
+                | Q(domains__name__in=genes)
+                | Q(genelists__name__in=genes)
+                | Q(modules__module__name__in=genes)
+            )
+            .distinct()
+        )
 
         # Get name of selected genes
         query = list(queryset.values_list("name", flat=True))

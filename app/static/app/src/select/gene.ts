@@ -79,9 +79,21 @@ function displayGeneName(item, escape) {
 function prependGeneLists(id, select, callback, data) {
     const res = getAllLists(`${id}_gene_lists`)
         .concat(data.gene_lists.map((obj) => ({ ...obj, group: "preset" })))
-        .concat(data.gene_modules.map((obj) => ({ ...obj, name: obj.module, group: "modules" })))
+        .concat(
+            data.gene_modules.map((obj) => ({
+                ...obj,
+                name: obj.module,
+                group: "modules",
+            })),
+        )
         .concat(data.domains.map((obj) => ({ ...obj, group: "domains" })))
-        .concat(data.genes.map((obj) => ({ ...obj, name: obj.gene, group: "genes" })));
+        .concat(
+            data.genes.map((obj) => ({
+                ...obj,
+                name: obj.gene,
+                group: "genes",
+            })),
+        );
     callback(res);
 }
 
@@ -186,7 +198,10 @@ export function initGeneSelect(
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
-                    const url = getViewUrl("atlas_gene", { dataset, gene: value });
+                    const url = getViewUrl("atlas_gene", {
+                        dataset,
+                        gene: value,
+                    });
                     if (window.location.pathname != url) {
                         window.location.href = url;
                     }
@@ -231,17 +246,22 @@ export function initGeneSelect(
         },
         load: function (query, callback) {
             // Use gene search endpoint to return gene lists, modules, and domains
-            const url = getViewUrl(multiple ? "rest:genesearch-list" : "rest:gene-list");
+            const url = getViewUrl(
+                multiple ? "rest:genesearch-list" : "rest:gene-list",
+            );
 
             const q = query || gene;
             const data = { species, dataset, q, limit };
 
-            $.ajax({url, data})
+            $.ajax({ url, data })
                 .then((res) => {
                     if (multiple) {
                         prependGeneLists(id, this, callback, res);
                     } else {
-                        const genes = res.results.map((obj) => ({ ...obj, name: obj.gene }));
+                        const genes = res.results.map((obj) => ({
+                            ...obj,
+                            name: obj.gene,
+                        }));
                         callback(genes);
                     }
                 })
@@ -252,7 +272,8 @@ export function initGeneSelect(
         },
     });
 
-    if (gene.name) setDefaultGene(select, gene.name, gene.description, gene.domains);
+    if (gene.name)
+        setDefaultGene(select, gene.name, gene.description, gene.domains);
     if (multiple) initGeneSelectValues(select, selected);
     return select;
 }

@@ -52,11 +52,7 @@ export function createGeneTable(
     species,
     dataset,
     url,
-    {
-        correlation = false,
-        select = "none",
-        genes = null,
-    } = {}
+    { correlation = false, select = "none", genes = null } = {},
 ) {
     const linkGene = makeLinkGene(dataset);
     // Columns to display
@@ -106,7 +102,7 @@ export function createGeneTable(
         selectParam = false;
     }
 
-    const method = (genes && Array.isArray(genes)) ? "POST" : "GET";
+    const method = genes && Array.isArray(genes) ? "POST" : "GET";
     const table = new DataTable(`#${id}`, {
         ajax: {
             url: url,
@@ -166,6 +162,7 @@ export function createGeneTable(
 export function updateGeneTable(table, genes) {
     const species = JSON.parse(table.ajax.params()).species;
     const method = table.settings()[0].ajax.type;
-    table.settings()[0].ajax.data = d => buildDataQuery(d, species, genes, method);
+    table.settings()[0].ajax.data = (d) =>
+        buildDataQuery(d, species, genes, method);
     table.ajax.reload();
 }

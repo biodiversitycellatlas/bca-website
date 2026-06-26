@@ -30,7 +30,7 @@ export function handleFormSubmit(id, dataset) {
         }
 
         // Get values
-        const multiple = [ "gene_lists" ]
+        const multiple = ["gene_lists"];
         for (const i in multiple) {
             const param = multiple[i];
             const values = formData.getAll(param);
@@ -40,7 +40,9 @@ export function handleFormSubmit(id, dataset) {
             if (param == "gene_lists") {
                 // Get genes from user lists
                 const lists = getUserLists(`${id}_${param}`, dataset);
-                const matches = lists.filter((list) => values.includes(list.name));
+                const matches = lists.filter((list) =>
+                    values.includes(list.name),
+                );
                 let genes = matches.flatMap((list) => list.items);
 
                 // Get remaining lists

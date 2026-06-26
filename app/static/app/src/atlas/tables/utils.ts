@@ -2,7 +2,6 @@
  * Utility functions for DataTables displaying gene information.
  */
 
-import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
