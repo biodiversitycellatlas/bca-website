@@ -14,7 +14,6 @@ import "datatables.net-select-bs5";
  */
 export function renderTables(id) {
     $(id).DataTable({
-        responsive: true,
         pageLength: 25,
         scrollX: true,
         language: { search: "", searchPlaceholder: "Search table..." },
