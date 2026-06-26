@@ -89,14 +89,14 @@ function prependGeneLists(id, select, callback, data) {
  * Add a default gene to select input and set it as current.
  *
  * @param {string} select - Select element.
- * @param {string} gene - Gene name.
+ * @param {string} name - Gene name.
  * @param {string} description - Gene description.
  * @param {array} domains - Array of gene domains.
  */
-function setDefaultGene(select, gene, description, domains) {
-    const geneOptions = { gene, description, domains };
+function setDefaultGene(select, name, description, domains) {
+    const geneOptions = { name, description, domains };
     select.addOption(geneOptions);
-    select.setValue(gene);
+    select.setValue(name);
 }
 
 /**
@@ -186,10 +186,7 @@ export function initGeneSelect(
             // Avoid jumping if value is empty or matches current gene
             if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
-                    const url = getViewUrl("atlas_gene", {
-                        dataset,
-                        gene: value,
-                    });
+                    const url = getViewUrl("atlas_gene", { dataset, gene: value });
                     if (window.location.pathname != url) {
                         window.location.href = url;
                     }
