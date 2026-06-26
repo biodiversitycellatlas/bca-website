@@ -192,7 +192,6 @@ export function loadModuleGeneTable(
                 return renderCollapsibleRowGroups(rows, group, datasetHtml);
             },
         },
-        responsive: true,
         scrollX: true,
         scrollY: "400px",
         paging: false,
