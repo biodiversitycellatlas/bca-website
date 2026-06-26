@@ -114,6 +114,6 @@ export function createEnrichmentTable(id, species, dataset, data) {
     });
 
     table.on("click", "tbody td.dt-control", (e) =>
-        toggleSuportingGenes(e, table, species, dataset)
+        toggleSupportingGenes(e, table, species, dataset)
     );
 }
