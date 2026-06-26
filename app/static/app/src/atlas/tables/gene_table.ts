@@ -168,6 +168,4 @@ export function updateGeneTable(table, genes) {
     const method = table.settings()[0].ajax.type;
     table.settings()[0].ajax.data = d => buildDataQuery(d, species, genes, method);
     table.ajax.reload();
-
-    console.log(table, table.ajax, table.ajax.params());
 }
