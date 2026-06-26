@@ -59,7 +59,7 @@ export function handleFormSubmit(id, dataset) {
     });
 }
 
-export function prepareEnrichmentResults(dataset, genes) {
+export function prepareEnrichmentResults(species, dataset, genes) {
     const url = getViewUrl("rest:enrichment-list");
     const payload = { dataset: dataset, genes: genes.split(",") };
 
@@ -75,7 +75,7 @@ export function prepareEnrichmentResults(dataset, genes) {
         .then((data) => {
             createSemanticSimilarityPlot("#semantic-plot", data);
             createWordCloud("#words-plot", data);
-            createEnrichmentTable("enrichment", dataset, data);
+            createEnrichmentTable("enrichment", species, dataset, data);
         })
         .catch((err) => {
             console.error("Error loading enrichment data:", err);

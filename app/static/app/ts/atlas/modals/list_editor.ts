@@ -537,11 +537,12 @@ function createUserListsFromFile(elem, id, species, maxMB = 10) {
  * Update table based on selection.
  *
  * @param {string} id - Base identifier.
+ * @param {string} species - Species identifier.
  * @param {Object} dataset - Dataset reference for table creation.
  */
-function updateTable(id, dataset) {
+function updateTable(id, species, dataset) {
     // Create gene table
-    const table = createGeneTable(`${id}_editor_table`, dataset);
+    const table = createGeneTable(`${id}_editor_table`, species, dataset);
 
     // Update interface based on selection
     table.on("select deselect", function (e, dt, type) {
@@ -578,7 +579,7 @@ export function loadGeneLists(id, species, dataset) {
             });
             drawUserLists(id, species);
         })
-        .then(() => updateTable(id, dataset))
+        .then(() => updateTable(id, species, dataset))
         .catch((error) => {
             console.error("Error fetching data:", error);
         });

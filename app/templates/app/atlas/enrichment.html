@@ -102,9 +102,10 @@ Features:
             from "{% static 'app/js/atlas/enrichment.js' %}";
 
         const dataset = "{{dataset.slug}}";
+        const species = "{{dataset.species.scientific_name}}";
         handleFormSubmit("", dataset);
         {% if query.genes %}
-            prepareEnrichmentResults(dataset, "{{query.genes}}");
+            prepareEnrichmentResults(species, dataset, "{{query.genes}}");
         {% endif %}
     </script>
 

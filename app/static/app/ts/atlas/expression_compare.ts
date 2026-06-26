@@ -22,15 +22,17 @@ import {
  * initializes a single-selection gene DataTable with correlation columns.
  *
  * @param {string} id - Container element ID for the table.
+ * @param {string} species - Species identifier.
  * @param {Object} dataset - Dataset reference for linking genes and fetching data.
  * @param {string} gene - Gene ID for which to load correlated genes.
  */
-function createGeneCorrelationTable(id, dataset, gene) {
+function createGeneCorrelationTable(id, species, dataset, gene) {
     // Get lists from API
     const corrURL = getViewUrl("rest:correlated-list", { dataset, gene });
     appendDataMenu(id, corrURL, "Correlation table (current page)");
     const table = createGeneTable(
         `${id}_table`,
+        species,
         dataset,
         corrURL,
         true,
@@ -110,9 +112,9 @@ function loadExpressionComparison(id, dataset, gene, gene2, stats) {
  * @param {Object} dataset - Dataset reference for linking genes and fetching data.
  * @param {string} gene - Gene ID for which to load correlated genes.
  */
-export function loadGeneCorrelation(id, dataset, gene) {
+export function loadGeneCorrelation(id, species, dataset, gene) {
     // Create gene correlation table
-    const table = createGeneCorrelationTable(id, dataset, gene);
+    const table = createGeneCorrelationTable(id, species, dataset, gene);
 
     // Plot expression data to compare two genes based on table selection
     plotGeneExpressionComparison(table, id, dataset, gene);

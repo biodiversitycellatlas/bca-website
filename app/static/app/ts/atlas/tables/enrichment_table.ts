@@ -28,10 +28,11 @@ function linkExternalGOterm(name, type = "display", row = null) {
  * Initialize a DataTable for displaying marker gene information.
  *
  * @param {string} id - HTML element ID to attach the table.
+ * @param {string} species - Species identifier.
  * @param {Object} dataset - Dataset reference for linking genes.
  * @param {Object} data - Data object.
  */
-export function createEnrichmentTable(id, dataset, data) {
+export function createEnrichmentTable(id, species, dataset, data) {
     const linkGene = makeLinkGene(dataset);
     const linkGeneArray = (genes) => {
         if (!genes) return "";
@@ -105,7 +106,7 @@ export function createEnrichmentTable(id, dataset, data) {
             ).show();
 
             const url = getViewUrl("rest:gene-list");
-            createGeneTable(childId, dataset, url, false, false, data.genes);
+            createGeneTable(childId, species, dataset, url, false, false, data.genes);
         }
     });
 }

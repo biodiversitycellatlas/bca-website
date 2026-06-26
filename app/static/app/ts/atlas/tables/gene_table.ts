@@ -7,7 +7,7 @@ import "datatables.net-select-bs5";
 
 import { makeLinkGene, linkDomains } from "./utils.ts";
 
-function buildDataQuery(data, genes) {
+function buildDataQuery(data, species, genes) {
     let ordering;
     if (data.order && data.order[0]) {
         const o = data.order[0];
@@ -15,6 +15,7 @@ function buildDataQuery(data, genes) {
     }
 
     const params = {
+        species: species,
         genes: genes,
         // DataTable-associated parameters
         offset: data.start,
@@ -22,6 +23,7 @@ function buildDataQuery(data, genes) {
         q: data.search.value,
         ordering: ordering,
     };
+    console.log(params);
     return JSON.stringify(params);
 }
 
@@ -39,6 +41,7 @@ function filterData(data) {
  *
  * @param {string} id - Table element ID.
  * @param {Object} dataset - Dataset reference used for linking genes.
+ * @param {string} species - Species slug.
  * @param {string} [url=""] - Data source URL for AJAX loading.
  * @param {boolean} [correlation=false] - Whether to include correlation columns.
  * @param {string} [select="multiple"] - Selection mode: "multiple", "single", or "none".
@@ -46,6 +49,7 @@ function filterData(data) {
  */
 export function createGeneTable(
     id,
+    species,
     dataset,
     url = "",
     correlation = false,
@@ -106,7 +110,7 @@ export function createGeneTable(
             type: "POST",
             contentType: "application/json",
             data: function (d) {
-                return buildDataQuery(d, genes);
+                return buildDataQuery(d, species, genes);
             },
             dataFilter: filterData,
             dataSrc: "results",
