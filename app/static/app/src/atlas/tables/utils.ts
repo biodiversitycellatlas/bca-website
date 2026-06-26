@@ -2,7 +2,6 @@
  * Utility functions for DataTables displaying gene information.
  */
 
-import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
@@ -148,6 +147,6 @@ export function parseArray(data) {
  * @param {string} id - HTML element ID of the DataTable.
  * @returns {Array} Array of selected row data.
  */
-export function getSelectedRows(id) {
-    return $(`#${id}`).DataTable().select.cumulative().rows.slice();
+export function getSelectedRows(table) {
+    return table.select.cumulative().rows.slice();
 }
