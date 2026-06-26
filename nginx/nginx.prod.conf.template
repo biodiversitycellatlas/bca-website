@@ -55,6 +55,14 @@ map $bad_bot $bot_limit_key {
     0   "";
 }
 
+# --- Plausible origin allowlist ---
+map $http_origin $valid_plausible_origin {
+    "https://${DJANGO_HOSTNAME}"  1;
+    "https://www.${GHOST_HOSTNAME}"      1;
+    "https://${GHOST_HOSTNAME}"          1;
+    default                              0;
+}
+
 # --- Rate limiting zones (bots only) ---
 # bot_req: max 5 requests/second per bot IP, with a burst allowance of 20 (nodelay)
 limit_req_zone $bot_limit_key zone=bot_req:10m rate=5r/s;
@@ -200,8 +208,8 @@ server {
 }
 
 server {
-    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
-    listen [::]:443 ssl http2; # IPv6 support
+    listen 443 ssl; # Listen on port 443 for SSL
+    listen [::]:443 ssl; # IPv6 support
     server_name ${PLAUSIBLE_HOSTNAME};
 
     # --- Wildcard SSL Certificate Paths (same as above) ---
@@ -210,6 +218,24 @@ server {
 
     # Plausible requires specific proxy headers for correct operation,
     # especially for X-Forwarded-Proto to handle the HTTPS connection.
+
+    # Restrict event ingestion to our own domains — prevents third-party sites
+    # from polluting analytics by spoofing this endpoint.
+    location = /api/event {
+        if ($valid_plausible_origin = 0) {
+            return 403;
+        }
+
+        proxy_pass http://plausible:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        client_max_body_size 50m;
+        proxy_http_version 1.1;
+    }
+
     location / {
         proxy_pass http://plausible:8000; # Proxy to the internal container name and port
 

@@ -52,7 +52,7 @@ Input:
 <script type="module">
     {% load static %}
     import { initSpeciesSelect }
-        from "{% static 'app/js/select/species.js' %}";
+        from "{% static 'app/dist/select/species.js' %}";
     document.addEventListener('DOMContentLoaded', function() {
         let id = "{{id}}",
             species = "{{species.slug}}",

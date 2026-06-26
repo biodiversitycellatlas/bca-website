@@ -42,10 +42,37 @@ def skip_param(queryset, name, value):
     return queryset
 
 
+def update_species_choices():
+    """Update species choices"""
+    choices = []
+    if check_model_exists(models.Species):
+        choices = [
+            (
+                s.scientific_name,
+                s.common_name if s.common_name is not None else s.get_html(),
+            )
+            for s in models.Species.objects.all()
+        ]
+        choices = sorted(choices, key=lambda x: x[0])
+    return choices
+
+
+class SpeciesChoiceField(ChoiceField):
+    """Forcing dynamic updating of species choices"""
+
+    null_label = None
+
+    def valid_value(self, value):
+        """Update dataset choices before validation."""
+        self.choices = update_species_choices()
+        return super().valid_value(value)
+
+
 class SpeciesChoiceFilter(ChoiceFilter):
     """Choice filter for selecting a species by scientific or common name."""
 
     default_field_name = "species"
+    field_class = SpeciesChoiceField
 
     def __init__(self, field_name=None, label=None, *args, **kwargs):
         """
@@ -56,18 +83,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
         field_name = field_name or self.default_field_name
         anchor_url = "#/operations/species_list"
         label = label or f"The <a href='{anchor_url}'>species' scientific name</a>."
-
-        choices = []
-        if check_model_exists(models.Species):
-            choices = [
-                (
-                    s.scientific_name,
-                    s.common_name if s.common_name is not None else s.get_html(),
-                )
-                for s in models.Species.objects.all()
-            ]
-            choices = sorted(choices, key=lambda x: x[0])
-
+        choices = update_species_choices()
         super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
 
     def filter(self, qs, value):

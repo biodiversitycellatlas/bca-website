@@ -2,7 +2,7 @@
 
 import logging
 import os
-import subprocess
+import subprocess  # nosec B603, B404
 import tempfile
 from urllib.parse import unquote_plus
 
@@ -749,7 +749,7 @@ class AlignViewSet(viewsets.ViewSet):
                 "--out",
                 out_path,
             ]
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            subprocess.run(cmd, check=True, capture_output=True, text=True)  # nosec B603, B404
 
             columns = list(serializers.AlignResponseSerializer().fields.keys())
 

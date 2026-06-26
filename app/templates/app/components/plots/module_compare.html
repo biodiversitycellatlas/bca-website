@@ -91,8 +91,8 @@ Input:
     <!-- JavaScript code -->
     <script type="module">
         {% load static %}
-        import { loadModuleSimilarityPlot } from "{% static 'app/js/atlas/module_similarity.js' %}";
-        import { loadModuleGeneTable } from "{% static 'app/js/atlas/module_overlaps.js' %}";
+        import { loadModuleSimilarityPlot } from "{% static 'app/dist/atlas/module_similarity.js' %}";
+        import { loadModuleGeneTable } from "{% static 'app/dist/atlas/module_overlaps.js' %}";
 
         // Load intersecting and unique genes from selected modules in the plot
         const id = "{{ id }}",

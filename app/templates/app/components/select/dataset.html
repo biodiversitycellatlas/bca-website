@@ -64,7 +64,7 @@ Input:
 <!-- Species select options -->
 <script type="module">
     {% load static %}
-    import { initDatasetSelect } from "{% static 'app/js/select/dataset.js' %}";
+    import { initDatasetSelect } from "{% static 'app/dist/select/dataset.js' %}";
     let id = "{{id}}",
         dataset = "{{dataset.slug}}",
         query = "{{query.dataset}}",

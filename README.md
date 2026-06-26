@@ -309,6 +309,16 @@ podman compose exec web bun test --coverage
 podman compose exec web bun test --watch
 ```
 
+### Run end-to-end tests
+
+```bash
+# Locally deploy the web app
+podman compose up -d --build
+
+# Run end-to-end tests with PyTest
+podman compose exec web pytest e2e/ -v
+```
+
 ## Linters
 
 ### Run djlint

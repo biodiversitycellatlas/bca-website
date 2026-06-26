@@ -20,6 +20,6 @@ Input:
 
 {% load static %}
 <script type="module">
-    import { loadGeneCorrelation } from "{% static 'app/js/atlas/expression_compare.js' %}";
+    import { loadGeneCorrelation } from "{% static 'app/dist/atlas/expression_compare.js' %}";
     loadGeneCorrelation("{{id}}", "{{dataset.species.scientific_name}}", "{{dataset.slug}}", "{{gene}}");
 </script>

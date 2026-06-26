@@ -13,6 +13,6 @@ Input:
 {% load static %}
 <!-- Plot gene expression data -->
 <script type="module">
-    import { loadGeneExpression } from "{% static 'app/js/atlas/expression_single.js' %}";
+    import { loadGeneExpression } from "{% static 'app/dist/atlas/expression_single.js' %}";
     loadGeneExpression("{{dataset.slug}}", "{{dataset}}", "{{gene.slug}}", "{{gene}}");
 </script>

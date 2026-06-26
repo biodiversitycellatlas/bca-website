@@ -191,9 +191,9 @@ Input:
 
 <!-- Gene expression heatmap form -->
 <script type="module">
-    import { handleFormSubmit } from "{% static 'app/js/atlas/expression_panel.js' %}";
-    import { initMetacellSelectionUpdater } from "{% static 'app/js/utils/metacell.js' %}";
-    import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
+    import { handleFormSubmit } from "{% static 'app/dist/atlas/expression_panel.js' %}";
+    import { initMetacellSelectionUpdater } from "{% static 'app/dist/utils/metacell.js' %}";
+    import { initRangeSlider } from "{% static 'app/dist/utils/range_slider.js' %}";
 
     document.addEventListener("DOMContentLoaded", () => {
         const select = document.querySelector("#metacells").tomselect;
@@ -231,7 +231,7 @@ Input:
     </div>
 
     <script type="module">
-        import { loadExpressionData } from "{% static 'app/js/atlas/expression_panel.js' %}";
+        import { loadExpressionData } from "{% static 'app/dist/atlas/expression_panel.js' %}";
         document.addEventListener("DOMContentLoaded", () => {
             loadExpressionData("{{id}}", "{{dataset.slug}}", "{{query.genes}}");
         });

@@ -74,13 +74,13 @@ Input:
 </div>
 
 <script type="module">
-    import { initRangeSlider } from "{% static 'app/js/utils/range_slider.js' %}";
+    import { initRangeSlider } from "{% static 'app/dist/utils/range_slider.js' %}";
     initRangeSlider("#samap_min",
         { min: 0, max: 100, from: {{query.samap_min|default:5}} },
         ["#samap_min_value", undefined]
     );
 
-    import { handleFormSubmit } from "{% static 'app/js/atlas/samap_compare.js' %}";
+    import { handleFormSubmit } from "{% static 'app/dist/atlas/samap_compare.js' %}";
     handleFormSubmit();
 </script>
 
@@ -108,7 +108,7 @@ Input:
     </div>
 
     <script type="module">
-        import { initSAMap } from "{% static 'app/js/atlas/samap_compare.js' %}";
+        import { initSAMap } from "{% static 'app/dist/atlas/samap_compare.js' %}";
         initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
     </script>
 {% endif %}
