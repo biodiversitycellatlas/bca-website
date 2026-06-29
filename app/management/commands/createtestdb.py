@@ -1,6 +1,7 @@
 import itertools
 import os
 import random
+import subprocess
 from typing import TextIO
 
 import factory.random
@@ -8,6 +9,7 @@ import h5py
 import numpy as np
 from django.core.files import File as DjangoFile
 from django.core.management.base import BaseCommand
+from django.db import connection
 from faker import Faker
 
 from app.management.commands import factories
@@ -18,6 +20,7 @@ from app.models import (
     Publication,
     GeneList,
     Gene,
+    GeneModuleMembership,
     Metacell,
     MetacellLink,
     SingleCell,
@@ -32,11 +35,18 @@ from app.models import (
     GeneModule,
     GeneModuleEigengene,
     Meta,
+    SpeciesFile,
 )
 
 
 def setup_test_environment():
     factory.random.reseed_random("bca_project")
+
+
+def create_tgrm_extension():
+    """Installs the pg_trm search extension"""
+    with connection.cursor() as cursor:
+        cursor.execute("create extension pg_trgm;")
 
 
 class Command(BaseCommand):
@@ -63,6 +73,7 @@ class Command(BaseCommand):
         Database creation
         """
         setup_test_environment()
+        create_tgrm_extension()
         self.create_datasets()
         self.create_metadata()
         self.create_genes()
@@ -74,6 +85,7 @@ class Command(BaseCommand):
         self.create_samaps()
         self.create_all_genecorrelations()
         self.create_all_eigengene_values()
+        self.create_species_files()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -152,6 +164,7 @@ class Command(BaseCommand):
     def create_gene_modules(self):
         sponge_genes = list(Gene.objects.filter(species=self.sponge))
         homo_genes = list(Gene.objects.filter(species=self.homo))
+
         factories.GeneModuleFactory.create_batch(
             size=3,
             dataset=self.sponge_dataset,
@@ -162,6 +175,11 @@ class Command(BaseCommand):
             dataset=self.homo_dataset,
             genes=(homo_genes[1], homo_genes[2], homo_genes[3]),
         )
+
+        for gmm in GeneModuleMembership.objects.all():
+            score = self.fake.pyfloat(left_digits=1, right_digits=3, min_value=0.001, max_value=1.0)
+            gmm.membership_score = score
+            gmm.save()
 
     def create_orthogroups(self):
         sponge_genes = list(Gene.objects.filter(species=self.sponge))
@@ -271,6 +289,8 @@ class Command(BaseCommand):
 
         Meta.objects.create(species=self.homo, key="taxon_id", value="9606", source=ncbi, query_term="9606")
         Meta.objects.create(species=self.sponge, key="taxon_id", value="400682", source=ncbi, query_term="400682")
+        Meta.objects.create(species=self.homo, key="phylum", value="Chordata", source=ncbi, query_term="7711")
+        Meta.objects.create(species=self.sponge, key="phylum", value="Porifera", source=ncbi, query_term="6040")
 
     def create_samaps(self):
         metacelltypes = MetacellType.objects.all()
@@ -296,7 +316,7 @@ class Command(BaseCommand):
         self.create_genecorrelations(self.sponge, self.sponge_dataset)
         self.create_genecorrelations(self.homo, self.homo_dataset)
 
-    def create_eigengene_values(self, species, dataset):
+    def create_eigengene_values(self, dataset):
         modules = GeneModule.objects.filter(dataset=dataset)
         metacells = Metacell.objects.filter(dataset=dataset)
         for metacell in metacells:
@@ -308,5 +328,42 @@ class Command(BaseCommand):
                 )
 
     def create_all_eigengene_values(self):
-        self.create_eigengene_values(self.sponge, self.sponge_dataset)
-        self.create_eigengene_values(self.homo, self.homo_dataset)
+        self.create_eigengene_values(self.sponge_dataset)
+        self.create_eigengene_values(self.homo_dataset)
+
+    @staticmethod
+    def save_species_file(species, kind, path):
+        with open(path, "rb") as f:
+            django_file = DjangoFile(f, name=os.path.basename(path))
+            SpeciesFile.objects.get_or_create(species=species, type=kind, defaults={"file": django_file})
+
+    def create_fasta_file(self, species, genes):
+        output_file = f"{species} - Proteome.fasta"
+        with open(output_file, "w") as f:
+            for gene in genes:
+                sequence = self.fake.bothify(
+                    text="M????????????????????????????????????????", letters="ACDEFGHIKLMNPQRSTVWY"
+                )
+                f.write(f">{gene}\n")
+                f.write(sequence)
+                f.write("\n")
+        self.save_species_file(species, "Proteome", output_file)
+        return output_file
+
+    def create_diamond_database(self, species, input_file, output_file):
+        result = subprocess.run(
+            ["/usr/bin/diamond", "makedb", "--in", input_file, "--db", output_file], capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            self.save_species_file(species, "DIAMOND", output_file)
+
+    def create_species_files(self):
+        sponge_genes = list(self.sponge.genes.values_list("name", flat=True))
+        input_file = self.create_fasta_file(self.sponge, sponge_genes)
+        output_file = f"{self.sponge.scientific_name} - DIAMOND.dmnd"
+        self.create_diamond_database(self.sponge, input_file, output_file)
+
+        homo_genes = list(self.homo.genes.values_list("name", flat=True))
+        input_file = self.create_fasta_file(self.homo, homo_genes)
+        output_file = f"{self.homo.scientific_name} - DIAMOND.dmnd"
+        self.create_diamond_database(self.homo, input_file, output_file)

@@ -34,7 +34,7 @@ dependencies = [
     "python-dateutil==2.9.0.post0",
 
     # Blog parsing
-    "beautifulsoup4==4.14.3",
+    "beautifulsoup4==4.15.0",
     "feedparser==6.0.12",
 
     # Documentation pages
@@ -59,7 +59,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "django-debug-toolbar==6.3.0",
-    "djlint==1.38.1",
+    "djlint==1.39.2",
 ]
 
 test = [
