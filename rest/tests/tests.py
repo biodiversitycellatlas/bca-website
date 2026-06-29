@@ -99,16 +99,50 @@ class GeneTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        Gene.objects.create(species=species1, name="Gene1", description="description1")
-        Gene.objects.create(species=species1, name="Gene2", description="description2")
+        mouse = Species.objects.create(scientific_name="Mus musculus")
+        mouse.genes.create(name="Gene1")
+        mouse.genes.create(name="Gene2")
+        mouse.genes.create(name="Gene3")
 
-    def test_genes(self):
-        response = self.client.get("/api/v1/genes/", format="json")
+    def test_get(self):
+        url = "/api/v1/genes/"
+        response = self.client.get(url, format="json")
         genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 3
+        assert {s["gene"] for s in genes} == {"Gene1", "Gene2", "Gene3"}
+
+    def test_get_filtered_by_genes(self):
+        subset = {"Gene1", "Gene3"}
+        url = "/api/v1/genes/?genes=" + ",".join(subset)
+        response = self.client.get(url, format="json")
+        genes = response.data["results"]
+
         assert response.status_code == status.HTTP_200_OK
         assert len(genes) == 2
-        assert {s["gene"] for s in genes} == {"Gene1", "Gene2"}
+        assert {s["gene"] for s in genes} == subset
+
+    def test_post(self):
+        url = "/api/v1/genes/"
+        payload = {}
+
+        response = self.client.post(url, payload, format="json")
+        genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 0
+        assert genes == []
+
+    def test_get_filtered_by_genes(self):
+        url = "/api/v1/genes/"
+        payload = { "genes": {"Gene1", "Gene3"} }
+        response = self.client.post(url, payload, format="json")
+        genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 2
+        assert {s["gene"] for s in genes} == payload["genes"]
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
