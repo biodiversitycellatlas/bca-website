@@ -795,16 +795,12 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         if len(genes) == 0:
             raise NotFound(detail="Genes not found.")
 
-        queryset = (
-            dataset.species.genes
-            .filter(
-                Q(name__in=genes)
-                | Q(domains__name__in=genes)
-                | Q(genelists__name__in=genes)
-                | Q(modules__module__name__in=genes, modules__module__dataset=dataset)
-            )
-            .distinct()
-        )
+        queryset = dataset.species.genes.filter(
+            Q(name__in=genes)
+            | Q(domains__name__in=genes)
+            | Q(genelists__name__in=genes)
+            | Q(modules__module__name__in=genes, modules__module__dataset=dataset)
+        ).distinct()
 
         # Get name of selected genes
         query = list(queryset.values_list("name", flat=True))

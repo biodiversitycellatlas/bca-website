@@ -11,7 +11,6 @@ from goatools.obo_parser import GODag
 
 from app.models import (
     Species,
-    Dataset,
     GlobalFile,
     GeneList,
 )
