@@ -796,12 +796,12 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
             raise NotFound(detail="Genes not found.")
 
         queryset = (
-            dataset.species.genes.filter(modules__module__dataset=dataset)
+            dataset.species.genes
             .filter(
                 Q(name__in=genes)
                 | Q(domains__name__in=genes)
                 | Q(genelists__name__in=genes)
-                | Q(modules__module__name__in=genes)
+                | Q(modules__module__name__in=genes, modules__module__dataset=dataset)
             )
             .distinct()
         )
