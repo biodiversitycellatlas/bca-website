@@ -88,6 +88,11 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
 
+            - name: Setup Python
+              uses: actions/setup-python@v6.3.0
+              with:
+                  python-version: '3.13' 
+
             - name: Install project dependencies
               run: pip install .[dev]
 
