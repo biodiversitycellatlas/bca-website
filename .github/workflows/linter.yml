@@ -88,8 +88,8 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
 
-            - name: Install djlint
-              run: pip install djlint
+            - name: Install project dependencies
+              run: pip install .[dev]
 
             - name: Lint HTML files with djlint
               run: djlint . --reformat
