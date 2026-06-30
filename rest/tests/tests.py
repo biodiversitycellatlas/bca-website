@@ -145,6 +145,95 @@ class GeneTests(APITestCase):
         assert {s["gene"] for s in genes} == payload["genes"]
 
 
+class GeneSearchTests(APITestCase):
+    """Test GeneSearch Endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        mouse = Species.objects.create(scientific_name="Mus musculus")
+        cls.adult_mouse = mouse.datasets.create(name="adult")
+
+        # Create genes
+        mouse.genes.create(name="Trp53")
+        mouse.genes.create(name="Actb")
+        mouse.genes.create(name="Gapdh", description="Green-yellow submarine")
+        mouse.genes.create(name="Myc", description="Green-yellow submarine")
+        mouse.genes.create(name="Brca1")
+        mouse.genes.create(name="Brca2")
+        mouse.genes.create(name="Ptprc")
+        mouse.genes.create(name="Il6", description="Green-yellow submarine")
+        mouse.genes.create(name="Tnf")
+        mouse.genes.create(name="Sox2")
+        genes = mouse.genes.all()
+
+        # Create modules
+        module1 = cls.adult_mouse.gene_modules.create(name="blue")
+        module2 = cls.adult_mouse.gene_modules.create(name="green")
+        module3 = cls.adult_mouse.gene_modules.create(name="yellow")
+        module1.genes.add(*genes[0:4])
+        module2.genes.add(*genes[4:6])
+        module3.genes.add(*genes[6:10])
+
+        # Create gene lists
+        genelist1 = GeneList.objects.create(name="RBP", description="RNA-binding proteins")
+        genelist2 = GeneList.objects.create(name="TF", description="Transcription factors")
+        genelist3 = GeneList.objects.create(name="Custom list", description="List of Brca genes")
+        genelist1.genes.add(*genes[0:7])
+        genelist2.genes.add(*genes[5:10])
+        genelist3.genes.add(*mouse.genes.filter(name__startswith="Brca"))
+
+        # Create domains
+        domain1 = Domain.objects.create(name="Kinase")
+        domain2 = Domain.objects.create(name="Zinc finger")
+        domain1.gene_set.add(*genes[0:3])
+        domain2.gene_set.add(*genes[4:6])
+
+    def test_get(self):
+        """Test setting dataset only."""
+        dataset = self.adult_mouse.slug
+        limit = 3
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Actb", "Brca1", "Brca2"}
+        assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
+        assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
+        assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
+
+    def test_get_query(self):
+        """Test setting query string."""
+
+        # Test gene name (also matches the description of a list)
+        dataset = self.adult_mouse.slug
+        limit = 3
+        q = "brca"
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}&q={q}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Brca1", "Brca2"}
+        assert {s["name"] for s in data["gene_lists"]} == {"Custom list"}
+        assert data["gene_modules"] == []
+        assert data["domains"] == []
+
+        # Test module name (also matches description of a few genes)
+        dataset = self.adult_mouse.slug
+        limit = 3
+        q = "yellow"
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}&q={q}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Gapdh", "Myc", "Il6"}
+        assert data["gene_lists"] == []
+        assert {s["module"] for s in data["gene_modules"]} == {"yellow"}
+        assert data["domains"] == []
+
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class SingleCellGeneExpressionTests(APITestCase):
     """Tests SingleCellGeneExpression Endpoint"""
