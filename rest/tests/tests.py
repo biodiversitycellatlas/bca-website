@@ -134,9 +134,9 @@ class GeneTests(APITestCase):
         assert len(genes) == 0
         assert genes == []
 
-    def test_get_filtered_by_genes(self):
+    def test_post_filtered_by_genes(self):
         url = "/api/v1/genes/"
-        payload = { "genes": {"Gene1", "Gene3"} }
+        payload = { "genes": { "Gene1", "Gene3" } }
         response = self.client.post(url, payload, format="json")
         genes = response.data["results"]
 
