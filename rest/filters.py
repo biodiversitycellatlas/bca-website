@@ -313,7 +313,10 @@ class GeneListFilter(QueryFilterSet):
     species = SpeciesChoiceFilter(field_name="genes")
     q = CharFilter(
         method="query",
-        label="Query string to filter results. The string will be searched and ranked across gene list names and description.",
+        label=(
+            "Query string to filter results. "
+            "The string will be searched and ranked across gene list names and description."
+        ),
     )
     query_fields = ["name", "description"]
 
