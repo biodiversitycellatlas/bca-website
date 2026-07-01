@@ -24,7 +24,7 @@ function linkExternalGOterm(name, type = "display", row = null) {
     return name;
 }
 
- /**
+/**
  * Toggles the display of supporting gene details for a selected enrichment term.
  *
  * @param {Event} e - Click event from the DataTable cell.
@@ -45,11 +45,13 @@ function toggleSupportingGenes(e, table, species, dataset) {
         const childId = `genes-${term}`;
 
         // Create child table within row
-        row.child(`
+        row.child(
+            `
             <div class="dt-child-container p-1 ps-4 bg-white overflow-hidden">
                 <table id="${childId}" class="dt-child-table display compact"></table>
             </div>
-        `).show();
+        `,
+        ).show();
 
         const url = getViewUrl("rest:gene-list");
         createGeneTable(childId, species, dataset, url, {
@@ -114,6 +116,6 @@ export function createEnrichmentTable(id, species, dataset, data) {
     });
 
     table.on("click", "tbody td.dt-control", (e) =>
-        toggleSupportingGenes(e, table, species, dataset)
+        toggleSupportingGenes(e, table, species, dataset),
     );
 }
