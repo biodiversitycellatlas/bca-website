@@ -2,7 +2,6 @@
  * Utility functions for DataTables displaying gene information.
  */
 
-import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
@@ -19,6 +18,13 @@ export function linkElement(text, url) {
     const a = document.createElement("a");
     a.href = url;
     a.textContent = text;
+
+    // Link to an external webpage
+    const isExternal = a.host !== window.location.host;
+    if (isExternal) {
+        a.target = "_blank";
+        a.rel = "noopener";
+    }
     return a.outerHTML;
 }
 
@@ -130,6 +136,20 @@ export function round(data, type) {
 }
 
 /**
+ * Round numeric value to 2 significant digits for display or filtering.
+ *
+ * @param {number|string} data - The numeric value to round.
+ * @param {string} type - Rendering type: "display", "filter", etc.
+ * @returns {string|number} Rounded value for display or original for other types.
+ */
+export function roundSignificantDigits(data, type) {
+    if (type === "display" || type === "filter") {
+        return parseFloat(data).toExponential(2).replace("e", "E");
+    }
+    return data;
+}
+
+/**
  * Convert an array into a comma-separated string for display.
  *
  * @param {Array|string} data - Array of values to join.
@@ -145,9 +165,9 @@ export function parseArray(data) {
 /**
  * Get the currently selected rows from a DataTable.
  *
- * @param {string} id - HTML element ID of the DataTable.
+ * @param {string} table - DataTable element.
  * @returns {Array} Array of selected row data.
  */
-export function getSelectedRows(id) {
-    return $(`#${id}`).DataTable().select.cumulative().rows.slice();
+export function getSelectedRows(table) {
+    return table.select.cumulative().rows.slice();
 }
