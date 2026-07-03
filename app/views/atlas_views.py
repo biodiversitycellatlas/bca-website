@@ -64,6 +64,11 @@ class BaseAtlasView(TemplateView):
                 "tooltip": "Identify genes with specific expression patterns in selected metacells",
             },
             {
+                "name": "Cell type hierarchy",
+                "icon": "sitemap",
+                "url_view": "atlas_hierarchy",
+            },
+            {
                 "name": "Cross-species",
                 "icon": "scale-unbalanced",
                 "url_view": "atlas_compare",
@@ -278,6 +283,12 @@ class AtlasPanelView(BaseAtlasView):
         dataset = context.get("dataset")
         context["metacell_dict"] = get_metacell_dict(dataset)
         return context
+
+
+class AtlasCellTypeHierarchyView(BaseAtlasView):
+    """Cell type hierarchy page."""
+
+    template_name = "app/atlas/hierarchy.html"
 
 
 class AtlasMarkersView(BaseAtlasView):

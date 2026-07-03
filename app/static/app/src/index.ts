@@ -9,6 +9,7 @@ import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-select-bs5/css/select.bootstrap5.min.css";
 import "ion-rangeslider/css/ion.rangeSlider.min.css";
 import "tom-select/dist/css/tom-select.bootstrap5.min.css";
+import "phylotree/dist/phylotree.css";
 
 // Fonts
 import "@fontsource/rubik"; // Rubik typeface

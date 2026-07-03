@@ -1,0 +1,35 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Cell type hierarchies
+
+Features:
+- Phylogenetic tree showing metacell-based hierarchies:
+    - Fetches via REST API
+    - Download data button
+    - Copy link to clipboard button
+
+Input:
+- dataset: Dataset object
+
+{% endcomment %}
+
+{% block title %}
+    {{ dataset }} Cell Type Hierarchies
+{% endblock title %}
+
+{% block content %}
+
+    {% load static %}
+
+    {% load headings %}
+    {% h1 "Cell type hierarchy" id="trees" %}
+    <div id="hierarchy-tree"></div>
+
+    <script type="module">
+        import { initCellTypeHierarchy } from "{% static 'app/dist/atlas/hierarchy.js' %}";
+        initCellTypeHierarchy("hierarchy", "{{dataset.slug}}");
+    </script>
+
+{% endblock content %}
