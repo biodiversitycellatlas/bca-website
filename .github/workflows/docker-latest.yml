@@ -28,7 +28,7 @@ jobs:
                   persist-credentials: false
 
             - name: Set up QEMU
-              uses: docker/setup-qemu-action@v4
+              uses: docker/setup-qemu-action@v4.1.0
 
             - name: Tune QEMU
               run: |
