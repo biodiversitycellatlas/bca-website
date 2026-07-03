@@ -6,7 +6,7 @@
       "name": "app",
       "dependencies": {
         "@fontsource/rubik": "5.2.8",
-        "@fortawesome/fontawesome-free": "7.2.0",
+        "@fortawesome/fontawesome-free": "7.3.0",
         "@phosphor-icons/web": "2.1.2",
         "autoprefixer": "10.5.0",
         "bootstrap": "5.3.8",
@@ -30,7 +30,7 @@
   "packages": {
     "@fontsource/rubik": ["@fontsource/rubik@5.2.8", "", {}, "sha512-PIc8QR7FqWPcYhbdRiGff56vQlKqg/ytES1YqecSq1GkgxiH4TBshrFvDEOZ9JonUF9m1qQ+qXxJj7wD5zgXEw=="],
 
-    "@fortawesome/fontawesome-free": ["@fortawesome/fontawesome-free@7.2.0", "", {}, "sha512-3DguDv/oUE+7vjMeTSOjCSG+KeawgVQOHrKRnvUuqYh1mfArrh7s+s8hXW3e4RerBA1+Wh+hBqf8sJNpqNrBWg=="],
+    "@fortawesome/fontawesome-free": ["@fortawesome/fontawesome-free@7.3.0", "", {}, "sha512-Yw4Qa43P6e4Xwh0TwEUkHQNRJInWaqIBo73VJmns3j2AIlZPAvUcR4yGIxCPqPRCgyJ5KIVIalF/I1GxhZ/Kgw=="],
 
     "@happy-dom/global-registrator": ["@happy-dom/global-registrator@20.10.2", "", { "dependencies": { "@types/node": ">=20.0.0", "happy-dom": "^20.10.2" } }, "sha512-/DC0hluanNJDVPUu69cidD46sGwzt8MJATiGx7WgCScn+ZH48fJQ0fvTfMPXY82/ASXWxnNo8P4BdHyU/dI/EA=="],
 
