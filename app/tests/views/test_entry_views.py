@@ -55,7 +55,7 @@ class GeneViewTests(DataTestCase):
         self.assertContains(response, self.mouse.get_named_html_link())
 
         # Check datasets
-        self.assertContains(response, "BCA datasets")
+        self.assertContains(response, "Datasets")
         for d in self.mouse.datasets.all():
             self.assertContains(response, d)
 
