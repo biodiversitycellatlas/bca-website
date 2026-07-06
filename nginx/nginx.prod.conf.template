@@ -49,7 +49,10 @@ map $http_user_agent $bad_bot {
     ~*Yandex          1;
 }
 
-# Empty key = nginx skips the limit entirely for non-bots
+# Map bot flag to a rate-limit key. nginx skips limit_req/limit_conn zones entirely
+# when the key is an empty string — so non-bots (0 → "") are never rate-limited.
+# NOTE: if copying this pattern elsewhere, be careful not to invert the polarity:
+# bots must map to a real key ($binary_remote_addr) and non-bots to "".
 map $bad_bot $bot_limit_key {
     1   $binary_remote_addr;
     0   "";
@@ -121,7 +124,8 @@ ssl_prefer_server_ciphers on;
 add_header X-Content-Type-Options nosniff;
 add_header X-Frame-Options SAMEORIGIN;
 add_header X-XSS-Protection "1; mode=block";
-# add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+proxy_hide_header Strict-Transport-Security;
 
 # ----------------------------------------------------------------------
 # Buffer & Header Optimizations
@@ -275,6 +279,10 @@ server {
     }
 
     location / {
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+        
         proxy_pass http://plausible:8000; # Proxy to the internal container name and port
 
         # Standard Proxy Headers
