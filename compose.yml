@@ -38,6 +38,7 @@ services:
             - mail__options__host=${GHOST_MAIL_OPTIONS_HOST}
             - mail__options__port=${GHOST_MAIL_OPTIONS_PORT}
             - mail__transport=${GHOST_MAIL_TRANSPORT}
+            - mail__from=${GHOST_MAIL_FROM}
 
     mailpit:
         image: docker.io/axllent/mailpit:v1.30.3
