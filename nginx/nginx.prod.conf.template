@@ -282,7 +282,7 @@ server {
         limit_req zone=bot_req burst=20 nodelay;
         limit_req_status 429;
         limit_conn bot_conn 5;
-        
+
         proxy_pass http://plausible:8000; # Proxy to the internal container name and port
 
         # Standard Proxy Headers
