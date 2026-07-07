@@ -263,9 +263,6 @@ server {
         # Real Chrome always has a 4-part build number (e.g. Chrome/131.0.6778.70).
         # The exact major.0.0.0 pattern is never emitted by a real browser.
         if ($http_user_agent ~* "Chrome/[0-9]+\.0\.0\.0") { return 403; }
-        # The Plausible JS snippet always fires with a Referer (the page being tracked).
-        # Direct POST bots typically omit it entirely — block them regardless of UA or IP.
-        if ($http_referer = "") { return 403; }
         if ($valid_plausible_origin = 0) { return 403; }
 
         proxy_pass http://plausible:8000;
