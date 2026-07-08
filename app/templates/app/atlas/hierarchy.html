@@ -25,6 +25,57 @@ Input:
 
     {% load headings %}
     {% h1 "Cell type hierarchy" id="trees" %}
+
+    <div id="plot-options" class="row g-2 mb-4 align-items-end">
+        <!-- Toggle visibility -->
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-eye"></i> View options
+                </label>
+            </div>
+
+            <div class="btn-group d-flex" role="group">
+                <input type="checkbox"
+                       class="btn-check"
+                       id="align-tips"
+                       autocomplete="off"
+                       checked>
+                <label class="btn btn-outline-primary" for="align-tips">
+                    Align tips
+                </label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="scale-bar"
+                       autocomplete="off"
+                       checked>
+                <label class="btn btn-outline-primary" for="scale-bar">
+                    Scale bar
+                </label>
+            </div>
+        </div>
+
+        <!-- Tree type -->
+        <div class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-tree"></i> Tree type
+                </label>
+            </div>
+            <div class="btn-group d-flex" id="tree-type" role="group">
+                <input type="radio" class="btn-check" name="tree-type" id="linear-tree" value="linear" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="linear-tree">Linear</label>
+
+                <input type="radio" class="btn-check" name="tree-type" id="radial-tree" value="radial" autocomplete="off">
+                <label class="btn btn-outline-primary" for="radial-tree">Radial</label>
+
+                <input type="radio" class="btn-check" name="tree-type" id="unrooted-tree" value="unrooted" autocomplete="off">
+                <label class="btn btn-outline-primary" for="unrooted-tree">Unrooted</label>
+            </div>
+        </div>
+    </div>
+
     <div id="hierarchy-tree"></div>
 
     <script type="module">
