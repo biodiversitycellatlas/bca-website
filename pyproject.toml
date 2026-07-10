@@ -63,7 +63,7 @@ dev = [
 ]
 
 test = [
-    "coverage==7.14.3",
+    "coverage==7.15.0",
     "factory_boy==3.3.3",
     "pytest==9.1.1",
     "pytest_django==4.12.0",
