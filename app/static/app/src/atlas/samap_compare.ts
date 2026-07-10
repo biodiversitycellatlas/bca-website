@@ -68,7 +68,7 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
         limit: 0,
     });
 
-    var heatmap = $("#plot").val() == "heatmap";
+    const heatmap = $("#plot").val() == "heatmap";
     fetch(url)
         .then((response) => response.json())
         .then((data) => {

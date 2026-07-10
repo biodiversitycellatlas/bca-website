@@ -32,7 +32,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
         [dataset_label, dataset2_label] = [dataset2_label, dataset_label];
     }
 
-    var chart = {
+    const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },
