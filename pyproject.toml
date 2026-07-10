@@ -77,7 +77,7 @@ e2e = [
 dataload = [
     "pandas==3.0.3",
     "psutil==7.2.2",
-    "rds2py==0.10.1",
+    "rds2py==0.10.4",
     "scipy==1.18.0",
 ]
 
