@@ -480,12 +480,12 @@ class OrthologCountFilter(FilterSet):
         fields = ["orthogroup", "species"]
 
 
-class SAMapFilter(FilterSet):
-    """Filter set for SAMap scores."""
+class MetacellSimilarityFilter(FilterSet):
+    """Filter set to fetch metacell similarity scores."""
 
     dataset = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
     dataset2 = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
-    threshold = NumberFilter(
+    min_samap = NumberFilter(
         label="Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>",
         field_name="samap",
         lookup_expr="gte",
@@ -494,8 +494,8 @@ class SAMapFilter(FilterSet):
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.SAMap
-        fields = ["dataset", "dataset2", "threshold"]
+        model = models.MetacellSimilarity
+        fields = ["dataset", "dataset2", "min_samap"]
 
     @property
     def qs(self):

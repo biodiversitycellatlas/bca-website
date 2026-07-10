@@ -21,7 +21,7 @@ router.register("module_similarity_genes", views.GeneModuleSimilarityGenesViewSe
 
 router.register("orthologs", views.OrthologViewSet)
 router.register("ortholog_counts", views.OrthologCountViewSet, basename="orthologcount")
-router.register("samap", views.SAMapViewSet)
+router.register("metacell_similarity", views.MetacellSimilarityViewSet)
 
 router.register("metacells", views.MetacellViewSet)
 router.register("metacell_links", views.MetacellLinkViewSet, basename="metacelllink")

@@ -290,18 +290,18 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
-@extend_schema(summary="List SAMap scores", tags=["Cross-species"])
-class SAMapViewSet(BaseReadOnlyModelViewSet):
-    """List SAMap alignment scores (in percentage) between cell types of two different datasets."""
+@extend_schema(summary="List metacell similariy scores", tags=["Cross-species"])
+class MetacellSimilarityViewSet(BaseReadOnlyModelViewSet):
+    """List metacell similarity scores between cell types of different datasets."""
 
-    queryset = models.SAMap.objects.prefetch_related(
+    queryset = models.MetacellSimilarity.objects.prefetch_related(
         "metacelltype",
         "metacelltype__dataset",
         "metacelltype2",
         "metacelltype2__dataset",
     )
-    serializer_class = serializers.SAMapSerializer
-    filterset_class = filters.SAMapFilter
+    serializer_class = serializers.MetacellSimilaritySerializer
+    filterset_class = filters.MetacellSimilarityFilter
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)

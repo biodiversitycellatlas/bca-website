@@ -736,8 +736,8 @@ class OrthologCountSerializer(serializers.ModelSerializer):
         fields = ["species", "gene_count"]
 
 
-class SAMapSerializer(serializers.ModelSerializer):
-    """Serializer for SAMap scores."""
+class MetacellSimilaritySerializer(serializers.ModelSerializer):
+    """Serializer to fetch metacell similarity scores."""
 
     dataset = serializers.SerializerMethodField()
     dataset2 = serializers.SerializerMethodField()
@@ -745,12 +745,12 @@ class SAMapSerializer(serializers.ModelSerializer):
     metacell2_type = serializers.SerializerMethodField()
     metacell_color = serializers.SerializerMethodField()
     metacell2_color = serializers.SerializerMethodField()
-    samap = serializers.FloatField()
+    samap_score = serializers.FloatField()
 
     class Meta:
         """Meta configuration."""
 
-        model = models.SAMap
+        model = models.MetacellSimilarity
         fields = [
             "dataset",
             "metacell_type",
@@ -758,7 +758,7 @@ class SAMapSerializer(serializers.ModelSerializer):
             "dataset2",
             "metacell2_type",
             "metacell2_color",
-            "samap",
+            "samap_score",
         ]
 
     def _get_metacell_types(self, obj):

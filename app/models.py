@@ -10,6 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.contrib.postgres.fields import ArrayField
 
 
 class AutoSlugMixin(models.Model):
@@ -951,18 +952,26 @@ class Ortholog(models.Model):
         return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
-class SAMap(models.Model):
-    """SAMap scores model."""
+class MetacellSimilarity(models.Model):
+    """Similarity scores between two metacell types."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap")
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap2")
-    samap = models.DecimalField(max_digits=5, decimal_places=2)
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE)
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE)
+
+    samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
+
+    aucell_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
+
+    pesci_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    pesci_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
 
     class Meta:
         """Meta options."""
 
         unique_together = ["metacelltype", "metacelltype2"]
-        verbose_name = "SAMAP score"
+        verbose_name = "Metacell similarity"
 
     def __str__(self):
         """String representation."""
