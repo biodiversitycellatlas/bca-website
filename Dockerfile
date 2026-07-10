@@ -56,9 +56,11 @@ RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
 WORKDIR /usr/src/app
 COPY --chown=nonroot:nonroot . .
 
-# Install Python dependencies
+# Install Python dependencies to virtual environment
 ARG DJANGO_DEPENDENCIES=".[dev,test]"
 ENV DJANGO_DEPENDENCIES=${DJANGO_DEPENDENCIES}
+RUN python -m venv /opt/python/
+ENV PATH="/opt/python/bin:$PATH"
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 
 # Install Playwright for End-to-End testing
@@ -112,8 +114,10 @@ COPY --from=dev /usr/lib/libssh2* /usr/lib/
 COPY --from=dev /usr/lib/libtasn1* /usr/lib/
 COPY --from=dev /usr/lib/libunistring* /usr/lib/
 
-# Copy Python packages
+# Copy Python packages from virtual environment
 COPY --from=dev /opt/python/ /opt/python/
+ENV VIRTUAL_ENV=/opt/python/
+ENV PATH="/opt/python/bin:$PATH"
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
