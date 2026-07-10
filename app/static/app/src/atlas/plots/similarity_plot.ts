@@ -79,7 +79,7 @@ export function createSimilarityPlot(
             color: {
                 field: "similarity",
                 type: "quantitative",
-                scale: { range: COLOR_SCALE },
+                scale: { domain: [0, 1], range: COLOR_SCALE },
                 legend: { title: "Similarity", format: ".0%" },
             },
         },
