@@ -113,7 +113,7 @@ COPY --from=dev /usr/lib/libtasn1* /usr/lib/
 COPY --from=dev /usr/lib/libunistring* /usr/lib/
 
 # Copy Python packages
-COPY --from=dev /usr/lib/python*.* /usr/lib/
+COPY --from=dev /usr/lib/python3.14 /usr/lib/
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
