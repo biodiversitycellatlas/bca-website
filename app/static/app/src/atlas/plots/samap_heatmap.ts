@@ -82,6 +82,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                     labelExpr: "datum.value + '%'",
                                 },
                                 scale: {
+                                    domain: [0, 100],
                                     range: [
                                         "#F2F2F2",
                                         "#FFA500",
