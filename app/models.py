@@ -955,8 +955,8 @@ class Ortholog(models.Model):
 class MetacellSimilarity(models.Model):
     """Similarity scores between two metacell types."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE)
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE)
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="from")
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="to")
 
     samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
