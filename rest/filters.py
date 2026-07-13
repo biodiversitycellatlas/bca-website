@@ -494,7 +494,7 @@ class OrthologCountFilter(FilterSet):
         fields = ["orthogroup", "species"]
 
 
-class MetacellSimilarityFilter(FilterSet):
+class MetacellTypeSimilarityFilter(FilterSet):
     """Filter set to fetch metacell similarity scores."""
 
     dataset = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
@@ -508,7 +508,7 @@ class MetacellSimilarityFilter(FilterSet):
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.MetacellSimilarity
+        model = models.MetacellTypeSimilarity
         fields = ["dataset", "dataset2", "min_samap"]
 
     @property

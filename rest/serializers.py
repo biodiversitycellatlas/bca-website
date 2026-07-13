@@ -761,7 +761,7 @@ class OrthologCountSerializer(serializers.ModelSerializer):
         fields = ["species", "gene_count"]
 
 
-class MetacellSimilaritySerializer(serializers.ModelSerializer):
+class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
     """Serializer to fetch metacell similarity scores."""
 
     dataset = serializers.SerializerMethodField()
@@ -775,7 +775,7 @@ class MetacellSimilaritySerializer(serializers.ModelSerializer):
     class Meta:
         """Meta configuration."""
 
-        model = models.MetacellSimilarity
+        model = models.MetacellTypeSimilarity
         fields = [
             "dataset",
             "metacell_type",
