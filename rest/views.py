@@ -291,17 +291,17 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
 
 
 @extend_schema(summary="List metacell similariy scores", tags=["Cross-species"])
-class MetacellSimilarityViewSet(BaseReadOnlyModelViewSet):
+class MetacellTypeSimilarityViewSet(BaseReadOnlyModelViewSet):
     """List metacell similarity scores between cell types of different datasets."""
 
-    queryset = models.MetacellSimilarity.objects.prefetch_related(
+    queryset = models.MetacellTypeSimilarity.objects.prefetch_related(
         "metacelltype",
         "metacelltype__dataset",
         "metacelltype2",
         "metacelltype2__dataset",
     )
-    serializer_class = serializers.MetacellSimilaritySerializer
-    filterset_class = filters.MetacellSimilarityFilter
+    serializer_class = serializers.MetacellTypeSimilaritySerializer
+    filterset_class = filters.MetacellTypeSimilarityFilter
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)

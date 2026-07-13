@@ -952,11 +952,11 @@ class Ortholog(models.Model):
         return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
-class MetacellSimilarity(models.Model):
+class MetacellTypeSimilarity(models.Model):
     """Similarity scores between two metacell types."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="from")
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="to")
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="source")
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="target")
 
     samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
@@ -971,7 +971,8 @@ class MetacellSimilarity(models.Model):
         """Meta options."""
 
         unique_together = ["metacelltype", "metacelltype2"]
-        verbose_name = "Metacell similarity"
+        verbose_name = "Metacell type similarity"
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         """String representation."""
