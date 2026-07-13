@@ -51,7 +51,7 @@ export function handleFormSubmit() {
 }
 
 /**
- * Fetch and display a SAMap comparison between two datasets.
+ * Fetch and display metacell type similarity between datasets.
  * Renders a Sankey plot showing cell-type correspondences.
  *
  * @param {string} id - HTML element ID prefix for the plot container
@@ -61,7 +61,7 @@ export function handleFormSubmit() {
  * @param {string} dataset2 - Name of the second dataset
  */
 export function initSAMap(id, label, dataset, label2, dataset2) {
-    const url = getViewUrl("rest:samap-list", {
+    const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
         threshold: $("#samap_min").val(),
