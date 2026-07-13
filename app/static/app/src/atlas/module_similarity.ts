@@ -56,6 +56,17 @@ export function loadModuleSimilarityPlot(
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
+            if (!data.length) {
+                const plot = document.getElementById(`${id}-plot`);
+                plot.parentElement.parentElement.innerHTML = `
+                    <p class="text-muted">
+                        <i class="fa fa-circle-exclamation"></i>
+                        No data available for the selected datasets.
+                    </p>
+                `;
+                return;
+            }
+
             const clickHandler = createClickHandler(
                 id,
                 dataset1html,

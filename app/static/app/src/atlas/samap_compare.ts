@@ -73,10 +73,13 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
         .then((response) => response.json())
         .then((data) => {
             if (!data.length) {
-                $(`#${id}-plot`).html(
-                    '<p class="text-muted"><i class="fa fa-circle-exclamation"></i>',
-                    "No data available for the selected datasets.</p>",
-                );
+                const plot = document.getElementById(`${id}-plot`);
+                plot.parentElement.parentElement.innerHTML = `
+                    <p class="text-muted">
+                        <i class="fa fa-circle-exclamation"></i>
+                        No data available for the selected datasets.
+                    </p>
+                `;
             } else if (heatmap) {
                 createSAMapHeatmap(`#${id}-plot`, data, label, label2);
             } else {
