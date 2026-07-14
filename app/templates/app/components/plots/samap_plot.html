@@ -65,7 +65,7 @@ Input:
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     data-bs-auto-close="outside">
-                SAMap score ≥ <span id="samap_min_value">5</span> %
+                SAMap score ≥ <span id="min_samap_value">5</span> %
             </button>
             <div class="dropdown-menu">
                 <div class="mx-4 mb-3 w-250px">
@@ -76,8 +76,8 @@ Input:
 
                         <input type="range"
                                class="js-range-slider opacity-0"
-                               id="samap_min"
-                               name="samap_min"
+                               id="min_samap"
+                               name="min_samap"
                                value="0"
                                step="1">
 
@@ -95,9 +95,9 @@ Input:
 
 <script type="module">
     import { initRangeSlider } from "{% static 'app/dist/utils/range_slider.js' %}";
-    initRangeSlider("#samap_min",
-        { min: 0, max: 100, from: {{query.samap_min|default:5}} },
-        ["#samap_min_value", undefined]
+    initRangeSlider("#min_samap",
+        { min: 0, max: 100, from: {{query.min_samap|default:5}} },
+        ["#min_samap_value", undefined]
     );
 
     import { handleFormSubmit, updateParam } from "{% static 'app/dist/atlas/samap_compare.js' %}";

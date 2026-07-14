@@ -487,7 +487,7 @@ class MetacellTypeSimilarityFilter(FilterSet):
     dataset2 = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
     min_samap = NumberFilter(
         label="Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>",
-        field_name="samap",
+        field_name="samap_score",
         lookup_expr="gte",
     )
 
