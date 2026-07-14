@@ -64,7 +64,7 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
-        threshold: $("#samap_min").val(),
+        min_samap: $("#min_samap").val(),
         limit: 0,
     });
 

@@ -290,7 +290,7 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
-@extend_schema(summary="List metacell similariy scores", tags=["Cross-species"])
+@extend_schema(summary="List metacell similarity scores", tags=["Cross-species"])
 class MetacellTypeSimilarityViewSet(BaseReadOnlyModelViewSet):
     """List metacell similarity scores between cell types of different datasets."""
 

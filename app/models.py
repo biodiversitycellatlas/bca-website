@@ -959,13 +959,13 @@ class MetacellTypeSimilarity(models.Model):
     metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="target")
 
     samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
+    samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     aucell_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
+    aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     pesci_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    pesci_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), default=list, blank=True)
+    pesci_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     class Meta:
         """Meta options."""
