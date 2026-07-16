@@ -59,7 +59,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "django-debug-toolbar==6.3.0",
-    "djlint==1.40.2",
+    "djlint==1.40.4",
 ]
 
 test = [
