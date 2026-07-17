@@ -41,7 +41,7 @@ services:
             - mail__from=${GHOST_MAIL_FROM}
 
     mailpit:
-        image: docker.io/axllent/mailpit:v1.30.3
+        image: docker.io/axllent/mailpit:v1.30.4
         env_file: [.env]
         container_name: mailpit
         restart: unless-stopped
