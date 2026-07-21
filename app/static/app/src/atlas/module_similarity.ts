@@ -8,12 +8,10 @@ import { createSimilarityHeatmap } from "./plots/similarity_heatmap.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 
 /**
- * Handler factory for click events on similarity plot.
+ * Handler factory for click events on plot.
  *
  * @param {string} id - Container ID for the heatmap plot.
- * @param {string} dataset1 - Dataset 1 slug to fetch expression data for.
  * @param {string} dataset1html - Dataset 1 HTML representation.
- * @param {string} dataset2 - Dataset 2 slug to fetch expression data for.
  * @param {string} dataset2html - Dataset 1 HTML representation.
  * @param {function} callback - Function to call with id, dataset and selected modules as arguments.
  */
