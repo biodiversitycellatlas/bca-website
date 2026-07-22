@@ -175,6 +175,21 @@ server {
         proxy_redirect off;
     }
 
+    location /metrics {
+        # Prometheus scrapes from within the Podman network; CRG staff may access
+        # from the internal LAN. Block all external internet access.
+        allow 10.89.0.0/24;   # Podman internal network (Prometheus container)
+        allow 10.0.0.0/8;     # CRG internal network
+        deny all;
+
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
     location /static/ {
         alias /static/;
         access_log off;
