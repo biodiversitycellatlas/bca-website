@@ -8,6 +8,19 @@ import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
+import { createSAMapHeatmap } from "./plots/samap_heatmap.js";
+
+/**
+ * Update parameter and reload page.
+ *
+ * @param {string} param - Parameter name to set.
+ * @param {string} value - Value.
+ */
+export function updateParam(param, value) {
+    const url = new URL(window.location);
+    url.searchParams.set(param, value);
+    window.location.href = url.href;
+}
 
 /**
  * Navigate to new URL query parameters based on form data.
@@ -55,16 +68,19 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
         limit: 0,
     });
 
+    const heatmap = $("#plot").val() == "heatmap";
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            if (data.length) {
-                createSAMapSankey(`#${id}-plot`, data, label, label2);
-            } else {
+            if (!data.length) {
                 $(`#${id}-plot`).html(
                     '<p class="text-muted"><i class="fa fa-circle-exclamation"></i>',
                     "No data available for the selected datasets.</p>",
                 );
+            } else if (heatmap) {
+                createSAMapHeatmap(`#${id}-plot`, data, label, label2);
+            } else {
+                createSAMapSankey(`#${id}-plot`, data, label, label2);
             }
         })
         .catch((error) => console.error("Error fetching data:", error))

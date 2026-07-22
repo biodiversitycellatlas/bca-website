@@ -22,6 +22,26 @@ Input:
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
             <label class="col-form-label">
+                <i class="fa fa-chart-simple"></i>
+                Plot type
+            </label>
+        </div>
+
+        <select id="plot"
+                aria-label="Select plot type"
+                class="form-select form-select mb-3 btn-outline-primary">
+            <option {% if query.plot == 'sankey' %}selected{% endif %} value="sankey">
+                Sankey plot
+            </option>
+            <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">
+                Heatmap
+            </option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
                 <i class="fa fa-list-check"></i>
                 Dataset for comparison
             </label>
@@ -80,8 +100,12 @@ Input:
         ["#samap_min_value", undefined]
     );
 
-    import { handleFormSubmit } from "{% static 'app/dist/atlas/samap_compare.js' %}";
+    import { handleFormSubmit, updateParam } from "{% static 'app/dist/atlas/samap_compare.js' %}";
+
     handleFormSubmit();
+    document.getElementById("plot").addEventListener("change", function () {
+        updateParam("plot", this.value);
+    });
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
@@ -102,7 +126,7 @@ Input:
     </p>
 {% else %}
     <div class="row">
-        <div class="col-10 col-sm-11">
+        <div {% if query.plot == 'heatmap' %}class="col-9 col-sm-10"{% endif %}>
             {% include "../plot_container.html" with id=id ratio="16/9" %}
         </div>
     </div>
