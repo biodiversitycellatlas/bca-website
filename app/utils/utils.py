@@ -167,6 +167,13 @@ def get_cell_atlas_links(url_name, dataset=None):
             "tooltip": "",
         },
         {
+            "name": "Gene ontology",
+            "icon": "arrow-trend-up",
+            "url_names": ["atlas_enrichment"],
+            "url_view": "atlas_enrichment",
+            "tooltip": "Analyze GO enrichment",
+        },
+        {
             "name": "Gene and orthologs",
             "icon": "bezier-curve",
             "url_names": ["atlas_gene"],
