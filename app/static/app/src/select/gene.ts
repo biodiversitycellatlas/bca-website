@@ -20,8 +20,8 @@ function displayGeneInfo(item, escape) {
         // Display gene lists
         return `
             <div class='option'>
-                ${escape(item.gene)}
-                <span class="text-muted small">${escape(item.count)} genes</span>
+                ${escape(item.name)}
+                <span class="text-muted small">${escape(item.gene_count)} genes</span>
             </div>
         `;
     } else {
@@ -44,7 +44,7 @@ function displayGeneInfo(item, escape) {
                     <span class="text-muted small">
                         ${escape(item.description)}
                     </span>`;
-        return `<div class='option'>${escape(item.gene)} ${desc} ${badges}</div>`;
+        return `<div class='option'>${escape(item.name)} ${desc} ${badges}</div>`;
     }
 }
 
@@ -61,40 +61,39 @@ function displayGeneName(item, escape) {
         // Show count as a badge
         badges = `
             <span class="badge rounded-pill text-bg-secondary">
-                <small>${escape(item.count)}</small>
+                <small>${escape(item.gene_count)}</small>
             </span>
         `;
     }
-    return `<div class='option'>${escape(item.gene)}${badges}</div>`;
+    return `<div class='option'>${escape(item.name)}${badges}</div>`;
 }
 
 /**
- * Prepend gene lists and domains to TomSelect options.
+ * Prepend gene lists, modules and domains to TomSelect options.
  *
  * @param {string} id - Element ID prefix.
  * @param {object} select - TomSelect instance.
  * @param {function} callback - Function to call with options.
- * @param {array} genes - Array of gene objects.
- * @param {array} domains - Array of domain objects.
- * @param {array} preset - Array of preset gene list objects.
+ * @param {array} data - Object with array of genes, modules, lists and domains.
  */
-function prependGeneLists(id, select, callback, genes, domains, preset) {
+function prependGeneLists(id, select, callback, data) {
     const res = getAllLists(`${id}_gene_lists`)
+        .concat(data.gene_lists.map((obj) => ({ ...obj, group: "preset" })))
         .concat(
-            preset.map((obj) => ({
+            data.gene_modules.map((obj) => ({
                 ...obj,
-                count: obj.gene_count,
-                group: "preset",
+                name: obj.module,
+                group: "modules",
             })),
         )
+        .concat(data.domains.map((obj) => ({ ...obj, group: "domains" })))
         .concat(
-            domains.map((obj) => ({
+            data.genes.map((obj) => ({
                 ...obj,
-                count: obj.gene_count,
-                group: "domains",
+                name: obj.gene,
+                group: "genes",
             })),
-        )
-        .concat(genes.map((obj) => ({ ...obj, group: "genes" })));
+        );
     callback(res);
 }
 
@@ -102,19 +101,14 @@ function prependGeneLists(id, select, callback, genes, domains, preset) {
  * Add a default gene to select input and set it as current.
  *
  * @param {string} select - Select element.
- * @param {string} gene - Gene name.
+ * @param {string} name - Gene name.
  * @param {string} description - Gene description.
  * @param {array} domains - Array of gene domains.
  */
-function setDefaultGene(select, gene, description, domains) {
-    const geneOptions = {
-        gene: gene,
-        description: description,
-        domains: domains,
-    };
-
+function setDefaultGene(select, name, description, domains) {
+    const geneOptions = { name, description, domains };
     select.addOption(geneOptions);
-    select.setValue(gene);
+    select.setValue(name);
 }
 
 /**
@@ -140,7 +134,7 @@ function initGeneSelectValues(select, items) {
             for (const i in missingValues) {
                 const elem = missingValues[i];
                 missingValuesArray.push({
-                    gene: elem,
+                    name: elem,
                     description: "",
                     domains: [],
                 });
@@ -159,6 +153,7 @@ function initGeneSelectValues(select, items) {
         const labelMap = {
             preset: "Preset gene lists",
             custom: "Custom gene lists",
+            modules: "Gene modules",
             genes: "Genes",
             domains: "Domains",
         };
@@ -182,7 +177,8 @@ function initGeneSelectValues(select, items) {
  * @param {object} gene - Current gene object.
  * @param {string} selected - Preselected genes (comma-separated).
  * @param {number} limit - Maximum results to load from server.
- * @param {boolean} multiple - Allow multiple selection.
+ * @param {boolean} multiple - Allow multiple selection. If "true", also allows the user
+ *     to select gene lists and domains.
  * @param {boolean} display - Toggle detailed info display.
  */
 export function initGeneSelect(
@@ -200,7 +196,7 @@ export function initGeneSelect(
     const select = new TomSelect(`#${id}_gene_selection`, {
         onChange: function (value) {
             // Avoid jumping if value is empty or matches current gene
-            if (value !== "" && value !== gene.gene) {
+            if (value !== "" && value !== gene.name) {
                 if (redirect == "arg") {
                     const url = getViewUrl("atlas_gene", {
                         dataset,
@@ -228,7 +224,7 @@ export function initGeneSelect(
             onBlur: function () {
                 // Set current gene if no value is selected
                 if (!this.getValue()) {
-                    this.setValue(gene.gene);
+                    this.setValue(gene.name);
                 }
             },
             onType: function () {
@@ -241,56 +237,32 @@ export function initGeneSelect(
             item: display ? displayGeneInfo : displayGeneName,
             option: displayGeneInfo,
         },
-        valueField: "gene",
-        searchField: ["gene", "description", "domains"],
+        valueField: "name",
+        searchField: ["name", "description", "domains"],
         respect_word_boundaries: false,
         preload: true,
         plugins: {
             ...(multiple === "true" && { remove_button: { label: " ×" } }),
         },
         load: function (query, callback) {
-            const genes = $.ajax({
-                url: getViewUrl("rest:gene-list"),
-                data: {
-                    species: species,
-                    q: query || gene,
-                    limit: limit,
-                },
-            });
+            // Use gene search endpoint to return gene lists, modules, and domains
+            const url = getViewUrl(
+                multiple ? "rest:genesearch-list" : "rest:gene-list",
+            );
 
-            const preset = $.ajax({
-                url: getViewUrl("rest:genelist-list"),
-                data: {
-                    species: species,
-                    limit: limit,
-                },
-            });
+            const q = query || gene;
+            const data = { species, dataset, q, limit };
 
-            const domains = multiple
-                ? $.ajax({
-                      url: getViewUrl("rest:domain-list"),
-                      data: {
-                          species: species,
-                          q: query || gene,
-                          limit: 10,
-                          order_by_gene_count: true,
-                      },
-                  })
-                : undefined;
-
-            Promise.all([genes, domains, preset])
-                .then((data) => {
+            $.ajax({ url, data })
+                .then((res) => {
                     if (multiple) {
-                        prependGeneLists(
-                            id,
-                            this,
-                            callback,
-                            data[0].results,
-                            data[1].results,
-                            data[2].results,
-                        );
+                        prependGeneLists(id, this, callback, res);
                     } else {
-                        callback(data[0].results);
+                        const genes = res.results.map((obj) => ({
+                            ...obj,
+                            name: obj.gene,
+                        }));
+                        callback(genes);
                     }
                 })
                 .catch((error) => {
@@ -299,8 +271,9 @@ export function initGeneSelect(
                 });
         },
     });
-    if (gene.gene)
-        setDefaultGene(select, gene.gene, gene.description, gene.domains);
+
+    if (gene.name)
+        setDefaultGene(select, gene.name, gene.description, gene.domains);
     if (multiple) initGeneSelectValues(select, selected);
     return select;
 }

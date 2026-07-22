@@ -87,7 +87,7 @@ py-modules = []
 [tool.pytest]
 DJANGO_SETTINGS_MODULE="config.settings"
 testpaths = ["app/tests", "rest/tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--tb=short", "--ignore=scripts", "-s"]
