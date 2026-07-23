@@ -44,7 +44,7 @@ dependencies = [
 
     # REST
     "djangorestframework==3.17.1",
-    "django-filter==25.2",
+    "django-filter==26.1",
     "drf-spectacular==0.29.0",
     "drf-orjson-renderer==1.8.0",
 
