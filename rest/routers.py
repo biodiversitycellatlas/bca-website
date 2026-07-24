@@ -8,6 +8,7 @@ router.register("datasets", views.DatasetViewSet)
 router.register("stats", views.StatsViewSet, basename="stats")
 
 router.register("genes", views.GeneViewSet)
+router.register("gene_search", views.GeneSearchViewSet, basename="genesearch")
 
 router.register("gene_lists", views.GeneListViewSet)
 router.register("domains", views.DomainViewSet)

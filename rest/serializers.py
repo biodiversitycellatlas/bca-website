@@ -287,6 +287,26 @@ class GeneNoSpeciesSerializer(GeneSerializer):
         fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
 
 
+class GeneRequestSerializer(serializers.ModelSerializer):
+    """Gene request serializer."""
+
+    genes = serializers.ListField(
+        child=serializers.CharField(),
+        help_text=(
+            "Comma-separated list of [genes](#/operations/genes_list), "
+            "[gene lists](#/operations/gene_lists_list), "
+            "[domains](#/operations/domains_list) to retrieve data for. "
+            "If not provided, data is returned for all genes."
+        ),
+    )
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.Gene
+        fields = ["genes"]
+
+
 class DomainSerializer(serializers.ModelSerializer):
     """Protein domain serializer."""
 
@@ -307,10 +327,15 @@ class GeneListSerializer(serializers.ModelSerializer):
     def get_gene_count(self, obj) -> int:
         """Return number of genes in gene list."""
 
+        request = self.context.get("request")
+        species = self.context.get("species")
+        if species is None and request:
+            species = request.query_params.get("species")
+
         genes = obj.genes
-        species = self.context.get("request").query_params.get("species", None)
         if species:
             genes = genes.filter(species__scientific_name=species)
+
         return genes.count()
 
     class Meta:
@@ -793,6 +818,15 @@ class SAMapSerializer(serializers.ModelSerializer):
         return self._get_metacell_types(obj)[1].color
 
 
+class GeneSearchSerializer(serializers.Serializer):
+    """Serializer for gene search."""
+
+    gene_lists = GeneListSerializer(many=True)
+    gene_modules = GeneModuleSerializer(many=True)
+    domains = DomainSerializer(many=True)
+    genes = GeneSerializer(many=True)
+
+
 @extend_schema_serializer(
     examples=[
         OpenApiExample(
@@ -874,45 +908,17 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
         default=False,
         help_text="If true, obsolete terms will be included in the analysis.",
     )
-
-    # Available gene input options
     genes = serializers.ListField(
         child=serializers.CharField(),
-        required=False,
+        required=True,
         help_text=(
-            "Array of genes to use as query genes. "
-            "These genes are combined with genes from `gene_modules` and `gene_lists`."
+            "Comma-separated list of [genes](#/operations/genes_list), "
+            "[gene lists](#/operations/gene_lists_list), "
+            "[gene modules](#/operations/modules_list), "
+            "[domains](#/operations/domains_list) to retrieve data for. "
+            "If not provided, data is returned for all genes."
         ),
     )
-    gene_modules = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text=(
-            "Array of [gene modules](#/operations/modules_list) to use as query genes. "
-            "Genes from the selected modules are combined with genes from `genes` and `gene_lists`."
-        ),
-    )
-    gene_lists = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text=(
-            "Array of [preset gene lists](#/operations/gene_lists_list) to use as query genes. "
-            "Genes from the selected lists are combined with genes from `genes` and `gene_modules`."
-        ),
-    )
-
-    def validate(self, attrs):
-        # Validate if defining at least one of: genes, gene_modules or gene_lists
-        genes = attrs.get("genes")
-        gene_modules = attrs.get("gene_modules")
-        gene_lists = attrs.get("gene_lists")
-
-        if not any([genes, gene_modules, gene_lists]):
-            raise serializers.ValidationError(
-                "At least one of 'genes', 'gene_modules', or 'gene_lists' must be provided."
-            )
-
-        return attrs
 
 
 class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
@@ -923,12 +929,7 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     )
     term = serializers.CharField(help_text="Term ID.", source="GO")
     name = serializers.CharField(help_text="Term name.")
-    enrichment = serializers.CharField(
-        help_text=(
-            "Term enrichment: enriched (significantly higher compared to background genes) "
-            "or purified (significantly lower)."
-        )
-    )
+    fold_enrichment = serializers.FloatField(help_text="Fold enrichment: >1 indicates enrichment, <1 depletion.")
 
     depth = serializers.IntegerField(
         help_text="Hierarchy depth: higher for more specific terms.", source="goterm.depth"
@@ -946,14 +947,16 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
     qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
 
     query_hit_count = serializers.SerializerMethodField(help_text="Number of input genes associated with the term.")
-    query_count = serializers.SerializerMethodField(help_text="Number of input genes.")
+    query_count = serializers.SerializerMethodField(help_text="Total number of input genes.")
     background_hit_count = serializers.SerializerMethodField(
         help_text="Number of background genes associated with the term."
     )
-    background_count = serializers.SerializerMethodField(help_text="Number of background genes.")
+    background_count = serializers.SerializerMethodField(help_text="Total number of background genes.")
 
     genes = serializers.ListField(
-        child=serializers.CharField(), help_text="Input genes associated with the term.", source="study_items"
+        child=serializers.CharField(),
+        help_text="Name of input genes associated with the term.",
+        source="study_items",
     )
 
     similarity_coords = serializers.ListField(
