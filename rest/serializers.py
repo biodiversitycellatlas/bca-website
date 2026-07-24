@@ -746,6 +746,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
     metacell_color = serializers.SerializerMethodField()
     metacell2_color = serializers.SerializerMethodField()
     samap_score = serializers.FloatField()
+    samap_gene_pairs = serializers.SerializerMethodField()
 
     class Meta:
         """Meta configuration."""
@@ -759,6 +760,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
             "metacell2_type",
             "metacell2_color",
             "samap_score",
+            "samap_gene_pairs",
         ]
 
     def _get_metacell_types(self, obj):
@@ -792,6 +794,20 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
         """Return metacell color for metacell 2."""
         return self._get_metacell_types(obj)[1].color
 
+    def get_samap_gene_pairs(self, obj):
+        if not obj.samap_gene_pairs:
+            return None
+
+        # Get all gene IDs and create dictionary with their names
+        gene_ids = { gene_id for pair in obj.samap_gene_pairs for gene_id in pair }
+        genes = dict(models.Gene.objects.filter(id__in=gene_ids).values_list("id", "name"))
+
+        # Return gene name in the correct dataset order
+        reverse = getattr(obj, "order_flag", 0) == 1
+        return [
+            [genes[b], genes[a]] if reverse else [genes[a], genes[b]]
+            for a, b in obj.samap_gene_pairs
+        ]
 
 @extend_schema_serializer(
     examples=[
