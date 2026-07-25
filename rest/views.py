@@ -2,7 +2,7 @@
 
 import logging
 import os
-import subprocess
+import subprocess  # nosec B603, B404
 import tempfile
 from urllib.parse import unquote_plus
 
@@ -544,7 +544,12 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
             WHERE mc.dataset_id = %(dataset_id)s
               AND (mc.name = ANY(%(names)s) OR mct.name = ANY(%(names)s))
         ),
-        qualifying AS (
+        stats AS (
+            -- Foreground/background membership is expressed as ``IN (subquery)``
+            -- rather than a join to ``fg_metacells``: PostgreSQL evaluates it as a
+            -- hashed SubPlan (built once, probed per row), whereas a join is prone
+            -- to a nested loop over every expression row when the foreground set is
+            -- small, which is catastrophic on large datasets (millions of rows).
             SELECT
                 e.gene_id,
                 sum(e.umi_raw)
@@ -554,38 +559,29 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
                 avg(e.fold_change)
                     FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_mean_fc,
                 avg(e.fold_change)
-                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_mean_fc
-            FROM app_metacellgeneexpression e
-            WHERE e.dataset_id = %(dataset_id)s
-            GROUP BY e.gene_id
-        ),
-        medians AS (
-            SELECT
-                e.gene_id,
+                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_mean_fc,
                 percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
                     FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_median_fc,
                 percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
                     FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_median_fc
             FROM app_metacellgeneexpression e
             WHERE e.dataset_id = %(dataset_id)s
-              AND e.gene_id IN (SELECT gene_id FROM qualifying)
             GROUP BY e.gene_id
         )
         SELECT
-            g.id,
-            q.bg_sum_umi,
-            q.fg_sum_umi,
-            CASE WHEN q.fg_sum_umi + q.bg_sum_umi = 0 THEN NULL
-                 ELSE q.fg_sum_umi::float / (q.fg_sum_umi + q.bg_sum_umi) * 100
+            s.gene_id AS id,
+            s.bg_sum_umi,
+            s.fg_sum_umi,
+            CASE WHEN s.fg_sum_umi + s.bg_sum_umi = 0 THEN NULL
+                 ELSE s.fg_sum_umi::float / (s.fg_sum_umi + s.bg_sum_umi) * 100
             END AS umi_perc,
-            q.fg_mean_fc,
-            q.bg_mean_fc,
-            m.fg_median_fc,
-            m.bg_median_fc
-        FROM qualifying q
-        JOIN medians m ON m.gene_id = q.gene_id
-        JOIN app_gene g ON g.id = q.gene_id
+            s.fg_mean_fc,
+            s.bg_mean_fc,
+            s.fg_median_fc,
+            s.bg_median_fc
+        FROM stats s
         WHERE {having_col} >= %(fc_min)s
+        ORDER BY {having_col} DESC NULLS LAST, s.gene_id
     """
 
     _ANNOTATION_FIELDS = (
@@ -612,14 +608,17 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
         fc_min_type = params.get("fc_min_type") or "mean"
         if fc_min_type not in ("mean", "median"):
             raise ValidationError({"fc_min_type": "Must be 'mean' or 'median'."})
-        having_col = "m.fg_median_fc" if fc_min_type == "median" else "q.fg_mean_fc"
+        having_col = "s.fg_median_fc" if fc_min_type == "median" else "s.fg_mean_fc"
 
         try:
             fc_min = float(params.get("fc_min") or 2)
         except (TypeError, ValueError):
             raise ValidationError({"fc_min": "Must be a number."})
 
-        dataset = parse_species_dataset(dataset_slug)
+        try:
+            dataset = parse_species_dataset(dataset_slug)
+        except ValueError as exc:
+            raise ValidationError({"dataset": str(exc)})
         names = [n.strip() for n in metacells.split(",") if n.strip()]
 
         sql = self._MARKER_SQL.format(having_col=having_col)
@@ -771,7 +770,7 @@ class AlignViewSet(viewsets.ViewSet):
                 "--out",
                 out_path,
             ]
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            subprocess.run(cmd, check=True, capture_output=True, text=True)  # nosec B603, B404
 
             columns = list(serializers.AlignResponseSerializer().fields.keys())
 

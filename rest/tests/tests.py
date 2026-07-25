@@ -525,3 +525,69 @@ class MetacellMarkerRawSQLTests(APITestCase):
             dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class MetacellMarkerOrderingTests(APITestCase):
+    """Regression tests for marker ordering and foreground/background partitioning.
+
+    Guards the ``ORDER BY {having_col} DESC`` clause of ``_MARKER_SQL``: results
+    must come back strongest-first, and genes that are markers only in the
+    background metacells must never appear.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(
+            common_name="ord", scientific_name="ord", description="ord"
+        )
+        dataset = species.datasets.create(name="atlas4", description="atlas4")
+        cls.slug = "ord-atlas4"
+
+        bcell = dataset.metacell_types.create(name="B cell")
+        tcell = dataset.metacell_types.create(name="T cell")
+
+        # Foreground (B cell) and background (T cell) metacells.
+        fg1 = dataset.metacells.create(name="fg1", type=bcell, x=1, y=1)
+        fg2 = dataset.metacells.create(name="fg2", type=bcell, x=2, y=2)
+        bg1 = dataset.metacells.create(name="bg1", type=tcell, x=3, y=3)
+        bg2 = dataset.metacells.create(name="bg2", type=tcell, x=4, y=4)
+
+        # Three markers above fc_min=2 with distinct foreground fold-changes,
+        # so both the mean and median HAVING columns rank them hi > mid > lo.
+        for name, fg_fc in (("gene_hi", 5.0), ("gene_mid", 3.0), ("gene_lo", 2.5)):
+            gene = species.genes.create(name=name, description=name)
+            dataset.mge.create(gene=gene, metacell=fg1, umi_raw=4, umifrac=0.4, fold_change=fg_fc)
+            dataset.mge.create(gene=gene, metacell=fg2, umi_raw=4, umifrac=0.4, fold_change=fg_fc)
+            dataset.mge.create(gene=gene, metacell=bg1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+            dataset.mge.create(gene=gene, metacell=bg2, umi_raw=1, umifrac=0.1, fold_change=1.0)
+
+        # Background-only marker: high in T cells, low in B cells → must be excluded.
+        gene_bg = species.genes.create(name="gene_bg_only", description="background marker")
+        dataset.mge.create(gene=gene_bg, metacell=fg1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_bg, metacell=fg2, umi_raw=1, umifrac=0.1, fold_change=0.9)
+        dataset.mge.create(gene=gene_bg, metacell=bg1, umi_raw=5, umifrac=0.5, fold_change=6.0)
+        dataset.mge.create(gene=gene_bg, metacell=bg2, umi_raw=5, umifrac=0.5, fold_change=6.5)
+
+    def _get_markers(self, **params):
+        return self.client.get("/api/v1/markers/", data=params, format="json")
+
+    def test_results_ordered_by_mean_fold_change_desc(self):
+        response = self._get_markers(
+            dataset=self.slug, metacells="B cell", fc_min_type="mean", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        # Background-only gene excluded; the three foreground markers, strongest first.
+        self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
+        fg_means = [m["fg_mean_fc"] for m in markers]
+        self.assertEqual(fg_means, sorted(fg_means, reverse=True))
+
+    def test_results_ordered_by_median_fold_change_desc(self):
+        response = self._get_markers(
+            dataset=self.slug, metacells="B cell", fc_min_type="median", fc_min=2
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
+        fg_medians = [m["fg_median_fc"] for m in markers]
+        self.assertEqual(fg_medians, sorted(fg_medians, reverse=True))
