@@ -512,6 +512,19 @@ class MetacellMarkerRawSQLTests(APITestCase):
         response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_invalid_fc_min_returns_400(self):
+        """A non-numeric fc_min is rejected with a 400 rather than crashing."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min="notanumber")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("fc_min", response.data)
+
+    def test_unknown_dataset_returns_400(self):
+        """An unresolvable dataset slug yields a 400 with a message built from the
+        slug, not from the underlying exception (guards against detail leakage)."""
+        response = self._get_markers(dataset="does-not-exist", metacells="B cell", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("dataset", response.data)
+
 
 class MetacellMarkerOrderingTests(APITestCase):
     """Regression tests for marker ordering and foreground/background partitioning.

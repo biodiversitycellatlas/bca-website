@@ -617,8 +617,11 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
 
         try:
             dataset = parse_species_dataset(dataset_slug)
-        except ValueError as exc:
-            raise ValidationError({"dataset": str(exc)})
+        except ValueError:
+            # Build the client-facing message from the user-supplied slug rather
+            # than the exception text, so no internal exception detail leaks out
+            # (CodeQL py/stack-trace-exposure).
+            raise ValidationError({"dataset": f"Cannot find dataset for {dataset_slug!r}."}) from None
         names = [n.strip() for n in metacells.split(",") if n.strip()]
 
         sql = self._MARKER_SQL.format(having_col=having_col)
