@@ -631,10 +631,7 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
         raw_rows = list(self.get_queryset())
 
         ids = [g.id for g in raw_rows]
-        prefetched = {
-            g.id: g
-            for g in models.Gene.objects.filter(id__in=ids).prefetch_related("domains", "genelists")
-        }
+        prefetched = {g.id: g for g in models.Gene.objects.filter(id__in=ids).prefetch_related("domains", "genelists")}
         results = []
         for raw in raw_rows:
             gene = prefetched.get(raw.id)

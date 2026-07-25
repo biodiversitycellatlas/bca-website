@@ -419,9 +419,7 @@ class MetacellMarkerRawSQLTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species = Species.objects.create(
-            common_name="cellb", scientific_name="cellb", description="cellb"
-        )
+        species = Species.objects.create(common_name="cellb", scientific_name="cellb", description="cellb")
         dataset = species.datasets.create(name="atlas3", description="atlas3")
 
         bcell = dataset.metacell_types.create(name="B cell")
@@ -461,9 +459,7 @@ class MetacellMarkerRawSQLTests(APITestCase):
 
     def test_select_by_metacell_type_name(self):
         """Foreground selection via metacell *type* name ('B cell') uses the mct.name branch."""
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         markers = response.data["results"]
         self.assertEqual(len(markers), 1)
@@ -471,9 +467,7 @@ class MetacellMarkerRawSQLTests(APITestCase):
 
     def test_select_by_metacell_name(self):
         """Foreground selection via metacell name uses the mc.name branch."""
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="mb1,mb2", fc_min_type="mean", fc_min=2
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="mb1,mb2", fc_min_type="mean", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         markers = response.data["results"]
         self.assertEqual(len(markers), 1)
@@ -481,9 +475,7 @@ class MetacellMarkerRawSQLTests(APITestCase):
 
     def test_annotation_values(self):
         """The raw query returns the expected sum/mean/median/percentage stats."""
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         marker = response.data["results"][0]
         self.assertEqual(marker["name"], "gene_marker")
@@ -497,18 +489,14 @@ class MetacellMarkerRawSQLTests(APITestCase):
 
     def test_median_threshold_filters_same_genes(self):
         """fc_min_type=median routes the HAVING to fg_median_fc."""
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="B cell", fc_min_type="median", fc_min=2
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="median", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         markers = response.data["results"]
         self.assertEqual({m["name"] for m in markers}, {"gene_marker"})
 
     def test_fc_min_excludes_all(self):
         """A high fc_min returns an empty result set."""
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=10
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=10)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["results"], [])
 
@@ -521,9 +509,7 @@ class MetacellMarkerRawSQLTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_invalid_fc_min_type_returns_400(self):
-        response = self._get_markers(
-            dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid"
-        )
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -537,9 +523,7 @@ class MetacellMarkerOrderingTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species = Species.objects.create(
-            common_name="ord", scientific_name="ord", description="ord"
-        )
+        species = Species.objects.create(common_name="ord", scientific_name="ord", description="ord")
         dataset = species.datasets.create(name="atlas4", description="atlas4")
         cls.slug = "ord-atlas4"
 
@@ -572,9 +556,7 @@ class MetacellMarkerOrderingTests(APITestCase):
         return self.client.get("/api/v1/markers/", data=params, format="json")
 
     def test_results_ordered_by_mean_fold_change_desc(self):
-        response = self._get_markers(
-            dataset=self.slug, metacells="B cell", fc_min_type="mean", fc_min=2
-        )
+        response = self._get_markers(dataset=self.slug, metacells="B cell", fc_min_type="mean", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         markers = response.data["results"]
         # Background-only gene excluded; the three foreground markers, strongest first.
@@ -583,9 +565,7 @@ class MetacellMarkerOrderingTests(APITestCase):
         self.assertEqual(fg_means, sorted(fg_means, reverse=True))
 
     def test_results_ordered_by_median_fold_change_desc(self):
-        response = self._get_markers(
-            dataset=self.slug, metacells="B cell", fc_min_type="median", fc_min=2
-        )
+        response = self._get_markers(dataset=self.slug, metacells="B cell", fc_min_type="median", fc_min=2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         markers = response.data["results"]
         self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
