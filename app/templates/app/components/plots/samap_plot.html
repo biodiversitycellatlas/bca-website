@@ -1,6 +1,6 @@
 {% comment %}
 
-SAMap plot
+Compare cell types
 
 Input:
 - id: prefix used in the identifiers of all elements
@@ -126,13 +126,32 @@ Input:
     </p>
 {% else %}
     <div class="row">
-        <div {% if query.plot == 'heatmap' %}class="col-9 col-sm-10"{% endif %}>
+        <div {% if query.plot == 'heatmap' %}class="col-9 col-sm-10 col-lg-3"{%else%}class="col-12 col-lg-5"{% endif %}>
             {% include "../plot_container.html" with id=id ratio="16/9" %}
+        </div>
+
+        {% if query.plot == 'heatmap' %}
+        <div class="col-3 col-sm-2 col-lg-2"></div>
+        {% endif %}
+
+        <div class="col-12 col-lg-7">
+            <table id="{{ id }}-cell-type-compare-table"
+                   class="table table-sm table-striped small">
+            </table>
         </div>
     </div>
 
     <script type="module">
         import { initSAMap } from "{% static 'app/dist/atlas/samap_compare.js' %}";
-        initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
+        const id = "{{id}}";
+        const label = "{{dataset}}";
+        const dataset = "{{dataset.slug}}";
+        const species = "{{dataset.species}}";
+
+        const label2 = "{{dataset2}}";
+        const dataset2 = "{{dataset2.slug}}";
+        const species2 = "{{dataset2.species}}";
+
+        initSAMap(id, label, dataset, species, label2, dataset2, species2);
     </script>
 {% endif %}

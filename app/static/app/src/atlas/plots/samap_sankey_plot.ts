@@ -4,8 +4,6 @@
 
 import vegaEmbed from "vega-embed";
 
-export let viewSAMapSankey;
-
 /**
  * Renders a Sankey diagram to compare SAMap scores between metacell types from
  * two species
@@ -266,6 +264,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
         ],
         marks: [
             {
+                name: "nodes",
                 type: "rect",
                 from: { data: "finalTable" },
                 encode: {
@@ -287,6 +286,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                 },
             },
             {
+                name: "links",
                 type: "path",
                 from: { data: "linkTable" },
                 clip: true,
@@ -296,6 +296,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                         path: { field: "path" },
                         strokeOpacity: { signal: "0.3" },
                         stroke: { signal: "datum.metacell2_color" },
+                        cursor: { value: "pointer" },
                     },
                     hover: {
                         strokeOpacity: { value: 1 },
@@ -360,9 +361,11 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
             },
         ],
     };
-    vegaEmbed(id, chart, { renderer: "canvas" })
-        .then((res) => {
-            viewSAMapSankey = res.view;
-        })
-        .catch(console.error);
+
+    return vegaEmbed(id, chart, { renderer: "canvas" })
+        .then(res => res.view)
+        .catch(error => {
+            console.error(error);
+            throw error;
+        });
 }
