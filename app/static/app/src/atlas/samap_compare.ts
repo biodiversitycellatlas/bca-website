@@ -9,6 +9,7 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
 import { createSAMapHeatmap } from "./plots/samap_heatmap.js";
+import { linkDomains, makeLinkGene } from "./tables/utils.ts";
 
 /**
  * Update parameter and reload page.
@@ -70,7 +71,7 @@ function fetchGeneInfo(species, genes) {
     return data;
 }
 
-function createTable(id, rows) {
+function createTable(id, rows, dataset, dataset2) {
     // Destroy table if it exists
     const tableId = `#${id}-cell-type-compare-table`;
     new DataTable.Api(tableId).destroy();
@@ -78,8 +79,12 @@ function createTable(id, rows) {
     const table = new DataTable(tableId, {
         data: rows,
         columns: [
-            { title: "Gene 1", data: "gene1_gene" },
-            { title: "Gene 2", data: "gene2_gene" },
+            { title: "Gene 1", data: "gene1_gene", render: makeLinkGene(dataset) },
+            { title: "Description 1", data: "gene1_description", className: "truncate" },
+            { title: "Domains 1", data: "gene1_domains", render: linkDomains, className: "truncate" },
+            { title: "Gene 2", data: "gene2_gene", render: makeLinkGene(dataset2) },
+            { title: "Description 2", data: "gene2_description", className: "truncate" },
+            { title: "Domains 2", data: "gene2_domains", render: linkDomains, className: "truncate" },
         ],
         // orderFixed: [[0, "asc"]],
         responsive: true,
@@ -91,7 +96,7 @@ function createTable(id, rows) {
     return table;
 }
 
-function createGenePairsTable(id, genePairs, species, species2) {
+function createGenePairsTable(id, genePairs, species, species2, dataset, dataset2) {
     const genes = [...new Set(genePairs.map(([gene1]) => gene1))];
     const genes2 = [...new Set(genePairs.map(([, gene2]) => gene2))];
 
@@ -105,28 +110,10 @@ function createGenePairsTable(id, genePairs, species, species2) {
                 ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [`gene2_${key}`, value]),
             ])
         );
-        createTable(id, rows);
+        createTable(id, rows, dataset, dataset2);
     });
+}
 
-    const table = new DataTable(tableId, {
-        columns: [
-            // {
-            //     title: "Description",
-            //     data: "description",
-            //     visible: true,
-            //     className: "truncate",
-            // },
-            // { title: "Domains", data: "domains", render: linkDomains },
-            // { title: "Gene lists", data: "genelists", render: linkGeneLists },
-            // {
-            //     title: "Orthogroups",
-            //     data: "orthogroups",
-            //     render: linkOrthogroups,
-            // },
-        ],
-        orderFixed: [[0, "asc"]],
-    });
-    return table;
 }
 
 /**
@@ -170,7 +157,14 @@ export function initSAMap(id, label, dataset, species, label2, dataset2, species
             view.addEventListener("click", (event, item) => {
                 if (!item) return;
                 if (!item.datum.samap_gene_pairs) return;
-                createGenePairsTable(id, item.datum.samap_gene_pairs, species, species2);
+                createGenePairsTable(
+                    id,
+                    item.datum.samap_gene_pairs,
+                    species,
+                    species2,
+                    dataset,
+                    dataset2,
+                );
             });
         })
         .catch((error) => console.error("Error fetching data:", error))
