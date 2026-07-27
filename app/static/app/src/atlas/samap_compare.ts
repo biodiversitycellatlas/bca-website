@@ -58,6 +58,13 @@ export function handleFormSubmit() {
     });
 }
 
+/**
+ * Fetch gene information for a list of genes in a species.
+ *
+ * @param {string} species - Species name.
+ * @param {string[]} genes - List of gene identifiers.
+ * @returns {Promise<Object>} Mapping of gene identifiers to gene metadata.
+ */
 function fetchGeneInfo(species, genes) {
     const url = getViewUrl("rest:gene-list") + "?limit=0";
     const body = JSON.stringify({ species, genes });
@@ -76,7 +83,17 @@ function fetchGeneInfo(species, genes) {
     return data;
 }
 
-function createTable(id, rows, dataset, dataset2) {
+/**
+ * Create DataTable displaying gene comparisons.
+ *
+ * @param {string} id - HTML element ID prefix for the table container.
+ * @param {Object[]} rows - Table row data.
+ * @param {string} dataset - Name of the first dataset.
+ * @param {string} dataset2 - Name of the second dataset.
+ * @returns {DataTable} Initialised DataTable instance.
+ */
+
+function createGenePairsTable(id, rows, dataset, dataset2) {
     document.getElementById(`${id}-cell-type-compare-empty`).hidden = true;
 
     // Destroy table if it exists
@@ -108,7 +125,18 @@ function createTable(id, rows, dataset, dataset2) {
     return table;
 }
 
-function createGenePairsTable(id, genePairs, species, species2, dataset, dataset2) {
+/**
+ * Fetch gene metadata and create a gene pair comparison table.
+ *
+ * @param {string} id - HTML element ID prefix for the table container.
+ * @param {Array<Array<string>>} genePairs - Pairs of corresponding genes.
+ * @param {string} species - Species name for the first dataset.
+ * @param {string} species2 - Species name for the second dataset.
+ * @param {string} dataset - Name of the first dataset.
+ * @param {string} dataset2 - Name of the second dataset.
+ * @returns {Promise<void>} Resolves when the table has been created.
+ */
+function prepareGenePairsTable(id, genePairs, species, species2, dataset, dataset2) {
     const genes = [...new Set(genePairs.map(([gene1]) => gene1))];
     const genes2 = [...new Set(genePairs.map(([, gene2]) => gene2))];
 
@@ -122,9 +150,19 @@ function createGenePairsTable(id, genePairs, species, species2, dataset, dataset
                 ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [`gene2_${key}`, value]),
             ])
         );
-        createTable(id, rows, dataset, dataset2);
+        createGenePairsTable(id, rows, dataset, dataset2);
     });
 }
+
+/**
+ * Update the summary information displayed for a cell-type pair comparison.
+ *
+ * @param {string} id - HTML element ID prefix for the comparison container.
+ * @param {string} metacellType - Cell type from the first dataset.
+ * @param {string} metacellType2 - Cell type from the second dataset.
+ * @param {number|string} samapScore - SAMap similarity score.
+ * @param {number} genePairCount - Number of matched gene pairs.
+ */
 
 function updateComparisonSummary(id, metacellType, metacellType2, samapScore, genePairCount) {
     document.getElementById(`${id}-metacell-type`).textContent = metacellType;
@@ -189,7 +227,7 @@ export function initSAMap(id, label, dataset, species, label2, dataset2, species
                     item.datum.samap_score,
                     item.datum.samap_gene_pair_count,
                 );
-                createGenePairsTable(
+                prepareGenePairsTable(
                     id,
                     item.datum.samap_gene_pairs,
                     species,
