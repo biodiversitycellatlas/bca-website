@@ -34,6 +34,12 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },
+        transform: [
+            {
+                calculate: "format(datum.samap_score, '.2f') + '%'",
+                as: "samap_score_formatted"
+            }
+        ],
         vconcat: [
             {
                 hconcat: [
@@ -95,7 +101,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                             tooltip: [
                                 { field: "metacell_type", title: "Cell type ←" },
                                 { field: "metacell2_type", title: "Cell type →" },
-                                { field: "samap_score", title: "SAMap (%)", format: ".2f" },
+                                { field: "samap_score_formatted", title: "SAMap" },
                                 { field: "samap_gene_pair_count", title: "Gene pairs" },
                             ],
                         },
