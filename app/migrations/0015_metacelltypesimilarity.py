@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0013_go_annotation'),
+        ('app', '0014_trigram_extension'),
     ]
 
     operations = [
