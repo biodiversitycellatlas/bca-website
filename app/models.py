@@ -596,8 +596,12 @@ class Metacell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacells")
     type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
-    x = models.FloatField()
-    y = models.FloatField()
+
+    x = models.FloatField(null=True)
+    y = models.FloatField(null=True)
+    cytotrace = models.FloatField(null=True)
+    median_umis = models.FloatField(null=True)
+
     links = models.ManyToManyField("self", through="MetacellLink", symmetrical=True)
 
     class Meta:
@@ -625,8 +629,11 @@ class SingleCell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
+
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
+    cytotrace = models.FloatField(null=True)
+    median_umis = models.FloatField(null=True)
 
     class Meta:
         """Meta options."""
