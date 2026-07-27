@@ -9,7 +9,12 @@ import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
 import { createSAMapHeatmap } from "./plots/samap_heatmap.js";
-import { linkDomains, makeLinkGene } from "./tables/utils.ts";
+import {
+    linkDomains,
+    linkGeneLists,
+    linkOrthogroups,
+    makeLinkGene,
+} from "./tables/utils.ts";
 
 /**
  * Update parameter and reload page.
@@ -80,11 +85,15 @@ function createTable(id, rows, dataset, dataset2) {
         data: rows,
         columns: [
             { title: "Gene 1", data: "gene1_gene", render: makeLinkGene(dataset) },
-            { title: "Description 1", data: "gene1_description", className: "truncate" },
-            { title: "Domains 1", data: "gene1_domains", render: linkDomains, className: "truncate" },
             { title: "Gene 2", data: "gene2_gene", render: makeLinkGene(dataset2) },
+            { title: "Description 1", data: "gene1_description", className: "truncate" },
             { title: "Description 2", data: "gene2_description", className: "truncate" },
+            { title: "Domains 1", data: "gene1_domains", render: linkDomains, className: "truncate" },
             { title: "Domains 2", data: "gene2_domains", render: linkDomains, className: "truncate" },
+            { title: "Gene lists 1", data: "gene1_genelists", render: linkGeneLists, className: "truncate" },
+            { title: "Gene lists 2", data: "gene2_genelists", render: linkGeneLists, className: "truncate" },
+            { title: "Orthogroups 1", data: "gene1_orthogroups", render: linkOrthogroups, className: "truncate" },
+            { title: "Orthogroups 2", data: "gene2_orthogroups", render: linkOrthogroups, className: "truncate" },
         ],
         // orderFixed: [[0, "asc"]],
         responsive: true,
