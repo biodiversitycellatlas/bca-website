@@ -21,6 +21,11 @@ Input:
         height:50px;
         background-color: var(--primary-color);
     }
+
+    #{{ id }}-cell-type-compare-empty > span {
+        max-width: 32rem;
+        text-wrap: balance;
+    }
 </style>
 
 {% load static %}
@@ -174,6 +179,12 @@ Input:
                    data-bs-title="Pair of genes contributing to the alignment between the selected cell types."></i>
             </div>
 
+            <div id="{{ id }}-cell-type-compare-empty"
+                 class="text-center text-muted py-5 small">
+                <span class="d-block mx-auto">
+                    Select a cell-type pair in the plot to compare its aligned gene pairs.
+                </span>
+            </div>
             <table id="{{ id }}-cell-type-compare-table"
                    class="table table-sm table-striped small">
             </table>
