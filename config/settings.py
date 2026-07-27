@@ -95,8 +95,9 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
+E2E = get_env("E2E", type="bool")
 TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
-if DEBUG and not TESTING:
+if DEBUG and not TESTING and not E2E:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
     INTERNAL_IPS = type("c", (), {"__contains__": lambda *a: True})()
