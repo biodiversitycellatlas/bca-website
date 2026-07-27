@@ -363,8 +363,8 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     };
 
     return vegaEmbed(id, chart, { renderer: "canvas" })
-        .then(res => res.view)
-        .catch(error => {
+        .then((res) => res.view)
+        .catch((error) => {
             console.error(error);
             throw error;
         });
