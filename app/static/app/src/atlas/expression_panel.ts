@@ -19,14 +19,15 @@ import { getUserLists } from "./modals/list_editor.ts";
  */
 export function loadExpressionData(id, dataset, genes = null) {
     const url = getViewUrl("rest:metacellgeneexpression-list");
+    const clip_log2 = $("#clip_log2").val();
 
     const params = new URLSearchParams({
-        dataset: dataset,
+        dataset,
         metacells: $("#metacells").val().join(","),
         fc_min: $("#fc_min").val(),
         sort_genes: true,
         log2: true,
-        clip_log2: $("#clip_log2").val(),
+        clip_log2,
         limit: 0,
     });
 
@@ -41,7 +42,7 @@ export function loadExpressionData(id, dataset, genes = null) {
     fetch(apiURL)
         .then((response) => response.json())
         .then((data) => {
-            createExpressionHeatmap(`#${id}-plot`, data);
+            createExpressionHeatmap(`#${id}-plot`, data, [0, clip_log2]);
         })
         .catch((error) => console.error("Error fetching data:", error));
 
