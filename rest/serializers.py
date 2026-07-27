@@ -824,15 +824,13 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
             return None
 
         # Get all gene IDs and create dictionary with their names
-        gene_ids = { gene_id for pair in obj.samap_gene_pairs for gene_id in pair }
+        gene_ids = {gene_id for pair in obj.samap_gene_pairs for gene_id in pair}
         genes = dict(models.Gene.objects.filter(id__in=gene_ids).values_list("id", "name"))
 
         # Return gene name in the correct dataset order
         reverse = getattr(obj, "order_flag", 0) == 1
-        return [
-            [genes[b], genes[a]] if reverse else [genes[a], genes[b]]
-            for a, b in obj.samap_gene_pairs
-        ]
+        return [[genes[b], genes[a]] if reverse else [genes[a], genes[b]] for a, b in obj.samap_gene_pairs]
+
 
 class GeneSearchSerializer(serializers.Serializer):
     """Serializer for gene search."""

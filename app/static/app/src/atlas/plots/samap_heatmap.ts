@@ -37,8 +37,8 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
         transform: [
             {
                 calculate: "format(datum.samap_score, '.2f') + '%'",
-                as: "samap_score_formatted"
-            }
+                as: "samap_score_formatted",
+            },
         ],
         vconcat: [
             {
@@ -66,7 +66,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                         height: 500,
                         mark: {
                             type: "rect",
-                            cursor: "pointer"
+                            cursor: "pointer",
                         },
                         encoding: {
                             x: {
@@ -99,10 +99,22 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                 },
                             },
                             tooltip: [
-                                { field: "metacell_type", title: "Cell type ←" },
-                                { field: "metacell2_type", title: "Cell type →" },
-                                { field: "samap_score_formatted", title: "SAMap" },
-                                { field: "samap_gene_pair_count", title: "Gene pairs" },
+                                {
+                                    field: "metacell_type",
+                                    title: "Cell type ←",
+                                },
+                                {
+                                    field: "metacell2_type",
+                                    title: "Cell type →",
+                                },
+                                {
+                                    field: "samap_score_formatted",
+                                    title: "SAMap",
+                                },
+                                {
+                                    field: "samap_gene_pair_count",
+                                    title: "Gene pairs",
+                                },
                             ],
                         },
                     },
@@ -139,8 +151,8 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
     };
 
     return vegaEmbed(id, chart, { renderer: "canvas" })
-        .then(res => res.view)
-        .catch(error => {
+        .then((res) => res.view)
+        .catch((error) => {
             console.error(error);
             throw error;
         });

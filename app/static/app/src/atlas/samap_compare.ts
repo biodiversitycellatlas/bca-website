@@ -70,14 +70,16 @@ function fetchGeneInfo(species, genes) {
     const body = JSON.stringify({ species, genes });
 
     const data = fetch(url, {
-            method: "POST",
-            body: body,
-            headers: { "Content-Type": "application/json" },
-        })
-        .then(response => response.json())
-        .then(data => {
+        method: "POST",
+        body: body,
+        headers: { "Content-Type": "application/json" },
+    })
+        .then((response) => response.json())
+        .then((data) => {
             const geneInfo = {};
-            data.forEach(gene => { geneInfo[gene.gene] = gene; });
+            data.forEach((gene) => {
+                geneInfo[gene.gene] = gene;
+            });
             return geneInfo;
         });
     return data;
@@ -103,16 +105,62 @@ function createGenePairsTable(id, rows, dataset, dataset2) {
     const table = new DataTable(tableId, {
         data: rows,
         columns: [
-            { title: "Gene 1", data: "gene1_gene", render: makeLinkGene(dataset) },
-            { title: "Gene 2", data: "gene2_gene", render: makeLinkGene(dataset2) },
-            { title: "Description 1", data: "gene1_description", className: "truncate" },
-            { title: "Description 2", data: "gene2_description", className: "truncate" },
-            { title: "Domains 1", data: "gene1_domains", render: linkDomains, className: "truncate" },
-            { title: "Domains 2", data: "gene2_domains", render: linkDomains, className: "truncate" },
-            { title: "Gene lists 1", data: "gene1_genelists", render: linkGeneLists, className: "truncate" },
-            { title: "Gene lists 2", data: "gene2_genelists", render: linkGeneLists, className: "truncate" },
-            { title: "Orthogroups 1", data: "gene1_orthogroups", render: linkOrthogroups, className: "truncate" },
-            { title: "Orthogroups 2", data: "gene2_orthogroups", render: linkOrthogroups, className: "truncate" },
+            {
+                title: "Gene 1",
+                data: "gene1_gene",
+                render: makeLinkGene(dataset),
+            },
+            {
+                title: "Gene 2",
+                data: "gene2_gene",
+                render: makeLinkGene(dataset2),
+            },
+            {
+                title: "Description 1",
+                data: "gene1_description",
+                className: "truncate",
+            },
+            {
+                title: "Description 2",
+                data: "gene2_description",
+                className: "truncate",
+            },
+            {
+                title: "Domains 1",
+                data: "gene1_domains",
+                render: linkDomains,
+                className: "truncate",
+            },
+            {
+                title: "Domains 2",
+                data: "gene2_domains",
+                render: linkDomains,
+                className: "truncate",
+            },
+            {
+                title: "Gene lists 1",
+                data: "gene1_genelists",
+                render: linkGeneLists,
+                className: "truncate",
+            },
+            {
+                title: "Gene lists 2",
+                data: "gene2_genelists",
+                render: linkGeneLists,
+                className: "truncate",
+            },
+            {
+                title: "Orthogroups 1",
+                data: "gene1_orthogroups",
+                render: linkOrthogroups,
+                className: "truncate",
+            },
+            {
+                title: "Orthogroups 2",
+                data: "gene2_orthogroups",
+                render: linkOrthogroups,
+                className: "truncate",
+            },
         ],
         // orderFixed: [[0, "asc"]],
         responsive: true,
@@ -136,7 +184,14 @@ function createGenePairsTable(id, rows, dataset, dataset2) {
  * @param {string} dataset2 - Name of the second dataset.
  * @returns {Promise<void>} Resolves when the table has been created.
  */
-function prepareGenePairsTable(id, genePairs, species, species2, dataset, dataset2) {
+function prepareGenePairsTable(
+    id,
+    genePairs,
+    species,
+    species2,
+    dataset,
+    dataset2,
+) {
     const genes = [...new Set(genePairs.map(([gene1]) => gene1))];
     const genes2 = [...new Set(genePairs.map(([, gene2]) => gene2))];
 
@@ -146,9 +201,15 @@ function prepareGenePairsTable(id, genePairs, species, species2, dataset, datase
     ]).then(([geneInfo1, geneInfo2]) => {
         const rows = genePairs.map(([gene1, gene2]) =>
             Object.fromEntries([
-                ...Object.entries(geneInfo1[gene1]).map(([key, value]) => [`gene1_${key}`, value]),
-                ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [`gene2_${key}`, value]),
-            ])
+                ...Object.entries(geneInfo1[gene1]).map(([key, value]) => [
+                    `gene1_${key}`,
+                    value,
+                ]),
+                ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [
+                    `gene2_${key}`,
+                    value,
+                ]),
+            ]),
         );
         createGenePairsTable(id, rows, dataset, dataset2);
     });
@@ -164,13 +225,20 @@ function prepareGenePairsTable(id, genePairs, species, species2, dataset, datase
  * @param {number} genePairCount - Number of matched gene pairs.
  */
 
-function updateComparisonSummary(id, metacellType, metacellType2, samapScore, genePairCount) {
+function updateComparisonSummary(
+    id,
+    metacellType,
+    metacellType2,
+    samapScore,
+    genePairCount,
+) {
     document.getElementById(`${id}-metacell-type`).textContent = metacellType;
     document.getElementById(`${id}-metacell2-type`).textContent = metacellType2;
 
     const scoreLabel = `SAMap: ${Number(samapScore).toFixed(2)}%`;
     const countLabel = `${genePairCount} gene pair${genePairCount == 1 ? "" : "s"}`;
-    document.getElementById(`${id}-gene-pair-summary`).textContent = `${scoreLabel} · ${countLabel}`;
+    document.getElementById(`${id}-gene-pair-summary`).textContent =
+        `${scoreLabel} · ${countLabel}`;
 }
 
 /**
@@ -183,7 +251,15 @@ function updateComparisonSummary(id, metacellType, metacellType2, samapScore, ge
  * @param {string} label2 - Label for the second dataset
  * @param {string} dataset2 - Name of the second dataset
  */
-export function initSAMap(id, label, dataset, species, label2, dataset2, species2) {
+export function initSAMap(
+    id,
+    label,
+    dataset,
+    species,
+    label2,
+    dataset2,
+    species2,
+) {
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
