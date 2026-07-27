@@ -15,6 +15,12 @@ Input:
     .w-250px {
         width: 250px;
     }
+
+    #{{ id }}-vs-cell-type {
+        width:50px;
+        height:50px;
+        background-color: var(--primary-color);
+    }
 </style>
 
 {% load static %}
@@ -135,6 +141,30 @@ Input:
         {% endif %}
 
         <div class="col-12 col-lg-7">
+            <div class="d-flex justify-content-center gap-3 align-items-center text-center small mb-3">
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-metacell-type">
+                        Select a cell type pair
+                    </div>
+                </div>
+
+                <div id="{{ id }}-vs-cell-type"
+                     class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow">
+                    VS
+                </div>
+
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset2.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-metacell2-type">
+                        Select a cell type pair
+                    </div>
+                </div>
+            </div>
             <table id="{{ id }}-cell-type-compare-table"
                    class="table table-sm table-striped small">
             </table>
