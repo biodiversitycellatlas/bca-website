@@ -101,6 +101,7 @@ function createTable(id, rows, dataset, dataset2) {
         responsive: true,
         scrollX: true,
         scrollY: "400px",
+        scrollCollapse: true,
         paging: false,
         language: { search: "", searchPlaceholder: "Search table..." },
     });
