@@ -77,6 +77,8 @@ function fetchGeneInfo(species, genes) {
 }
 
 function createTable(id, rows, dataset, dataset2) {
+    document.getElementById(`${id}-cell-type-compare-empty`).hidden = true;
+
     // Destroy table if it exists
     const tableId = `#${id}-cell-type-compare-table`;
     new DataTable.Api(tableId).destroy();
