@@ -2,8 +2,6 @@
  * Visualize SAMap comparisons between datasets.
  */
 
-import $ from "jquery";
-
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
@@ -26,15 +24,15 @@ export function updateParam(param, value) {
  * Navigate to new URL query parameters based on form data.
  * Maintains query when changing only one value.
  *
- * @param {HTMLFormElement} elem - The form element being submitted.
- * @param {Event} e - The submit event.
+ * @param {HTMLFormElement} form - The submitted form element.
+ * @param {Event} event - The submit event.
  */
-function modifyFormQuery(elem, e) {
-    e.preventDefault();
+function modifyFormQuery(form, event) {
+    event.preventDefault();
 
     // Modify form URL
-    const formData = new FormData(elem);
-    const url = new URL(e.target.action);
+    const formData = new FormData(form);
+    const url = new URL(form.action);
     for (const [key, value] of formData.entries()) {
         url.searchParams.set(key, value);
     }
@@ -45,8 +43,10 @@ function modifyFormQuery(elem, e) {
  * When submitting form, modify query params.
  */
 export function handleFormSubmit() {
-    $("form").on("submit", function (e) {
-        modifyFormQuery(this, e);
+    document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+            modifyFormQuery(form, event);
+        });
     });
 }
 
@@ -64,11 +64,11 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
-        min_samap: $("#min_samap").val(),
+        min_samap: document.getElementById("min_samap").value,
         limit: 0,
     });
 
-    const heatmap = $("#plot").val() == "heatmap";
+    const heatmap = document.getElementById("plot").value == "heatmap";
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
