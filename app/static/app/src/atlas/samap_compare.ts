@@ -152,6 +152,11 @@ export function initSAMap(id, label, dataset, species, label2, dataset2, species
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
+            data = data.map((datum) => ({
+                ...datum,
+                samap_gene_pair_count: datum.samap_gene_pairs?.length || 0,
+            }));
+
             if (!data.length) {
                 const plot = document.getElementById(`${id}-plot`);
                 plot.parentElement.parentElement.innerHTML = `

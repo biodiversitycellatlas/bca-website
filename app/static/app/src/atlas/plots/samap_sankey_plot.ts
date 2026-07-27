@@ -301,7 +301,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     hover: {
                         strokeOpacity: { value: 1 },
                         tooltip: {
-                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap_score, '.2f') + '%'}`,
+                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap_score, '.2f') + '%', 'Gene pairs': datum.samap_gene_pair_count}`,
                         },
                     },
                 },

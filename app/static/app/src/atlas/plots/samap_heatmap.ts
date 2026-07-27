@@ -60,7 +60,6 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                         height: 500,
                         mark: {
                             type: "rect",
-                            tooltip: { content: "data" },
                             cursor: "pointer"
                         },
                         encoding: {
@@ -93,6 +92,12 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                     ],
                                 },
                             },
+                            tooltip: [
+                                { field: "metacell_type", title: "Cell type ←" },
+                                { field: "metacell2_type", title: "Cell type →" },
+                                { field: "samap_score", title: "SAMap (%)", format: ".2f" },
+                                { field: "samap_gene_pair_count", title: "Gene pairs" },
+                            ],
                         },
                     },
                 ],
