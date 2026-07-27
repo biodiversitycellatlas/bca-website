@@ -114,6 +114,9 @@ function createGenePairsTable(id, genePairs, species, species2, dataset, dataset
     });
 }
 
+function updateCellTypesLabels(id, metacellType, metacellType2) {
+    document.getElementById(`${id}-metacell-type`).textContent = metacellType;
+    document.getElementById(`${id}-metacell2-type`).textContent = metacellType2;
 }
 
 /**
@@ -157,6 +160,12 @@ export function initSAMap(id, label, dataset, species, label2, dataset2, species
             view.addEventListener("click", (event, item) => {
                 if (!item) return;
                 if (!item.datum.samap_gene_pairs) return;
+
+                updateCellTypesLabels(
+                    id,
+                    item.datum.metacell_type,
+                    item.datum.metacell2_type,
+                );
                 createGenePairsTable(
                     id,
                     item.datum.samap_gene_pairs,
