@@ -185,7 +185,7 @@ def get_cell_atlas_links(url_name, dataset=None):
             "icon": "scale-unbalanced",
             "url_names": ["atlas_compare"],
             "url_view": "atlas_compare",
-            "tooltip": "Compare genes between cell types of different species",
+            "tooltip": "Compare cell types and gene modules across different species",
         },
     ]
 
