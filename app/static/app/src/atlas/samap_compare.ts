@@ -2,6 +2,8 @@
  * Visualize SAMap comparisons between datasets.
  */
 
+import DataTable from "datatables.net-bs5";
+
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
@@ -50,6 +52,83 @@ export function handleFormSubmit() {
     });
 }
 
+function fetchGeneInfo(species, genes) {
+    const url = getViewUrl("rest:gene-list") + "?limit=0";
+    const body = JSON.stringify({ species, genes });
+
+    const data = fetch(url, {
+            method: "POST",
+            body: body,
+            headers: { "Content-Type": "application/json" },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const geneInfo = {};
+            data.forEach(gene => { geneInfo[gene.gene] = gene; });
+            return geneInfo;
+        });
+    return data;
+}
+
+function createTable(id, rows) {
+    // Destroy table if it exists
+    const tableId = `#${id}-cell-type-compare-table`;
+    new DataTable.Api(tableId).destroy();
+
+    const table = new DataTable(tableId, {
+        data: rows,
+        columns: [
+            { title: "Gene 1", data: "gene1_gene" },
+            { title: "Gene 2", data: "gene2_gene" },
+        ],
+        // orderFixed: [[0, "asc"]],
+        responsive: true,
+        scrollX: true,
+        scrollY: "400px",
+        paging: false,
+        language: { search: "", searchPlaceholder: "Search table..." },
+    });
+    return table;
+}
+
+function createGenePairsTable(id, genePairs, species, species2) {
+    const genes = [...new Set(genePairs.map(([gene1]) => gene1))];
+    const genes2 = [...new Set(genePairs.map(([, gene2]) => gene2))];
+
+    return Promise.all([
+        fetchGeneInfo(species, genes),
+        fetchGeneInfo(species2, genes2),
+    ]).then(([geneInfo1, geneInfo2]) => {
+        const rows = genePairs.map(([gene1, gene2]) =>
+            Object.fromEntries([
+                ...Object.entries(geneInfo1[gene1]).map(([key, value]) => [`gene1_${key}`, value]),
+                ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [`gene2_${key}`, value]),
+            ])
+        );
+        createTable(id, rows);
+    });
+
+    const table = new DataTable(tableId, {
+        columns: [
+            // {
+            //     title: "Description",
+            //     data: "description",
+            //     visible: true,
+            //     className: "truncate",
+            // },
+            // { title: "Domains", data: "domains", render: linkDomains },
+            // { title: "Gene lists", data: "genelists", render: linkGeneLists },
+            // {
+            //     title: "Orthogroups",
+            //     data: "orthogroups",
+            //     render: linkOrthogroups,
+            // },
+        ],
+        orderFixed: [[0, "asc"]],
+    });
+    return table;
+}
+
 /**
  * Fetch and display metacell type similarity between datasets.
  * Renders a Sankey plot showing cell-type correspondences.
@@ -60,7 +139,7 @@ export function handleFormSubmit() {
  * @param {string} label2 - Label for the second dataset
  * @param {string} dataset2 - Name of the second dataset
  */
-export function initSAMap(id, label, dataset, label2, dataset2) {
+export function initSAMap(id, label, dataset, species, label2, dataset2, species2) {
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
@@ -81,10 +160,18 @@ export function initSAMap(id, label, dataset, label2, dataset2) {
                     </p>
                 `;
             } else if (heatmap) {
-                createSAMapHeatmap(`#${id}-plot`, data, label, label2);
+                return createSAMapHeatmap(`#${id}-plot`, data, label, label2);
             } else {
-                createSAMapSankey(`#${id}-plot`, data, label, label2);
+                return createSAMapSankey(`#${id}-plot`, data, label, label2);
             }
+        })
+        .then((view) => {
+            // Update table when clicking valid plot values
+            view.addEventListener("click", (event, item) => {
+                if (!item) return;
+                if (!item.datum.samap_gene_pairs) return;
+                createGenePairsTable(id, item.datum.samap_gene_pairs, species, species2);
+            });
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));
