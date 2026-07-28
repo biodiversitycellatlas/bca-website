@@ -544,6 +544,36 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
             WHERE mc.dataset_id = %(dataset_id)s
               AND (mc.name = ANY(%(names)s) OR mct.name = ANY(%(names)s))
         ),
+        -- Foreground membership is evaluated ONCE per row here and reused by every
+        -- aggregate below, instead of once per FILTER clause (which the planner turns
+        -- into six separate hashed SubPlans, i.e. six probes for every expression
+        -- row). Membership is expressed as ``IN (subquery)`` rather than a join to
+        -- ``fg_metacells``: PostgreSQL evaluates it as a hashed SubPlan (built once,
+        -- probed per row), whereas a join is prone to a nested loop over every
+        -- expression row when the foreground set is small, which is catastrophic on
+        -- large datasets (millions of rows).
+        --
+        -- Two planner fences make this work and BOTH are required:
+        --   OFFSET 0   stops the subquery being pulled up, which would substitute
+        --              ``is_fg`` back into each FILTER and restore the six SubPlans.
+        --   ORDER BY   keeps the gene_id-ordered index path, so the GroupAggregate
+        --              below still consumes ``app_mge_dataset_gene_covering``
+        --              directly; without it the planner sorts every expression row
+        --              (external merge, ~400MB on a 10M-row dataset) and the rewrite
+        --              loses more than it gains.
+        -- ``is_fg`` is never NULL (both metacell_id columns are NOT NULL), so
+        -- ``NOT is_fg`` is equivalent to the ``NOT IN`` it replaces.
+        tagged AS (
+            SELECT
+                e.gene_id,
+                e.umi_raw,
+                e.fold_change,
+                e.metacell_id IN (SELECT metacell_id FROM fg_metacells) AS is_fg
+            FROM app_metacellgeneexpression e
+            WHERE e.dataset_id = %(dataset_id)s
+            ORDER BY e.gene_id
+            OFFSET 0
+        ),
         -- MATERIALIZED is load-bearing: without it PostgreSQL inlines ``stats``
         -- (single reference) and pushes the outer having-column filter down into
         -- this aggregate node as a *fresh copy* of the aggregate expression.
@@ -553,28 +583,18 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
         -- where percentile_cont is the expensive one). Materializing costs nothing:
         -- the result is one row per gene, and the filter runs against that instead.
         stats AS MATERIALIZED (
-            -- Foreground/background membership is expressed as ``IN (subquery)``
-            -- rather than a join to ``fg_metacells``: PostgreSQL evaluates it as a
-            -- hashed SubPlan (built once, probed per row), whereas a join is prone
-            -- to a nested loop over every expression row when the foreground set is
-            -- small, which is catastrophic on large datasets (millions of rows).
             SELECT
-                e.gene_id,
-                sum(e.umi_raw)
-                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_sum_umi,
-                sum(e.umi_raw)
-                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_sum_umi,
-                avg(e.fold_change)
-                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_mean_fc,
-                avg(e.fold_change)
-                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_mean_fc,
-                percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
-                    FILTER (WHERE e.metacell_id IN (SELECT metacell_id FROM fg_metacells)) AS fg_median_fc,
-                percentile_cont(0.5) WITHIN GROUP (ORDER BY e.fold_change)
-                    FILTER (WHERE e.metacell_id NOT IN (SELECT metacell_id FROM fg_metacells)) AS bg_median_fc
-            FROM app_metacellgeneexpression e
-            WHERE e.dataset_id = %(dataset_id)s
-            GROUP BY e.gene_id
+                t.gene_id,
+                sum(t.umi_raw) FILTER (WHERE t.is_fg) AS fg_sum_umi,
+                sum(t.umi_raw) FILTER (WHERE NOT t.is_fg) AS bg_sum_umi,
+                avg(t.fold_change) FILTER (WHERE t.is_fg) AS fg_mean_fc,
+                avg(t.fold_change) FILTER (WHERE NOT t.is_fg) AS bg_mean_fc,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY t.fold_change)
+                    FILTER (WHERE t.is_fg) AS fg_median_fc,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY t.fold_change)
+                    FILTER (WHERE NOT t.is_fg) AS bg_median_fc
+            FROM tagged t
+            GROUP BY t.gene_id
         )
         SELECT
             s.gene_id AS id,
