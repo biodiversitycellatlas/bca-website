@@ -475,23 +475,43 @@ class SingleCellSerializer(BaseExpressionSerializer):
 
     # Default is null for single cells with no metacell
     metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Associated cell type.")
-    metacell_color = serializers.CharField(source="metacell.type.color", default=None, help_text="Color associated with cell type.")
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Cell type.")
+    metacell_color = serializers.CharField(
+        source="metacell.type.color", default=None, help_text="Color associated with cell type."
+    )
 
     class Meta:
         """Meta configuration."""
 
         model = models.SingleCell
-        fields = ["name", "x", "y", "cytotrace", "median_umis", "metacell_name", "metacell_type", "metacell_color", "gene_name", "umifrac"]
+        fields = [
+            "name",
+            "x",
+            "y",
+            "cytotrace",
+            "median_umis",
+            "metacell_name",
+            "metacell_type",
+            "metacell_color",
+            "gene_name",
+            "umifrac",
+        ]
 
         extra_kwargs = {
-            "name": { "help_text": "Unique identifier." },
-            "x": { "help_text": "X coordinate in the embedding." },
-            "y": { "help_text": "Y coordinate in the embedding." },
-            "cytotrace": { "help_text": "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) score estimating the developmental potential of the cell (0–1). Higher values indicate less differentiated (stem-like) cells." },
-            "median_umis": { "help_text": "Median number of Unique Molecular Identifiers (UMIs)." },
-            "gene_name": { "help_text": "Name of the queried gene." },
-            "umifrac": { "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene." },
+            "name": {"help_text": "Unique identifier."},
+            "x": {"help_text": "X coordinate in the embedding."},
+            "y": {"help_text": "Y coordinate in the embedding."},
+            "cytotrace": {
+                "help_text": (
+                    "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) estimates "
+                    "developmental potential: 0 → more differentiated, 1 → less differentiated."
+                )
+            },
+            "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "gene_name": {"help_text": "Name of the queried gene."},
+            "umifrac": {
+                "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
+            },
         }
 
     def get_umifrac(self, obj):
@@ -529,13 +549,20 @@ class MetacellSerializer(BaseExpressionSerializer):
         ]
 
         extra_kwargs = {
-            "name": { "help_text": "Unique identifier." },
-            "x": { "help_text": "X coordinate in the embedding." },
-            "y": { "help_text": "Y coordinate in the embedding." },
-            "cytotrace": { "help_text": "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) score estimating the developmental potential of the cell (0–1). Higher values indicate less differentiated (stem-like) cells." },
-            "median_umis": { "help_text": "Median number of Unique Molecular Identifiers (UMIs)." },
-            "gene_name": { "help_text": "Name of the queried gene." },
-            "umifrac": { "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene." },
+            "name": {"help_text": "Unique identifier."},
+            "x": {"help_text": "X coordinate in the embedding."},
+            "y": {"help_text": "Y coordinate in the embedding."},
+            "cytotrace": {
+                "help_text": (
+                    "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) estimates "
+                    "developmental potential: 0 → more differentiated, 1 → less differentiated."
+                )
+            },
+            "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "gene_name": {"help_text": "Name of the queried gene."},
+            "umifrac": {
+                "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
+            },
         }
 
 
