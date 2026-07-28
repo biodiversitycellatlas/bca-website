@@ -544,7 +544,15 @@ class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
             WHERE mc.dataset_id = %(dataset_id)s
               AND (mc.name = ANY(%(names)s) OR mct.name = ANY(%(names)s))
         ),
-        stats AS (
+        -- MATERIALIZED is load-bearing: without it PostgreSQL inlines ``stats``
+        -- (single reference) and pushes the outer having-column filter down into
+        -- this aggregate node as a *fresh copy* of the aggregate expression.
+        -- The copy carries its own SubPlan, so it does not compare equal() to the
+        -- one in the target list and is not deduplicated -- the selected aggregate
+        -- is then computed twice over every expression row (worst on ``median``,
+        -- where percentile_cont is the expensive one). Materializing costs nothing:
+        -- the result is one row per gene, and the filter runs against that instead.
+        stats AS MATERIALIZED (
             -- Foreground/background membership is expressed as ``IN (subquery)``
             -- rather than a join to ``fg_metacells``: PostgreSQL evaluates it as a
             -- hashed SubPlan (built once, probed per row), whereas a join is prone
