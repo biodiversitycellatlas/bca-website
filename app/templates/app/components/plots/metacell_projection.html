@@ -66,16 +66,20 @@ Input:
         <select id="projection-color"
                 aria-label="Select a property for plot colouring"
                 class="form-select form-select btn-outline-primary">
-            <option {% if query.color == "cell_type" %}selected{% endif %} value="cell_type">
+            <option {% if query.color == "cell_type" %}selected{% endif %}
+                    value="cell_type">
                 Cell type
             </option>
-            <option {% if query.color == "cytotrace" %}selected{% endif %} value="cytotrace">
+            <option {% if query.color == "cytotrace" %}selected{% endif %}
+                    value="cytotrace">
                 CytoTRACE
             </option>
-            <option {% if query.color == "median_umis" %}selected{% endif %} value="median_umis">
+            <option {% if query.color == "median_umis" %}selected{% endif %}
+                    value="median_umis">
                 Median UMIs
             </option>
-            <option {% if query.color == "expression" or not query.color and gene %}selected{% endif %} value="expression">
+            <option {% if query.color == "expression" or not query.color and gene %}selected{% endif %}
+                    value="expression">
                 Gene expression
             </option>
         </select>
