@@ -88,12 +88,11 @@ Features:
     </div>
 
     <!-- Tree of Life -->
-    <div id="tree"
-         class="container d-flex align-items-center justify-content-center">
+    <div id="tree">
     </div>
     <script type="module">
         import { createTreeOfLife } from "{% static 'app/dist/tree_of_life.js' %}";
-        createTreeOfLife("#tree", "{% static 'app/life.json' %}");
+        createTreeOfLife("#tree", "{% static 'app/life.nwk' %}");
     </script>
 
     {% comment %}
