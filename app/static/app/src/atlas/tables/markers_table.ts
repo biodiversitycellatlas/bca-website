@@ -26,6 +26,10 @@ export function createMarkersTable(id, dataset, url) {
         },
         pageLength: 25,
         scrollX: true,
+        language: {
+            // Blink the loading message to signal an in-progress fetch
+            loadingRecords: '<span class="blink">Loading&hellip;</span>',
+        },
         columns: [
             { data: "name", title: "Gene ID", render: linkGene },
             {

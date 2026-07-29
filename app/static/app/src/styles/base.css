@@ -384,6 +384,24 @@ a:active,
     }
 }
 
+/* Blinking text to signal an in-progress (dynamic) fetch */
+
+.blink {
+    animation: blink 1.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.25;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blink {
+        animation: none;
+    }
+}
+
 /* Footer */
 
 footer h5 {
