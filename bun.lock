@@ -5,7 +5,7 @@
     "": {
       "name": "app",
       "dependencies": {
-        "@fontsource/rubik": "5.2.8",
+        "@fontsource/rubik": "5.3.0",
         "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
         "autoprefixer": "10.5.4",
@@ -28,7 +28,7 @@
     },
   },
   "packages": {
-    "@fontsource/rubik": ["@fontsource/rubik@5.2.8", "", {}, "sha512-PIc8QR7FqWPcYhbdRiGff56vQlKqg/ytES1YqecSq1GkgxiH4TBshrFvDEOZ9JonUF9m1qQ+qXxJj7wD5zgXEw=="],
+    "@fontsource/rubik": ["@fontsource/rubik@5.3.0", "", {}, "sha512-Nks2mn7vlE1jZVHuVgoKU2Ejqjvd+GJzLRdraCjo1xc79oo7O6vJ8pcvSfmKPGX3/Ln7nt09XWFzPeu2jWf0xQ=="],
 
     "@fortawesome/fontawesome-free": ["@fortawesome/fontawesome-free@7.3.1", "", {}, "sha512-wmglKKPDIkgV3aWlZzWECCPoGIkYCulzBwxG9+w7rc5BGapZ6cPMpoPOT8k36J0Ni7PPX6c/rsoMWfS4d1MUMg=="],
 
