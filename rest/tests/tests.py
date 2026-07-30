@@ -26,6 +26,18 @@ from app.models import (
 )
 
 
+class SchemaTests(APITestCase):
+    """Tests for OpenAPI schema generation."""
+
+    def test_format_parameter_description(self):
+        response = self.client.get("/api/v1/schema/", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        schema = response.json()
+        params = schema["paths"]["/api/v1/species/"]["get"]["parameters"]
+        format_param = next(p for p in params if p["name"] == "format")
+        assert format_param["description"] == "Response format."
+
+
 class SpeciesTests(APITestCase):
     """Test Species Endpoint"""
 
@@ -513,6 +525,10 @@ class ExpressionConservationTests(OrthologsTests):
         assert len(results) == 3
         assert {r["gene"] for r in results} == {"gene1", "gene2", "gene3"}
         assert {r["conservation_score"] for r in results} == {0.9, 0.8, 0.5}
+
+    def test_str(self):
+        ec = ExpressionConservation.objects.first()
+        assert str(ec) == f"{ec.gene} - {ec.gene2} ({ec.orthogroup.name})"
 
     def test_filter_by_gene(self):
         url = "/api/v1/expression_conservation/?gene=gene1"

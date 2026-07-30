@@ -1000,7 +1000,7 @@ class ExpressionConservation(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.gene} / {self.gene2} ({self.orthogroup.name})"
+        return f"{self.gene} - {self.gene2} ({self.orthogroup.name})"
 
 
 class MetacellTypeSimilarity(models.Model):
