@@ -73,7 +73,7 @@ class ExpressionConservationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ExpressionConservation
 
-    conservation = factory.Faker("pyfloat", min_value=0, max_value=1)
+    conservation_score = factory.Faker("pyfloat", min_value=0, max_value=1)
     is_one_to_one = True
 
 

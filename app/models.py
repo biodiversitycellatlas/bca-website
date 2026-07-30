@@ -982,7 +982,7 @@ class ExpressionConservation(models.Model):
     dataset_b = models.ForeignKey(
         Dataset, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Dataset for the second gene."
     )
-    conservation = models.FloatField(help_text="Expression conservation score.")
+    conservation_score = models.FloatField(help_text="Expression conservation score.")
     is_one_to_one = models.BooleanField(default=True, help_text="Whether the ortholog pair is one-to-one.")
 
     class Meta:

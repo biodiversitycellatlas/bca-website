@@ -360,7 +360,7 @@ class ExpressionConservationTests(OrthologsTests):
             gene_b=cls.gene5,
             dataset_a=cls.ds_a,
             dataset_b=cls.ds_b,
-            conservation=0.9,
+            conservation_score=0.9,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
@@ -369,7 +369,7 @@ class ExpressionConservationTests(OrthologsTests):
             gene_b=cls.gene5,
             dataset_a=cls.ds_a,
             dataset_b=cls.ds_b,
-            conservation=0.8,
+            conservation_score=0.8,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
@@ -378,7 +378,7 @@ class ExpressionConservationTests(OrthologsTests):
             gene_b=cls.gene5,
             dataset_a=cls.ds_a,
             dataset_b=cls.ds_b,
-            conservation=0.5,
+            conservation_score=0.5,
             is_one_to_one=False,
         )
 
@@ -388,8 +388,8 @@ class ExpressionConservationTests(OrthologsTests):
         results = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
         assert len(results) == 3
-        assert {r["ortholog_gene_name"] for r in results} == {"gene1", "gene2", "gene3"}
-        assert {r["conservation"] for r in results} == {0.9, 0.8, 0.5}
+        assert {r["gene"] for r in results} == {"gene1", "gene2", "gene3"}
+        assert {r["conservation_score"] for r in results} == {0.9, 0.8, 0.5}
 
     def test_filter_by_gene(self):
         url = "/api/v1/expression_conservation/?gene=gene1"
@@ -397,8 +397,8 @@ class ExpressionConservationTests(OrthologsTests):
         results = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
         assert len(results) == 1
-        assert results[0]["ortholog_gene_name"] == "gene5"
-        assert results[0]["conservation"] == 0.9
+        assert results[0]["gene"] == "gene5"
+        assert results[0]["conservation_score"] == 0.9
 
     def test_filter_by_orthogroup(self):
         url = "/api/v1/expression_conservation/?orthogroup=orthogroup1"

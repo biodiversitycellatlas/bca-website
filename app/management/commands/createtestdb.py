@@ -203,7 +203,7 @@ class Command(BaseCommand):
             gene_b=sponge_genes[0],
             dataset_a=self.homo_dataset,
             dataset_b=self.sponge_dataset,
-            conservation=0.85,
+            conservation_score=0.85,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
@@ -212,7 +212,7 @@ class Command(BaseCommand):
             gene_b=sponge_genes[1],
             dataset_a=self.homo_dataset,
             dataset_b=self.sponge_dataset,
-            conservation=0.72,
+            conservation_score=0.72,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
@@ -221,7 +221,7 @@ class Command(BaseCommand):
             gene_b=sponge_genes[2],
             dataset_a=self.homo_dataset,
             dataset_b=self.sponge_dataset,
-            conservation=0.91,
+            conservation_score=0.91,
             is_one_to_one=True,
         )
 
