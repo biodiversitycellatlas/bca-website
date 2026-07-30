@@ -11,7 +11,6 @@ from django.db.models import Case, CharField, Count, F, IntegerField, Prefetch, 
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
-from rest_framework.filters import OrderingFilter
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 
@@ -19,39 +18,6 @@ from app.managers import ExpressionDataManager
 from app import models
 from . import filters, serializers, services
 from .utils import get_enum_description, get_path_param, parse_species_dataset
-
-
-class DatasetOrderingFilter(OrderingFilter):
-    """Map `dataset` to ortholog dataset slug for correct FK ordering."""
-
-    def filter_queryset(self, request, queryset, view):
-        ordering = self.get_ordering(request, queryset, view)
-        if ordering:
-            new_ordering = []
-            needs_annotation = False
-            for f in ordering:
-                raw = f.lstrip("-")
-                prefix = "-" if f.startswith("-") else ""
-                if raw == "dataset":
-                    needs_annotation = True
-                    new_ordering.append(prefix + "_ortholog_dataset_slug")
-                else:
-                    new_ordering.append(f)
-
-            if needs_annotation:
-                ref_gene = request.query_params.get("gene")
-                if ref_gene:
-                    gid = models.Gene.objects.filter(name=ref_gene).values_list("id")[0][0]
-                    queryset = queryset.annotate(
-                        _ortholog_dataset_slug=Case(
-                            When(gene_id=gid, then=F("dataset2__slug")),
-                            default=F("dataset__slug"),
-                            output_field=CharField(),
-                        )
-                    )
-
-            return queryset.order_by(*new_ordering)
-        return queryset
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -1032,9 +998,7 @@ class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
     ).prefetch_related(
         "gene__domains",
         "gene2__domains",
-    )
+    ).order_by("-conservation_score")
+
     serializer_class = serializers.ExpressionConservationSerializer
     filterset_class = filters.ExpressionConservationFilter
-    filter_backends = [DjangoFilterBackend, DatasetOrderingFilter]
-    ordering_fields = ["conservation_score", "dataset"]
-    ordering = ["-conservation_score"]
