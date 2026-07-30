@@ -950,11 +950,11 @@ class ExpressionConservationFilter(FilterSet):
         """Filter conservation rows involving the given gene."""
         if value:
             gid = models.Gene.objects.filter(name=value).values_list("id")[0][0]
-            queryset = queryset.filter(Q(gene_a=gid) | Q(gene_b=gid)).distinct()
+            queryset = queryset.filter(Q(gene=gid) | Q(gene2=gid)).distinct()
         return queryset
 
     def filter_dataset(self, queryset, name, value):
         """Filter conservation rows involving the given dataset."""
         if value:
-            queryset = queryset.filter(Q(dataset_a__slug=value) | Q(dataset_b__slug=value))
+            queryset = queryset.filter(Q(dataset__slug=value) | Q(dataset2__slug=value))
         return queryset

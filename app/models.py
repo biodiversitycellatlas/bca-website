@@ -971,17 +971,17 @@ class ExpressionConservation(models.Model):
         related_name="conservations",
         help_text="Orthogroup the conservation belongs to.",
     )
-    gene_a = models.ForeignKey(
-        Gene, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="First gene in the ortholog pair."
+    gene = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations_as", help_text="First gene in the ortholog pair."
     )
-    gene_b = models.ForeignKey(
-        Gene, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Second gene in the ortholog pair."
+    gene2 = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Second gene in the ortholog pair."
     )
-    dataset_a = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="Dataset for the first gene."
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations_as", help_text="Dataset for the first gene."
     )
-    dataset_b = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Dataset for the second gene."
+    dataset2 = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Dataset for the second gene."
     )
     conservation_score = models.FloatField(help_text="Expression conservation score.")
     is_one_to_one = models.BooleanField(default=True, help_text="Whether the ortholog pair is one-to-one.")
@@ -989,10 +989,10 @@ class ExpressionConservation(models.Model):
     class Meta:
         """Meta options."""
 
-        unique_together = [["gene_a", "gene_b", "dataset_a", "dataset_b"]]
+        unique_together = [["gene", "gene2", "dataset", "dataset2"]]
         indexes = [
-            models.Index(fields=["gene_a"]),
-            models.Index(fields=["gene_b"]),
+            models.Index(fields=["gene"]),
+            models.Index(fields=["gene2"]),
         ]
         ordering = ["orthogroup"]
         verbose_name = "Expression conservation score"
@@ -1000,7 +1000,7 @@ class ExpressionConservation(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.gene_a} / {self.gene_b} ({self.orthogroup.name})"
+        return f"{self.gene} / {self.gene2} ({self.orthogroup.name})"
 
 
 class MetacellTypeSimilarity(models.Model):

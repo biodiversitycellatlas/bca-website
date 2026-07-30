@@ -473,34 +473,34 @@ class ExpressionConservationTests(OrthologsTests):
     def setUpTestData(cls):
         super().setUpTestData()
         species2 = Species.objects.create(common_name="species2", scientific_name="species2", description="species2")
-        cls.ds_a = cls.species1.datasets.create(name="dataset_a", description="dataset_a")
-        cls.ds_b = species2.datasets.create(name="dataset_b", description="dataset_b")
+        cls.dataset = cls.species1.datasets.create(name="dataset")
+        cls.dataset2 = species2.datasets.create(name="dataset2")
         cls.gene5 = species2.genes.create(name="gene5", description="gene5")
         og2 = Orthogroup.objects.create(name="orthogroup2")
         ExpressionConservation.objects.create(
             orthogroup=cls.og1,
-            gene_a=cls.gene1,
-            gene_b=cls.gene5,
-            dataset_a=cls.ds_a,
-            dataset_b=cls.ds_b,
+            gene=cls.gene1,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
             conservation_score=0.9,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
             orthogroup=cls.og1,
-            gene_a=cls.gene2,
-            gene_b=cls.gene5,
-            dataset_a=cls.ds_a,
-            dataset_b=cls.ds_b,
+            gene=cls.gene2,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
             conservation_score=0.8,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
             orthogroup=og2,
-            gene_a=cls.gene3,
-            gene_b=cls.gene5,
-            dataset_a=cls.ds_a,
-            dataset_b=cls.ds_b,
+            gene=cls.gene3,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
             conservation_score=0.5,
             is_one_to_one=False,
         )
@@ -543,7 +543,7 @@ class ExpressionConservationTests(OrthologsTests):
         assert len(results) == 2
 
     def test_filter_by_dataset(self):
-        url = "/api/v1/expression_conservation/?dataset=species1-dataset_a"
+        url = "/api/v1/expression_conservation/?dataset=species1-dataset"
         response = self.client.get(url, format="json")
         results = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
