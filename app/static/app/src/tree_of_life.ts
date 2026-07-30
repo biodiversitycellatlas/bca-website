@@ -5,28 +5,31 @@ export function createTreeOfLife(id, file) {
         .then((res) => res.text())
         .then((newick) => {
             const tree = new phylotree(newick);
+
+            const container = document.querySelector(id);
+            const { width, height } = container.getBoundingClientRect();
+
+            const fontSize = Math.max(6, Math.min(18, height / 25));
+
             tree.render({
                 container: id,
-                "font-size": 20,
+                //width,
+                //height,
+                //"left-right-spacing": "fit-to-size",
+                //"top-bottom-spacing": "fit-to-size",
+                "font-size": 8,
                 "align-tips": true,
                 "show-scale": false,
                 zoom: false,
                 reroot: false,
                 responsive: true,
                 brush: false,
+                "is-radial": true,
+                selectable: false,
+                collapsible: false,
             });
-            tree.display.radial(true);
-            tree.display.update();
 
-            const container = document.querySelector(id);
             const svg = tree.display.show();
-            const bbox = svg.querySelector(".phylotree-container").getBBox();
-            const pad = 0;
-
-            svg.style.width = "100%";
-            svg.style.height = "100%";
-            svg.removeAttribute("width");
-            svg.removeAttribute("height");
             container.appendChild(svg);
 
             container.querySelectorAll(".phylotree-node-text").forEach((el) => {
