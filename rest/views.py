@@ -913,10 +913,10 @@ class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
 
     queryset = models.ExpressionConservation.objects.select_related(
         "orthogroup",
-        "gene_a",
-        "gene_b",
-        "dataset_a",
-        "dataset_b",
+        "gene",
+        "gene2",
+        "dataset",
+        "dataset2",
     )
     serializer_class = serializers.ExpressionConservationSerializer
     filterset_class = filters.ExpressionConservationFilter

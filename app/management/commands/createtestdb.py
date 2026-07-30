@@ -199,28 +199,28 @@ class Command(BaseCommand):
 
         ExpressionConservation.objects.create(
             orthogroup=orthogroup0,
-            gene_a=homo_genes[1],
-            gene_b=sponge_genes[0],
-            dataset_a=self.homo_dataset,
-            dataset_b=self.sponge_dataset,
+            gene=homo_genes[1],
+            gene2=sponge_genes[0],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
             conservation_score=0.85,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
             orthogroup=orthogroup0,
-            gene_a=homo_genes[1],
-            gene_b=sponge_genes[1],
-            dataset_a=self.homo_dataset,
-            dataset_b=self.sponge_dataset,
+            gene=homo_genes[1],
+            gene2=sponge_genes[1],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
             conservation_score=0.72,
             is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
             orthogroup=orthogroup1,
-            gene_a=homo_genes[2],
-            gene_b=sponge_genes[2],
-            dataset_a=self.homo_dataset,
-            dataset_b=self.sponge_dataset,
+            gene=homo_genes[2],
+            gene2=sponge_genes[2],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
             conservation_score=0.91,
             is_one_to_one=True,
         )
