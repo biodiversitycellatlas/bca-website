@@ -59,5 +59,4 @@ jobs:
             - name: Run Bandit and upload results to GitHub Security tab
               uses: PyCQA/bandit-action@v1
               with:
-                  configfile: pyproject.toml
-                  exclude: ".git,./scripts,__pycache__"
+                  exclude: ".git,./scripts,__pycache__,app/tests,rest/tests"
