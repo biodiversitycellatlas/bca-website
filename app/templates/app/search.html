@@ -81,7 +81,7 @@ Search page
 
                     {% load string_extras %}
                     {% for limit in "12,24,36,48,60"|split %}
-                        <a class="nav-link p-1 limit-btn {% if query.limit == limit %}active{% elif not query.limit and limit == '12' %}active{% endif %}"
+                        <a class="nav-link p-1 limit-btn {% if query.limit == limit %}active{% elif not query.limit and limit == '24' %}active{% endif %}"
                            href="#"
                            role="button"
                            data-limit="{{ limit }}">{{ limit }}</a>

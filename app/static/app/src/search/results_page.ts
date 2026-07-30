@@ -21,7 +21,7 @@ function readStateFromUrl() {
         q: params.get("q") || "",
         category: params.get("category") || "",
         species: params.get("species") || "",
-        limit: parseInt(params.get("limit")) || 12,
+        limit: parseInt(params.get("limit")) || 24,
         offset: parseInt(params.get("offset")) || 0,
     };
 }
