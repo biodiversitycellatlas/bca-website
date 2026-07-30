@@ -273,28 +273,6 @@ function renderSummary(datasetData, geneData) {
 }
 
 /**
- * Fetch category counts for sidebar display.
- *
- * @param {string} query - Search query.
- * @param {string} species - Species filter.
- * @returns {Promise<Array>} Resolves to [datasetData, geneData].
- */
-function getCategoryCounts(query, species) {
-    const params = { q: query, limit: 1 };
-    if (species) params.species = species.replace("_", " ");
-
-    const datasetsUrl = getViewUrl("rest:dataset-list", params);
-    const geneCountParams = { q: query, limit: 1 };
-    if (species) geneCountParams.species = species.replace("_", " ");
-    const genesUrl = getViewUrl("rest:genesearch-list", geneCountParams);
-
-    return Promise.all([
-        fetch(datasetsUrl).then((r) => r.json()),
-        fetch(genesUrl).then((r) => r.json()),
-    ]);
-}
-
-/**
  * Update category count badges in sidebar.
  *
  * @param {number} datasetCount - Total dataset count.
@@ -381,9 +359,12 @@ export function loadSearchResults() {
 
                 renderDatasets(data);
 
-                getCategoryCounts(q, species).then(([dsData, geneData]) => {
-                    updateCategoryCounts(dsData.count || 0, geneData);
-                }).catch(() => {});
+                const geneParams = { q: q, limit: 1 };
+                if (species) geneParams.species = species.replace("_", " ");
+                fetch(getViewUrl("rest:genesearch-list", geneParams))
+                    .then((r) => r.json())
+                    .then((gd) => updateCategoryCounts(data.count || 0, gd))
+                    .catch(() => {});
             })
             .catch(() => {
                 showError();
@@ -410,9 +391,12 @@ export function loadSearchResults() {
 
                 renderGeneGeneList(data);
 
-                getCategoryCounts(q, species).then(([dsData, geneData]) => {
-                    updateCategoryCounts(dsData.count || 0, geneData);
-                }).catch(() => {});
+                const dsParams = { q: q, limit: 1 };
+                if (species) dsParams.species = species.replace("_", " ");
+                fetch(getViewUrl("rest:dataset-list", dsParams))
+                    .then((r) => r.json())
+                    .then((dd) => updateCategoryCounts(dd.count || 0, data))
+                    .catch(() => {});
             })
             .catch(() => {
                 showError();
