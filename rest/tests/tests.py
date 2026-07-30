@@ -21,6 +21,7 @@ from app.models import (
     Orthogroup,
     MetacellLink,
     SAMap,
+    ExpressionConservation,
     SpeciesFile,
 )
 
@@ -310,17 +311,17 @@ class OrthologsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
-        gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
-        gene3 = Gene.objects.create(species=species1, name="gene3", description="gene3")
-        gene4 = Gene.objects.create(species=species1, name="gene4", description="gene4")
+        cls.species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        cls.gene1 = Gene.objects.create(species=cls.species1, name="gene1", description="gene1")
+        cls.gene2 = Gene.objects.create(species=cls.species1, name="gene2", description="gene2")
+        cls.gene3 = Gene.objects.create(species=cls.species1, name="gene3", description="gene3")
+        cls.gene4 = Gene.objects.create(species=cls.species1, name="gene4", description="gene4")
 
-        og1 = Orthogroup.objects.create(name="orthogroup1")
-        species1.orthologs.create(orthogroup=og1, gene=gene1)
-        species1.orthologs.create(orthogroup=og1, gene=gene2)
-        species1.orthologs.create(orthogroup=og1, gene=gene3)
-        species1.orthologs.create(orthogroup=og1, gene=gene4)
+        cls.og1 = Orthogroup.objects.create(name="orthogroup1")
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene1)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene2)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene3)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene4)
 
     def test_retrieve(self):
         url = "/api/v1/orthologs/"
@@ -338,6 +339,78 @@ class OrthologsTests(APITestCase):
         assert len(ortholog_counts) == 1
         assert ortholog_counts[0]["species"] == "species1"
         assert ortholog_counts[0]["gene_count"] == 4
+
+
+class ExpressionConservationTests(OrthologsTests):
+    """Tests ExpressionConservation endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        species2 = Species.objects.create(common_name="species2", scientific_name="species2", description="species2")
+        cls.ds_a = cls.species1.datasets.create(name="dataset_a", description="dataset_a")
+        cls.ds_b = species2.datasets.create(name="dataset_b", description="dataset_b")
+        cls.gene5 = species2.genes.create(name="gene5", description="gene5")
+        og2 = Orthogroup.objects.create(name="orthogroup2")
+        ExpressionConservation.objects.create(
+            orthogroup=cls.og1, gene_a=cls.gene1, gene_b=cls.gene5,
+            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
+            conservation=0.9, is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=cls.og1, gene_a=cls.gene2, gene_b=cls.gene5,
+            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
+            conservation=0.8, is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=og2, gene_a=cls.gene3, gene_b=cls.gene5,
+            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
+            conservation=0.5, is_one_to_one=False,
+        )
+
+    def test_retrieve(self):
+        url = "/api/v1/expression_conservation/"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 3
+        assert {r["ortholog_gene_name"] for r in results} == {"gene1", "gene2", "gene3"}
+        assert {r["conservation"] for r in results} == {0.9, 0.8, 0.5}
+
+    def test_filter_by_gene(self):
+        url = "/api/v1/expression_conservation/?gene=gene1"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 1
+        assert results[0]["ortholog_gene_name"] == "gene5"
+        assert results[0]["conservation"] == 0.9
+
+    def test_filter_by_orthogroup(self):
+        url = "/api/v1/expression_conservation/?orthogroup=orthogroup1"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 2
+        url = "/api/v1/expression_conservation/?orthogroup=orthogroup2"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 1
+
+    def test_filter_by_is_one_to_one(self):
+        url = "/api/v1/expression_conservation/?is_one_to_one=true"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 2
+
+    def test_filter_by_dataset(self):
+        url = "/api/v1/expression_conservation/?dataset=species1-dataset_a"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 3
 
 
 class SAMapTests(APITestCase):

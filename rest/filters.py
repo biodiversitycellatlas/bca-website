@@ -904,3 +904,41 @@ class MetacellMarkerFilter(FilterSet):
 
         model = models.Gene
         fields = ["dataset"]
+
+
+class ExpressionConservationFilter(FilterSet):
+    """Filter set for ortholog expression conservation."""
+
+    gene = CharFilter(
+        method="filter_gene",
+        label="[Gene symbol](#/operations/genes_list) to retrieve expression conservation for.",
+        help_text="Gene symbol to retrieve expression conservation for.",
+    )
+    orthogroup = CharFilter(field_name="orthogroup__name", help_text="Orthogroup name to filter by.")
+    dataset = CharFilter(
+        method="filter_dataset",
+        label="Dataset slug. Filters rows where the dataset appears on either side.",
+        help_text="Dataset slug. Filters rows where the dataset appears on either side.",
+    )
+    is_one_to_one = BooleanFilter(help_text="Whether the ortholog pair is one-to-one.")
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.ExpressionConservation
+        fields = ["gene", "orthogroup", "dataset", "is_one_to_one"]
+
+    def filter_gene(self, queryset, name, value):
+        """Filter conservation rows involving the given gene."""
+        if value:
+            gid = models.Gene.objects.filter(name=value).values_list("id")[0][0]
+            queryset = queryset.filter(Q(gene_a=gid) | Q(gene_b=gid)).distinct()
+        return queryset
+
+    def filter_dataset(self, queryset, name, value):
+        """Filter conservation rows involving the given dataset."""
+        if value:
+            queryset = queryset.filter(
+                Q(dataset_a__slug=value) | Q(dataset_b__slug=value)
+            )
+        return queryset
