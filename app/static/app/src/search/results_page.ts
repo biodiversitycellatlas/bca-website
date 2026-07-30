@@ -112,9 +112,8 @@ function showError() {
  * @param {string[]} badges - Badge strings.
  * @param {string} thumbnail - Image URL for thumbnail.
  */
-function appendResult(title, title_url, subtitle, subtitle_url, description, badges) {
+function appendResult(title, title_url, subtitle, subtitle_url, description, badges, container = "#results") {
     const template = $("#result-template");
-    const container = $("#results");
     const $clone = $(template.html());
 
     let title_mod = title,
@@ -144,39 +143,7 @@ function appendResult(title, title_url, subtitle, subtitle_url, description, bad
         .join(" ");
     $clone.find(".result-badges").html(badges);
 
-    container.append($clone);
-}
-
-/**
- * Append a result card in summary view.
- *
- * @param {string} containerId - ID of the container element.
- * @param {string} title - Card title.
- * @param {string} url - Card link URL.
- * @param {string} subtitle - Subtitle text.
- * @param {string} description - Description text.
- * @param {string[]} badges - Badge strings.
- * @param {string} thumbnail - Image URL for thumbnail.
- */
-function appendSummaryResult(containerId, title, url, subtitle, description, badges) {
-    const container = $(`#${containerId}`);
-    const html = `
-        <div class="col mb-2">
-            <div class="card h-100">
-                <div class="card-body py-2 px-3">
-                    <div class="d-flex align-items-start mb-1">
-                        <div class="min-width-0">
-                            <a href="${url}" class="fw-semibold small stretched-link">${title}</a>
-                            ${subtitle ? `<span class="text-secondary small d-block">${subtitle}</span>` : ""}
-                        </div>
-                    </div>
-                    ${description ? `<p class="card-text small truncate-3 mb-1 text-muted">${description}</p>` : ""}
-                    ${badges.length ? `<div>${badges.map(b => `<span class="badge bg-secondary species-meta me-1">${b}</span>`).join(" ")}</div>` : ""}
-                </div>
-            </div>
-        </div>
-    `;
-    container.append(html);
+    $(container).append($clone);
 }
 
 /**
@@ -242,123 +209,65 @@ function setupPaginationHandlers() {
     });
 }
 
-/**
- * Render dataset results in category view with pagination.
- *
- * @param {Object} data - API response with results and count.
- */
-function renderDatasets(data) {
-    const container = $("#results");
-    container.empty();
+function getDatasetItemProps(item) {
+    const title = item.dataset_html + (item.name ? ` - ${item.name}` : "");
+    const subtitle = item.species_common_name || "";
+    const badges = item.species_meta
+        .map((i) => i.value)
+        .filter((i) => !title.includes(i) && !subtitle.includes(i));
+    return { title, subtitle, description: item.species_description, badges, url: getViewUrl("atlas", { dataset: item.slug }) };
+}
 
+function getGeneItemProps(item) {
+    return {
+        title: item.gene,
+        subtitle: item.species || "",
+        description: item.description || "",
+        badges: item.domains || [],
+        url: getViewUrl("gene_entry", { species: item.species, gene: item.gene }),
+    };
+}
+
+function getGeneExtras(data) {
+    const parts = ["gene_lists", "gene_modules", "domains"]
+        .filter((k) => data[k]?.length)
+        .map((k) => `${data[k].length} ${k.replace("_", " ")}`);
+    return parts.length ? ` (plus ${parts.join(", ")})` : "";
+}
+
+function renderDatasets(data, container = "#results") {
+    $(container).empty();
     data.results.forEach((item) => {
-        let title = `${item.dataset_html}`;
-        if (item.name) {
-            title = `${title} - ${item.name}`;
-        }
-        const subtitle = item.species_common_name || "";
-        const description = item.species_description;
-        const badges = item.species_meta
-            .map((item) => item.value)
-            .filter((item) => !title.includes(item) && !subtitle.includes(item));
-        const dataset_url = getViewUrl("atlas", { dataset: item.slug });
-        appendResult(title, dataset_url, subtitle, dataset_url, description, badges);
+        const { title, url, subtitle, description, badges } = getDatasetItemProps(item);
+        appendResult(title, url, subtitle, url, description, badges, container);
     });
-
-    $("#results_count").text(`${data.count.toLocaleString()} results`);
-    renderPagination(data.count, state.limit, state.offset);
+    if (container === "#results") {
+        $("#results_count").text(`${data.count.toLocaleString()} results`);
+        renderPagination(data.count, state.limit, state.offset);
+    }
 }
 
-/**
- * Render gene results in category view with pagination.
- *
- * @param {Object} data - API response with genes and genes_count.
- */
-function renderGeneGeneList(data) {
-    const container = $("#results");
-    container.empty();
-
-    const items = data.genes || [];
-    items.forEach((item) => {
-        const gene = item.gene;
-        const species_name = item.species || "";
-        const description = item.description || "";
-        const domains = item.domains || [];
-        const species_url = "";
-        const gene_url = getViewUrl("gene_entry", { species: species_name, gene });
-        appendResult(gene, gene_url, species_name, species_url, description, domains);
+function renderGeneGeneList(data, container = "#results") {
+    $(container).empty();
+    (data.genes || []).forEach((item) => {
+        const { title, url, subtitle, description, badges } = getGeneItemProps(item);
+        appendResult(title, url, subtitle, url, description, badges, container);
     });
-
-    const totalCount = data.genes_count || items.length;
-    const otherCounts = [];
-    if (data.gene_lists && data.gene_lists.length) otherCounts.push(`${data.gene_lists.length} gene lists`);
-    if (data.gene_modules && data.gene_modules.length) otherCounts.push(`${data.gene_modules.length} modules`);
-    if (data.domains && data.domains.length) otherCounts.push(`${data.domains.length} domains`);
-    const extra = otherCounts.length ? ` (plus ${otherCounts.join(", ")})` : "";
-
-    $("#results_count").text(`${totalCount.toLocaleString()} genes${extra}`);
-    renderPagination(totalCount, state.limit, state.offset);
+    if (container === "#results") {
+        const totalCount = data.genes_count || 0;
+        $("#results_count").text(`${totalCount.toLocaleString()} genes${getGeneExtras(data)}`);
+        renderPagination(totalCount, state.limit, state.offset);
+    }
 }
 
-/**
- * Render the summary view (datasets and genes in two sections).
- *
- * @param {Object} datasetData - Dataset API response.
- * @param {Object} geneData - Gene search API response.
- */
 function renderSummary(datasetData, geneData) {
-    // Datasets section
-    const dsContainer = $("#summary-dataset-results");
-    dsContainer.empty();
+    renderDatasets(datasetData, "#summary-dataset-results");
+    renderGeneGeneList(geneData, "#summary-gene-results");
 
-    (datasetData.results || []).forEach((item) => {
-        let title = `${item.dataset_html}`;
-        if (item.name) title = `${title} - ${item.name}`;
-        const subtitle = item.species_common_name || "";
-        const description = item.species_description;
-        const badges = item.species_meta
-            .map((m) => m.value)
-            .filter((v) => !title.includes(v) && !subtitle.includes(v));
-        const url = getViewUrl("atlas", { dataset: item.slug });
-        const query = state.q;
-        appendSummaryResult("summary-dataset-results",
-            query ? highlightMatch(title, query) : title,
-            url,
-            query ? highlightMatch(subtitle, query) : subtitle,
-            query && description ? highlightMatch(description, query) : description,
-            badges.map(b => query ? highlightMatch(b, query) : b));
-    });
     $("#summary-dataset-count").text(`(${(datasetData.count || 0).toLocaleString()} total)`);
+    const totalGeneCount = (geneData.genes || []).length;
+    $("#summary-gene-count").text(`(${totalGeneCount} genes${getGeneExtras(geneData)})`);
 
-    // Genes section
-    const geneContainer = $("#summary-gene-results");
-    geneContainer.empty();
-
-    const geneItems = geneData.genes || [];
-    geneItems.forEach((item) => {
-        const gene = item.gene;
-        const species_name = item.species || "";
-        const description = item.description || "";
-        const domains = item.domains || [];
-        const url = getViewUrl("gene_entry", { species: species_name, gene });
-        const query = state.q;
-        appendSummaryResult("summary-gene-results",
-            query ? highlightMatch(gene, query) : gene,
-            url,
-            query ? highlightMatch(species_name, query) : species_name,
-            query && description ? highlightMatch(description, query) : description,
-            query ? domains.map(d => highlightMatch(d, query)) : domains);
-    });
-
-    let totalGeneCount = geneItems.length;
-    const extras = [];
-    if (geneData.gene_lists && geneData.gene_lists.length) extras.push(`${geneData.gene_lists.length} lists`);
-    if (geneData.gene_modules && geneData.gene_modules.length) extras.push(`${geneData.gene_modules.length} modules`);
-    if (geneData.domains && geneData.domains.length) extras.push(`${geneData.domains.length} domains`);
-    const extraText = extras.length ? ` (${extras.join(", ")})` : "";
-    $("#summary-gene-count").text(`(${totalGeneCount} genes${extraText})`);
-
-    // Show summary, hide category view
     $("#summary-view").show();
     $("#category-view").hide();
 }
