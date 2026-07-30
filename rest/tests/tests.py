@@ -30,7 +30,7 @@ class SchemaTests(APITestCase):
     """Tests for OpenAPI schema generation."""
 
     def test_format_parameter_description(self):
-        response = self.client.get("/api/v1/schema/", format="json")
+        response = self.client.get("/api/v1/schema/?format=json")
         assert response.status_code == status.HTTP_200_OK
         schema = response.json()
         params = schema["paths"]["/api/v1/species/"]["get"]["parameters"]
