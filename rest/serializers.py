@@ -1006,14 +1006,14 @@ class ExpressionConservationSerializer(serializers.ModelSerializer):
         help_text="Gene symbol of the ortholog pair relative to the reference gene."
     )
     dataset = serializers.SerializerMethodField(help_text="Dataset slug for the returned gene.")
-    conservation = serializers.FloatField(help_text="Expression conservation score.")
+    conservation_score = serializers.FloatField(help_text="Expression conservation score.")
     is_one_to_one = serializers.BooleanField(help_text="Whether the ortholog pair is one-to-one.")
 
     class Meta:
         """Meta configuration."""
 
         model = models.ExpressionConservation
-        fields = ["gene", "dataset", "conservation", "is_one_to_one"]
+        fields = ["gene", "dataset", "conservation_score", "is_one_to_one"]
 
     def _is_reference(self, obj):
         ref_gene = self.context["request"].query_params.get("gene")

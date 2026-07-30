@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "conservation",
+                    "conservation_score",
                     models.FloatField(help_text="Expression conservation score."),
                 ),
                 (
