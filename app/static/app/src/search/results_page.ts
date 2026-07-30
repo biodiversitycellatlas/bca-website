@@ -10,6 +10,11 @@ import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
 
 let state = {};
 
+/**
+ * Read search state from the current URL query parameters.
+ *
+ * @returns {Object} Search state with q, category, species, limit, offset.
+ */
 function readStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return {
@@ -21,6 +26,9 @@ function readStateFromUrl() {
     };
 }
 
+/**
+ * Update sidebar active states for category and limit buttons.
+ */
 function updateSidebar() {
     $(".category-btn").removeClass("active");
     $(`.category-btn[data-category="${state.category}"]`).addClass("active");
@@ -29,6 +37,12 @@ function updateSidebar() {
     $(`.limit-btn[data-limit="${state.limit}"]`).addClass("active");
 }
 
+/**
+ * Update a URL query parameter and reload search results.
+ *
+ * @param {string} key - Query parameter name.
+ * @param {string} value - New value (removes key if empty).
+ */
 export function updateQuery(key, value) {
     const params = new URLSearchParams(window.location.search);
     if (value) {
@@ -47,6 +61,9 @@ export function updateQuery(key, value) {
     loadSearchResults();
 }
 
+/**
+ * Show loading spinner and hide all result sections.
+ */
 function showLoading() {
     $("#loading-spinner").show();
     $("#summary-view").hide();
@@ -57,6 +74,11 @@ function showLoading() {
     $("#results_count").text("");
 }
 
+/**
+ * Show empty state when no results are found.
+ *
+ * @param {string} query - The search query.
+ */
 function showEmpty(query) {
     $("#loading-spinner").hide();
     $("#summary-view").hide();
@@ -67,6 +89,9 @@ function showEmpty(query) {
     $("#results_count").text("0 results");
 }
 
+/**
+ * Show error state when API calls fail.
+ */
 function showError() {
     $("#loading-spinner").hide();
     $("#summary-view").hide();
@@ -77,6 +102,17 @@ function showError() {
     $("#results_count").text("Error loading results");
 }
 
+/**
+ * Append a single search result card to the results container.
+ *
+ * @param {string} title - Main title.
+ * @param {string} title_url - Title link URL.
+ * @param {string} subtitle - Subtitle text.
+ * @param {string} subtitle_url - Subtitle link URL.
+ * @param {string} description - Description text.
+ * @param {string[]} badges - Badge strings.
+ * @param {string} thumbnail - Image URL for thumbnail.
+ */
 function appendResult(title, title_url, subtitle, subtitle_url, description, badges, thumbnail) {
     const template = $("#result-template");
     const container = $("#results");
@@ -116,6 +152,17 @@ function appendResult(title, title_url, subtitle, subtitle_url, description, bad
     container.append($clone);
 }
 
+/**
+ * Append a result card in summary view.
+ *
+ * @param {string} containerId - ID of the container element.
+ * @param {string} title - Card title.
+ * @param {string} url - Card link URL.
+ * @param {string} subtitle - Subtitle text.
+ * @param {string} description - Description text.
+ * @param {string[]} badges - Badge strings.
+ * @param {string} thumbnail - Image URL for thumbnail.
+ */
 function appendSummaryResult(containerId, title, url, subtitle, description, badges, thumbnail) {
     const container = $(`#${containerId}`);
     const html = `
@@ -138,6 +185,13 @@ function appendSummaryResult(containerId, title, url, subtitle, description, bad
     container.append(html);
 }
 
+/**
+ * Render pagination controls.
+ *
+ * @param {number} total - Total number of results.
+ * @param {number} limit - Results per page.
+ * @param {number} offset - Current offset.
+ */
 function renderPagination(total, limit, offset) {
     const totalPages = Math.ceil(total / limit);
     if (totalPages <= 1) {
@@ -180,6 +234,9 @@ function renderPagination(total, limit, offset) {
     $("#pagination-nav").show();
 }
 
+/**
+ * Set up delegated click handlers for pagination links.
+ */
 function setupPaginationHandlers() {
     $("#pagination").on("click", "a.page-link", function (e) {
         e.preventDefault();
@@ -190,6 +247,11 @@ function setupPaginationHandlers() {
     });
 }
 
+/**
+ * Render dataset results in category view with pagination.
+ *
+ * @param {Object} data - API response with results and count.
+ */
 function renderDatasets(data) {
     const container = $("#results");
     container.empty();
@@ -213,6 +275,11 @@ function renderDatasets(data) {
     renderPagination(data.count, state.limit, state.offset);
 }
 
+/**
+ * Render gene results in category view with pagination.
+ *
+ * @param {Object} data - API response with genes and genes_count.
+ */
 function renderGeneGeneList(data) {
     const container = $("#results");
     container.empty();
@@ -239,6 +306,12 @@ function renderGeneGeneList(data) {
     renderPagination(totalCount, state.limit, state.offset);
 }
 
+/**
+ * Render the summary view (datasets and genes in two sections).
+ *
+ * @param {Object} datasetData - Dataset API response.
+ * @param {Object} geneData - Gene search API response.
+ */
 function renderSummary(datasetData, geneData) {
     // Datasets section
     const dsContainer = $("#summary-dataset-results");
@@ -299,6 +372,13 @@ function renderSummary(datasetData, geneData) {
     $("#category-view").hide();
 }
 
+/**
+ * Fetch category counts for sidebar display.
+ *
+ * @param {string} query - Search query.
+ * @param {string} species - Species filter.
+ * @returns {Promise<Array>} Resolves to [datasetData, geneData].
+ */
 function getCategoryCounts(query, species) {
     const params = { q: query, limit: 1 };
     if (species) params.species = species.replace("_", " ");
@@ -314,6 +394,12 @@ function getCategoryCounts(query, species) {
     ]);
 }
 
+/**
+ * Update category count badges in sidebar.
+ *
+ * @param {number} datasetCount - Total dataset count.
+ * @param {Object} geneData - Gene search API response with _count fields.
+ */
 function updateCategoryCounts(datasetCount, geneData) {
     const geneCount = (geneData.genes_count || 0) +
         (geneData.gene_lists_count || 0) +
@@ -324,6 +410,10 @@ function updateCategoryCounts(datasetCount, geneData) {
     $("#count-genes").text(`(${(geneCount || 0).toLocaleString()})`);
 }
 
+/**
+ * Load search results from API based on current URL state.
+ * Supports summary, datasets, and genes modes.
+ */
 export function loadSearchResults() {
     state = readStateFromUrl();
     const { q, category, species, limit, offset } = state;
@@ -348,8 +438,6 @@ export function loadSearchResults() {
 
         const dsUrl = getViewUrl("rest:dataset-list", dsParams);
         const gsUrl = getViewUrl("rest:genesearch-list", geneParams);
-        console.log("[search] fetching datasets:", dsUrl);
-        console.log("[search] fetching genes:", gsUrl);
 
         Promise.all([
             fetch(dsUrl).then((r) => r.json()),
@@ -429,10 +517,13 @@ export function loadSearchResults() {
     }
 }
 
+/**
+ * Initialize the search page.
+ *
+ * Sets up event handlers and loads initial search results.
+ */
 export function initSearchPage() {
-    console.log("[search] initSearchPage called, URL:", window.location.href);
     state = readStateFromUrl();
-    console.log("[search] state:", state);
 
     $(".category-btn").on("click", function () {
         const category = $(this).data("category") || "";

@@ -13,6 +13,13 @@ import { getViewUrl } from "../utils/urls.ts";
  * @param {Function} escape - Function to escape HTML content
  * @returns {string} HTML string representing the search result option
  */
+/**
+ * Render search result options for TomSelect dropdown.
+ *
+ * @param {Object} item - Search result item with group, name, etc.
+ * @param {Function} escape - Function to escape HTML content.
+ * @returns {string} HTML string for the option.
+ */
 function displaySearchResults(item, escape) {
     const group = escape(item.group);
     let res = "";
@@ -121,6 +128,12 @@ function displaySearchResults(item, escape) {
  * - Autocomplete for datasets and genes
  * - Keyboard shortcut (/) to focus the search input
  * - Redirect on selection
+ */
+/**
+ * Initialize the navbar search with TomSelect.
+ *
+ * Fetches dataset and gene search results on input,
+ * groups them by category, and navigates on selection.
  */
 export function initSearch() {
     const search = new TomSelect("#bca-search", {
