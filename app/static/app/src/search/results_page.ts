@@ -65,7 +65,7 @@ export function updateQuery(key, value) {
  * Show loading spinner and hide all result sections.
  */
 function showLoading() {
-    $("#loading-spinner").show();
+    $("#loading-spinner").css("display", "flex");
     $("#summary-view").hide();
     $("#category-view").hide();
     $("#empty-state").hide();
