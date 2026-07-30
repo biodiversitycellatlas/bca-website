@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0013_go_annotation'),
+        ('app', '0014_add_mge_covering_index'),
     ]
 
     operations = [
