@@ -810,3 +810,4 @@ class MetacellMarkerOrderingTests(APITestCase):
         self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
         fg_medians = [m["fg_median_fc"] for m in markers]
         self.assertEqual(fg_medians, sorted(fg_medians, reverse=True))
+
