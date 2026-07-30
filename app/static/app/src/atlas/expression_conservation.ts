@@ -8,32 +8,9 @@ import "datatables.net-select-bs5";
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu, updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
+import { buildDataQuery, filterData } from "./plots/utils.ts";
 import { linkDomains, makeLinkGene, round } from "./tables/utils.ts";
 import { showSpinner, hideSpinner, clearContainer } from "./plots/plot_container.ts";
-
-function buildDataQuery(data) {
-    let ordering;
-    if (data.order && data.order[0]) {
-        const o = data.order[0];
-        ordering = (o.dir == "desc" ? "-" : "") + o.name;
-    }
-
-    const params = {
-        offset: data.start,
-        limit: data.length,
-        q: data.search.value,
-        ordering: ordering,
-    };
-    return params;
-}
-
-function filterData(data) {
-    const json = JSON.parse(data);
-    json.recordsTotal = json.count;
-    json.recordsFiltered = json.count;
-    json.data = json.list;
-    return JSON.stringify(json);
-}
 
 /**
  * Create an expression conservation DataTable for a given gene.
