@@ -1017,7 +1017,7 @@ class ExpressionConservationSerializer(serializers.ModelSerializer):
         return ref_gene and obj.gene.name == ref_gene
 
     def get_gene(self, obj) -> str:
-        return obj.gene2 if self._is_reference(obj) else obj.gene
+        return obj.gene2.name if self._is_reference(obj) else obj.gene.name
 
     def get_dataset(self, obj) -> str:
-        return obj.dataset2 if self._is_reference(obj) else obj.dataset
+        return obj.dataset2.slug if self._is_reference(obj) else obj.dataset.slug
