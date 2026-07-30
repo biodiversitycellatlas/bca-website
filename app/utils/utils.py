@@ -8,7 +8,7 @@ import numpy as np
 
 from django.urls import reverse
 
-from ..models import Dataset, Gene, GeneList, Species
+from ..models import Dataset, Domain, Gene, GeneList, Species
 
 
 def get_dataset_dict():
@@ -119,6 +119,18 @@ def parse_gene_slug(slug):
     try:
         obj = Gene.objects.get(name=gene, species__scientific_name=species)
     except Gene.DoesNotExist:
+        obj = None
+    return obj
+
+
+def get_domain(domain):
+    """Returns domain if found, oterhwise returns None."""
+    if isinstance(domain, Domain):
+        return domain
+
+    try:
+        obj = Domain.objects.get(name=domain)
+    except Domain.DoesNotExist:
         obj = None
     return obj
 

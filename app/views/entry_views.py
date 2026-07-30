@@ -13,7 +13,7 @@ from ..models import (
     Ortholog,
     Species,
 )
-from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict, get_species_dict
+from ..utils import get_dataset, get_domain, get_gene_list, get_species, get_dataset_dict, get_species_dict
 
 
 class EntryView(TemplateView):
@@ -162,6 +162,9 @@ class DomainDetailView(FilteredListView):
         """Add domain to context."""
         context = super().get_context_data(**kwargs)
         context["domain"] = self.kwargs.get("domain")
+        # The name above is what the template renders; the instance is needed to
+        # build the Bioschemas DefinedTerm block.
+        context["domain_object"] = get_domain(context["domain"])
         return context
 
 

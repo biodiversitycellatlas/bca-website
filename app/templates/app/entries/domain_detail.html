@@ -4,6 +4,11 @@
     {{ domain }} domain
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_domain domain_object %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter domain paginator species %}

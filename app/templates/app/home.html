@@ -11,6 +11,11 @@ Features:
 
 {% endcomment %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_data_catalog %}
+{% endblock structured_data %}
+
 {% block content %}
     <style>
         #tree {

@@ -23,6 +23,15 @@ Input:
     {{ dataset }} {{ gene|default:'Gene' }}
 {% endblock title %}
 
+{% block structured_data %}
+    {% comment %}
+    The canonical Gene entity page is `entry/gene/...`, so the emitted node
+    points its `url` there and records this page as `mainEntityOfPage`.
+    {% endcomment %}
+    {% load bioschemas %}
+    {% bioschemas_gene gene %}
+{% endblock structured_data %}
+
 {% block content %}
     <style>
         .gene-info .key {
