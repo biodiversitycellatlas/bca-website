@@ -980,3 +980,18 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
         serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
         return Response(serializer.data)
+
+
+@extend_schema(summary="List expression conservation scores", tags=["Cross-species", "Gene"])
+class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
+    """List expression conservation between orthologous genes across datasets."""
+
+    queryset = models.ExpressionConservation.objects.select_related(
+        "orthogroup",
+        "gene_a",
+        "gene_b",
+        "dataset_a",
+        "dataset_b",
+    )
+    serializer_class = serializers.ExpressionConservationSerializer
+    filterset_class = filters.ExpressionConservationFilter

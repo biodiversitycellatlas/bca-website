@@ -997,3 +997,28 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
             data.pop("is_obsolete", None)
 
         return data
+
+
+class ExpressionConservationSerializer(serializers.ModelSerializer):
+    """Serializer for ortholog expression conservation."""
+
+    gene = serializers.SerializerMethodField(help_text="Gene symbol of the ortholog pair relative to the reference gene.")
+    dataset = serializers.SerializerMethodField(help_text="Dataset slug for the returned gene.")
+    conservation = serializers.FloatField(help_text="Expression conservation score.")
+    is_one_to_one = serializers.BooleanField(help_text="Whether the ortholog pair is one-to-one.")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.ExpressionConservation
+        fields = ["gene", "dataset", "conservation", "is_one_to_one"]
+
+    def _is_reference(self, obj):
+        ref_gene = self.context["request"].query_params.get("gene")
+        return ref_gene and obj.gene_a.name == ref_gene
+
+    def get_gene(self, obj) -> str:
+        return obj.gene_b if self._is_reference(obj) else obj.gene_a
+
+    def get_dataset(self, obj) -> str:
+        return obj.dataset_b if self._is_reference(obj) else obj.dataset_a
