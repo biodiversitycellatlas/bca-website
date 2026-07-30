@@ -1,12 +1,18 @@
 """Tests for the Bioschemas JSON-LD builders and template tags."""
 
 import json
+import os
 import re
+from io import StringIO
+from unittest import mock
 
 import pytest
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.template import Context, Template
 from django.test import RequestFactory
 
+from app.management.commands import dump_bioschemas
 from app.models import Dataset, Domain, Gene, GeneList, Meta, Publication, Source, Species
 from app.templatetags import bioschemas as tags
 from app.tests.views.utils import DataTestCase
@@ -601,6 +607,50 @@ class BioschemasPageTests(DataTestCase):
         response = self.client.get("/entry/domain/nope/")
         assert response.status_code == 200
         assert not JSONLD.findall(response.content.decode())
+
+    def test_dump_command_reports_every_page(self):
+        """`dump_bioschemas` is the paste-into-a-validator helper (see the report, §8.3)."""
+        out = StringIO()
+        call_command("dump_bioschemas", stdout=out)
+        output = out.getvalue()
+
+        assert "NO JSON-LD" not in output
+        assert "pages served JSON-LD." in output
+        for profile in ("Taxon/1.0-RELEASE", "Gene/1.0-RELEASE", "DefinedTerm/0.1-DRAFT"):
+            assert profile in output, f"no page reported {profile}"
+
+    def test_dump_command_raw_mode_emits_only_json(self):
+        out = StringIO()
+        call_command("dump_bioschemas", f"/entry/domain/{self.brca1_domains[0].name}/", "--raw", stdout=out)
+        payload = json.loads(out.getvalue())
+        assert_conforms(payload, "DefinedTerm")
+
+    def test_dump_command_builds_urls_from_django_hostname(self):
+        """`DJANGO_HOSTNAME` is set in every environment, so it is the natural default."""
+        url = f"/entry/domain/{self.brca1_domains[0].name}/"
+        out = StringIO()
+        with mock.patch.dict(os.environ, {"DJANGO_HOSTNAME": "portal.example.org"}):
+            call_command("dump_bioschemas", url, "--raw", stdout=out)
+        assert json.loads(out.getvalue())["url"] == f"http://portal.example.org{url}"
+
+    def test_dump_command_host_option_overrides_the_environment(self):
+        url = f"/entry/domain/{self.brca1_domains[0].name}/"
+        out = StringIO()
+        with mock.patch.dict(os.environ, {"DJANGO_HOSTNAME": "portal.example.org"}):
+            call_command("dump_bioschemas", url, "--raw", "--host", "override.example.org", stdout=out)
+        assert json.loads(out.getvalue())["url"] == f"http://override.example.org{url}"
+
+    def test_dump_command_falls_back_without_django_hostname(self):
+        url = f"/entry/domain/{self.brca1_domains[0].name}/"
+        out = StringIO()
+        with mock.patch.dict(os.environ, {}, clear=True):
+            call_command("dump_bioschemas", url, "--raw", stdout=out)
+        assert json.loads(out.getvalue())["url"] == f"http://{dump_bioschemas.FALLBACK_HOST}{url}"
+
+    def test_dump_command_fails_when_a_page_serves_nothing(self):
+        """Non-zero exit makes it usable as a CI check that markup has not vanished."""
+        with pytest.raises(CommandError, match="No JSON-LD served by"):
+            call_command("dump_bioschemas", "/about/", stdout=StringIO())
 
     def test_pages_without_a_matching_profile_serve_no_jsonld(self):
         """Tier 3 pages are deliberately left without structured data."""
