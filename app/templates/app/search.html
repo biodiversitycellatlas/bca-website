@@ -149,19 +149,19 @@ Search page
                     <i class="fa fa-circle-exclamation fa-fw me-1"></i>
                     <span id="error-message">Error loading results. Please try again.</span>
                 </div>
+
+                {% block pagination %}
+                    {% if query %}
+                        <nav id="pagination-nav" aria-label="Search results navigation" style="display:none;">
+                            <ul class="pagination justify-content-center" id="pagination"></ul>
+                        </nav>
+                    {% endif %}
+                {% endblock pagination %}
             </div>
         </div>
     {% else %}
         {% include "./components/mockup/search.html" %}
     {% endif %}
-
-    {% block pagination %}
-        {% if query %}
-            <nav id="pagination-nav" aria-label="Search results navigation" style="display:none;">
-                <ul class="pagination justify-content-center" id="pagination"></ul>
-            </nav>
-        {% endif %}
-    {% endblock pagination %}
 
     <script type="module">
         {% load static %}

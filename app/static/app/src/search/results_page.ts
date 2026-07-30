@@ -69,7 +69,6 @@ function showLoading() {
     $("#summary-view").hide();
     $("#category-view").hide();
     $("#empty-state").hide();
-    $("#pagination-nav").hide();
     $("#error-state").hide();
     $("#results_count").text("");
 }
@@ -242,6 +241,7 @@ function setupPaginationHandlers() {
         e.preventDefault();
         const offset = parseInt($(this).data("offset"));
         if (!isNaN(offset) && offset >= 0) {
+            $(this).closest("li").addClass("active").siblings().removeClass("active");
             updateQuery("offset", offset.toString());
         }
     });
@@ -431,10 +431,13 @@ export function loadSearchResults() {
     if (species) params.species = species.replace("_", " ");
 
     if (!category) {
-        // Summary mode: fetch both datasets and genes
-        const dsParams = { ...params, limit: Math.min(limit, 6) };
+        // Summary mode: fetch both datasets and genes (always from offset 0)
+        const dsParams = { q: q, limit: Math.min(limit, 6) };
         const geneParams = { q: q, limit: 3 };
-        if (species) geneParams.species = species.replace("_", " ");
+        if (species) {
+            dsParams.species = species.replace("_", " ");
+            geneParams.species = species.replace("_", " ");
+        }
 
         const dsUrl = getViewUrl("rest:dataset-list", dsParams);
         const gsUrl = getViewUrl("rest:genesearch-list", geneParams);
@@ -486,7 +489,7 @@ export function loadSearchResults() {
                 showError();
             });
     } else if (category === "genes") {
-        const geneParams = { q: q, limit: limit };
+        const geneParams = { q: q, limit: limit, offset: offset };
         if (species) geneParams.species = species.replace("_", " ");
         fetch(getViewUrl("rest:genesearch-list", geneParams))
             .then((res) => res.json())
