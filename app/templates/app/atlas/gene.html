@@ -130,8 +130,8 @@ Input:
         {% h1 "Correlated genes" id="correlation" %}
         {% include "../components/tables/gene_correlation.html" with id="correlation" dataset=dataset species=species gene=gene gene2="" %}
 
-        {% h1 "Orthologs" id="orthologs" %}
-        {% include "../components/plots/ortholog_plots.html" with species=species gene=gene %}
+        {% h1 "Expression conservation" id="expression_conservation" %}
+        {% include "../components/tables/expression_conservation.html" with id="expression_conservation" dataset=dataset species=species gene=gene %}
 
     {% else %}
         {% include "../components/mockup/barplot.html" %}
