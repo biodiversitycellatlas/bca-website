@@ -23,6 +23,17 @@
             {% include "app/components/select/species.html" with redirect="arg" placeholder="Search..." species=species view="gene_entry" %}
         </div>
     </div>
+    <div class="row g-2 mb-4 align-items-start">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-dna fa-fw"></i>
+                Filter domain
+            </label>
+        </div>
+        <div class="col-auto select-width">
+            {% include "app/components/select/domain.html" with placeholder="Search domains..." domain=domain %}
+        </div>
+    </div>
 {% endblock heading %}
 
 {% block header %}

@@ -1,0 +1,33 @@
+{% comment %}
+
+Domain selection for gene list filtering.
+
+Features:
+- Allows user to search domains
+- Uses TomSelect with AJAX loading from the REST API
+- Upon domain selection, the user is redirected with ?domain=<name>
+- When cleared, removes domain filter
+
+Input:
+- domain: selected domain name
+- placeholder: text in search box
+
+{% endcomment %}
+
+<select id="domain-select"
+        class="mb-2"
+        style="margin-bottom: 23px !important; visibility: hidden"
+        placeholder="{{ placeholder|default:'Search domains...' }}">
+    <option value="">
+    </option>
+</select>
+
+<script type="module">
+    {% load static %}
+    import { initDomainSelect }
+        from "{% static 'app/dist/select/domain.js' %}";
+    document.addEventListener('DOMContentLoaded', function() {
+        let domain = "{{ domain|default:'' }}";
+        initDomainSelect(domain);
+    });
+</script>

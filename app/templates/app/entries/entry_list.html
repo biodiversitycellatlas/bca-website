@@ -51,7 +51,7 @@ List entries - base template
                 {% if page_obj.has_previous %}
                     <li class="page-item">
                         <a class="page-link"
-                           href="?page={{ page_obj.previous_page_number }}"
+                           href="?page={{ page_obj.previous_page_number }}{% if request.GET.domain %}&amp;domain={{ request.GET.domain }}{% endif %}"
                            aria-label="Previous">«</a>
                     </li>
                 {% else %}
@@ -67,7 +67,7 @@ List entries - base template
                         </li>
                     {% elif num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' or num == 1 or num == paginator.num_pages %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.domain %}&amp;domain={{ request.GET.domain }}{% endif %}">{{ num }}</a>
                         </li>
                     {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
                         <li class="page-item disabled">
@@ -79,7 +79,7 @@ List entries - base template
                 {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link"
-                           href="?page={{ page_obj.next_page_number }}"
+                           href="?page={{ page_obj.next_page_number }}{% if request.GET.domain %}&amp;domain={{ request.GET.domain }}{% endif %}"
                            aria-label="Next">»</a>
                     </li>
                 {% else %}

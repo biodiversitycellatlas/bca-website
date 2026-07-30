@@ -81,17 +81,26 @@ class FilteredListView(ListView):
 
 
 class GeneListView(FilteredListView):
-    """Display genes lists filtered by species."""
+    """Display genes lists filtered by species and/or domain."""
 
     model = Gene
     paginate_by = 20
     template_name = "app/entries/gene_list.html"
     filter_by = "species"
 
+    def get_queryset(self):
+        """Filter queryset by domain query parameter."""
+        qs = super().get_queryset()
+        domain_name = self.request.GET.get("domain")
+        if domain_name:
+            qs = qs.filter(domains__name=domain_name)
+        return qs
+
     def get_context_data(self, **kwargs):
-        """Add species to context."""
+        """Add species and domain to context."""
         context = super().get_context_data(**kwargs)
         context["species_dict"] = get_species_dict()
+        context["domain"] = self.request.GET.get("domain", "")
         return context
 
 
