@@ -965,11 +965,24 @@ class Ortholog(models.Model):
 class ExpressionConservation(models.Model):
     """Expression conservation between two orthologs across datasets."""
 
-    orthogroup = models.ForeignKey(Orthogroup, on_delete=models.CASCADE, related_name="conservations", help_text="Orthogroup the conservation belongs to.")
-    gene_a = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="First gene in the ortholog pair.")
-    gene_b = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Second gene in the ortholog pair.")
-    dataset_a = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="Dataset for the first gene.")
-    dataset_b = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Dataset for the second gene.")
+    orthogroup = models.ForeignKey(
+        Orthogroup,
+        on_delete=models.CASCADE,
+        related_name="conservations",
+        help_text="Orthogroup the conservation belongs to.",
+    )
+    gene_a = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="First gene in the ortholog pair."
+    )
+    gene_b = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Second gene in the ortholog pair."
+    )
+    dataset_a = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations_as_a", help_text="Dataset for the first gene."
+    )
+    dataset_b = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations_as_b", help_text="Dataset for the second gene."
+    )
     conservation = models.FloatField(help_text="Expression conservation score.")
     is_one_to_one = models.BooleanField(default=True, help_text="Whether the ortholog pair is one-to-one.")
 

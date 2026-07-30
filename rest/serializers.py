@@ -1002,7 +1002,9 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
 class ExpressionConservationSerializer(serializers.ModelSerializer):
     """Serializer for ortholog expression conservation."""
 
-    gene = serializers.SerializerMethodField(help_text="Gene symbol of the ortholog pair relative to the reference gene.")
+    gene = serializers.SerializerMethodField(
+        help_text="Gene symbol of the ortholog pair relative to the reference gene."
+    )
     dataset = serializers.SerializerMethodField(help_text="Dataset slug for the returned gene.")
     conservation = serializers.FloatField(help_text="Expression conservation score.")
     is_one_to_one = serializers.BooleanField(help_text="Whether the ortholog pair is one-to-one.")

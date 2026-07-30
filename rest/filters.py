@@ -956,7 +956,5 @@ class ExpressionConservationFilter(FilterSet):
     def filter_dataset(self, queryset, name, value):
         """Filter conservation rows involving the given dataset."""
         if value:
-            queryset = queryset.filter(
-                Q(dataset_a__slug=value) | Q(dataset_b__slug=value)
-            )
+            queryset = queryset.filter(Q(dataset_a__slug=value) | Q(dataset_b__slug=value))
         return queryset
