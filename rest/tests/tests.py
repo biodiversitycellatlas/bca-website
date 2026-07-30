@@ -311,7 +311,9 @@ class OrthologsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
+        cls.species1 = Species.objects.create(
+            common_name="species1", scientific_name="species1", description="species1"
+        )
         cls.gene1 = Gene.objects.create(species=cls.species1, name="gene1", description="gene1")
         cls.gene2 = Gene.objects.create(species=cls.species1, name="gene2", description="gene2")
         cls.gene3 = Gene.objects.create(species=cls.species1, name="gene3", description="gene3")
@@ -353,19 +355,31 @@ class ExpressionConservationTests(OrthologsTests):
         cls.gene5 = species2.genes.create(name="gene5", description="gene5")
         og2 = Orthogroup.objects.create(name="orthogroup2")
         ExpressionConservation.objects.create(
-            orthogroup=cls.og1, gene_a=cls.gene1, gene_b=cls.gene5,
-            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
-            conservation=0.9, is_one_to_one=True,
+            orthogroup=cls.og1,
+            gene_a=cls.gene1,
+            gene_b=cls.gene5,
+            dataset_a=cls.ds_a,
+            dataset_b=cls.ds_b,
+            conservation=0.9,
+            is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
-            orthogroup=cls.og1, gene_a=cls.gene2, gene_b=cls.gene5,
-            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
-            conservation=0.8, is_one_to_one=True,
+            orthogroup=cls.og1,
+            gene_a=cls.gene2,
+            gene_b=cls.gene5,
+            dataset_a=cls.ds_a,
+            dataset_b=cls.ds_b,
+            conservation=0.8,
+            is_one_to_one=True,
         )
         ExpressionConservation.objects.create(
-            orthogroup=og2, gene_a=cls.gene3, gene_b=cls.gene5,
-            dataset_a=cls.ds_a, dataset_b=cls.ds_b,
-            conservation=0.5, is_one_to_one=False,
+            orthogroup=og2,
+            gene_a=cls.gene3,
+            gene_b=cls.gene5,
+            dataset_a=cls.ds_a,
+            dataset_b=cls.ds_b,
+            conservation=0.5,
+            is_one_to_one=False,
         )
 
     def test_retrieve(self):
