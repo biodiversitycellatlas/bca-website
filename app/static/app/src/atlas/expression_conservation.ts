@@ -10,7 +10,11 @@ import { appendDataMenu, updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
 import { buildDataQuery, filterData } from "./plots/utils.ts";
 import { linkDomains, makeLinkGene, round } from "./tables/utils.ts";
-import { showSpinner, hideSpinner, clearContainer } from "./plots/plot_container.ts";
+import {
+    showSpinner,
+    hideSpinner,
+    clearContainer,
+} from "./plots/plot_container.ts";
 
 /**
  * Create an expression conservation DataTable for a given gene.
@@ -35,7 +39,9 @@ function createExpressionConservationTable(id, dataset, gene) {
         processing: true,
         serverSide: true,
         select: { style: "single" },
-        initComplete: function () { this.api().row(0).select(); },
+        initComplete: function () {
+            this.api().row(0).select();
+        },
         scrollX: true,
         language: {
             info: "Total entries: _TOTAL_",
@@ -45,10 +51,34 @@ function createExpressionConservationTable(id, dataset, gene) {
         },
         columns: [
             { name: "dataset", data: "dataset_link", title: "Dataset" },
-            { name: "gene", data: "gene", title: "Gene", orderable: false, render: makeLinkGene() },
-            { name: "description", data: "description", title: "Description", orderable: false, className: "truncate" },
-            { name: "domains", data: "domains", title: "Domains", orderable: false, render: linkDomains, className: "truncate" },
-            { name: "conservation_score", data: "conservation_score", title: "Expression conservation", render: round },
+            {
+                name: "gene",
+                data: "gene",
+                title: "Gene",
+                orderable: false,
+                render: makeLinkGene(),
+            },
+            {
+                name: "description",
+                data: "description",
+                title: "Description",
+                orderable: false,
+                className: "truncate",
+            },
+            {
+                name: "domains",
+                data: "domains",
+                title: "Domains",
+                orderable: false,
+                render: linkDomains,
+                className: "truncate",
+            },
+            {
+                name: "conservation_score",
+                data: "conservation_score",
+                title: "Expression conservation",
+                render: round,
+            },
         ],
         order: { name: "conservation_score", dir: "desc" },
         createdCell: function (td, cellData) {
@@ -76,7 +106,8 @@ function loadOrthologExpression(id, dataset, gene, row) {
 
     // Update header above plot
     const linkGene = makeLinkGene()(row.gene, "display", null, row);
-    document.getElementById(`${id}_heading`).innerHTML = `${row.dataset_link} • ${linkGene}`;
+    document.getElementById(`${id}_heading`).innerHTML =
+        `${row.dataset_link} • ${linkGene}`;
 
     fetch(apiURL)
         .then((response) => response.json())
