@@ -39,28 +39,30 @@ Search page
     {% if query %}
         <div class="row">
             <div class="col-12 col-md-3 col-lg-2 small mb-5">
-                <nav class="nav nav-pills flex-row flex-md-column gap-2">
-                    <div class="d-flex flex-row flex-md-column gx-2">
+                <nav class="nav nav-pills flex-row flex-md-column gap-2 align-items-center align-items-md-stretch">
+                    <div>
                         <span class="fw-semibold p-1">
                             <i class="fa fa-layer-group fa-fw"></i> Category
                         </span>
 
-                        <button type="button"
-                                class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if not query.category %}active{% endif %}"
-                                data-category="">
-                            Summary
-                        </button>
-                        <button type="button"
-                                class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'datasets' %}active{% endif %}"
-                                data-category="datasets">
-                            Datasets <span class="category-count" id="count-datasets"></span>
-                        </button>
+                        <div class="d-flex flex-row flex-md-column gx-2 gy-1 p-1">
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if not query.category %}active{% endif %}"
+                                    data-category="">
+                                Summary
+                            </button>
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'datasets' %}active{% endif %}"
+                                    data-category="datasets">
+                                Datasets <span class="category-count" id="count-datasets"></span>
+                            </button>
 
-                        <button type="button"
-                                class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'genes' %}active{% endif %}"
-                                data-category="genes">
-                            Genes <span class="category-count" id="count-genes"></span>
-                        </button>
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'genes' %}active{% endif %}"
+                                    data-category="genes">
+                                Genes <span class="category-count" id="count-genes"></span>
+                            </button>
+                        </div>
                     </div>
 
                     <div>
@@ -79,18 +81,20 @@ Search page
                         {% include "./components/select/species.html" with redirect="none" placeholder="Search..." species=query.species %}
                     </div>
 
-                    <div class="d-flex flex-row flex-md-column gx-2">
+                    <div>
                         <span class="fw-semibold p-1">
                             <i class="fa fa-grip fa-fw"></i> Results per page
                         </span>
 
-                        {% load string_extras %}
-                        {% for limit in "12,24,36,48,60"|split %}
-                            <a class="nav-link p-1 limit-btn {% if query.limit == limit %}active{% elif not query.limit and limit == '24' %}active{% endif %}"
-                               href="#"
-                               role="button"
-                               data-limit="{{ limit }}">{{ limit }}</a>
-                        {% endfor %}
+                        <div class="d-flex flex-row flex-md-column gx-2 gy-1 p-1">
+                            {% load string_extras %}
+                            {% for limit in "12,24,36,48,60"|split %}
+                                <a class="nav-link p-1 limit-btn {% if query.limit == limit %}active{% elif not query.limit and limit == '24' %}active{% endif %}"
+                                   href="#"
+                                   role="button"
+                                   data-limit="{{ limit }}">{{ limit }}</a>
+                            {% endfor %}
+                        </div>
                     </div>
                 </nav>
             </div>
