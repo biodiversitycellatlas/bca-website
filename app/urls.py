@@ -52,6 +52,11 @@ urlpatterns += [
         name="atlas_markers",
     ),
     path(
+        "atlas/<str:dataset>/hierarchy/",
+        views.AtlasCellTypeHierarchyView.as_view(),
+        name="atlas_hierarchy",
+    ),
+    path(
         "atlas/<str:dataset>/compare/",
         views.AtlasCompareView.as_view(),
         name="atlas_compare",

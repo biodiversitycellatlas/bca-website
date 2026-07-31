@@ -1,0 +1,13 @@
+/* phylotree CSS */
+
+.internal-node {
+    cursor: pointer;
+}
+
+.phylotree-node-text {
+    cursor: pointer;
+}
+
+.phylotree-node-text:hover {
+    font-weight: bold;
+}
