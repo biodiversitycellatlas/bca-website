@@ -20,7 +20,7 @@ from app.models import (
     GeneCorrelation,
     Orthogroup,
     MetacellLink,
-    SAMap,
+    MetacellTypeSimilarity,
     SpeciesFile,
 )
 
@@ -99,16 +99,139 @@ class GeneTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species1 = Species.objects.create(common_name="rat", scientific_name="Rat", description="rat")
-        Gene.objects.create(species=species1, name="Gene1", description="description1")
-        Gene.objects.create(species=species1, name="Gene2", description="description2")
+        mouse = Species.objects.create(scientific_name="Mus musculus")
+        mouse.genes.create(name="Gene1")
+        mouse.genes.create(name="Gene2")
+        mouse.genes.create(name="Gene3")
 
-    def test_genes(self):
-        response = self.client.get("/api/v1/genes/", format="json")
+    def test_get(self):
+        url = "/api/v1/genes/"
+        response = self.client.get(url, format="json")
         genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 3
+        assert {s["gene"] for s in genes} == {"Gene1", "Gene2", "Gene3"}
+
+    def test_get_filtered_by_genes(self):
+        subset = {"Gene1", "Gene3"}
+        url = "/api/v1/genes/?genes=" + ",".join(subset)
+        response = self.client.get(url, format="json")
+        genes = response.data["results"]
+
         assert response.status_code == status.HTTP_200_OK
         assert len(genes) == 2
-        assert {s["gene"] for s in genes} == {"Gene1", "Gene2"}
+        assert {s["gene"] for s in genes} == subset
+
+    def test_post(self):
+        url = "/api/v1/genes/"
+        payload = {}
+
+        response = self.client.post(url, payload, format="json")
+        genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 0
+        assert genes == []
+
+    def test_post_filtered_by_genes(self):
+        url = "/api/v1/genes/"
+        payload = {"genes": {"Gene1", "Gene3"}}
+        response = self.client.post(url, payload, format="json")
+        genes = response.data["results"]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(genes) == 2
+        assert {s["gene"] for s in genes} == payload["genes"]
+
+
+class GeneSearchTests(APITestCase):
+    """Test GeneSearch Endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        mouse = Species.objects.create(scientific_name="Mus musculus")
+        cls.adult_mouse = mouse.datasets.create(name="adult")
+
+        # Create genes
+        mouse.genes.create(name="Trp53")
+        mouse.genes.create(name="Actb")
+        mouse.genes.create(name="Gapdh", description="Green-yellow submarine")
+        mouse.genes.create(name="Myc", description="Green-yellow submarine")
+        mouse.genes.create(name="Brca1")
+        mouse.genes.create(name="Brca2")
+        mouse.genes.create(name="Ptprc")
+        mouse.genes.create(name="Il6", description="Green-yellow submarine")
+        mouse.genes.create(name="Tnf")
+        mouse.genes.create(name="Sox2")
+        genes = mouse.genes.all()
+
+        # Create modules
+        module1 = cls.adult_mouse.gene_modules.create(name="blue")
+        module2 = cls.adult_mouse.gene_modules.create(name="green")
+        module3 = cls.adult_mouse.gene_modules.create(name="yellow")
+        module1.genes.add(*genes[0:4])
+        module2.genes.add(*genes[4:6])
+        module3.genes.add(*genes[6:10])
+
+        # Create gene lists
+        genelist1 = GeneList.objects.create(name="RBP", description="RNA-binding proteins")
+        genelist2 = GeneList.objects.create(name="TF", description="Transcription factors")
+        genelist3 = GeneList.objects.create(name="Custom list", description="List of Brca genes")
+        genelist1.genes.add(*genes[0:7])
+        genelist2.genes.add(*genes[5:10])
+        genelist3.genes.add(*mouse.genes.filter(name__startswith="Brca"))
+
+        # Create domains
+        domain1 = Domain.objects.create(name="Kinase")
+        domain2 = Domain.objects.create(name="Zinc finger")
+        domain1.gene_set.add(*genes[0:3])
+        domain2.gene_set.add(*genes[4:6])
+
+    def test_get(self):
+        """Test setting dataset only."""
+        dataset = self.adult_mouse.slug
+        limit = 3
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Actb", "Brca1", "Brca2"}
+        assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
+        assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
+        assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
+
+    def test_get_query(self):
+        """Test setting query string."""
+
+        # Test gene name (also matches the description of a list)
+        dataset = self.adult_mouse.slug
+        limit = 3
+        q = "brca"
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}&q={q}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Brca1", "Brca2"}
+        assert {s["name"] for s in data["gene_lists"]} == {"Custom list"}
+        assert data["gene_modules"] == []
+        assert data["domains"] == []
+
+        # Test module name (also matches description of a few genes)
+        dataset = self.adult_mouse.slug
+        limit = 3
+        q = "yellow"
+        url = f"/api/v1/gene_search/?dataset={dataset}&limit={limit}&q={q}"
+        response = self.client.get(url, format="json")
+        data = response.data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["gene"] for s in data["genes"]} == {"Gapdh", "Myc", "Il6"}
+        assert data["gene_lists"] == []
+        assert {s["module"] for s in data["gene_modules"]} == {"yellow"}
+        assert data["domains"] == []
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -340,31 +463,31 @@ class OrthologsTests(APITestCase):
         assert ortholog_counts[0]["gene_count"] == 4
 
 
-class SAMapTests(APITestCase):
-    """Tests SAMap endpoint"""
+class MetacellTypeSimilarityTests(APITestCase):
+    """Tests MetacellTypeSimilarity endpoint"""
 
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
-        dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
-        dataset2 = Dataset.objects.create(species=species2, name="dataset4", description="dataset4")
-        type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        type2 = MetacellType.objects.create(name="type2", dataset=dataset1)
-        type3 = MetacellType.objects.create(name="type3", dataset=dataset2)
-        type4 = MetacellType.objects.create(name="type4", dataset=dataset2)
-        SAMap.objects.create(metacelltype=type1, metacelltype2=type3, samap=0.8)
-        SAMap.objects.create(metacelltype=type2, metacelltype2=type4, samap=0.7)
+        dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
+        dataset2 = species2.datasets.create(name="dataset4", description="dataset4")
+        type1 = dataset1.metacell_types.create(name="type1")
+        type2 = dataset1.metacell_types.create(name="type2", dataset=dataset1)
+        type3 = dataset2.metacell_types.create(name="type3", dataset=dataset2)
+        type4 = dataset2.metacell_types.create(name="type4", dataset=dataset2)
+        MetacellTypeSimilarity.objects.create(metacelltype=type1, metacelltype2=type3, samap_score=0.8)
+        MetacellTypeSimilarity.objects.create(metacelltype=type2, metacelltype2=type4, samap_score=0.7)
 
     def test_retrieve(self):
-        url = "/api/v1/samap/?dataset=species3-dataset3&dataset2=species4-dataset4"
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
         response = self.client.get(url, format="json")
-        samaps = response.data["results"]
+        comparison = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(samaps) == 2
-        assert {s["metacell_type"] for s in samaps} == {"type1", "type2"}
-        assert {s["metacell2_type"] for s in samaps} == {"type3", "type4"}
-        assert {s["samap"] for s in samaps} == {0.8, 0.7}
+        assert len(comparison) == 2
+        assert {s["metacell_type"] for s in comparison} == {"type1", "type2"}
+        assert {s["metacell2_type"] for s in comparison} == {"type3", "type4"}
+        assert {s["samap_score"] for s in comparison} == {0.8, 0.7}
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -412,3 +535,175 @@ class AlignTests(APITestCase):
         response = self.client.post(url, data, format="json")
 
         self.check_expected_alignment(response)
+
+
+class MetacellMarkerRawSQLTests(APITestCase):
+    """Cover the raw-SQL ``MetacellMarkerViewSet`` (CTE-based markers query)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(common_name="cellb", scientific_name="cellb", description="cellb")
+        dataset = species.datasets.create(name="atlas3", description="atlas3")
+
+        bcell = dataset.metacell_types.create(name="B cell")
+        tcell = dataset.metacell_types.create(name="T cell")
+
+        mb1 = dataset.metacells.create(name="mb1", type=bcell, x=1, y=1)
+        mb2 = dataset.metacells.create(name="mb2", type=bcell, x=2, y=2)
+        mt1 = dataset.metacells.create(name="mt1", type=tcell, x=3, y=3)
+        mt2 = dataset.metacells.create(name="mt2", type=tcell, x=4, y=4)
+
+        gene_marker = species.genes.create(name="gene_marker", description="B cell marker")
+        gene_low = species.genes.create(name="gene_low", description="below threshold")
+        gene_t = species.genes.create(name="gene_t", description="T cell marker")
+
+        # gene_marker: high fold-change in B cells, low in T cells
+        dataset.mge.create(gene=gene_marker, metacell=mb1, umi_raw=5, umifrac=0.5, fold_change=4)
+        dataset.mge.create(gene=gene_marker, metacell=mb2, umi_raw=3, umifrac=0.3, fold_change=5)
+        dataset.mge.create(gene=gene_marker, metacell=mt1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_marker, metacell=mt2, umi_raw=2, umifrac=0.2, fold_change=1.2)
+
+        # gene_low: never crosses fc_min=2 in B cells
+        dataset.mge.create(gene=gene_low, metacell=mb1, umi_raw=1, umifrac=0.1, fold_change=0.5)
+        dataset.mge.create(gene=gene_low, metacell=mb2, umi_raw=1, umifrac=0.1, fold_change=0.4)
+        dataset.mge.create(gene=gene_low, metacell=mt1, umi_raw=1, umifrac=0.1, fold_change=0.6)
+        dataset.mge.create(gene=gene_low, metacell=mt2, umi_raw=1, umifrac=0.1, fold_change=0.5)
+
+        # gene_t: foreground for T cells only — must NOT appear for B cell query
+        dataset.mge.create(gene=gene_t, metacell=mb1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_t, metacell=mb2, umi_raw=1, umifrac=0.1, fold_change=0.9)
+        dataset.mge.create(gene=gene_t, metacell=mt1, umi_raw=5, umifrac=0.5, fold_change=4.0)
+        dataset.mge.create(gene=gene_t, metacell=mt2, umi_raw=4, umifrac=0.4, fold_change=4.5)
+
+    def _get_markers(self, **params):
+        # ``data`` is URL-encoded by the test client, which matters for values
+        # containing spaces (e.g., ``metacells="B cell"``).
+        return self.client.get("/api/v1/markers/", data=params, format="json")
+
+    def test_select_by_metacell_type_name(self):
+        """Foreground selection via metacell *type* name ('B cell') uses the mct.name branch."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual(len(markers), 1)
+        self.assertEqual(markers[0]["name"], "gene_marker")
+
+    def test_select_by_metacell_name(self):
+        """Foreground selection via metacell name uses the mc.name branch."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="mb1,mb2", fc_min_type="mean", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual(len(markers), 1)
+        self.assertEqual(markers[0]["name"], "gene_marker")
+
+    def test_annotation_values(self):
+        """The raw query returns the expected sum/mean/median/percentage stats."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        marker = response.data["results"][0]
+        self.assertEqual(marker["name"], "gene_marker")
+        # fg metacells: mb1 (umi=5), mb2 (umi=3); bg metacells: mt1 (umi=1), mt2 (umi=2)
+        self.assertAlmostEqual(marker["fg_sum_umi"], 8.0, places=4)
+        self.assertAlmostEqual(marker["bg_sum_umi"], 3.0, places=4)
+        self.assertAlmostEqual(marker["umi_perc"], 8.0 / 11.0 * 100, places=4)
+        # fg fold_changes: 4, 5 → mean 4.5, median 4.5
+        self.assertAlmostEqual(marker["fg_mean_fc"], 4.5, places=4)
+        self.assertAlmostEqual(marker["fg_median_fc"], 4.5, places=4)
+
+    def test_median_threshold_filters_same_genes(self):
+        """fc_min_type=median routes the HAVING to fg_median_fc."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="median", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual({m["name"] for m in markers}, {"gene_marker"})
+
+    def test_fc_min_excludes_all(self):
+        """A high fc_min returns an empty result set."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="mean", fc_min=10)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"], [])
+
+    def test_missing_dataset_returns_400(self):
+        response = self.client.get("/api/v1/markers/?metacells=B cell", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_missing_metacells_returns_400(self):
+        response = self.client.get("/api/v1/markers/?dataset=cellb-atlas3", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_invalid_fc_min_type_returns_400(self):
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min_type="invalid")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_invalid_fc_min_returns_400(self):
+        """A non-numeric fc_min is rejected with a 400 rather than crashing."""
+        response = self._get_markers(dataset="cellb-atlas3", metacells="B cell", fc_min="notanumber")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("fc_min", response.data)
+
+    def test_unknown_dataset_returns_400(self):
+        """An unresolvable dataset slug yields a 400 with a message built from the
+        slug, not from the underlying exception (guards against detail leakage)."""
+        response = self._get_markers(dataset="does-not-exist", metacells="B cell", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("dataset", response.data)
+
+
+class MetacellMarkerOrderingTests(APITestCase):
+    """Regression tests for marker ordering and foreground/background partitioning.
+
+    Guards the ``ORDER BY {having_col} DESC`` clause of ``_MARKER_SQL``: results
+    must come back strongest-first, and genes that are markers only in the
+    background metacells must never appear.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(common_name="ord", scientific_name="ord", description="ord")
+        dataset = species.datasets.create(name="atlas4", description="atlas4")
+        cls.slug = "ord-atlas4"
+
+        bcell = dataset.metacell_types.create(name="B cell")
+        tcell = dataset.metacell_types.create(name="T cell")
+
+        # Foreground (B cell) and background (T cell) metacells.
+        fg1 = dataset.metacells.create(name="fg1", type=bcell, x=1, y=1)
+        fg2 = dataset.metacells.create(name="fg2", type=bcell, x=2, y=2)
+        bg1 = dataset.metacells.create(name="bg1", type=tcell, x=3, y=3)
+        bg2 = dataset.metacells.create(name="bg2", type=tcell, x=4, y=4)
+
+        # Three markers above fc_min=2 with distinct foreground fold-changes,
+        # so both the mean and median HAVING columns rank them hi > mid > lo.
+        for name, fg_fc in (("gene_hi", 5.0), ("gene_mid", 3.0), ("gene_lo", 2.5)):
+            gene = species.genes.create(name=name, description=name)
+            dataset.mge.create(gene=gene, metacell=fg1, umi_raw=4, umifrac=0.4, fold_change=fg_fc)
+            dataset.mge.create(gene=gene, metacell=fg2, umi_raw=4, umifrac=0.4, fold_change=fg_fc)
+            dataset.mge.create(gene=gene, metacell=bg1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+            dataset.mge.create(gene=gene, metacell=bg2, umi_raw=1, umifrac=0.1, fold_change=1.0)
+
+        # Background-only marker: high in T cells, low in B cells → must be excluded.
+        gene_bg = species.genes.create(name="gene_bg_only", description="background marker")
+        dataset.mge.create(gene=gene_bg, metacell=fg1, umi_raw=1, umifrac=0.1, fold_change=1.0)
+        dataset.mge.create(gene=gene_bg, metacell=fg2, umi_raw=1, umifrac=0.1, fold_change=0.9)
+        dataset.mge.create(gene=gene_bg, metacell=bg1, umi_raw=5, umifrac=0.5, fold_change=6.0)
+        dataset.mge.create(gene=gene_bg, metacell=bg2, umi_raw=5, umifrac=0.5, fold_change=6.5)
+
+    def _get_markers(self, **params):
+        return self.client.get("/api/v1/markers/", data=params, format="json")
+
+    def test_results_ordered_by_mean_fold_change_desc(self):
+        response = self._get_markers(dataset=self.slug, metacells="B cell", fc_min_type="mean", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        # Background-only gene excluded; the three foreground markers, strongest first.
+        self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
+        fg_means = [m["fg_mean_fc"] for m in markers]
+        self.assertEqual(fg_means, sorted(fg_means, reverse=True))
+
+    def test_results_ordered_by_median_fold_change_desc(self):
+        response = self._get_markers(dataset=self.slug, metacells="B cell", fc_min_type="median", fc_min=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        markers = response.data["results"]
+        self.assertEqual([m["name"] for m in markers], ["gene_hi", "gene_mid", "gene_lo"])
+        fg_medians = [m["fg_median_fc"] for m in markers]
+        self.assertEqual(fg_medians, sorted(fg_medians, reverse=True))

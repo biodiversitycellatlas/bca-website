@@ -10,6 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.contrib.postgres.fields import ArrayField
 
 
 class AutoSlugMixin(models.Model):
@@ -877,6 +878,16 @@ class MetacellGeneExpression(models.Model):
         unique_together = ["gene", "metacell", "dataset"]
         verbose_name = "metacell gene expression"
         verbose_name_plural = verbose_name
+        indexes = [
+            # Covering index for the markers query (rest.views.MetacellMarkerViewSet):
+            # an index-only scan of a dataset slice, pre-ordered by gene for a
+            # streaming GroupAggregate. Created concurrently in migration 0014.
+            models.Index(
+                fields=["dataset", "gene"],
+                include=["metacell", "umi_raw", "fold_change"],
+                name="app_mge_dataset_gene_covering",
+            ),
+        ]
 
     def __str__(self):
         """String representation."""
@@ -958,18 +969,27 @@ class Ortholog(models.Model):
         return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
-class SAMap(models.Model):
-    """SAMap scores model."""
+class MetacellTypeSimilarity(models.Model):
+    """Similarity scores between two metacell types."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap")
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap2")
-    samap = models.DecimalField(max_digits=5, decimal_places=2)
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="source")
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="target")
+
+    samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
+
+    aucell_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
+
+    pesci_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    pesci_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     class Meta:
         """Meta options."""
 
         unique_together = ["metacelltype", "metacelltype2"]
-        verbose_name = "SAMAP score"
+        verbose_name = "Metacell type similarity"
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         """String representation."""

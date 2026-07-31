@@ -7,10 +7,10 @@ import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.db.models import Case, Count, IntegerField, Prefetch, Value, When
+from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 
 from app.managers import ExpressionDataManager
@@ -144,7 +144,18 @@ class GeneListViewSet(BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List modules", tags=["Gene module"])
+@extend_schema(
+    summary="List modules",
+    tags=["Gene module"],
+    parameters=[
+        OpenApiParameter(
+            "q",
+            str,
+            description=filters.GeneModuleFilter().base_filters["q"].label,
+            examples=[OpenApiExample("Example", value="GM5")],
+        ),
+    ],
+)
 class GeneModuleViewSet(BaseReadOnlyModelViewSet):
     """List gene modules."""
 
@@ -273,6 +284,27 @@ class GeneViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.GeneFilter
     lookup_field = "name"
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("q", exclude=True),
+            OpenApiParameter("genes", exclude=True),
+        ],
+        request=serializers.GeneRequestSerializer,
+        operation_id="genes_post",
+        responses={200: serializers.GeneSerializer(many=True)},
+    )
+    def create(self, request, *args, **kwargs):
+        """Inject POST request data into GET parameters and call GET method."""
+
+        genes = request.data.get("genes")
+        genes = ",".join(genes) if genes and genes != [""] else [""]
+
+        query_params = request.query_params.copy()
+        query_params.update({**request.data, "genes": genes})
+
+        request._request.GET = query_params
+        return self.list(request, *args, **kwargs)
+
 
 @extend_schema(summary="List orthologs", tags=["Gene", "Cross-species"])
 class OrthologViewSet(BaseReadOnlyModelViewSet):
@@ -290,18 +322,18 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
-@extend_schema(summary="List SAMap scores", tags=["Cross-species"])
-class SAMapViewSet(BaseReadOnlyModelViewSet):
-    """List SAMap alignment scores (in percentage) between cell types of two different datasets."""
+@extend_schema(summary="List metacell similarity scores", tags=["Cross-species"])
+class MetacellTypeSimilarityViewSet(BaseReadOnlyModelViewSet):
+    """List metacell similarity scores between cell types of different datasets."""
 
-    queryset = models.SAMap.objects.prefetch_related(
+    queryset = models.MetacellTypeSimilarity.objects.prefetch_related(
         "metacelltype",
         "metacelltype__dataset",
         "metacelltype2",
         "metacelltype2__dataset",
     )
-    serializer_class = serializers.SAMapSerializer
-    filterset_class = filters.SAMapFilter
+    serializer_class = serializers.MetacellTypeSimilaritySerializer
+    filterset_class = filters.MetacellTypeSimilarityFilter
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -525,13 +557,158 @@ class CorrelatedGenesViewSet(BaseReadOnlyModelViewSet):
     ],
 )
 class MetacellMarkerViewSet(BaseReadOnlyModelViewSet):
-    """List gene markers of selected metacells."""
+    """List gene markers of selected metacells.
 
-    # Gene as model (easier to perform gene-wise operations)
-    queryset = models.Gene.objects.prefetch_related("domains", "genelists")
+    Runs a single CTE-based query against PostgreSQL instead of the
+    django-filter annotation pipeline. The ORM equivalent still lives in
+    ``filters.MetacellMarkerFilter.select_metacells`` for reference.
+    """
 
     serializer_class = serializers.MetacellMarkerSerializer
-    filterset_class = filters.MetacellMarkerFilter
+    filterset_class = filters.MetacellMarkerFilter  # kept for OpenAPI parameter docs
+    queryset = models.Gene.objects.none()
+
+    _MARKER_SQL = """
+        WITH fg_metacells AS (
+            SELECT mc.id AS metacell_id
+            FROM app_metacell mc
+            LEFT JOIN app_metacelltype mct ON mc.type_id = mct.id
+            WHERE mc.dataset_id = %(dataset_id)s
+              AND (mc.name = ANY(%(names)s) OR mct.name = ANY(%(names)s))
+        ),
+        -- Foreground membership is evaluated ONCE per row here and reused by every
+        -- aggregate below, instead of once per FILTER clause (which the planner turns
+        -- into six separate hashed SubPlans, i.e. six probes for every expression
+        -- row). Membership is expressed as ``IN (subquery)`` rather than a join to
+        -- ``fg_metacells``: PostgreSQL evaluates it as a hashed SubPlan (built once,
+        -- probed per row), whereas a join is prone to a nested loop over every
+        -- expression row when the foreground set is small, which is catastrophic on
+        -- large datasets (millions of rows).
+        --
+        -- Two planner fences make this work and BOTH are required:
+        --   OFFSET 0   stops the subquery being pulled up, which would substitute
+        --              ``is_fg`` back into each FILTER and restore the six SubPlans.
+        --   ORDER BY   keeps the gene_id-ordered index path, so the GroupAggregate
+        --              below still consumes ``app_mge_dataset_gene_covering``
+        --              directly; without it the planner sorts every expression row
+        --              (external merge, ~400MB on a 10M-row dataset) and the rewrite
+        --              loses more than it gains.
+        -- ``is_fg`` is never NULL (both metacell_id columns are NOT NULL), so
+        -- ``NOT is_fg`` is equivalent to the ``NOT IN`` it replaces.
+        tagged AS (
+            SELECT
+                e.gene_id,
+                e.umi_raw,
+                e.fold_change,
+                e.metacell_id IN (SELECT metacell_id FROM fg_metacells) AS is_fg
+            FROM app_metacellgeneexpression e
+            WHERE e.dataset_id = %(dataset_id)s
+            ORDER BY e.gene_id
+            OFFSET 0
+        ),
+        -- MATERIALIZED is load-bearing: without it PostgreSQL inlines ``stats``
+        -- (single reference) and pushes the outer having-column filter down into
+        -- this aggregate node as a *fresh copy* of the aggregate expression.
+        -- The copy carries its own SubPlan, so it does not compare equal() to the
+        -- one in the target list and is not deduplicated -- the selected aggregate
+        -- is then computed twice over every expression row (worst on ``median``,
+        -- where percentile_cont is the expensive one). Materializing costs nothing:
+        -- the result is one row per gene, and the filter runs against that instead.
+        stats AS MATERIALIZED (
+            SELECT
+                t.gene_id,
+                sum(t.umi_raw) FILTER (WHERE t.is_fg) AS fg_sum_umi,
+                sum(t.umi_raw) FILTER (WHERE NOT t.is_fg) AS bg_sum_umi,
+                avg(t.fold_change) FILTER (WHERE t.is_fg) AS fg_mean_fc,
+                avg(t.fold_change) FILTER (WHERE NOT t.is_fg) AS bg_mean_fc,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY t.fold_change)
+                    FILTER (WHERE t.is_fg) AS fg_median_fc,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY t.fold_change)
+                    FILTER (WHERE NOT t.is_fg) AS bg_median_fc
+            FROM tagged t
+            GROUP BY t.gene_id
+        )
+        SELECT
+            s.gene_id AS id,
+            s.bg_sum_umi,
+            s.fg_sum_umi,
+            CASE WHEN s.fg_sum_umi + s.bg_sum_umi = 0 THEN NULL
+                 ELSE s.fg_sum_umi::float / (s.fg_sum_umi + s.bg_sum_umi) * 100
+            END AS umi_perc,
+            s.fg_mean_fc,
+            s.bg_mean_fc,
+            s.fg_median_fc,
+            s.bg_median_fc
+        FROM stats s
+        WHERE {having_col} >= %(fc_min)s
+        ORDER BY {having_col} DESC NULLS LAST, s.gene_id
+    """
+
+    _ANNOTATION_FIELDS = (
+        "bg_sum_umi",
+        "fg_sum_umi",
+        "umi_perc",
+        "fg_mean_fc",
+        "bg_mean_fc",
+        "fg_median_fc",
+        "bg_median_fc",
+    )
+
+    def filter_queryset(self, queryset):
+        # django-filter is bypassed; query parameters are read in get_queryset().
+        return queryset
+
+    def get_queryset(self):
+        params = self.request.query_params
+        dataset_slug = params.get("dataset")
+        metacells = params.get("metacells")
+        if not dataset_slug or not metacells:
+            raise ValidationError({"detail": "Both 'dataset' and 'metacells' are required."})
+
+        fc_min_type = params.get("fc_min_type") or "mean"
+        if fc_min_type not in ("mean", "median"):
+            raise ValidationError({"fc_min_type": "Must be 'mean' or 'median'."})
+        having_col = "s.fg_median_fc" if fc_min_type == "median" else "s.fg_mean_fc"
+
+        try:
+            fc_min = float(params.get("fc_min") or 2)
+        except (TypeError, ValueError):
+            raise ValidationError({"fc_min": "Must be a number."})
+
+        try:
+            dataset = parse_species_dataset(dataset_slug)
+        except ValueError:
+            # Build the client-facing message from the user-supplied slug rather
+            # than the exception text, so no internal exception detail leaks out
+            # (CodeQL py/stack-trace-exposure).
+            raise ValidationError({"dataset": f"Cannot find dataset for {dataset_slug!r}."}) from None
+        names = [n.strip() for n in metacells.split(",") if n.strip()]
+
+        sql = self._MARKER_SQL.format(having_col=having_col)
+        return models.Gene.objects.raw(
+            sql,
+            params={"dataset_id": dataset.id, "names": names, "fc_min": fc_min},
+        )
+
+    def list(self, request, *args, **kwargs):
+        raw_rows = list(self.get_queryset())
+
+        ids = [g.id for g in raw_rows]
+        prefetched = {g.id: g for g in models.Gene.objects.filter(id__in=ids).prefetch_related("domains", "genelists")}
+        results = []
+        for raw in raw_rows:
+            gene = prefetched.get(raw.id)
+            if gene is None:
+                continue
+            for attr in self._ANNOTATION_FIELDS:
+                setattr(gene, attr, getattr(raw, attr, None))
+            results.append(gene)
+
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(self.get_serializer(results, many=True).data)
 
     @extend_schema(exclude=True)
     def retrieve(self, request, *args, **kwargs):
@@ -543,6 +720,69 @@ class MetacellCountViewSet(BaseReadOnlyModelViewSet):
     queryset = models.MetacellCount.objects.prefetch_related("metacell", "metacell__type")
     serializer_class = serializers.MetacellCountSerializer
     filterset_class = filters.MetacellCountFilter
+
+
+@extend_schema(summary="Search gene-associated data", tags=["Gene", "Gene module"])
+class GeneSearchViewSet(BaseReadOnlyModelViewSet):
+    """Search query across gene annotation, preset lists, modules and domains."""
+
+    queryset = models.Gene.objects.none()
+    serializer_class = serializers.GeneSearchSerializer
+    pagination_class = None
+
+    SEARCHES = {
+        "gene_lists": (filters.GeneListFilter, models.GeneList.objects.all(), serializers.GeneListSerializer),
+        "gene_modules": (filters.GeneModuleFilter, models.GeneModule.objects.all(), serializers.GeneModuleSerializer),
+        "domains": (filters.DomainFilter, models.Domain.objects.all(), serializers.DomainSerializer),
+        "genes": (filters.GeneFilter, models.Gene.objects.all(), serializers.GeneSerializer),
+    }
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "dataset",
+                str,
+                required=True,
+                description="The [dataset's slug](#/operations/datasets_list).",
+                examples=[OpenApiExample("Dataset", value="amphimedon-queenslandica-adult")],
+            ),
+            OpenApiParameter(
+                "q",
+                str,
+                description="Query string to search.",
+                examples=[OpenApiExample("Query", value="ATP")],
+            ),
+            OpenApiParameter(
+                "limit",
+                int,
+                description="Number of results to return per category (`3` by default).",
+            ),
+        ],
+    )
+    def list(self, request):
+        q = request.query_params.get("q")
+        dataset = request.query_params.get("dataset")
+        limit = int(request.query_params.get("limit", 3))
+
+        species = parse_species_dataset(dataset).species.scientific_name
+        params = {
+            "q": q,
+            "species": species,
+            "dataset": dataset,
+            "order_by_gene_count": True,
+        }
+
+        resp = Response(
+            {
+                key: serializer(
+                    filterset(data=params, queryset=queryset).qs[:limit],
+                    many=True,
+                    context={"species": species},
+                ).data
+                for key, (filterset, queryset, serializer) in self.SEARCHES.items()
+            }
+        )
+        return resp
 
 
 @extend_schema(
@@ -677,59 +917,38 @@ class AlignViewSet(viewsets.ViewSet):
 @extend_schema(
     summary="Analyze GO enrichment",
     tags=["Gene ontology"],
+    description=f"""
+Perform **Gene Ontology (GO) enrichment analysis** on a set of genes
+using [GOATOOLS {settings.GOATOOLS_VERSION}](https://github.com/tanghaibao/goatools).
+
+Background genes are derived from all the genes in the selected dataset's metacell gene expression.
+
+> Processing may take 10+ seconds depending on input.
+> Please use responsibly to avoid excessive server load.
+""",
 )
 class EnrichmentAnalysisViewSet(viewsets.ViewSet):
-    """
-    Perform **Gene Ontology (GO) enrichment analysis** on a set of genes.
-
-    Background genes are derived from all the genes in the selected dataset's metacell gene expression.
-
-    > Processing may take 10+ seconds depending on input.
-    > Please use responsibly to avoid excessive server load.
-    """
+    """Perform enrichment analysis."""
 
     queryset = models.Gene.objects.all()
     serializer_class = serializers.EnrichmentAnalysisResponseSerializer
     pagination_class = None
 
-    def _get_gene_names(self, qs):
-        model = qs.model
+    def _prepare_gene_query(self, dataset, genes):
+        """Create array of gene names from genes, modules, lists and domains."""
 
-        if qs.model == models.Gene:
-            value = "name"
-        elif hasattr(model, "genes"):
-            value = "genes__name"
-        elif hasattr(model, "gene"):
-            value = "gene__name"
-        return list(qs.values_list(value, flat=True).distinct())
+        if len(genes) == 0:
+            raise NotFound(detail="Genes not found.")
 
-    def _prepare_gene_query(self, dataset, validated):
-        """Create array of gene names from genes, gene_modules and gene_lists."""
-        query = []
+        queryset = dataset.species.genes.filter(
+            Q(name__in=genes)
+            | Q(domains__name__in=genes)
+            | Q(genelists__name__in=genes)
+            | Q(modules__module__name__in=genes, modules__module__dataset=dataset)
+        ).distinct()
 
-        gene_names = validated.get("genes")
-        if gene_names:
-            genes = self._get_gene_names(dataset.species.genes.filter(name__in=gene_names))
-            if len(genes) == 0:
-                raise NotFound(detail=f"Genes {gene_names} not found.")
-            query += genes
-
-        gene_modules = validated.get("gene_modules")
-        if gene_modules:
-            genes = self._get_gene_names(dataset.gene_modules.filter(name__in=gene_modules))
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene modules {gene_modules} not found.")
-            query += genes
-
-        gene_lists = validated.get("gene_lists")
-        if gene_lists:
-            genes = self._get_gene_names(
-                models.GeneList.objects.filter(genes__species=dataset.species, name__in=gene_lists)
-            )
-            if len(genes) == 0:
-                raise NotFound(detail=f"Gene lists {gene_lists} not found.")
-            query += genes
-
+        # Get name of selected genes
+        query = list(queryset.values_list("name", flat=True))
         return query
 
     @extend_schema(
@@ -743,11 +962,12 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         validated = input_serializer.validated_data
 
         # Parse query parameters
-        dataset = parse_species_dataset(validated["dataset"])
-        genes = self._prepare_gene_query(dataset, validated)
+        dataset = parse_species_dataset(validated.get("dataset"))
+        genes = self._prepare_gene_query(dataset, validated.get("genes"))
 
         qvalue = validated.get("qvalue", 0.05)
-        background = self._get_gene_names(dataset.mge)
+        background = list(dataset.mge.values_list("gene__name", flat=True).distinct())
+
         obsolete = validated["obsolete"] or False
 
         go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path

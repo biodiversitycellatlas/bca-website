@@ -4,7 +4,7 @@
 
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { createSimilarityPlot } from "./plots/similarity_plot.ts";
+import { createSimilarityHeatmap } from "./plots/similarity_heatmap.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 
 /**
@@ -62,7 +62,7 @@ export function loadModuleSimilarityPlot(
                 dataset2html,
                 onClick,
             );
-            createSimilarityPlot(
+            createSimilarityHeatmap(
                 `#${id}-plot`,
                 data,
                 label1,
