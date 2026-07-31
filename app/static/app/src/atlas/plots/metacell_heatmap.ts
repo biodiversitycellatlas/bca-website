@@ -170,7 +170,7 @@ function createMetacellHeatmap(
  * @param {Array} data - Array of objects containing metacell and gene expression data.
  * @param {Array} clip - Array with min and max scores to clip gene expression.
  */
-export function createExpressionHeatmap(id, data, clip = [null, null]) {
+export function createExpressionHeatmap(id, data, clip = [0, null]) {
     const chart = createMetacellHeatmap(
         id,
         data,

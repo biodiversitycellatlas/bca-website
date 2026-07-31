@@ -25,15 +25,18 @@ Input:
   URL using a query parameter (e.g., '?gene=BRCA1'); if 'arg', redirect using
   gene as an argument
 - hash: hash to add to URL (default: none)
-- limit: maximum number of genes to fetch from API (default: 50)
+- limit: maximum number of genes to fetch from API (default: 50 genes or 3 if multiple)
 
 {% endcomment %}
 
+<!-- Make select invisible and add margin to avoid Flash Of Unstyled Content (FOUC) -->
 <select id="{{ id }}_gene_selection"
         class="{{ class|default:'mb-3' }}"
         name="{{ name|default:'gene' }}"
-        style="width: {{ width|default:'100%' }}"
-        placeholder="{{ placeholder|default:'Search gene...' }}"
+        style="width: {{ width|default:'100%' }};
+               visibility: hidden;
+               margin-top: 12px"
+        placeholder="{% if placeholder %}{{ placeholder }}{% elif multiple == 'true' %}Search gene lists, modules, domains...{% else %}Search gene...{% endif %}"
         {% if multiple == 'true' %}multiple{% endif %}
         {% if disabled == 'true' %}disabled{% endif %}>
     <option value="">
@@ -64,7 +67,7 @@ Input:
             ]
         },
         selected = "{{ selected }}",
-        limit = {{limit|default:50}},
+        limit = {% if limit %}{{ limit }}{% elif multiple == "true" %}3{% else %}50{% endif %},
         multiple = "{{ multiple }}",
         display = "{{ display|default:'name' }}" === "all";
 

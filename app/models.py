@@ -870,6 +870,16 @@ class MetacellGeneExpression(models.Model):
         unique_together = ["gene", "metacell", "dataset"]
         verbose_name = "metacell gene expression"
         verbose_name_plural = verbose_name
+        indexes = [
+            # Covering index for the markers query (rest.views.MetacellMarkerViewSet):
+            # an index-only scan of a dataset slice, pre-ordered by gene for a
+            # streaming GroupAggregate. Created concurrently in migration 0014.
+            models.Index(
+                fields=["dataset", "gene"],
+                include=["metacell", "umi_raw", "fold_change"],
+                name="app_mge_dataset_gene_covering",
+            ),
+        ]
 
     def __str__(self):
         """String representation."""
