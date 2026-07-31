@@ -9,7 +9,7 @@
         "build": "bun run build:portal && bun run build:rest"
     },
     "dependencies": {
-        "@fontsource/rubik": "5.2.8",
+        "@fontsource/rubik": "5.3.0",
         "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
         "autoprefixer": "10.5.4",
