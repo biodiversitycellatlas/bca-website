@@ -34,6 +34,7 @@ from app.models import (
     GeneCorrelation,
     GeneModule,
     GeneModuleEigengene,
+    ExpressionConservation,
     Meta,
     SpeciesFile,
 )
@@ -195,6 +196,34 @@ class Command(BaseCommand):
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[2], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
+
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup0,
+            gene=homo_genes[1],
+            gene2=sponge_genes[0],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.85,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup0,
+            gene=homo_genes[1],
+            gene2=sponge_genes[1],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.72,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup1,
+            gene=homo_genes[2],
+            gene2=sponge_genes[2],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.91,
+            is_one_to_one=True,
+        )
 
     @staticmethod
     def create_metacell_links(dataset, metacells):
