@@ -2,12 +2,12 @@
 
 {% comment %}
 
-Gene ontology enrichment page
+Gene ontology and Pfam domain enrichment page
 
 Features:
 - Form to set genes and other enrichment analysis settings
 - Mockup table if no analyses is loaded
-- Gene ontology enrichment analysis as per the user input:
+- Gene ontology and Pfam domain enrichment analysis as per the user input:
     - Fetches via REST API
     - Table for the data with links to supporting genes
     - Auxiliary plots
@@ -17,7 +17,7 @@ Features:
 {% endcomment %}
 
 {% block title %}
-    {{ dataset }} GO enrichment
+    {{ dataset }} GO and Pfam enrichment
 {% endblock title %}
 
 {% block content %}

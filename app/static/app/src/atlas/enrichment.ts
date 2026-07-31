@@ -75,9 +75,10 @@ export function prepareEnrichmentResults(species, dataset, genes) {
             return res.json();
         })
         .then((data) => {
-            createSemanticSimilarityPlot("#semantic-plot", data);
-            createWordCloud("#words-plot", data);
-            createEnrichmentTable("enrichment", species, dataset, data);
+            const results = [...data.go, ...data.pfam];
+            createSemanticSimilarityPlot("#semantic-plot", data.go);
+            createWordCloud("#words-plot", results);
+            createEnrichmentTable("enrichment", species, dataset, results);
         })
         .catch((err) => {
             console.error("Error loading enrichment data:", err);

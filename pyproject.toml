@@ -51,6 +51,7 @@ dependencies = [
     # GO enrichment
     "GOATOOLS==1.6.5",
     "scikit-learn==1.9.0",
+    "scipy==1.18.0",
 
     # Monitoring
     "django-prometheus==2.5.0",

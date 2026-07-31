@@ -921,7 +921,31 @@ class EnrichmentAnalysisRequestSerializer(serializers.Serializer):
     )
 
 
-class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
+class EnrichmentCountsMixin:
+    """Shared enrichment count methods."""
+
+    def _get_ratio(self, obj):
+        if not hasattr(obj, "_ratio"):
+            obj._ratio = {
+                "study": obj.ratio_in_study,
+                "pop": obj.ratio_in_pop,
+            }
+        return obj._ratio
+
+    def get_query_hit_count(self, obj) -> int:
+        return self._get_ratio(obj)["study"][0]
+
+    def get_query_count(self, obj) -> int:
+        return self._get_ratio(obj)["study"][1]
+
+    def get_background_hit_count(self, obj) -> int:
+        return self._get_ratio(obj)["pop"][0]
+
+    def get_background_count(self, obj) -> int:
+        return self._get_ratio(obj)["pop"][1]
+
+
+class GOEnrichmentResponseSerializer(EnrichmentCountsMixin, serializers.Serializer):
     """Serializer for GO enrichment analysis response."""
 
     namespace = serializers.CharField(
@@ -969,26 +993,6 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
         source="semantic_sim_coords",
     )
 
-    def _get_ratio(self, obj):
-        if not hasattr(obj, "_ratio"):
-            obj._ratio = {
-                "study": obj.ratio_in_study,
-                "pop": obj.ratio_in_pop,
-            }
-        return obj._ratio
-
-    def get_query_hit_count(self, obj) -> int:
-        return self._get_ratio(obj)["study"][0]
-
-    def get_query_count(self, obj) -> int:
-        return self._get_ratio(obj)["study"][1]
-
-    def get_background_hit_count(self, obj) -> int:
-        return self._get_ratio(obj)["pop"][0]
-
-    def get_background_count(self, obj) -> int:
-        return self._get_ratio(obj)["pop"][1]
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
@@ -997,3 +1001,39 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
             data.pop("is_obsolete", None)
 
         return data
+
+
+class PfamEnrichmentResponseSerializer(EnrichmentCountsMixin, serializers.Serializer):
+    """Serializer for Pfam enrichment analysis response."""
+
+    namespace = serializers.CharField(help_text="`Pfam` for Pfam domains.", source="NS")
+    term = serializers.CharField(help_text="Pfam domain ID.")
+    name = serializers.CharField(help_text="Pfam domain name.")
+    fold_enrichment = serializers.FloatField(
+        help_text="Fold enrichment: >1 indicates enrichment, <1 depletion."
+    )
+
+    pvalue = serializers.FloatField(help_text="Statistical significance (uncorrected).", source="p_uncorrected")
+    qvalue = serializers.FloatField(help_text="Statistical significance (Bonferroni).", source="get_pvalue")
+
+    query_hit_count = serializers.SerializerMethodField(
+        help_text="Number of input genes associated with the domain."
+    )
+    query_count = serializers.SerializerMethodField(help_text="Total number of input genes.")
+    background_hit_count = serializers.SerializerMethodField(
+        help_text="Number of background genes associated with the domain."
+    )
+    background_count = serializers.SerializerMethodField(help_text="Total number of background genes.")
+
+    genes = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Name of input genes associated with the domain.",
+        source="study_items",
+    )
+
+
+class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
+    """Serializer for GO and Pfam enrichment analysis response."""
+
+    go = GOEnrichmentResponseSerializer(many=True, help_text="GO enrichment results.")
+    pfam = PfamEnrichmentResponseSerializer(many=True, help_text="Pfam domain enrichment results.")

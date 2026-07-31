@@ -915,11 +915,11 @@ class AlignViewSet(viewsets.ViewSet):
 
 
 @extend_schema(
-    summary="Analyze GO enrichment",
+    summary="Analyze GO and Pfam enrichment",
     tags=["Gene ontology"],
     description=f"""
-Perform **Gene Ontology (GO) enrichment analysis** on a set of genes
-using [GOATOOLS {settings.GOATOOLS_VERSION}](https://github.com/tanghaibao/goatools).
+Perform **Gene Ontology (GO) and Pfam domain enrichment analysis** on a set
+of genes using [GOATOOLS {settings.GOATOOLS_VERSION}](https://github.com/tanghaibao/goatools).
 
 Background genes are derived from all the genes in the selected dataset's metacell gene expression.
 
@@ -954,7 +954,7 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
     @extend_schema(
         request=serializers.EnrichmentAnalysisRequestSerializer,
         operation_id="enrichment_post",
-        responses={200: serializers.EnrichmentAnalysisResponseSerializer(many=True)},
+        responses={200: serializers.EnrichmentAnalysisResponseSerializer},
     )
     def create(self, request, *args, **kwargs):
         input_serializer = serializers.EnrichmentAnalysisRequestSerializer(data=request.data)
@@ -973,10 +973,25 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
         emapper = dataset.species.files.get(type="eggnog-mapper").file.path
 
-        service = services.GeneOntologyEnrichmentService(
-            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
-        )
-        results = service.run(genes, sort=True)
+        # Parse functional annotation once and reuse it for both analyses
+        gene2go, gene2pfam = services.read_emapper(emapper)
 
-        serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
+        go_service = services.GeneOntologyEnrichmentService(
+            go_obo,
+            gene2go=gene2go,
+            background_genes=background,
+            qvalue=qvalue,
+            methods=["bonferroni"],
+            load_obsolete=obsolete,
+        )
+        go_results = go_service.run(genes, sort=True)
+
+        pfam_service = services.PfamEnrichmentService(
+            gene2pfam=gene2pfam, background_genes=background, qvalue=qvalue
+        )
+        pfam_results = pfam_service.run(genes, sort=True)
+
+        serializer = self.serializer_class(
+            {"go": go_results, "pfam": pfam_results}, context={"obsolete": obsolete}
+        )
         return Response(serializer.data)

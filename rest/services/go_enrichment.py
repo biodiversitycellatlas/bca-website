@@ -1,8 +1,11 @@
-"""GO enrichment analysis."""
+"""GO and Pfam enrichment analysis."""
 
 import gzip
 import random
 import math
+from collections import Counter
+
+from scipy.stats import fisher_exact
 from sklearn.manifold import MDS
 
 from goatools.obo_parser import GODag
@@ -14,6 +17,48 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def read_emapper(f):
+    """Read eggnog-mapper output into gene annotations.
+
+    Returns:
+        tuple[dict[str, set[str]], dict[str, set[str]]]: Gene to GO terms
+        and gene to Pfam domains.
+    """
+    gene2go = {}
+    gene2pfam = {}
+    with gzip.open(f, "rt", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+
+            (
+                gene,
+                seed_ortholog,
+                evalue,
+                score,
+                eggnog_ogs,
+                max_annot_lvl,
+                cog_category,
+                description,
+                name,
+                gos,
+                ec,
+                kegg_ko,
+                kegg_pathway,
+                kegg_module,
+                kegg_reaction,
+                kegg_rclass,
+                kegg_brite,
+                kegg_tc,
+                cazy,
+                bigg_reaction,
+                pfams,
+            ) = line.rstrip().split("\t")
+            gene2go[gene] = {g for g in gos.split(",") if g and g != "-"}
+            gene2pfam[gene] = {p for p in pfams.split(",") if p and p != "-"}
+    return gene2go, gene2pfam
+
+
 class GeneOntologyEnrichmentService:
     """Analyze GO enrichment."""
 
@@ -22,7 +67,8 @@ class GeneOntologyEnrichmentService:
     def __init__(
         self,
         obo_path,
-        annotation_path,
+        annotation_path=None,
+        gene2go=None,
         background_genes=None,
         qvalue=0.05,
         methods=["bonferroni"],
@@ -30,7 +76,9 @@ class GeneOntologyEnrichmentService:
     ):
         """Load input files (allows to run GO enrichment analysis multiple times)."""
         self.obodag = GODag(obo_path, load_obsolete=load_obsolete, prt=None)
-        gene2go = self.read_emapper(annotation_path)
+
+        if gene2go is None:
+            gene2go, _ = read_emapper(annotation_path)
 
         if background_genes is None:
             background_genes = gene2go.keys()
@@ -64,40 +112,6 @@ class GeneOntologyEnrichmentService:
         if sort:
             results = sorted(results, key=lambda x: x.get_pvalue())
         return results
-
-    def read_emapper(self, f):
-        """Read eggnog-mapper output."""
-        gene2go = {}
-        with gzip.open(f, "rt", encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("#"):
-                    continue
-
-                (
-                    gene,
-                    seed_ortholog,
-                    evalue,
-                    score,
-                    eggnog_ogs,
-                    max_annot_lvl,
-                    cog_category,
-                    description,
-                    name,
-                    gos,
-                    ec,
-                    kegg_ko,
-                    kegg_pathway,
-                    kegg_module,
-                    kegg_reaction,
-                    kegg_rclass,
-                    kegg_brite,
-                    kegg_tc,
-                    cazy,
-                    bigg_reaction,
-                    pfams,
-                ) = line.rstrip().split("\t")
-                gene2go[gene] = set(gos.split(","))
-        return gene2go
 
     def calculate_semantic_similarity_coords(self, results, semantic_dict):
         """Calculate semantic similarity coordinates using MDS."""
@@ -246,3 +260,104 @@ class GeneOntologyEnrichmentService:
 
         reduced = list(set(results) - discarded_gos) if discarded_gos else results
         return reduced, semantic_dict
+
+
+class PfamEnrichmentRecord:
+    """Result of Pfam domain enrichment for a single domain."""
+
+    NS = "Pfam"
+
+    def __init__(self, name, p_uncorrected, p_bonferroni, ratio_in_study, ratio_in_pop, study_items):
+        """Store enrichment statistics for a Pfam domain."""
+        self.term = name
+        self.name = name
+        self.p_uncorrected = p_uncorrected
+        self.p_bonferroni = p_bonferroni
+        self.ratio_in_study = ratio_in_study
+        self.ratio_in_pop = ratio_in_pop
+        self.study_items = study_items
+        self.semantic_sim_coords = None
+
+    @property
+    def fold_enrichment(self):
+        """Ratio of observed to expected representation (study proportion / population proportion)."""
+        if self.ratio_in_study[1] == 0 or self.ratio_in_pop[1] == 0 or self.ratio_in_pop[0] == 0:
+            return None
+        return (1.0 * self.ratio_in_study[0] / self.ratio_in_study[1]) / (
+            1.0 * self.ratio_in_pop[0] / self.ratio_in_pop[1]
+        )
+
+    def get_pvalue(self):
+        """Return adjusted p-value (Bonferroni)."""
+        return self.p_bonferroni
+
+    def __repr__(self):
+        """Representation."""
+        return f"PfamEnrichmentRecord({self.term}, p={self.p_bonferroni})"
+
+
+class PfamEnrichmentService:
+    """Analyze Pfam domain enrichment."""
+
+    def __init__(self, annotation_path=None, gene2pfam=None, background_genes=None, qvalue=0.05):
+        """Load Pfam annotations (allows to run enrichment analysis multiple times)."""
+        if gene2pfam is None:
+            _, gene2pfam = read_emapper(annotation_path)
+        self.gene2pfam = gene2pfam
+
+        if background_genes is None:
+            background_genes = list(gene2pfam)
+        self.background_genes = list(background_genes)
+        self.qvalue = qvalue
+
+    def run(self, query_genes, sort=False):
+        """Calculate Pfam domain enrichment."""
+        query_genes = list(query_genes)
+        study_n = len(query_genes)
+        pop_n = len(self.background_genes)
+        if study_n == 0 or pop_n == 0:
+            return []
+
+        # Count annotations in background and query
+        pop_counts = Counter()
+        for gene in self.background_genes:
+            pop_counts.update(self.gene2pfam.get(gene, ()))
+
+        study_counts = Counter()
+        study_genes = {}
+        for gene in query_genes:
+            pfams = self.gene2pfam.get(gene, ())
+            study_counts.update(pfams)
+            for pfam in pfams:
+                study_genes.setdefault(pfam, []).append(gene)
+
+        # Apply Fisher's exact test per Pfam domain
+        n_tests = len(study_counts)
+        results = []
+        for pfam, study_count in study_counts.items():
+            study_hits = study_count
+            pop_hits = pop_counts.get(pfam, 0)
+            not_hits_study = study_n - study_hits
+            not_hits_pop = pop_n - pop_hits - not_hits_study
+            if pop_hits < study_hits or not_hits_pop < 0:
+                continue
+
+            # Use the same two-sided Fisher's exact test as GO enrichment (GOATOOLS)
+            _, p_uncorrected = fisher_exact([[study_hits, not_hits_study], [pop_hits - study_hits, not_hits_pop]])
+            p_bonferroni = min(p_uncorrected * n_tests, 1)
+            if p_bonferroni <= self.qvalue:
+                results.append(
+                    PfamEnrichmentRecord(
+                        name=pfam,
+                        p_uncorrected=p_uncorrected,
+                        p_bonferroni=p_bonferroni,
+                        ratio_in_study=(study_hits, study_n),
+                        ratio_in_pop=(pop_hits, pop_n),
+                        study_items=study_genes[pfam],
+                    )
+                )
+
+        # Sort results based on adjusted p-value
+        if sort:
+            results = sorted(results, key=lambda x: x.get_pvalue())
+        return results

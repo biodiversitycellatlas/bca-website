@@ -171,7 +171,7 @@ def get_cell_atlas_links(url_name, dataset=None):
             "icon": "arrow-trend-up",
             "url_names": ["atlas_enrichment"],
             "url_view": "atlas_enrichment",
-            "tooltip": "Analyze GO enrichment",
+            "tooltip": "Analyze GO and Pfam enrichment",
         },
         {
             "name": "Gene and orthologs",

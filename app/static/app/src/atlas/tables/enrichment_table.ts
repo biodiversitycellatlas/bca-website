@@ -9,17 +9,24 @@ import { createGeneTable } from "./gene_table.ts";
 import { getViewUrl } from "../../utils/urls.ts";
 
 /**
- * Create an external link to a GO term.
+ * Create an external link to an enrichment term.
+ *
+ * GO terms link to AmiGO; Pfam domains link to the data portal's domain pages.
  *
  * @param {string} name - The text to display.
  * @param {string} [type="display"] - Rendering mode.
- * @param {Object|null} [row=null] - Row containing the GO term.
+ * @param {Object|null} [row=null] - Row containing the enrichment term.
  */
-function linkExternalGOterm(name, type = "display", row = null) {
+function linkEnrichmentTerm(name, type = "display", row = null) {
     if (type === "display") {
         const term = row?.term;
-        const url = "https://amigo.geneontology.org/amigo/term/" + term;
-        name = linkElement(name, url);
+        let url = null;
+        if (row?.namespace === "Pfam") {
+            url = getViewUrl("domain_entry", { domain: term });
+        } else {
+            url = "https://amigo.geneontology.org/amigo/term/" + term;
+        }
+        if (url) name = linkElement(name, url);
     }
     return name;
 }
@@ -79,7 +86,7 @@ export function createEnrichmentTable(id, species, dataset, data) {
                 data: "name",
                 title: "Name",
                 className: "truncate",
-                render: linkExternalGOterm,
+                render: linkEnrichmentTerm,
             },
             {
                 data: "pvalue",

@@ -37,6 +37,7 @@ class EnrichmentAnalysisTests(APITestCase):
         "GO:0048813",
         "GO:0140101",
     }
+    pfam_domains = {"WHEP-TRS", "tRNA-synt_1b"}
 
     @classmethod
     def setUpTestData(cls):
@@ -69,11 +70,11 @@ class EnrichmentAnalysisTests(APITestCase):
                 cls.aque_adult.mge.create(gene=g, metacell=mc1)
                 cls.genes.append(gene)
 
-    def check_enrichment_response(self, response, dataset, genes, obsolete=False):
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEqual(response.data, [], "Expect non-empty results")
+    def check_go_results(self, response, dataset, genes, obsolete=False):
+        """Validate GO enrichment results."""
+        self.assertNotEqual(response.data["go"], [], "Expect non-empty GO results")
 
-        for d in response.data:
+        for d in response.data["go"]:
             self.assertRegex(d["term"], r"^GO:\d{7}$", "Expected GO term name")
             self.assertIsInstance(d["fold_enrichment"], (int, float), "Enrichment results")
 
@@ -82,12 +83,13 @@ class EnrichmentAnalysisTests(APITestCase):
 
                 # Check if returning any obsolete GO term
                 self.assertTrue(
-                    any(d.get("is_obsolete") for d in response.data), "Expected at least one obsolete term in response"
+                    any(d.get("is_obsolete") for d in response.data["go"]),
+                    "Expected at least one obsolete term in response",
                 )
 
                 # Check if the obsolete status matches the OBO definition
                 go_obo = GODag(self.go_obo.file.path, load_obsolete=True, prt=None)
-                for d in response.data:
+                for d in response.data["go"]:
                     self.assertEqual(go_obo[d["term"]].is_obsolete, d.get("is_obsolete"))
             else:
                 self.assertGreaterEqual(d["depth"], 0, "GO term depth ≥ 0")
@@ -113,6 +115,35 @@ class EnrichmentAnalysisTests(APITestCase):
                 "similarity_coords is a tuple of two numbers",
             )
 
+    def check_pfam_results(self, response, dataset, genes):
+        """Validate Pfam domain enrichment results."""
+
+        background = dataset.mge.count()
+        for d in response.data["pfam"]:
+            self.assertRegex(d["term"], r"^\w[\w-]+$", "Expected Pfam domain name")
+            self.assertEqual(d["namespace"], "Pfam", "Match Pfam namespace")
+            self.assertNotIn("depth", d, "No depth for Pfam domains")
+            self.assertIsInstance(d["fold_enrichment"], (int, float), "Enrichment results")
+
+            self.assertTrue(set(d["genes"]).issubset(set(genes)), "Genes match input in these examples")
+            self.assertLessEqual(d["query_count"], len(genes), "Match number of genes")
+            self.assertLessEqual(d["query_hit_count"], len(genes), "Match number of genes")
+            self.assertLessEqual(d["background_hit_count"], background, "Match number of genes")
+            self.assertEqual(d["background_count"], background, "Match all genes")
+
+            self.assertTrue(0 <= d["pvalue"] <= 1, "Expected p-value")
+            self.assertTrue(0 <= d["qvalue"] <= 1, "Expected adjusted p-value")
+            self.assertLess(d["pvalue"], 0.05, "Significant p-value")
+            self.assertLess(d["qvalue"], 0.05, "Significant q-value")
+            self.assertLessEqual(d["pvalue"], d["qvalue"], "p-value ≤ adjusted p-value")
+
+    def check_enrichment_response(self, response, dataset, genes, obsolete=False):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("go", response.data, "Expect GO results")
+        self.assertIn("pfam", response.data, "Expect Pfam results")
+        self.check_go_results(response, dataset, genes, obsolete)
+        self.check_pfam_results(response, dataset, genes)
+
     def test_post(self):
         url = "/api/v1/enrichment/"
         dataset = self.aque_adult
@@ -120,7 +151,15 @@ class EnrichmentAnalysisTests(APITestCase):
         data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, dataset, genes)
-        self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
+        self.assertSetEqual(
+            {d["term"] for d in response.data["go"]} - self.go_terms, set(), "Expected GO terms"
+        )
+        self.assertNotEqual(response.data["pfam"], [], "Expect non-empty Pfam results")
+        self.assertSetEqual(
+            {d["term"] for d in response.data["pfam"]} - self.pfam_domains,
+            set(),
+            "Expected Pfam domains",
+        )
 
         # Test with valid and invalid genes: silently ignores invalid genes
         invalid_genes = {"random", "arbitrary", "gene"}
@@ -140,18 +179,27 @@ class EnrichmentAnalysisTests(APITestCase):
         data = dict(dataset=dataset.slug, genes=genes, obsolete=True)
         response = self.client.post(url, data, format="json")
         self.check_enrichment_response(response, dataset, genes, obsolete=True)
-        self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
+        self.assertSetEqual(
+            {d["term"] for d in response.data["go"]} - self.go_terms, set(), "Expected GO terms"
+        )
+        self.assertNotEqual(response.data["pfam"], [], "Expect non-empty Pfam results")
+        self.assertSetEqual(
+            {d["term"] for d in response.data["pfam"]} - self.pfam_domains,
+            set(),
+            "Expected Pfam domains",
+        )
 
     def test_post_no_enrichment(self):
         """Test no enrichment results."""
 
         url = "/api/v1/enrichment/"
         dataset = self.aque_adult
-        genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001"}
+        genes = {"Aque_Aqu2.1.30255_001", "Aque_Aqu2.1.30267_001"}
         data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data["go"], [], "Expect empty GO results")
+        self.assertEqual(response.data["pfam"], [], "Expect empty Pfam results")
 
     def test_post_gene_queries(self):
         """Test multiple types of gene queries."""
@@ -241,4 +289,5 @@ class EnrichmentAnalysisTests(APITestCase):
         data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [], "Expect empty results")
+        self.assertEqual(response.data["go"], [], "Expect empty GO results")
+        self.assertEqual(response.data["pfam"], [], "Expect empty Pfam results")
