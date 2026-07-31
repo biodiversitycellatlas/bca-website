@@ -488,6 +488,7 @@ class MetacellTypeSimilarityTests(APITestCase):
         assert {s["metacell_type"] for s in comparison} == {"type1", "type2"}
         assert {s["metacell2_type"] for s in comparison} == {"type3", "type4"}
         assert {s["samap_score"] for s in comparison} == {0.8, 0.7}
+        assert {s["samap_gene_pairs"] for s in comparison} == {None}
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
