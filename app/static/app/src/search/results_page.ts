@@ -228,13 +228,6 @@ function getGeneItemProps(item) {
     };
 }
 
-function getGeneExtras(data) {
-    const parts = ["gene_lists", "gene_modules", "domains"]
-        .filter((k) => data[k]?.length)
-        .map((k) => `${data[k].length} ${k.replace("_", " ")}`);
-    return parts.length ? ` (plus ${parts.join(", ")})` : "";
-}
-
 function renderDatasets(data, container = "#results") {
     $(container).empty();
     data.results.forEach((item) => {
@@ -247,7 +240,7 @@ function renderDatasets(data, container = "#results") {
     }
 }
 
-function renderGeneGeneList(data, container = "#results") {
+function renderGenes(data, container = "#results") {
     $(container).empty();
     (data.genes || []).forEach((item) => {
         const { title, url, subtitle, description, badges } = getGeneItemProps(item);
@@ -255,18 +248,18 @@ function renderGeneGeneList(data, container = "#results") {
     });
     if (container === "#results") {
         const totalCount = data.genes_count || 0;
-        $("#results_count").text(`${totalCount.toLocaleString()} genes${getGeneExtras(data)}`);
+        $("#results_count").text(`${totalCount.toLocaleString()} genes`);
         renderPagination(totalCount, state.limit, state.offset);
     }
 }
 
 function renderSummary(datasetData, geneData) {
     renderDatasets(datasetData, "#summary-dataset-results");
-    renderGeneGeneList(geneData, "#summary-gene-results");
+    renderGenes(geneData, "#summary-gene-results");
 
     $("#summary-dataset-count").text(`(${(datasetData.count || 0).toLocaleString()} total)`);
     const totalGeneCount = (geneData.genes || []).length;
-    $("#summary-gene-count").text(`(${totalGeneCount} genes${getGeneExtras(geneData)})`);
+    $("#summary-gene-count").text(`(${totalGeneCount} genes)`);
 
     $("#summary-view").show();
     $("#category-view").hide();
@@ -388,8 +381,7 @@ export function loadSearchResults() {
                     showEmpty(q);
                     return;
                 }
-
-                renderGeneGeneList(data);
+                renderGenes(data);
 
                 const dsParams = { q: q, limit: 1 };
                 if (species) dsParams.species = species.replace("_", " ");
