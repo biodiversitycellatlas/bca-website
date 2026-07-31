@@ -156,12 +156,42 @@ class AboutView(TemplateView):
                 {
                     "url": "https://fontawesome.com/license/free",
                     "icon": "fa-brands fa-font-awesome",
-                    "label": "Icons by Font Awesome",
+                    "label": "Font Awesome icons",
                 },
                 {
                     "url": "https://fonts.google.com/specimen/Rubik/license",
                     "icon": "fa-pen-nib",
-                    "label": "Rubik font by Google Fonts",
+                    "label": "Rubik font",
+                },
+                {
+                    "url": "https://github.com/twbs/bootstrap/blob/main/LICENSE",
+                    "icon": "fa-brands fa-bootstrap",
+                    "label": "Bootstrap framework",
+                },
+                {
+                    "url": "https://github.com/jquery/jquery/blob/main/LICENSE.txt",
+                    "icon": "fa-brands fa-square-js",
+                    "label": "jQuery library",
+                },
+                {
+                    "url": "https://datatables.net/license/mit",
+                    "icon": "fa-table",
+                    "label": "DataTables",
+                },
+                {
+                    "url": "https://github.com/vega/vega/blob/master/LICENSE",
+                    "icon": "fa-chart-line",
+                    "label": "Vega plots",
+                },
+                {
+                    "url": "https://github.com/orchidjs/tom-select/blob/master/LICENSE",
+                    "icon": "fa-chevron-down",
+                    "label": "tom-select dropdowns",
+                },
+                {
+                    "url": "https://github.com/IonDen/ion.rangeSlider/blob/master/License.md",
+                    "icon": "fa-sliders",
+                    "label": "ion.rangeSlider",
                 },
             ],
         }
