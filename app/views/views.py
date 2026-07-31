@@ -190,7 +190,7 @@ class AboutView(TemplateView):
                 },
                 {
                     "url": "https://github.com/orchidjs/tom-select/blob/master/LICENSE",
-                    "icon": "fa-chevron-down",
+                    "icon": "fa-caret-down",
                     "label": "tom-select dropdowns",
                 },
                 {

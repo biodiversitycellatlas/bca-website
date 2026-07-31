@@ -1,5 +1,5 @@
 <ul class="list-unstyled">
-    {% for item in items %}
+    {% for item in visible_items %}
         <li class="mb-2">
             <a href="{{ item.url }}" target="_blank">
                 <i class="fa fa-fw {{ item.icon }}"></i> {{ item.label }}
@@ -7,3 +7,26 @@
         </li>
     {% endfor %}
 </ul>
+
+{% if collapsed_items %}
+    <a class="collapsed d-inline-block mb-2 small"
+       href="#licenses-collapse"
+       role="button"
+       data-bs-toggle="collapse"
+       aria-expanded="false"
+       aria-controls="licenses-collapse">
+        <i class="fa fa-fw fa-chevron-down"></i> {{ collapsed_label }}
+    </a>
+
+    <div class="collapse" id="licenses-collapse">
+        <ul class="list-unstyled">
+            {% for item in collapsed_items %}
+                <li class="mb-2">
+                    <a href="{{ item.url }}" target="_blank">
+                        <i class="fa fa-fw {{ item.icon }}"></i> {{ item.label }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

@@ -18,10 +18,18 @@
     .card figure:hover figcaption {
         opacity: 1 !important;
     }
+
+    .card [data-bs-toggle="collapse"] i {
+        transition: transform 0.2s ease;
+    }
+
+    .card [data-bs-toggle="collapse"].collapsed i {
+        transform: rotate(-90deg);
+    }
 </style>
 
 
-<div class="card h-100">
+<div class="card h-100"{% if title %} id="{{ title|striptags|slugify }}"{% endif %}>
     {% if img_url %}
         <figure class="mb-0 d-inline-block position-relative">
             <img {% if img_author %}alt="Photo by {{ img_author }} ({{ img_source|default:'Unsplash' }})"{% endif %}
@@ -58,7 +66,7 @@
 
         {% if links %}
             {% load cards %}
-            {% links_list links %}
+            {% links_list visible_items=visible_items|default:links collapsed_items=collapsed_items collapsed_label=collapsed_label %}
         {% endif %}
 
         {% block links %}

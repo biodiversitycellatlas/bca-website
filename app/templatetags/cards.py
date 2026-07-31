@@ -52,13 +52,24 @@ def _build_card_context(title, description, **kwargs):
 
 
 @register.inclusion_tag("app/components/links/links_list.html")
-def links_list(items):
-    """List of links to be used in a card."""
-    return {"items": items}
+def links_list(visible_items, collapsed_items=None, collapsed_label=None):
+    """
+    List of links to be used in a card.
+
+    Args:
+        visible_items (list): Links to display upfront.
+        collapsed_items (list, optional): Links hidden behind a collapse toggle.
+        collapsed_label (str, optional): Label of the collapse toggle.
+    """
+    return {
+        "visible_items": visible_items,
+        "collapsed_items": collapsed_items or [],
+        "collapsed_label": collapsed_label or "View all",
+    }
 
 
 @register.inclusion_tag("app/components/links/card.html")
-def card(title, description=None, links=None, **kwargs):
+def card(title, description=None, links=None, visible_links=None, collapsed_label=None, **kwargs):
     """
     Render a card with information.
 
@@ -66,6 +77,8 @@ def card(title, description=None, links=None, **kwargs):
         title (str): Title displayed on card.
         description (str): Description displayed on card.
         links (str): List of links displayed on card.
+        visible_links (int, optional): Number of links to show before collapsing the rest.
+        collapsed_label (str, optional): Label of the collapse toggle.
         **kwargs (optional): Image arguments (see `_build_card_context`).
 
     Returns:
@@ -73,6 +86,11 @@ def card(title, description=None, links=None, **kwargs):
     """
     if links is not None:
         kwargs["links"] = links
+    if visible_links is not None:
+        kwargs["visible_items"] = links[:visible_links]
+        kwargs["collapsed_items"] = links[visible_links:]
+    if collapsed_label is not None:
+        kwargs["collapsed_label"] = collapsed_label
     return _build_card_context(title, description, **kwargs)
 
 
