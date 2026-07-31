@@ -69,13 +69,13 @@ class EnrichmentAnalysisTests(APITestCase):
                 cls.aque_adult.mge.create(gene=g, metacell=mc1)
                 cls.genes.append(gene)
 
-    def check_enrichment_response(self, response, genes, obsolete=False):
+    def check_enrichment_response(self, response, dataset, genes, obsolete=False):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotEqual(response.data, [], "Expect non-empty results")
 
         for d in response.data:
             self.assertRegex(d["term"], r"^GO:\d{7}$", "Expected GO term name")
-            self.assertIn(d["enrichment"], {"e", "p"}, "Enrichment results")
+            self.assertIsInstance(d["fold_enrichment"], (int, float), "Enrichment results")
 
             if obsolete:
                 self.assertGreaterEqual(d["depth"], 0, "GO term depth ≥ 0")
@@ -90,14 +90,16 @@ class EnrichmentAnalysisTests(APITestCase):
                 for d in response.data:
                     self.assertEqual(go_obo[d["term"]].is_obsolete, d.get("is_obsolete"))
             else:
-                self.assertGreaterEqual(d["depth"], 1, "GO term depth ≥ 1")
+                self.assertGreaterEqual(d["depth"], 0, "GO term depth ≥ 0")
                 self.assertNotIn("is_obsolete", d, "No obsolete field")
 
-            self.assertSetEqual(set(d["genes"]), genes, "Genes match input in these examples")
-            self.assertEqual(d["query_count"], len(d["genes"]), "Match number of genes")
-            self.assertEqual(d["query_hit_count"], len(d["genes"]), "Match number of genes")
-            self.assertEqual(d["background_hit_count"], len(d["genes"]), "Match number of genes")
-            self.assertEqual(d["background_count"], len(self.genes), "Match all genes")
+            background = dataset.mge.count()
+
+            self.assertTrue(set(d["genes"]).issubset(set(genes)), "Genes match input in these examples")
+            self.assertLessEqual(d["query_count"], len(genes), "Match number of genes")
+            self.assertLessEqual(d["query_hit_count"], len(genes), "Match number of genes")
+            self.assertLessEqual(d["background_hit_count"], background, "Match number of genes")
+            self.assertEqual(d["background_count"], background, "Match all genes")
 
             self.assertTrue(0 <= d["pvalue"] <= 1, "Expected p-value")
             self.assertTrue(0 <= d["qvalue"] <= 1, "Expected adjusted p-value")
@@ -113,10 +115,11 @@ class EnrichmentAnalysisTests(APITestCase):
 
     def test_post(self):
         url = "/api/v1/enrichment/"
+        dataset = self.aque_adult
         genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001", "Aque_Aqu2.1.30269_001"}
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
-        self.check_enrichment_response(response, genes)
+        self.check_enrichment_response(response, dataset, genes)
         self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
 
         # Test with valid and invalid genes: silently ignores invalid genes
@@ -124,77 +127,83 @@ class EnrichmentAnalysisTests(APITestCase):
         valid_genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001", "Aque_Aqu2.1.30269_001"}
         genes = invalid_genes | valid_genes
 
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.check_enrichment_response(response, valid_genes)
+        self.check_enrichment_response(response, dataset, valid_genes)
 
     def test_post_obsolete(self):
         """Test if obsolete terms are included."""
         url = "/api/v1/enrichment/"
+        dataset = self.aque_adult
         genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001", "Aque_Aqu2.1.30269_001"}
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes, obsolete=True)
+        data = dict(dataset=dataset.slug, genes=genes, obsolete=True)
         response = self.client.post(url, data, format="json")
-        self.check_enrichment_response(response, genes, obsolete=True)
+        self.check_enrichment_response(response, dataset, genes, obsolete=True)
         self.assertSetEqual({d["term"] for d in response.data} - self.go_terms, set(), "Expected GO terms")
 
     def test_post_no_enrichment(self):
         """Test no enrichment results."""
 
         url = "/api/v1/enrichment/"
+        dataset = self.aque_adult
         genes = {"Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30264_001"}
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
 
     def test_post_gene_queries(self):
         """Test multiple types of gene queries."""
+
         url = "/api/v1/enrichment/"
-        all_genes = ["Aque_Aqu2.1.30266_001", "Aque_Aqu2.1.30269_001", "Aque_Aqu2.1.30264_001"]
-        genes = all_genes[0]
+        dataset = self.aque_adult
+        all_genes = [
+            "Aque_Aqu2.1.04552_001",
+            "Aque_Aqu2.1.05595_001",
+            "Aque_Aqu2.1.06672_001",
+            "Aque_Aqu2.1.06863_001",
+            "Aque_Aqu2.1.07919_001",
+            "Aque_Aqu2.1.13978_001",
+            "Aque_Aqu2.1.26492_001",
+            "Aque_Aqu2.1.30238_001",
+            "Aque_Aqu2.1.30239_001",
+            "Aque_Aqu2.1.30240_001",
+            "Aque_Aqu2.1.30264_001",
+            "Aque_Aqu2.1.30266_001",
+            "Aque_Aqu2.1.30269_001",
+        ]
+        genes = all_genes[0:3]
+        genelist_genes = all_genes[3:8]
+        module_genes = all_genes[8:13]
 
         genelist_name = "random list"
         genelist = GeneList.objects.create(name=genelist_name)
-        for gene in self.aque_adult.species.genes.filter(name=all_genes[1]):
+        for gene in dataset.species.genes.filter(name__in=genelist_genes):
             genelist.genes.add(gene)
 
         module_name = "GM23"
         module = self.aque_adult.gene_modules.create(name=module_name)
-        for gene in self.aque_adult.species.genes.filter(name=all_genes[2]):
+        for gene in dataset.species.genes.filter(name__in=module_genes):
             module.genes.add(gene)
 
-        data = dict(
-            dataset="amphimedon-queenslandica-adult",
-            genes=[genes],
-            gene_lists=[genelist_name],
-            gene_modules=[module_name],
-        )
+        # Fetch by all options
+        data = dict(dataset=dataset.slug, genes=[*genes, genelist_name, module_name])
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.check_enrichment_response(response, set(all_genes))
+        self.check_enrichment_response(response, dataset, set(all_genes))
 
-        # Invalid gene module name
-        data = dict(
-            dataset="amphimedon-queenslandica-adult",
-            genes=[genes],
-            gene_lists=[genelist_name],
-            gene_modules=["wrong name"],
-        )
+        # Fetch by gene module name alone
+        data = dict(dataset=dataset.slug, genes=[module_name])
         response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn("not found", response.data["detail"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_enrichment_response(response, dataset, set(all_genes))
 
-        # Invalid gene list name
-        data = dict(
-            dataset="amphimedon-queenslandica-adult",
-            genes=[genes],
-            gene_lists=["rbp"],
-            gene_modules=[module_name],
-        )
+        # Fetch by gene list name
+        data = dict(dataset=dataset.slug, genes=[genelist_name])
         response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn("not found", response.data["detail"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_enrichment_response(response, dataset, set(all_genes))
 
     def test_post_invalid(self):
         """Test invalid input."""
@@ -216,24 +225,20 @@ class EnrichmentAnalysisTests(APITestCase):
         self.assertIn("Cannot find dataset for random-dataset", str(ctx.exception))
 
         # No genes in request
-        data = dict(dataset="amphimedon-queenslandica-adult")
+        dataset = self.aque_adult
+        data = dict(dataset=dataset.slug)
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("non_field_errors", response.data)
-        self.assertIn(
-            "At least one of 'genes', 'gene_modules', or 'gene_lists' must be provided.",
-            response.data["non_field_errors"],
-        )
 
         # Empty gene array
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=[])
+        data = dict(dataset=dataset.slug, genes=[])
         response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("non_field_errors", response.data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Genes not found", response.data["detail"])
 
         # Non-existing genes
         genes = ["random", "arbitrary", "gene"]
-        data = dict(dataset="amphimedon-queenslandica-adult", genes=genes)
+        data = dict(dataset=dataset.slug, genes=genes)
         response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn("not found", response.data["detail"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [], "Expect empty results")

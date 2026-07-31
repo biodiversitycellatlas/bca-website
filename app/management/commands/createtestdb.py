@@ -46,7 +46,7 @@ def setup_test_environment():
 def create_tgrm_extension():
     """Installs the pg_trm search extension"""
     with connection.cursor() as cursor:
-        cursor.execute("create extension pg_trgm;")
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
 
 
 class Command(BaseCommand):
