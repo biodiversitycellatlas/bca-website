@@ -29,8 +29,8 @@ from app.models import (
     QualityControl,
     DatasetQualityControl,
     DBVersion,
-    SAMap,
     MetacellType,
+    MetacellTypeSimilarity,
     GeneCorrelation,
     GeneModule,
     GeneModuleEigengene,
@@ -82,7 +82,7 @@ class Command(BaseCommand):
         self.create_metacells()
         self.create_singlecells()
         self.create_quality_data()
-        self.create_samaps()
+        self.create_metacell_type_similarity()
         self.create_all_genecorrelations()
         self.create_all_eigengene_values()
         self.create_species_files()
@@ -292,13 +292,13 @@ class Command(BaseCommand):
         Meta.objects.create(species=self.homo, key="phylum", value="Chordata", source=ncbi, query_term="7711")
         Meta.objects.create(species=self.sponge, key="phylum", value="Porifera", source=ncbi, query_term="6040")
 
-    def create_samaps(self):
+    def create_metacell_type_similarity(self):
         metacelltypes = MetacellType.objects.all()
         for t1, t2 in itertools.combinations(metacelltypes, 2):
-            SAMap.objects.create(
+            MetacellTypeSimilarity.objects.create(
                 metacelltype=t1,
                 metacelltype2=t2,
-                samap=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=50),
+                samap_score=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=1),
             )
 
     def create_genecorrelations(self, species, dataset):
