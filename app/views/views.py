@@ -151,7 +151,12 @@ class AboutView(TemplateView):
                 {
                     "url": github_url("blob/main/LICENSE"),
                     "icon": "fa-kiwi-bird",
-                    "label": "BCA website",
+                    "label": "BCA website (Apache-2.0)",
+                },
+                {
+                    "url": "https://creativecommons.org/licenses/by/4.0/",
+                    "icon": "fa-database",
+                    "label": "BCA data (CC BY 4.0)",
                 },
                 {
                     "url": "https://fontawesome.com/license/free",
@@ -179,7 +184,7 @@ class AboutView(TemplateView):
                     "label": "DataTables",
                 },
                 {
-                    "url": "https://github.com/vega/vega/blob/master/LICENSE",
+                    "url": "https://github.com/vega/vega/blob/main/LICENSE",
                     "icon": "fa-chart-line",
                     "label": "Vega plots",
                 },
