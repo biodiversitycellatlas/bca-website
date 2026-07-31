@@ -19,7 +19,7 @@ from app.models import (
     Domain,
     GeneCorrelation,
     Orthogroup,
-MetacellLink,
+    MetacellLink,
     MetacellTypeSimilarity,
     SpeciesFile,
 )
