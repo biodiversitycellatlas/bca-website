@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0015_trigram_extension'),
+        ('app', '0016_metacelltypesimilarity'),
     ]
 
     operations = [
