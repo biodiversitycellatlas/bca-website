@@ -13,8 +13,9 @@ this command produces exactly that.
     # one page, JSON only, ready to paste into a validator or pipe to pyshacl
     python manage.py dump_bioschemas --raw /entry/domain/1/ > domain.jsonld
 
-    # override the host the payload's absolute URLs are built from
-    python manage.py dump_bioschemas --host portal.biodiversitycellatlas.org
+    # override the authority the payload's absolute URLs are built from
+    python manage.py dump_bioschemas --host portal-bca-gambusia:8081
+    python manage.py dump_bioschemas --host portal.biodiversitycellatlas.org --scheme https
 
 The command exits non-zero when a page serves no JSON-LD, so it doubles as a
 regression check that the markup has not silently disappeared.
@@ -32,16 +33,60 @@ from config.pre_settings import get_env
 
 JSONLD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL)
 
-# Absolute URLs in the payload are built from the request host, so it defaults to
-# the host this deployment is served under. `DJANGO_HOSTNAME` is already set in
-# every environment (see `.env.template`); the fallback only applies when the
-# command is run outside the compose stack.
+# Only applies when the command runs outside the compose stack, where
+# `DJANGO_HOSTNAME` is unset.
 FALLBACK_HOST = "portal.biodiversitycellatlas.org"
 
+# Default port per scheme, so `get_host()` omits it from the absolute URLs
+DEFAULT_PORTS = {"http": "80", "https": "443"}
 
-def default_host():
-    """Return the host used to build absolute URLs in the payload."""
-    return get_env("DJANGO_HOSTNAME", FALLBACK_HOST)
+
+def is_prod():
+    """Return True when running under the production environment."""
+    return get_env("ENVIRONMENT") == "prod"
+
+
+def default_scheme():
+    """
+    Return the scheme the deployment is served over.
+
+    `nginx/nginx.prod.conf.template` 301s port 80 to https in production, so a
+    payload full of `http://` URLs would advertise the wrong canonical form.
+    """
+    return "https" if is_prod() else "http"
+
+
+def default_authority():
+    """
+    Return the ``host[:port]`` the payload's absolute URLs are built from.
+
+    `DJANGO_HOSTNAME` is a *bare* hostname by design: nginx serves it on 443 in
+    production, but publishes it on `WEB_PORT` everywhere else, so outside
+    production the port has to be added back or the URLs are unreachable.
+    """
+    host = get_env("DJANGO_HOSTNAME", FALLBACK_HOST)
+    if ":" in host or is_prod():
+        return host
+
+    port = get_env("WEB_PORT")
+    return f"{host}:{port}" if port else host
+
+
+def request_kwargs(authority, scheme):
+    """
+    Translate a ``host[:port]`` authority into test-client request overrides.
+
+    These belong on each request rather than on the client: Django's
+    `RequestFactory.generic()` resets `SERVER_PORT` and `wsgi.url_scheme` from
+    its own `secure` flag *after* the client defaults have been applied, so
+    passing them to `Client(...)` silently has no effect.
+    """
+    host, _, port = authority.partition(":")
+    return {
+        "SERVER_NAME": host,
+        "SERVER_PORT": port or DEFAULT_PORTS[scheme],
+        "secure": scheme == "https",
+    }
 
 
 def default_urls():
@@ -87,7 +132,15 @@ class Command(BaseCommand):
         parser.add_argument(
             "--host",
             default=None,
-            help="Host used to build absolute URLs in the payload (default: $DJANGO_HOSTNAME).",
+            metavar="HOST[:PORT]",
+            help="Authority for the payload's absolute URLs (default: $DJANGO_HOSTNAME, "
+            "plus $WEB_PORT outside production).",
+        )
+        parser.add_argument(
+            "--scheme",
+            choices=sorted(DEFAULT_PORTS),
+            default=None,
+            help="Scheme for the payload's absolute URLs (default: https under ENVIRONMENT=prod, else http).",
         )
 
     def describe(self, payload):
@@ -98,9 +151,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Render each URL and write out the JSON-LD blocks it serves."""
         raw = options["raw"]
-        # Resolved here rather than as an argparse default so the environment is
+        # Resolved here rather than as argparse defaults so the environment is
         # read at run time, not at parser construction.
-        client = Client(SERVER_NAME=options["host"] or default_host())
+        scheme = options["scheme"] or default_scheme()
+        authority = options["host"] or default_authority()
+        request = request_kwargs(authority, scheme)
+        client = Client()
 
         # The test client sends its own Host header, which ALLOWED_HOSTS rejects
         # under ENVIRONMENT=prod.
@@ -109,7 +165,7 @@ class Command(BaseCommand):
             missing = []
 
             for url in urls:
-                response = client.get(url)
+                response = client.get(url, **request)
                 blocks = JSONLD.findall(response.content.decode()) if response.status_code == 200 else []
                 # Parse before printing so a malformed payload fails here rather
                 # than silently in whatever consumes the output.

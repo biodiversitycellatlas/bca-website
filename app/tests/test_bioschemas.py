@@ -625,27 +625,42 @@ class BioschemasPageTests(DataTestCase):
         payload = json.loads(out.getvalue())
         assert_conforms(payload, "DefinedTerm")
 
+    def dumped_url(self, env, *args):
+        """Return the `url` of the payload dumped for a domain page under `env`."""
+        url = f"/entry/domain/{self.brca1_domains[0].name}/"
+        out = StringIO()
+        with mock.patch.dict(os.environ, env, clear=True):
+            call_command("dump_bioschemas", url, "--raw", *args, stdout=out)
+        return json.loads(out.getvalue())["url"], url
+
     def test_dump_command_builds_urls_from_django_hostname(self):
         """`DJANGO_HOSTNAME` is set in every environment, so it is the natural default."""
-        url = f"/entry/domain/{self.brca1_domains[0].name}/"
-        out = StringIO()
-        with mock.patch.dict(os.environ, {"DJANGO_HOSTNAME": "portal.example.org"}):
-            call_command("dump_bioschemas", url, "--raw", stdout=out)
-        assert json.loads(out.getvalue())["url"] == f"http://portal.example.org{url}"
+        built, url = self.dumped_url({"DJANGO_HOSTNAME": "portal.example.org"})
+        assert built == f"http://portal.example.org{url}"
+
+    def test_dump_command_adds_web_port_outside_production(self):
+        """`DJANGO_HOSTNAME` is a bare hostname, but dev nginx publishes on WEB_PORT."""
+        built, url = self.dumped_url({"DJANGO_HOSTNAME": "portal-bca-gambusia", "WEB_PORT": "8081"})
+        assert built == f"http://portal-bca-gambusia:8081{url}"
+
+    def test_dump_command_omits_web_port_in_production(self):
+        """Production nginx serves DJANGO_HOSTNAME on 443, so no port belongs in the URL."""
+        env = {"DJANGO_HOSTNAME": "portal.example.org", "WEB_PORT": "8081", "ENVIRONMENT": "prod"}
+        built, url = self.dumped_url(env)
+        assert built == f"https://portal.example.org{url}"
 
     def test_dump_command_host_option_overrides_the_environment(self):
-        url = f"/entry/domain/{self.brca1_domains[0].name}/"
-        out = StringIO()
-        with mock.patch.dict(os.environ, {"DJANGO_HOSTNAME": "portal.example.org"}):
-            call_command("dump_bioschemas", url, "--raw", "--host", "override.example.org", stdout=out)
-        assert json.loads(out.getvalue())["url"] == f"http://override.example.org{url}"
+        env = {"DJANGO_HOSTNAME": "portal.example.org", "WEB_PORT": "8081"}
+        built, url = self.dumped_url(env, "--host", "portal-bca-gambusia:8000")
+        assert built == f"http://portal-bca-gambusia:8000{url}"
+
+    def test_dump_command_scheme_option_overrides_the_environment(self):
+        built, url = self.dumped_url({"DJANGO_HOSTNAME": "portal.example.org"}, "--scheme", "https")
+        assert built == f"https://portal.example.org{url}"
 
     def test_dump_command_falls_back_without_django_hostname(self):
-        url = f"/entry/domain/{self.brca1_domains[0].name}/"
-        out = StringIO()
-        with mock.patch.dict(os.environ, {}, clear=True):
-            call_command("dump_bioschemas", url, "--raw", stdout=out)
-        assert json.loads(out.getvalue())["url"] == f"http://{dump_bioschemas.FALLBACK_HOST}{url}"
+        built, url = self.dumped_url({})
+        assert built == f"http://{dump_bioschemas.FALLBACK_HOST}{url}"
 
     def test_dump_command_fails_when_a_page_serves_nothing(self):
         """Non-zero exit makes it usable as a CI check that markup has not vanished."""
