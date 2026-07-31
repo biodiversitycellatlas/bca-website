@@ -11,7 +11,7 @@ this command produces exactly that.
     python manage.py dump_bioschemas
 
     # one page, JSON only, ready to paste into a validator or pipe to pyshacl
-    python manage.py dump_bioschemas --raw /entry/domain/1/ > domain.jsonld
+    python manage.py dump_bioschemas --raw /atlas/amphimedon-queenslandica-larva/ > dataset.jsonld
 
     # override the authority the payload's absolute URLs are built from
     python manage.py dump_bioschemas --host portal-bca-gambusia:8081
@@ -28,7 +28,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.test import Client
 from django.test.utils import override_settings
 
-from app.models import Dataset, Domain, Gene, Species
+from app.models import Dataset, Gene, Species
 from config.pre_settings import get_env
 
 JSONLD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL)
@@ -94,17 +94,14 @@ def default_urls():
     species = Species.objects.filter(genes__isnull=False).distinct().first()
     dataset = Dataset.objects.filter(species=species).first()
     gene = Gene.objects.filter(species=species).first()
-    domain = Domain.objects.filter(gene__isnull=False).distinct().first()
 
-    urls = ["/", "/downloads/", "/entry/species/", "/entry/dataset/", "/entry/domain/"]
+    urls = ["/", "/downloads/", "/entry/species/", "/entry/dataset/"]
     if species:
         # Species detail matches on `scientific_name`, not the slug, so take the
         # URL from the model rather than assembling it from the slug.
         urls += [species.get_absolute_url(), f"/entry/gene/{species.slug}/"]
     if gene:
         urls.append(gene.get_absolute_url())
-    if domain:
-        urls.append(domain.get_absolute_url())
     if dataset:
         urls.append(dataset.get_absolute_url())
         if gene:

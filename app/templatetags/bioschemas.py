@@ -88,22 +88,6 @@ def bioschemas_dataset(context, dataset):
 
 
 @register.simple_tag(takes_context=True)
-def bioschemas_domain(context, domain):
-    """Render a Bioschemas DefinedTerm block for a protein domain."""
-    if _missing(domain):
-        return ""
-    return _script(bioschemas.defined_term(domain, _request(context)))
-
-
-@register.simple_tag(takes_context=True)
-def bioschemas_domain_list(context, domains, name=None):
-    """Render a CollectionPage listing DefinedTerm stubs for the domains on the page."""
-    if not domains:
-        return ""
-    return _script(bioschemas.domain_list(domains, _request(context), name=name))
-
-
-@register.simple_tag(takes_context=True)
 def bioschemas_data_catalog(context, datasets=None, name=None, description=None):
     """Render a Bioschemas DataCatalog block, optionally listing datasets."""
     return _script(

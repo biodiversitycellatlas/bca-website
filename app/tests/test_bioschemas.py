@@ -25,9 +25,6 @@ REQUIRED = {
     "Gene": ["identifier", "name"],
     "Dataset": ["description", "identifier", "keywords", "license", "name", "url"],
     "DataCatalog": ["description", "name", "url", "keywords", "provider"],
-    "DefinedTerm": ["inDefinedTermSet"],
-    "DefinedTermSet": ["url"],
-    "ScholarlyArticle": ["identifier", "name"],
 }
 
 
@@ -95,25 +92,6 @@ def dataset(db, species):
 
 
 @pytest.fixture
-def domain(db):
-    """Return a protein domain whose Pfam terminology is loaded."""
-    Source.objects.create(
-        name="Pfam",
-        url="https://www.ebi.ac.uk/interpro/",
-        query_url="https://www.ebi.ac.uk/interpro/entry/pfam/{{id}}",
-        description="Protein families database",
-        version="37.0",
-    )
-    return Domain.objects.create(name="BRCT")
-
-
-@pytest.fixture
-def orphan_domain(db):
-    """Return a protein domain with no Pfam Source row loaded."""
-    return Domain.objects.create(name="COBRA1")
-
-
-@pytest.fixture
 def gene(db, species):
     """Return a gene with a Pfam domain and a gene list."""
     Source.objects.create(
@@ -125,73 +103,6 @@ def gene(db, species):
     obj.domains.add(Domain.objects.create(name="PF00069"))
     obj.genelists.add(GeneList.objects.create(name="Transcription factors"))
     return obj
-
-
-# --- DefinedTerm / DefinedTermSet --------------------------------------------
-
-
-class TestDefinedTerm:
-    def test_conforms_to_profile(self, domain, request_obj):
-        assert_conforms(bioschemas.defined_term(domain, request_obj), "DefinedTerm")
-
-    def test_uses_the_domain_name_as_term_code(self, domain, request_obj):
-        node = bioschemas.defined_term(domain, request_obj)
-        assert node["termCode"] == "BRCT"
-        assert node["name"] == "BRCT"
-
-    def test_nests_a_conformant_term_set(self, domain, request_obj):
-        node = bioschemas.defined_term(domain, request_obj)
-        assert_conforms(node["inDefinedTermSet"], "DefinedTermSet")
-        assert node["inDefinedTermSet"]["name"] == "Pfam"
-        assert node["inDefinedTermSet"]["version"] == "37.0"
-
-    def test_links_out_to_pfam(self, domain, request_obj):
-        node = bioschemas.defined_term(domain, request_obj)
-        assert node["sameAs"] == "https://www.ebi.ac.uk/interpro/entry/pfam/BRCT"
-
-    def test_urls_are_absolute(self, domain, request_obj):
-        node = bioschemas.defined_term(domain, request_obj)
-        assert node["url"] == f"http://testserver{domain.get_absolute_url()}"
-        assert node["@id"] == node["url"]
-
-    def test_records_current_page_when_not_canonical(self, domain):
-        request = RequestFactory().get("/entry/domain/")
-        node = bioschemas.defined_term(domain, request)
-        assert node["mainEntityOfPage"] == "http://testserver/entry/domain/"
-
-    def test_minimal_form_is_still_conformant(self, domain, request_obj):
-        """Nested stubs must keep `inDefinedTermSet` to stay independently valid."""
-        assert_conforms(bioschemas.defined_term(domain, request_obj, minimal=True), "DefinedTerm")
-
-    def test_drops_the_conformance_claim_without_a_term_set(self, orphan_domain, request_obj):
-        """`inDefinedTermSet` is the profile's only required property."""
-        node = bioschemas.defined_term(orphan_domain, request_obj)
-        assert "inDefinedTermSet" not in node
-        assert "dct:conformsTo" not in node
-        assert node["name"] == "COBRA1"
-
-    def test_term_set_needs_a_url(self, db):
-        assert bioschemas.defined_term_set(None) is None
-        assert bioschemas.defined_term_set(Source.objects.create(name="Nowhere")) is None
-
-
-class TestDomainList:
-    def test_lists_conformant_stubs(self, domain, request_obj):
-        node = bioschemas.domain_list([domain], request_obj, name="Domains")
-        assert node["@type"] == "CollectionPage"
-        assert node["mainEntity"]["numberOfItems"] == 1
-        assert_conforms(node["mainEntity"]["itemListElement"][0]["item"], "DefinedTerm")
-
-    def test_resolves_the_term_set_once(self, domain, request_obj, django_assert_num_queries):
-        """One `Source` lookup for the page, not one per domain."""
-        domains = [domain, Domain.objects.create(name="BRCA1_C"), Domain.objects.create(name="COBRA1")]
-        with django_assert_num_queries(1):
-            node = bioschemas.domain_list(domains, request_obj)
-        assert node["mainEntity"]["numberOfItems"] == 3
-
-    def test_empty_list_needs_no_term_set(self, db, request_obj):
-        node = bioschemas.domain_list([], request_obj)
-        assert node["mainEntity"]["numberOfItems"] == 0
 
 
 # --- Taxon -------------------------------------------------------------------
@@ -321,7 +232,8 @@ class TestDataset:
 
     def test_citation_is_a_scholarly_article(self, dataset, request_obj):
         citation = bioschemas.dataset(dataset, request_obj)["citation"]
-        assert_conforms(citation, "ScholarlyArticle")
+        assert citation["@type"] == "ScholarlyArticle"
+        assert "dct:conformsTo" not in citation
         assert citation["name"] == "A cell atlas"
         assert citation["datePublished"] == "2025"
         assert {"DOI", "PubMed ID"} == {each["name"] for each in citation["identifier"]}
@@ -461,23 +373,11 @@ class TestTemplateTags:
         assert '<script type="application/ld+json">' in html
         assert '"@type": "Taxon"' in html
 
-    def test_domain_tag_renders_a_block(self, domain, request_obj):
-        html = render("{% bioschemas_domain domain %}", domain=domain, request=request_obj)
-        assert '"@type": "DefinedTerm"' in html
-        assert '"@type": "DefinedTermSet"' in html
-
-    def test_domain_list_tag_renders_a_block(self, domain, request_obj):
-        html = render("{% bioschemas_domain_list domains %}", domains=[domain], request=request_obj)
-        assert '"@type": "CollectionPage"' in html
-        assert '"@type": "DefinedTerm"' in html
-
     def test_tags_render_nothing_without_an_object(self, request_obj):
         for template in (
             "{% bioschemas_taxon species %}",
             "{% bioschemas_gene gene %}",
             "{% bioschemas_dataset dataset %}",
-            "{% bioschemas_domain domain %}",
-            "{% bioschemas_domain_list domains %}",
             "{% bioschemas_species_list species_list %}",
             "{% bioschemas_gene_list genes %}",
         ):
@@ -590,24 +490,6 @@ class BioschemasPageTests(DataTestCase):
         assert response.status_code == 200
         assert not JSONLD.findall(response.content.decode())
 
-    def test_domain_detail_serves_a_defined_term(self):
-        domain = self.brca1_domains[0]
-        payload = self.assert_page(f"/entry/domain/{domain.name}/", "DefinedTerm", "DefinedTerm")
-        assert payload["termCode"] == domain.name
-        assert payload["inDefinedTermSet"]["name"] == "Pfam"
-
-    def test_domain_list_serves_a_collection_page(self):
-        payload = self.assert_page("/entry/domain/", "CollectionPage")
-        names = [each["item"]["name"] for each in payload["mainEntity"]["itemListElement"]]
-        assert self.brca1_domains[0].name in names
-        for each in payload["mainEntity"]["itemListElement"]:
-            assert_conforms(each["item"], "DefinedTerm")
-
-    def test_domain_detail_is_silent_for_an_unknown_domain(self):
-        response = self.client.get("/entry/domain/nope/")
-        assert response.status_code == 200
-        assert not JSONLD.findall(response.content.decode())
-
     def test_dump_command_reports_every_page(self):
         """`dump_bioschemas` is the paste-into-a-validator helper (see the report, §8.3)."""
         out = StringIO()
@@ -616,18 +498,18 @@ class BioschemasPageTests(DataTestCase):
 
         assert "NO JSON-LD" not in output
         assert "pages served JSON-LD." in output
-        for profile in ("Taxon/1.0-RELEASE", "Gene/1.0-RELEASE", "DefinedTerm/0.1-DRAFT"):
+        for profile in ("Taxon/1.0-RELEASE", "Gene/1.0-RELEASE", "Dataset/1.0-RELEASE"):
             assert profile in output, f"no page reported {profile}"
 
     def test_dump_command_raw_mode_emits_only_json(self):
         out = StringIO()
-        call_command("dump_bioschemas", f"/entry/domain/{self.brca1_domains[0].name}/", "--raw", stdout=out)
+        call_command("dump_bioschemas", f"/atlas/{self.adult_mouse.slug}/", "--raw", stdout=out)
         payload = json.loads(out.getvalue())
-        assert_conforms(payload, "DefinedTerm")
+        assert_conforms(payload, "Dataset")
 
     def dumped_url(self, env, *args):
-        """Return the `url` of the payload dumped for a domain page under `env`."""
-        url = f"/entry/domain/{self.brca1_domains[0].name}/"
+        """Return the `url` of the payload dumped for a gene page under `env`."""
+        url = f"/entry/gene/{self.mouse.slug}/{self.brca1.name}/"
         out = StringIO()
         with mock.patch.dict(os.environ, env, clear=True):
             call_command("dump_bioschemas", url, "--raw", *args, stdout=out)
@@ -671,6 +553,8 @@ class BioschemasPageTests(DataTestCase):
         """Tier 3 pages are deliberately left without structured data."""
         for url in (
             "/entry/",
+            "/entry/domain/",
+            f"/entry/domain/{self.brca1_domains[0].name}/",
             "/entry/orthogroup/",
             f"/entry/orthogroup/{self.og1.name}/",
             f"/entry/gene-module/{self.adult_mouse.slug}/{self.gene_module.name}/",

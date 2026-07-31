@@ -4,11 +4,6 @@
     Domain entries
 {% endblock title %}
 
-{% block structured_data %}
-    {% load bioschemas %}
-    {% bioschemas_domain_list object_list name="Biodiversity Cell Atlas protein domains" %}
-{% endblock structured_data %}
-
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Domains' paginator %}

@@ -7,33 +7,26 @@ serialised into ``<script type="application/ld+json">`` blocks by the
 ``bioschemas`` template tags; keeping the payloads here makes them unit-testable
 and keeps the profile versions in one place.
 
-*Released* profiles are preferred, since those are what the Bioschemas validator
-and the ELIXIR harvesters expect. A *draft* profile is only used where no
-released profile describes the entity at all -- never to supersede a release
-already deployed on a page. Nested nodes never carry their own ``@context``:
-:func:`as_root` adds it to the top-level node only.
+Only *released* profiles are targeted, since those are what the Bioschemas
+validator and the ELIXIR harvesters expect. Draft profiles were prototyped for
+the protein-domain pages and the nested citation node and then withdrawn -- see
+section 10 of `report-bioschemas.md` for what was removed and why. Nested nodes
+never carry their own ``@context``: :func:`as_root` adds it to the top-level
+node only.
 """
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import NoReverseMatch, reverse
 
-# Profiles this module emits conformance claims for. Released profiles first;
-# the drafts below cover entities that have no released profile.
+# Released profiles this module emits conformance claims for
 PROFILES = {
     "DataCatalog": "https://bioschemas.org/profiles/DataCatalog/0.3-RELEASE-2019_07_01",
     "Dataset": "https://bioschemas.org/profiles/Dataset/1.0-RELEASE",
     "Gene": "https://bioschemas.org/profiles/Gene/1.0-RELEASE",
     "Taxon": "https://bioschemas.org/profiles/Taxon/1.0-RELEASE",
     "TaxonName": "https://bioschemas.org/profiles/TaxonName/1.0-RELEASE",
-    # Drafts: no released equivalent exists for these types.
-    "DefinedTerm": "https://bioschemas.org/profiles/DefinedTerm/0.1-DRAFT",
-    "DefinedTermSet": "https://bioschemas.org/profiles/DefinedTermSet/0.1-DRAFT",
-    "ScholarlyArticle": "https://bioschemas.org/profiles/ScholarlyArticle/0.3-DRAFT",
 }
-
-# Profiles above that are still in DRAFT status, and so may change upstream
-DRAFT_PROFILES = frozenset({"DefinedTerm", "DefinedTermSet", "ScholarlyArticle"})
 
 # `dct` is needed for the dct:conformsTo profile claim
 CONTEXT = ["https://schema.org", {"dct": "http://purl.org/dc/terms/"}]
@@ -142,14 +135,6 @@ def _query_url(obj):
         return None
 
 
-def _source(obj):
-    """Return an object's external `Source`, or None when it is not loaded."""
-    try:
-        return obj.source
-    except ObjectDoesNotExist:
-        return None
-
-
 def _reverse(view, query=None, args=None):
     """Reverse a view name, returning None when the route does not exist."""
     try:
@@ -233,10 +218,10 @@ def species_file_distributions(request, species_list):
 
 def scholarly_article(publication):
     """
-    Return a publication as a ScholarlyArticle node (ScholarlyArticle 0.3-DRAFT).
+    Return a publication as a schema.org ScholarlyArticle node.
 
-    Required: identifier, name. There is no released ScholarlyArticle profile, so
-    the draft is used for this nested citation node.
+    No conformance is claimed: Bioschemas' only ScholarlyArticle profile is a
+    draft, so this stays a plain schema.org node.
     """
     if publication is None:
         return None
@@ -258,10 +243,9 @@ def scholarly_article(publication):
     ]
     authors = [{"@type": "Person", "name": name.strip()} for name in publication.authors.split(",") if name.strip()]
 
-    node = _node("ScholarlyArticle", "ScholarlyArticle")
     return _compact(
         {
-            **node,
+            "@type": "ScholarlyArticle",
             "@id": url,
             "name": publication.title,
             "url": url,
@@ -271,69 +255,6 @@ def scholarly_article(publication):
             "isPartOf": {"@type": "Periodical", "name": publication.journal},
         }
     )
-
-
-# --- DefinedTerm / DefinedTermSet --------------------------------------------
-
-
-def defined_term_set(source):
-    """
-    Build a DefinedTermSet node for an external terminology (DefinedTermSet 0.1-DRAFT).
-
-    Required: url -- so a `Source` without one yields no node at all.
-    """
-    if source is None or not source.url:
-        return None
-
-    node = _node("DefinedTermSet", "DefinedTermSet")
-    node["@id"] = source.url
-    node["name"] = source.name
-    node["url"] = source.url
-    node["description"] = source.description
-    node["version"] = source.version
-    return _compact(node)
-
-
-def defined_term(domain, request=None, minimal=False, term_set=None):
-    """
-    Build a DefinedTerm node for a protein domain (DefinedTerm 0.1-DRAFT).
-
-    Required: inDefinedTermSet -- the terminology (Pfam) the domain is drawn
-    from, so it is set before the `minimal` shortcut returns.
-
-    The SequenceAnnotation draft would be the richer fit, but it requires
-    `sequenceLocation` and `Domain` records no sequence coordinates.
-
-    `term_set` lets a caller resolve the terminology once for a whole page
-    instead of re-querying `Source` for every domain in a list.
-    """
-    url = _absolute(request, domain.get_absolute_url())
-
-    node = _node("DefinedTerm", "DefinedTerm")
-    node["@id"] = url
-    node["name"] = domain.name
-    node["termCode"] = domain.name
-    node["url"] = url
-
-    if term_set is None:
-        term_set = defined_term_set(_source(domain))
-    if term_set:
-        node["inDefinedTermSet"] = term_set
-    else:
-        # Without the terminology the profile's only required property is
-        # missing, so claiming conformance would be wrong.
-        node.pop("dct:conformsTo", None)
-
-    if minimal:
-        return _compact(node)
-
-    node["sameAs"] = _query_url(domain)
-
-    page = _page_url(request)
-    if page and page != url:
-        node["mainEntityOfPage"] = page
-
-    return _compact(node)
 
 
 # --- Taxon / TaxonName -------------------------------------------------------
@@ -622,22 +543,4 @@ def item_list(objects, request=None, builder=None, name=None):
                 "itemListElement": items,
             },
         }
-    )
-
-
-def domain_list(domains, request=None, name=None):
-    """
-    Build a CollectionPage of DefinedTerm stubs for a page of protein domains.
-
-    The terminology node is resolved once and shared, so listing a page of
-    domains costs one `Source` query rather than one per domain.
-    """
-    domains = list(domains)
-    term_set = defined_term_set(_source(domains[0])) if domains else None
-
-    return item_list(
-        domains,
-        request,
-        builder=lambda obj, req: defined_term(obj, req, minimal=True, term_set=term_set),
-        name=name,
     )
