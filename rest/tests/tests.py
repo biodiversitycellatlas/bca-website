@@ -19,7 +19,7 @@ from app.models import (
     Domain,
     GeneCorrelation,
     Orthogroup,
-    MetacellLink,
+MetacellLink,
     MetacellTypeSimilarity,
     SpeciesFile,
 )
@@ -482,12 +482,12 @@ class MetacellTypeSimilarityTests(APITestCase):
     def test_retrieve(self):
         url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
         response = self.client.get(url, format="json")
-        comparision = response.data["results"]
+        comparison = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(comparision) == 2
-        assert {s["metacell_type"] for s in comparision} == {"type1", "type2"}
-        assert {s["metacell2_type"] for s in comparision} == {"type3", "type4"}
-        assert {s["samap_score"] for s in comparision} == {0.8, 0.7}
+        assert len(comparison) == 2
+        assert {s["metacell_type"] for s in comparison} == {"type1", "type2"}
+        assert {s["metacell2_type"] for s in comparison} == {"type3", "type4"}
+        assert {s["samap_score"] for s in comparison} == {0.8, 0.7}
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
