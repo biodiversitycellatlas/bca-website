@@ -10,15 +10,15 @@
 
 {% if collapsed_items %}
     <a class="collapsed d-inline-block mb-2 small"
-       href="#licenses-collapse"
+       href="#{{ collapse_id }}"
        role="button"
        data-bs-toggle="collapse"
        aria-expanded="false"
-       aria-controls="licenses-collapse">
+       aria-controls="{{ collapse_id }}">
         <i class="fa fa-fw fa-chevron-down"></i> {{ collapsed_label }}
     </a>
 
-    <div class="collapse" id="licenses-collapse">
+    <div class="collapse" id="{{ collapse_id }}">
         <ul class="list-unstyled">
             {% for item in collapsed_items %}
                 <li class="mb-2">

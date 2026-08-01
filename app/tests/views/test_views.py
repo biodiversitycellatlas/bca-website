@@ -215,7 +215,7 @@ class TestAboutView(TestCase):
         assert response.status_code == 200
         content = response.content.decode()
 
-        collapse_start = content.index('id="licenses-collapse"')
+        collapse_start = content.index('id="collapsed-items-')
         before_collapse = content[:collapse_start]
         after_collapse = content[collapse_start:]
 
@@ -226,7 +226,7 @@ class TestAboutView(TestCase):
 
         # The rest is hidden behind a collapsible section
         assert 'data-bs-toggle="collapse"' in before_collapse
-        assert 'id="licenses-collapse"' in content
+        assert "View third-party licenses" in before_collapse
         assert "Font Awesome icons" in after_collapse
 
     def test_card_heading_ids(self):

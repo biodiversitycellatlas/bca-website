@@ -2,6 +2,7 @@
 Django template tags for generating download links and download cards.
 """
 
+import random
 from urllib.parse import urlparse, urlunparse
 
 from django import template
@@ -61,11 +62,14 @@ def links_list(visible_items, collapsed_items=None, collapsed_label=None):
         collapsed_items (list, optional): Links hidden behind a collapse toggle.
         collapsed_label (str, optional): Label of the collapse toggle.
     """
-    return {
+    context = {
         "visible_items": visible_items,
         "collapsed_items": collapsed_items or [],
         "collapsed_label": collapsed_label or "View all",
     }
+    if collapsed_items:
+        context["collapse_id"] = f"collapsed-items-{random.getrandbits(8)}"
+    return context
 
 
 @register.inclusion_tag("app/components/links/card.html")
