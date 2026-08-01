@@ -134,18 +134,6 @@ class AboutView(TemplateView):
                     "label": "Bug reports",
                 },
             ],
-            "legal": [
-                {
-                    "url": bca_url("legal"),
-                    "icon": "fa-shield-halved",
-                    "label": "Legal notice & privacy policy",
-                },
-                {
-                    "url": bca_url("cookies"),
-                    "icon": "fa-cookie-bite",
-                    "label": "Cookies policy",
-                },
-            ],
             "licenses": [
                 {
                     "url": github_url("blob/main/LICENSE"),
@@ -203,18 +191,6 @@ class AboutView(TemplateView):
                     "url": "https://www.nature.com/articles/s41586-025-09312-4",
                     "icon": "fa-book-open",
                     "label": "White paper (Nature, 2025)",
-                },
-            ],
-            "organization": [
-                {
-                    "url": bca_url("organization"),
-                    "icon": "fa-users",
-                    "label": "Coordination and working groups",
-                },
-                {
-                    "url": bca_url("projects"),
-                    "icon": "fa-flask",
-                    "label": "BCA phase 0",
                 },
             ],
             "resources": [

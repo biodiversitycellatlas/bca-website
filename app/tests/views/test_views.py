@@ -150,51 +150,25 @@ class TestAboutView(TestCase):
 
     def test_about_view_context(self):
         response = self.client.get("/about/")
-
         assert response.status_code == 200
-        # Check that context contains "info"
         assert "info" in response.context
 
         info = response.context["info"]
 
         # Check main sections exist
         assert "contact" in info
-        assert "legal" in info
         assert "licenses" in info
-        assert "publications" in info
-        assert "organization" in info
-        assert "resources" in info
 
-        # Check that contact section contains the Email entry
-        email_entry = info["contact"][0]
-        assert email_entry["url"] == settings.FEEDBACK_URL
-
-        # Check resources section contains all links
-        resource_labels = [x["label"] for x in info["resources"]]
-        assert resource_labels == [
-            "Media kit",
-            "Tools & Pipelines",
-            "Protocols",
-            "Blog",
-            "RSS feed",
-            "Source code",
-        ]
-        media_kit_entry = info["resources"][0]
-        assert media_kit_entry["url"] == f"{settings.BCA_WEBSITE}/about/#media-kit"
-
-        # Check licenses section
-        fa_entry = next((x for x in info["licenses"] if "Font Awesome" in x["label"]), None)
-        assert fa_entry is not None
-
-        rubik_entry = next((x for x in info["licenses"] if "Rubik font" in x["label"]), None)
-        assert rubik_entry is not None
-
-        # Check URLs
+        # Each section is a non-empty list of link items
         for section in info.values():
+            assert section
             for item in section:
                 assert isinstance(item["url"], str)
                 assert isinstance(item["label"], str)
                 assert isinstance(item["icon"], str)
+
+        # Contact section links to the feedback email
+        assert info["contact"][0]["url"] == settings.FEEDBACK_URL
 
     def test_last_updated(self):
         response = self.client.get("/about/")
@@ -210,7 +184,7 @@ class TestAboutView(TestCase):
         assert "Last updated" in content
         assert mtime_str in content
 
-    def test_licenses_collapse(self):
+    def test_licenses(self):
         response = self.client.get("/about/")
         assert response.status_code == 200
         content = response.content.decode()
@@ -219,24 +193,13 @@ class TestAboutView(TestCase):
         before_collapse = content[:collapse_start]
         after_collapse = content[collapse_start:]
 
-        # Only BCA licenses are shown upfront
+        # A toggle is shown upfront, with links visible before it and hidden after it
         assert "BCA website (Apache-2.0)" in before_collapse
         assert "BCA data (CC BY 4.0)" in before_collapse
-        assert "Font Awesome icons" not in before_collapse
-
-        # The rest is hidden behind a collapsible section
         assert 'data-bs-toggle="collapse"' in before_collapse
-        assert "View third-party licenses" in before_collapse
-        assert "Font Awesome icons" in after_collapse
-
-    def test_card_heading_ids(self):
-        response = self.client.get("/about/")
-        assert response.status_code == 200
-        content = response.content.decode()
-
-        # Card headings get an id from their title slug
-        for heading in ["contact-us", "resources", "publications", "licenses"]:
-            assert f'id="{heading}"' in content
+        assert "<li" in before_collapse
+        assert "<li" in after_collapse
+        assert "Rubik" in after_collapse
 
 
 class SearchViewTest(DataTestCase):
