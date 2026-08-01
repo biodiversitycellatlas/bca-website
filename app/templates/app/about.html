@@ -23,35 +23,24 @@ Features:
     </h1>
 
     {% load cards %}
+    <p class="pb-3">
+        The <a href="{% bca_url %}" target="_blank">Biodiversity Cell Atlas</a> (BCA)
+        is a coordinated international effort aimed at molecularly characterizing
+        cell types across the eukaryotic tree of life. Our mission is to pave the
+        way for the efficient expansion of cell atlases to hundreds of species.
+    </p>
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-        <div class="col">
-            {% bca_url as website_url %}
-            {% card title="Biodiversity Cell Atlas" description="The <a href='"|add:website_url|add:"' target='_blank'>BCA</a> is a coordinated international effort aimed at molecularly characterizing cell types across the eukaryotic tree of life. Our mission is to pave the way for the efficient expansion of cell atlases to hundreds of species."|safe img_url="https://images.unsplash.com/photo-1514907283155-ea5f4094c70c" img_author='Shaun Low' img_author_handle='@breadboyshaun' %}
-        </div>
-
-        <div class="col">
-            {% card title="Resources" img_url="https://images.unsplash.com/photo-1586439587716-1cc4c88ce130" img_author='Niklas Hamann' img_author_handle='@niklas_hamann' links=info.resources %}
-        </div>
-
-        <div class="col">
-            {% card title="Organization" img_url="https://images.unsplash.com/photo-1622228093771-bdf3a47dd40d" img_author='Nick Fewings' img_author_handle='@jannerboy62' links=info.organization %}
-        </div>
-
-        <div class="col">
-            {% card title="Publications" img_url="https://images.unsplash.com/photo-1655809577184-2fb7085a7fd8" img_author='Fernando Venzano' img_author_handle='@fernandovenzano' links=info.publications %}
-        </div>
-
         <div class="col">
             {% card title="Contact us" img_url="https://images.unsplash.com/photo-1600633660236-f6f61d5f155d" img_author='Valeriia Miller' img_author_handle='@valeriiamiller' links=info.contact %}
         </div>
 
         <div class="col">
-            {% bca_url 'about/#media-kit' as media_kit_url %}
-            {% card title="Media kit" description="Download our logos, check visual identity colors, and more from our <a href='"|add:media_kit_url|add:"' target='_blank'>Media kit</a>."|safe img_url="https://images.unsplash.com/photo-1470107355970-2ace9f20ab15" img_author='Boris Smokrovic' img_author_handle='@borisworkshop' %}
+            {% card title="Resources" img_url="https://images.unsplash.com/photo-1470107355970-2ace9f20ab15" img_author='Boris Smokrovic' img_author_handle='@borisworkshop' links=info.resources %}
         </div>
 
         <div class="col">
-            {% card title="Legal and privacy" img_url="https://images.unsplash.com/photo-1656921350827-ab4d9e4e2026" img_author='Zlobniyy' img_author_handle='@zlobniyy' links=info.legal %}
+            {% card title="Publications" img_url="https://images.unsplash.com/photo-1655809577184-2fb7085a7fd8" img_author='Fernando Venzano' img_author_handle='@fernandovenzano' links=info.publications %}
         </div>
 
         <div class="col">

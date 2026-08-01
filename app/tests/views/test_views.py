@@ -162,13 +162,25 @@ class TestAboutView(TestCase):
         assert "legal" in info
         assert "licenses" in info
         assert "publications" in info
-        assert "bca_project" in info
-        assert "blog" in info
+        assert "organization" in info
         assert "resources" in info
 
         # Check that contact section contains the Email entry
         email_entry = info["contact"][0]
         assert email_entry["url"] == settings.FEEDBACK_URL
+
+        # Check resources section contains all links
+        resource_labels = [x["label"] for x in info["resources"]]
+        assert resource_labels == [
+            "Media kit",
+            "Tools & Pipelines",
+            "Protocols",
+            "Blog",
+            "RSS feed",
+            "Source code",
+        ]
+        media_kit_entry = info["resources"][0]
+        assert media_kit_entry["url"] == f"{settings.BCA_WEBSITE}/about/#media-kit"
 
         # Check licenses section
         fa_entry = next((x for x in info["licenses"] if "Font Awesome" in x["label"]), None)
@@ -223,8 +235,7 @@ class TestAboutView(TestCase):
         content = response.content.decode()
 
         # Card headings get an id from their title slug
-        for heading in ["contact-us", "media-kit", "legal-and-privacy", "licenses",
-                        "bca-project", "publications", "blog", "bca-resources"]:
+        for heading in ["contact-us", "resources", "publications", "licenses"]:
             assert f'id="{heading}"' in content
 
 

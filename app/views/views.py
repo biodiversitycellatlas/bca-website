@@ -219,14 +219,14 @@ class AboutView(TemplateView):
             ],
             "resources": [
                 {
-                    "url": github_url(),
-                    "icon": "fa-brands fa-github",
-                    "label": "Source code",
+                    "url": bca_url("about/#media-kit"),
+                    "icon": "fa-bullhorn",
+                    "label": "Media kit",
                 },
                 {
-                    "url": "https://github.com/biodiversitycellatlas",
-                    "icon": "fa-code-branch",
-                    "label": "Tools & pipelines",
+                    "url": bca_url("blog"),
+                    "icon": "fa-radio",
+                    "label": "Blog",
                 },
                 {
                     "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
@@ -234,9 +234,14 @@ class AboutView(TemplateView):
                     "label": "Protocols",
                 },
                 {
-                    "url": bca_url("blog"),
-                    "icon": "fa-radio",
-                    "label": "Blog",
+                    "url": github_url(),
+                    "icon": "fa-brands fa-github",
+                    "label": "Source code",
+                },
+                {
+                    "url": "https://github.com/biodiversitycellatlas",
+                    "icon": "fa-code-branch",
+                    "label": "Tools & Pipelines",
                 },
             ],
         }
