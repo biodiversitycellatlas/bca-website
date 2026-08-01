@@ -133,6 +133,16 @@ class AboutView(TemplateView):
                     "icon": "fa-bug",
                     "label": "Bug reports",
                 },
+                {
+                    "url": bca_url("blog"),
+                    "icon": "fa-radio",
+                    "label": "Blog",
+                },
+                {
+                    "url": bca_url("about/#media-kit"),
+                    "icon": "fa-bullhorn",
+                    "label": "Media kit",
+                },
             ],
             "licenses": [
                 {
@@ -194,16 +204,6 @@ class AboutView(TemplateView):
                 },
             ],
             "resources": [
-                {
-                    "url": bca_url("about/#media-kit"),
-                    "icon": "fa-bullhorn",
-                    "label": "Media kit",
-                },
-                {
-                    "url": bca_url("blog"),
-                    "icon": "fa-radio",
-                    "label": "Blog",
-                },
                 {
                     "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
                     "icon": "fa-microscope",
