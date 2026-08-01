@@ -161,6 +161,10 @@ class TestAboutView(TestCase):
         assert "contact" in info
         assert "legal" in info
         assert "licenses" in info
+        assert "publications" in info
+        assert "bca_project" in info
+        assert "blog" in info
+        assert "resources" in info
 
         # Check that contact section contains the Email entry
         email_entry = info["contact"][0]
@@ -193,6 +197,35 @@ class TestAboutView(TestCase):
         content = response.content.decode()
         assert "Last updated" in content
         assert mtime_str in content
+
+    def test_licenses_collapse(self):
+        response = self.client.get("/about/")
+        assert response.status_code == 200
+        content = response.content.decode()
+
+        collapse_start = content.index('id="licenses-collapse"')
+        before_collapse = content[:collapse_start]
+        after_collapse = content[collapse_start:]
+
+        # Only BCA licenses are shown upfront
+        assert "BCA website (Apache-2.0)" in before_collapse
+        assert "BCA data (CC BY 4.0)" in before_collapse
+        assert "Font Awesome icons" not in before_collapse
+
+        # The rest is hidden behind a collapsible section
+        assert 'data-bs-toggle="collapse"' in before_collapse
+        assert 'id="licenses-collapse"' in content
+        assert "Font Awesome icons" in after_collapse
+
+    def test_card_heading_ids(self):
+        response = self.client.get("/about/")
+        assert response.status_code == 200
+        content = response.content.decode()
+
+        # Card headings get an id from their title slug
+        for heading in ["contact-us", "media-kit", "legal-and-privacy", "licenses",
+                        "bca-project", "publications", "blog", "bca-resources"]:
+            assert f'id="{heading}"' in content
 
 
 class SearchViewTest(DataTestCase):

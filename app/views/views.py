@@ -123,11 +123,10 @@ class AboutView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["info"] = {
             "contact": [
-                {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
-                    "url": github_url(),
-                    "icon": "fa-brands fa-github",
-                    "label": "Source code",
+                    "url": settings.FEEDBACK_URL,
+                    "icon": "fa-envelope",
+                    "label": "Email"
                 },
                 {
                     "url": github_url("issues/new"),
@@ -139,7 +138,7 @@ class AboutView(TemplateView):
                 {
                     "url": bca_url("legal"),
                     "icon": "fa-shield-halved",
-                    "label": "Legal Notice & Privacy Policy",
+                    "label": "Legal notice & privacy policy",
                 },
                 {
                     "url": bca_url("cookies"),
@@ -197,6 +196,47 @@ class AboutView(TemplateView):
                     "url": "https://github.com/IonDen/ion.rangeSlider/blob/master/License.md",
                     "icon": "fa-sliders",
                     "label": "ion.rangeSlider",
+                },
+            ],
+            "publications": [
+                {
+                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
+                    "icon": "fa-book-open",
+                    "label": "White paper (Nature, 2025)",
+                },
+            ],
+            "organization": [
+                {
+                    "url": bca_url("organization"),
+                    "icon": "fa-users",
+                    "label": "Coordination and working groups",
+                },
+                {
+                    "url": bca_url("projects"),
+                    "icon": "fa-flask",
+                    "label": "BCA phase 0",
+                },
+            ],
+            "resources": [
+                {
+                    "url": github_url(),
+                    "icon": "fa-brands fa-github",
+                    "label": "Source code",
+                },
+                {
+                    "url": "https://github.com/biodiversitycellatlas",
+                    "icon": "fa-code-branch",
+                    "label": "Tools & pipelines",
+                },
+                {
+                    "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
+                    "icon": "fa-microscope",
+                    "label": "Protocols",
+                },
+                {
+                    "url": bca_url("blog"),
+                    "icon": "fa-radio",
+                    "label": "Blog",
                 },
             ],
         }
