@@ -515,9 +515,7 @@ class MetacellTypeSimilarityTests(APITestCase):
         assert pairs[0.6] == [["gene2", "gene1"]]
 
     def test_retrieve_without_gene_pairs(self):
-        MetacellTypeSimilarity.objects.create(
-            metacelltype=self.type1, metacelltype2=self.type4, samap_score=0.5
-        )
+        MetacellTypeSimilarity.objects.create(metacelltype=self.type1, metacelltype2=self.type4, samap_score=0.5)
         url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
         response = self.client.get(url, format="json")
         comparison = response.data["results"]
