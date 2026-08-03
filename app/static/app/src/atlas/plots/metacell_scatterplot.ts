@@ -201,7 +201,10 @@ export function createMetacellProjection(
                             "datum.fold_change == null ? null : log(datum.fold_change) / log(2)",
                         as: "log2_fold_change",
                     },
-                    { calculate: `datum.${mcColor.field} == null ? 1 : 0`, as: "is_na" },
+                    {
+                        calculate: `datum.${mcColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
                     { filter: "showMetacells == 'true'" },
                 ],
                 encoding: {
