@@ -12,7 +12,7 @@
  * @param {Object} data.search - Search object with a value property.
  * @returns {Object} Params object with offset, limit, q, and ordering keys.
  */
-export function buildDataQuery(data) {
+export function buildDataQuery(data, species, genes, method = "GET") {
     let ordering;
     if (data.order && data.order[0]) {
         const o = data.order[0];
@@ -25,7 +25,9 @@ export function buildDataQuery(data) {
         q: data.search.value,
         ordering: ordering,
     };
-    return params;
+    if (typeof species === "string") params.species = species;
+    if (Array.isArray(genes)) params.genes = genes;
+    return method === "POST" ? JSON.stringify(params) : params;
 }
 
 /**
