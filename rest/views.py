@@ -7,8 +7,7 @@ import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.db.models import Case, CharField, Count, F, IntegerField, Prefetch, Value, When, Q
-from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, ValidationError
@@ -987,18 +986,22 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
     """List expression conservation between orthologous genes across datasets."""
 
-    queryset = models.ExpressionConservation.objects.select_related(
-        "orthogroup",
-        "gene",
-        "gene__species",
-        "gene2",
-        "gene2__species",
-        "dataset",
-        "dataset2",
-    ).prefetch_related(
-        "gene__domains",
-        "gene2__domains",
-    ).order_by("-conservation_score")
+    queryset = (
+        models.ExpressionConservation.objects.select_related(
+            "orthogroup",
+            "gene",
+            "gene__species",
+            "gene2",
+            "gene2__species",
+            "dataset",
+            "dataset2",
+        )
+        .prefetch_related(
+            "gene__domains",
+            "gene2__domains",
+        )
+        .order_by("-conservation_score")
+    )
 
     serializer_class = serializers.ExpressionConservationSerializer
     filterset_class = filters.ExpressionConservationFilter
