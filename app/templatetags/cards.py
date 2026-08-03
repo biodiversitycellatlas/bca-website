@@ -52,28 +52,8 @@ def _build_card_context(title, description, **kwargs):
     return {"title": title, "description": description, **kwargs, **img}
 
 
-@register.inclusion_tag("app/components/links/links_list.html")
-def links_list(visible_items, collapsed_items=None, collapsed_label=None):
-    """
-    List of links to be used in a card.
-
-    Args:
-        visible_items (list): Links to display upfront.
-        collapsed_items (list, optional): Links hidden behind a collapse toggle.
-        collapsed_label (str, optional): Label of the collapse toggle.
-    """
-    context = {
-        "visible_items": visible_items,
-        "collapsed_items": collapsed_items or [],
-        "collapsed_label": collapsed_label or "View all",
-    }
-    if collapsed_items:
-        context["collapse_id"] = f"collapsed-items-{random.getrandbits(8)}"
-    return context
-
-
-@register.inclusion_tag("app/components/links/card.html")
-def card(title, description=None, links=None, visible_links=None, collapsed_label=None, **kwargs):
+@register.inclusion_tag("app/components/cards/card.html")
+def card(title, description=None, links=None, visible_count=None, collapsed_label=None, **kwargs):
     """
     Render a card with information.
 
@@ -81,7 +61,7 @@ def card(title, description=None, links=None, visible_links=None, collapsed_labe
         title (str): Title displayed on card.
         description (str): Description displayed on card.
         links (str): List of links displayed on card.
-        visible_links (int, optional): Number of links to show before collapsing the rest.
+        visible_count (int, optional): Number of links to show before collapsing the rest.
         collapsed_label (str, optional): Label of the collapse toggle.
         **kwargs (optional): Image arguments (see `_build_card_context`).
 
@@ -90,15 +70,18 @@ def card(title, description=None, links=None, visible_links=None, collapsed_labe
     """
     if links is not None:
         kwargs["links"] = links
-    if visible_links is not None:
-        kwargs["visible_items"] = links[:visible_links]
-        kwargs["collapsed_items"] = links[visible_links:]
-    if collapsed_label is not None:
-        kwargs["collapsed_label"] = collapsed_label
+
+    if visible_count is not None:
+        kwargs["visible_items"] = links[:visible_count]
+        kwargs["collapsed_items"] = links[visible_count:]
+
+    if kwargs.get("collapsed_items"):
+        kwargs["collapse_id"] = f"collapsed-items-{random.getrandbits(8)}"
+        kwargs["collapsed_label"] = collapsed_label or "View all"
     return _build_card_context(title, description, **kwargs)
 
 
-@register.inclusion_tag("app/components/links/download_card.html")
+@register.inclusion_tag("app/components/cards/download_card.html")
 def download_card(title, description, view, filename, **kwargs):
     """
     Render a card containing downloadable links.

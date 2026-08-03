@@ -64,12 +64,41 @@
             </p>
         {% endif %}
 
-        {% if links %}
-            {% load cards %}
-            {% links_list visible_items=visible_items|default:links collapsed_items=collapsed_items collapsed_label=collapsed_label %}
-        {% endif %}
-
         {% block links %}
+            {% if links %}
+                <ul class="list-unstyled">
+                    {% for item in visible_items|default:links %}
+                        <li class="mb-2">
+                            <a href="{{ item.url }}" target="_blank">
+                                <i class="fa fa-fw {{ item.icon }}"></i> {{ item.label }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {% if collapsed_items %}
+                    <a class="collapsed d-inline-block mb-2 small"
+                       href="#{{ collapse_id }}"
+                       role="button"
+                       data-bs-toggle="collapse"
+                       aria-expanded="false"
+                       aria-controls="{{ collapse_id }}">
+                        <i class="fa fa-fw fa-chevron-down"></i> {{ collapsed_label }}
+                    </a>
+
+                    <div class="collapse" id="{{ collapse_id }}">
+                        <ul class="list-unstyled">
+                            {% for item in collapsed_items %}
+                                <li class="mb-2">
+                                    <a href="{{ item.url }}" target="_blank">
+                                        <i class="fa fa-fw {{ item.icon }}"></i> {{ item.label }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endif %}
         {% endblock links %}
     </div>
 </div>

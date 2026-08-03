@@ -5,7 +5,7 @@ from django import template
 register = template.Library()
 
 
-@register.inclusion_tag("app/components/links/breadcrumbs.html", takes_context=True)
+@register.inclusion_tag("app/components/breadcrumbs.html", takes_context=True)
 def breadcrumbs(context, root=None, css_class=""):
     """Generate breadcrumb links from the current request path."""
 
