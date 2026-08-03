@@ -13,10 +13,6 @@ Features:
 
 {% block content %}
     <style>
-        .m-n40px {
-            margin: -40px;
-        }
-
         #tree {
             height: 600px;
             width: 100%;
@@ -24,6 +20,17 @@ Features:
 
         .fixed-width {
             width: 100px;
+        }
+
+        .bca-logo {
+            margin: -40px;
+            min-height: 200px;
+            min-width: 300px;
+        }
+
+        .bca-lead {
+            max-width: 400px;
+            text-wrap: balance;
         }
     </style>
 
@@ -37,19 +44,19 @@ Features:
         </h1>
 
         <img title="Biodiversity Cell Atlas"
+             fetchpriority="high"
              width="500"
              height="100%"
              alt="Biodiversity Cell Atlas logotype"
-             class="img-fluid m-n40px"
+             class="img-fluid bca-logo"
              src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
         <h2 class="h5 fw-semibold text-body-emphasis">
             BCA Data Portal
         </h2>
 
-        <p class="lead mb-3">
+        <p class="lead mb-3 mx-auto bca-lead">
             Explore and download single-cell datasets
-            <br>
             across the eukaryotic tree of life.
         </p>
 
