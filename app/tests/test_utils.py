@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from app.models import Meta, Species
+from app.models import Species
 from app.utils import get_dataset_dict, get_species_dict
 
 
