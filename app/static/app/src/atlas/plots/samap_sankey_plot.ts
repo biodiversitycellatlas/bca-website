@@ -128,10 +128,10 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "aggregate",
-                        fields: ["samap"],
+                        fields: ["samap_score"],
                         groupby: ["end", "name", "id", "color"],
                         ops: ["sum"],
-                        as: ["samap"],
+                        as: ["samap_score"],
                     },
                     {
                         type: "formula",
@@ -146,10 +146,10 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                 transform: [
                     {
                         type: "aggregate",
-                        fields: ["samap"],
+                        fields: ["samap_score"],
                         groupby: ["stack"],
                         ops: ["sum"],
-                        as: ["samap"],
+                        as: ["samap_score"],
                     },
                 ],
             },
@@ -160,7 +160,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     {
                         type: "formula",
                         as: "spacer",
-                        expr: "(data('maxSamap')[0].samap/100) * gap",
+                        expr: "(data('maxSamap')[0].samap_score/100) * gap",
                     },
                     {
                         type: "formula",
@@ -170,7 +170,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     {
                         type: "formula",
                         as: "spacedSamap",
-                        expr: "[datum.samap, datum.spacer]",
+                        expr: "[datum.samap_score, datum.spacer]",
                     },
                     {
                         type: "flatten",
@@ -184,7 +184,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "formula",
-                        expr: "datum.samap/2 + datum.y0 - 8",
+                        expr: "datum.samap_score/2 + datum.y0 - 8",
                         as: "yc",
                     },
                 ],
@@ -214,23 +214,23 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     {
                         type: "stack",
                         groupby: ["metacell_type"],
-                        field: "samap",
+                        field: "samap_score",
                         as: ["syi0", "syi1"],
                     },
                     {
                         type: "formula",
-                        expr: "((datum.samap)/2) + datum.syi0 + datum.metacell_typeStacky0",
+                        expr: "((datum.samap_score)/2) + datum.syi0 + datum.metacell_typeStacky0",
                         as: "syc",
                     },
                     {
                         type: "stack",
                         groupby: ["metacell2_type"],
-                        field: "samap",
+                        field: "samap_score",
                         as: ["dyi0", "dyi1"],
                     },
                     {
                         type: "formula",
-                        expr: "((datum.samap)/2) + datum.dyi0 + datum.metacell2_typeStacky0",
+                        expr: "((datum.samap_score)/2) + datum.dyi0 + datum.metacell2_typeStacky0",
                         as: "dyc",
                     },
                     {
@@ -244,7 +244,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "formula",
-                        expr: "range('y')[0] - scale('y', datum.samap)",
+                        expr: "range('y')[0] - scale('y', datum.samap_score)",
                         as: "strokeWidth",
                     },
                 ],
@@ -300,7 +300,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     hover: {
                         strokeOpacity: { value: 1 },
                         tooltip: {
-                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap, '.2f') + '%'}`,
+                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap_score, '.2f') + '%'}`,
                         },
                     },
                 },

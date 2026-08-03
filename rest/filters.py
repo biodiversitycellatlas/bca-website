@@ -494,22 +494,22 @@ class OrthologCountFilter(FilterSet):
         fields = ["orthogroup", "species"]
 
 
-class SAMapFilter(FilterSet):
-    """Filter set for SAMap scores."""
+class MetacellTypeSimilarityFilter(FilterSet):
+    """Filter set to fetch metacell similarity scores."""
 
     dataset = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
     dataset2 = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
-    threshold = NumberFilter(
+    min_samap = NumberFilter(
         label="Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>",
-        field_name="samap",
+        field_name="samap_score",
         lookup_expr="gte",
     )
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.SAMap
-        fields = ["dataset", "dataset2", "threshold"]
+        model = models.MetacellTypeSimilarity
+        fields = ["dataset", "dataset2", "min_samap"]
 
     @property
     def qs(self):
@@ -939,6 +939,7 @@ class ExpressionConservationFilter(FilterSet):
         help_text="Dataset slug. Filters rows where the dataset appears on either side.",
     )
     is_one_to_one = BooleanFilter(help_text="Whether the ortholog pair is one-to-one.")
+
     ordering = OrderingFilter(
         fields=(
             ("conservation_score", "conservation_score"),

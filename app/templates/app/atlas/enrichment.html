@@ -1,0 +1,112 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Gene ontology enrichment page
+
+Features:
+- Form to set genes and other enrichment analysis settings
+- Mockup table if no analyses is loaded
+- Gene ontology enrichment analysis as per the user input:
+    - Fetches via REST API
+    - Table for the data with links to supporting genes
+    - Auxiliary plots
+    - Download data button
+    - Copy link to clipboard button
+
+{% endcomment %}
+
+{% block title %}
+    {{ dataset }} GO enrichment
+{% endblock title %}
+
+{% block content %}
+
+    {% load static %}
+    {% include "../components/warning_alert.html" %}
+    {% include "../components/modals/list_editor.html" with id="" type="gene_lists" %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <form>
+                <fieldset>
+                    <legend class="h5">
+                        Gene selection
+                    </legend>
+                    <div class="mb-3">
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center small">
+                            <label class="col-form-label" for="genes">
+                                <i class="fa fa-list-check"></i> Genes
+                            </label>
+
+                            <div class="d-flex flex-wrap column-gap-3 ms-auto">
+                                <button type="button"
+                                        id="clear_selected_genes"
+                                        class="btn btn-link btn-sm d-block text-end"
+                                        onclick="document.getElementById('{{ id }}_gene_selection').tomselect.clear();">
+                                    Clear
+                                </button>
+
+                                <button type="button"
+                                        id="edit_gene_lists"
+                                        class="btn btn-link btn-sm d-block text-end"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#{{ id }}_gene_lists_editor">
+                                    Edit lists...
+                                </button>
+                            </div>
+                        </div>
+
+                        {% include "../components/select/gene.html" with id=id name="gene_lists" multiple="true" selected=query.genes limit=3 %}
+                    </div>
+                    <button type="submit" class="btn btn-primary my-3 w-100">
+                        Analyse enrichment
+                    </button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-md-9">
+            {% if query.genes %}
+                <div class="row g-0 d-flex justify-content-end mb-3">
+                    <div class="col-auto">
+                        {% load headings %}
+                        {% clipboard_button %}
+                        {% data_dropdown id='enrichment' %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <!-- Semantic similarity plot -->
+                        {% include "../components/plot_container.html" with id="semantic" ratio="16/9" %}
+                    </div>
+
+                    <div class="col-lg-6">
+                        <!-- Word cloud -->
+                        {% include "../components/plot_container.html" with id="words" ratio="16/9" %}
+                    </div>
+                </div>
+
+                <!-- Results in table format -->
+                <table id="enrichment_table" class="display w-100 small">
+                </table>
+            {% else %}
+                {% include "../components/mockup/table.html" %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="module">
+        import { handleFormSubmit, prepareEnrichmentResults }
+            from "{% static 'app/dist/atlas/enrichment.js' %}";
+
+        const dataset = "{{dataset.slug}}";
+        const species = "{{dataset.species.scientific_name}}";
+        handleFormSubmit("", dataset);
+        {% if query.genes %}
+            prepareEnrichmentResults(species, dataset, "{{query.genes}}");
+        {% endif %}
+    </script>
+
+{% endblock content %}
