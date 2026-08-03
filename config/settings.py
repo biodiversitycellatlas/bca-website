@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
     "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest.schema.FormatDescriptionAutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
         "drf_orjson_renderer.renderers.ORJSONRenderer",

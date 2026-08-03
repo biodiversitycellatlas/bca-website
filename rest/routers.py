@@ -22,6 +22,7 @@ router.register("module_similarity_genes", views.GeneModuleSimilarityGenesViewSe
 
 router.register("orthologs", views.OrthologViewSet)
 router.register("ortholog_counts", views.OrthologCountViewSet, basename="orthologcount")
+router.register("expression_conservation", views.ExpressionConservationViewSet, basename="expressionconservation")
 
 router.register("metacells", views.MetacellViewSet)
 router.register("metacell_links", views.MetacellLinkViewSet, basename="metacelllink")
