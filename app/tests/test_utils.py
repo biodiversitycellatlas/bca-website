@@ -11,9 +11,9 @@ class SpeciesDictTest(TestCase):
     def setUpTestData(cls):
         cls.species = Species.objects.create(scientific_name="Mus musculus", common_name="mouse")
         cls.dataset = cls.species.datasets.create(name="adult")
-        Meta.objects.create(species=cls.species, key="species", value="Mus musculus")
-        Meta.objects.create(species=cls.species, key="phylum", value="Chordata")
-        Meta.objects.create(species=cls.species, key="kingdom", value="Animalia")
+        cls.species.meta_set.create(key="species", value="Mus musculus")
+        cls.species.meta_set.create(key="phylum", value="Chordata")
+        cls.species.meta_set.create(key="kingdom", value="Animalia")
 
     def test_phylum_searchable_in_dataset_dict(self):
         dataset_dict = get_dataset_dict()
