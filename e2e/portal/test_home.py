@@ -27,8 +27,8 @@ class TestHomepage:
         page.goto(self.base_url)
 
         page.get_by_role("combobox", name="Search datasets by species,").click()
-        expect(page.get_by_text("Porifera")).to_be_visible()
-        expect(page.get_by_text("Chordata")).to_be_visible()
+        expect(page.locator(".optgroup-header").filter(has_text="Porifera")).to_be_visible()
+        expect(page.locator(".optgroup-header").filter(has_text="Chordata")).to_be_visible()
         expect(page.get_by_role("option", name="Amphineuron queenslandicum sponge")).to_be_visible()
         expect(page.get_by_role("option", name="Homo sapiens (Baby) human")).to_be_visible()
 
