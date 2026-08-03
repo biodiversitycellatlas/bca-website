@@ -144,6 +144,30 @@ class AboutView(TemplateView):
                     "label": "Media kit",
                 },
             ],
+            "resources": [
+                {
+                    "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
+                    "icon": "fa-microscope",
+                    "label": "Protocols",
+                },
+                {
+                    "url": github_url(),
+                    "icon": "fa-brands fa-github",
+                    "label": "Source code",
+                },
+                {
+                    "url": "https://github.com/biodiversitycellatlas",
+                    "icon": "fa-code-branch",
+                    "label": "Tools & Pipelines",
+                },
+            ],
+            "publications": [
+                {
+                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
+                    "icon": "fa-book-open",
+                    "label": "White paper (Nature, 2025)",
+                },
+            ],
             "licenses": [
                 {
                     "url": github_url("blob/main/LICENSE"),
@@ -194,30 +218,6 @@ class AboutView(TemplateView):
                     "url": "https://github.com/IonDen/ion.rangeSlider/blob/master/License.md",
                     "icon": "fa-sliders",
                     "label": "ion.rangeSlider",
-                },
-            ],
-            "publications": [
-                {
-                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
-                    "icon": "fa-book-open",
-                    "label": "White paper (Nature, 2025)",
-                },
-            ],
-            "resources": [
-                {
-                    "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
-                    "icon": "fa-microscope",
-                    "label": "Protocols",
-                },
-                {
-                    "url": github_url(),
-                    "icon": "fa-brands fa-github",
-                    "label": "Source code",
-                },
-                {
-                    "url": "https://github.com/biodiversitycellatlas",
-                    "icon": "fa-code-branch",
-                    "label": "Tools & Pipelines",
                 },
             ],
         }
