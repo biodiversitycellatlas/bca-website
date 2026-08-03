@@ -139,7 +139,13 @@ export function createMetacellProjection(
                 },
 
                 // Avoid drawing cells with null coordinates
-                transform: [{ filter: "datum.x != null && datum.y != null" }],
+                transform: [
+                    { filter: "datum.x != null && datum.y != null" },
+                    {
+                        calculate: `datum.${scColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
+                ],
 
                 // Avoid this transform for cells: this changes axis limits
                 // "transform": [ { "filter": "showCells == 'true'" } ],
@@ -157,6 +163,7 @@ export function createMetacellProjection(
                         },
                         value: 0,
                     },
+                    order: { field: "is_na", sort: "descending" },
                     tooltip: {
                         condition: {
                             test: "showCells == 'false'",
@@ -194,6 +201,7 @@ export function createMetacellProjection(
                             "datum.fold_change == null ? null : log(datum.fold_change) / log(2)",
                         as: "log2_fold_change",
                     },
+                    { calculate: `datum.${mcColor.field} == null ? 1 : 0`, as: "is_na" },
                     { filter: "showMetacells == 'true'" },
                 ],
                 encoding: {
@@ -202,6 +210,7 @@ export function createMetacellProjection(
                     size: { value: 400 },
                     color: mcColor,
                     opacity: { value: 0.7 },
+                    order: { field: "is_na", sort: "descending" },
                 },
             },
             {
