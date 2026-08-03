@@ -54,6 +54,37 @@ Input:
         </div>
     </div>
 
+    <!-- Color -->
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-paint-roller"></i>
+                Color by
+            </label>
+        </div>
+
+        <select id="projection-color"
+                aria-label="Select a property for plot colouring"
+                class="form-select form-select btn-outline-primary">
+            <option {% if query.color == "cell_type" %}selected{% endif %}
+                    value="cell_type">
+                Cell type
+            </option>
+            <option {% if query.color == "cytotrace" %}selected{% endif %}
+                    value="cytotrace">
+                CytoTRACE
+            </option>
+            <option {% if query.color == "median_umis" %}selected{% endif %}
+                    value="median_umis">
+                Median UMIs
+            </option>
+            <option {% if query.color == "expression" or not query.color and gene %}selected{% endif %}
+                    value="expression">
+                Gene expression
+            </option>
+        </select>
+    </div>
+
     <!-- Metacell selection -->
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -81,8 +112,7 @@ Input:
 {% load static %}
 <script type="module">
     import { initProjection } from "{% static 'app/dist/atlas/projection.js' %}";
-    initProjection(
-        "{{id}}", "{{dataset.slug}}", "{{dataset}}",
-        {% if gene %}"{{ gene }}"{% else %}null{% endif %}
-    );
+    const gene = {% if gene %}"{{ gene }}"{% else %}null{% endif %};
+    const colorBy = document.getElementById("projection-color").value;
+    initProjection("{{ id }}", "{{ dataset.slug }}", "{{ dataset }}", colorBy, gene);
 </script>
