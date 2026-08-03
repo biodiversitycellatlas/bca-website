@@ -969,6 +969,47 @@ class Ortholog(models.Model):
         return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
+class ExpressionConservation(models.Model):
+    """Expression conservation between two orthologs across datasets."""
+
+    orthogroup = models.ForeignKey(
+        Orthogroup,
+        on_delete=models.CASCADE,
+        related_name="conservations",
+        help_text="Orthogroup the conservation belongs to.",
+    )
+    gene = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations_as", help_text="First gene in the ortholog pair."
+    )
+    gene2 = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Second gene in the ortholog pair."
+    )
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations_as", help_text="Dataset for the first gene."
+    )
+    dataset2 = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Dataset for the second gene."
+    )
+    conservation_score = models.FloatField(help_text="Expression conservation score.")
+    is_one_to_one = models.BooleanField(default=True, help_text="Whether the ortholog pair is one-to-one.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = [["gene", "gene2", "dataset", "dataset2"]]
+        indexes = [
+            models.Index(fields=["gene"]),
+            models.Index(fields=["gene2"]),
+        ]
+        ordering = ["orthogroup"]
+        verbose_name = "Expression conservation score"
+        verbose_name_plural = "Expression conservation scores"
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.gene} - {self.gene2} ({self.orthogroup.name})"
+
+
 class MetacellTypeSimilarity(models.Model):
     """Similarity scores between two metacell types."""
 

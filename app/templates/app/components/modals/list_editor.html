@@ -308,14 +308,11 @@ Input:
 
 {% load static %}
 <script type="module">
-    import { loadGeneLists, renderActiveList, loadMenuActions }
-        from "{% static 'app/dist/atlas/modals/list_editor.js' %}";
+    import { initGeneListEditor } from "{% static 'app/dist/atlas/modals/list_editor.js' %}";
 
     let id = "{{id}}_{{type}}",
         species = "{{species}}",
         dataset = "{{dataset.slug}}",
         maxFileSize = {{ MAX_FILE_SIZE }};
-    loadGeneLists(id, species, dataset);
-    renderActiveList(id, species);
-    loadMenuActions(id, species, maxFileSize);
+    initGeneListEditor(id, species, dataset, maxFileSize);
 </script>
