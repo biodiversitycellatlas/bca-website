@@ -29,7 +29,8 @@
 </style>
 
 
-<div class="card h-100"{% if title %} id="{{ title|striptags|slugify }}"{% endif %}>
+<div class="card h-100"
+     {% if title %} id="{{ title|striptags|slugify }}"{% endif %}>
     {% if img_url %}
         <figure class="mb-0 d-inline-block position-relative">
             <img {% if img_author %}alt="Photo by {{ img_author }} ({{ img_source|default:'Unsplash' }})"{% endif %}

@@ -123,11 +123,7 @@ class AboutView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["info"] = {
             "contact": [
-                {
-                    "url": settings.FEEDBACK_URL,
-                    "icon": "fa-envelope",
-                    "label": "Email"
-                },
+                {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
                     "url": github_url("issues/new"),
                     "icon": "fa-bug",
