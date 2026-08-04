@@ -23,7 +23,7 @@ def get_dataset_dict():
 
         # get meta info
         try:
-            removed_terms = ["species", "phylum"]
+            removed_terms = ["species"]
             meta = list(dataset.species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
@@ -54,7 +54,7 @@ def get_species_dict():
 
         # get meta info
         try:
-            removed_terms = ["species", "phylum"]
+            removed_terms = ["species"]
             meta = list(species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []

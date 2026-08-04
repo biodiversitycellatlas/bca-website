@@ -27,10 +27,20 @@ class TestHomepage:
         page.goto(self.base_url)
 
         page.get_by_role("combobox", name="Search datasets by species,").click()
-        expect(page.get_by_text("Porifera")).to_be_visible()
-        expect(page.get_by_text("Chordata")).to_be_visible()
+        expect(page.locator(".optgroup-header").filter(has_text="Porifera")).to_be_visible()
+        expect(page.locator(".optgroup-header").filter(has_text="Chordata")).to_be_visible()
         expect(page.get_by_role("option", name="Amphineuron queenslandicum sponge")).to_be_visible()
         expect(page.get_by_role("option", name="Homo sapiens (Baby) human")).to_be_visible()
+
+    def test_dataset_select_search_by_phylum(self, page, live_server_url):
+        page.goto(self.base_url)
+
+        combobox = page.get_by_role("combobox", name="Search datasets by species,")
+        combobox.click()
+        combobox.fill("Chordata")
+
+        expect(page.get_by_role("option", name="Homo sapiens (Baby) human")).to_be_visible()
+        expect(page.get_by_text("Amphineuron queenslandicum sponge")).not_to_be_visible()
 
     def test_atlas_loads_using_select(self, page, live_server_url):
         page.goto(self.base_url)
