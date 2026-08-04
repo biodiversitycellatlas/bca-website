@@ -1,0 +1,14 @@
+<div class="mb-4">
+    <table id="{{ id }}_table" class="display compact w-100">
+    </table>
+</div>
+
+<div id="{{ id }}_heading" class="h6 mb-2">
+</div>
+{% include "../plot_container.html" with id=id %}
+
+{% load static %}
+<script type="module">
+    import { loadExpressionConservation } from "{% static 'app/dist/atlas/expression_conservation.js' %}";
+    loadExpressionConservation("{{ id }}", "{{ dataset.slug }}", "{{ gene }}");
+</script>

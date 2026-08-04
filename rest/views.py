@@ -986,12 +986,22 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
     """List expression conservation between orthologous genes across datasets."""
 
-    queryset = models.ExpressionConservation.objects.select_related(
-        "orthogroup",
-        "gene",
-        "gene2",
-        "dataset",
-        "dataset2",
+    queryset = (
+        models.ExpressionConservation.objects.select_related(
+            "orthogroup",
+            "gene",
+            "gene__species",
+            "gene2",
+            "gene2__species",
+            "dataset",
+            "dataset2",
+        )
+        .prefetch_related(
+            "gene__domains",
+            "gene2__domains",
+        )
+        .order_by("-conservation_score")
     )
+
     serializer_class = serializers.ExpressionConservationSerializer
     filterset_class = filters.ExpressionConservationFilter

@@ -1065,10 +1065,11 @@ class EnrichmentAnalysisResponseSerializer(serializers.Serializer):
 class ExpressionConservationSerializer(serializers.ModelSerializer):
     """Serializer for ortholog expression conservation."""
 
-    gene = serializers.SerializerMethodField(
-        help_text="Gene symbol of the ortholog pair relative to the reference gene."
-    )
-    dataset = serializers.SerializerMethodField(help_text="Dataset slug for the returned gene.")
+    gene = serializers.SerializerMethodField(help_text="Ortholog gene symbol.")
+    description = serializers.SerializerMethodField(help_text="Ortholog description.")
+    domains = serializers.SerializerMethodField(help_text="Ortholog domains.")
+    dataset = serializers.SerializerMethodField(help_text="Dataset slug associated with the ortholog.")
+    dataset_link = serializers.SerializerMethodField(help_text="HTML link for the dataset.")
     conservation_score = serializers.FloatField(help_text="Expression conservation score.")
     is_one_to_one = serializers.BooleanField(help_text="Whether the ortholog pair is one-to-one.")
 
@@ -1076,14 +1077,37 @@ class ExpressionConservationSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.ExpressionConservation
-        fields = ["gene", "dataset", "conservation_score", "is_one_to_one"]
+        fields = [
+            "gene",
+            "description",
+            "domains",
+            "dataset",
+            "dataset_link",
+            "conservation_score",
+            "is_one_to_one",
+        ]
 
     def _is_reference(self, obj):
         ref_gene = self.context["request"].query_params.get("gene")
         return ref_gene and obj.gene.name == ref_gene
 
+    def _get_ortholog_gene(self, obj):
+        return obj.gene2 if self._is_reference(obj) else obj.gene
+
+    def _get_ortholog_dataset(self, obj):
+        return obj.dataset2 if self._is_reference(obj) else obj.dataset
+
     def get_gene(self, obj) -> str:
-        return obj.gene2.name if self._is_reference(obj) else obj.gene.name
+        return self._get_ortholog_gene(obj).name
+
+    def get_description(self, obj) -> str:
+        return self._get_ortholog_gene(obj).description
+
+    def get_domains(self, obj) -> list[str]:
+        return [domain.name for domain in self._get_ortholog_gene(obj).domains.all()]
 
     def get_dataset(self, obj) -> str:
-        return obj.dataset2.slug if self._is_reference(obj) else obj.dataset.slug
+        return self._get_ortholog_dataset(obj).slug
+
+    def get_dataset_link(self, obj) -> str:
+        return self._get_ortholog_dataset(obj).get_inline_html_link()

@@ -940,6 +940,17 @@ class ExpressionConservationFilter(FilterSet):
     )
     is_one_to_one = BooleanFilter(help_text="Whether the ortholog pair is one-to-one.")
 
+    ordering = OrderingFilter(
+        fields=(
+            ("conservation_score", "conservation_score"),
+            ("dataset", "dataset__slug"),
+        ),
+        field_labels={
+            "conservation_score": "Expression conservation score",
+            "dataset": "Dataset",
+        },
+    )
+
     class Meta:
         """Configuration for model and filterable fields."""
 

@@ -5,34 +5,8 @@
 import DataTable from "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
+import { buildDataQuery, filterData } from "../plots/utils.ts";
 import { makeLinkGene, linkDomains } from "./utils.ts";
-
-function buildDataQuery(data, species, genes, method = "POST") {
-    let ordering;
-    if (data.order && data.order[0]) {
-        const o = data.order[0];
-        ordering = (o.dir == "desc" ? "-" : "") + o.name;
-    }
-
-    const params = {
-        species: species,
-        genes: genes,
-        // DataTable-associated parameters
-        offset: data.start,
-        limit: data.length,
-        q: data.search.value,
-        ordering: ordering,
-    };
-    return method === "POST" ? JSON.stringify(params) : params;
-}
-
-function filterData(data) {
-    const json = JSON.parse(data);
-    json.recordsTotal = json.count;
-    json.recordsFiltered = json.count;
-    json.data = json.list;
-    return JSON.stringify(json);
-}
 
 /**
  * Initialize a DataTable for displaying gene information.
