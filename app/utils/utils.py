@@ -23,7 +23,7 @@ def get_dataset_dict():
 
         # get meta info
         try:
-            removed_terms = ["species", "phylum"]
+            removed_terms = ["species"]
             meta = list(dataset.species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
@@ -54,7 +54,7 @@ def get_species_dict():
 
         # get meta info
         try:
-            removed_terms = ["species", "phylum"]
+            removed_terms = ["species"]
             meta = list(species.meta_set.exclude(key__in=removed_terms).values_list("value", flat=True))
         except (AttributeError, IndexError):
             meta = []
@@ -192,7 +192,7 @@ def get_cell_atlas_links(url_name, dataset=None):
             "icon": "scale-unbalanced",
             "url_names": ["atlas_compare"],
             "url_view": "atlas_compare",
-            "tooltip": "Compare genes between cell types of different species",
+            "tooltip": "Compare cell types and gene modules across different species",
         },
     ]
 

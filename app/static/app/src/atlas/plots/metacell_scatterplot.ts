@@ -4,6 +4,8 @@
 
 import vegaEmbed from "vega-embed";
 
+import { COLOR_SCALE } from "./metacell_heatmap.ts";
+
 export let viewMetacellProjection;
 
 /**
@@ -36,17 +38,75 @@ function generateColorScale(data) {
  * @param {string} id - CSS selector for target element.
  * @param {string} species - Species name.
  * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_links`.
- * @param {boolean} [color_by_metacell_type=true] - Color points by metacell type.
+ * @param {string} [color="cell_type"] - Data field for coloring (e.g. `cell_type`,
+ *     `cytotrace`, `median_umis`, `expression`).
  * @param {string|null} [gene=null] - Optional gene name for subtitle.
  */
 export function createMetacellProjection(
     id,
     species,
     data,
-    color_by_metacell_type = true,
+    colorBy = "cell_type",
     gene = null,
 ) {
     const metacellColorScale = generateColorScale(data["mc_data"]);
+    const colorScale = { domainMin: 0, clamp: true, range: COLOR_SCALE };
+    const neutralColor = "#F1F7FE"; // For undefined values
+
+    // Plot coloring: vega-lite conditions do not support updating the legend when
+    // changing the field/type used for colouring.
+    let scColor,
+        mcColor,
+        scaleType = "shared";
+    if (colorBy == "cell_type") {
+        scColor = {
+            field: "metacell_type",
+            scale: metacellColorScale,
+            title: "Cell type",
+        };
+        mcColor = {
+            field: "type",
+            scale: metacellColorScale,
+            title: "Cell type",
+        };
+    } else if (colorBy == "cytotrace") {
+        scColor = mcColor = {
+            field: "cytotrace",
+            scale: { ...colorScale, domainMax: 1 },
+            type: "quantitative",
+            title: "CytoTRACE",
+        };
+    } else if (colorBy == "median_umis") {
+        scColor = mcColor = {
+            field: "median_umis",
+            scale: colorScale,
+            type: "quantitative",
+            title: "Median UMIs",
+        };
+    } else {
+        scaleType = "independent";
+
+        scColor = {
+            condition: { test: "datum.umifrac == null", value: neutralColor },
+            title: "UMI/10K",
+            field: "umifrac",
+            type: "quantitative",
+            scale: colorScale,
+        };
+
+        mcColor = {
+            condition: {
+                test: "datum.log2_fold_change == null",
+                value: neutralColor,
+            },
+            title: "Log\u2082 FC",
+            field: "log2_fold_change",
+            type: "quantitative",
+            scale: colorScale,
+        };
+    }
+
+    // Prepare chart
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
@@ -70,6 +130,7 @@ export function createMetacellProjection(
         ],
         layer: [
             {
+                // Single-cell layer
                 data: { name: "sc_data", values: data["sc_data"] },
                 mark: {
                     type: "circle",
@@ -78,7 +139,13 @@ export function createMetacellProjection(
                 },
 
                 // Avoid drawing cells with null coordinates
-                transform: [{ filter: "datum.x != null && datum.y != null" }],
+                transform: [
+                    { filter: "datum.x != null && datum.y != null" },
+                    {
+                        calculate: `datum.${scColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
+                ],
 
                 // Avoid this transform for cells: this changes axis limits
                 // "transform": [ { "filter": "showCells == 'true'" } ],
@@ -87,16 +154,7 @@ export function createMetacellProjection(
                 encoding: {
                     x: { field: "x", type: "quantitative" },
                     y: { field: "y", type: "quantitative" },
-                    color: {
-                        condition: {
-                            test: "datum.umifrac == null",
-                            value: "#F1F7FE",
-                        },
-                        title: "UMI/10K",
-                        field: "umifrac",
-                        type: "quantitative",
-                        scale: { scheme: "magma", reverse: true },
-                    },
+                    color: scColor,
                     opacity: {
                         condition: {
                             test: "showCells == 'true'",
@@ -105,6 +163,7 @@ export function createMetacellProjection(
                         },
                         value: 0,
                     },
+                    order: { field: "is_na", sort: "descending" },
                     tooltip: {
                         condition: {
                             test: "showCells == 'false'",
@@ -114,6 +173,7 @@ export function createMetacellProjection(
                 },
             },
             {
+                // Metacell links layer
                 data: { name: "mc_links", values: data["mc_links"] },
                 mark: "rule",
                 transform: [{ filter: "showLinks == 'true'" }],
@@ -126,6 +186,7 @@ export function createMetacellProjection(
                 },
             },
             {
+                // Metacell layer
                 data: { name: "mc_data", values: data["mc_data"] },
                 mark: {
                     type: "circle",
@@ -140,26 +201,23 @@ export function createMetacellProjection(
                             "datum.fold_change == null ? null : log(datum.fold_change) / log(2)",
                         as: "log2_fold_change",
                     },
+                    {
+                        calculate: `datum.${mcColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
                     { filter: "showMetacells == 'true'" },
                 ],
                 encoding: {
                     x: { field: "x", type: "quantitative" },
                     y: { field: "y", type: "quantitative" },
                     size: { value: 400 },
-                    fill: {
-                        condition: {
-                            test: "datum.log2_fold_change == null",
-                            value: "#F1F7FE",
-                        },
-                        title: "Log\u2082 FC",
-                        field: "log2_fold_change",
-                        type: "quantitative",
-                        scale: { scheme: "magma", reverse: true },
-                    },
+                    color: mcColor,
                     opacity: { value: 0.7 },
+                    order: { field: "is_na", sort: "descending" },
                 },
             },
             {
+                // Metacell label
                 data: { name: "mc_data" },
                 mark: "text",
                 transform: [{ filter: "showLabels == 'true'" }],
@@ -181,25 +239,8 @@ export function createMetacellProjection(
                 title: null,
             },
         },
+        resolve: { scale: { color: scaleType } },
     };
-
-    // Colour by metacell_type
-    if (color_by_metacell_type) {
-        // The vega-lite conditions do not support updating the legend when
-        // changing the field/type used for colouring
-        chart.layer[0].encoding.color = {
-            field: "metacell_type",
-            scale: metacellColorScale,
-            title: "Cell type",
-        };
-
-        delete chart.layer[2].encoding.fill;
-        chart.layer[2].encoding.color = {
-            field: "type",
-            scale: metacellColorScale,
-            title: "Cell type",
-        };
-    }
 
     vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {

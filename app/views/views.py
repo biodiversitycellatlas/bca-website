@@ -125,43 +125,95 @@ class AboutView(TemplateView):
             "contact": [
                 {"url": settings.FEEDBACK_URL, "icon": "fa-envelope", "label": "Email"},
                 {
+                    "url": github_url("issues/new"),
+                    "icon": "fa-bug",
+                    "label": "Bug reports",
+                },
+                {
+                    "url": bca_url("blog"),
+                    "icon": "fa-radio",
+                    "label": "Blog",
+                },
+                {
+                    "url": bca_url("about/#media-kit"),
+                    "icon": "fa-bullhorn",
+                    "label": "Media kit",
+                },
+            ],
+            "resources": [
+                {
+                    "url": "https://www.protocols.io/workspaces/bca-methods-workspace",
+                    "icon": "fa-microscope",
+                    "label": "Protocols",
+                },
+                {
                     "url": github_url(),
                     "icon": "fa-brands fa-github",
                     "label": "Source code",
                 },
                 {
-                    "url": github_url("issues/new"),
-                    "icon": "fa-bug",
-                    "label": "Bug reports",
+                    "url": "https://github.com/biodiversitycellatlas",
+                    "icon": "fa-code-branch",
+                    "label": "Tools & Pipelines",
                 },
             ],
-            "legal": [
+            "publications": [
                 {
-                    "url": bca_url("legal"),
-                    "icon": "fa-shield-halved",
-                    "label": "Legal Notice & Privacy Policy",
-                },
-                {
-                    "url": bca_url("cookies"),
-                    "icon": "fa-cookie-bite",
-                    "label": "Cookies policy",
+                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
+                    "icon": "fa-book-open",
+                    "label": "White paper (Nature, 2025)",
                 },
             ],
             "licenses": [
                 {
                     "url": github_url("blob/main/LICENSE"),
                     "icon": "fa-kiwi-bird",
-                    "label": "BCA website",
+                    "label": "BCA website (Apache-2.0)",
+                },
+                {
+                    "url": "https://creativecommons.org/licenses/by/4.0/",
+                    "icon": "fa-database",
+                    "label": "BCA data (CC BY 4.0)",
                 },
                 {
                     "url": "https://fontawesome.com/license/free",
                     "icon": "fa-brands fa-font-awesome",
-                    "label": "Icons by Font Awesome",
+                    "label": "Font Awesome icons",
                 },
                 {
                     "url": "https://fonts.google.com/specimen/Rubik/license",
                     "icon": "fa-pen-nib",
-                    "label": "Rubik font by Google Fonts",
+                    "label": "Rubik font",
+                },
+                {
+                    "url": "https://github.com/twbs/bootstrap/blob/main/LICENSE",
+                    "icon": "fa-brands fa-bootstrap",
+                    "label": "Bootstrap framework",
+                },
+                {
+                    "url": "https://github.com/jquery/jquery/blob/main/LICENSE.txt",
+                    "icon": "fa-brands fa-square-js",
+                    "label": "jQuery library",
+                },
+                {
+                    "url": "https://datatables.net/license/mit",
+                    "icon": "fa-table",
+                    "label": "DataTables",
+                },
+                {
+                    "url": "https://github.com/vega/vega/blob/main/LICENSE",
+                    "icon": "fa-chart-line",
+                    "label": "Vega plots",
+                },
+                {
+                    "url": "https://github.com/orchidjs/tom-select/blob/master/LICENSE",
+                    "icon": "fa-caret-down",
+                    "label": "tom-select dropdowns",
+                },
+                {
+                    "url": "https://github.com/IonDen/ion.rangeSlider/blob/master/License.md",
+                    "icon": "fa-sliders",
+                    "label": "ion.rangeSlider",
                 },
             ],
         }

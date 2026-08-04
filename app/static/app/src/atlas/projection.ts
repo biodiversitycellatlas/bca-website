@@ -13,31 +13,6 @@ import {
 } from "./plots/metacell_scatterplot.js";
 
 /**
- * Toggle gene selection input.
- * Updates URL if a gene is currently selected.
- *
- * @param {string} id - HTML element ID prefix for the gene select input
- */
-function toggleGeneSelect(id) {
-    $('input[name="color_by"]').change(function () {
-        const elem = $(`#${id}_gene_selection`).tomselect;
-
-        if (this.id.includes("expression")) {
-            elem.enable();
-        } else {
-            elem.disable();
-        }
-
-        const url = new URL(window.location.href);
-        if (url.searchParams.has("gene")) {
-            url.searchParams.delete("gene");
-            url.hash = `#${id}`;
-            window.location.href = url;
-        }
-    });
-}
-
-/**
  * Initialize all checkboxes so their value reflects their checked state.
  */
 function initCheckboxSelect() {
@@ -124,6 +99,35 @@ function filterHeatmap() {
 }
 
 /**
+ * Update metacell projection when a new colouring is selected.
+ *
+ * @param {string} id - HTML element ID prefix.
+ * @param {string} dataset - Dataset name.
+ * @param {Object} data - Object containing `sc_data`, `mc_data` and `mc_links`.
+ * @param {string|null} gene - Selected gene, or `null` if none.
+ */
+function setupProjectionColoring(id, dataset, data, gene) {
+    const colorSelect = document.getElementById("projection-color");
+
+    colorSelect.addEventListener("change", (event) => {
+        const value = event.target.value;
+
+        if (value === "expression" && gene === null) {
+            // Redirect to gene page to plot expression
+            window.location = getViewUrl("atlas_gene", { dataset });
+            return;
+        }
+
+        // Update URL with selected color param
+        const url = new URL(window.location);
+        url.searchParams.set("color", value);
+        window.history.replaceState({}, "", url);
+
+        createMetacellProjection(`#${id}-plot`, dataset, data, value, gene);
+    });
+}
+
+/**
  * Load and render a metacell projection plot with optional gene coloring.
  * Also sets up interactivity like marker listing and heatmap filtering.
  *
@@ -131,10 +135,10 @@ function filterHeatmap() {
  * @param {string} dataset - Dataset name
  * @param {string} label - Label for dataset in the UI
  * @param {string|null} gene - Gene to color by (or null for metacell type)
+ * @param {}
  */
-export function initProjection(id, dataset, label, gene) {
+export function initProjection(id, dataset, label, colorBy, gene) {
     initCheckboxSelect();
-    toggleGeneSelect("{{id}}"); // Toggle state of gene select element
     listMarkers(dataset);
     filterHeatmap();
 
@@ -168,20 +172,25 @@ export function initProjection(id, dataset, label, gene) {
             if (!data["sc_data"] && !data["mc_data"]) {
                 // Show informative message that no expression data is available
                 const plot = document.getElementById(`${id}-plot`);
-                plot.innerHTML = `<p class='text-muted'><i class='fa fa-circle-exclamation'></i> No <b>${gene}</b> expression for <i>${label}</i>.</p>`;
+                plot.innerHTML = `
+                    <p class='text-muted'>
+                        <i class='fa fa-circle-exclamation'></i>
+                        No <b>${gene}</b> expression for <i>${label}</i>.
+                    </p>
+                `;
                 plot.style.removeProperty("aspect-ratio");
 
                 // Remove plot buttons
                 document.getElementById(`${id}-plot-ui`).style.display = "none";
             } else {
-                const color_by_metacell_type = gene === null;
                 createMetacellProjection(
                     `#${id}-plot`,
                     dataset,
                     data,
-                    color_by_metacell_type,
+                    colorBy,
                     gene,
                 );
+                setupProjectionColoring(id, dataset, data, gene);
             }
         })
         .catch((error) => {

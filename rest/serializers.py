@@ -499,15 +499,45 @@ class SingleCellSerializer(BaseExpressionSerializer):
     """Single cell serializer."""
 
     # Default is null for single cells with no metacell
-    metacell_name = serializers.CharField(source="metacell.name", default=None)
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None)
-    metacell_color = serializers.CharField(source="metacell.type.color", default=None)
+    metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
+    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Cell type.")
+    metacell_color = serializers.CharField(
+        source="metacell.type.color", default=None, help_text="Color associated with cell type."
+    )
 
     class Meta:
         """Meta configuration."""
 
         model = models.SingleCell
-        fields = ["name", "x", "y", "metacell_name", "metacell_type", "metacell_color", "gene_name", "umifrac"]
+        fields = [
+            "name",
+            "x",
+            "y",
+            "cytotrace",
+            "median_umis",
+            "metacell_name",
+            "metacell_type",
+            "metacell_color",
+            "gene_name",
+            "umifrac",
+        ]
+
+        extra_kwargs = {
+            "name": {"help_text": "Unique identifier."},
+            "x": {"help_text": "X coordinate in the embedding."},
+            "y": {"help_text": "Y coordinate in the embedding."},
+            "cytotrace": {
+                "help_text": (
+                    "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) estimates "
+                    "developmental potential: 0 → more differentiated, 1 → less differentiated."
+                )
+            },
+            "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "gene_name": {"help_text": "Name of the queried gene."},
+            "umifrac": {
+                "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
+            },
+        }
 
     def get_umifrac(self, obj):
         """Return UMI fraction."""
@@ -533,6 +563,8 @@ class MetacellSerializer(BaseExpressionSerializer):
             "name",
             "x",
             "y",
+            "cytotrace",
+            "median_umis",
             "type",
             "color",
             "gene_name",
@@ -540,6 +572,23 @@ class MetacellSerializer(BaseExpressionSerializer):
             "umifrac",
             "umi_raw",
         ]
+
+        extra_kwargs = {
+            "name": {"help_text": "Unique identifier."},
+            "x": {"help_text": "X coordinate in the embedding."},
+            "y": {"help_text": "Y coordinate in the embedding."},
+            "cytotrace": {
+                "help_text": (
+                    "[CytoTRACE](https://github.com/gunsagargulati/CytoTRACE) estimates "
+                    "developmental potential: 0 → more differentiated, 1 → less differentiated."
+                )
+            },
+            "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "gene_name": {"help_text": "Name of the queried gene."},
+            "umifrac": {
+                "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
+            },
+        }
 
 
 class MetacellLinkSerializer(serializers.ModelSerializer):
@@ -771,6 +820,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
     metacell_color = serializers.SerializerMethodField()
     metacell2_color = serializers.SerializerMethodField()
     samap_score = serializers.FloatField()
+    samap_gene_pairs = serializers.SerializerMethodField()
 
     class Meta:
         """Meta configuration."""
@@ -784,6 +834,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
             "metacell2_type",
             "metacell2_color",
             "samap_score",
+            "samap_gene_pairs",
         ]
 
     def _get_metacell_types(self, obj):
@@ -816,6 +867,18 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
     def get_metacell2_color(self, obj) -> str:
         """Return metacell color for metacell 2."""
         return self._get_metacell_types(obj)[1].color
+
+    def get_samap_gene_pairs(self, obj):
+        if not obj.samap_gene_pairs:
+            return None
+
+        # Get all gene IDs and create dictionary with their names
+        gene_ids = {gene_id for pair in obj.samap_gene_pairs for gene_id in pair}
+        genes = dict(models.Gene.objects.filter(id__in=gene_ids).values_list("id", "name"))
+
+        # Return gene name in the correct dataset order
+        reverse = getattr(obj, "order_flag", 0) == 1
+        return [[genes[b], genes[a]] if reverse else [genes[a], genes[b]] for a, b in obj.samap_gene_pairs]
 
 
 class GeneSearchSerializer(serializers.Serializer):

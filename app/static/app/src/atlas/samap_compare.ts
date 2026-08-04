@@ -2,13 +2,19 @@
  * Visualize SAMap comparisons between datasets.
  */
 
-import $ from "jquery";
+import DataTable from "datatables.net-bs5";
 
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
 import { createSAMapHeatmap } from "./plots/samap_heatmap.js";
+import {
+    linkDomains,
+    linkGeneLists,
+    linkOrthogroups,
+    makeLinkGene,
+} from "./tables/utils.ts";
 
 /**
  * Update parameter and reload page.
@@ -26,15 +32,15 @@ export function updateParam(param, value) {
  * Navigate to new URL query parameters based on form data.
  * Maintains query when changing only one value.
  *
- * @param {HTMLFormElement} elem - The form element being submitted.
- * @param {Event} e - The submit event.
+ * @param {HTMLFormElement} form - The submitted form element.
+ * @param {Event} event - The submit event.
  */
-function modifyFormQuery(elem, e) {
-    e.preventDefault();
+function modifyFormQuery(form, event) {
+    event.preventDefault();
 
     // Modify form URL
-    const formData = new FormData(elem);
-    const url = new URL(e.target.action);
+    const formData = new FormData(form);
+    const url = new URL(form.action);
     for (const [key, value] of formData.entries()) {
         url.searchParams.set(key, value);
     }
@@ -45,9 +51,194 @@ function modifyFormQuery(elem, e) {
  * When submitting form, modify query params.
  */
 export function handleFormSubmit() {
-    $("form").on("submit", function (e) {
-        modifyFormQuery(this, e);
+    document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+            modifyFormQuery(form, event);
+        });
     });
+}
+
+/**
+ * Fetch gene information for a list of genes in a species.
+ *
+ * @param {string} species - Species name.
+ * @param {string[]} genes - List of gene identifiers.
+ * @returns {Promise<Object>} Mapping of gene identifiers to gene metadata.
+ */
+function fetchGeneInfo(species, genes) {
+    const url = getViewUrl("rest:gene-list") + "?limit=0";
+    const body = JSON.stringify({ species, genes });
+
+    const data = fetch(url, {
+        method: "POST",
+        body: body,
+        headers: { "Content-Type": "application/json" },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            const geneInfo = {};
+            data.forEach((gene) => {
+                geneInfo[gene.gene] = gene;
+            });
+            return geneInfo;
+        });
+    return data;
+}
+
+/**
+ * Create DataTable displaying gene comparisons.
+ *
+ * @param {string} id - HTML element ID prefix for the table container.
+ * @param {Object[]} rows - Table row data.
+ * @param {string} dataset - Name of the first dataset.
+ * @param {string} dataset2 - Name of the second dataset.
+ * @returns {DataTable} Initialised DataTable instance.
+ */
+
+function createGenePairsTable(id, rows, dataset, dataset2) {
+    document.getElementById(`${id}-cell-type-compare-empty`).hidden = true;
+
+    // Destroy table if it exists
+    const tableId = `#${id}-cell-type-compare-table`;
+    new DataTable.Api(tableId).destroy();
+
+    const table = new DataTable(tableId, {
+        data: rows,
+        columns: [
+            {
+                title: "Gene 1",
+                data: "gene1_gene",
+                render: makeLinkGene(dataset),
+            },
+            {
+                title: "Gene 2",
+                data: "gene2_gene",
+                render: makeLinkGene(dataset2),
+            },
+            {
+                title: "Description 1",
+                data: "gene1_description",
+                className: "truncate",
+            },
+            {
+                title: "Description 2",
+                data: "gene2_description",
+                className: "truncate",
+            },
+            {
+                title: "Domains 1",
+                data: "gene1_domains",
+                render: linkDomains,
+                className: "truncate",
+            },
+            {
+                title: "Domains 2",
+                data: "gene2_domains",
+                render: linkDomains,
+                className: "truncate",
+            },
+            {
+                title: "Gene lists 1",
+                data: "gene1_genelists",
+                render: linkGeneLists,
+                className: "truncate",
+            },
+            {
+                title: "Gene lists 2",
+                data: "gene2_genelists",
+                render: linkGeneLists,
+                className: "truncate",
+            },
+            {
+                title: "Orthogroups 1",
+                data: "gene1_orthogroups",
+                render: linkOrthogroups,
+                className: "truncate",
+            },
+            {
+                title: "Orthogroups 2",
+                data: "gene2_orthogroups",
+                render: linkOrthogroups,
+                className: "truncate",
+            },
+        ],
+        // orderFixed: [[0, "asc"]],
+        responsive: true,
+        scrollX: true,
+        scrollY: "400px",
+        scrollCollapse: true,
+        paging: false,
+        language: { search: "", searchPlaceholder: "Search table..." },
+    });
+    return table;
+}
+
+/**
+ * Fetch gene metadata and create a gene pair comparison table.
+ *
+ * @param {string} id - HTML element ID prefix for the table container.
+ * @param {Array<Array<string>>} genePairs - Pairs of corresponding genes.
+ * @param {string} species - Species name for the first dataset.
+ * @param {string} species2 - Species name for the second dataset.
+ * @param {string} dataset - Name of the first dataset.
+ * @param {string} dataset2 - Name of the second dataset.
+ * @returns {Promise<void>} Resolves when the table has been created.
+ */
+function prepareGenePairsTable(
+    id,
+    genePairs,
+    species,
+    species2,
+    dataset,
+    dataset2,
+) {
+    const genes = [...new Set(genePairs.map(([gene1]) => gene1))];
+    const genes2 = [...new Set(genePairs.map(([, gene2]) => gene2))];
+
+    return Promise.all([
+        fetchGeneInfo(species, genes),
+        fetchGeneInfo(species2, genes2),
+    ]).then(([geneInfo1, geneInfo2]) => {
+        const rows = genePairs.map(([gene1, gene2]) =>
+            Object.fromEntries([
+                ...Object.entries(geneInfo1[gene1]).map(([key, value]) => [
+                    `gene1_${key}`,
+                    value,
+                ]),
+                ...Object.entries(geneInfo2[gene2]).map(([key, value]) => [
+                    `gene2_${key}`,
+                    value,
+                ]),
+            ]),
+        );
+        createGenePairsTable(id, rows, dataset, dataset2);
+    });
+}
+
+/**
+ * Update the summary information displayed for a cell-type pair comparison.
+ *
+ * @param {string} id - HTML element ID prefix for the comparison container.
+ * @param {string} metacellType - Cell type from the first dataset.
+ * @param {string} metacellType2 - Cell type from the second dataset.
+ * @param {number|string} samapScore - SAMap similarity score.
+ * @param {number} genePairCount - Number of matched gene pairs.
+ */
+
+function updateComparisonSummary(
+    id,
+    metacellType,
+    metacellType2,
+    samapScore,
+    genePairCount,
+) {
+    document.getElementById(`${id}-metacell-type`).textContent = metacellType;
+    document.getElementById(`${id}-metacell2-type`).textContent = metacellType2;
+
+    const scoreLabel = `SAMap: ${Number(samapScore).toFixed(2)}%`;
+    const countLabel = `${genePairCount} gene pair${genePairCount == 1 ? "" : "s"}`;
+    document.getElementById(`${id}-gene-pair-summary`).textContent =
+        `${scoreLabel} · ${countLabel}`;
 }
 
 /**
@@ -60,28 +251,67 @@ export function handleFormSubmit() {
  * @param {string} label2 - Label for the second dataset
  * @param {string} dataset2 - Name of the second dataset
  */
-export function initSAMap(id, label, dataset, label2, dataset2) {
+export function initSAMap(
+    id,
+    label,
+    dataset,
+    species,
+    label2,
+    dataset2,
+    species2,
+) {
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
-        min_samap: $("#min_samap").val(),
+        min_samap: document.getElementById("min_samap").value,
         limit: 0,
     });
 
-    const heatmap = $("#plot").val() == "heatmap";
+    const heatmap = document.getElementById("plot").value == "heatmap";
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
+            data = data.map((datum) => ({
+                ...datum,
+                samap_gene_pair_count: datum.samap_gene_pairs?.length || 0,
+            }));
+
             if (!data.length) {
-                $(`#${id}-plot`).html(
-                    '<p class="text-muted"><i class="fa fa-circle-exclamation"></i>',
-                    "No data available for the selected datasets.</p>",
-                );
+                const plot = document.getElementById(`${id}-plot`);
+                plot.parentElement.parentElement.innerHTML = `
+                    <p class="text-muted">
+                        <i class="fa fa-circle-exclamation"></i>
+                        No data available for the selected datasets.
+                    </p>
+                `;
             } else if (heatmap) {
-                createSAMapHeatmap(`#${id}-plot`, data, label, label2);
+                return createSAMapHeatmap(`#${id}-plot`, data, label, label2);
             } else {
-                createSAMapSankey(`#${id}-plot`, data, label, label2);
+                return createSAMapSankey(`#${id}-plot`, data, label, label2);
             }
+        })
+        .then((view) => {
+            // Update table when clicking valid plot values
+            view.addEventListener("click", (event, item) => {
+                if (!item) return;
+                if (!item.datum.samap_gene_pairs) return;
+
+                updateComparisonSummary(
+                    id,
+                    item.datum.metacell_type,
+                    item.datum.metacell2_type,
+                    item.datum.samap_score,
+                    item.datum.samap_gene_pair_count,
+                );
+                prepareGenePairsTable(
+                    id,
+                    item.datum.samap_gene_pairs,
+                    species,
+                    species2,
+                    dataset,
+                    dataset2,
+                );
+            });
         })
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));
