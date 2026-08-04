@@ -575,22 +575,55 @@ class MetacellTypeSimilarityTests(APITestCase):
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
         dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
         dataset2 = species2.datasets.create(name="dataset4", description="dataset4")
-        type1 = dataset1.metacell_types.create(name="type1")
-        type2 = dataset1.metacell_types.create(name="type2", dataset=dataset1)
-        type3 = dataset2.metacell_types.create(name="type3", dataset=dataset2)
-        type4 = dataset2.metacell_types.create(name="type4", dataset=dataset2)
-        MetacellTypeSimilarity.objects.create(metacelltype=type1, metacelltype2=type3, samap_score=0.8)
-        MetacellTypeSimilarity.objects.create(metacelltype=type2, metacelltype2=type4, samap_score=0.7)
+        cls.type1 = dataset1.metacell_types.create(name="type1")
+        cls.type2 = dataset1.metacell_types.create(name="type2", dataset=dataset1)
+        cls.type3 = dataset2.metacell_types.create(name="type3", dataset=dataset2)
+        cls.type4 = dataset2.metacell_types.create(name="type4", dataset=dataset2)
+        type1, type2, type3, type4 = cls.type1, cls.type2, cls.type3, cls.type4
+        gene1 = species1.genes.create(name="gene1", description="gene1")
+        gene2 = species2.genes.create(name="gene2", description="gene2")
+        gene3 = species1.genes.create(name="gene3", description="gene3")
+        gene4 = species2.genes.create(name="gene4", description="gene4")
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type1,
+            metacelltype2=type3,
+            samap_score=0.8,
+            samap_gene_pairs=[[gene1.id, gene2.id]],
+        )
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type2,
+            metacelltype2=type4,
+            samap_score=0.7,
+            samap_gene_pairs=[[gene3.id, gene4.id]],
+        )
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type3,
+            metacelltype2=type1,
+            samap_score=0.6,
+            samap_gene_pairs=[[gene1.id, gene2.id]],
+        )
 
     def test_retrieve(self):
         url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
         response = self.client.get(url, format="json")
         comparison = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(comparison) == 2
+        assert len(comparison) == 3
         assert {s["metacell_type"] for s in comparison} == {"type1", "type2"}
         assert {s["metacell2_type"] for s in comparison} == {"type3", "type4"}
-        assert {s["samap_score"] for s in comparison} == {0.8, 0.7}
+        assert {s["samap_score"] for s in comparison} == {0.8, 0.7, 0.6}
+        pairs = {s["samap_score"]: s["samap_gene_pairs"] for s in comparison}
+        assert pairs[0.8] == [["gene1", "gene2"]]
+        assert pairs[0.7] == [["gene3", "gene4"]]
+        assert pairs[0.6] == [["gene2", "gene1"]]
+
+    def test_retrieve_without_gene_pairs(self):
+        MetacellTypeSimilarity.objects.create(metacelltype=self.type1, metacelltype2=self.type4, samap_score=0.5)
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
+        response = self.client.get(url, format="json")
+        comparison = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["samap_gene_pairs"] for s in comparison if s["samap_score"] == 0.5} == {None}
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

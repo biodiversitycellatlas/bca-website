@@ -4,8 +4,6 @@
 
 import vegaEmbed from "vega-embed";
 
-export let viewSAMapHeatmap;
-
 /**
  * Renders a heatmap to compare SAMap scores between metacell types from
  * different species
@@ -36,6 +34,12 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         height: "container",
         data: { name: "exprData", values: data },
+        transform: [
+            {
+                calculate: "format(datum.samap_score, '.2f') + '%'",
+                as: "samap_score_formatted",
+            },
+        ],
         vconcat: [
             {
                 hconcat: [
@@ -60,7 +64,10 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                     {
                         width: "container",
                         height: 500,
-                        mark: { type: "rect", tooltip: { content: "data" } },
+                        mark: {
+                            type: "rect",
+                            cursor: "pointer",
+                        },
                         encoding: {
                             x: {
                                 field: "metacell2_type",
@@ -77,7 +84,7 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                             color: {
                                 field: "samap_score",
                                 type: "quantitative",
-                                title: "SAMap scores",
+                                title: "SAMap",
                                 legend: {
                                     labelExpr: "datum.value + '%'",
                                 },
@@ -91,6 +98,24 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
                                     ],
                                 },
                             },
+                            tooltip: [
+                                {
+                                    field: "metacell_type",
+                                    title: "Cell type ←",
+                                },
+                                {
+                                    field: "metacell2_type",
+                                    title: "Cell type →",
+                                },
+                                {
+                                    field: "samap_score_formatted",
+                                    title: "SAMap",
+                                },
+                                {
+                                    field: "samap_gene_pair_count",
+                                    title: "Gene pairs",
+                                },
+                            ],
                         },
                     },
                 ],
@@ -125,9 +150,10 @@ export function createSAMapHeatmap(id, data, dataset_label, dataset2_label) {
         config: { view: { stroke: "transparent" } },
     };
 
-    vegaEmbed(id, chart, { renderer: "canvas" })
-        .then((res) => {
-            viewSAMapHeatmap = res.view;
-        })
-        .catch(console.error);
+    return vegaEmbed(id, chart, { renderer: "canvas" })
+        .then((res) => res.view)
+        .catch((error) => {
+            console.error(error);
+            throw error;
+        });
 }
