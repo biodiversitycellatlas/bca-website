@@ -1061,7 +1061,7 @@ class DBVersion(models.Model):
         # Database-level constraint to require either version or git commit hash
         constraints = [
             models.CheckConstraint(
-                check=models.Q(version__isnull=False) | models.Q(commit__isnull=False),
+                condition=models.Q(version__isnull=False) | models.Q(commit__isnull=False),
                 name="require_version_or_commit",
                 violation_error_message="Either version or git commit hash must be provided.",
             ),
