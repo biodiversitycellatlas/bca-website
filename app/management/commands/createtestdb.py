@@ -1,3 +1,4 @@
+import gzip
 import itertools
 import os
 import random
@@ -37,7 +38,9 @@ from app.models import (
     ExpressionConservation,
     Meta,
     SpeciesFile,
+    GlobalFile,
 )
+from scripts.tests.build_go_obo import GeneOntologyOboBuilder
 
 
 def setup_test_environment():
@@ -87,6 +90,7 @@ class Command(BaseCommand):
         self.create_all_genecorrelations()
         self.create_all_eigengene_values()
         self.create_species_files()
+        self.save_go_file()
         self.stdout.write(self.style.SUCCESS("Successfully created Test Database"))
 
     def create_datasets(self):
@@ -396,3 +400,11 @@ class Command(BaseCommand):
         input_file = self.create_fasta_file(self.homo, homo_genes)
         output_file = f"{self.homo.scientific_name} - DIAMOND.dmnd"
         self.create_diamond_database(self.homo, input_file, output_file)
+
+    @staticmethod
+    def save_go_file():
+        builder = GeneOntologyOboBuilder()
+        builder.prepare_filtered_go_obo()
+        with gzip.open(builder.output_file.with_suffix(".obo.gz"), "rb") as f:
+            django_file = DjangoFile(f, name=os.path.basename(builder.output_file))
+            GlobalFile.objects.get_or_create(type="go-basic-obo", defaults={"file": django_file})
