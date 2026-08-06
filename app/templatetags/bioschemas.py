@@ -44,7 +44,15 @@ def _script(payload):
         indent=2,
         ensure_ascii=False,
     ).translate(_ESCAPES)
-    return mark_safe(f'<script type="application/ld+json">\n{body}\n</script>')
+
+    # nosec justification: `body` is JSON-serialised output, so every string is
+    # already quote- and backslash-escaped, and `_ESCAPES` unicode-escapes the only
+    # characters that could terminate the element. It therefore cannot break out of
+    # the script context -- the same argument Django makes for `html.json_script`.
+    # `test_script_escapes_html_sensitive_characters` pins this behaviour.
+    return mark_safe(  # nosec B308, B703
+        f'<script type="application/ld+json">\n{body}\n</script>'
+    )
 
 
 def _request(context):
