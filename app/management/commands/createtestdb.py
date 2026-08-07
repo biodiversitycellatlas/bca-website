@@ -43,9 +43,11 @@ from app.models import (
 OUTPUT_DIR = settings.MEDIA_ROOT
 
 
-def output_filepath(filename):
-    """Full path to a generated file in the output directory."""
-    return os.path.join(OUTPUT_DIR, filename)
+def get_filepath(filename, dir=None):
+    """Path to file in a given directory."""
+    if dir is None:
+        dir = OUTPUT_DIR
+    return os.path.join(dir, filename)
 
 
 def setup_test_environment():
@@ -274,7 +276,7 @@ class Command(BaseCommand):
             )
 
     def create_hdf5_file(self, dataset, genes, singlecells):
-        output_file = output_filepath(f"{dataset.slug}-singlecell_umifrac.hdf5")
+        output_file = get_filepath(f"{dataset.slug}-singlecell_umifrac.hdf5")
         with h5py.File(output_file, "w") as root:
             root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
             num_sc = len(singlecells) // 10
@@ -376,7 +378,7 @@ class Command(BaseCommand):
             SpeciesFile.objects.get_or_create(species=species, type=kind, defaults={"file": django_file})
 
     def create_fasta_file(self, species, genes):
-        output_file = output_filepath(f"{species} - Proteome.fasta")
+        output_file = get_filepath(f"{species} - Proteome.fasta")
         with open(output_file, "w") as f:
             for gene in genes:
                 sequence = self.fake.bothify(
@@ -398,10 +400,10 @@ class Command(BaseCommand):
     def create_species_files(self):
         sponge_genes = list(self.sponge.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.sponge, sponge_genes)
-        output_file = output_filepath(f"{self.sponge.scientific_name} - DIAMOND.dmnd")
+        output_file = get_filepath(f"{self.sponge.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.sponge, input_file, output_file)
 
         homo_genes = list(self.homo.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.homo, homo_genes)
-        output_file = output_filepath(f"{self.homo.scientific_name} - DIAMOND.dmnd")
+        output_file = get_filepath(f"{self.homo.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.homo, input_file, output_file)
