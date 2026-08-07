@@ -7,6 +7,7 @@ from typing import TextIO
 import factory.random
 import h5py
 import numpy as np
+from django.conf import settings
 from django.core.files import File as DjangoFile
 from django.core.management.base import BaseCommand
 from django.db import connection
@@ -38,6 +39,13 @@ from app.models import (
     Meta,
     SpeciesFile,
 )
+
+OUTPUT_DIR = settings.MEDIA_ROOT
+
+
+def output_filepath(filename):
+    """Full path to a generated file in the output directory."""
+    return os.path.join(OUTPUT_DIR, filename)
 
 
 def setup_test_environment():
@@ -73,6 +81,7 @@ class Command(BaseCommand):
         """
         Database creation
         """
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
         setup_test_environment()
         create_tgrm_extension()
         self.create_datasets()
@@ -265,7 +274,7 @@ class Command(BaseCommand):
             )
 
     def create_hdf5_file(self, dataset, genes, singlecells):
-        output_file = f"{dataset.slug}-singlecell_umifrac.hdf5"
+        output_file = output_filepath(f"{dataset.slug}-singlecell_umifrac.hdf5")
         with h5py.File(output_file, "w") as root:
             root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
             num_sc = len(singlecells) // 10
@@ -367,7 +376,7 @@ class Command(BaseCommand):
             SpeciesFile.objects.get_or_create(species=species, type=kind, defaults={"file": django_file})
 
     def create_fasta_file(self, species, genes):
-        output_file = f"{species} - Proteome.fasta"
+        output_file = output_filepath(f"{species} - Proteome.fasta")
         with open(output_file, "w") as f:
             for gene in genes:
                 sequence = self.fake.bothify(
@@ -389,10 +398,10 @@ class Command(BaseCommand):
     def create_species_files(self):
         sponge_genes = list(self.sponge.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.sponge, sponge_genes)
-        output_file = f"{self.sponge.scientific_name} - DIAMOND.dmnd"
+        output_file = output_filepath(f"{self.sponge.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.sponge, input_file, output_file)
 
         homo_genes = list(self.homo.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.homo, homo_genes)
-        output_file = f"{self.homo.scientific_name} - DIAMOND.dmnd"
+        output_file = output_filepath(f"{self.homo.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.homo, input_file, output_file)
