@@ -52,22 +52,35 @@ export async function readNewickJSON(file) {
  * @param {string} file - URL or path to the Newick JSON file
  */
 export function createTreeOfLife(id, file) {
+    const el = document.querySelector(id);
+
+    function getSize() {
+        const w = el.clientWidth;
+        const h = Math.max(400, Math.min(w * 0.6, window.innerHeight * 0.8));
+        return { width: w, height: h };
+    }
+
+    function getFontSize(w) {
+        return Math.max(8, Math.min(11, Math.round(w / 90)));
+    }
+
     fetch(file)
         .then((res) => res.json())
         .then((obj) => flatten(obj))
         .then((data) => {
+            const size = getSize();
             const chart = {
                 $schema: "https://vega.github.io/schema/vega/v6.json",
                 description: "Tree of life.",
-                width: 1000,
-                height: 600,
+                width: size.width,
+                height: size.height,
                 padding: 5,
                 autosize: "none",
                 signals: [
                     { name: "originX", update: "width / 2" },
                     { name: "originY", update: "height / 2" },
                     { name: "clusterSize", update: "height / 3" },
-                    { name: "fontSize", value: 11 },
+                    { name: "fontSize", value: getFontSize(size.width) },
                     {
                         name: "extent",
                         description: "initial animation",
@@ -223,6 +236,16 @@ export function createTreeOfLife(id, file) {
                     },
                 ],
             };
-            vegaEmbed(id, chart, { renderer: "svg" });
+            vegaEmbed(id, chart, { renderer: "svg" }).then((result) => {
+                const view = result.view;
+                const observer = new ResizeObserver(() => {
+                    const newSize = getSize();
+                    view.width(newSize.width)
+                        .height(newSize.height)
+                        .signal("fontSize", getFontSize(newSize.width))
+                        .runAsync();
+                });
+                observer.observe(el);
+            });
         });
 }
