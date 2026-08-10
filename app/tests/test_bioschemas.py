@@ -533,6 +533,20 @@ class BioschemasPageTests(DataTestCase):
         payload = json.loads(out.getvalue())
         assert_conforms(payload, "Dataset")
 
+    def test_dump_command_raw_mode_wraps_multiple_payloads_in_an_array(self):
+        """Several URLs (or a page with several blocks) must still parse as one JSON document."""
+        out = StringIO()
+        call_command(
+            "dump_bioschemas",
+            f"/atlas/{self.adult_mouse.slug}/",
+            "/entry/species/",
+            "--raw",
+            stdout=out,
+        )
+        payloads = json.loads(out.getvalue())
+        assert isinstance(payloads, list)
+        assert {each["@type"] for each in payloads} == {"Dataset", "CollectionPage"}
+
     def dumped_url(self, env, *args):
         """Return the `url` of the payload dumped for a gene page under `env`."""
         url = f"/entry/gene/{self.mouse.slug}/{self.brca1.name}/"

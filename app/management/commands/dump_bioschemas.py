@@ -160,6 +160,7 @@ class Command(BaseCommand):
         with override_settings(ALLOWED_HOSTS=["*"]):
             urls = options["urls"] or default_urls()
             missing = []
+            all_payloads = []
 
             for url in urls:
                 response = client.get(url, **request)
@@ -178,8 +179,20 @@ class Command(BaseCommand):
                     missing.append(f"{url} (HTTP {response.status_code})")
                     continue
 
-                for payload in payloads:
-                    self.stdout.write(json.dumps(payload, indent=2, ensure_ascii=False))
+                all_payloads += payloads
+
+                if not raw:
+                    for payload in payloads:
+                        self.stdout.write(json.dumps(payload, indent=2, ensure_ascii=False))
+
+        if raw:
+            # A single payload is printed bare; more than one is wrapped in an
+            # array, since multiple bare top-level objects back-to-back would
+            # not be valid JSON on their own.
+            if len(all_payloads) == 1:
+                self.stdout.write(json.dumps(all_payloads[0], indent=2, ensure_ascii=False))
+            elif all_payloads:
+                self.stdout.write(json.dumps(all_payloads, indent=2, ensure_ascii=False))
 
         if not raw:
             self.stdout.write(f"\n{len(urls) - len(missing)}/{len(urls)} pages served JSON-LD.")
