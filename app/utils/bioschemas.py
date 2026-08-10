@@ -230,16 +230,15 @@ def scholarly_article(publication):
     identifiers = [
         {
             "@type": "PropertyValue",
-            "name": "DOI",
-            "propertyID": "https://registry.identifiers.org/registry/doi",
-            "value": publication.doi,
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "PubMed ID",
-            "propertyID": "https://registry.identifiers.org/registry/pubmed",
-            "value": publication.pmid,
-        },
+            "name": name,
+            "propertyID": property_id,
+            "value": value,
+        }
+        for name, property_id, value in (
+            ("DOI", "https://registry.identifiers.org/registry/doi", publication.doi),
+            ("PubMed ID", "https://registry.identifiers.org/registry/pubmed", publication.pmid),
+        )
+        if value
     ]
     authors = [{"@type": "Person", "name": name.strip()} for name in publication.authors.split(",") if name.strip()]
 

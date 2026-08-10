@@ -239,6 +239,19 @@ class TestDataset:
         assert {"DOI", "PubMed ID"} == {each["name"] for each in citation["identifier"]}
         assert citation["isPartOf"]["name"] == "Nature"
 
+    def test_scholarly_article_omits_identifiers_without_a_value(self, db):
+        publication = Publication.objects.create(
+            title="No PubMed entry",
+            authors="Solo Author",
+            year=2020,
+            journal="Journal X",
+            doi="10.1000/solo",
+            pmid="",
+        )
+        citation = bioschemas.scholarly_article(publication)
+        assert {"DOI"} == {each["name"] for each in citation["identifier"]}
+        assert all(each["value"] for each in citation["identifier"])
+
     def test_distributions_cover_the_rest_api(self, dataset, request_obj):
         distributions = bioschemas.dataset(dataset, request_obj)["distribution"]
         formats = {each["encodingFormat"] for each in distributions}
