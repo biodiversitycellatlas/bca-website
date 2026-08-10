@@ -201,7 +201,7 @@ def species_file_distributions(request, species_list):
     for species in species_list or []:
         for each in species.files.all():
             url = _reverse("download_file", args=[each.slug])
-            if not url:
+            if not url:  # pragma: no cover - defensive, mirrors _reverse's NoReverseMatch guard
                 continue
             ext = (each.ext or "").lower()
             downloads.append(

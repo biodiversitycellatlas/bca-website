@@ -359,6 +359,12 @@ class TestCompact:
         assert bioschemas._compact({"a": False, "b": 0, "c": True}) == {"a": False, "b": 0, "c": True}
 
 
+class TestAbsolute:
+    def test_returns_none_for_a_falsy_url(self, request_obj):
+        assert bioschemas._absolute(request_obj, "") is None
+        assert bioschemas._absolute(request_obj, None) is None
+
+
 # --- template tags -----------------------------------------------------------
 
 
