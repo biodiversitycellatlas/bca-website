@@ -306,8 +306,10 @@ def taxon(species, request=None, minimal=False):
     node["description"] = species.description
     node["image"] = species.image_url
 
-    # Use the most specific enclosing rank recorded for this species
-    for key in ("phylum", "kingdom", "division"):
+    # Use the most specific enclosing rank recorded for this species. `division`
+    # is the botanical/mycological name for the same rank as `phylum`, so both
+    # outrank the broader `kingdom`.
+    for key in ("phylum", "division", "kingdom"):
         parent = _meta(species, key)
         if parent:
             node["parentTaxon"] = parent.value
