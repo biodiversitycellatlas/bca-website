@@ -4,6 +4,8 @@
 
 import vegaEmbed from "vega-embed";
 
+import { getMetacellIndex } from "../../utils/metacell.ts";
+
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
 
@@ -22,7 +24,7 @@ function createMetacellRugPlot(orient = "top") {
         mark: "rect",
         encoding: {
             x: {
-                field: "metacell_name",
+                field: "metacell_index",
                 axis: {
                     labels: false,
                     ticks: false,
@@ -66,6 +68,8 @@ function createMetacellHeatmap(
     boundaryColor = "black",
     clip = [null, null],
 ) {
+    data = data.map((obj) => ({ ...obj, metacell_index: getMetacellIndex(obj.metacell_name) }));
+
     const metacellBoundaryLines = {
         mark: "rule",
         transform: [
@@ -73,20 +77,20 @@ function createMetacellHeatmap(
             {
                 window: [{ op: "row_number", as: "rn" }],
                 groupby: ["metacell_type"],
-                sort: [{ field: "metacell_name", order: "ascending" }],
+                sort: [{ field: "metacell_index", order: "ascending" }],
             },
             { filter: "datum.rn === 1" },
 
             // Discard first value (overlaps the Y-axis grid line)
             {
                 window: [{ op: "row_number", as: "rn_all" }],
-                sort: [{ field: "metacell_name", order: "ascending" }],
+                sort: [{ field: "metacell_index", order: "ascending" }],
             },
             { filter: "datum.rn_all > 1" },
         ],
         encoding: {
             // Position first mark to the left
-            x: { field: "metacell_name", bandPosition: 0 },
+            x: { field: "metacell_index", bandPosition: 0 },
             color: { value: boundaryColor },
             strokeWidth: { value: 0.5 },
         },
@@ -97,7 +101,6 @@ function createMetacellHeatmap(
         height: "container",
         data: { name: "exprData", values: data },
         transform: [
-            { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
             {
                 joinaggregate: [
                     { op: "distinct", field: yField, as: "y_count" },
@@ -119,7 +122,7 @@ function createMetacellHeatmap(
                         mark: { type: "rect", tooltip: { content: "data" } },
                         encoding: {
                             x: {
-                                field: "metacell_name",
+                                field: "metacell_index",
                                 axis: { labels: false, ticks: false },
                                 title: "",
                             },

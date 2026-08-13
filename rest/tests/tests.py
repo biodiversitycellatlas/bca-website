@@ -372,6 +372,27 @@ class MetacellTests(APITestCase):
         assert len(markers) == 2
         assert markers[0]["name"] == "gene1"
 
+    def test_retrieve_gene_expression_sorted(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acrmil01-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        metacell_gene_expression = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene2"]
+
 
 class GeneListTests(APITestCase):
     """Tests GeneList endpoint"""

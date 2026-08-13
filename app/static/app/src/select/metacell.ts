@@ -4,29 +4,40 @@
 
 import TomSelect from "tom-select";
 
+import { getMetacellIndex } from "../utils/metacell.ts";
+
 /**
- * Convert a comma-separated list of numbers into ranges.
+ * Convert a comma-separated list of metacell names into ranges.
  *
- * @param {string} str - Comma-separated numeric string (e.g., "1,2,3,5").
+ * @param {string} str - Comma-separated metacell names (e.g., "1,2,3,5").
  * @returns {string} Comma-separated ranges (e.g., "1-3,5").
  */
 export function convertToRange(str) {
-    // Sort numeric values
-    const numbers = str
+    // Sort metacells by their trailing number (keep full name if they don't have a trailing number)
+    const values = str
         .split(",")
-        .map(Number)
-        .sort((a, b) => a - b);
-    const ranges = [];
-    let start = numbers[0];
-    let end = numbers[0];
+        .map((name) => ({ name, index: getMetacellIndex(name) }))
+        .sort((a, b) => {
+            if (a.index !== null && b.index !== null) {
+                return a.index - b.index;
+            }
+            if (a.index !== null) return -1;
+            if (b.index !== null) return 1;
+            return a.name.localeCompare(b.name);
+        })
+        .map(({ name, index }) => (index !== null ? index : name));
 
-    for (let i = 1; i < numbers.length; i++) {
-        if (numbers[i] === end + 1) {
-            end = numbers[i];
+    const ranges = [];
+    let start = values[0];
+    let end = values[0];
+
+    for (let i = 1; i < values.length; i++) {
+        if (typeof values[i] === "number" && values[i] === end + 1) {
+            end = values[i];
         } else {
             ranges.push(start === end ? `${start}` : `${start}-${end}`);
-            start = numbers[i];
-            end = numbers[i];
+            start = values[i];
+            end = values[i];
         }
     }
 
