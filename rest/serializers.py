@@ -431,8 +431,12 @@ class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
     """Gene module eigengene serializer."""
 
     metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Metacell type.")
-    metacell_color = serializers.CharField(source="metacell.type.color", default=None, help_text="Metacell color.")
+    metacell_type = serializers.CharField(
+        source="metacell.type.name", default=None, allow_null=True, help_text="Metacell type."
+    )
+    metacell_color = serializers.CharField(
+        source="metacell.type.color", default=None, allow_null=True, help_text="Metacell color."
+    )
 
     module = serializers.CharField(help_text="Gene module name.")
     dataset = serializers.CharField(source="module.dataset.slug", help_text="Dataset slug.")
@@ -499,10 +503,12 @@ class SingleCellSerializer(BaseExpressionSerializer):
     """Single cell serializer."""
 
     # Default is null for single cells with no metacell
-    metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Cell type.")
+    metacell_name = serializers.CharField(source="metacell.name", default=None, allow_null=True, help_text="Metacell name.")
+    metacell_type = serializers.CharField(
+        source="metacell.type.name", default=None, allow_null=True, help_text="Cell type."
+    )
     metacell_color = serializers.CharField(
-        source="metacell.type.color", default=None, help_text="Color associated with cell type."
+        source="metacell.type.color", default=None, allow_null=True, help_text="Color associated with cell type."
     )
 
     class Meta:
@@ -549,8 +555,8 @@ class SingleCellSerializer(BaseExpressionSerializer):
 class MetacellSerializer(BaseExpressionSerializer):
     """Metacell serializer."""
 
-    type = serializers.CharField(source="type.name", help_text="Metacell type.", required=False)
-    color = serializers.CharField(source="type.color", help_text="Color of metacell type.", required=False)
+    type = serializers.CharField(source="type.name", allow_null=True, help_text="Metacell type.", required=False)
+    color = serializers.CharField(source="type.color", allow_null=True, help_text="Color of metacell type.", required=False)
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)
@@ -619,8 +625,8 @@ class MetacellCountSerializer(serializers.ModelSerializer):
     """Metacell count serializer."""
 
     metacell = serializers.CharField(source="metacell.name")
-    metacell_type = serializers.CharField(source="metacell.type.name")
-    metacell_color = serializers.CharField(source="metacell.type.color")
+    metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
+    metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
 
     cells = serializers.IntegerField(help_text="Cell count.")
     umis = serializers.IntegerField(help_text="UMI count.")
@@ -658,8 +664,8 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     gene_domains = serializers.StringRelatedField(source="gene.domains", many=True)
 
     metacell_name = serializers.CharField(source="metacell.name")
-    metacell_type = serializers.CharField(source="metacell.type.name")
-    metacell_color = serializers.CharField(source="metacell.type.color")
+    metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
+    metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
 
     class Meta:
         """Meta configuration."""

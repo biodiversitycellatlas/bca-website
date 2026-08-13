@@ -16,7 +16,9 @@ export let viewMetacellProjection;
  */
 function generateColorScale(data) {
     const colors = {};
-    data.forEach(({ type, color }) => (colors[type] = color));
+    data.forEach(({ type, color }) => {
+        if (type) colors[type] = color || "#AAAAAA";
+    });
 
     const sorted_colors = {};
     Object.keys(colors)

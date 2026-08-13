@@ -109,6 +109,12 @@ class AtlasMarkersViewTest(DataTestCase):
         assert response.status_code == 200
         assert "metacell_dict" in response.context
 
+    def test_markers_with_nonnumeric_metacell_names(self):
+        self.adult_mouse.metacells.create(name="acrmil01_MC_00204")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/markers/?metacells=acrmil01_MC_00204")
+        assert response.status_code == 200
+        assert response.context["metacells"] == ["acrmil01_MC_00204"]
+
 
 class AtlasCompareViewTest(DataTestCase):
     def test_gene_markers(self):

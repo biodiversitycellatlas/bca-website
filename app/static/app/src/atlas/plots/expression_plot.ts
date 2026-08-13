@@ -18,6 +18,8 @@ export function createExpressionBubblePlot(id, gene, data) {
     data = data.map((obj) => ({
         ...obj,
         metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
     }));
 
     const chart = {
@@ -96,6 +98,8 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     data = data.map((obj) => ({
         ...obj,
         metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
     }));
 
     const chart = {

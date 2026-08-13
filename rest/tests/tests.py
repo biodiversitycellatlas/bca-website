@@ -393,6 +393,51 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene2"]
 
+    def test_retrieve_with_unannotated_metacells(self):
+        species = Species.objects.create(common_name="nemve", scientific_name="Nematostella vectensis")
+        dataset = species.datasets.create(name="adult")
+
+        untyped = dataset.metacells.create(name="nemve01_MC_00001")
+        dataset.metacells.create(name="nemve01_MC_00002", type=dataset.metacell_types.create(name="type"))
+
+        gene = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene, metacell=untyped, fold_change=4)
+
+        module = dataset.gene_modules.create(name="blue")
+        module.eigengene_values.create(metacell=untyped, eigengene_value=0.5)
+
+        dataset.metacell_stats.create(metacell=untyped, cells=10, umis=100)
+
+        SingleCell.objects.create(name="cell1", dataset=dataset)
+
+        # Endpoints returning metacell_type/metacell_color (None for untyped metacells)
+        endpoints = {
+            "/api/v1/metacell_expression/?dataset=nemve-adult": "metacell_name",
+            "/api/v1/metacell_counts/?dataset=nemve-adult": "metacell",
+            "/api/v1/module_eigengenes/?dataset=nemve-adult": "metacell_name",
+        }
+        for url, name in endpoints.items():
+            response = self.client.get(url, format="json")
+            assert response.status_code == status.HTTP_200_OK, url
+            untyped_row = next(r for r in response.data["results"] if r[name] == "nemve01_MC_00001")
+            assert untyped_row["metacell_type"] is None, url
+            assert untyped_row["metacell_color"] is None, url
+
+        # Metacell endpoint returns type/color
+        response = self.client.get("/api/v1/metacells/?dataset=nemve-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        untyped_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00001")
+        assert untyped_row["type"] is None
+        assert untyped_row["color"] is None
+
+        # Single cell without metacell returns null metacell info
+        response = self.client.get("/api/v1/single_cells/?dataset=nemve-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        cell = next(r for r in response.data["results"] if r["name"] == "cell1")
+        assert cell["metacell_name"] is None
+        assert cell["metacell_type"] is None
+        assert cell["metacell_color"] is None
+
 
 class GeneListTests(APITestCase):
     """Tests GeneList endpoint"""

@@ -1,6 +1,7 @@
 """Misc utility functions."""
 
 import json
+import re
 from typing import Dict
 
 import h5py
@@ -9,6 +10,19 @@ import numpy as np
 from django.urls import reverse
 
 from ..models import Dataset, Gene, GeneList, Species
+
+
+def get_metacell_index(name):
+    """Extract the trailing integer of a metacell name, used to order metacells.
+
+    Args:
+        name: metacell name (e.g. "acrmil01_MC_00204" or "12").
+
+    Returns:
+        Trailing integer, or None if the name has none.
+    """
+    match = re.search(r"(\d+)$", str(name))
+    return int(match.group(1)) if match else None
 
 
 def get_dataset_dict():

@@ -68,7 +68,12 @@ function createMetacellHeatmap(
     boundaryColor = "black",
     clip = [null, null],
 ) {
-    data = data.map((obj) => ({ ...obj, metacell_index: getMetacellIndex(obj.metacell_name) }));
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
 
     const metacellBoundaryLines = {
         mark: "rule",

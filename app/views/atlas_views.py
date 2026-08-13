@@ -15,6 +15,7 @@ from ..utils import (
     get_dataset,
     get_dataset_dict,
     get_metacell_dict,
+    get_metacell_index,
 )
 
 
@@ -266,8 +267,8 @@ class AtlasMarkersView(BaseAtlasView):
                     .values_list("name", flat=True)
                     .distinct()
                 )
-                selected = [int(s) for s in selected]
-                selected.sort()
+                # Sort metacells by trailing number (e.g. 204 in "acrmil01_MC_00204")
+                selected.sort(key=lambda name: (get_metacell_index(name) is None, get_metacell_index(name)))
 
                 context["metacells"] = selected
             else:
