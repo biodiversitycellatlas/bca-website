@@ -75,6 +75,13 @@ export function initMetacellSelect(selected, selected2) {
             }
         },
         searchField: ["text", "celltype"],
+        score: function (query) {
+            const score = this.getScoreFunction(query);
+            return (item) => {
+                const s = score(item);
+                return s > 0 ? s + (item.type === "cell_types" ? 1 : 0) : 0;
+            };
+        },
         render: {
             item: function (item, escape) {
                 if (item.type == "metacells") {
