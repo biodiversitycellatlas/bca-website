@@ -77,25 +77,14 @@ export function initMetacellSelect(selected, selected2) {
         searchField: ["text", "celltype"],
         render: {
             item: function (item, escape) {
-                let metacells,
-                    text,
-                    span_class = "badge rounded-pill text-bg-secondary";
                 if (item.type == "metacells") {
-                    metacells = escape(item.text);
-                    text = "";
-                } else {
-                    metacells = item.metacells;
-                    text = escape(item.text.replaceAll("_", " "));
-                    text = createColorCircle(escape(item.color)) + text;
-                    span_class += " ms-1";
+                    const range = convertToRange(escape(item.text));
+                    const badge = `<span class="badge rounded-pill text-bg-secondary">${range}</span>`;
+                    return `<div class='item'>${badge}</div>`;
                 }
 
-                let badge = "";
-                if (metacells) {
-                    metacells = convertToRange(escape(metacells));
-                    badge = `<span class="${span_class}">${metacells}</span>`;
-                }
-                return `<div class='item'>${text}${badge}</div>`;
+                const text = createColorCircle(escape(item.color)) + escape(item.text.replaceAll("_", " "));
+                return `<div class='item'>${text}</div>`;
             },
             option: function (item, escape) {
                 let extra = "",
@@ -103,16 +92,10 @@ export function initMetacellSelect(selected, selected2) {
                 const circle = createColorCircle(escape(item.color));
                 if (item.metacells) {
                     text = circle + text;
-                    const metacells = convertToRange(escape(item.metacells));
-                    extra = `Metacells: ${metacells}`;
                 } else {
                     const type = escape(item.celltype);
-                    extra = circle + type;
+                    extra = `<span class="float-end text-muted small"><small>` + circle + type + `</small></span>`;
                 }
-                extra =
-                    `<span class="float-end text-muted small"><small>` +
-                    extra +
-                    `</small></span>`;
                 text = text.replaceAll("_", " ");
                 return `<div class='option'>${text}${extra}</div>`;
             },
