@@ -16,7 +16,6 @@ export function loadEigengenes(id, dataset) {
     const url = getViewUrl("rest:genemoduleeigengene-list", {
         dataset,
         limit: 0,
-        sort_modules: 1,
     });
 
     fetch(url)

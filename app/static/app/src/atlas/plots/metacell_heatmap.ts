@@ -55,6 +55,7 @@ function createMetacellRugPlot(orient = "top") {
  * @param {string} valueLabel - Label for the color legend.
  * @param {string} [boundaryColor="black"] - Color for metacell boundary lines.
  * @param {Array} [clip=[null, null]] - Min/max clipping range for color scaling.
+ * @param {boolean} [sortByYIndex=false] - Sort Y-axis values by the trailing number of their name.
  *
  * @returns {Object} Vega-Lite specification for the heatmap.
  */
@@ -67,12 +68,14 @@ function createMetacellHeatmap(
     valueLabel,
     boundaryColor = "black",
     clip = [null, null],
+    sortByYIndex = false,
 ) {
     data = data.map((obj) => ({
         ...obj,
         metacell_index: getMetacellIndex(obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
+        y_index: sortByYIndex ? getMetacellIndex(obj[yField]) : null,
     }));
 
     const metacellBoundaryLines = {
@@ -142,7 +145,7 @@ function createMetacellHeatmap(
                                         expr: `data('data_0')[0].y_count + ' ${yLabel}'`,
                                     },
                                 },
-                                sort: { field: "index" },
+                                sort: sortByYIndex ? { field: "y_index" } : { field: "index" },
                             },
                             color: {
                                 field: valueField,
@@ -212,6 +215,7 @@ export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
         "Eigengene values",
         "black",
         clip,
+        true,
     );
 
     vegaEmbed(id, chart, { renderer: "canvas" })
