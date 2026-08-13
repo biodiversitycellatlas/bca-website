@@ -52,6 +52,8 @@ export function createMetacellProjection(
     gene = null,
 ) {
     const metacellColorScale = generateColorScale(data["mc_data"]);
+    // Improve metacell label
+    const mc_data = data["mc_data"].map((mc) => ({ ...mc, label: mc.name.split("_").pop() }));
     const colorScale = { domainMin: 0, clamp: true, range: COLOR_SCALE };
     const neutralColor = "#F1F7FE"; // For undefined values
 
@@ -189,7 +191,7 @@ export function createMetacellProjection(
             },
             {
                 // Metacell layer
-                data: { name: "mc_data", values: data["mc_data"] },
+                data: { name: "mc_data", values: mc_data },
                 mark: {
                     type: "circle",
                     stroke: "white",
@@ -226,7 +228,7 @@ export function createMetacellProjection(
                 encoding: {
                     x: { field: "x", type: "quantitative" },
                     y: { field: "y", type: "quantitative" },
-                    text: { field: "name" },
+                    text: { field: "label" },
                     opacity: { value: 0.7 },
                 },
             },
