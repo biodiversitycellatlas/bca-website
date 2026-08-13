@@ -53,6 +53,11 @@ class AtlasOverviewViewTest(DataTestCase):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/overview/")
         assert response.status_code == 200
 
+    def test_dataset_with_unnanotated_metacells(self):
+        self.adult_mouse.metacells.create(name="1")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/overview/")
+        assert response.status_code == 200
+
 
 class AtlasGeneViewTest(DataTestCase):
     def test_index(self):

@@ -8,7 +8,7 @@ import numpy as np
 
 from django.urls import reverse
 
-from ..models import Dataset, Gene, GeneList, Species
+from ..models import Dataset, Gene, GeneList, MetacellType, Species
 
 
 def get_dataset_dict():
@@ -71,11 +71,13 @@ def get_metacell_dict(dataset):
     """Prepare dictionary of metacells for a dataset."""
     metacells = dataset.metacells.select_related("type")
 
-    # Group by cell type
+    # Group by cell type; metacells without a type are grouped as "Unannotated"
+    unannotated = MetacellType(dataset=dataset, name="Unannotated")
     types = {}
     for obj in metacells:
-        types.setdefault(obj.type, []).append(obj)
-    types = dict(sorted(types.items()))
+        obj_type = obj.type or unannotated
+        types.setdefault(obj_type, []).append(obj)
+    types = dict(sorted(types.items(), key=lambda kv: str(kv[0])))
 
     # Return metacells by cell types and all together
     metacell_dict = {"Cell types": types, "Metacells": list(metacells)}
