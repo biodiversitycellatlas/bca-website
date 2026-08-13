@@ -605,12 +605,13 @@ class CellType(DynamicSlugMixin):
         return NotImplemented
 
 
-class MetacellLink(models.Model):
-    """Metacell link model (used for scatter plots)."""
+class MetacellEdge(models.Model):
+    """Metacell edge model (used for scatter plots)."""
 
-    metacell = models.ForeignKey("Metacell", related_name="from_links", on_delete=models.CASCADE)
-    metacell2 = models.ForeignKey("Metacell", related_name="to_links", on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_links")
+    metacell = models.ForeignKey("Metacell", related_name="from_edges", on_delete=models.CASCADE)
+    metacell2 = models.ForeignKey("Metacell", related_name="to_edges", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_edges")
+    weight = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         """String representation."""
@@ -629,7 +630,7 @@ class Metacell(models.Model):
     cytotrace = models.FloatField(null=True)
     median_umis = models.FloatField(null=True)
 
-    links = models.ManyToManyField("self", through="MetacellLink", symmetrical=True)
+    edges = models.ManyToManyField("self", through="MetacellEdge", symmetrical=True)
 
     class Meta:
         """Meta options."""
