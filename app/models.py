@@ -318,6 +318,7 @@ class Publication(ExternalQueryMixin, models.Model):
 class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
+    internal_id = models.CharField(max_length=255, blank=True, null=True, help_text="Internal identifier.")
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
     name = models.CharField(max_length=255, default=None, null=True, help_text="Name of the dataset.")
     description = models.TextField(blank=True, null=True, help_text="Description of the dataset.")
@@ -325,6 +326,7 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
 
+    platform = models.CharField(max_length=255, blank=True, null=True, help_text="Sequencing platform.")
     publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True, help_text="Dataset publication.")
     # version = models.CharField(max_length=50, blank=True, null=True)
     # is_public = models.BooleanField(default=True)
@@ -579,6 +581,30 @@ class MetacellType(DynamicSlugMixin):
         return NotImplemented
 
 
+class CellType(DynamicSlugMixin):
+    """Cell type model."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="cell_types")
+    name = models.CharField()
+    color = ColorField(default="#AAAAAA")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["dataset", "name"]
+        indexes = [models.Index(fields=["dataset", "name"])]
+
+    def __str__(self):
+        """String representation."""
+        return self.name
+
+    def __lt__(self, other):
+        """Compare object with another by name."""
+        if isinstance(other, CellType):
+            return self.name < other.name
+        return NotImplemented
+
+
 class MetacellLink(models.Model):
     """Metacell link model (used for scatter plots)."""
 
@@ -630,6 +656,7 @@ class SingleCell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
+    type = models.ForeignKey(CellType, on_delete=models.SET_NULL, blank=True, null=True)
 
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
@@ -709,6 +736,7 @@ class Gene(DynamicSlugMixin):
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="genes")
     name = models.CharField(max_length=100)
+    symbol = models.CharField(max_length=100, blank=True, null=True, help_text="Gene symbol.")
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList, related_name="genes")
