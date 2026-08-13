@@ -39,7 +39,7 @@ function generateColorScale(data) {
  *
  * @param {string} id - CSS selector for target element.
  * @param {string} species - Species name.
- * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_links`.
+ * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_edges`.
  * @param {string} [color="cell_type"] - Data field for coloring (e.g. `cell_type`,
  *     `cytotrace`, `median_umis`, `expression`).
  * @param {string|null} [gene=null] - Optional gene name for subtitle.
@@ -175,8 +175,8 @@ export function createMetacellProjection(
                 },
             },
             {
-                // Metacell links layer
-                data: { name: "mc_links", values: data["mc_links"] },
+                // Metacell edges layer
+                data: { name: "mc_edges", values: data["mc_edges"] },
                 mark: "rule",
                 transform: [{ filter: "showLinks == 'true'" }],
                 encoding: {

@@ -597,8 +597,8 @@ class MetacellSerializer(BaseExpressionSerializer):
         }
 
 
-class MetacellLinkSerializer(serializers.ModelSerializer):
-    """Metacell link serializer."""
+class MetacellEdgeSerializer(serializers.ModelSerializer):
+    """Metacell edge serializer."""
 
     metacell = serializers.CharField(source="metacell.name")
     metacell_x = serializers.FloatField(source="metacell.x")
@@ -610,7 +610,7 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta configuration."""
 
-        model = models.MetacellLink
+        model = models.MetacellEdge
         fields = [
             "metacell",
             "metacell_x",
@@ -618,6 +618,7 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
             "metacell2",
             "metacell2_x",
             "metacell2_y",
+            "weight",
         ]
 
 

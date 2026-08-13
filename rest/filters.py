@@ -571,15 +571,15 @@ class MetacellFilter(FilterSet):
         fields = ["dataset"]
 
 
-class MetacellLinkFilter(FilterSet):
-    """Filter set for metacell links."""
+class MetacellEdgeFilter(FilterSet):
+    """Filter set for metacell edges."""
 
     dataset = DatasetChoiceFilter(field_name="metacell", required=True)
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.MetacellLink
+        model = models.MetacellEdge
         fields = ["dataset"]
 
 

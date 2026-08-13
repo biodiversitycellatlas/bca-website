@@ -19,7 +19,7 @@ from app.models import (
     Domain,
     GeneCorrelation,
     Orthogroup,
-    MetacellLink,
+    MetacellEdge,
     MetacellTypeSimilarity,
     ExpressionConservation,
     SpeciesFile,
@@ -319,7 +319,7 @@ class MetacellTests(APITestCase):
         type1 = dataset1.metacell_types.create(name="type1")
         meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1)
         meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2)
-        MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
+        MetacellEdge.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
 
         gene1 = species1.genes.create(name="gene1", description="gene1")
         dataset1.mge.create(gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4)
@@ -337,14 +337,14 @@ class MetacellTests(APITestCase):
         assert len(metacells) == 2
         assert {s["name"] for s in metacells} == {"meta1", "meta2"}
 
-    def test_retrieve_links(self):
-        url = "/api/v1/metacell_links/?dataset=species3-dataset3"
+    def test_retrieve_edges(self):
+        url = "/api/v1/metacell_edges/?dataset=species3-dataset3"
         response = self.client.get(url, format="json")
-        metacell_links = response.data["results"]
+        metacell_edges = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(metacell_links) == 1
-        assert metacell_links[0]["metacell"] == "meta1"
-        assert metacell_links[0]["metacell2"] == "meta2"
+        assert len(metacell_edges) == 1
+        assert metacell_edges[0]["metacell"] == "meta1"
+        assert metacell_edges[0]["metacell2"] == "meta2"
 
     def test_retrieve_gene_expression(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3"

@@ -25,7 +25,7 @@ router.register("ortholog_counts", views.OrthologCountViewSet, basename="ortholo
 router.register("expression_conservation", views.ExpressionConservationViewSet, basename="expressionconservation")
 
 router.register("metacells", views.MetacellViewSet)
-router.register("metacell_links", views.MetacellLinkViewSet, basename="metacelllink")
+router.register("metacell_edges", views.MetacellEdgeViewSet, basename="metacelledge")
 router.register("metacell_expression", views.MetacellGeneExpressionViewSet)
 router.register("markers", views.MetacellMarkerViewSet, basename="metacellmarker")
 router.register("metacell_counts", views.MetacellCountViewSet, basename="metacellcount")
