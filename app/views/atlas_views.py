@@ -12,6 +12,7 @@ from django.views.generic import TemplateView
 from ..models import Dataset
 from ..utils import (
     get_cell_atlas_links,
+    get_compare_dataset_dict,
     get_dataset,
     get_dataset_dict,
     get_metacell_dict,
@@ -103,6 +104,7 @@ class BaseAtlasView(TemplateView):
             context["dataset"] = d
             context["species"] = d.species
             context["dataset_dict"] = get_dataset_dict()
+            context["compare_dataset_dict"] = context["dataset_dict"]
 
             # Prepare Cell Atlas links
             url_name = self.request.resolver_match.url_name
@@ -291,6 +293,9 @@ class AtlasCompareView(BaseAtlasView):
         dataset = context["dataset"]
         if not isinstance(dataset, Dataset):
             return context
+
+        # Only allow datasets with data to compare in both SAMap and gene modules
+        context["compare_dataset_dict"] = get_compare_dataset_dict(dataset)
 
         # Parse URL query parameters and get dataset to compare SAMap scores
         try:

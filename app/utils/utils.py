@@ -9,7 +9,7 @@ import numpy as np
 
 from django.urls import reverse
 
-from ..models import Dataset, Gene, GeneList, Species
+from ..models import Dataset, Gene, GeneList, MetacellTypeSimilarity, Ortholog, Species
 
 
 def get_metacell_index(name):
@@ -54,6 +54,60 @@ def get_dataset_dict():
         for phylum, elems in sorted(dataset_dict.items())
     }
     return sorted_dict
+
+
+def get_compare_dataset_dict(dataset):
+    """Prepare dictionary of datasets with data to compare against a given dataset.
+
+    Only datasets from other species with SAMap similarity scores or shared
+    gene module orthogroups are included, so at least one plot has data.
+
+    Args:
+        dataset: Dataset to compare against.
+
+    Returns:
+        Dictionary of datasets grouped by phylum, filtered by data availability.
+    """
+    if not isinstance(dataset, Dataset):
+        return {}
+
+    # Datasets with SAMap similarity scores against the given dataset (either direction)
+    samap_dataset_ids = set(
+        MetacellTypeSimilarity.objects.filter(
+            metacelltype__dataset=dataset, samap_score__isnull=False
+        ).values_list("metacelltype2__dataset_id", flat=True)
+    ) | set(
+        MetacellTypeSimilarity.objects.filter(
+            metacelltype2__dataset=dataset, samap_score__isnull=False
+        ).values_list("metacelltype__dataset_id", flat=True)
+    )
+
+    # Orthogroups containing genes from the given dataset's gene modules
+    shared_orthogroups = Ortholog.objects.filter(
+        gene__modules__module__dataset=dataset
+    ).values_list("orthogroup_id", flat=True)
+
+    # Datasets whose gene modules share an orthogroup with the given dataset
+    module_dataset_ids = set(
+        Ortholog.objects.filter(orthogroup_id__in=shared_orthogroups)
+        .exclude(gene__modules__module__dataset=dataset)
+        .values_list("gene__modules__module__dataset_id", flat=True)
+        .distinct()
+    )
+
+    # Only datasets from other species with either type of comparison data
+    eligible_ids = set(
+        Dataset.objects.filter(id__in=samap_dataset_ids | module_dataset_ids)
+        .exclude(species=dataset.species)
+        .values_list("id", flat=True)
+    )
+
+    dataset_dict = get_dataset_dict()
+    return {
+        phylum: [elem for elem in elems if elem["dataset"].id in eligible_ids]
+        for phylum, elems in dataset_dict.items()
+        if any(elem["dataset"].id in eligible_ids for elem in elems)
+    }
 
 
 def get_species_dict():

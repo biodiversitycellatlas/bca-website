@@ -3,7 +3,7 @@
 from django.urls import reverse
 
 from app.views import AtlasView
-from app.models import Gene
+from app.models import Gene, MetacellTypeSimilarity
 from app.tests.views.utils import DataTestCase
 
 
@@ -120,3 +120,17 @@ class AtlasCompareViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/compare/")
         assert response.status_code == 200
+
+    def test_compare_datasets_filtered(self):
+        human_dataset = self.human.datasets.create(name="fetal")
+        t1 = self.adult_mouse.metacell_types.create(name="t1")
+        t2 = human_dataset.metacell_types.create(name="t2")
+        MetacellTypeSimilarity.objects.create(metacelltype=t1, metacelltype2=t2, samap_score=0.8)
+        human_dataset.gene_modules.create(name="blue").genes.add(self.brca1_human)
+
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/compare/")
+        dict_ = response.context["compare_dataset_dict"]
+        datasets = {elem["dataset"] for elems in dict_.values() for elem in elems}
+
+        assert human_dataset in datasets
+        assert self.baby_mouse not in datasets
