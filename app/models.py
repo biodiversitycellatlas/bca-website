@@ -678,6 +678,7 @@ class Domain(ExternalQueryMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=400, blank=True, null=True)
 
     source_name = "Pfam"
     query_term_field = "name"
