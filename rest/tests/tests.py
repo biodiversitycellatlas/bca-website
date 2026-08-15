@@ -317,8 +317,8 @@ class MetacellTests(APITestCase):
         dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
 
         type1 = dataset1.metacell_types.create(name="type1")
-        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1)
-        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2)
+        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1, order=2)
+        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2, order=1)
         MetacellEdge.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
 
         gene1 = species1.genes.create(name="gene1", description="gene1")
@@ -336,6 +336,7 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(metacells) == 2
         assert {s["name"] for s in metacells} == {"meta1", "meta2"}
+        assert {s["order"] for s in metacells} == {1, 2}
 
     def test_retrieve_edges(self):
         url = "/api/v1/metacell_edges/?dataset=species3-dataset3"
@@ -354,6 +355,7 @@ class MetacellTests(APITestCase):
         assert len(metacell_gene_expression) == 4
         assert {s["gene_name"] for s in metacell_gene_expression} == {"gene1", "gene2"}
         assert {s["metacell_name"] for s in metacell_gene_expression} == {"meta1", "meta2"}
+        assert {s["metacell_order"] for s in metacell_gene_expression} == {1, 2}
 
     def test_retrieve_gene_expression_single_gene(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3&genes=gene2"
@@ -398,7 +400,7 @@ class MetacellTests(APITestCase):
         dataset = species.datasets.create(name="adult")
 
         untyped = dataset.metacells.create(name="nemve01_MC_00001")
-        dataset.metacells.create(name="nemve01_MC_00002", type=dataset.metacell_types.create(name="type"))
+        dataset.metacells.create(name="nemve01_MC_00002", type=dataset.metacell_types.create(name="type"), order=5)
 
         gene = species.genes.create(name="gene1", description="gene1")
         dataset.mge.create(gene=gene, metacell=untyped, fold_change=4)
@@ -422,13 +424,17 @@ class MetacellTests(APITestCase):
             untyped_row = next(r for r in response.data["results"] if r[name] == "nemve01_MC_00001")
             assert untyped_row["metacell_type"] is None, url
             assert untyped_row["metacell_color"] is None, url
+            assert untyped_row["metacell_order"] is None, url
 
         # Metacell endpoint returns type/color
         response = self.client.get("/api/v1/metacells/?dataset=nemve-adult", format="json")
         assert response.status_code == status.HTTP_200_OK
         untyped_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00001")
+        typed_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00002")
         assert untyped_row["type"] is None
         assert untyped_row["color"] is None
+        assert untyped_row["order"] is None
+        assert typed_row["order"] == 5
 
         # Single cell without metacell returns null metacell info
         response = self.client.get("/api/v1/single_cells/?dataset=nemve-adult", format="json")

@@ -437,6 +437,9 @@ class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
     metacell_color = serializers.CharField(
         source="metacell.type.color", default=None, allow_null=True, help_text="Metacell color."
     )
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     module = serializers.CharField(help_text="Gene module name.")
     dataset = serializers.CharField(source="module.dataset.slug", help_text="Dataset slug.")
@@ -452,6 +455,7 @@ class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
             "metacell_name",
             "metacell_type",
             "metacell_color",
+            "metacell_order",
             "eigengene_value",
         ]
 
@@ -571,6 +575,7 @@ class MetacellSerializer(BaseExpressionSerializer):
             "y",
             "cytotrace",
             "median_umis",
+            "order",
             "type",
             "color",
             "gene_name",
@@ -590,6 +595,7 @@ class MetacellSerializer(BaseExpressionSerializer):
                 )
             },
             "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "order": {"help_text": "Position of the metacell in heatmap ordering."},
             "gene_name": {"help_text": "Name of the queried gene."},
             "umifrac": {
                 "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
@@ -667,6 +673,9 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     metacell_name = serializers.CharField(source="metacell.name")
     metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
     metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     class Meta:
         """Meta configuration."""

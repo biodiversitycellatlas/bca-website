@@ -629,6 +629,7 @@ class Metacell(models.Model):
     y = models.FloatField(null=True)
     cytotrace = models.FloatField(null=True)
     median_umis = models.FloatField(null=True)
+    order = models.PositiveIntegerField(null=True, blank=True)
 
     edges = models.ManyToManyField("self", through="MetacellEdge", symmetrical=True)
 

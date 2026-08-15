@@ -506,9 +506,9 @@ class GeneModuleEigengene(GeneModulesData):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        m1 = cls.dataset1.metacells.create(name="1", x=0.2, y=0.5)
-        m2 = cls.dataset1.metacells.create(name="2", x=0.6, y=0.2)
-        m3 = cls.dataset1.metacells.create(name="3", x=0.1, y=0.8)
+        m1 = cls.dataset1.metacells.create(name="1", x=0.2, y=0.5, order=3)
+        m2 = cls.dataset1.metacells.create(name="2", x=0.6, y=0.2, order=1)
+        m3 = cls.dataset1.metacells.create(name="3", x=0.1, y=0.8, order=2)
 
         cls.module1.eigengene_values.create(metacell=m1, eigengene_value=0.167)
         cls.module1.eigengene_values.create(metacell=m2, eigengene_value=0.135)
@@ -544,6 +544,9 @@ class GeneModuleEigengene(GeneModulesData):
             assert m["module"] == module
             assert m["metacell_name"] == metacell
             assert m["eigengene_value"] == value
+
+        metacell_orders = {e["metacell_name"]: e["metacell_order"] for e in eigengenes}
+        assert metacell_orders == {"1": 3, "2": 1, "3": 2}
 
     def test_retrieve_single_module_eigengene(self):
         module = "module_xyz"

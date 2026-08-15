@@ -4,7 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
-import { getMetacellIndex } from "../../utils/metacell.ts";
+import { getMetacellIndex, getMetacellOrder } from "../../utils/metacell.ts";
 
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
@@ -72,7 +72,7 @@ function createMetacellHeatmap(
 ) {
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
         y_index: sortByYIndex ? getMetacellIndex(obj[yField]) : null,

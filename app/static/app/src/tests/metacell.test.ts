@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { getMetacellIndex } from "../utils/metacell";
+import { getMetacellIndex, getMetacellOrder } from "../utils/metacell";
 import { convertToRange } from "../select/metacell";
 
 describe("getMetacellIndex", () => {
@@ -16,6 +16,22 @@ describe("getMetacellIndex", () => {
     it("return null for names without a trailing number", () => {
         expect(getMetacellIndex("Gland")).toBeNull();
         expect(getMetacellIndex(null)).toBeNull();
+    });
+});
+
+describe("getMetacellOrder", () => {
+    it("use stored order when available", () => {
+        expect(getMetacellOrder(2, "acrmil01_MC_00204")).toBe(2);
+        expect(getMetacellOrder(0, "acrmil01_MC_00001")).toBe(0);
+    });
+
+    it("fall back to the trailing number when order is null", () => {
+        expect(getMetacellOrder(null, "acrmil01_MC_00204")).toBe(204);
+        expect(getMetacellOrder(null, "12")).toBe(12);
+    });
+
+    it("return null when neither order nor a trailing number is available", () => {
+        expect(getMetacellOrder(null, "Gland")).toBeNull();
     });
 });
 
