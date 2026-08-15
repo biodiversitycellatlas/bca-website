@@ -4,7 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
-import { getMetacellIndex, getMetacellOrder } from "../../utils/metacell.ts";
+import { getMetacellIndex, getMetacellPositions } from "../../utils/metacell.ts";
 
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
@@ -56,6 +56,8 @@ function createMetacellRugPlot(orient = "top") {
  * @param {string} [boundaryColor="black"] - Color for metacell boundary lines.
  * @param {Array} [clip=[null, null]] - Min/max clipping range for color scaling.
  * @param {boolean} [sortByYIndex=false] - Sort Y-axis values by the trailing number of their name.
+ * @param {boolean} [fallbackMetacellIndex=true] - Fall back to the trailing number of the metacell name
+ *   when no stored order is available. If disabled, metacells keep their position in the data.
  *
  * @returns {Object} Vega-Lite specification for the heatmap.
  */
@@ -69,10 +71,15 @@ function createMetacellHeatmap(
     boundaryColor = "black",
     clip = [null, null],
     sortByYIndex = false,
+    fallbackMetacellIndex = true,
 ) {
+    // Position each metacell by its stored order, falling back to the trailing
+    // number of its name (or its position in the data when disabled)
+    const metacellPositions = getMetacellPositions(data, fallbackMetacellIndex);
+
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
+        metacell_index: metacellPositions.get(obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
         y_index: sortByYIndex ? getMetacellIndex(obj[yField]) : null,
@@ -216,6 +223,7 @@ export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
         "black",
         clip,
         true,
+        false,
     );
 
     vegaEmbed(id, chart, { renderer: "canvas" })

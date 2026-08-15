@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { getMetacellIndex, getMetacellOrder } from "../utils/metacell";
+import { getMetacellIndex, getMetacellOrder, getMetacellPositions } from "../utils/metacell";
 import { convertToRange } from "../select/metacell";
 
 describe("getMetacellIndex", () => {
@@ -32,6 +32,36 @@ describe("getMetacellOrder", () => {
 
     it("return null when neither order nor a trailing number is available", () => {
         expect(getMetacellOrder(null, "Gland")).toBeNull();
+    });
+});
+
+describe("getMetacellPositions", () => {
+    it("use stored order for each metacell", () => {
+        const positions = getMetacellPositions([
+            { metacell_name: "mc1", metacell_order: 3 },
+            { metacell_name: "mc2", metacell_order: 1 },
+            { metacell_name: "mc1", metacell_order: 3 },
+        ]);
+        expect(positions.get("mc1")).toBe(3);
+        expect(positions.get("mc2")).toBe(1);
+    });
+
+    it("fall back to the trailing number by default", () => {
+        const positions = getMetacellPositions([{ metacell_name: "acrmil01_MC_00204" }]);
+        expect(positions.get("acrmil01_MC_00204")).toBe(204);
+    });
+
+    it("keep the data position when the fallback is disabled", () => {
+        const positions = getMetacellPositions(
+            [
+                { metacell_name: "mc1" },
+                { metacell_name: "mc2" },
+                { metacell_name: "mc1" },
+            ],
+            false,
+        );
+        expect(positions.get("mc1")).toBe(0);
+        expect(positions.get("mc2")).toBe(1);
     });
 });
 
