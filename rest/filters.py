@@ -1,7 +1,5 @@
 """Custom django-filter filter sets and utilities for the API."""
 
-import re
-
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.core.exceptions import ValidationError
 from django.db.models import (
@@ -29,6 +27,7 @@ from django_filters.rest_framework import (
 )
 
 from app import models
+from app.utils.utils import get_metacell_order
 
 from .aggregates import Median
 from .functions import ArrayPosition
@@ -415,11 +414,12 @@ class SortAcrossMetacellFilter(BooleanFilter):
         if not value:
             return queryset
 
-        def sort_key(metacell_name):
-            # Order metacells by their trailing number (e.g. 204 in "acrmil01_MC_00204")
-            match = re.search(r"(\d+)$", metacell_name)
-            if match:
-                return (0, -int(match.group(1)))
+        def sort_key(metacell_name, metacell_order):
+            # Order metacells by their stored position in heatmaps, falling back
+            # to the trailing number of their name (e.g. 204 in "acrmil01_MC_00204")
+            order = get_metacell_order(metacell_order, metacell_name)
+            if order is not None:
+                return (0, -order)
             return (1, metacell_name)
 
         ranked = (
@@ -431,11 +431,11 @@ class SortAcrossMetacellFilter(BooleanFilter):
                 )
             )
             .filter(rank=1)
-            .values_list("metacell__name", self.sort_field)
+            .values_list("metacell__name", "metacell__order", self.sort_field)
         )
 
         # Sort genes by the metacell with highest gene expression
-        sorted_field = [field for _, field in sorted(ranked, key=lambda row: sort_key(row[0]))]
+        sorted_field = [field for _, _, field in sorted(ranked, key=lambda row: sort_key(row[0], row[1]))]
         return queryset.order_by(ArrayPosition(self.sort_field, array=sorted_field))
 
 

@@ -378,6 +378,28 @@ class MetacellTests(APITestCase):
         species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
         dataset = species.datasets.create(name="dataset")
         mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct, order=2)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct, order=1)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acrmil01-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        metacell_gene_expression = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        # gene1 peaks at mc2 (order 1) and gene2 at mc1 (order 2): highest order first
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene2", "gene1"]
+
+    def test_retrieve_gene_expression_sorted_without_order(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
         mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct)
         mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct)
 
@@ -393,6 +415,7 @@ class MetacellTests(APITestCase):
         response = self.client.get(url, format="json")
         metacell_gene_expression = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
+        # gene1 peaks at mc2 (trailing 204) and gene2 at mc1 (trailing 1): highest first
         assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene2"]
 
     def test_retrieve_with_unannotated_metacells(self):

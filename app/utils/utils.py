@@ -25,6 +25,20 @@ def get_metacell_index(name):
     return int(match.group(1)) if match else None
 
 
+def get_metacell_order(order, name):
+    """Return the stored metacell order for heatmaps, falling back to the trailing
+    integer of the metacell name when no order is stored.
+
+    Args:
+        order: stored metacell order (nullable).
+        name: metacell name (e.g. "acrmil01_MC_00204" or "12").
+
+    Returns:
+        Metacell order, or None if none is available.
+    """
+    return order if order is not None else get_metacell_index(name)
+
+
 def get_dataset_dict():
     """Prepare dictionary of datasets."""
     dataset_dict = {}
