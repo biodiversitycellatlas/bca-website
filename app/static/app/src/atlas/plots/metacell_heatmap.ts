@@ -222,8 +222,8 @@ export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
         "Eigengene values",
         "black",
         clip,
-        true,
         false,
+        true,
     );
 
     vegaEmbed(id, chart, { renderer: "canvas" })
