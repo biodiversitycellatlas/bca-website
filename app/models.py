@@ -1050,7 +1050,8 @@ class MetacellTypeSimilarity(models.Model):
     samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
-    aucell_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_1to2 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_2to1 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     pesci_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
