@@ -105,7 +105,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
-            text: [`Pearson: ${stats.pearson}`, `Spearman: ${stats.spearman}`],
+            text: [`Pearson: ${stats.pearson}`],
             fontWeight: "normal",
             anchor: "end",
         },
