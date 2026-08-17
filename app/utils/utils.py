@@ -303,7 +303,7 @@ def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
 
     """
     with h5py.File(hdf_file, "r") as f:
-        expression_values = f.get(f"/{gene}", default=np.empty(0))[:]
+        expression_values = f.get(f"/umifrac/{gene}", default=np.empty(0))[:]
         cell_names = f.get("/cell_names")[:]
         cell_positions_dict = create_positions_dictionary(cell_names)
         result = {}
