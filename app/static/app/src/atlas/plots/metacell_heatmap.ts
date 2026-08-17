@@ -126,6 +126,7 @@ function createMetacellHeatmap(
                     },
                 ],
             },
+            { filter: `datum.${valueField} >= ${clip[0]}` },
         ],
         vconcat: [
             createMetacellRugPlot(),
@@ -144,7 +145,7 @@ function createMetacellHeatmap(
                             y: {
                                 field: yField,
                                 axis: {
-                                    labels: true,
+                                    labels: false,
                                     labelExpr:
                                         "data('data_0')[0].y_count < 80 ? datum.label : ''",
                                     ticks: false,
@@ -194,8 +195,8 @@ export function createExpressionHeatmap(id, data, clip = [0, null]) {
         data,
         "gene_name",
         "Genes",
-        "log2_fold_change",
-        "Log\u2082 FC",
+        "fold_change",
+        "FC",
         "gray",
         clip,
     );
