@@ -14,8 +14,15 @@ const TREE_DEFAULTS = {
     maxHeight: 600,
 };
 
+/** Apply custom styles to tree elements */
+function applyStyles(container, strokeWidth) {
+    container.querySelectorAll(".branch, .branch-tracer").forEach((el) => {
+        el.style.strokeWidth = strokeWidth + "px";
+    });
+}
+
 /**
- * Create an interactive radial tree of life plot.
+ * Create an interactive tree of life plot.
  *
  * @param {string} id - DOM element ID where the chart will be rendered
  * @param {string} file - URL or path to the Newick file
@@ -44,6 +51,7 @@ export function createTreeOfLife(id, file, opts = {}) {
                 selectable: false,
                 collapsible: false,
                 "max-radius": 2000,
+                transitions: false,
             });
 
             container.appendChild(tree.display.show());
@@ -57,11 +65,7 @@ export function createTreeOfLife(id, file, opts = {}) {
             if (svg && maxHeight) {
                 svg.style.maxHeight = maxHeight + "px";
             }
-
-            // Apply stroke width to all branch paths and alignment tracers
-            container.querySelectorAll(".branch, .branch-tracer").forEach((el) => {
-                el.style.strokeWidth = strokeWidth + "px";
-            });
+            applyStyles(container, strokeWidth);
 
             // Link to species entry
             container.querySelectorAll(".phylotree-node-text").forEach((el) => {
@@ -73,6 +77,21 @@ export function createTreeOfLife(id, file, opts = {}) {
                     });
                 }
             });
+
+            // Layout toggle buttons
+            for (const mode of ["linear", "radial", "unrooted"]) {
+                const input = document.getElementById("tree_layout_" + mode);
+                if (!input) continue;
+                input.addEventListener("change", () => {
+                    if (input.checked) {
+                        tree.display.radial(mode === "radial");
+                        tree.display.unrooted(mode === "unrooted");
+                        tree.display.alignTips(mode === "radial");
+                        tree.display.update();
+                        applyStyles(container, strokeWidth);
+                    }
+                });
+            }
         });
 }
 

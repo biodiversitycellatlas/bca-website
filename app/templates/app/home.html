@@ -88,9 +88,21 @@ Features:
     </div>
 
     <!-- Tree of Life -->
-    <div id="tree"
-         class="container d-flex align-items-center justify-content-center">
+    <div id="tree_container" class="container d-flex align-items-center justify-content-center">
+        <div id="tree"></div>
     </div>
+
+    <div class="text-center mt-3">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="tree_layout" id="tree_layout_linear" autocomplete="off">
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_linear">Linear</label>
+            <input type="radio" class="btn-check" name="tree_layout" id="tree_layout_radial" autocomplete="off" checked>
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_radial">Radial</label>
+            <input type="radio" class="btn-check" name="tree_layout" id="tree_layout_unrooted" autocomplete="off">
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_unrooted">Unrooted</label>
+        </div>
+    </div>
+
     <script type="module">
         import { createTreeOfLife } from "{% static 'app/dist/tree_of_life.js' %}";
         createTreeOfLife("#tree", "{{ tree_of_life }}");
