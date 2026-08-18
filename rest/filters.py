@@ -1,5 +1,7 @@
 """Custom django-filter filter sets and utilities for the API."""
 
+import logging
+
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.core.exceptions import ValidationError
 from django.db.models import (
@@ -34,6 +36,9 @@ from .functions import ArrayPosition
 from .utils import check_model_exists, parse_species_dataset
 
 
+logger = logging.getLogger(__name__)
+
+
 def skip_param(queryset, name, value):
     """
     Document a query parameter without altering the queryset.
@@ -43,7 +48,7 @@ def skip_param(queryset, name, value):
 
 
 def update_species_choices():
-    """Update species choices"""
+    """Update species choices."""
     choices = []
     if check_model_exists(models.Species):
         try:
@@ -52,8 +57,8 @@ def update_species_choices():
                 for s in models.Species.objects.all()
             ]
             choices = sorted(choices, key=lambda x: x[0])
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not update species choices: %s", exc)
     return choices
 
 
@@ -108,15 +113,14 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
 
 def update_dataset_choices():
-    """Update dataset choices based on available datasets."""
-
+    """Update dataset choices."""
     choices = []
     if check_model_exists(models.Dataset):
         try:
             choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
             choices = sorted(choices, key=lambda x: x[0])
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not update dataset choices: %s", exc)
     return choices
 
 
