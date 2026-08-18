@@ -73,8 +73,8 @@ def get_dataset_dict():
 def get_compare_dataset_dict(dataset):
     """Prepare dictionary of datasets with data to compare against a given dataset.
 
-    Only datasets from other species with SAMap similarity scores or shared
-    gene module orthogroups are included, so at least one plot has data.
+    Only datasets from other species with cell-type similarity scores (SAMap,
+    Pesci, AUCell) or shared gene module orthogroups are included.
 
     Args:
         dataset: Dataset to compare against.
@@ -85,16 +85,18 @@ def get_compare_dataset_dict(dataset):
     if not isinstance(dataset, Dataset):
         return {}
 
-    # Datasets with SAMap similarity scores against the given dataset (either direction)
-    samap_dataset_ids = set(
-        MetacellTypeSimilarity.objects.filter(
-            metacelltype__dataset=dataset, samap_score__isnull=False
-        ).values_list("metacelltype2__dataset_id", flat=True)
-    ) | set(
-        MetacellTypeSimilarity.objects.filter(
-            metacelltype2__dataset=dataset, samap_score__isnull=False
-        ).values_list("metacelltype__dataset_id", flat=True)
-    )
+    # Datasets with cell-type similarity scores against the given dataset (either direction)
+    similarity_dataset_ids = set()
+    for score_field in ["samap_score", "pesci_score", "aucell_1to2"]:
+        similarity_dataset_ids |= set(
+            MetacellTypeSimilarity.objects.filter(
+                metacelltype__dataset=dataset, **{f"{score_field}__isnull": False}
+            ).values_list("metacelltype2__dataset_id", flat=True)
+        ) | set(
+            MetacellTypeSimilarity.objects.filter(
+                metacelltype2__dataset=dataset, **{f"{score_field}__isnull": False}
+            ).values_list("metacelltype__dataset_id", flat=True)
+        )
 
     # Orthogroups containing genes from the given dataset's gene modules
     shared_orthogroups = Ortholog.objects.filter(
@@ -111,7 +113,7 @@ def get_compare_dataset_dict(dataset):
 
     # Only datasets from other species with either type of comparison data
     eligible_ids = set(
-        Dataset.objects.filter(id__in=samap_dataset_ids | module_dataset_ids)
+        Dataset.objects.filter(id__in=similarity_dataset_ids | module_dataset_ids)
         .exclude(species=dataset.species)
         .values_list("id", flat=True)
     )

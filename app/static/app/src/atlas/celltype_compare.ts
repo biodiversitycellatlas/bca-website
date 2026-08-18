@@ -1,5 +1,5 @@
 /**
- * Visualize SAMap comparisons between datasets.
+ * Visualize cell-type similarity comparisons between datasets.
  */
 
 import DataTable from "datatables.net-bs5";
@@ -7,14 +7,40 @@ import DataTable from "datatables.net-bs5";
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
-import { createSAMapSankey } from "./plots/samap_sankey_plot.ts";
-import { createSAMapHeatmap } from "./plots/samap_heatmap.js";
+import { createCellTypeAlluvial } from "./plots/celltype_alluvial.ts";
+import { createCellTypeHeatmap } from "./plots/celltype_heatmap.js";
 import {
     linkDomains,
     linkGeneLists,
     linkOrthogroups,
     makeLinkGene,
 } from "./tables/utils.ts";
+
+/**
+ * Metric configuration mapping.
+ */
+const METRICS = {
+    samap: {
+        scoreField: "samap_score",
+        genePairsField: "samap_gene_pairs",
+        label: "SAMap",
+        thresholdParam: "min_samap",
+    },
+    pesci: {
+        scoreField: "pesci_score",
+        genePairsField: "pesci_gene_pairs",
+        label: "Pesci",
+        thresholdParam: "min_pesci",
+    },
+    aucell: {
+        scoreField: "aucell_1to2",
+        genePairsField: "aucell_gene_pairs",
+        label: "AUCell",
+        thresholdParam: "min_aucell",
+    },
+} as const;
+
+type MetricKey = keyof typeof METRICS;
 
 /**
  * Update parameter and reload page.
@@ -221,21 +247,28 @@ function prepareGenePairsTable(
  * @param {string} id - HTML element ID prefix for the comparison container.
  * @param {string} metacellType - Cell type from the first dataset.
  * @param {string} metacellType2 - Cell type from the second dataset.
- * @param {number|string} samapScore - SAMap similarity score.
- * @param {number} genePairCount - Number of matched gene pairs.
+ * @param {Object} datum - Raw data object for the selected cell-type pair.
+ * @param {string} metric - Metric key (samap, pesci, aucell).
  */
 
-function updateComparisonSummary(
-    id,
-    metacellType,
-    metacellType2,
-    samapScore,
-    genePairCount,
-) {
+function updateComparisonSummary(id, metacellType, metacellType2, datum, metric) {
     document.getElementById(`${id}-metacell-type`).textContent = metacellType;
     document.getElementById(`${id}-metacell2-type`).textContent = metacellType2;
 
-    const scoreLabel = `SAMap: ${Number(samapScore).toFixed(2)}%`;
+    const config = METRICS[metric];
+    let scoreLabel;
+
+    if (metric === "aucell") {
+        const score1 = Number(datum.aucell_1to2).toFixed(2);
+        const score2 = Number(datum.aucell_2to1).toFixed(2);
+        scoreLabel = `AUCell: ${score1}% / ${score2}%`;
+    } else {
+        const score = Number(datum[config.scoreField]).toFixed(2);
+        scoreLabel = `${config.label}: ${score}%`;
+    }
+
+    const genePairs = datum[config.genePairsField];
+    const genePairCount = genePairs?.length || 0;
     const countLabel = `${genePairCount} gene pair${genePairCount == 1 ? "" : "s"}`;
     document.getElementById(`${id}-gene-pair-summary`).textContent =
         `${scoreLabel} · ${countLabel}`;
@@ -243,15 +276,18 @@ function updateComparisonSummary(
 
 /**
  * Fetch and display metacell type similarity between datasets.
- * Renders a Sankey plot showing cell-type correspondences.
+ * Renders an alluvial or Heatmap plot showing cell-type correspondences.
  *
  * @param {string} id - HTML element ID prefix for the plot container
  * @param {string} label - Label for the first dataset
  * @param {string} dataset - Name of the first dataset
+ * @param {string} species - Species of the first dataset
  * @param {string} label2 - Label for the second dataset
  * @param {string} dataset2 - Name of the second dataset
+ * @param {string} species2 - Species of the second dataset
+ * @param {string} metric - Metric key (samap, pesci, aucell)
  */
-export function initSAMap(
+export function initCellTypeCompare(
     id,
     label,
     dataset,
@@ -259,21 +295,30 @@ export function initSAMap(
     label2,
     dataset2,
     species2,
+    metric = "samap",
 ) {
+    const config = METRICS[metric];
+    const thresholdEl = document.getElementById("threshold");
+    const params = new URLSearchParams(window.location.search);
+
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
-        min_samap: document.getElementById("min_samap").value,
+        [config.thresholdParam]: thresholdEl ? thresholdEl.value : params.get(config.thresholdParam) || "5",
         limit: 0,
     });
 
-    const heatmap = document.getElementById("plot").value == "heatmap";
+    const useHeatmap =
+        document.getElementById("plot").value === "heatmap" || metric === "aucell";
+
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
             data = data.map((datum) => ({
                 ...datum,
                 samap_gene_pair_count: datum.samap_gene_pairs?.length || 0,
+                pesci_gene_pair_count: datum.pesci_gene_pairs?.length || 0,
+                aucell_gene_pair_count: datum.aucell_gene_pairs?.length || 0,
             }));
 
             if (!data.length) {
@@ -284,28 +329,42 @@ export function initSAMap(
                         No data available for the selected datasets.
                     </p>
                 `;
-            } else if (heatmap) {
-                return createSAMapHeatmap(`#${id}-plot`, data, label, label2);
+            } else if (useHeatmap) {
+                return createCellTypeHeatmap(
+                    `#${id}-plot`,
+                    data,
+                    label,
+                    label2,
+                    config.scoreField,
+                    config.label,
+                );
             } else {
-                return createSAMapSankey(`#${id}-plot`, data, label, label2);
+                return createCellTypeAlluvial(
+                    `#${id}-plot`,
+                    data,
+                    label,
+                    label2,
+                    config.scoreField,
+                    config.label,
+                );
             }
         })
         .then((view) => {
             // Update table when clicking valid plot values
             view.addEventListener("click", (event, item) => {
                 if (!item) return;
-                if (!item.datum.samap_gene_pairs) return;
+                if (!item.datum[config.genePairsField]) return;
 
                 updateComparisonSummary(
                     id,
                     item.datum.metacell_type,
                     item.datum.metacell2_type,
-                    item.datum.samap_score,
-                    item.datum.samap_gene_pair_count,
+                    item.datum,
+                    metric,
                 );
                 prepareGenePairsTable(
                     id,
-                    item.datum.samap_gene_pairs,
+                    item.datum[config.genePairsField],
                     species,
                     species2,
                     dataset,
@@ -316,5 +375,5 @@ export function initSAMap(
         .catch((error) => console.error("Error fetching data:", error))
         .finally(() => hideSpinner(id));
 
-    appendDataMenu(id, url, "SAMap scores");
+    appendDataMenu(id, url, `${config.label} scores`);
 }
