@@ -175,7 +175,12 @@ describe("initMetacellSelect", () => {
         const select = initMetacellSelect("", "");
         const escape = (s) => s;
         const html = select.settings.render.option(
-            { text: "Neuron", color: "blue", metacells: false, celltype: "Neuron" },
+            {
+                text: "Neuron",
+                color: "blue",
+                metacells: false,
+                celltype: "Neuron",
+            },
             escape,
         );
         expect(html).toContain("option");
