@@ -85,14 +85,13 @@ Features:
                     </ul>
                     {% endcomment %}
                     <ul class="navbar-nav">
-                        <li class="nav-item dropdown pe-2">
-                            <button class="btn btn-warning background-light-accent border-light-accent"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#demoModal">
-                                <span class="text-black-50">
-                                    Demo <span class="d-inline d-md-none d-xl-inline">release</span>
-                                </span>
-                            </button>
+                        <li class="nav-item pe-2">
+                            <a class="nav-link"
+                               href="https://forms.cloud.microsoft/e/Xrn23AgnmT"
+                               target="_blank">
+                                <i class="fa fa-envelope fa-fw"></i>
+                                Newsletter
+                            </a>
                         </li>
                         <li>
                             <form class="d-block d-flex" role="search">
@@ -110,47 +109,7 @@ Features:
     </header>
 {% endwith %}
 
-<div class="modal fade"
-     id="demoModal"
-     tabindex="-1"
-     aria-labelledby="demoModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header background-light-accent">
-                <h1 class="modal-title fs-5 text-black-50" id="demoModalLabel">
-                    BCA Demo release
-                </h1>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>
-                    The Biodiversity Cell Atlas: Data Portal and its data are
-                    currently available as a <b>demo release</b>.
-                </p>
-                <p>
-                    This version allows to explore preliminary data and
-                    interact with key features of the platform.
-                </p>
-                <p class="mb-0">
-                    Please note that <b>the data and functionalities are still
-                under development and subject to change.</b>
-            </p>
-        </div>
-        <div class="modal-footer">
-            <a class="btn btn-primary w-100"
-               href="{{ FEEDBACK_URL }}"
-               target="_blank">
-                <i class="fa fa-comments fa-fw"></i> Share feedback
-            </a>
-        </div>
-    </div>
-</div>
-</div>
+
 
 <script type="module">
     import { initSearch } from "{% static 'app/dist/search/search_bar.js' %}";
