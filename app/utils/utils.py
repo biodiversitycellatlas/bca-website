@@ -87,19 +87,19 @@ def get_compare_dataset_dict(dataset):
 
     # Datasets with SAMap similarity scores against the given dataset (either direction)
     samap_dataset_ids = set(
-        MetacellTypeSimilarity.objects.filter(
-            metacelltype__dataset=dataset, samap_score__isnull=False
-        ).values_list("metacelltype2__dataset_id", flat=True)
+        MetacellTypeSimilarity.objects.filter(metacelltype__dataset=dataset, samap_score__isnull=False).values_list(
+            "metacelltype2__dataset_id", flat=True
+        )
     ) | set(
-        MetacellTypeSimilarity.objects.filter(
-            metacelltype2__dataset=dataset, samap_score__isnull=False
-        ).values_list("metacelltype__dataset_id", flat=True)
+        MetacellTypeSimilarity.objects.filter(metacelltype2__dataset=dataset, samap_score__isnull=False).values_list(
+            "metacelltype__dataset_id", flat=True
+        )
     )
 
     # Orthogroups containing genes from the given dataset's gene modules
-    shared_orthogroups = Ortholog.objects.filter(
-        gene__modules__module__dataset=dataset
-    ).values_list("orthogroup_id", flat=True)
+    shared_orthogroups = Ortholog.objects.filter(gene__modules__module__dataset=dataset).values_list(
+        "orthogroup_id", flat=True
+    )
 
     # Datasets whose gene modules share an orthogroup with the given dataset
     module_dataset_ids = set(

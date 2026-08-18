@@ -40,7 +40,10 @@ export function getMetacellPositions(data, fallbackMetacellIndex = true) {
         if (!positions.has(obj.metacell_name)) {
             positions.set(
                 obj.metacell_name,
-                obj.metacell_order ?? (fallbackMetacellIndex ? getMetacellIndex(obj.metacell_name) : i),
+                obj.metacell_order ??
+                    (fallbackMetacellIndex
+                        ? getMetacellIndex(obj.metacell_name)
+                        : i),
             );
         }
     });

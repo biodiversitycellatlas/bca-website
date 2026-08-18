@@ -507,7 +507,9 @@ class SingleCellSerializer(BaseExpressionSerializer):
     """Single cell serializer."""
 
     # Default is null for single cells with no metacell
-    metacell_name = serializers.CharField(source="metacell.name", default=None, allow_null=True, help_text="Metacell name.")
+    metacell_name = serializers.CharField(
+        source="metacell.name", default=None, allow_null=True, help_text="Metacell name."
+    )
     metacell_type = serializers.CharField(
         source="metacell.type.name", default=None, allow_null=True, help_text="Cell type."
     )
@@ -560,7 +562,9 @@ class MetacellSerializer(BaseExpressionSerializer):
     """Metacell serializer."""
 
     type = serializers.CharField(source="type.name", allow_null=True, help_text="Metacell type.", required=False)
-    color = serializers.CharField(source="type.color", allow_null=True, help_text="Color of metacell type.", required=False)
+    color = serializers.CharField(
+        source="type.color", allow_null=True, help_text="Color of metacell type.", required=False
+    )
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)

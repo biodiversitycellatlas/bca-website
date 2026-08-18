@@ -18,9 +18,7 @@ class TestAtlasPage:
         expect(page.get_by_role("link", name="Gene modules")).to_have_attribute(
             "href", "/atlas/homo-sapiens-baby/modules/"
         )
-        expect(page.get_by_role("link", name="Gene view")).to_have_attribute(
-            "href", "/atlas/homo-sapiens-baby/gene/"
-        )
+        expect(page.get_by_role("link", name="Gene view")).to_have_attribute("href", "/atlas/homo-sapiens-baby/gene/")
         expect(page.get_by_role("link", name="Cell type markers")).to_have_attribute(
             "href", "/atlas/homo-sapiens-baby/markers/"
         )

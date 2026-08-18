@@ -90,7 +90,9 @@ export function initMetacellSelect(selected, selected2) {
                     return `<div class='item'>${badge}</div>`;
                 }
 
-                const text = createColorCircle(escape(item.color)) + escape(item.text.replaceAll("_", " "));
+                const text =
+                    createColorCircle(escape(item.color)) +
+                    escape(item.text.replaceAll("_", " "));
                 return `<div class='item'>${text}</div>`;
             },
             option: function (item, escape) {
@@ -101,7 +103,11 @@ export function initMetacellSelect(selected, selected2) {
                     text = circle + text;
                 } else {
                     const type = escape(item.celltype);
-                    extra = `<span class="float-end text-muted small"><small>` + circle + type + `</small></span>`;
+                    extra =
+                        `<span class="float-end text-muted small"><small>` +
+                        circle +
+                        type +
+                        `</small></span>`;
                 }
                 text = text.replaceAll("_", " ");
                 return `<div class='option'>${text}${extra}</div>`;

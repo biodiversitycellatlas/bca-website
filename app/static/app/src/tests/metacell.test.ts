@@ -1,5 +1,9 @@
 import { describe, it, expect } from "bun:test";
-import { getMetacellIndex, getMetacellOrder, getMetacellPositions } from "../utils/metacell";
+import {
+    getMetacellIndex,
+    getMetacellOrder,
+    getMetacellPositions,
+} from "../utils/metacell";
 import { convertToRange } from "../select/metacell";
 
 describe("getMetacellIndex", () => {
@@ -47,7 +51,9 @@ describe("getMetacellPositions", () => {
     });
 
     it("fall back to the trailing number by default", () => {
-        const positions = getMetacellPositions([{ metacell_name: "acrmil01_MC_00204" }]);
+        const positions = getMetacellPositions([
+            { metacell_name: "acrmil01_MC_00204" },
+        ]);
         expect(positions.get("acrmil01_MC_00204")).toBe(204);
     });
 
@@ -67,7 +73,11 @@ describe("getMetacellPositions", () => {
 
 describe("convertToRange", () => {
     it("convert metacell names into ranges", () => {
-        expect(convertToRange("acrmil01_MC_00001,acrmil01_MC_00002,acrmil01_MC_00004")).toBe("1-2,4");
+        expect(
+            convertToRange(
+                "acrmil01_MC_00001,acrmil01_MC_00002,acrmil01_MC_00004",
+            ),
+        ).toBe("1-2,4");
     });
 
     it("convert integer names into ranges", () => {
@@ -80,7 +90,9 @@ describe("convertToRange", () => {
 
     it("keep metacell names without a trailing number", () => {
         expect(
-            convertToRange("Neuron_MC,acrmil01_MC_00002,acrmil01_MC_00001,acrmil01_MC_00004")
+            convertToRange(
+                "Neuron_MC,acrmil01_MC_00002,acrmil01_MC_00001,acrmil01_MC_00004",
+            ),
         ).toBe("1-2,4,Neuron_MC");
     });
 });
