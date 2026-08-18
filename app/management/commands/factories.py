@@ -7,6 +7,7 @@ from app.models import (
     GeneModule,
     Orthogroup,
     Ortholog,
+    ExpressionConservation,
     Metacell,
     MetacellType,
     MetacellCount,
@@ -66,6 +67,14 @@ class GenesFactory(factory.django.DjangoModelFactory):
 class OrthologFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Ortholog
+
+
+class ExpressionConservationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ExpressionConservation
+
+    conservation_score = factory.Faker("pyfloat", min_value=0, max_value=1)
+    is_one_to_one = True
 
 
 class OrthoGroupFactory(factory.django.DjangoModelFactory):

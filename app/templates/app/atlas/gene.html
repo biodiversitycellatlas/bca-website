@@ -131,7 +131,7 @@ Input:
         {% include "../components/tables/gene_correlation.html" with id="correlation" dataset=dataset species=species gene=gene gene2="" %}
 
         {% h1 "Orthologs" id="orthologs" %}
-        {% include "../components/plots/ortholog_plots.html" with species=species gene=gene %}
+        {% include "../components/tables/expression_conservation.html" with id="orthologs" dataset=dataset species=species gene=gene %}
 
     {% else %}
         {% include "../components/mockup/barplot.html" %}

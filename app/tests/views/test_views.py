@@ -150,35 +150,25 @@ class TestAboutView(TestCase):
 
     def test_about_view_context(self):
         response = self.client.get("/about/")
-
         assert response.status_code == 200
-        # Check that context contains "info"
         assert "info" in response.context
 
         info = response.context["info"]
 
         # Check main sections exist
         assert "contact" in info
-        assert "legal" in info
         assert "licenses" in info
 
-        # Check that contact section contains the Email entry
-        email_entry = info["contact"][0]
-        assert email_entry["url"] == settings.FEEDBACK_URL
-
-        # Check licenses section
-        fa_entry = next((x for x in info["licenses"] if "Font Awesome" in x["label"]), None)
-        assert fa_entry is not None
-
-        rubik_entry = next((x for x in info["licenses"] if "Rubik font" in x["label"]), None)
-        assert rubik_entry is not None
-
-        # Check URLs
+        # Each section is a non-empty list of link items
         for section in info.values():
+            assert section
             for item in section:
                 assert isinstance(item["url"], str)
                 assert isinstance(item["label"], str)
                 assert isinstance(item["icon"], str)
+
+        # Contact section links to the feedback email
+        assert info["contact"][0]["url"] == settings.FEEDBACK_URL
 
     def test_last_updated(self):
         response = self.client.get("/about/")
@@ -193,6 +183,23 @@ class TestAboutView(TestCase):
         content = response.content.decode()
         assert "Last updated" in content
         assert mtime_str in content
+
+    def test_licenses(self):
+        response = self.client.get("/about/")
+        assert response.status_code == 200
+        content = response.content.decode()
+
+        collapse_start = content.index('id="collapsed-items-')
+        before_collapse = content[:collapse_start]
+        after_collapse = content[collapse_start:]
+
+        # A toggle is shown upfront, with links visible before it and hidden after it
+        assert "BCA website (Apache-2.0)" in before_collapse
+        assert "BCA data (CC BY 4.0)" in before_collapse
+        assert 'data-bs-toggle="collapse"' in before_collapse
+        assert "<li" in before_collapse
+        assert "<li" in after_collapse
+        assert "Rubik" in after_collapse
 
 
 class SearchViewTest(DataTestCase):

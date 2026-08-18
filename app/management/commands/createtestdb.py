@@ -7,6 +7,7 @@ from typing import TextIO
 import factory.random
 import h5py
 import numpy as np
+from django.conf import settings
 from django.core.files import File as DjangoFile
 from django.core.management.base import BaseCommand
 from django.db import connection
@@ -29,14 +30,24 @@ from app.models import (
     QualityControl,
     DatasetQualityControl,
     DBVersion,
-    SAMap,
     MetacellType,
+    MetacellTypeSimilarity,
     GeneCorrelation,
     GeneModule,
     GeneModuleEigengene,
+    ExpressionConservation,
     Meta,
     SpeciesFile,
 )
+
+OUTPUT_DIR = settings.MEDIA_ROOT
+
+
+def get_filepath(filename, dir=None):
+    """Path to file in a given directory."""
+    if dir is None:
+        dir = OUTPUT_DIR
+    return os.path.join(dir, filename)
 
 
 def setup_test_environment():
@@ -46,7 +57,7 @@ def setup_test_environment():
 def create_tgrm_extension():
     """Installs the pg_trm search extension"""
     with connection.cursor() as cursor:
-        cursor.execute("create extension pg_trgm;")
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
 
 
 class Command(BaseCommand):
@@ -72,6 +83,7 @@ class Command(BaseCommand):
         """
         Database creation
         """
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
         setup_test_environment()
         create_tgrm_extension()
         self.create_datasets()
@@ -82,7 +94,7 @@ class Command(BaseCommand):
         self.create_metacells()
         self.create_singlecells()
         self.create_quality_data()
-        self.create_samaps()
+        self.create_metacell_type_similarity()
         self.create_all_genecorrelations()
         self.create_all_eigengene_values()
         self.create_species_files()
@@ -196,6 +208,34 @@ class Command(BaseCommand):
         factories.OrthologFactory.create(species=self.sponge, gene=sponge_genes[3], orthogroup=orthogroup1)
         factories.OrthologFactory.create(species=self.homo, gene=homo_genes[2], orthogroup=orthogroup1)
 
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup0,
+            gene=homo_genes[1],
+            gene2=sponge_genes[0],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.85,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup0,
+            gene=homo_genes[1],
+            gene2=sponge_genes[1],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.72,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=orthogroup1,
+            gene=homo_genes[2],
+            gene2=sponge_genes[2],
+            dataset=self.homo_dataset,
+            dataset2=self.sponge_dataset,
+            conservation_score=0.91,
+            is_one_to_one=True,
+        )
+
     @staticmethod
     def create_metacell_links(dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
@@ -236,7 +276,7 @@ class Command(BaseCommand):
             )
 
     def create_hdf5_file(self, dataset, genes, singlecells):
-        output_file = f"{dataset.slug}-singlecell_umifrac.hdf5"
+        output_file = get_filepath(f"{dataset.slug}-singlecell_umifrac.hdf5")
         with h5py.File(output_file, "w") as root:
             root.create_dataset("cell_names", data=singlecells, dtype=h5py.string_dtype())
             num_sc = len(singlecells) // 10
@@ -292,13 +332,13 @@ class Command(BaseCommand):
         Meta.objects.create(species=self.homo, key="phylum", value="Chordata", source=ncbi, query_term="7711")
         Meta.objects.create(species=self.sponge, key="phylum", value="Porifera", source=ncbi, query_term="6040")
 
-    def create_samaps(self):
+    def create_metacell_type_similarity(self):
         metacelltypes = MetacellType.objects.all()
         for t1, t2 in itertools.combinations(metacelltypes, 2):
-            SAMap.objects.create(
+            MetacellTypeSimilarity.objects.create(
                 metacelltype=t1,
                 metacelltype2=t2,
-                samap=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=50),
+                samap_score=self.fake.pyfloat(left_digits=2, right_digits=2, min_value=0.01, max_value=1),
             )
 
     def create_genecorrelations(self, species, dataset):
@@ -338,7 +378,7 @@ class Command(BaseCommand):
             SpeciesFile.objects.get_or_create(species=species, type=kind, defaults={"file": django_file})
 
     def create_fasta_file(self, species, genes):
-        output_file = f"{species} - Proteome.fasta"
+        output_file = get_filepath(f"{species} - Proteome.fasta")
         with open(output_file, "w") as f:
             for gene in genes:
                 sequence = self.fake.bothify(
@@ -360,10 +400,10 @@ class Command(BaseCommand):
     def create_species_files(self):
         sponge_genes = list(self.sponge.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.sponge, sponge_genes)
-        output_file = f"{self.sponge.scientific_name} - DIAMOND.dmnd"
+        output_file = get_filepath(f"{self.sponge.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.sponge, input_file, output_file)
 
         homo_genes = list(self.homo.genes.values_list("name", flat=True))
         input_file = self.create_fasta_file(self.homo, homo_genes)
-        output_file = f"{self.homo.scientific_name} - DIAMOND.dmnd"
+        output_file = get_filepath(f"{self.homo.scientific_name} - DIAMOND.dmnd")
         self.create_diamond_database(self.homo, input_file, output_file)

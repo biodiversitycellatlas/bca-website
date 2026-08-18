@@ -1,6 +1,6 @@
 {% comment %}
 
-SAMap scores plot
+Compare cell types
 
 Input:
 - id: prefix used in the identifiers of all elements
@@ -14,6 +14,17 @@ Input:
 
     .w-250px {
         width: 250px;
+    }
+
+    #{{ id }}-vs-cell-type {
+        width:50px;
+        height:50px;
+        background-color: var(--primary-color);
+    }
+
+    #{{ id }}-cell-type-compare-empty > span {
+        max-width: 32rem;
+        text-wrap: balance;
     }
 </style>
 
@@ -35,6 +46,26 @@ Input:
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
             <label class="col-form-label">
+                <i class="fa fa-chart-simple"></i>
+                Plot type
+            </label>
+        </div>
+
+        <select id="plot"
+                aria-label="Select plot type"
+                class="form-select form-select mb-3 btn-outline-primary">
+            <option {% if query.plot == 'sankey' %}selected{% endif %} value="sankey">
+                Sankey plot
+            </option>
+            <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">
+                Heatmap
+            </option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
                 <i class="fa fa-filter"></i>
                 SAMap threshold
             </label>
@@ -45,7 +76,7 @@ Input:
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     data-bs-auto-close="outside">
-                SAMap score ≥ <span id="samap_min_value">5</span> %
+                SAMap score ≥ <span id="min_samap_value">5</span> %
             </button>
             <div class="dropdown-menu">
                 <div class="mx-4 mb-3 w-250px">
@@ -56,8 +87,8 @@ Input:
 
                         <input type="range"
                                class="js-range-slider opacity-0"
-                               id="samap_min"
-                               name="samap_min"
+                               id="min_samap"
+                               name="min_samap"
                                value="0"
                                step="1">
 
@@ -75,13 +106,17 @@ Input:
 
 <script type="module">
     import { initRangeSlider } from "{% static 'app/dist/utils/range_slider.js' %}";
-    initRangeSlider("#samap_min",
-        { min: 0, max: 100, from: {{query.samap_min|default:5}} },
-        ["#samap_min_value", undefined]
+    initRangeSlider("#min_samap",
+        { min: 0, max: 100, from: {{query.min_samap|default:5}} },
+        ["#min_samap_value", undefined]
     );
 
-    import { handleFormSubmit } from "{% static 'app/dist/atlas/samap_compare.js' %}";
+    import { handleFormSubmit, updateParam } from "{% static 'app/dist/atlas/samap_compare.js' %}";
+
     handleFormSubmit();
+    document.getElementById("plot").addEventListener("change", function () {
+        updateParam("plot", this.value);
+    });
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
@@ -102,13 +137,72 @@ Input:
     </p>
 {% else %}
     <div class="row">
-        <div class="col-10 col-sm-11">
+        <div {% if query.plot == 'heatmap' %}class="col-9 col-sm-10 col-lg-3"{% else %}class="col-12 col-lg-5"{% endif %}>
             {% include "../plot_container.html" with id=id ratio="16/9" %}
+        </div>
+
+        {% if query.plot == 'heatmap' %}
+            <div class="col-3 col-sm-2 col-lg-2">
+            </div>
+        {% endif %}
+
+        <div class="col-12 col-lg-7">
+            <div class="d-flex justify-content-center gap-3 align-items-center text-center small mb-3">
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-metacell-type">
+                        Select a cell type pair
+                    </div>
+                </div>
+
+                <div id="{{ id }}-vs-cell-type"
+                     class="fw-bold fs-5 text-white rounded-circle d-flex align-items-center justify-content-center shadow">
+                    VS
+                </div>
+
+                <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
+                    <div>
+                        {{ dataset2.get_html_link }}
+                    </div>
+                    <div id="{{ id }}-metacell2-type">
+                        Select a cell type pair
+                    </div>
+                </div>
+            </div>
+
+            <div class="small mb-2 text-center">
+                <span id="{{ id }}-gene-pair-summary">SAMap-aligned gene pairs</span>
+                <i class="fa fa-circle-question text-secondary"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="bottom"
+                   data-bs-title="Gene pairs contributing to cell-type alignment"></i>
+            </div>
+
+            <div id="{{ id }}-cell-type-compare-empty"
+                 class="text-center text-muted py-5 small">
+                <span class="d-block mx-auto">
+                    Select a cell-type pair in the plot to compare its aligned gene pairs.
+                </span>
+            </div>
+            <table id="{{ id }}-cell-type-compare-table"
+                   class="table table-sm table-striped small">
+            </table>
         </div>
     </div>
 
     <script type="module">
         import { initSAMap } from "{% static 'app/dist/atlas/samap_compare.js' %}";
-        initSAMap('{{id}}', '{{dataset}}', '{{dataset.slug}}', '{{dataset2}}', '{{dataset2.slug}}');
+        const id = "{{id}}";
+        const label = "{{dataset}}";
+        const dataset = "{{dataset.slug}}";
+        const species = "{{dataset.species}}";
+
+        const label2 = "{{dataset2}}";
+        const dataset2 = "{{dataset2.slug}}";
+        const species2 = "{{dataset2.species}}";
+
+        initSAMap(id, label, dataset, species, label2, dataset2, species2);
     </script>
 {% endif %}

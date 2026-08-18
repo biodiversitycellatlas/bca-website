@@ -1,3 +1,4 @@
+from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import get_relative_url, set_query_parameters
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.utils import extend_schema
@@ -6,6 +7,17 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+
+
+class FormatDescriptionAutoSchema(AutoSchema):
+    """AutoSchema that adds a description to the format query parameter."""
+
+    def _get_format_parameters(self):
+        parameters = super()._get_format_parameters()
+        for parameter in parameters:
+            if parameter.get("name") == "format":
+                parameter["description"] = "Response format."
+        return parameters
 
 
 class SpectacularElementsView(APIView):

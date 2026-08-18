@@ -17,7 +17,7 @@ import sys
 
 import orjson
 
-from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
+from .pre_settings import get_diamond_version, get_goatools_version, get_env, get_latest_git_tag
 from rest.settings import sort_api_tags
 
 # GLOBAL VARIABLES: registered in context_processors.py
@@ -33,6 +33,7 @@ GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
 
 DIAMOND_VERSION = get_diamond_version()
+GOATOOLS_VERSION = get_goatools_version()
 
 # Max sequences for alignment
 MAX_ALIGNMENT_SEQS = get_env("BCA_APP_MAX_ALIGNMENT_SEQS", 100, type="int")
@@ -72,8 +73,9 @@ INSTALLED_APPS = [
     "rest.apps.RestConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.postgres",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
@@ -212,7 +214,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
     "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest.schema.FormatDescriptionAutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
         "drf_orjson_renderer.renderers.ORJSONRenderer",
