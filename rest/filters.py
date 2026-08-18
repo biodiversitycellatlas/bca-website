@@ -46,14 +46,14 @@ def update_species_choices():
     """Update species choices"""
     choices = []
     if check_model_exists(models.Species):
-        choices = [
-            (
-                s.scientific_name,
-                s.common_name if s.common_name is not None else s.get_html(),
-            )
-            for s in models.Species.objects.all()
-        ]
-        choices = sorted(choices, key=lambda x: x[0])
+        try:
+            choices = [
+                (s.scientific_name, s.common_name if s.common_name is not None else s.get_html())
+                for s in models.Species.objects.all()
+            ]
+            choices = sorted(choices, key=lambda x: x[0])
+        except Exception:
+            pass
     return choices
 
 
@@ -112,8 +112,11 @@ def update_dataset_choices():
 
     choices = []
     if check_model_exists(models.Dataset):
-        choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-        choices = sorted(choices, key=lambda x: x[0])
+        try:
+            choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
+            choices = sorted(choices, key=lambda x: x[0])
+        except Exception:
+            pass
     return choices
 
 
