@@ -2,15 +2,16 @@
  * Tree of Life visualization
  */
 
+import { newickParser } from "phylotree";
 import vegaEmbed from "vega-embed";
 
 /**
  * Flatten a hierarchical tree object into an array suitable for Vega.
  *
- * @param {Object} obj - Hierarchical tree object
+ * @param {Object} obj - Hierarchical tree object with name, children, length
  * @returns {Array} Flattened array with nodes containing id, parent, name, and size
  */
-export function flatten(obj) {
+function flatten(obj) {
     let id = 0;
     return _flatten2(obj);
 
@@ -34,22 +35,28 @@ export function flatten(obj) {
 }
 
 /**
- * Fetch and parse a Newick JSON file, then flatten it.
+ * Parse a Newick string into a hierarchical JSON object.
+ * Maps phylotree's `attribute` field to `length` for compatibility with flatten().
  *
- * @param {string} file - URL or path to the JSON file
- * @returns {Promise<Array>} Flattened array of tree nodes
+ * @param {string} newick - Newick format tree string
+ * @returns {Object} Hierarchical tree with name, children, and length properties
  */
-export async function readNewickJSON(file) {
-    const res = await fetch(file);
-    const obj = await res.json();
-    return flatten(obj);
+function parseNewick(newick) {
+    const result = newickParser(newick);
+    function mapNode(node) {
+        const mapped = { name: node.name };
+        if (node.attribute) mapped.length = parseFloat(node.attribute);
+        if (node.children) mapped.children = node.children.map(mapNode);
+        return mapped;
+    }
+    return mapNode(result.json);
 }
 
 /**
  * Create an interactive radial tree of life plot.
  *
  * @param {string} id - DOM element ID where the chart will be rendered
- * @param {string} file - URL or path to the Newick JSON file
+ * @param {string} file - URL or path to the Newick file
  */
 export function createTreeOfLife(id, file) {
     const el = document.querySelector(id);
@@ -65,7 +72,8 @@ export function createTreeOfLife(id, file) {
     }
 
     fetch(file)
-        .then((res) => res.json())
+        .then((res) => res.text())
+        .then((newick) => parseNewick(newick))
         .then((obj) => flatten(obj))
         .then((data) => {
             const size = getSize();
@@ -161,16 +169,6 @@ export function createTreeOfLife(id, file) {
                     },
                 ],
 
-                scales: [
-                    {
-                        name: "color",
-                        type: "linear",
-                        range: { scheme: "magma" },
-                        domain: { data: "tree", field: "depth" },
-                        zero: true,
-                    },
-                ],
-
                 marks: [
                     {
                         type: "path",
@@ -192,10 +190,7 @@ export function createTreeOfLife(id, file) {
                                 size: { value: 30 },
                                 x: { field: "x" },
                                 y: { field: "y" },
-                                fill: {
-                                    scale: "color",
-                                    signal: "datum.name ? datum.depth : null",
-                                },
+                                fill: { value: "black" },
                             },
                         },
                     },
@@ -213,7 +208,7 @@ export function createTreeOfLife(id, file) {
                                 },
                                 fontSize: { signal: "fontSize" },
                                 fontWeight: { value: "normal" },
-                                fill: { scale: "color", field: "depth" },
+                                fill: { value: "black" },
                                 x: { field: "x" },
                                 y: { field: "y" },
                                 dx: { signal: "(datum.leftside ? -1 : 1) * 6" },

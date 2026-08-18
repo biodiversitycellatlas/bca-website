@@ -93,7 +93,7 @@ Features:
     </div>
     <script type="module">
         import { createTreeOfLife } from "{% static 'app/dist/tree_of_life.js' %}";
-        createTreeOfLife("#tree", "{% static 'app/life.json' %}");
+        createTreeOfLife("#tree", "{{ tree_of_life }}");
     </script>
 
     {% comment %}
