@@ -22,6 +22,7 @@ missing markup.
 import json
 
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.test import Client
 from django.test.utils import override_settings
@@ -29,10 +30,6 @@ from django.urls import reverse
 
 from app.models import Dataset, Gene, Species
 from config.pre_settings import get_env
-
-# Only applies when the command runs outside the compose stack, where
-# `DJANGO_HOSTNAME` is unset.
-FALLBACK_HOST = "portal.biodiversitycellatlas.org"
 
 # Default port per scheme, so `get_host()` omits it from the absolute URLs
 DEFAULT_PORTS = {"http": "80", "https": "443"}
@@ -90,7 +87,7 @@ class Command(BaseCommand):
         production, but publishes it on `WEB_PORT` everywhere else, so outside
         production the port has to be added back or the URLs are unreachable.
         """
-        host = get_env("DJANGO_HOSTNAME", FALLBACK_HOST)
+        host = get_env("DJANGO_HOSTNAME", settings.DJANGO_HOSTNAME_FALLBACK)
         if ":" in host or self.is_prod():
             return host
 
