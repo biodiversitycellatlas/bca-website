@@ -16,7 +16,7 @@ from django.contrib.postgres.fields import ArrayField
 class AutoSlugMixin(models.Model):
     """Abstract mixin to add an automatic slug to the model."""
 
-    slug = models.SlugField(unique=True, blank=True, max_length=255)
+    slug = models.SlugField(unique=True, null=True, max_length=255)
 
     class Meta:
         """Meta options."""
