@@ -1,7 +1,6 @@
 """Test miscellaneous views."""
 
 import json
-import re
 import ssl
 import io
 import os
@@ -9,6 +8,7 @@ import os
 from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime
 
+from bs4 import BeautifulSoup
 from django.test import TestCase, Client, override_settings
 from django.conf import settings
 from django.http import FileResponse
@@ -225,15 +225,17 @@ class SearchViewTest(DataTestCase):
 class BioschemasViewTest(DataTestCase):
     """Check that each candidate page serves parseable, conformant JSON-LD."""
 
-    JSONLD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL)
+    def jsonld_scripts(self, content):
+        """Return the JSON-LD ``<script>`` tags found in `content`."""
+        return BeautifulSoup(content, "html.parser").find_all("script", type="application/ld+json")
 
     def payloads(self, url):
         """Return the parsed JSON-LD blocks served by `url`."""
         response = self.client.get(url)
         assert response.status_code == 200, f"{url} returned {response.status_code}"
-        blocks = self.JSONLD.findall(response.content.decode())
-        assert blocks, f"{url} served no JSON-LD"
-        return [json.loads(block) for block in blocks]
+        scripts = self.jsonld_scripts(response.content)
+        assert scripts, f"{url} served no JSON-LD"
+        return [json.loads(script.string) for script in scripts]
 
     def assert_page(self, url, type_, profile=None):
         """Assert `url` serves exactly one JSON-LD block of the expected type."""
@@ -297,7 +299,7 @@ class BioschemasViewTest(DataTestCase):
     def test_atlas_gene_page_is_silent_for_an_unknown_gene(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/nope/")
         assert response.status_code == 200
-        assert not self.JSONLD.findall(response.content.decode())
+        assert not self.jsonld_scripts(response.content)
 
     def test_pages_without_a_matching_profile_serve_no_jsonld(self):
         """Tier 3 pages are deliberately left without structured data."""
@@ -313,4 +315,4 @@ class BioschemasViewTest(DataTestCase):
         ):
             response = self.client.get(url)
             assert response.status_code == 200, f"{url} returned {response.status_code}"
-            assert not self.JSONLD.findall(response.content.decode()), f"{url} unexpectedly served JSON-LD"
+            assert not self.jsonld_scripts(response.content), f"{url} unexpectedly served JSON-LD"
