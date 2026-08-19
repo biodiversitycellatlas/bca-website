@@ -461,6 +461,7 @@ class GlobalFile(FileMixin):
 
     file_types = {
         "go-basic-obo": "Gene Ontology OBO file (basic version)",
+        "tree-of-life": "Tree of Life Newick file",
     }
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
 
