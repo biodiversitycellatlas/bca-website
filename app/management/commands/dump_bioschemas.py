@@ -25,6 +25,7 @@ import re
 from django.core.management.base import BaseCommand, CommandError
 from django.test import Client
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from app.models import Dataset, Gene, Species
 from config.pre_settings import get_env
