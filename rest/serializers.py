@@ -638,6 +638,9 @@ class MetacellCountSerializer(serializers.ModelSerializer):
     metacell = serializers.CharField(source="metacell.name")
     metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
     metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     cells = serializers.IntegerField(help_text="Cell count.")
     umis = serializers.IntegerField(help_text="UMI count.")
@@ -646,7 +649,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.MetacellCount
-        fields = ["metacell", "metacell_type", "metacell_color", "cells", "umis"]
+        fields = ["metacell", "metacell_type", "metacell_color", "metacell_order", "cells", "umis"]
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):

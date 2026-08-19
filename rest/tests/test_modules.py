@@ -588,12 +588,12 @@ class GeneModuleEigengene(GeneModulesData):
         # Test module eigengenes
         expected = [
             # (name, metacell, value)
-            ("module_abc", "1", "0.696"),
-            ("module_abc", "2", "0.897"),
-            ("module_abc", "3", "0.336"),
             ("module_xyz", "1", "0.167"),
             ("module_xyz", "2", "0.135"),
             ("module_xyz", "3", "0.153"),
+            ("module_abc", "1", "0.696"),
+            ("module_abc", "2", "0.897"),
+            ("module_abc", "3", "0.336"),
         ]
 
         for m, (module, metacell, value) in zip(eigengenes, expected):
