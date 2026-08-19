@@ -103,7 +103,7 @@ function filterHeatmap() {
  *
  * @param {string} id - HTML element ID prefix.
  * @param {string} dataset - Dataset name.
- * @param {Object} data - Object containing `sc_data`, `mc_data` and `mc_links`.
+ * @param {Object} data - Object containing `sc_data`, `mc_data` and `mc_edges`.
  * @param {string|null} gene - Selected gene, or `null` if none.
  */
 function setupProjectionColoring(id, dataset, data, gene) {
@@ -146,7 +146,7 @@ export function initProjection(id, dataset, label, colorBy, gene) {
     const urls = {
         sc_data: getViewUrl("rest:singlecell-list", { dataset, gene, limit }),
         mc_data: getViewUrl("rest:metacell-list", { dataset, gene, limit }),
-        mc_links: getViewUrl("rest:metacelllink-list", { dataset, limit }),
+        mc_edges: getViewUrl("rest:metacelledge-list", { dataset, limit }),
     };
 
     appendDataMenu(id, urls, [

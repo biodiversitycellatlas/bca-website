@@ -4,6 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
+import { getMetacellIndex } from "../../utils/metacell.ts";
 import { escapeString } from "../../utils/utils.ts";
 
 /**
@@ -14,11 +15,17 @@ import { escapeString } from "../../utils/utils.ts";
  * @param {Array} data - Array of objects containing metacell expression data.
  */
 export function createExpressionBubblePlot(id, gene, data) {
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
+
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
         transform: [
-            { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
             { calculate: "datum.umifrac * 10", as: "umifrac" },
             { fold: ["umifrac", "fold_change"] },
         ],
@@ -27,7 +34,7 @@ export function createExpressionBubblePlot(id, gene, data) {
         mark: { type: "circle", tooltip: { content: "data" } },
         encoding: {
             x: {
-                field: "metacell_name",
+                field: "metacell_index",
                 type: "quantitative",
                 title: "Metacell",
                 axis: {
@@ -88,19 +95,25 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
     const escapedGene = escapeString(gene),
         escapedGene2 = escapeString(gene2);
 
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
+
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: {
-            text: [`Pearson: ${stats.pearson}`, `Spearman: ${stats.spearman}`],
+            text: [`Pearson: ${stats.pearson}`],
             fontWeight: "normal",
             anchor: "end",
         },
         transform: [
-            { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
             { calculate: "datum.umifrac * 10", as: "umifrac" },
             {
                 pivot: "gene_name",
-                groupby: ["metacell_name", "metacell_type", "metacell_color"],
+                groupby: ["metacell_index", "metacell_type", "metacell_color"],
                 value: "fold_change",
             },
             {

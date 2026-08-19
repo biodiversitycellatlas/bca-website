@@ -431,8 +431,15 @@ class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
     """Gene module eigengene serializer."""
 
     metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Metacell type.")
-    metacell_color = serializers.CharField(source="metacell.type.color", default=None, help_text="Metacell color.")
+    metacell_type = serializers.CharField(
+        source="metacell.type.name", default=None, allow_null=True, help_text="Metacell type."
+    )
+    metacell_color = serializers.CharField(
+        source="metacell.type.color", default=None, allow_null=True, help_text="Metacell color."
+    )
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     module = serializers.CharField(help_text="Gene module name.")
     dataset = serializers.CharField(source="module.dataset.slug", help_text="Dataset slug.")
@@ -448,6 +455,7 @@ class GeneModuleEigengeneSerializer(serializers.ModelSerializer):
             "metacell_name",
             "metacell_type",
             "metacell_color",
+            "metacell_order",
             "eigengene_value",
         ]
 
@@ -499,10 +507,14 @@ class SingleCellSerializer(BaseExpressionSerializer):
     """Single cell serializer."""
 
     # Default is null for single cells with no metacell
-    metacell_name = serializers.CharField(source="metacell.name", default=None, help_text="Metacell name.")
-    metacell_type = serializers.CharField(source="metacell.type.name", default=None, help_text="Cell type.")
+    metacell_name = serializers.CharField(
+        source="metacell.name", default=None, allow_null=True, help_text="Metacell name."
+    )
+    metacell_type = serializers.CharField(
+        source="metacell.type.name", default=None, allow_null=True, help_text="Cell type."
+    )
     metacell_color = serializers.CharField(
-        source="metacell.type.color", default=None, help_text="Color associated with cell type."
+        source="metacell.type.color", default=None, allow_null=True, help_text="Color associated with cell type."
     )
 
     class Meta:
@@ -549,8 +561,10 @@ class SingleCellSerializer(BaseExpressionSerializer):
 class MetacellSerializer(BaseExpressionSerializer):
     """Metacell serializer."""
 
-    type = serializers.CharField(source="type.name", help_text="Metacell type.", required=False)
-    color = serializers.CharField(source="type.color", help_text="Color of metacell type.", required=False)
+    type = serializers.CharField(source="type.name", allow_null=True, help_text="Metacell type.", required=False)
+    color = serializers.CharField(
+        source="type.color", allow_null=True, help_text="Color of metacell type.", required=False
+    )
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)
@@ -565,6 +579,7 @@ class MetacellSerializer(BaseExpressionSerializer):
             "y",
             "cytotrace",
             "median_umis",
+            "order",
             "type",
             "color",
             "gene_name",
@@ -584,6 +599,7 @@ class MetacellSerializer(BaseExpressionSerializer):
                 )
             },
             "median_umis": {"help_text": "Median number of Unique Molecular Identifiers (UMIs)."},
+            "order": {"help_text": "Position of the metacell in heatmap ordering."},
             "gene_name": {"help_text": "Name of the queried gene."},
             "umifrac": {
                 "help_text": "Fraction of Unique Molecular Identifiers (UMIs) corresponding to the queried gene."
@@ -591,8 +607,8 @@ class MetacellSerializer(BaseExpressionSerializer):
         }
 
 
-class MetacellLinkSerializer(serializers.ModelSerializer):
-    """Metacell link serializer."""
+class MetacellEdgeSerializer(serializers.ModelSerializer):
+    """Metacell edge serializer."""
 
     metacell = serializers.CharField(source="metacell.name")
     metacell_x = serializers.FloatField(source="metacell.x")
@@ -604,7 +620,7 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta configuration."""
 
-        model = models.MetacellLink
+        model = models.MetacellEdge
         fields = [
             "metacell",
             "metacell_x",
@@ -612,6 +628,7 @@ class MetacellLinkSerializer(serializers.ModelSerializer):
             "metacell2",
             "metacell2_x",
             "metacell2_y",
+            "weight",
         ]
 
 
@@ -619,8 +636,11 @@ class MetacellCountSerializer(serializers.ModelSerializer):
     """Metacell count serializer."""
 
     metacell = serializers.CharField(source="metacell.name")
-    metacell_type = serializers.CharField(source="metacell.type.name")
-    metacell_color = serializers.CharField(source="metacell.type.color")
+    metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
+    metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     cells = serializers.IntegerField(help_text="Cell count.")
     umis = serializers.IntegerField(help_text="UMI count.")
@@ -629,7 +649,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.MetacellCount
-        fields = ["metacell", "metacell_type", "metacell_color", "cells", "umis"]
+        fields = ["metacell", "metacell_type", "metacell_color", "metacell_order", "cells", "umis"]
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):
@@ -658,8 +678,11 @@ class MetacellGeneExpressionSerializer(serializers.ModelSerializer):
     gene_domains = serializers.StringRelatedField(source="gene.domains", many=True)
 
     metacell_name = serializers.CharField(source="metacell.name")
-    metacell_type = serializers.CharField(source="metacell.type.name")
-    metacell_color = serializers.CharField(source="metacell.type.color")
+    metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
+    metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     class Meta:
         """Meta configuration."""
@@ -868,7 +891,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
         """Return metacell color for metacell 2."""
         return self._get_metacell_types(obj)[1].color
 
-    def get_samap_gene_pairs(self, obj):
+    def get_samap_gene_pairs(self, obj) -> list[list[str]] | None:
         if not obj.samap_gene_pairs:
             return None
 

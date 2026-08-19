@@ -1,5 +1,7 @@
 """Custom django-filter filter sets and utilities for the API."""
 
+import logging
+
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
 from django.core.exceptions import ValidationError
 from django.db.models import (
@@ -8,7 +10,6 @@ from django.db.models import (
     Count,
     F,
     FloatField,
-    IntegerField,
     Max,
     Q,
     Subquery,
@@ -16,7 +17,7 @@ from django.db.models import (
     When,
     Window,
 )
-from django.db.models.functions import Cast, Greatest, Log, Rank
+from django.db.models.functions import Greatest, Log, Rank
 from django.forms import ChoiceField
 from django_filters.rest_framework import (
     BooleanFilter,
@@ -28,10 +29,14 @@ from django_filters.rest_framework import (
 )
 
 from app import models
+from app.utils.utils import get_metacell_order
 
 from .aggregates import Median
 from .functions import ArrayPosition
 from .utils import check_model_exists, parse_species_dataset
+
+
+logger = logging.getLogger(__name__)
 
 
 def skip_param(queryset, name, value):
@@ -43,17 +48,17 @@ def skip_param(queryset, name, value):
 
 
 def update_species_choices():
-    """Update species choices"""
+    """Update species choices."""
     choices = []
     if check_model_exists(models.Species):
-        choices = [
-            (
-                s.scientific_name,
-                s.common_name if s.common_name is not None else s.get_html(),
-            )
-            for s in models.Species.objects.all()
-        ]
-        choices = sorted(choices, key=lambda x: x[0])
+        try:
+            choices = [
+                (s.scientific_name, s.common_name if s.common_name is not None else s.get_html())
+                for s in models.Species.objects.all()
+            ]
+            choices = sorted(choices, key=lambda x: x[0])
+        except Exception as exc:
+            logger.debug("Could not update species choices: %s", exc)
     return choices
 
 
@@ -108,12 +113,14 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
 
 def update_dataset_choices():
-    """Update dataset choices based on available datasets."""
-
+    """Update dataset choices."""
     choices = []
     if check_model_exists(models.Dataset):
-        choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-        choices = sorted(choices, key=lambda x: x[0])
+        try:
+            choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
+            choices = sorted(choices, key=lambda x: x[0])
+        except Exception as exc:
+            logger.debug("Could not update dataset choices: %s", exc)
     return choices
 
 
@@ -414,7 +421,15 @@ class SortAcrossMetacellFilter(BooleanFilter):
         if not value:
             return queryset
 
-        sorted_field = (
+        def sort_key(metacell_name, metacell_order):
+            # Order metacells by their stored position in heatmaps, falling back
+            # to the trailing number of their name (e.g. 204 in "acrmil01_MC_00204")
+            order = get_metacell_order(metacell_order, metacell_name)
+            if order is not None:
+                return (0, -order)
+            return (1, metacell_name)
+
+        ranked = (
             queryset.annotate(
                 rank=Window(
                     expression=Rank(),
@@ -423,11 +438,11 @@ class SortAcrossMetacellFilter(BooleanFilter):
                 )
             )
             .filter(rank=1)
-            .order_by(-Cast("metacell__name", IntegerField()))
-            .values_list(self.sort_field, flat=True)
+            .values_list("metacell__name", "metacell__order", self.sort_field)
         )
 
-        sorted_field = list(sorted_field)
+        # Sort genes by the metacell with highest gene expression
+        sorted_field = [field for _, _, field in sorted(ranked, key=lambda row: sort_key(row[0], row[1]))]
         return queryset.order_by(ArrayPosition(self.sort_field, array=sorted_field))
 
 
@@ -563,15 +578,15 @@ class MetacellFilter(FilterSet):
         fields = ["dataset"]
 
 
-class MetacellLinkFilter(FilterSet):
-    """Filter set for metacell links."""
+class MetacellEdgeFilter(FilterSet):
+    """Filter set for metacell edges."""
 
     dataset = DatasetChoiceFilter(field_name="metacell", required=True)
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.MetacellLink
+        model = models.MetacellEdge
         fields = ["dataset"]
 
 

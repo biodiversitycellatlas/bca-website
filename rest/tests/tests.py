@@ -19,7 +19,7 @@ from app.models import (
     Domain,
     GeneCorrelation,
     Orthogroup,
-    MetacellLink,
+    MetacellEdge,
     MetacellTypeSimilarity,
     ExpressionConservation,
     SpeciesFile,
@@ -317,9 +317,9 @@ class MetacellTests(APITestCase):
         dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
 
         type1 = dataset1.metacell_types.create(name="type1")
-        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1)
-        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2)
-        MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
+        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1, order=2)
+        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2, order=1)
+        MetacellEdge.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
 
         gene1 = species1.genes.create(name="gene1", description="gene1")
         dataset1.mge.create(gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4)
@@ -336,15 +336,16 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(metacells) == 2
         assert {s["name"] for s in metacells} == {"meta1", "meta2"}
+        assert {s["order"] for s in metacells} == {1, 2}
 
-    def test_retrieve_links(self):
-        url = "/api/v1/metacell_links/?dataset=species3-dataset3"
+    def test_retrieve_edges(self):
+        url = "/api/v1/metacell_edges/?dataset=species3-dataset3"
         response = self.client.get(url, format="json")
-        metacell_links = response.data["results"]
+        metacell_edges = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(metacell_links) == 1
-        assert metacell_links[0]["metacell"] == "meta1"
-        assert metacell_links[0]["metacell2"] == "meta2"
+        assert len(metacell_edges) == 1
+        assert metacell_edges[0]["metacell"] == "meta1"
+        assert metacell_edges[0]["metacell2"] == "meta2"
 
     def test_retrieve_gene_expression(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3"
@@ -354,6 +355,7 @@ class MetacellTests(APITestCase):
         assert len(metacell_gene_expression) == 4
         assert {s["gene_name"] for s in metacell_gene_expression} == {"gene1", "gene2"}
         assert {s["metacell_name"] for s in metacell_gene_expression} == {"meta1", "meta2"}
+        assert {s["metacell_order"] for s in metacell_gene_expression} == {1, 2}
 
     def test_retrieve_gene_expression_single_gene(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3&genes=gene2"
@@ -371,6 +373,101 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(markers) == 2
         assert markers[0]["name"] == "gene1"
+
+    def test_retrieve_gene_expression_sorted(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct, order=2)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct, order=1)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
+        # gene1 peaks at mc2 (order 1) and gene2 at mc1 (order 2): highest order first
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene2", "gene2", "gene1", "gene1"]
+
+    def test_retrieve_gene_expression_sorted_without_order(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
+        # gene1 peaks at mc2 (trailing 204) and gene2 at mc1 (trailing 1): highest first
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene1", "gene2", "gene2"]
+
+    def test_retrieve_with_unannotated_metacells(self):
+        species = Species.objects.create(common_name="nemve", scientific_name="Nematostella vectensis")
+        dataset = species.datasets.create(name="adult")
+
+        untyped = dataset.metacells.create(name="nemve01_MC_00001")
+        dataset.metacells.create(name="nemve01_MC_00002", type=dataset.metacell_types.create(name="type"), order=5)
+
+        gene = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene, metacell=untyped, fold_change=4)
+
+        module = dataset.gene_modules.create(name="blue")
+        module.eigengene_values.create(metacell=untyped, eigengene_value=0.5)
+
+        dataset.metacell_stats.create(metacell=untyped, cells=10, umis=100)
+
+        SingleCell.objects.create(name="cell1", dataset=dataset)
+
+        # Endpoints returning metacell_type/metacell_color (None for untyped metacells)
+        endpoints = {
+            "/api/v1/metacell_expression/?dataset=nematostella-vectensis-adult": "metacell_name",
+            "/api/v1/metacell_counts/?dataset=nematostella-vectensis-adult": "metacell",
+            "/api/v1/module_eigengenes/?dataset=nematostella-vectensis-adult": "metacell_name",
+        }
+        for url, name in endpoints.items():
+            response = self.client.get(url, format="json")
+            assert response.status_code == status.HTTP_200_OK, url
+            untyped_row = next(r for r in response.data["results"] if r[name] == "nemve01_MC_00001")
+            assert untyped_row["metacell_type"] is None, url
+            assert untyped_row["metacell_color"] is None, url
+            assert untyped_row["metacell_order"] is None, url
+
+        # Metacell endpoint returns type/color
+        response = self.client.get("/api/v1/metacells/?dataset=nematostella-vectensis-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        untyped_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00001")
+        typed_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00002")
+        assert untyped_row["type"] is None
+        assert untyped_row["color"] is None
+        assert untyped_row["order"] is None
+        assert typed_row["order"] == 5
+
+        # Single cell without metacell returns null metacell info
+        response = self.client.get("/api/v1/single_cells/?dataset=nematostella-vectensis-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        cell = next(r for r in response.data["results"] if r["name"] == "cell1")
+        assert cell["metacell_name"] is None
+        assert cell["metacell_type"] is None
+        assert cell["metacell_color"] is None
 
 
 class GeneListTests(APITestCase):

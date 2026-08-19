@@ -436,13 +436,13 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List metacell links", tags=["Metacell"])
-class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
-    """List metacell links (visualised in projections) for a given dataset."""
+@extend_schema(summary="List metacell edges", tags=["Metacell"])
+class MetacellEdgeViewSet(BaseReadOnlyModelViewSet):
+    """List metacell edges (visualised in projections) for a given dataset."""
 
-    queryset = models.MetacellLink.objects.prefetch_related("metacell", "metacell2")
-    serializer_class = serializers.MetacellLinkSerializer
-    filterset_class = filters.MetacellLinkFilter
+    queryset = models.MetacellEdge.objects.prefetch_related("metacell", "metacell2")
+    serializer_class = serializers.MetacellEdgeSerializer
+    filterset_class = filters.MetacellEdgeFilter
 
 
 @extend_schema(

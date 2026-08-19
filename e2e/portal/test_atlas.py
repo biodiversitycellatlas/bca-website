@@ -18,9 +18,7 @@ class TestAtlasPage:
         expect(page.get_by_role("link", name="Gene modules")).to_have_attribute(
             "href", "/atlas/homo-sapiens-baby/modules/"
         )
-        expect(page.get_by_role("link", name="Gene and orthologs")).to_have_attribute(
-            "href", "/atlas/homo-sapiens-baby/gene/"
-        )
+        expect(page.get_by_role("link", name="Gene view")).to_have_attribute("href", "/atlas/homo-sapiens-baby/gene/")
         expect(page.get_by_role("link", name="Cell type markers")).to_have_attribute(
             "href", "/atlas/homo-sapiens-baby/markers/"
         )
@@ -69,7 +67,7 @@ class TestAtlasPage:
         expect(page).to_have_url("http://localhost:8000/atlas/amphineuron-queenslandicum/modules/")
 
         page.goto(self.base_url2)
-        page.get_by_role("link", name="Gene and orthologs").click()
+        page.get_by_role("link", name="Gene view").click()
         expect(page).to_have_url("http://localhost:8000/atlas/amphineuron-queenslandicum/gene/")
 
         page.goto(self.base_url2)
