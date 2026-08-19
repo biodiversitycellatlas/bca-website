@@ -1,24 +1,22 @@
 """
 Dump the Bioschemas JSON-LD served by the portal's pages.
 
-Renders pages through Django's test client, so no server, host entry or public
-URL is involved. That matters because the public structured-data validators
-(validator.schema.org, Google's Rich Results Test) fetch a URL from *their*
-servers and cannot reach a local instance -- but both accept pasted markup, and
-this command produces exactly that.
+Renders pages using Django test client into markup for public structured-data
+validators (validator.schema.org, Google's Rich Results Test) that cannot
+access local instances.
 
-    # every page that carries markup, with a summary line per page
+    # all pages with markup, one summary line per page
     python manage.py dump_bioschemas
 
-    # one page, JSON only, ready to paste into a validator or pipe to pyshacl
+    # one page, JSON only: paste into a validator or pipe to pyshacl
     python manage.py dump_bioschemas --raw /atlas/amphimedon-queenslandica-larva/ > dataset.jsonld
 
-    # override the authority the payload's absolute URLs are built from
+    # override the host and scheme used for absolute URLs
     python manage.py dump_bioschemas --host portal-bca-gambusia:8081
     python manage.py dump_bioschemas --host portal.biodiversitycellatlas.org --scheme https
 
-The command exits non-zero when a page serves no JSON-LD, so it doubles as a
-regression check that the markup has not silently disappeared.
+Exits non-zero if a page has no JSON-LD, making it a regression check for
+missing markup.
 """
 
 import json
