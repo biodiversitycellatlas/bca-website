@@ -30,7 +30,7 @@ class GeneOntologyEnrichmentService:
     ):
         """Load input files (allows to run GO enrichment analysis multiple times)."""
         self.obodag = GODag(obo_path, load_obsolete=load_obsolete, prt=None)
-        gene2go = self.read_go_annotations(annotation_path)
+        gene2go = self.read_functional_annotations(annotation_path)
 
         if background_genes is None:
             background_genes = gene2go.keys()
@@ -65,7 +65,7 @@ class GeneOntologyEnrichmentService:
             results = sorted(results, key=lambda x: x.get_pvalue())
         return results
 
-    def read_go_annotations(self, f):
+    def read_functional_annotations(self, f):
         """Read custom GO annotation TSV file.
 
         Format: gene_name, mouse_gene_symbol, mouse_gene_description, GO_terms

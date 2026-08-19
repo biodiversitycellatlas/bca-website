@@ -52,15 +52,16 @@ class EnrichmentAnalysisTests(APITestCase):
         )
 
         # Get functional annotation
-        go_annotation_file = Path(__file__).parent / "test_fixtures" / "go_annotation.tsv.gz"
-        cls.go_annotation = aque.files.create(
-            type="go-annotation", file=SimpleUploadedFile("go_annotation.tsv.gz", go_annotation_file.read_bytes())
+        functional_annotation_file = Path(__file__).parent / "test_fixtures" / "functional_annotation.tsv.gz"
+        cls.functional_annotation = aque.files.create(
+            type="functional-annotation",
+            file=SimpleUploadedFile("functional_annotation.tsv.gz", functional_annotation_file.read_bytes()),
         )
 
         # Prepare background genes: add genes to metacell gene expression based on functional annotation
         mc1 = cls.aque_adult.metacells.create(name="mc1", x="1", y="5")
         cls.genes = []
-        with gzip.open(go_annotation_file, "rt") as f:
+        with gzip.open(functional_annotation_file, "rt") as f:
             next(f, None)  # skip header
             for line in f:
                 if not line.strip():

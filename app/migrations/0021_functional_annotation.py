@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0018_cytotrace'),
+        ('app', '0020_rc_release_fixes'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='speciesfile',
             name='type',
-            field=models.CharField(choices=[('Proteome', 'Proteome'), ('DIAMOND', 'DIAMOND database'), ('go-annotation', 'GO annotation')], help_text='File type.', max_length=255),
+            field=models.CharField(choices=[('Proteome', 'Proteome'), ('DIAMOND', 'DIAMOND database'), ('functional-annotation', 'Functional annotation')], help_text='File type.', max_length=255),
         ),
     ]

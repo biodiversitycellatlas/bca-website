@@ -475,7 +475,7 @@ class SpeciesFile(FileMixin):
     file_types = {
         "Proteome": "Proteome",
         "DIAMOND": "DIAMOND database",
-        "go-annotation": "GO annotation",
+        "functional-annotation": "Functional annotation",
     }
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
 
