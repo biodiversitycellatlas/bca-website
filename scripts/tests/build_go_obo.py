@@ -26,14 +26,14 @@ class GeneOntologyOboBuilder:
         self,
         obo_url="https://purl.obolibrary.org/obo/go/go-basic.obo",
         base_dir=None,
-        emapper_file=None,
+        go_annotation_file=None,
         obo_file=None,
         output_file=None,
         skip_fields=None,
     ):
         self.base_dir = base_dir or get_project_root() / "rest" / "tests" / "test_fixtures"
 
-        self.emapper_file = emapper_file or self.base_dir / "emapper_annotation.txt.gz"
+        self.go_annotation_file = go_annotation_file or self.base_dir / "go_annotation.tsv.gz"
         self.obo_file = obo_file or self.base_dir / "go-basic.obo"
         self.output_file = output_file or self.base_dir / "go-basic-subset.obo"
 
@@ -50,17 +50,20 @@ class GeneOntologyOboBuilder:
             "alt_id",
         }
 
-    def extract_go_from_emapper_file(self):
+    def extract_go_from_annotation_file(self):
         """Extract GO terms and parent terms from annotation file."""
-
-        # Get parent terms from GO OBO file
         go_dag = GODag(self.obo_file, load_obsolete=True)
 
         go_ids = set()
         go_pattern = re.compile(r"GO:\d{7}")
-        with gzip.open(self.emapper_file, "rt") as f:
+        with gzip.open(self.go_annotation_file, "rt") as f:
+            next(f, None)  # skip header
             for line in f:
-                for go_id in go_pattern.findall(line):
+                if not line.strip():
+                    continue
+                fields = line.rstrip().split("\t")
+                gos_field = fields[3] if len(fields) > 3 else ""
+                for go_id in go_pattern.findall(gos_field):
                     if go_id not in go_dag:
                         continue
                     go_ids.add(go_id)
@@ -85,7 +88,7 @@ class GeneOntologyOboBuilder:
     def prepare_filtered_go_obo(self, cleanup=True):
         """Create gzipped subset OBO containing only relevant GO terms."""
         self.download_go_obo()
-        go_ids = self.extract_go_from_emapper_file()
+        go_ids = self.extract_go_from_annotation_file()
         out_path = self.output_file.with_suffix(self.output_file.suffix + ".gz")
 
         with open(self.obo_file, "r") as r, gzip.open(out_path, "wt") as out:
