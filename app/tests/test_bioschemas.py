@@ -138,13 +138,6 @@ class TestTaxon:
     def test_parent_taxon_prefers_most_specific_rank(self, species, request_obj):
         assert bioschemas.Taxon(species, request_obj).build()["parentTaxon"] == "Placozoa"
 
-    def test_parent_taxon_prefers_division_over_kingdom(self, db, request_obj):
-        """`division` is the botanical name for the same rank as `phylum`, so it outranks `kingdom`."""
-        obj = Species.objects.create(scientific_name="Arabidopsis thaliana")
-        Meta.objects.create(species=obj, key="kingdom", value="Plantae")
-        Meta.objects.create(species=obj, key="division", value="Tracheophyta")
-        assert bioschemas.Taxon(obj, request_obj).build()["parentTaxon"] == "Tracheophyta"
-
     def test_nests_conformant_taxon_name(self, species, request_obj):
         assert_conforms(bioschemas.Taxon(species, request_obj).build()["scientificName"], "TaxonName")
 

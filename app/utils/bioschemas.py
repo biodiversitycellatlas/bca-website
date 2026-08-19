@@ -341,9 +341,7 @@ class Taxon(Bioschema):
 
     @property
     def parent_taxon(self):
-        # `division` is the botanical/mycological name for the same rank as
-        # `phylum`, so both outrank the broader `kingdom`.
-        for key in ("phylum", "division", "kingdom"):
+        for key in ("phylum", "kingdom"):
             parent = _species_meta(self.obj, key)
             if parent:
                 return parent.value
