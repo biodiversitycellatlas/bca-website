@@ -1,5 +1,5 @@
 """
-Dump the Bioschemas JSON-LD served by the portal's pages.
+Dump the Bioschemas JSON-LD served by the Data Portal pages for validation.
 
 Renders pages using Django test client into markup for public structured-data
 validators (validator.schema.org, Google's Rich Results Test) that cannot
