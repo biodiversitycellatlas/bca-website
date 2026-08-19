@@ -22,6 +22,7 @@ Prepare URLs to be used in JavaScript scripts
         atlas_markers: "{% url 'atlas_markers' 'DATASET_PLACEHOLDER' %}",
 
         // Entry views
+        species_entry: "{% url 'species_entry' 'SPECIES_PLACEHOLDER' %}",
         gene_module_entry: "{% url 'gene_module_entry' 'DATASET_PLACEHOLDER' 'GENE_MODULE_PLACEHOLDER' %}",
         gene_entry: "{% url 'gene_entry' 'SPECIES_PLACEHOLDER' %}",
         gene_list_entry: "{% url 'gene_list_entry' 'GENE_LIST_PLACEHOLDER' 'SPECIES_PLACEHOLDER' %}",
@@ -54,7 +55,7 @@ Prepare URLs to be used in JavaScript scripts
         "rest:singlecell-list": "{% url 'rest:singlecell-list' %}",
 
         "rest:metacell-list": "{% url 'rest:metacell-list' %}",
-        "rest:metacelllink-list": "{% url 'rest:metacelllink-list' %}",
+        "rest:metacelledge-list": "{% url 'rest:metacelledge-list' %}",
         "rest:metacellcount-list": "{% url 'rest:metacellcount-list' %}",
         "rest:metacellmarker-list": "{% url 'rest:metacellmarker-list' %}",
         "rest:metacellgeneexpression-list": "{% url 'rest:metacellgeneexpression-list' %}",

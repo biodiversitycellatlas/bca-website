@@ -29,6 +29,9 @@
     <th>
         Gene
     </th>
+    <th>
+        Symbol
+    </th>
     <th class="entry-description">
         Description
     </th>
@@ -46,6 +49,9 @@
 {% block row %}
     <td>
         {{ each.get_html_link }}
+    </td>
+    <td>
+        {{ each.symbol|default:'—' }}
     </td>
     <td class="entry-description">
         {{ each.description|default:'—' }}

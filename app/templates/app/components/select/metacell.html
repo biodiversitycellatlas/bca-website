@@ -32,11 +32,11 @@ Input:
         <optgroup label="{{ key }}">
             {% if key == 'Cell types' %}
                 {% for type, mc in value.items %}
-                    <option value="{{ type }}"
+                    <option value="{{ type.name|default:'Unannotated' }}"
                             data-type="cell_types"
                             data-metacells="{{ mc|join:',' }}"
-                            data-color="{{ type.color }}">
-                        {{ type }}
+                            data-color="{{ type.color|default:'#AAAAAA' }}">
+                        {{ type.name|default:'Unannotated' }}
                     </option>
                 {% endfor %}
             {% elif key == 'Metacells' %}

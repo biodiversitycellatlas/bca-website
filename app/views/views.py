@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.templatetags.static import static
 from django.shortcuts import render
 
-from ..models import Dataset, SpeciesFile, Species, SingleCell
+from ..models import Dataset, GlobalFile, SpeciesFile, Species, SingleCell
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
@@ -42,6 +42,10 @@ class IndexView(TemplateView):
             "cells": SingleCell.objects.count(),
         }
         context["counter"] = counter
+
+        # Fetch tree of life file
+        tree_file = GlobalFile.objects.filter(type="tree-of-life").first()
+        context["tree_of_life"] = tree_file.file.url if tree_file else ""
 
         # Fetch latest blog posts
         categories = ["latest", "publications", "meetings", "tutorials"]

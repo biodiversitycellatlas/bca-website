@@ -1,18 +1,20 @@
 import json
 import os
+import tempfile
 from io import StringIO
 from unittest import mock
 
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from app.management.commands import dump_bioschemas
 from app.tests.test_utils import assert_conforms
 from app.tests.views.utils import DataTestCase
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CreateTestDBTest(TestCase):
     def test_command_output(self):
         out = StringIO()
