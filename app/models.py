@@ -16,7 +16,7 @@ from django.contrib.postgres.fields import ArrayField
 class AutoSlugMixin(models.Model):
     """Abstract mixin to add an automatic slug to the model."""
 
-    slug = models.SlugField(unique=True, null=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
 
     class Meta:
         """Meta options."""
@@ -417,7 +417,7 @@ class DatasetQualityControl(models.Model):
 
 
 class FileMixin(models.Model):
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
     checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
     file = models.FileField(help_text="File.")
     type = models.CharField(max_length=255, help_text="File type.")
