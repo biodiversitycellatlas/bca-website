@@ -95,7 +95,12 @@ def default_urls():
     dataset = Dataset.objects.filter(species=species).first()
     gene = Gene.objects.filter(species=species).first()
 
-    urls = ["/", "/downloads/", "/entry/species/", "/entry/dataset/"]
+    urls = [
+        reverse("index"),
+        reverse("downloads"),
+        reverse("species_entry"),
+        reverse("dataset_entry"),
+    ]
     if species:
         # Species detail matches on `scientific_name`, not the slug, so take the
         # URL from the model rather than assembling it from the slug.
