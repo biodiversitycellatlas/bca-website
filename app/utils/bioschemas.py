@@ -88,10 +88,6 @@ def _page_url(request):
 def _compact(value):
     """
     Recursively drop keys and items with no value.
-
-    Bioschemas consumers treat an absent property and an empty one differently,
-    so empty strings, lists and dicts are removed rather than emitted. Booleans
-    and zeroes are kept.
     """
     if isinstance(value, dict):
         items = ((key, _compact(val)) for key, val in value.items())
