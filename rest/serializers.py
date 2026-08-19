@@ -888,7 +888,7 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
         """Return metacell color for metacell 2."""
         return self._get_metacell_types(obj)[1].color
 
-    def get_samap_gene_pairs(self, obj):
+    def get_samap_gene_pairs(self, obj) -> list[list[str]] | None:
         if not obj.samap_gene_pairs:
             return None
 
