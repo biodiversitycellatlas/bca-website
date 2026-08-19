@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0014_add_mge_covering_index'),
+        ('app', '0018_cytotrace'),
     ]
 
     operations = [
