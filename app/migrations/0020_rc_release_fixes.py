@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0018_cytotrace'),
+        ('app', '0019_tree_of_life'),
     ]
 
     operations = [
