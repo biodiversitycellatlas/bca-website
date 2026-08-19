@@ -23,6 +23,7 @@
         "postcss": "8.5.26",
         "postcss-cli": "11.0.1",
         "tom-select": "2.6.2",
+        "phylotree": "2.6.0",
         "vega-embed": "7.1.0"
     },
     "devDependencies": {
