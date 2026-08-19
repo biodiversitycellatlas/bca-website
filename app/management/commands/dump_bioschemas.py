@@ -102,10 +102,10 @@ def default_urls():
     if species:
         # Species detail matches on `scientific_name`, not the slug, so take the
         # URL from the model rather than assembling it from the slug.
-    urls += [
-        species.get_absolute_url(),
-        reverse("gene_entry", args=[self.species.slug],
-    ]
+        urls += [
+            species.get_absolute_url(),
+            reverse("gene_entry", args=[species.slug]),
+        ]
     if gene:
         urls.append(gene.get_absolute_url())
     if dataset:
