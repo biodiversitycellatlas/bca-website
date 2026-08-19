@@ -23,7 +23,7 @@ from app.models import (
     Gene,
     GeneModuleMembership,
     Metacell,
-    MetacellLink,
+    MetacellEdge,
     SingleCell,
     Source,
     DatasetFile,
@@ -240,7 +240,7 @@ class Command(BaseCommand):
     def create_metacell_links(dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
             if random.random() < 0.2:
-                MetacellLink.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
+                MetacellEdge.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
 
     def create_metacells(self):
         factories.MetaCellTypeFactory.create_batch(size=9, dataset=self.sponge_dataset)
