@@ -29,7 +29,10 @@ function applyStyles(container, strokeWidth) {
  * @param {object} opts - Options: fontSize, strokeWidth, spacing, padding, maxHeight
  */
 export function createTreeOfLife(id, file, opts = {}) {
-    const { fontSize, strokeWidth, spacing, padding, maxHeight } = { ...TREE_DEFAULTS, ...opts };
+    const { fontSize, strokeWidth, spacing, padding, maxHeight } = {
+        ...TREE_DEFAULTS,
+        ...opts,
+    };
 
     fetch(file)
         .then((res) => res.text())
@@ -73,7 +76,9 @@ export function createTreeOfLife(id, file, opts = {}) {
                 if (name && name.length > 2) {
                     el.style.cursor = "pointer";
                     el.addEventListener("click", () => {
-                        window.location.href = getViewUrl("species_entry", { species: name });
+                        window.location.href = getViewUrl("species_entry", {
+                            species: name,
+                        });
                     });
                 }
             });
