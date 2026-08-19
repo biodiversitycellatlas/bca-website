@@ -110,11 +110,11 @@ def gene(db, species):
 
 class TestTaxon:
     def test_conforms_to_profile(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj)
+        node = bioschemas.Taxon(species, request_obj).build()
         assert_conforms(node, "Taxon")
 
     def test_maps_species_fields(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj)
+        node = bioschemas.Taxon(species, request_obj).build()
         assert node["name"] == "Trichoplax adhaerens"
         assert node["vernacularName"] == "placozoan"
         assert node["description"] == "A small, flat marine animal."
@@ -122,7 +122,7 @@ class TestTaxon:
         assert node["additionalType"] == bioschemas.DWC_TAXON
 
     def test_uses_ncbi_taxon_id_as_identifier(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj)
+        node = bioschemas.Taxon(species, request_obj).build()
         assert node["identifier"]["value"] == "10228"
         assert node["identifier"]["url"].endswith("/10228")
         assert node["sameAs"].endswith("/10228")
@@ -131,41 +131,41 @@ class TestTaxon:
         """`createtestdb` records taxon_id without a query_term, so query_url is None."""
         obj = Species.objects.create(scientific_name="Untermed sp.")
         Meta.objects.create(species=obj, key="taxon_id", value="400682")
-        identifier = bioschemas.taxon(obj, request_obj)["identifier"]
+        identifier = bioschemas.Taxon(obj, request_obj).build()["identifier"]
         assert identifier["value"] == "400682"
         assert "url" not in identifier
 
     def test_parent_taxon_prefers_most_specific_rank(self, species, request_obj):
-        assert bioschemas.taxon(species, request_obj)["parentTaxon"] == "Placozoa"
+        assert bioschemas.Taxon(species, request_obj).build()["parentTaxon"] == "Placozoa"
 
     def test_parent_taxon_prefers_division_over_kingdom(self, db, request_obj):
         """`division` is the botanical name for the same rank as `phylum`, so it outranks `kingdom`."""
         obj = Species.objects.create(scientific_name="Arabidopsis thaliana")
         Meta.objects.create(species=obj, key="kingdom", value="Plantae")
         Meta.objects.create(species=obj, key="division", value="Tracheophyta")
-        assert bioschemas.taxon(obj, request_obj)["parentTaxon"] == "Tracheophyta"
+        assert bioschemas.Taxon(obj, request_obj).build()["parentTaxon"] == "Tracheophyta"
 
     def test_nests_conformant_taxon_name(self, species, request_obj):
-        assert_conforms(bioschemas.taxon(species, request_obj)["scientificName"], "TaxonName")
+        assert_conforms(bioschemas.Taxon(species, request_obj).build()["scientificName"], "TaxonName")
 
     def test_urls_are_absolute(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj)
+        node = bioschemas.Taxon(species, request_obj).build()
         assert node["url"].startswith("http://testserver/entry/species/")
         assert node["@id"] == node["url"]
 
     def test_records_current_page_when_not_canonical(self, species):
         request = RequestFactory().get("/entry/species/")
-        node = bioschemas.taxon(species, request)
+        node = bioschemas.Taxon(species, request).build()
         assert node["mainEntityOfPage"] == "http://testserver/entry/species/"
 
     def test_survives_missing_optional_data(self, bare_species, request_obj):
-        node = bioschemas.taxon(bare_species, request_obj)
+        node = bioschemas.Taxon(bare_species, request_obj).build()
         assert_conforms(node, "Taxon")
         for absent in ("identifier", "sameAs", "vernacularName", "description", "image", "parentTaxon"):
             assert absent not in node
 
     def test_minimal_form_is_still_conformant(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj, minimal=True)
+        node = bioschemas.Taxon(species, request_obj, minimal=True).build()
         assert_conforms(node, "Taxon")
         assert "scientificName" not in node
 
@@ -175,44 +175,44 @@ class TestTaxon:
 
 class TestGene:
     def test_conforms_to_profile(self, gene, request_obj):
-        assert_conforms(bioschemas.gene(gene, request_obj), "Gene")
+        assert_conforms(bioschemas.Gene(gene, request_obj).build(), "Gene")
 
     def test_maps_gene_fields(self, gene, request_obj):
-        node = bioschemas.gene(gene, request_obj)
+        node = bioschemas.Gene(gene, request_obj).build()
         assert node["name"] == "TAD1"
         assert node["identifier"] == gene.slug
         assert node["description"] == "A gene."
 
     def test_taxonomic_range_references_species(self, gene, request_obj):
-        taxonomic_range = bioschemas.gene(gene, request_obj)["taxonomicRange"]
+        taxonomic_range = bioschemas.Gene(gene, request_obj).build()["taxonomicRange"]
         assert taxonomic_range["name"] == "Trichoplax adhaerens"
         assert taxonomic_range["@id"].endswith("/entry/species/Trichoplax%20adhaerens/")
 
     def test_domains_become_biochem_entity_parts(self, gene, request_obj):
-        parts = bioschemas.gene(gene, request_obj)["hasBioChemEntityPart"]
+        parts = bioschemas.Gene(gene, request_obj).build()["hasBioChemEntityPart"]
         assert [part["name"] for part in parts] == ["PF00069"]
         assert parts[0]["sameAs"].endswith("/pfam/PF00069")
 
     def test_canonical_url_points_at_entry_page(self, gene):
         request = RequestFactory().get("/atlas/trichoplax-adhaerens-whole-body/gene/TAD1/")
-        node = bioschemas.gene(gene, request)
+        node = bioschemas.Gene(gene, request).build()
         assert node["url"] == "http://testserver" + gene.get_absolute_url()
         assert node["@id"] == node["url"]
         assert node["mainEntityOfPage"].endswith("/gene/TAD1/")
 
     def test_omits_main_entity_of_page_on_canonical_url(self, gene):
         request = RequestFactory().get(gene.get_absolute_url())
-        assert "mainEntityOfPage" not in bioschemas.gene(gene, request)
+        assert "mainEntityOfPage" not in bioschemas.Gene(gene, request).build()
 
     def test_minimal_form_is_still_conformant(self, gene, request_obj):
-        node = bioschemas.gene(gene, request_obj, minimal=True)
+        node = bioschemas.Gene(gene, request_obj, minimal=True).build()
         assert_conforms(node, "Gene")
         assert "hasBioChemEntityPart" not in node
 
     def test_tolerates_missing_pfam_source(self, db, species, request_obj):
         obj = Gene.objects.create(species=species, name="NOSRC")
         obj.domains.add(Domain.objects.create(name="PF99999"))
-        parts = bioschemas.gene(obj, request_obj)["hasBioChemEntityPart"]
+        parts = bioschemas.Gene(obj, request_obj).build()["hasBioChemEntityPart"]
         assert parts[0]["name"] == "PF99999"
         assert "sameAs" not in parts[0]
 
@@ -222,23 +222,23 @@ class TestGene:
 
 class TestDataset:
     def test_conforms_to_profile(self, dataset, request_obj):
-        assert_conforms(bioschemas.dataset(dataset, request_obj), "Dataset")
+        assert_conforms(bioschemas.Dataset(dataset, request_obj).build(), "Dataset")
 
     def test_maps_dataset_fields(self, dataset, request_obj):
-        node = bioschemas.dataset(dataset, request_obj)
+        node = bioschemas.Dataset(dataset, request_obj).build()
         assert node["name"] == str(dataset)
         assert node["description"] == "Whole-body single-cell atlas."
         assert node["measurementTechnique"] == bioschemas.MEASUREMENT_TECHNIQUE
         assert node["isAccessibleForFree"] is True
-        assert node["license"] == bioschemas.data_license()
+        assert node["license"] == bioschemas.get_data_license()
 
     def test_keywords_include_species_names(self, dataset, request_obj):
-        keywords = bioschemas.dataset(dataset, request_obj)["keywords"]
+        keywords = bioschemas.Dataset(dataset, request_obj).build()["keywords"]
         assert "Trichoplax adhaerens" in keywords
         assert "placozoan" in keywords
 
     def test_citation_is_a_scholarly_article(self, dataset, request_obj):
-        citation = bioschemas.dataset(dataset, request_obj)["citation"]
+        citation = bioschemas.Dataset(dataset, request_obj).build()["citation"]
         assert citation["@type"] == "ScholarlyArticle"
         assert "dct:conformsTo" not in citation
         assert citation["name"] == "A cell atlas"
@@ -255,33 +255,33 @@ class TestDataset:
             doi="10.1000/solo",
             pmid="",
         )
-        citation = bioschemas.scholarly_article(publication)
+        citation = bioschemas.build_scholarly_article(publication)
         assert {"DOI"} == {each["name"] for each in citation["identifier"]}
         assert all(each["value"] for each in citation["identifier"])
 
     def test_distributions_cover_the_rest_api(self, dataset, request_obj):
-        distributions = bioschemas.dataset(dataset, request_obj)["distribution"]
+        distributions = bioschemas.Dataset(dataset, request_obj).build()["distribution"]
         formats = {each["encodingFormat"] for each in distributions}
         assert formats == {"application/json", "text/csv", "text/tab-separated-values"}
         assert all(f"dataset={dataset.slug}" in each["contentUrl"] for each in distributions)
 
     def test_is_included_in_the_portal_catalog(self, dataset, request_obj):
-        catalog = bioschemas.dataset(dataset, request_obj)["includedInDataCatalog"]
+        catalog = bioschemas.Dataset(dataset, request_obj).build()["includedInDataCatalog"]
         assert catalog["@type"] == "DataCatalog"
         assert catalog["url"] == "http://testserver/"
 
     def test_description_falls_back_to_species(self, db, species):
         obj = Dataset.objects.create(species=species, name="no description")
-        assert bioschemas.dataset_description(obj) == species.description
+        assert bioschemas.Dataset(obj).description == species.description
 
     def test_description_falls_back_to_generated_text(self, db, bare_species):
         obj = Dataset.objects.create(species=bare_species, name="bare")
-        description = bioschemas.dataset_description(obj)
+        description = bioschemas.Dataset(obj).description
         assert "Nemertoderma sp." in description
         assert description
 
     def test_minimal_form_is_still_conformant(self, dataset, request_obj):
-        node = bioschemas.dataset(dataset, request_obj, minimal=True)
+        node = bioschemas.Dataset(dataset, request_obj, minimal=True).build()
         assert_conforms(node, "Dataset")
         assert "distribution" not in node
 
@@ -291,25 +291,25 @@ class TestDataset:
 
 class TestDataCatalog:
     def test_conforms_to_profile(self, db, request_obj):
-        assert_conforms(bioschemas.data_catalog(request_obj), "DataCatalog")
+        assert_conforms(bioschemas.DataCatalog(request_obj).build(), "DataCatalog")
 
     def test_provider_is_the_bca_organization(self, db, request_obj):
-        provider = bioschemas.data_catalog(request_obj)["provider"]
+        provider = bioschemas.DataCatalog(request_obj).build()["provider"]
         assert provider["@type"] == "Organization"
         assert provider["name"] == "Biodiversity Cell Atlas"
 
     def test_url_is_the_current_page(self, db, request_obj):
-        node = bioschemas.data_catalog(request_obj)
+        node = bioschemas.DataCatalog(request_obj).build()
         assert node["url"] == "http://testserver/entry/species/"
         assert node["@id"] == "http://testserver/"
 
     def test_lists_conformant_datasets(self, dataset, request_obj):
-        node = bioschemas.data_catalog(request_obj, datasets=[dataset])
+        node = bioschemas.DataCatalog(request_obj, datasets=[dataset]).build()
         assert len(node["dataset"]) == 1
         assert_conforms(node["dataset"][0], "Dataset")
 
     def test_omits_empty_dataset_list(self, db, request_obj):
-        assert "dataset" not in bioschemas.data_catalog(request_obj, datasets=[])
+        assert "dataset" not in bioschemas.DataCatalog(request_obj, datasets=[]).build()
 
 
 # --- list pages --------------------------------------------------------------
@@ -317,10 +317,10 @@ class TestDataCatalog:
 
 class TestItemList:
     def test_wraps_stubs_in_a_collection_page(self, species, bare_species, request_obj):
-        node = bioschemas.item_list(
+        node = bioschemas.build_item_list_page(
             [species, bare_species],
             request_obj,
-            builder=lambda obj, request: bioschemas.taxon(obj, request, minimal=True),
+            builder=lambda obj, request: bioschemas.Taxon(obj, request, minimal=True).build(),
             name="Species",
         )
         assert node["@type"] == "CollectionPage"
@@ -336,13 +336,13 @@ class TestItemList:
 
 class TestSerialisation:
     def test_context_is_added_only_at_the_root(self, species, request_obj):
-        node = bioschemas.taxon(species, request_obj)
+        node = bioschemas.Taxon(species, request_obj).build()
         assert "@context" not in node
         assert "@context" not in node["scientificName"]
-        assert bioschemas.as_root(node)["@context"] == bioschemas.CONTEXT
+        assert bioschemas.build_root(node)["@context"] == bioschemas.CONTEXT
 
     def test_script_output_is_parseable_json(self, species, request_obj):
-        html = tags._script(bioschemas.taxon(species, request_obj))
+        html = tags._script(bioschemas.Taxon(species, request_obj).build())
         assert html.startswith('<script type="application/ld+json">')
         payload = json.loads(html.split(">", 1)[1].rsplit("<", 1)[0])
         assert payload["@type"] == "Taxon"
@@ -353,7 +353,7 @@ class TestSerialisation:
             scientific_name="Escapius test",
             description="</script><script>alert(1)</script> & more <b>markup</b>",
         )
-        html = tags._script(bioschemas.taxon(obj, request_obj))
+        html = tags._script(bioschemas.Taxon(obj, request_obj).build())
         assert "</script><script>" not in html
         assert "\\u003C" in html and "\\u0026" in html
         # The payload still round-trips to the original text
@@ -365,24 +365,24 @@ class TestSerialisation:
         assert tags._script({}) == ""
 
     def test_datetimes_are_serialised(self, dataset, request_obj):
-        html = tags._script(bioschemas.dataset(dataset, request_obj))
+        html = tags._script(bioschemas.Dataset(dataset, request_obj).build())
         payload = json.loads(html.split(">", 1)[1].rsplit("<", 1)[0])
         assert payload["dateCreated"].startswith(str(dataset.date_created.year))
 
 
-class TestCompact:
+class TestDropEmpty:
     def test_drops_empty_values_recursively(self):
-        compacted = bioschemas._compact({"a": None, "b": "", "c": [], "d": {"e": None}, "f": "keep"})
+        compacted = bioschemas._drop_empty({"a": None, "b": "", "c": [], "d": {"e": None}, "f": "keep"})
         assert compacted == {"f": "keep"}
 
     def test_keeps_booleans_and_zero(self):
-        assert bioschemas._compact({"a": False, "b": 0, "c": True}) == {"a": False, "b": 0, "c": True}
+        assert bioschemas._drop_empty({"a": False, "b": 0, "c": True}) == {"a": False, "b": 0, "c": True}
 
 
-class TestAbsolute:
+class TestAbsoluteUrl:
     def test_returns_none_for_a_falsy_url(self, request_obj):
-        assert bioschemas._absolute(request_obj, "") is None
-        assert bioschemas._absolute(request_obj, None) is None
+        assert bioschemas._absolute_url(request_obj, "") is None
+        assert bioschemas._absolute_url(request_obj, None) is None
 
 
 # --- template tags -----------------------------------------------------------

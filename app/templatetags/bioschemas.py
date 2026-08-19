@@ -39,7 +39,7 @@ def _script(payload):
         return ""
 
     body = json.dumps(
-        bioschemas.as_root(payload),
+        bioschemas.build_root(payload),
         cls=DjangoJSONEncoder,
         indent=2,
         ensure_ascii=False,
@@ -76,7 +76,7 @@ def bioschemas_taxon(context, species):
     """Render a Bioschemas Taxon block for a species."""
     if _missing(species):
         return ""
-    return _script(bioschemas.taxon(species, _request(context)))
+    return _script(bioschemas.Taxon(species, _request(context)).build())
 
 
 @register.simple_tag(takes_context=True)
@@ -84,7 +84,7 @@ def bioschemas_gene(context, gene):
     """Render a Bioschemas Gene block for a gene."""
     if _missing(gene):
         return ""
-    return _script(bioschemas.gene(gene, _request(context)))
+    return _script(bioschemas.Gene(gene, _request(context)).build())
 
 
 @register.simple_tag(takes_context=True)
@@ -92,19 +92,19 @@ def bioschemas_dataset(context, dataset):
     """Render a Bioschemas Dataset block for a dataset."""
     if _missing(dataset):
         return ""
-    return _script(bioschemas.dataset(dataset, _request(context)))
+    return _script(bioschemas.Dataset(dataset, _request(context)).build())
 
 
 @register.simple_tag(takes_context=True)
 def bioschemas_data_catalog(context, datasets=None, name=None, description=None):
     """Render a Bioschemas DataCatalog block, optionally listing datasets."""
     return _script(
-        bioschemas.data_catalog(
+        bioschemas.DataCatalog(
             _request(context),
             name=name,
             description=description,
             datasets=datasets,
-        )
+        ).build()
     )
 
 
@@ -113,13 +113,13 @@ def bioschemas_download_catalog(context, species=None, datasets=None, name=None,
     """Render a DataCatalog block listing the downloadable files and datasets."""
     request = _request(context)
     return _script(
-        bioschemas.data_catalog(
+        bioschemas.DataCatalog(
             request,
             name=name,
             description=description,
             datasets=datasets,
-            distributions=bioschemas.species_file_distributions(request, species),
-        )
+            distributions=bioschemas.build_species_file_distributions(request, species),
+        ).build()
     )
 
 
@@ -129,10 +129,10 @@ def bioschemas_species_list(context, species_list, name=None):
     if not species_list:
         return ""
     return _script(
-        bioschemas.item_list(
+        bioschemas.build_item_list_page(
             species_list,
             _request(context),
-            builder=lambda obj, request: bioschemas.taxon(obj, request, minimal=True),
+            builder=lambda obj, request: bioschemas.Taxon(obj, request, minimal=True).build(),
             name=name,
         )
     )
@@ -144,10 +144,10 @@ def bioschemas_gene_list(context, genes, name=None):
     if not genes:
         return ""
     return _script(
-        bioschemas.item_list(
+        bioschemas.build_item_list_page(
             genes,
             _request(context),
-            builder=lambda obj, request: bioschemas.gene(obj, request, minimal=True),
+            builder=lambda obj, request: bioschemas.Gene(obj, request, minimal=True).build(),
             name=name,
         )
     )
