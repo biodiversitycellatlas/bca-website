@@ -61,7 +61,7 @@ export function createGeneTable(
             { name: "pearson", data: "pearson", title: "Pearson's r" },
         ]);
 
-        order = { name: "pearson_r", dir: "desc" };
+        order = { name: "pearson", dir: "desc" };
     }
 
     // Gene selection mode

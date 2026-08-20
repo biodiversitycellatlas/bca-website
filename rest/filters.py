@@ -760,7 +760,7 @@ class CorrelatedGenesFilter(QueryFilterSet):
         fields=(("spearman", "spearman"), ("pearson", "pearson")),
         field_labels={
             "spearman": "Spearman's correlation coefficient",
-            "pearson_r": "Pearson's correlation coefficient",
+            "pearson": "Pearson's correlation coefficient",
         },
     )
     q = CharFilter(
