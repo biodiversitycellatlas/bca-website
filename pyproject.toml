@@ -61,7 +61,7 @@ test = [
     "coverage==7.15.4",
     "factory_boy==3.3.3",
     "pytest==9.1.1",
-    "pytest_django==4.13.0",
+    "pytest_django==4.14.0",
 ]
 
 e2e = [
