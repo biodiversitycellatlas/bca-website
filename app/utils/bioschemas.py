@@ -1,16 +1,15 @@
 """
 Bioschemas JSON-LD payload builders.
 
-Each ``Bioschema`` subclass builds a plain ``dict`` describing an entity using
-a `Bioschemas released profile <https://bioschemas.org/profiles/>`_. These are
-serialised into JSON-LD blocks by the ``bioschemas`` template tags.
+Each Bioschema subclass builds a plain dict describing an entity using
+a Bioschemas released profile (`https://bioschemas.org/profiles/`).
+These are serialized into JSON-LD blocks by the ``bioschemas``
+template tags.
 
-Building the payloads here makes them easy to unit test and keeps profile
-versions in one place. Only released profiles are targeted -- draft profiles
-for the protein-domain pages and a nested citation node were tried and
-withdrawn; see section 10 of `report-bioschemas.md` for details. Nested nodes
-never carry their own ``@context``: :func:`build_root` adds it to the
-top-level node only.
+Building the payloads here makes them easy to unit test and keeps
+profile versions in one place. Nested nodes never carry their own
+`@context`: the `build_root` function adds it to the top-level node
+only.
 """
 
 from django.conf import settings
