@@ -36,10 +36,6 @@ GIT_VERSION = get_latest_git_tag()
 # Dataset profile, so it is a setting rather than a per-dataset model field.
 BCA_DATA_LICENSE = get_env("BCA_APP_DATA_LICENSE", "https://creativecommons.org/licenses/by/4.0/")
 
-# Portal hostname to assume when DJANGO_HOSTNAME is unset, e.g. running
-# dump_bioschemas outside the compose stack.
-DJANGO_HOSTNAME_FALLBACK = f"portal.{BCA_DOMAIN}"
-
 DIAMOND_VERSION = get_diamond_version()
 GOATOOLS_VERSION = get_goatools_version()
 

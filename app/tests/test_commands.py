@@ -5,7 +5,6 @@ from io import StringIO
 from unittest import mock
 
 import pytest
-from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
@@ -87,9 +86,10 @@ class DumpBioschemasCommandTest(DataTestCase):
         built, url = self.dumped_url({"DJANGO_HOSTNAME": "portal.example.org"}, "--scheme", "https")
         assert built == f"https://portal.example.org{url}"
 
-    def test_dump_command_falls_back_without_django_hostname(self):
-        built, url = self.dumped_url({})
-        assert built == f"http://{settings.DJANGO_HOSTNAME_FALLBACK}{url}"
+    def test_dump_command_requires_a_host_without_django_hostname(self):
+        """Guessing a hostname would emit URLs claiming an identity the dump does not have."""
+        with pytest.raises(CommandError, match="DJANGO_HOSTNAME is not set"):
+            self.dumped_url({})
 
     def test_dump_command_fails_when_a_page_serves_nothing(self):
         """Non-zero exit makes it usable as a CI check that markup has not vanished."""
