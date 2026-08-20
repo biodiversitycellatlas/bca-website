@@ -10,6 +10,11 @@ Downloads page
     Downloads
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_download_catalog species=species_all datasets=datasets_all name="Biodiversity Cell Atlas data download" description="Downloadable species and dataset files from the Biodiversity Cell Atlas, plus the REST API serving the same data as CSV, TSV and JSON." %}
+{% endblock structured_data %}
+
 {% block subnav %}
     <div class="container-xxl">
         <h1 class="h3">
