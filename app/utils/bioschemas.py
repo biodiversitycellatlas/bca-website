@@ -209,12 +209,12 @@ def build_data_download(request, url, name, fmt, description=None):
     )
 
 
-def build_api_distributions(request, view, label, query=None, formats=("json", "csv", "tsv")):
+def build_api_distributions(request, view, label, query=None, args=None, formats=("json", "csv", "tsv")):
     """Return DataDownload nodes for a REST endpoint in each output format."""
     downloads = []
     for fmt in formats:
         params = "&".join(filter(None, [query, f"format={fmt}"]))
-        url = _safe_reverse(view, params)
+        url = _safe_reverse(view, params, args=args)
         if url:
             downloads.append(build_data_download(request, url, f"{label} ({fmt.upper()})", fmt))
     return downloads
@@ -467,13 +467,17 @@ class Dataset(Bioschema):
     def _distributions(self):
         obj = self.obj
         query = f"dataset={obj.slug}"
+        downloads = build_api_distributions(
+            self.request,
+            "rest:dataset-detail",
+            f"{obj} - Dataset information",
+            args=(obj.slug,),
+        )
         endpoints = [
-            ("rest:dataset-list", "Dataset information"),
             ("rest:metacell-list", "Metacells"),
             ("rest:metacellcount-list", "Metacell counts"),
             ("rest:singlecell-list", "Single cells"),
         ]
-        downloads = []
         for view, label in endpoints:
             downloads += build_api_distributions(self.request, view, f"{obj} - {label}", query=query)
         return downloads

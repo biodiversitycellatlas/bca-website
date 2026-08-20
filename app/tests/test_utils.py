@@ -273,7 +273,11 @@ class TestBioschemasDataset:
         distributions = bioschemas.Dataset(dataset, request_obj).build()["distribution"]
         formats = {each["encodingFormat"] for each in distributions}
         assert formats == {"application/json", "text/csv", "text/tab-separated-values"}
-        assert all(f"dataset={dataset.slug}" in each["contentUrl"] for each in distributions)
+        dataset_info = [each for each in distributions if "Dataset information" in each["name"]]
+        related_data = [each for each in distributions if "Dataset information" not in each["name"]]
+        assert len(dataset_info) == 3
+        assert all(f"/api/v1/datasets/{dataset.slug}/" in each["contentUrl"] for each in dataset_info)
+        assert all(f"dataset={dataset.slug}" in each["contentUrl"] for each in related_data)
 
     def test_is_included_in_the_portal_catalog(self, dataset, request_obj):
         catalog = bioschemas.Dataset(dataset, request_obj).build()["includedInDataCatalog"]
