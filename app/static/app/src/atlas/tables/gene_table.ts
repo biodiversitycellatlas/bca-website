@@ -62,7 +62,7 @@ export function createGeneTable(
             { name: "spearman", data: "spearman", title: "Spearman's rho" },
         ]);
 
-        order = { name: "pearson_r", dir: "desc" };
+        order = { name: "pearson", dir: "desc" };
     }
 
     // Gene selection mode
