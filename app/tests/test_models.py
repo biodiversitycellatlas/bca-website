@@ -23,8 +23,8 @@ class TestSpeciesModel(TestCase):
             description="random sponge",
         )
         Gene.objects.create(
-            name = "hugene1",
-            species = cls.human
+            name="hugene1",
+            species=cls.human
         )
 
     def test_slug(self):
