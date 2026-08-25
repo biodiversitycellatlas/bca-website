@@ -44,7 +44,7 @@ class AtlasView(TemplateView):
                 "spider",
                 "hippo",
             ]
-            species = random.choice(species) # nosec B311
+            species = random.choice(species)  # nosec B311
 
         return species
 
