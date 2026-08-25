@@ -217,7 +217,7 @@ class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
             html = f"<i>{genus}</i>{unspecified}"
         else:
             html = f"<i>{species}</i>"
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
@@ -253,7 +253,7 @@ class Source(models.Model):
                 <span>{self.name}</span>
             </a>
         """
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def __str__(self):
         """String representation."""
@@ -695,7 +695,7 @@ class Domain(ExternalQueryMixin, models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -723,7 +723,7 @@ class GeneList(models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -767,25 +767,25 @@ class Gene(DynamicSlugMixin):
         label = self.name
 
         html = f'<a class="text-break" href="{url}">{label}</a>'
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_orthogroup_html_links(self):
         """Return link to orthogroups in HTML format."""
         orthogroups = self.orthogroups.all()
         html = ", ".join(o.get_html_link() for o in orthogroups)
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_domain_html_links(self):
         """Return comma-separated domain links for a gene in HTML format."""
         domains = self.domains.all()
         html = ", ".join(d.get_html_link() for d in domains)
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_genelist_html_links(self):
         """Return comma-separated gene list links for a gene in HTML format."""
         lists = self.genelists.all()
         html = ", ".join(e.get_html_link() for e in lists)
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -815,7 +815,7 @@ class GeneModule(models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_gene_hubs(self, n=5):
         """Return top gene hubs."""
@@ -963,7 +963,7 @@ class Orthogroup(models.Model):
         label = label or str(self)
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
