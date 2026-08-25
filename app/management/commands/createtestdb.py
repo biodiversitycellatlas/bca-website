@@ -243,7 +243,7 @@ class Command(BaseCommand):
     @staticmethod
     def create_metacell_links(dataset, metacells):
         for m1, m2 in itertools.combinations(metacells, 2):
-            if random.random() < 0.2: # nosec B311
+            if random.random() < 0.2:  # nosec B311
                 MetacellEdge.objects.create(dataset=dataset, metacell=m1, metacell2=m2)
 
     def create_metacells(self):
