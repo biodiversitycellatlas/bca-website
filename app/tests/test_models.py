@@ -271,4 +271,4 @@ class TestDomain(TestCase):
         )
 
     def test_get_html_link(self):
-        assert self.domain.get_html_link() == "<a href=\"/entry/domain/domain1/\">domain1</a>"
+        assert self.domain.get_html_link() == '<a href="/entry/domain/domain1/">domain1</a>'
