@@ -265,10 +265,7 @@ class TestDomain(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.human = Species.objects.create(scientific_name="Homo sapiens")
-        cls.domain = Domain.objects.create(
-            name="domain1",
-            description="domain1"
-        )
+        cls.domain = Domain.objects.create(name="domain1", description="domain1")
 
     def test_get_html_link(self):
         assert self.domain.get_html_link() == '<a href="/entry/domain/domain1/">domain1</a>'
