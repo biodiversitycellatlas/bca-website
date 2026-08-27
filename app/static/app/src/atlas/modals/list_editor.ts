@@ -691,7 +691,11 @@ export function loadMenuActions(id, table, species, maxFileSize) {
             } else {
                 $(this).addClass("d-none");
             }
-            title.html(highlightMatch(title.text(), query));
+            const highlighted = highlightMatch(title.text(), query);
+            title.empty();
+            if (highlighted !== null) {
+                title.append(highlighted);
+            }
         });
     });
 }

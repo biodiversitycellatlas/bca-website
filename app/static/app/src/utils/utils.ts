@@ -4,17 +4,50 @@
 
 /**
  * Highlights all occurrences of a query within a given text.
- * Wraps matches in a <span> with class 'search-highlight'.
+ * Wraps matches in a <span> with class 'search-highlight' using DOM nodes,
+ * so content is never reinterpreted as HTML.
  *
  * @param {string|null} content - Text to search within.
  * @param {string} query - Substring to highlight.
- * @returns {string|null} Content with highlighted matches (or null if null content).
+ * @returns {DocumentFragment|null} Fragment with highlighted matches (or null if null content).
  */
 export function highlightMatch(content, query) {
-    if (content === null) return content;
+    if (content === null) return null;
 
-    const regex = new RegExp(`(?<!<)(${query})(?![^<>]*>)`, "gi");
-    return content.replace(regex, "<span class='search-highlight'>$1</span>");
+    const fragment = document.createDocumentFragment();
+    if (!query) {
+        fragment.appendChild(document.createTextNode(content));
+        return fragment;
+    }
+
+    const safeQuery = escapeString(query);
+    const regex = new RegExp(`(${safeQuery})`, "gi");
+
+    let lastIndex = 0;
+    let match = regex.exec(content);
+
+    while (match !== null) {
+        const matchIndex = match.index;
+        const matchText = match[0];
+
+        if (matchIndex > lastIndex) {
+            fragment.appendChild(document.createTextNode(content.slice(lastIndex, matchIndex)));
+        }
+
+        const span = document.createElement("span");
+        span.className = "search-highlight";
+        span.textContent = matchText;
+        fragment.appendChild(span);
+
+        lastIndex = matchIndex + matchText.length;
+        match = regex.exec(content);
+    }
+
+    if (lastIndex < content.length) {
+        fragment.appendChild(document.createTextNode(content.slice(lastIndex)));
+    }
+
+    return fragment;
 }
 
 /**
