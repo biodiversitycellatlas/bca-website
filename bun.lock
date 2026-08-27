@@ -13,7 +13,7 @@
         "d3": "7.9.0",
         "datatables.net-bs5": "3.0.1",
         "datatables.net-rowgroup-bs5": "2.0.0",
-        "datatables.net-select-bs5": "4.0.0",
+        "datatables.net-select-bs5": "4.0.1",
         "ion-rangeslider": "2.3.1",
         "jquery": "3.7.1",
         "phylotree": "2.6.0",
@@ -181,9 +181,9 @@
 
     "datatables.net-rowgroup-bs5": ["datatables.net-rowgroup-bs5@2.0.0", "", { "dependencies": { "datatables.net-bs5": "^3", "datatables.net-rowgroup": "2.0.0" } }, "sha512-jU65XxsF/0ky8XUqDGf4gaKvMcJrYxkvwGqr03ZSUDljdWF+s/FcIBW5n5D7q4NaHB8EFqxVF42UYapnFnbR3Q=="],
 
-    "datatables.net-select": ["datatables.net-select@4.0.0", "", { "dependencies": { "datatables.net": "^3" } }, "sha512-05oNQ7l1ETbHQ1SFfWTNq1SEe9FqA+NycIA14csVZ1z9bUndegRy/z5MwnOJreZlya5kbtPVv9R6jwMtrebY/g=="],
+    "datatables.net-select": ["datatables.net-select@4.0.1", "", { "dependencies": { "datatables.net": "^3" } }, "sha512-bBlRQrg1Wo5avDRYO2PcC3xzubiedihUlpM4eMREbnB4GO3gqxbBvccQGACEDTd2q54kdbJmFaxgoQ1PQPKGVQ=="],
 
-    "datatables.net-select-bs5": ["datatables.net-select-bs5@4.0.0", "", { "dependencies": { "datatables.net-bs5": "^3", "datatables.net-select": "4.0.0" } }, "sha512-gl0Q9xZU0/LMffFbyIIO0UF0zmXMH5Io+37QxmDzdw0XHaXacb1OAUGWfv4Kzv5MKlREAOx8pEgC3N15sexg+g=="],
+    "datatables.net-select-bs5": ["datatables.net-select-bs5@4.0.1", "", { "dependencies": { "datatables.net-bs5": "^3", "datatables.net-select": "4.0.1" } }, "sha512-oyNFGig0U7WfpaxZWAOgJyRGfViw3qxwqqObNKcKycSDRfRyQUnoeomvINsvkpmg7Tgxn0khqB6Ft+7PkiPRtQ=="],
 
     "delaunator": ["delaunator@5.0.1", "", { "dependencies": { "robust-predicates": "^3.0.2" } }, "sha512-8nvh+XBe96aCESrGOqMp/84b13H9cdKbG5P2ejQCh4d4sK9RL4371qou9drQjMhvnPmhWl5hnmqbEE0fXr9Xnw=="],
 
