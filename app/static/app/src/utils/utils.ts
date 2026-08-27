@@ -31,7 +31,9 @@ export function highlightMatch(content, query) {
         const matchText = match[0];
 
         if (matchIndex > lastIndex) {
-            fragment.appendChild(document.createTextNode(content.slice(lastIndex, matchIndex)));
+            fragment.appendChild(
+                document.createTextNode(content.slice(lastIndex, matchIndex)),
+            );
         }
 
         const span = document.createElement("span");
