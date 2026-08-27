@@ -37,7 +37,7 @@ dependencies = [
     "feedparser==6.0.14",
     # Documentation pages
     "mistune==3.3.4",
-    "Pygments==2.20.0",
+    "Pygments==2.21.0",
     "python-frontmatter==1.3.0",
     # REST
     "djangorestframework==3.18.0",
