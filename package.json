@@ -27,7 +27,7 @@
         "vega-embed": "7.1.0"
     },
     "devDependencies": {
-        "@happy-dom/global-registrator": "20.11.2",
+        "@happy-dom/global-registrator": "20.11.6",
         "@types/bun": "1.4.0"
     },
     "private": true,
