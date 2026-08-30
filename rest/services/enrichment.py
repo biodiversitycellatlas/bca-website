@@ -30,7 +30,7 @@ class GeneOntologyEnrichmentService:
     ):
         """Load input files (allows to run GO enrichment analysis multiple times)."""
         self.obodag = GODag(obo_path, load_obsolete=load_obsolete, prt=None)
-        gene2go = self.read_emapper(annotation_path)
+        gene2go = self.read_functional_annotations(annotation_path)
 
         if background_genes is None:
             background_genes = gene2go.keys()
@@ -65,38 +65,25 @@ class GeneOntologyEnrichmentService:
             results = sorted(results, key=lambda x: x.get_pvalue())
         return results
 
-    def read_emapper(self, f):
-        """Read eggnog-mapper output."""
+    def read_functional_annotations(self, f):
+        """Read custom GO annotation TSV file.
+
+        Format: gene_name, mouse_gene_symbol, mouse_gene_description, GO_terms
+        GO terms are semicolon-separated within the GO_terms column.
+        """
         gene2go = {}
         with gzip.open(f, "rt", encoding="utf-8") as f:
+            next(f, None)  # skip header
             for line in f:
-                if line.startswith("#"):
+                if not line.strip():
                     continue
-
-                (
-                    gene,
-                    seed_ortholog,
-                    evalue,
-                    score,
-                    eggnog_ogs,
-                    max_annot_lvl,
-                    cog_category,
-                    description,
-                    name,
-                    gos,
-                    ec,
-                    kegg_ko,
-                    kegg_pathway,
-                    kegg_module,
-                    kegg_reaction,
-                    kegg_rclass,
-                    kegg_brite,
-                    kegg_tc,
-                    cazy,
-                    bigg_reaction,
-                    pfams,
-                ) = line.rstrip().split("\t")
-                gene2go[gene] = set(gos.split(","))
+                fields = line.rstrip().split("\t")
+                gene = fields[0]
+                gos_field = fields[3] if len(fields) > 3 else ""
+                if gos_field:
+                    gene2go[gene] = set(gos_field.split(";"))
+                else:
+                    gene2go[gene] = set()
         return gene2go
 
     def calculate_semantic_similarity_coords(self, results, semantic_dict):
