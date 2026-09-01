@@ -230,6 +230,11 @@ fieldset:disabled.btn.btn-primary {
         0 0 12px var(--card-text-shadow);
 }
 
+.text-description {
+    text-align: justify;
+    hyphens: auto;
+}
+
 a,
 .btn.btn-link {
     text-decoration: none;

@@ -117,7 +117,7 @@ Input:
             {% load headings %}
             {% h1 dataset.get_html id="info" %}
 
-            <p>
+            <p class="text-description">
                 {{ species.description|default:'No description available.'|safe }}
             </p>
 
