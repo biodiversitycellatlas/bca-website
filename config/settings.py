@@ -70,6 +70,9 @@ if get_env("ENVIRONMENT") == "prod":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+# Remove COOP to fix macOS Quick Look preview of Data Portal pages (low risk)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 # Application definition
 
 INSTALLED_APPS = [
