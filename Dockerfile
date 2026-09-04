@@ -105,6 +105,6 @@ ENV PATH="/opt/python/bin:$PATH"
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import http.client,sys; c=http.client.HTTPConnection('localhost',8000,timeout=2); c.request('GET','/health/',headers={'X-Forwarded-Proto':'https'}); sys.exit(0 if c.getresponse().status==200 else 1)"
+    CMD python scripts/healthcheck.py
 EXPOSE 8000
 CMD ["gunicorn", "config.wsgi", "--bind", "0.0.0.0:8000"]
