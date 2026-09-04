@@ -52,9 +52,11 @@ RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
     mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
     ldconfig
 
-# Copy application folder
 WORKDIR /usr/src/app
-COPY --chown=nonroot:nonroot . .
+
+# Copy only dependency manifests first so pip and playwright layers stay
+# cached when app code (or the Dockerfile itself) changes
+COPY --chown=nonroot:nonroot pyproject.toml README.md LICENSE ./
 
 # Install Python dependencies to virtual environment
 ARG DJANGO_DEPENDENCIES=".[dev,test]"
@@ -65,6 +67,9 @@ RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 
 # Install Playwright for End-to-End testing
 RUN playwright install --with-deps || true
+
+# Copy application folder
+COPY --chown=nonroot:nonroot . .
 
 # Production image
 FROM dhi.io/python:3.14.7-debian13 AS prod
