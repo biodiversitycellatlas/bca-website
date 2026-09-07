@@ -742,8 +742,8 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
             OpenApiParameter(
                 "dataset",
                 str,
-                required=True,
-                description="The [dataset's slug](#/operations/datasets_list).",
+                required=False,
+                description="The [dataset's slug](#/operations/datasets_list). When omitted, searches across all species.",
                 examples=[OpenApiExample("Dataset", value="amphimedon-queenslandica-adult")],
             ),
             OpenApiParameter(
@@ -751,6 +751,13 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
                 str,
                 description="Query string to search.",
                 examples=[OpenApiExample("Query", value="ATP")],
+            ),
+            OpenApiParameter(
+                "species",
+                str,
+                required=False,
+                description="Filter by species scientific name. Only used when `dataset` is not provided.",
+                examples=[OpenApiExample("Species", value="Amphimedon queenslandica")],
             ),
             OpenApiParameter(
                 "limit",
@@ -763,26 +770,36 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
         q = request.query_params.get("q")
         dataset = request.query_params.get("dataset")
         limit = int(request.query_params.get("limit", 3))
+        offset = int(request.query_params.get("offset", 0))
+        species = request.query_params.get("species")
 
-        species = parse_species_dataset(dataset).species.scientific_name
-        params = {
-            "q": q,
-            "species": species,
-            "dataset": dataset,
-            "order_by_gene_count": True,
-        }
-
-        resp = Response(
-            {
-                key: serializer(
-                    filterset(data=params, queryset=queryset).qs[:limit],
-                    many=True,
-                    context={"species": species},
-                ).data
-                for key, (filterset, queryset, serializer) in self.SEARCHES.items()
+        if dataset:
+            species = parse_species_dataset(dataset).species.scientific_name
+            params = {
+                "q": q,
+                "species": species,
+                "dataset": dataset,
+                "order_by_gene_count": True,
             }
-        )
-        return resp
+            context = {"species": species}
+        else:
+            params = {
+                "q": q,
+                "order_by_gene_count": True,
+            }
+            if species:
+                params["species"] = species
+            context = {"species": species} if species else {}
+
+        data = {}
+        for key, (filterset_cls, queryset, serializer_cls) in self.SEARCHES.items():
+            qs = filterset_cls(data=params, queryset=queryset).qs
+            count = qs.count()
+            sliced = qs[offset : offset + limit]
+            data[key] = serializer_cls(sliced, many=True, context=context).data
+            data[f"{key}_count"] = count
+
+        return Response(data)
 
 
 @extend_schema(

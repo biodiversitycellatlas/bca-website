@@ -13,6 +13,13 @@ import { getViewUrl } from "../utils/urls.ts";
  * @param {Function} escape - Function to escape HTML content
  * @returns {string} HTML string representing the search result option
  */
+/**
+ * Render search result options for TomSelect dropdown.
+ *
+ * @param {Object} item - Search result item with group, name, etc.
+ * @param {Function} escape - Function to escape HTML content.
+ * @returns {string} HTML string for the option.
+ */
 function displaySearchResults(item, escape) {
     const group = escape(item.group);
     let res = "";
@@ -39,18 +46,48 @@ function displaySearchResults(item, escape) {
                     </span>
                 `;
 
-        const shortenedName = escape(item.species.scientific_name)
-            .split(" ")
-            .map((word, index) => (index === 0 ? `${word[0]}.` : word))
-            .join(" ");
-        const species = `
-            <span class='text-muted float-end'>
-                <small><img src="${escape(item.species.image_url)}" class="w-15px">
-                <i>${shortenedName}</i></small>
-            </span>
-        `;
+        const sp = item.species_name || "";
+        const words = sp.split(" ");
+        const shortenedName =
+            words.length > 1
+                ? words
+                      .map((word, index) =>
+                          index === 0 ? `${word[0]}.` : word,
+                      )
+                      .join(" ")
+                : sp;
+        const species = shortenedName
+            ? `
+                <span class='text-muted float-end'>
+                    <small><i>${shortenedName}</i></small>
+                </span>`
+            : "";
 
         res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
+    } else if (group === "gene_list") {
+        const count_badge =
+            item.gene_count > 0
+                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                : "";
+        const desc = item.description
+            ? `<span class="text-muted"><small>${escape(item.description)}</small></span>`
+            : "";
+        res = `<div class='option'>${escape(item.name)} ${desc} ${count_badge}</div>`;
+    } else if (group === "gene_module") {
+        const count_badge =
+            item.gene_count > 0
+                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                : "";
+        const dataset_name = item.dataset
+            ? `<span class="text-muted"><small>${escape(item.dataset)}</small></span>`
+            : "";
+        res = `<div class='option'>${escape(item.name)} ${dataset_name} ${count_badge}</div>`;
+    } else if (group === "domain") {
+        const count_badge =
+            item.gene_count > 0
+                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                : "";
+        res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
     } else if (group === "dataset") {
         const imgURL = escape(item.image_url || item.species_image_url);
         const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
@@ -92,12 +129,17 @@ function displaySearchResults(item, escape) {
  * - Keyboard shortcut (/) to focus the search input
  * - Redirect on selection
  */
+/**
+ * Initialize the navbar search with TomSelect.
+ *
+ * Fetches dataset and gene search results on input,
+ * groups them by category, and navigates on selection.
+ */
 export function initSearch() {
     const search = new TomSelect("#bca-search", {
         maxItems: 1,
         onType: function (str) {
             if (str === "") {
-                // clear all options if input is cleared
                 this.clearOptions();
                 this.clear();
                 this.close();
@@ -109,17 +151,17 @@ export function initSearch() {
         onDropdownOpen: function () {
             this.clear();
         },
-        valueField: "slug",
-        labelField: "slug",
+        valueField: "id",
+        labelField: "id",
         searchField: [
-            "species",
-            "gene",
+            "gene_name",
+            "species_name",
             "description",
             "domains",
-            "scientific_name",
+            "name",
+            "species",
         ],
         score: function () {
-            // Avoid filtering by returning the same score to all results
             return function () {
                 return 1;
             };
@@ -149,22 +191,110 @@ export function initSearch() {
                 q: query,
                 limit: 5,
             });
-            Promise.all([fetch(datasetsUrl).then((res) => res.json())])
-                .then(([dataset_data]) => {
-                    const options = dataset_data.results.map((item) => ({
-                        ...item,
-                        group: "dataset",
-                        name: item.species,
+            const genesUrl = getViewUrl("rest:genesearch-list", {
+                q: query,
+                limit: 3,
+            });
+
+            Promise.all([
+                fetch(datasetsUrl).then((res) => res.json()).catch(() => ({ results: [], count: 0 })),
+                fetch(genesUrl).then((res) => res.json()).catch(() => ({})),
+            ])
+                .then(([dataset_data, gene_data]) => {
+                    const dataset_options = dataset_data.results.map(
+                        (item) => ({
+                            ...item,
+                            id: `dataset_${item.slug}`,
+                            group: "dataset",
+                            name: item.species,
+                        }),
+                    );
+
+                    const gene_options = (gene_data.genes || []).map(
+                        (item) => ({
+                            id: `gene_${item.gene}`,
+                            group: "gene",
+                            name: item.gene,
+                            species_name: item.species || "",
+                            description: item.description,
+                            domains: item.domains || [],
+                        }),
+                    );
+
+                    const gene_list_options = (
+                        gene_data.gene_lists || []
+                    ).map((item) => ({
+                        id: `gene_list_${item.name}`,
+                        group: "gene_list",
+                        name: item.name,
+                        description: item.description,
+                        gene_count: item.gene_count || 0,
                     }));
+
+                    const gene_module_options = (
+                        gene_data.gene_modules || []
+                    ).map((item) => ({
+                        id: `gene_module_${item.module}`,
+                        group: "gene_module",
+                        name: item.module,
+                        dataset: item.dataset,
+                        gene_count: item.gene_count || 0,
+                    }));
+
+                    const domain_options = (gene_data.domains || []).map(
+                        (item) => ({
+                            id: `domain_${item.name}`,
+                            group: "domain",
+                            name: item.name,
+                            gene_count: item.gene_count || 0,
+                        }),
+                    );
+
                     this.clearOptions();
                     this.optgroups = {
                         dataset: {
                             label: "Dataset",
-                            category: "dataset",
+                            category: "datasets",
                             count: dataset_data.count,
                         },
+                        gene: {
+                            label: "Gene",
+                            category: "genes",
+                            count: gene_data.genes
+                                ? gene_data.genes.length
+                                : 0,
+                        },
+                        gene_list: {
+                            label: "Gene list",
+                            category: "genes",
+                            count: gene_data.gene_lists
+                                ? gene_data.gene_lists.length
+                                : 0,
+                        },
+                        gene_module: {
+                            label: "Gene module",
+                            category: "genes",
+                            count: gene_data.gene_modules
+                                ? gene_data.gene_modules.length
+                                : 0,
+                        },
+                        domain: {
+                            label: "Domain",
+                            category: "genes",
+                            count: gene_data.domains
+                                ? gene_data.domains.length
+                                : 0,
+                        },
                     };
-                    callback(options);
+
+                    const allOptions = [
+                        ...dataset_options,
+                        ...gene_options,
+                        ...gene_list_options,
+                        ...gene_module_options,
+                        ...domain_options,
+                    ];
+                    callback(allOptions);
                 })
                 .catch((err) => {
                     console.error("Error loading data:", err);
@@ -175,16 +305,33 @@ export function initSearch() {
             if (!value) return;
             const item = this.options[value];
 
-            if (item.group === "gene") {
-                const gene = item.name;
-                const dataset = item.dataset.scientific_name.replace(" ", "_");
-                window.location.href = getViewUrl("atlas_gene", {
-                    dataset,
-                    gene,
-                });
-            } else if (item.group === "dataset") {
+            if (item.group === "dataset") {
                 const dataset = item.slug;
                 window.location.href = getViewUrl("atlas", { dataset });
+            } else if (item.group === "gene") {
+                const gene = item.gene_name;
+                const species = item.species_name;
+                if (species) {
+                    window.location.href = getViewUrl("gene_entry", {
+                        species,
+                        gene,
+                    });
+                }
+            } else if (item.group === "gene_list") {
+                window.location.href = getViewUrl("gene_list_entry", {
+                    gene_list: item.name,
+                });
+            } else if (item.group === "gene_module") {
+                const dataset = item.dataset;
+                const module_name = item.module_name;
+                window.location.href = getViewUrl("gene_module_entry", {
+                    dataset,
+                    gene_module: module_name,
+                });
+            } else if (item.group === "domain") {
+                window.location.href = getViewUrl("domain_entry", {
+                    domain: item.name,
+                });
             }
         },
         optgroupField: "group",
