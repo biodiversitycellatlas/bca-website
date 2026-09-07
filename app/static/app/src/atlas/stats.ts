@@ -2,8 +2,7 @@
  * Dataset statistics and plots.
  */
 
-import $ from "jquery";
-import "datatables.net-bs5";
+import DataTable from "datatables.net-bs5";
 
 import { getViewUrl } from "../utils/urls.ts";
 import { createStatsPlot } from "./plots/stats_plot.ts";
@@ -30,7 +29,7 @@ function animateNumber(id, target) {
             val = target;
             clearInterval(interval);
         }
-        $(id).text(val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+        document.querySelector(id).textContent = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }, time);
 }
 
@@ -147,7 +146,7 @@ export function renderGeneModuleTable(id, dataset) {
             render: (d) => makeLinkGene(dataset)(d[i]),
         }));
 
-    $(`#${id}`).DataTable({
+    const table = new DataTable(`#${id}`, {
         ajax: { url: url, dataSrc: "" },
         columns: [
             {
@@ -165,4 +164,5 @@ export function renderGeneModuleTable(id, dataset) {
         language: { search: "", searchPlaceholder: "Search table..." },
         order: [[1, "des"]],
     });
+    return table;
 }
