@@ -29,7 +29,9 @@ function animateNumber(id, target) {
             val = target;
             clearInterval(interval);
         }
-        document.querySelector(id).textContent = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        document.querySelector(id).textContent = val
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }, time);
 }
 
