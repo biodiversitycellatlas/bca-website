@@ -297,7 +297,7 @@ export function initCellTypeCompare(
     species2,
     metric = "samap",
 ) {
-    const config = METRICS[metric];
+    const config = METRICS[metric] ?? METRICS.samap;
     const thresholdEl = document.getElementById("threshold");
     const params = new URLSearchParams(window.location.search);
 
