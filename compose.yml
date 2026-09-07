@@ -72,6 +72,12 @@ services:
         environment:
             - PGPASSFILE=/postgres/.pgpass
             - PGSERVICEFILE=/postgres/.pg_service.conf
+        healthcheck:
+            test: ["CMD", "python", "scripts/healthcheck.py"]
+            interval: 120s
+            timeout: 3s
+            retries: 3
+            start_period: 5s
 
     db:
         image: dhi.io/postgres:18.1-debian13-dev
