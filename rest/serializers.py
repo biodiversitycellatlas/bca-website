@@ -846,8 +846,8 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
     samap_gene_pairs = serializers.SerializerMethodField()
     pesci_score = serializers.FloatField()
     pesci_gene_pairs = serializers.SerializerMethodField()
-    aucell_1to2 = serializers.FloatField()
-    aucell_2to1 = serializers.FloatField()
+    aucell_1to2 = serializers.SerializerMethodField()
+    aucell_2to1 = serializers.SerializerMethodField()
     aucell_gene_pairs = serializers.SerializerMethodField()
 
     class Meta:
@@ -919,6 +919,21 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
 
     def get_aucell_gene_pairs(self, obj):
         return self._resolve_gene_pairs(obj, obj.aucell_gene_pairs)
+
+    def _get_aucell_scores(self, obj):
+        """Return AUCell scores with direction corrected for reversed datasets."""
+        scores = [obj.aucell_1to2, obj.aucell_2to1]
+        if getattr(obj, "order_flag", 0) == 1:
+            scores.reverse()
+        return scores
+
+    def get_aucell_1to2(self, obj):
+        """Return AUCell score from dataset to dataset2."""
+        return self._get_aucell_scores(obj)[0]
+
+    def get_aucell_2to1(self, obj):
+        """Return AUCell score from dataset2 to dataset."""
+        return self._get_aucell_scores(obj)[1]
 
 
 class GeneSearchSerializer(serializers.Serializer):
