@@ -29,6 +29,7 @@ Input:
 </style>
 
 {% load static %}
+{% with metric=query.metric|default:"samap" %}
 <div class="row g-2 mb-4 align-items-start">
     <div class="col-auto">
         <div class="d-flex justify-content-between align-items-center small">
@@ -39,8 +40,31 @@ Input:
         </div>
 
         <div class="btn-group w-400px" role="group">
-            {% include "../select/dataset.html" with id="samap" redirect="query" placeholder="Search..." prefix="" class="w-100" dataset=dataset2.slug anchor="samap" dataset_dict=compare_dataset_dict %}
+            {% include "../select/dataset.html" with id="cell-types" redirect="query" placeholder="Search..." prefix="" class="w-100" dataset=dataset2.slug anchor="cell-types" dataset_dict=compare_dataset_dict %}
         </div>
+    </div>
+
+    <div class="col-auto">
+        <div class="d-flex justify-content-between align-items-center small">
+            <label class="col-form-label">
+                <i class="fa fa-ruler-horizontal"></i>
+                Metric
+            </label>
+        </div>
+
+        <select id="metric"
+                aria-label="Select metric"
+                class="form-select form-select mb-3 btn-outline-primary">
+            <option {% if metric == 'samap' %}selected{% endif %} value="samap">
+                SAMap
+            </option>
+            <option {% if metric == 'pesci' %}selected{% endif %} value="pesci">
+                Pesci
+            </option>
+            <option {% if metric == 'aucell' %}selected{% endif %} value="aucell">
+                AUCell
+            </option>
+        </select>
     </div>
 
     <div class="col-auto">
@@ -54,8 +78,8 @@ Input:
         <select id="plot"
                 aria-label="Select plot type"
                 class="form-select form-select mb-3 btn-outline-primary">
-            <option {% if query.plot == 'sankey' %}selected{% endif %} value="sankey">
-                Sankey plot
+            <option {% if query.plot == 'alluvial' %}selected{% endif %} value="alluvial">
+                Alluvial plot
             </option>
             <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">
                 Heatmap
@@ -67,7 +91,7 @@ Input:
         <div class="d-flex justify-content-between align-items-center small">
             <label class="col-form-label">
                 <i class="fa fa-filter"></i>
-                SAMap threshold
+                Threshold
             </label>
         </div>
         <div class="btn-group" role="group">
@@ -76,19 +100,19 @@ Input:
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     data-bs-auto-close="outside">
-                SAMap score ≥ <span id="min_samap_value">5</span> %
+                Score ≥ <span id="threshold_value">5</span> %
             </button>
             <div class="dropdown-menu">
                 <div class="mx-4 mb-3 w-250px">
                     <form novalidate action="#{{ id }}">
-                        <label for="markers" class="col-form-label">
-                            <small>SAMap minimum alignment score</small>
+                        <label for="threshold" class="col-form-label">
+                            <small>Minimum alignment score</small>
                         </label>
 
                         <input type="range"
                                class="js-range-slider opacity-0"
-                               id="min_samap"
-                               name="min_samap"
+                               id="threshold"
+                               name="min_{{ metric }}"
                                value="0"
                                step="1">
 
@@ -106,15 +130,40 @@ Input:
 
 <script type="module">
     import { initRangeSlider } from "{% static 'app/dist/utils/range_slider.js' %}";
-    initRangeSlider("#min_samap",
-        { min: 0, max: 100, from: {{query.min_samap|default:5}} },
-        ["#min_samap_value", undefined]
+    import { handleFormSubmit, updateParam } from "{% static 'app/dist/atlas/celltype_compare.js' %}";
+
+    const metric = "{{ metric }}";
+    const params = new URLSearchParams(window.location.search);
+    const fromValue = parseInt(params.get(`min_${metric}`) || "5");
+
+    initRangeSlider("#threshold",
+        { min: 0, max: 100, from: fromValue },
+        ["#threshold_value", undefined]
     );
 
-    import { handleFormSubmit, updateParam } from "{% static 'app/dist/atlas/samap_compare.js' %}";
-
     handleFormSubmit();
-    document.getElementById("plot").addEventListener("change", function () {
+
+    // Hide alluvial option when AUCell is selected (directional scores)
+    const plotSelect = document.getElementById("plot");
+    const alluvialOption = plotSelect.querySelector('option[value="alluvial"]');
+    if (metric === "aucell" && alluvialOption) {
+        alluvialOption.hidden = true;
+        if (plotSelect.value === "alluvial") {
+            plotSelect.value = "heatmap";
+        }
+    }
+
+    document.getElementById("metric").addEventListener("change", function () {
+        const url = new URL(window.location);
+        url.searchParams.set("metric", this.value);
+        // Force heatmap when switching to AUCell
+        if (this.value === "aucell" && url.searchParams.get("plot") === "alluvial") {
+            url.searchParams.set("plot", "heatmap");
+        }
+        window.location.href = url.href;
+    });
+
+    plotSelect.addEventListener("change", function () {
         updateParam("plot", this.value);
     });
 </script>
@@ -137,11 +186,11 @@ Input:
     </p>
 {% else %}
     <div class="row">
-        <div {% if query.plot == 'heatmap' %}class="col-9 col-sm-10 col-lg-3"{% else %}class="col-12 col-lg-5"{% endif %}>
+        <div {% if query.plot == 'heatmap' or metric == 'aucell' %}class="col-9 col-sm-10 col-lg-3"{% else %}class="col-12 col-lg-5"{% endif %}>
             {% include "../plot_container.html" with id=id ratio="16/9" %}
         </div>
 
-        {% if query.plot == 'heatmap' %}
+        {% if query.plot == 'heatmap' or metric == 'aucell' %}
             <div class="col-3 col-sm-2 col-lg-2">
             </div>
         {% endif %}
@@ -173,7 +222,7 @@ Input:
             </div>
 
             <div class="small mb-2 text-center">
-                <span id="{{ id }}-gene-pair-summary">SAMap-aligned gene pairs</span>
+                <span id="{{ id }}-gene-pair-summary">Gene pairs</span>
                 <i class="fa fa-circle-question text-secondary"
                    data-bs-toggle="tooltip"
                    data-bs-placement="bottom"
@@ -193,7 +242,7 @@ Input:
     </div>
 
     <script type="module">
-        import { initSAMap } from "{% static 'app/dist/atlas/samap_compare.js' %}";
+        import { initCellTypeCompare } from "{% static 'app/dist/atlas/celltype_compare.js' %}";
         const id = "{{id}}";
         const label = "{{dataset}}";
         const dataset = "{{dataset.slug}}";
@@ -202,7 +251,9 @@ Input:
         const label2 = "{{dataset2}}";
         const dataset2 = "{{dataset2.slug}}";
         const species2 = "{{dataset2.species}}";
+        const metric = "{{ metric }}";
 
-        initSAMap(id, label, dataset, species, label2, dataset2, species2);
+        initCellTypeCompare(id, label, dataset, species, label2, dataset2, species2, metric);
     </script>
 {% endif %}
+{% endwith %}

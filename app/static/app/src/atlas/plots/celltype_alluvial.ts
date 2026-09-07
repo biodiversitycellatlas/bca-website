@@ -1,28 +1,23 @@
 /**
- * SAMap sankey plot
+ * Cell-type similarity alluvial plot
  */
 
 import vegaEmbed from "vega-embed";
 
 /**
- * Renders a Sankey diagram to compare SAMap scores between metacell types from
- * two species
+ * Renders an alluvial diagram to compare similarity scores between metacell types
+ * from two species
  *
  * Based on https://github.com/PBI-David/Deneb-Showcase
  *
  * @param {string} id - CSS selector of the target HTML element
  * @param {string} dataset_label - Label to annotate the first dataset
  * @param {string} dataset2_label - Label to annotate the second dataset
- * @param {Array<Object>} data - Array of objects containing:
- *   - dataset: slug of the first dataset
- *   - metacell_type: cell type from the first dataset
- *   - metacell_color: color for metacell_type
- *   - dataset2: slug of the second dataset
- *   - metacell2_type: cell type from the second dataset
- *   - metacell2_color: color for metacell2_type
- *   - samap: SAMap score between the two metacell types
+ * @param {Array<Object>} data - Array of objects containing metacell type pairs and scores
+ * @param {string} scoreField - Field name for the score (e.g. 'samap_score', 'pesci_score')
+ * @param {string} metricLabel - Display label for the metric (e.g. 'SAMap', 'Pesci')
  */
-export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
+export function createCellTypeAlluvial(id, data, dataset_label, dataset2_label, scoreField = "samap_score", metricLabel = "SAMap") {
     // If direction of datasets is reversed, switch labels
     const normalize = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
     if (
@@ -31,6 +26,10 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
     ) {
         [dataset_label, dataset2_label] = [dataset2_label, dataset_label];
     }
+
+    const genePairCountField = scoreField
+        .replace(/_score$/, "_gene_pair_count")
+        .replace(/_1to2$/, "_gene_pair_count");
 
     const chart = {
         $schema: "https://vega.github.io/schema/vega/v6.json",
@@ -126,10 +125,10 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "aggregate",
-                        fields: ["samap_score"],
+                        fields: [scoreField],
                         groupby: ["end", "name", "id", "color"],
                         ops: ["sum"],
-                        as: ["samap_score"],
+                        as: [scoreField],
                     },
                     {
                         type: "formula",
@@ -139,15 +138,15 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                 ],
             },
             {
-                name: "maxSamap",
+                name: "maxScore",
                 source: ["stacks"],
                 transform: [
                     {
                         type: "aggregate",
-                        fields: ["samap_score"],
+                        fields: [scoreField],
                         groupby: ["stack"],
                         ops: ["sum"],
-                        as: ["samap_score"],
+                        as: [scoreField],
                     },
                 ],
             },
@@ -158,7 +157,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     {
                         type: "formula",
                         as: "spacer",
-                        expr: "(data('maxSamap')[0].samap_score/100) * gap",
+                        expr: `(data('maxScore')[0].${scoreField}/100) * gap`,
                     },
                     {
                         type: "formula",
@@ -167,22 +166,22 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "formula",
-                        as: "spacedSamap",
-                        expr: "[datum.samap_score, datum.spacer]",
+                        as: "spacedScore",
+                        expr: `[datum.${scoreField}, datum.spacer]`,
                     },
                     {
                         type: "flatten",
-                        fields: ["type", "spacedSamap"],
+                        fields: ["type", "spacedScore"],
                     },
                     {
                         type: "stack",
                         groupby: ["stack"],
-                        field: "spacedSamap",
+                        field: "spacedScore",
                         offset: "center",
                     },
                     {
                         type: "formula",
-                        expr: "datum.samap_score/2 + datum.y0 - 8",
+                        expr: `datum.${scoreField}/2 + datum.y0 - 8`,
                         as: "yc",
                     },
                 ],
@@ -212,23 +211,23 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     {
                         type: "stack",
                         groupby: ["metacell_type"],
-                        field: "samap_score",
+                        field: scoreField,
                         as: ["syi0", "syi1"],
                     },
                     {
                         type: "formula",
-                        expr: "((datum.samap_score)/2) + datum.syi0 + datum.metacell_typeStacky0",
+                        expr: `((datum.${scoreField})/2) + datum.syi0 + datum.metacell_typeStacky0`,
                         as: "syc",
                     },
                     {
                         type: "stack",
                         groupby: ["metacell2_type"],
-                        field: "samap_score",
+                        field: scoreField,
                         as: ["dyi0", "dyi1"],
                     },
                     {
                         type: "formula",
-                        expr: "((datum.samap_score)/2) + datum.dyi0 + datum.metacell2_typeStacky0",
+                        expr: `((datum.${scoreField})/2) + datum.dyi0 + datum.metacell2_typeStacky0`,
                         as: "dyc",
                     },
                     {
@@ -242,7 +241,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     },
                     {
                         type: "formula",
-                        expr: "range('y')[0] - scale('y', datum.samap_score)",
+                        expr: `range('y')[0] - scale('y', datum.${scoreField})`,
                         as: "strokeWidth",
                     },
                 ],
@@ -278,9 +277,6 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                         stroke: { signal: "datum.color" },
                     },
                     hover: {
-                        //"tooltip": {
-                        //    "signal": "{'Cell type': datum.name, 'Color': datum.color}"
-                        //},
                         fillOpacity: { value: 1 },
                     },
                 },
@@ -301,7 +297,7 @@ export function createSAMapSankey(id, data, dataset_label, dataset2_label) {
                     hover: {
                         strokeOpacity: { value: 1 },
                         tooltip: {
-                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, 'SAMap': format(datum.samap_score, '.2f') + '%', 'Gene pairs': datum.samap_gene_pair_count}`,
+                            signal: `{'Cell type ←': datum.metacell_type, 'Cell type →': datum.metacell2_type, '${metricLabel}': format(datum.${scoreField}, '.2f') + '%', 'Gene pairs': datum.${genePairCountField}}`,
                         },
                     },
                 },
