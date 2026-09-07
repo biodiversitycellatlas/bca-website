@@ -389,12 +389,13 @@ class MetacellTests(APITestCase):
         dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
         dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
 
-        url = "/api/v1/metacell_expression/?dataset=acrmil01-dataset&sort_genes=true"
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
         response = self.client.get(url, format="json")
-        metacell_gene_expression = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
         # gene1 peaks at mc2 (order 1) and gene2 at mc1 (order 2): highest order first
-        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene2", "gene1"]
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene2", "gene2", "gene1", "gene1"]
 
     def test_retrieve_gene_expression_sorted_without_order(self):
         species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
@@ -411,12 +412,13 @@ class MetacellTests(APITestCase):
         dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
         dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
 
-        url = "/api/v1/metacell_expression/?dataset=acrmil01-dataset&sort_genes=true"
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
         response = self.client.get(url, format="json")
-        metacell_gene_expression = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
         # gene1 peaks at mc2 (trailing 204) and gene2 at mc1 (trailing 1): highest first
-        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene2"]
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene1", "gene2", "gene2"]
 
     def test_retrieve_with_unannotated_metacells(self):
         species = Species.objects.create(common_name="nemve", scientific_name="Nematostella vectensis")
@@ -437,9 +439,9 @@ class MetacellTests(APITestCase):
 
         # Endpoints returning metacell_type/metacell_color (None for untyped metacells)
         endpoints = {
-            "/api/v1/metacell_expression/?dataset=nemve-adult": "metacell_name",
-            "/api/v1/metacell_counts/?dataset=nemve-adult": "metacell",
-            "/api/v1/module_eigengenes/?dataset=nemve-adult": "metacell_name",
+            "/api/v1/metacell_expression/?dataset=nematostella-vectensis-adult": "metacell_name",
+            "/api/v1/metacell_counts/?dataset=nematostella-vectensis-adult": "metacell",
+            "/api/v1/module_eigengenes/?dataset=nematostella-vectensis-adult": "metacell_name",
         }
         for url, name in endpoints.items():
             response = self.client.get(url, format="json")
@@ -450,7 +452,7 @@ class MetacellTests(APITestCase):
             assert untyped_row["metacell_order"] is None, url
 
         # Metacell endpoint returns type/color
-        response = self.client.get("/api/v1/metacells/?dataset=nemve-adult", format="json")
+        response = self.client.get("/api/v1/metacells/?dataset=nematostella-vectensis-adult", format="json")
         assert response.status_code == status.HTTP_200_OK
         untyped_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00001")
         typed_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00002")
@@ -460,7 +462,7 @@ class MetacellTests(APITestCase):
         assert typed_row["order"] == 5
 
         # Single cell without metacell returns null metacell info
-        response = self.client.get("/api/v1/single_cells/?dataset=nemve-adult", format="json")
+        response = self.client.get("/api/v1/single_cells/?dataset=nematostella-vectensis-adult", format="json")
         assert response.status_code == status.HTTP_200_OK
         cell = next(r for r in response.data["results"] if r["name"] == "cell1")
         assert cell["metacell_name"] is None

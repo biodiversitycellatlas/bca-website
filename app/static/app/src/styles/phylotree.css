@@ -1,0 +1,7 @@
+.phylotree-node-text {
+    cursor: pointer;
+}
+
+.phylotree-node-text:hover {
+    font-weight: bold;
+}

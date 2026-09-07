@@ -4,6 +4,11 @@
     {{ species }}
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_taxon species %}
+{% endblock structured_data %}
+
 {% block content %}
 
     <h1 class="h3 text-break">

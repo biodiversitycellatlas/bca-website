@@ -507,7 +507,9 @@ class SingleCellSerializer(BaseExpressionSerializer):
     """Single cell serializer."""
 
     # Default is null for single cells with no metacell
-    metacell_name = serializers.CharField(source="metacell.name", default=None, allow_null=True, help_text="Metacell name.")
+    metacell_name = serializers.CharField(
+        source="metacell.name", default=None, allow_null=True, help_text="Metacell name."
+    )
     metacell_type = serializers.CharField(
         source="metacell.type.name", default=None, allow_null=True, help_text="Cell type."
     )
@@ -560,7 +562,9 @@ class MetacellSerializer(BaseExpressionSerializer):
     """Metacell serializer."""
 
     type = serializers.CharField(source="type.name", allow_null=True, help_text="Metacell type.", required=False)
-    color = serializers.CharField(source="type.color", allow_null=True, help_text="Color of metacell type.", required=False)
+    color = serializers.CharField(
+        source="type.color", allow_null=True, help_text="Color of metacell type.", required=False
+    )
 
     # Show expression for a given gene
     fold_change = serializers.SerializerMethodField(required=False)
@@ -634,6 +638,9 @@ class MetacellCountSerializer(serializers.ModelSerializer):
     metacell = serializers.CharField(source="metacell.name")
     metacell_type = serializers.CharField(source="metacell.type.name", allow_null=True)
     metacell_color = serializers.CharField(source="metacell.type.color", allow_null=True)
+    metacell_order = serializers.IntegerField(
+        source="metacell.order", allow_null=True, help_text="Position of the metacell in heatmap ordering."
+    )
 
     cells = serializers.IntegerField(help_text="Cell count.")
     umis = serializers.IntegerField(help_text="UMI count.")
@@ -642,7 +649,7 @@ class MetacellCountSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.MetacellCount
-        fields = ["metacell", "metacell_type", "metacell_color", "cells", "umis"]
+        fields = ["metacell", "metacell_type", "metacell_color", "metacell_order", "cells", "umis"]
 
 
 class SingleCellGeneExpressionSerializer(serializers.ModelSerializer):

@@ -4,6 +4,11 @@
     Gene entries
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_gene_list object_list name="Biodiversity Cell Atlas genes" %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Genes' paginator species %}

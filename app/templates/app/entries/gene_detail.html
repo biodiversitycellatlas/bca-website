@@ -4,6 +4,11 @@
     {{ gene }}
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_gene gene %}
+{% endblock structured_data %}
+
 {% block content %}
     <h1 class="h3 text-break">
         {{ gene }}

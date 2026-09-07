@@ -4,6 +4,11 @@
     Species entries
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_species_list object_list name="Biodiversity Cell Atlas species" %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Species' paginator %}

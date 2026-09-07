@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.templatetags.static import static
 from django.shortcuts import render
 
-from ..models import Dataset, SpeciesFile, Species, SingleCell
+from ..models import Dataset, GlobalFile, SpeciesFile, Species, SingleCell
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
@@ -42,6 +42,10 @@ class IndexView(TemplateView):
             "cells": SingleCell.objects.count(),
         }
         context["counter"] = counter
+
+        # Fetch tree of life file
+        tree_file = GlobalFile.objects.filter(type="tree-of-life").first()
+        context["tree_of_life"] = tree_file.file.url if tree_file else ""
 
         # Fetch latest blog posts
         categories = ["latest", "publications", "meetings", "tutorials"]
@@ -97,8 +101,11 @@ class DownloadsView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add all species and datasets to context."""
         context = super().get_context_data(**kwargs)
-        context["species_all"] = Species.objects.all()
-        context["datasets_all"] = Dataset.objects.all()
+        # `files` is walked again per species (and `species` again per dataset)
+        # to build the page's Bioschemas structured data -- prefetch/select so
+        # that doesn't add a second N+1 on top of the template's own lookups.
+        context["species_all"] = Species.objects.all().prefetch_related("files")
+        context["datasets_all"] = Dataset.objects.select_related("species").all()
         return context
 
 

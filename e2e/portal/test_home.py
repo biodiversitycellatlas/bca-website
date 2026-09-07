@@ -13,7 +13,7 @@ class TestHomepage:
         expect(page.locator("#navbarSupportedContent").get_by_role("link", name="Docs")).to_be_visible()
         expect(page.locator("#navbarSupportedContent").get_by_role("link", name="Blog")).to_be_visible()
         expect(page.locator("#navbarSupportedContent").get_by_role("link", name="About")).to_be_visible()
-        expect(page.get_by_label("Tree of life.").get_by_role("img")).to_be_visible()
+        expect(page.get_by_label("Tree of life.").locator("svg")).to_be_visible()
 
     def test_species_datasets_links(self, page, live_server_url):
         page.goto(self.base_url)

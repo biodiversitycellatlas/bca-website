@@ -99,9 +99,9 @@ def get_compare_dataset_dict(dataset):
         )
 
     # Orthogroups containing genes from the given dataset's gene modules
-    shared_orthogroups = Ortholog.objects.filter(
-        gene__modules__module__dataset=dataset
-    ).values_list("orthogroup_id", flat=True)
+    shared_orthogroups = Ortholog.objects.filter(gene__modules__module__dataset=dataset).values_list(
+        "orthogroup_id", flat=True
+    )
 
     # Datasets whose gene modules share an orthogroup with the given dataset
     module_dataset_ids = set(

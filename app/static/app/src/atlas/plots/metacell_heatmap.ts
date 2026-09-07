@@ -4,7 +4,10 @@
 
 import vegaEmbed from "vega-embed";
 
-import { getMetacellIndex, getMetacellPositions } from "../../utils/metacell.ts";
+import {
+    getMetacellIndex,
+    getMetacellPositions,
+} from "../../utils/metacell.ts";
 
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
@@ -153,7 +156,9 @@ function createMetacellHeatmap(
                                         expr: `data('data_0')[0].y_count + ' ${yLabel}'`,
                                     },
                                 },
-                                sort: sortByYIndex ? { field: "y_index" } : { field: "index" },
+                                sort: sortByYIndex
+                                    ? { field: "y_index" }
+                                    : { field: "index" },
                             },
                             color: {
                                 field: valueField,

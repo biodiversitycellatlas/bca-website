@@ -10,6 +10,7 @@ Features:
 
 Dynamic blocks:
 - title: page-specific title for the browser window
+- structured_data: page-specific Bioschemas JSON-LD metadata
 - navbar: navigation bar from `navbar.html` by default
 - content: placeholder for page-specific content
 - footer: footer from `footer.html` by default
@@ -51,6 +52,12 @@ Dynamic blocks:
 
         {# Plausible Tracking Snippet #}
         {% include "tracking.html" %}
+
+        {% block structured_data %}
+            {% comment %}
+            Bioschemas JSON-LD metadata (see app/templatetags/bioschemas.py)
+            {% endcomment %}
+        {% endblock structured_data %}
     </head>
     <body>
         {% block navbar %}

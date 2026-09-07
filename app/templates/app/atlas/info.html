@@ -19,6 +19,11 @@ Input:
     {{ dataset }}
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_dataset dataset %}
+{% endblock structured_data %}
+
 {% block content %}
 
     <style>

@@ -53,7 +53,10 @@ export function createMetacellProjection(
 ) {
     const metacellColorScale = generateColorScale(data["mc_data"]);
     // Improve metacell label
-    const mc_data = data["mc_data"].map((mc) => ({ ...mc, label: String(parseInt(mc.name.split("_").pop(), 10)) }));
+    const mc_data = data["mc_data"].map((mc) => ({
+        ...mc,
+        label: String(parseInt(mc.name.split("_").pop(), 10)),
+    }));
     const colorScale = { domainMin: 0, clamp: true, range: COLOR_SCALE };
     const neutralColor = "#F1F7FE"; // For undefined values
 

@@ -36,14 +36,17 @@ def get_enum_description(description, enum):
 
 
 def get_path_param(name, filter_cls):
-    f = filter_cls()
-    return OpenApiParameter(
-        name,
-        str,
-        OpenApiParameter.PATH,
-        description=get_enum_description(f.label, dict(f.extra["choices"])),
-        enum=[i for (i, _) in f.field.choices if i],
-    )
+    try:
+        f = filter_cls()
+        return OpenApiParameter(
+            name,
+            str,
+            OpenApiParameter.PATH,
+            description=get_enum_description(f.label, dict(f.extra["choices"])),
+            enum=[i for (i, _) in f.field.choices if i],
+        )
+    except Exception:
+        return OpenApiParameter(name, str, OpenApiParameter.PATH)
 
 
 def group_by_key(queryset, key_field, value_field, extra_field=None):
