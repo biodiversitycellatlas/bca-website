@@ -48,7 +48,7 @@ export function createMarkersTable(id, dataset, url) {
             { data: "fg_mean_fc", title: "Mean FC", render: round },
             { data: "fg_median_fc", title: "Median FC", render: round },
         ],
-        order: [[5, "des"]],
+        order: [[5, "desc"]],
         createdCell: function (td, cellData) {
             if (td.classList.contains("truncate")) {
                 td.setAttribute("title", cellData);

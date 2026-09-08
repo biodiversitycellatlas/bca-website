@@ -164,7 +164,7 @@ export function renderGeneModuleTable(id, dataset) {
         scrollY: "190px",
         scrollX: true,
         language: { search: "", searchPlaceholder: "Search table..." },
-        order: [[1, "des"]],
+        order: [[1, "desc"]],
     });
     return table;
 }
