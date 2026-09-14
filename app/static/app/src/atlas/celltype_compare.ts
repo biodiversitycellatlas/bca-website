@@ -40,8 +40,6 @@ const METRICS = {
     },
 } as const;
 
-type MetricKey = keyof typeof METRICS;
-
 /**
  * Update parameter and reload page.
  *
@@ -251,7 +249,13 @@ function prepareGenePairsTable(
  * @param {string} metric - Metric key (samap, pesci, aucell).
  */
 
-function updateComparisonSummary(id, metacellType, metacellType2, datum, metric) {
+function updateComparisonSummary(
+    id,
+    metacellType,
+    metacellType2,
+    datum,
+    metric,
+) {
     document.getElementById(`${id}-metacell-type`).textContent = metacellType;
     document.getElementById(`${id}-metacell2-type`).textContent = metacellType2;
 
@@ -304,12 +308,15 @@ export function initCellTypeCompare(
     const url = getViewUrl("rest:metacelltypesimilarity-list", {
         dataset,
         dataset2,
-        [config.thresholdParam]: thresholdEl ? thresholdEl.value : params.get(config.thresholdParam) || "5",
+        [config.thresholdParam]: thresholdEl
+            ? thresholdEl.value
+            : params.get(config.thresholdParam) || "5",
         limit: 0,
     });
 
     const useHeatmap =
-        document.getElementById("plot").value === "heatmap" || metric === "aucell";
+        document.getElementById("plot").value === "heatmap" ||
+        metric === "aucell";
 
     fetch(url)
         .then((response) => response.json())

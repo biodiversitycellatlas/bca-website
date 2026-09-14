@@ -15,7 +15,14 @@ import vegaEmbed from "vega-embed";
  * @param {string} scoreField - Field name for the score (e.g. 'samap_score', 'pesci_score', 'aucell_1to2')
  * @param {string} metricLabel - Display label for the metric (e.g. 'SAMap', 'Pesci', 'AUCell')
  */
-export function createCellTypeHeatmap(id, data, dataset_label, dataset2_label, scoreField = "samap_score", metricLabel = "SAMap") {
+export function createCellTypeHeatmap(
+    id,
+    data,
+    dataset_label,
+    dataset2_label,
+    scoreField = "samap_score",
+    metricLabel = "SAMap",
+) {
     // If direction of datasets is reversed, switch labels
     const normalize = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
     if (
