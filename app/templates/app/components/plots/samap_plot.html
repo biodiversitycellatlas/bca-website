@@ -55,15 +55,9 @@ Input:
             <select id="metric"
                     aria-label="Select metric"
                     class="form-select form-select mb-3 btn-outline-primary">
-                <option {% if metric == 'samap' %}selected{% endif %} value="samap">
-                    SAMap
-                </option>
-                <option {% if metric == 'pesci' %}selected{% endif %} value="pesci">
-                    Pesci
-                </option>
-                <option {% if metric == 'aucell' %}selected{% endif %} value="aucell">
-                    AUCell
-                </option>
+                <option {% if metric == 'samap' %}selected{% endif %} value="samap">SAMap</option>
+                <option {% if metric == 'pesci' %}selected{% endif %} value="pesci">Pesci</option>
+                <option {% if metric == 'aucell' %}selected{% endif %} value="aucell">AUCell</option>
             </select>
         </div>
 
@@ -78,12 +72,8 @@ Input:
             <select id="plot"
                     aria-label="Select plot type"
                     class="form-select form-select mb-3 btn-outline-primary">
-                <option {% if query.plot == 'alluvial' %}selected{% endif %} value="alluvial">
-                    Alluvial plot
-                </option>
-                <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">
-                    Heatmap
-                </option>
+                <option {% if query.plot == 'alluvial' %}selected{% endif %} value="alluvial">Alluvial plot</option>
+                <option {% if query.plot == 'heatmap' %}selected{% endif %} value="heatmap">Heatmap</option>
             </select>
         </div>
 
@@ -117,9 +107,7 @@ Input:
                                    step="1">
 
                             <div class="d-flex justify-content-end">
-                                <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">
-                                    Apply
-                                </button>
+                                <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-3">Apply</button>
                             </div>
                         </form>
                     </div>
@@ -191,19 +179,14 @@ Input:
             </div>
 
             {% if query.plot == 'heatmap' or metric == 'aucell' %}
-                <div class="col-3 col-sm-2 col-lg-2">
-                </div>
+                <div class="col-3 col-sm-2 col-lg-2"></div>
             {% endif %}
 
             <div class="col-12 col-lg-7">
                 <div class="d-flex justify-content-center gap-3 align-items-center text-center small mb-3">
                     <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
-                        <div>
-                            {{ dataset.get_html_link }}
-                        </div>
-                        <div id="{{ id }}-metacell-type">
-                            Select a cell type pair
-                        </div>
+                        <div>{{ dataset.get_html_link }}</div>
+                        <div id="{{ id }}-metacell-type">Select a cell type pair</div>
                     </div>
 
                     <div id="{{ id }}-vs-cell-type"
@@ -212,12 +195,8 @@ Input:
                     </div>
 
                     <div class="d-flex flex-column align-items-center flex-grow-1 flex-shrink-1">
-                        <div>
-                            {{ dataset2.get_html_link }}
-                        </div>
-                        <div id="{{ id }}-metacell2-type">
-                            Select a cell type pair
-                        </div>
+                        <div>{{ dataset2.get_html_link }}</div>
+                        <div id="{{ id }}-metacell2-type">Select a cell type pair</div>
                     </div>
                 </div>
 
@@ -231,9 +210,7 @@ Input:
 
                 <div id="{{ id }}-cell-type-compare-empty"
                      class="text-center text-muted py-5 small">
-                    <span class="d-block mx-auto">
-                        Select a cell-type pair in the plot to compare its aligned gene pairs.
-                    </span>
+                    <span class="d-block mx-auto">Select a cell-type pair in the plot to compare its aligned gene pairs.</span>
                 </div>
                 <table id="{{ id }}-cell-type-compare-table"
                        class="table table-sm table-striped small">
