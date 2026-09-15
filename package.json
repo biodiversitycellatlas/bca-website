@@ -20,7 +20,7 @@
         "datatables.net-select-bs5": "4.0.1",
         "ion-rangeslider": "2.3.2",
         "jquery": "3.7.1",
-        "postcss": "8.5.26",
+        "postcss": "8.5.28",
         "postcss-cli": "11.0.1",
         "tom-select": "2.6.2",
         "phylotree": "2.6.0",
