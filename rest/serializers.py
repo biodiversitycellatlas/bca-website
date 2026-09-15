@@ -911,13 +911,13 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
         reverse = getattr(obj, "order_flag", 0) == 1
         return [[genes[b], genes[a]] if reverse else [genes[a], genes[b]] for a, b in raw_pairs]
 
-    def get_samap_gene_pairs(self, obj):
+    def get_samap_gene_pairs(self, obj) -> list[list[str]] | None:
         return self._resolve_gene_pairs(obj, obj.samap_gene_pairs)
 
-    def get_pesci_gene_pairs(self, obj):
+    def get_pesci_gene_pairs(self, obj) -> list[list[str]] | None:
         return self._resolve_gene_pairs(obj, obj.pesci_gene_pairs)
 
-    def get_aucell_gene_pairs(self, obj):
+    def get_aucell_gene_pairs(self, obj) -> list[list[str]] | None:
         return self._resolve_gene_pairs(obj, obj.aucell_gene_pairs)
 
     def _get_aucell_scores(self, obj):
@@ -927,11 +927,11 @@ class MetacellTypeSimilaritySerializer(serializers.ModelSerializer):
             scores.reverse()
         return scores
 
-    def get_aucell_1to2(self, obj):
+    def get_aucell_1to2(self, obj) -> float | None:
         """Return AUCell score from dataset to dataset2."""
         return self._get_aucell_scores(obj)[0]
 
-    def get_aucell_2to1(self, obj):
+    def get_aucell_2to1(self, obj) -> float | None:
         """Return AUCell score from dataset2 to dataset."""
         return self._get_aucell_scores(obj)[1]
 
