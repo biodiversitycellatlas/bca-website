@@ -753,7 +753,9 @@ class MetacellTypeSimilarityTests(APITestCase):
         assert len(response.data["results"]) == 2
         assert response.data["results"][0]["metacell_type"] == "type1"
 
-        url_swapped = "/api/v1/metacell_type_similarity/?dataset=species4-dataset4&dataset2=species3-dataset3&min_aucell=50"
+        url_swapped = (
+            "/api/v1/metacell_type_similarity/?dataset=species4-dataset4&dataset2=species3-dataset3&min_aucell=50"
+        )
         response = self.client.get(url_swapped, format="json")
         assert response.status_code == status.HTTP_200_OK
         assert response.data["results"][0]["metacell_type"] == "type3"
