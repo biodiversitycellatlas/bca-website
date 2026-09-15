@@ -29,20 +29,3 @@ export function buildDataQuery(data, species, genes, method = "GET") {
     if (Array.isArray(genes)) params.genes = genes;
     return method === "POST" ? JSON.stringify(params) : params;
 }
-
-/**
- * Transform DRF paginated JSON into DataTables-compatible format.
- *
- * Maps DRF's `count` to `recordsTotal`/`recordsFiltered` and leaves
- * `dataSrc` responsible for extracting the results array.
- *
- * @param {string} data - Raw JSON string from the API response.
- * @returns {string} Modified JSON string with DataTables metadata fields.
- */
-export function filterData(data) {
-    const json = JSON.parse(data);
-    json.recordsTotal = json.count;
-    json.recordsFiltered = json.count;
-    json.data = json.list;
-    return JSON.stringify(json);
-}

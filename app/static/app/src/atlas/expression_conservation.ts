@@ -8,7 +8,7 @@ import "datatables.net-select-bs5";
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu, updateDataMenu } from "../buttons/data_dropdown.ts";
 import { createExpressionBubblePlot } from "./plots/expression_plot.ts";
-import { buildDataQuery, filterData } from "./plots/utils.ts";
+import { buildDataQuery } from "./plots/utils.ts";
 import { linkDomains, makeLinkGene, round } from "./tables/utils.ts";
 import {
     showSpinner,
@@ -27,8 +27,11 @@ function createExpressionConservationTable(id, dataset, gene) {
         ajax: {
             url: apiURL,
             data: buildDataQuery,
-            dataFilter: filterData,
-            dataSrc: "results",
+            dataSrc: {
+                data: "results",
+                recordsTotal: "count",
+                recordsFiltered: "count",
+            },
             cache: true,
         },
         pageLength: 10,
