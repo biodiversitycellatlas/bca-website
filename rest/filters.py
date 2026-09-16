@@ -519,12 +519,34 @@ class MetacellTypeSimilarityFilter(FilterSet):
         field_name="samap_score",
         lookup_expr="gte",
     )
+    min_pesci = NumberFilter(
+        label="Filter Pesci scores (default: no filtering). Recommended: <kbd>5</kbd>",
+        field_name="pesci_score",
+        lookup_expr="gte",
+    )
+    min_aucell = NumberFilter(
+        label="Filter AUCell scores (default: no filtering). Recommended: <kbd>5</kbd>",
+        method="filter_min_aucell",
+    )
 
     class Meta:
         """Configuration for model and filterable fields."""
 
         model = models.MetacellTypeSimilarity
-        fields = ["dataset", "dataset2", "min_samap"]
+        fields = ["dataset", "dataset2", "min_samap", "min_pesci", "min_aucell"]
+
+    def filter_min_aucell(self, queryset, name, value):
+        """Filter AUCell scores for the direction along the requested datasets."""
+        try:
+            dataset = parse_species_dataset(self.data.get("dataset"))
+        except (TypeError, ValueError):
+            # Fall back to the 1to2 score
+            return queryset.filter(aucell_1to2__gte=value)
+
+        return queryset.filter(
+            Q(metacelltype__dataset=dataset, aucell_1to2__gte=value)
+            | Q(metacelltype2__dataset=dataset, aucell_2to1__gte=value)
+        )
 
     @property
     def qs(self):
