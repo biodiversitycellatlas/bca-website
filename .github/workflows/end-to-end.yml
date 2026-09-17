@@ -44,7 +44,7 @@ jobs:
             - name: Build E2E image
               run: docker compose build e2e
 
-            - name: Start services and wait for them
+            - name: Start and wait for services
               run: docker compose up -d --wait --wait-timeout 180
               env:
                   ENVIRONMENT: test

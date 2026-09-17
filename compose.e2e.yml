@@ -3,6 +3,7 @@ services:
         user: "0"
         environment:
             - DJANGO_ALLOWED_HOSTS=portal.localhost,localhost,web
+            - E2E=True
 
     e2e:
         build:

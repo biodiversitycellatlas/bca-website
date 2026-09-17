@@ -311,11 +311,17 @@ podman compose exec web bun test --watch
 
 ### Run end-to-end tests
 
+The `e2e` service is defined in [`compose.e2e.yml`](compose.e2e.yml) and enables end-to-end Playwright testing.
+
 ```bash
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.e2e.yml
 # Locally deploy the web app
 podman compose up -d --build
 
-# Run end-to-end tests with PyTest in the dedicated Playwright container
+# Create the test database (fixture species, datasets, etc.)
+podman compose exec web python manage.py createtestdb
+
+# Run end-to-end Playwright tests with pytest
 podman compose run --rm e2e pytest e2e/ -v
 ```
 
