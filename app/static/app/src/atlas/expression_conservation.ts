@@ -109,7 +109,8 @@ function loadOrthologExpression(id, dataset, gene, row) {
 
     // Update header above plot
     const linkGene = makeLinkGene()(row.gene, "display", row);
-    document.getElementById(`${id}_heading`).innerHTML = `${row.dataset_link} • ${linkGene}`;
+    document.getElementById(`${id}_heading`).innerHTML =
+        `${row.dataset_link} • ${linkGene}`;
 
     fetch(apiURL)
         .then((response) => response.json())
