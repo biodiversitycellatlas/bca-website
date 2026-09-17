@@ -4,7 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
-import { getMetacellIndex } from "../../utils/metacell.ts";
+import { getMetacellOrder } from "../../utils/metacell.ts";
 import { escapeString } from "../../utils/utils.ts";
 
 /**
@@ -17,7 +17,7 @@ import { escapeString } from "../../utils/utils.ts";
 export function createExpressionBubblePlot(id, gene, data) {
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
     }));
@@ -97,7 +97,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
 
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
     }));
