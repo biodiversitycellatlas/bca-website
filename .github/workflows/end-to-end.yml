@@ -50,7 +50,7 @@ jobs:
               run: |
                   bash -c "sleep 80"
                   docker compose exec web python manage.py createtestdb
-                  docker compose exec web pytest --tracing retain-on-failure \
+                  docker compose run --rm e2e pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
 
             - uses: actions/upload-artifact@v7

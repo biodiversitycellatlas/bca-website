@@ -65,9 +65,6 @@ RUN python -m venv /opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 
-# Install Playwright for End-to-End testing
-RUN playwright install --with-deps || true
-
 # Copy application folder
 COPY --chown=nonroot:nonroot . .
 

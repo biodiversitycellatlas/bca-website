@@ -1,7 +1,18 @@
 services:
     web:
         user: "0"
+        environment:
+            - DJANGO_ALLOWED_HOSTS=portal.localhost,localhost,web
+
+    e2e:
         build:
-            target: dev
-            args:
-                DJANGO_DEPENDENCIES: .[dev,e2e,test]
+            context: .
+            dockerfile: e2e/Dockerfile
+        working_dir: /code
+        volumes:
+            - .:/code
+        environment:
+            - PYTEST_BASE_URL=http://web:8000/
+        profiles: ["e2e"]
+        depends_on:
+            - web

@@ -315,8 +315,8 @@ podman compose exec web bun test --watch
 # Locally deploy the web app
 podman compose up -d --build
 
-# Run end-to-end tests with PyTest
-podman compose exec web pytest e2e/ -v
+# Run end-to-end tests with PyTest in the dedicated Playwright container
+podman compose run --rm e2e pytest e2e/ -v
 ```
 
 ## Linters
