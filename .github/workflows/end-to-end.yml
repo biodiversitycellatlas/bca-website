@@ -41,16 +41,13 @@ jobs:
             - name: Build from Dockerfiles
               run: docker compose build
 
-            - name: Start services
-              run: docker compose up -d
-              env:
-                  ENVIRONMENT: test
-
             - name: Build E2E image
               run: docker compose build e2e
 
-            - name: Wait for containers
-              run: sleep 80
+            - name: Start services and wait for them
+              run: docker compose up -d --wait --wait-timeout 180
+              env:
+                  ENVIRONMENT: test
 
             - name: Create test database
               run: docker compose exec web python manage.py createtestdb
