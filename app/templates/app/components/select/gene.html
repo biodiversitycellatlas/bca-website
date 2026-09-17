@@ -39,8 +39,7 @@ Input:
         placeholder="{% if placeholder %}{{ placeholder }}{% elif multiple == 'true' %}Search gene lists, modules, domains...{% else %}Search gene...{% endif %}"
         {% if multiple == 'true' %}multiple{% endif %}
         {% if disabled == 'true' %}disabled{% endif %}>
-    <option value="">
-    </option>
+    <option value=""></option>
 </select>
 
 <!-- Species select options -->

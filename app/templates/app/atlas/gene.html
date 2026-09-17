@@ -83,27 +83,17 @@ Input:
                 <table class="table table-sm table-striped gene-info">
                     <tbody>
                         <tr>
-                            <td class="key">
-                                Pfam domains
-                            </td>
-                            <td>
-                                {{ gene.get_domain_html_links|default:'—' }}
-                            </td>
+                            <td class="key">Pfam domains</td>
+                            <td>{{ gene.get_domain_html_links|default:'—' }}</td>
                         </tr>
 
                         <tr>
-                            <td class="key">
-                                Gene lists
-                            </td>
-                            <td>
-                                {{ gene.get_genelist_html_links|default:'—' }}
-                            </td>
+                            <td class="key">Gene lists</td>
+                            <td>{{ gene.get_genelist_html_links|default:'—' }}</td>
                         </tr>
 
                         <tr>
-                            <td class="key">
-                                Gene modules
-                            </td>
+                            <td class="key">Gene modules</td>
                             <td>
                                 {% for member in gene.modules.all %}
                                     {% if member.module.dataset == dataset %}
@@ -118,12 +108,8 @@ Input:
                         </tr>
 
                         <tr>
-                            <td class="key">
-                                Orthogroups
-                            </td>
-                            <td>
-                                {{ gene.get_orthogroup_html_links|default:"—" }}
-                            </td>
+                            <td class="key">Orthogroups</td>
+                            <td>{{ gene.get_orthogroup_html_links|default:"—" }}</td>
                         </tr>
                     </tbody>
                 </table>
