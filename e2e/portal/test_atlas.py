@@ -1,5 +1,3 @@
-import re
-
 from playwright.sync_api import expect
 
 
@@ -54,24 +52,24 @@ class TestAtlasPage:
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Atlas overview").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/overview/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/overview/")
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Gene lists").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/panel/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/panel/")
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Gene modules").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/modules/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/modules/")
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Gene view").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/gene/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/gene/")
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Cell type markers").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/markers/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/markers/")
 
         page.goto(atlas_url)
         page.get_by_role("link", name="Cross-species").click()
-        expect(page).to_have_url(re.compile(r"/atlas/amphineuron-queenslandicum/compare/$"))
+        expect(page).to_have_url("/atlas/amphineuron-queenslandicum/compare/")

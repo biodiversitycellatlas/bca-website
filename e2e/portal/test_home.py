@@ -1,5 +1,3 @@
-import re
-
 from playwright.sync_api import expect
 
 
@@ -48,4 +46,4 @@ class TestHomepage:
         page.get_by_role("combobox", name="Search datasets by species,").click()
         page.get_by_role("option", name="Homo sapiens (Baby) human").click()
 
-        expect(page).to_have_url(re.compile(r"/atlas/homo-sapiens-baby/$"))
+        expect(page).to_have_url("/atlas/homo-sapiens-baby/")
