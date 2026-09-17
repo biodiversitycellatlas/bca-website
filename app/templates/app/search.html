@@ -16,98 +16,152 @@ Search page
         Search results
     </h1>
 
-    <div class="row mb-5">
-        <div class="col-6">
-            <form class="input-group">
-                <input id="search"
-                       type="text"
-                       class="form-control"
-                       placeholder="Search the BCA..."
-                       aria-label="Search"
-                       name="q"
-                       value="{{ query.q }}">
-                <button class="btn btn-primary" type="submit">
-                    <i class="fa fa-magnifying-glass"></i> Search
-                </button>
-            </form>
-        </div>
-        <div class="col-auto d-flex align-items-center pb-1">
-            <span id="results_count" class="form-text"></span>
-        </div>
+    <div class="d-flex flex-row align-items-center gap-2 mb-3">
+        <form class="input-group" id="search-form" style="max-width: 500px;">
+            <input id="search"
+                   type="text"
+                   class="form-control"
+                   placeholder="Search the BCA..."
+                   aria-label="Search"
+                   name="q"
+                   value="{{ query.q }}">
+            <button class="btn btn-primary" type="submit">
+                <i class="fa fa-magnifying-glass"></i> Search
+            </button>
+        </form>
+        <span id="results_count" class="form-text text-nowrap"></span>
     </div>
 
     {% if query %}
         <div class="row">
-            <div class="col-3 col-lg-2 small">
-                <nav class="nav nav-pills flex-column">
-                    <!-- Category selection -->
-                    <span class="fw-semibold p-1"><i class="fa fa-layer-group fa-fw"></i> Category</span>
-
-                    <button type="button"
-                            class="btn btn-link btn-sm text-start nav-link p-1 {% if not query.category %}active{% endif %}"
-                            onclick="updateQuery('category')">
-                        Summary
-                    </button>
-                    <button type="button"
-                            class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'datasets' %}active{% endif %}"
-                            onclick="updateQuery('category', 'datasets')">
-                        Datasets
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-link btn-sm text-start nav-link p-1 {% if query.category == 'genes' %}active{% endif %}"
-                            onclick="updateQuery('category', 'genes')">
-                        Genes
-                    </button>
-
-                    <!-- Species selection -->
-                    <div class="d-flex justify-content-between mt-3 p-1">
-                        <span class="fw-semibold">
-                            <i class="fa fa-kiwi-bird fa-fw"></i> Species
+            <div class="col-12 col-md-3 col-lg-2 small mb-2">
+                <nav class="nav nav-pills flex-row flex-md-column gap-2 align-items-center align-items-md-stretch">
+                    <div>
+                        <span class="fw-semibold p-1">
+                            <i class="fa fa-layer-group fa-fw"></i> Category
                         </span>
 
-                        <button type="button"
-                                class="btn btn-link btn-sm"
-                                onclick="updateQuery('species')">
-                            Clear
-                        </button>
+                        <div class="d-flex flex-row flex-md-column gx-2 gy-1 p-1">
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if not query.category %}active{% endif %}"
+                                    data-category="">
+                                Summary
+                            </button>
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'datasets' %}active{% endif %}"
+                                    data-category="datasets">
+                                Datasets <span class="category-count" id="count-datasets"></span>
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'genes' %}active{% endif %}"
+                                    data-category="genes">
+                                Genes <span class="category-count" id="count-genes"></span>
+                            </button>
+                        </div>
                     </div>
-                    {% include "./components/select/species.html" with redirect="query" placeholder="Search..." species=query.species %}
 
-                    <!-- Results per page -->
-                    <span class="fw-semibold mt-3 p-1">
-                        <i class="fa fa-grip fa-fw"></i> Results per page
-                    </span>
+                    <div>
+                        <!-- Species selection -->
+                        <div class="d-flex justify-content-between p-1">
+                            <span class="fw-semibold">
+                                <i class="fa fa-kiwi-bird fa-fw"></i> Species
+                            </span>
 
-                    {% load string_extras %}
-                    {% for limit in "12,24,36,48,60"|split %}
-                        <a class="nav-link p-1 {% if query.limit == limit %}active{% elif not query.limit and limit == '12' %}active{% endif %}"
-                           href="#"
-                           role="button"
-                           onclick="event.preventDefault(); updateQuery('limit', {{ limit }})">{{ limit }}</a>
-                    {% endfor %}
+                            <button type="button"
+                                    class="btn btn-link btn-sm"
+                                    id="clear-species">
+                                Clear
+                            </button>
+                        </div>
+                        {% include "./components/select/species.html" with redirect="none" placeholder="Search..." species=query.species %}
+                    </div>
+
+                    <div>
+                        <span class="fw-semibold p-1">
+                            <i class="fa fa-grip fa-fw"></i> Results per page
+                        </span>
+
+                        <div class="d-flex flex-row flex-md-column gx-2 gy-1 p-1">
+                            {% load string_extras %}
+                            {% for limit in "12,24,36,48,60"|split %}
+                                <a class="nav-link p-1 limit-btn {% if query.limit == limit %}active{% elif not query.limit and limit == '24' %}active{% endif %}"
+                                   href="#"
+                                   role="button"
+                                   data-limit="{{ limit }}">{{ limit }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </nav>
             </div>
-            <div class="col-9 col-lg-10">
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
-                     id="results">
-                    <template id="result-template">
-                        <div class="col mb-4">
-                            <div>
-                                <p class="mb-0 fw-semibold small">
-                                    <a href="#" class="result-title"></a>
-                                </p>
-                                <p class="mb-0 small">
-                                    <a href="#" class="result-subtitle text-secondary"></a>
-                                </p>
-                                <p class="mb-0 truncate-3 small result-description">
-                                </p>
-                                <p class="mb-0 small result-badges">
-                                </p>
+            <div class="col-12 col-md-9 col-lg-10">
+                <!-- Loading spinner -->
+                <div id="loading-spinner" class="loading-state" style="display:none;">
+                    <div class="loader"></div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="empty-state" class="text-center py-5" style="display:none;">
+                    <p class="text-muted fs-5">
+                        <i class="fa fa-search fa-fw"></i>
+                        No results found for "<span id="empty-query" class="fw-semibold"></span>"
+                    </p>
+                </div>
+
+                <!-- Summary view (no category) -->
+                <div id="summary-view" style="display:none;">
+                    <section id="summary-datasets" class="mb-4">
+                        <h5 class="mb-3">
+                            Datasets
+                            <span class="text-muted small fw-normal" id="summary-dataset-count"></span>
+                        </h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4" id="summary-dataset-results"></div>
+                    </section>
+                    <section id="summary-genes" class="mb-4">
+                        <h5 class="mb-3">
+                            Genes
+                            <span class="text-muted small fw-normal" id="summary-gene-count"></span>
+                        </h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4" id="summary-gene-results"></div>
+                    </section>
+                </div>
+
+                <!-- Template for individual result cards -->
+                <template id="result-template">
+                    <div class="col mb-2">
+                        <div class="news card h-100">
+                            <div class="card-body py-2 px-3 text-break">
+                                <div class="d-flex align-items-start mb-1">
+                                    <div class="min-width-0">
+                                        <a href="#" class="result-title fw-semibold small stretched-link"></a>
+                                        <a href="#" class="result-subtitle text-secondary small d-block"></a>
+                                    </div>
+                                </div>
+                                <p class="card-text small truncate-3 result-description mb-1 text-muted"></p>
+                                <div class="result-badges"></div>
                             </div>
                         </div>
-                    </template>
+                    </div>
+                </template>
+
+                <!-- Single category results (datasets or genes) -->
+                <div id="category-view" style="display:none;">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4" id="results"></div>
                 </div>
+
+                <!-- Error state -->
+                <div id="error-state" class="alert alert-danger text-center py-4" style="display:none;">
+                    <i class="fa fa-circle-exclamation fa-fw me-1"></i>
+                    <span id="error-message">Error loading results. Please try again.</span>
+                </div>
+
+                {% block pagination %}
+                    {% if query %}
+                        <nav id="pagination-nav" aria-label="Search results navigation" style="display:none;">
+                            <ul class="pagination justify-content-center" id="pagination"></ul>
+                        </nav>
+                    {% endif %}
+                {% endblock pagination %}
             </div>
         </div>
     {% else %}
@@ -117,48 +171,12 @@ Search page
     <script type="module">
         {% load static %}
         import {
-            initFormHandler,
-            loadSearchResults,
+            initSearchPage,
             updateQuery
         } from "{% static 'app/dist/search/results_page.js' %}";
 
         window.updateQuery = updateQuery;
-
-        let species = "{{query.species}}",
-            query = "{{query.q|escape}}",
-            limit = {{query.limit|default:12}},
-            offset = {{query.offset|default:0}},
-            category = "{{query.category}}";
-        loadSearchResults(species, query, limit, offset, category);
-        initFormHandler();
+        initSearchPage();
     </script>
 
 {% endblock content %}
-
-{% block pagination %}
-    {% if query %}
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">«</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">2</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">3</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">»</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    {% endif %}
-{% endblock pagination %}
