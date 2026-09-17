@@ -5,6 +5,10 @@ services:
             - DJANGO_ALLOWED_HOSTS=portal.localhost,localhost,web
             - E2E=True
 
+    db:
+        volumes:
+            - db_data_e2e:/var/lib/postgresql
+
     e2e:
         build:
             context: .
@@ -17,3 +21,6 @@ services:
         profiles: ["e2e"]
         depends_on:
             - web
+
+volumes:
+    db_data_e2e:
