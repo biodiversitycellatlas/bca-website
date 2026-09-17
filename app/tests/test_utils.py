@@ -249,7 +249,7 @@ class TestBioschemasDataset:
 
     def test_citation_is_a_scholarly_article(self, dataset, request_obj):
         citation = bioschemas.Dataset(dataset, request_obj).build()["citation"]
-        assert citation["@type"] == "ScholarlyArticle"
+        assert citation["@type"] == ["ScholarlyArticle", "CreativeWork"]
         assert "dct:conformsTo" not in citation
         assert citation["name"] == "A cell atlas"
         assert citation["datePublished"] == "2025"
