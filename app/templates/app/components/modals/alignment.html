@@ -87,7 +87,7 @@ Input:
                     <label for="{{ id }}_query" class="col-lg-2 col-form-label small">Sequences</label>
                     <div class="col-lg-10">
                         <div class="sequence-input border border-secondary-subtle rounded">
-                            <textarea type="textarea" id="{{id}}_query" rows="6" required class="sequence-textarea form-control font-monospace border-0 rounded-top p-2" placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})">
+                            <textarea type="textarea" id="{{ id }}_query" rows="6" required class="sequence-textarea form-control font-monospace border-0 rounded-top p-2" placeholder="FASTA sequences (maximum of {{ MAX_ALIGNMENT_SEQS }})">
                             </textarea>
                             <div class="d-flex justify-content-between small py-1 px-2 border-top border-secondary-subtle bg-light rounded-bottom">
                                 <button type="button"
@@ -131,6 +131,7 @@ Input:
                 </p>
                 <span>
                     <button id="{{ id }}_{{ type }}_editor_btn"
+                            type="button"
                             class="btn btn-outline-primary"
                             href="javascript:void(0);"
                             data-bs-toggle="modal"
@@ -156,7 +157,7 @@ Input:
     import { uploadSequenceFile, highlightSequenceText, alignSequence }
         from "{% static 'app/dist/atlas/modals/alignment.js' %}";
 
-    const id = "{{id}}",
+    const id = "{{ id }}",
           maxMB = {{ MAX_FILE_SIZE }},
           maxSeqs = {{ MAX_ALIGNMENT_SEQS }};
     uploadSequenceFile(id, maxMB, maxSeqs);
