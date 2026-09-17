@@ -14,3 +14,7 @@ COPY e2e/requirements.txt requirements.txt
 RUN pip install --no-cache-dir \
     -r requirements.txt \
     playwright==${PLAYWRIGHT_VERSION}
+
+USER pwuser
+
+HEALTHCHECK NONE
