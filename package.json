@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "@happy-dom/global-registrator": "20.14.0",
-        "@types/bun": "1.4.0"
+        "@types/bun": "1.4.2"
     },
     "private": true,
     "type": "module"
