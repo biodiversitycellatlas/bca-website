@@ -21,7 +21,7 @@ def startswith(value, arg):
 @register.filter
 def hash(value):
     """Return a short deterministic hash suitable for a CSS class."""
-    return hashlib.md5(str(value).encode()).hexdigest()[:8]
+    return hashlib.md5(str(value).encode()).hexdigest()[:8]  # noqa: B324
 
 
 @register.filter
