@@ -162,8 +162,14 @@ def get_metacell_dict(dataset):
         types.setdefault(obj_type, []).append(obj)
     types = dict(sorted(types.items(), key=lambda kv: str(kv[0])))
 
+    # Sort metacells by stored order (fallback to the trailing number, e.g. 204 in "acrmil01_MC_00204")
+    for obj_type, mcs in types.items():
+        mcs.sort(key=lambda obj: get_metacell_order(obj.order, obj.name))
+
     # Return metacells by cell types and all together
-    metacell_dict = {"Cell types": types, "Metacells": list(metacells)}
+    metacells = list(metacells)
+    metacells.sort(key=lambda obj: get_metacell_order(obj.order, obj.name))
+    metacell_dict = {"Cell types": types, "Metacells": metacells}
     return metacell_dict
 
 
