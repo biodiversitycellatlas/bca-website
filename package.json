@@ -12,7 +12,7 @@
         "@fontsource/rubik": "5.3.0",
         "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.5.4",
+        "autoprefixer": "10.5.6",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "3.0.1",
@@ -27,8 +27,8 @@
         "vega-embed": "7.2.0"
     },
     "devDependencies": {
-        "@happy-dom/global-registrator": "20.14.0",
-        "@types/bun": "1.4.0"
+        "@happy-dom/global-registrator": "20.14.3",
+        "@types/bun": "1.4.2"
     },
     "private": true,
     "type": "module"
