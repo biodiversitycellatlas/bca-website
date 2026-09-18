@@ -65,9 +65,6 @@ RUN python -m venv /opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 RUN pip install ${DJANGO_DEPENDENCIES} --no-cache-dir .
 
-# Install Playwright for End-to-End testing
-RUN playwright install --with-deps || true
-
 # Copy application folder
 COPY --chown=nonroot:nonroot . .
 
@@ -109,7 +106,7 @@ ENV VIRTUAL_ENV=/opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
-HEALTHCHECK --interval=120s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
     CMD python scripts/healthcheck.py
 EXPOSE 8000
 CMD ["gunicorn", "config.wsgi", "--bind", "0.0.0.0:8000"]
