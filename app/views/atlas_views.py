@@ -16,7 +16,7 @@ from ..utils import (
     get_dataset,
     get_dataset_dict,
     get_metacell_dict,
-    get_metacell_index,
+    get_metacell_order,
 )
 
 
@@ -266,14 +266,12 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
-                    .values_list("name", flat=True)
-                    .distinct()
+                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells)).distinct()
                 )
-                # Sort metacells by trailing number (e.g. 204 in "acrmil01_MC_00204")
-                selected.sort(key=lambda name: (get_metacell_index(name) is None, get_metacell_index(name)))
+                # Sort metacells by stored order (fallback to trailing number, e.g. 204 in "acrmil01_MC_00204")
+                selected.sort(key=lambda obj: get_metacell_order(obj.order, obj.name))
 
-                context["metacells"] = selected
+                context["metacells"] = [obj.name for obj in selected]
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",

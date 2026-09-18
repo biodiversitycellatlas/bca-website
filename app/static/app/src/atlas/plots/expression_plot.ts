@@ -4,7 +4,7 @@
 
 import vegaEmbed from "vega-embed";
 
-import { getMetacellIndex } from "../../utils/metacell.ts";
+import { getMetacellOrder } from "../../utils/metacell.ts";
 import { escapeString } from "../../utils/utils.ts";
 
 /**
@@ -17,7 +17,7 @@ import { escapeString } from "../../utils/utils.ts";
 export function createExpressionBubblePlot(id, gene, data) {
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
     }));
@@ -97,7 +97,7 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
 
     data = data.map((obj) => ({
         ...obj,
-        metacell_index: getMetacellIndex(obj.metacell_name),
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
         metacell_type: obj.metacell_type || "Unannotated",
         metacell_color: obj.metacell_color || "#AAAAAA",
     }));
@@ -124,8 +124,6 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                     { op: "max", field: escapedGene2, as: "yMax" },
                 ],
             },
-            { calculate: "min(datum.xMin, datum.yMin)", as: "min" },
-            { calculate: "max(datum.xMax, datum.yMax)", as: "max" },
         ],
         data: { name: "data", values: data },
         width: "container",
@@ -134,21 +132,11 @@ export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
                 field: escapedGene,
                 type: "quantitative",
                 title: gene + " fold-change",
-                scale: {
-                    domain: {
-                        expr: "[data('data_0')[0]['min'], data('data_0')[0]['max']]",
-                    },
-                },
             },
             y: {
                 field: escapedGene2,
                 type: "quantitative",
                 title: gene2 + " fold-change",
-                scale: {
-                    domain: {
-                        expr: "[data('data_0')[0]['min'], data('data_0')[0]['max']]",
-                    },
-                },
             },
         },
         layer: [
