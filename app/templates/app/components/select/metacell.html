@@ -19,7 +19,7 @@ Input:
 
 <!-- Hide select and add margin to avoid Flash Of Unstyled Content (FOUC) -->
 <style>
-    #metacell-select-{{ id }} {
+    #metacells {
         visibility: hidden;
         margin: 10px;
     }
@@ -28,7 +28,7 @@ Input:
 <select required
         name="{{ name|default:'metacells' }}"
         value=""
-        id="metacell-select-{{ id }}"
+        id="metacells"
         multiple
         placeholder="{{ placeholder|default:'Select metacells...' }}">
     <option value=""></option>
