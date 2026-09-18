@@ -13,12 +13,15 @@ Input:
 
 {% endcomment %}
 
-<div id="{{ id }}-plot"
-     class="container-xxl"
-     style="{% if ratio %}aspect-ratio: {{ ratio }};
-            {% endif %} {% if width %}width: {{ width }};
-            {% endif %} {% if height %}height: {{ height }};
-            {% endif %}">
+<style>
+    #{{ id }}-plot {
+        {% if ratio %}aspect-ratio: {{ ratio }};{% endif %}
+        {% if width %}width: {{ width }};{% endif %}
+        {% if height %}height: {{ height }};{% endif %}
+    }
+</style>
+
+<div id="{{ id }}-plot" class="container-xxl">
     <div id="{{ id }}-spinner" class="loading-state">
         <div class="loader"></div>
     </div>

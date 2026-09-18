@@ -18,14 +18,25 @@ Input:
     .card-body:hover figcaption {
         opacity: 1 !important;
     }
+
+    .card-qc {
+        background-position:center;
+        background-size:cover;
+    }
+
+    .item-description {
+        text-decoration: underline;
+        text-decoration-style: dotted;
+    }
+
+    .card-qc-{{ img_url|hash }} {
+        background-image: url('{{ img_url }}?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    }
 </style>
 
 <div>
     <div class="card">
-        <div class="card-body text-white text-bg-dark position-relative card-img-top"
-             style="background-image: url('{{ img_url }}?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-                    background-position:center;
-                    background-size:cover">
+        <div class="card-body card-qc card-qc-{{ img_url|hash }} text-white text-bg-dark position-relative card-img-top">
             <h3 class="h6 card-title text-shadow">{{ title }}</h3>
             <p class="card-text text-shadow mb-4">{{ description }}</p>
 
@@ -43,7 +54,7 @@ Input:
             {% for metric in metrics %}
                 <li class="list-group-item"
                     {% if metric.description %} data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ metric.description }}" {% endif %}>
-                    <span {% if metric.description %}style="text-decoration: underline; text-decoration-style: dotted;"{% endif %}>{{ metric.name }}</span>
+                    <span {% if metric.description %}class="item-description"{% endif %}>{{ metric.name }}</span>
                     {% load string_extras %}
                     <span class="float-end text-secondary">{{ metric.value|intspace }}</span>
                 </li>
