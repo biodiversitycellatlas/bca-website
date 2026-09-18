@@ -1,5 +1,6 @@
 """Custom Django filters and tags to manipulate strings."""
 
+import hashlib
 from django import template
 
 register = template.Library()
@@ -15,6 +16,12 @@ def split(value, delimiter=","):
 def startswith(value, arg):
     """Check if the string starts with the given arg string."""
     return value.startswith(arg)
+
+
+@register.filter
+def hash(value):
+    """Return a short deterministic hash suitable for a CSS class."""
+    return hashlib.md5(str(value).encode()).hexdigest()[:8]  # noqa: B324
 
 
 @register.filter

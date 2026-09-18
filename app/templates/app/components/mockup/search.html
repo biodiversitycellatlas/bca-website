@@ -4,6 +4,8 @@ Mockup barplot
 
 {% endcomment %}
 
+{% load string_extras %}
+
 <style>
     .placeholder.list { height: .5em; }
     .placeholder.list.bullet { width: .5em; }
@@ -11,6 +13,7 @@ Mockup barplot
 
     .w-25 { width: 25px; }
     .w-30 { width: 30px; }
+    .w-35 { width: 35px; }
     .w-40 { width: 40px; }
     .w-45 { width: 45px; }
     .w-50 { width: 50px; }
@@ -22,59 +25,34 @@ Mockup barplot
 
 <div class="row">
     <div class="col-auto">
-        <!-- Filter 1 -->
-        <span class="placeholder list w-80"></span>
-        <br />
+        <div>
+            <span class="placeholder list w-80"></span>
 
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-60"></span>
-        <br />
+            {% for width in "60,30,50"|split %}
+                <div>
+                    <span class="placeholder list bullet"></span>
+                    <span class="placeholder list w-{{ width }}"></span>
+                </div>
+            {% endfor %}
 
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-30"></span>
-        <br />
+            <span class="placeholder list w-65 mt-5"></span>
 
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-50"></span>
-        <br />
-
-        <!-- Filter 2 -->
-        <span class="placeholder list w-65 mt-5 mb-1"></span>
-        <br />
-
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-45"></span>
-        <br />
-
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-35"></span>
-        <br />
-
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-40"></span>
-        <br />
-
-        <span class="placeholder list bullet"></span>
-        <span class="placeholder list w-25"></span>
-        <br />
+            {% for width in "45,35,40,25"|split %}
+                <div>
+                    <span class="placeholder list bullet"></span>
+                    <span class="placeholder list w-{{ width }}"></span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
+
     <div class="col-auto">
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <br />
-
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <br />
-
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <br />
-
-        <span class="placeholder rectangle m-1 w-90"></span>
-        <span class="placeholder rectangle m-1 w-90"></span>
+        {% for row in "1,2,3;1,2,3;1,2,3;1,2"|split:";" %}
+            <div>
+                {% for column in row|split %}
+                    <span class="placeholder rectangle m-1 w-90"></span>
+                {% endfor %}
+            </div>
+        {% endfor %}
     </div>
 </div>

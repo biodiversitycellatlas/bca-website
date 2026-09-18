@@ -42,7 +42,7 @@
             {% if img_author %}
                 <figcaption class="w-100 position-absolute text-end bottom-0 py-2 px-4 bg-white bg-opacity-75 opacity-0 small">
                     Photo by
-                    {% if img_source == 'Unsplash' and img_author_handle %}
+                    {% if img_source == "Unsplash" and img_author_handle %}
                         <a target="_blank" href="https://unsplash.com/{{ img_author_handle }}">{{ img_author }}</a>
                     {% else %}
                         {{ img_author }}
@@ -54,15 +54,11 @@
 
     <div class="card-body">
         {% if title %}
-            <h3 class="h5 card-title">
-                {{ title }}
-            </h3>
+            <h3 class="h5 card-title">{{ title }}</h3>
         {% endif %}
 
         {% if description %}
-            <p class="card-text">
-                {{ description }}
-            </p>
+            <p class="card-text">{{ description }}</p>
         {% endif %}
 
         {% block links %}
