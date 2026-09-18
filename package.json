@@ -12,7 +12,7 @@
         "@fontsource/rubik": "5.3.0",
         "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.5.4",
+        "autoprefixer": "10.5.6",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "3.0.1",
