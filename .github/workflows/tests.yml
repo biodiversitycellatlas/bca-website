@@ -62,7 +62,7 @@ jobs:
                       web:/usr/src/app/coverage.xml coverage.xml
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v7.0.0
+              uses: codecov/codecov-action@v7.1.1
               with:
                   files: coverage.xml
                   token: ${{ secrets.CODECOV_TOKEN }}
@@ -102,7 +102,7 @@ jobs:
               run: bun test --coverage --coverage-reporter=lcov
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v7.0.0
+              uses: codecov/codecov-action@v7.1.1
               with:
                   files: ./coverage/lcov.info
                   token: ${{ secrets.CODECOV_TOKEN }}
