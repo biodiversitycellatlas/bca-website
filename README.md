@@ -289,9 +289,11 @@ Run all Django unit tests with:
 # Locally deploy the web app
 podman compose up -d --build
 
-# Run Django tests and report coverage in HTML (open the HTML file with a web browser)
+# Run Django tests and report coverage in HTML
 podman compose exec web coverage run manage.py test
 podman compose exec web coverage html
+
+# Open the HTML file with a web browser
 ```
 
 ### Run Bun tests for TypeScript files
@@ -311,12 +313,19 @@ podman compose exec web bun test --watch
 
 ### Run end-to-end tests
 
+The `e2e` service is defined in [`compose.e2e.yml`](compose.e2e.yml) and enables end-to-end Playwright testing.
+This configuration uses a separate Postgres volume so the dev database is not overwritten.
+
 ```bash
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.e2e.yml
 # Locally deploy the web app
 podman compose up -d --build
 
-# Run end-to-end tests with PyTest
-podman compose exec web pytest e2e/ -v
+# Create the test database (only required once)
+podman compose exec web python manage.py createtestdb
+
+# Run end-to-end Playwright tests with pytest
+podman compose run --rm e2e pytest e2e/ -v
 ```
 
 ## Linters
