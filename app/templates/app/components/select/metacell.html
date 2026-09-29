@@ -17,20 +17,24 @@ Input:
 
 {% endcomment %}
 
-<!-- Make select invisible and add margin to avoid Flash Of Unstyled Content (FOUC) -->
+<!-- Hide select and add margin to avoid Flash Of Unstyled Content (FOUC) -->
+<style>
+    #metacells {
+        visibility: hidden;
+        margin: 10px;
+    }
+</style>
+
 <select required
         name="{{ name|default:'metacells' }}"
-        style="visibility: hidden;
-               margin: 10px"
         value=""
         id="metacells"
         multiple
         placeholder="{{ placeholder|default:'Select metacells...' }}">
-    <option value="">
-    </option>
+    <option value=""></option>
     {% for key, value in metacell_dict.items %}
         <optgroup label="{{ key }}">
-            {% if key == 'Cell types' %}
+            {% if key == "Cell types" %}
                 {% for type, mc in value.items %}
                     <option value="{{ type.name|default:'Unannotated' }}"
                             data-type="cell_types"
@@ -39,7 +43,7 @@ Input:
                         {{ type.name|default:'Unannotated' }}
                     </option>
                 {% endfor %}
-            {% elif key == 'Metacells' %}
+            {% elif key == "Metacells" %}
                 {% for mc in value %}
                     <option value="{{ mc.name }}"
                             data-type="metacells"

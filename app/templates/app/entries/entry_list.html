@@ -65,11 +65,11 @@ List entries - base template
                         <li class="page-item active">
                             <span class="page-link">{{ num }}</span>
                         </li>
-                    {% elif num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' or num == 1 or num == paginator.num_pages %}
+                    {% elif num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1" or num == 1 or num == paginator.num_pages %}
                         <li class="page-item">
                             <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                         </li>
-                    {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
+                    {% elif num == page_obj.number|add:"-2" or num == page_obj.number|add:"2" %}
                         <li class="page-item disabled">
                             <span class="page-link">…</span>
                         </li>

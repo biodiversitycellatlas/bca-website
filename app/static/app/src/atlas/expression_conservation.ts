@@ -108,7 +108,7 @@ function loadOrthologExpression(id, dataset, gene, row) {
     showSpinner(id);
 
     // Update header above plot
-    const linkGene = makeLinkGene()(row.gene, "display", null, row);
+    const linkGene = makeLinkGene()(row.gene, "display", row);
     document.getElementById(`${id}_heading`).innerHTML =
         `${row.dataset_link} • ${linkGene}`;
 

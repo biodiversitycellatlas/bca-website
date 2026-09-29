@@ -30,30 +30,18 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>
-        Gene module
-    </th>
-    <th>
-        Number of genes
-    </th>
+    <th>Gene module</th>
+    <th>Number of genes</th>
     {% if not dataset %}
-        <th>
-            Dataset
-        </th>
+        <th>Dataset</th>
     {% endif %}
 {% endblock header %}
 
 {% block row %}
-    <td>
-        {{ each.get_html_link }}
-    </td>
-    <td>
-        {{ each.genes.count }}
-    </td>
+    <td>{{ each.get_html_link }}</td>
+    <td>{{ each.genes.count }}</td>
     {% if not dataset %}
-        <td>
-            {{ each.dataset.get_gene_modules_html_link }}
-        </td>
+        <td>{{ each.dataset.get_gene_modules_html_link }}</td>
     {% endif %}
 {% endblock row %}
 

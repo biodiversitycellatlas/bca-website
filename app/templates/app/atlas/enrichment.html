@@ -30,9 +30,7 @@ Features:
         <div class="col-md-3">
             <form>
                 <fieldset>
-                    <legend class="h5">
-                        Gene selection
-                    </legend>
+                    <legend class="h5">Gene selection</legend>
                     <div class="mb-3">
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center small">
@@ -60,9 +58,7 @@ Features:
 
                         {% include "../components/select/gene.html" with id=id name="gene_lists" multiple="true" selected=query.genes limit=3 %}
                     </div>
-                    <button type="submit" class="btn btn-primary my-3 w-100">
-                        Analyse enrichment
-                    </button>
+                    <button type="submit" class="btn btn-primary my-3 w-100">Analyse enrichment</button>
                 </fieldset>
             </form>
         </div>
