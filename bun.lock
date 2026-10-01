@@ -20,7 +20,7 @@
         "postcss": "8.5.28",
         "postcss-cli": "12.0.0",
         "tom-select": "2.6.2",
-        "vega-embed": "7.2.0",
+        "vega-embed": "7.3.0",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "20.14.5",
@@ -333,7 +333,7 @@
 
     "vega-dataflow": ["vega-dataflow@6.1.0", "", { "dependencies": { "vega-format": "^2.1.0", "vega-loader": "^5.1.0", "vega-util": "^2.1.0" } }, "sha512-JxumGlODtFbzoQ4c/jQK8Tb/68ih0lrexlCozcMfTAwQ12XhTqCvlafh7MAKKTMBizjOfaQTHm4Jkyb1H5CfyQ=="],
 
-    "vega-embed": ["vega-embed@7.2.0", "", { "dependencies": { "fast-json-patch": "^3.1.1", "json-stringify-pretty-compact": "^4.0.0", "semver": "^7.8.5", "tslib": "^2.8.1", "vega-interpreter": "^2.3.2", "vega-schema-url-parser": "^3.0.2", "vega-themes": "3.0.0", "vega-tooltip": "1.1.0" }, "peerDependencies": { "vega": "*", "vega-lite": "*" } }, "sha512-A7nfZk145qtLWjj0tQhntQgJ4ip52ECzGo2B9B4HcBT1rdWeb32xEdxTzLSlDkNAqcBLw5Y14PR2KewrqERwLA=="],
+    "vega-embed": ["vega-embed@7.3.0", "", { "dependencies": { "fast-json-patch": "^3.1.1", "json-stringify-pretty-compact": "^4.0.0", "semver": "^7.8.5", "tslib": "^2.8.1", "vega-interpreter": "^2.3.2", "vega-schema-url-parser": "^3.0.2", "vega-themes": "3.0.0", "vega-tooltip": "1.1.0" }, "peerDependencies": { "vega": "*", "vega-lite": "*" } }, "sha512-wQ8s5GaSzqoKgmRfbRolgBrjE2CP7ZKHXqH7NijxMqPjpdWxSs4Dn8tvp9g0giQvh2cK+3p56sxjWWM0wNngGw=="],
 
     "vega-encode": ["vega-encode@5.1.0", "", { "dependencies": { "d3-array": "^3.2.4", "d3-interpolate": "^3.0.1", "vega-dataflow": "^6.1.0", "vega-scale": "^8.1.0", "vega-util": "^2.1.0" } }, "sha512-q26oI7B+MBQYcTQcr5/c1AMsX3FvjZLQOBi7yI0vV+GEn93fElDgvhQiYrgeYSD4Exi/jBPeUXuN6p4bLz16kA=="],
 
