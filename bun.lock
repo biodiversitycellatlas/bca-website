@@ -13,7 +13,7 @@
         "d3": "7.9.0",
         "datatables.net-bs5": "3.0.1",
         "datatables.net-rowgroup-bs5": "2.1.0",
-        "datatables.net-select-bs5": "4.0.1",
+        "datatables.net-select-bs5": "4.1.1",
         "ion-rangeslider": "2.5.0",
         "jquery": "3.7.1",
         "phylotree": "2.6.0",
@@ -175,9 +175,9 @@
 
     "datatables.net-rowgroup-bs5": ["datatables.net-rowgroup-bs5@2.1.0", "", { "dependencies": { "datatables.net-bs5": "^3.1", "datatables.net-rowgroup": "2.1.0" } }, "sha512-T4Z8KvyP93ERyYvZ8T7UCvSPn7kz4qZ03kFZ1Hh5YD7EndOsLGL6kGkUZuTSNy0dmJTbvLF1TlIroXrtrQXv3g=="],
 
-    "datatables.net-select": ["datatables.net-select@4.0.1", "", { "dependencies": { "datatables.net": "^3" } }, "sha512-bBlRQrg1Wo5avDRYO2PcC3xzubiedihUlpM4eMREbnB4GO3gqxbBvccQGACEDTd2q54kdbJmFaxgoQ1PQPKGVQ=="],
+    "datatables.net-select": ["datatables.net-select@4.1.1", "", { "dependencies": { "datatables.net": "^3.1" } }, "sha512-B5NNGXpJjKYXb8rlLwwSF/x/mRdgFYMS4el715sBYyn2Ovz00CBw5mwjB1NXeaR4DDl0D2dCg7UBh5uvHrXYuw=="],
 
-    "datatables.net-select-bs5": ["datatables.net-select-bs5@4.0.1", "", { "dependencies": { "datatables.net-bs5": "^3", "datatables.net-select": "4.0.1" } }, "sha512-oyNFGig0U7WfpaxZWAOgJyRGfViw3qxwqqObNKcKycSDRfRyQUnoeomvINsvkpmg7Tgxn0khqB6Ft+7PkiPRtQ=="],
+    "datatables.net-select-bs5": ["datatables.net-select-bs5@4.1.1", "", { "dependencies": { "datatables.net-bs5": "^3.1", "datatables.net-select": "4.1.1" } }, "sha512-WWUtiVWjx9CeG2EmXIbz3NmY2vTxHjVO8thORK5Y6cvuSo5TlmykrjoNfYowuQDioxstG+BjxmZUixPC8ebNAA=="],
 
     "delaunator": ["delaunator@5.0.1", "", { "dependencies": { "robust-predicates": "^3.0.2" } }, "sha512-8nvh+XBe96aCESrGOqMp/84b13H9cdKbG5P2ejQCh4d4sK9RL4371qou9drQjMhvnPmhWl5hnmqbEE0fXr9Xnw=="],
 
@@ -423,6 +423,10 @@
 
     "datatables.net-rowgroup-bs5/datatables.net-bs5": ["datatables.net-bs5@3.1.2", "", { "dependencies": { "datatables.net": "3.1.2" } }, "sha512-scWB81ZdmF5wF0r1/uuh1RnmJA4liwlkkIPSAjZQfw+IuRb/eMEd53ouroZWavEbKMzggqvTIMNRgmXVgWd3xg=="],
 
+    "datatables.net-select/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-select-bs5/datatables.net-bs5": ["datatables.net-bs5@3.1.2", "", { "dependencies": { "datatables.net": "3.1.2" } }, "sha512-scWB81ZdmF5wF0r1/uuh1RnmJA4liwlkkIPSAjZQfw+IuRb/eMEd53ouroZWavEbKMzggqvTIMNRgmXVgWd3xg=="],
+
     "topojson-client/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
     "vega/vega-util": ["vega-util@2.1.0", "", {}, "sha512-PGfp0m0QCufDmcxKJCWQy4Ov23FoF8DSXmoJwSezi3itQaa2hbxK0+xwsTMP2vy4PR16Pu25HMzgMwXVW1+33w=="],
@@ -478,5 +482,7 @@
     "vega-wordcloud/vega-util": ["vega-util@2.1.0", "", {}, "sha512-PGfp0m0QCufDmcxKJCWQy4Ov23FoF8DSXmoJwSezi3itQaa2hbxK0+xwsTMP2vy4PR16Pu25HMzgMwXVW1+33w=="],
 
     "datatables.net-rowgroup-bs5/datatables.net-bs5/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-select-bs5/datatables.net-bs5/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
   }
 }
