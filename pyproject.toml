@@ -4,14 +4,17 @@ dynamic = ["version"]
 requires-python = ">=3.13"
 
 authors = [
-    {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
-    {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
-    {name = "Clemente Borges Perdomo", email = "clemente.borges@crg.eu"},
-    {name = "Antonio Hermoso Pulido", email = "toni.hermoso@crg.eu"},
+    {name = "Nuno Saraiva-Agostinho", email = "nuno.agostinho@crg.eu"},
+    {name = "Andrés Becerra"},
+    {name = "Tatiana Pashkovskaia"},
+    {name = "Bonita van Waardenburg"},
+    {name = "Clemente Borges Perdomo"},
+    {name = "Toni Hermoso Pulido"},
+    {name = "Arnau Sebé-Pedrós", email = "arnau.sebe@crg.eu"},
 ]
 maintainers = [
-    {name = "Nuno Saraiva Agostinho", email = "nuno.agostinho@crg.eu"},
-    {name = "Andrés Becerra Sandoval", email = "andres.becerra@crg.eu"},
+    {name = "Nuno Saraiva-Agostinho", email = "nuno.agostinho@crg.eu"},
+    {name = "Andrés Becerra"},
 ]
 
 description = "Explore and download single-cell datasets across the eukaryotic tree of life."
