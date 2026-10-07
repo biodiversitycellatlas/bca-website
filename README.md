@@ -356,19 +356,19 @@ on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
 
 ```bash
 # Run in check mode on changed files
-./superlinter.sh check
+./scripts/superlinter.py check
 
 # Run in fix mode on changed files
-./superlinter.sh fix
+./scripts/superlinter.py fix
 
 # Run in fix mode on changed files using Python and JS linters only
-./superlinter.sh fix --python --js
+./scripts/superlinter.py fix --python --js
 
 # Run in fix mode on all codebase
-./superlinter.sh fix --all
+./scripts/superlinter.py fix --all
 
 # Print all available options
-./superlinter.sh
+./scripts/superlinter.py --help
 ```
 
 The environment files that Super-Linter automatically loads are available in
