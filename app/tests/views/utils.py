@@ -5,7 +5,7 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from app.models import Species, Domain, GeneList, Orthogroup
+from app.models import Species, Domain, GeneList, Orthogroup, Source
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -25,6 +25,13 @@ class DataTestCase(TestCase):
     def setup_genes(cls):
         cls.brca1 = cls.mouse.genes.create(name="Brca1")
         cls.brca2 = cls.mouse.genes.create(name="Brca2")
+
+        # The terminology `Domain` entries are drawn from (see Domain.source_name)
+        cls.pfam = Source.objects.create(
+            name="Pfam",
+            url="https://www.ebi.ac.uk/interpro/",
+            query_url="https://www.ebi.ac.uk/interpro/entry/pfam/{{id}}",
+        )
 
         # Add protein domains
         cls.brca1_domains = [Domain.objects.create(name=n) for n in ["BRCA1_C", "BRCT", "COBRA1"]]

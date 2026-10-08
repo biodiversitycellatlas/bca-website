@@ -4,6 +4,11 @@
     Gene entries
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_gene_list object_list name="Biodiversity Cell Atlas genes" %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Genes' paginator species %}
@@ -26,42 +31,22 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>
-        Gene
-    </th>
-    <th class="entry-description">
-        Description
-    </th>
-    <th>
-        Domains
-    </th>
-    <th>
-        Gene lists
-    </th>
+    <th>Gene</th>
+    <th class="entry-description">Description</th>
+    <th>Domains</th>
+    <th>Gene lists</th>
     {% if not species %}
-        <th>
-            Species
-        </th>
+        <th>Species</th>
     {% endif %}
 {% endblock header %}
 
 {% block row %}
-    <td>
-        {{ each.get_html_link }}
-    </td>
-    <td class="entry-description">
-        {{ each.description|default:'—' }}
-    </td>
-    <td>
-        {{ each.get_domain_html_links|default:'—' }}
-    </td>
-    <td>
-        {{ each.get_genelist_html_links|default:'—' }}
-    </td>
+    <td>{{ each.get_html_link }}</td>
+    <td class="entry-description">{{ each.description|default:'—' }}</td>
+    <td>{{ each.get_domain_html_links|default:'—' }}</td>
+    <td>{{ each.get_genelist_html_links|default:'—' }}</td>
     {% if not species %}
-        <td>
-            {{ each.species.get_genes_html_link }}
-        </td>
+        <td>{{ each.species.get_genes_html_link }}</td>
     {% endif %}
 {% endblock row %}
 

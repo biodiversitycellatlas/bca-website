@@ -12,9 +12,11 @@ from django.views.generic import TemplateView
 from ..models import Dataset
 from ..utils import (
     get_cell_atlas_links,
+    get_compare_dataset_dict,
     get_dataset,
     get_dataset_dict,
     get_metacell_dict,
+    get_metacell_order,
 )
 
 
@@ -42,7 +44,8 @@ class AtlasView(TemplateView):
                 "spider",
                 "hippo",
             ]
-            species = random.choice(species)
+            species = random.choice(species)  # nosec B311
+
         return species
 
     def get_context_data(self, **kwargs):
@@ -102,6 +105,7 @@ class BaseAtlasView(TemplateView):
             context["dataset"] = d
             context["species"] = d.species
             context["dataset_dict"] = get_dataset_dict()
+            context["compare_dataset_dict"] = context["dataset_dict"]
 
             # Prepare Cell Atlas links
             url_name = self.request.resolver_match.url_name
@@ -218,6 +222,12 @@ class AtlasGeneModuleView(BaseAtlasView):
     template_name = "app/atlas/modules.html"
 
 
+class AtlasEnrichmentView(BaseAtlasView):
+    """Gene ontology enrichment page for a specific dataset."""
+
+    template_name = "app/atlas/enrichment.html"
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 
@@ -256,14 +266,12 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
-                    .values_list("name", flat=True)
-                    .distinct()
+                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells)).distinct()
                 )
-                selected = [int(s) for s in selected]
-                selected.sort()
+                # Sort metacells by stored order (fallback to trailing number, e.g. 204 in "acrmil01_MC_00204")
+                selected.sort(key=lambda obj: get_metacell_order(obj.order, obj.name))
 
-                context["metacells"] = selected
+                context["metacells"] = [obj.name for obj in selected]
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
@@ -284,6 +292,9 @@ class AtlasCompareView(BaseAtlasView):
         dataset = context["dataset"]
         if not isinstance(dataset, Dataset):
             return context
+
+        # Only allow datasets with data to compare in both SAMap and gene modules
+        context["compare_dataset_dict"] = get_compare_dataset_dict(dataset)
 
         # Parse URL query parameters and get dataset to compare SAMap scores
         try:

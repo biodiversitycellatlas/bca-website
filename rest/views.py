@@ -322,18 +322,18 @@ class OrthologViewSet(BaseReadOnlyModelViewSet):
     filterset_class = filters.OrthologFilter
 
 
-@extend_schema(summary="List SAMap scores", tags=["Cross-species"])
-class SAMapViewSet(BaseReadOnlyModelViewSet):
-    """List SAMap alignment scores (in percentage) between cell types of two different datasets."""
+@extend_schema(summary="List metacell similarity scores", tags=["Cross-species"])
+class MetacellTypeSimilarityViewSet(BaseReadOnlyModelViewSet):
+    """List metacell similarity scores between cell types of different datasets."""
 
-    queryset = models.SAMap.objects.prefetch_related(
+    queryset = models.MetacellTypeSimilarity.objects.prefetch_related(
         "metacelltype",
         "metacelltype__dataset",
         "metacelltype2",
         "metacelltype2__dataset",
     )
-    serializer_class = serializers.SAMapSerializer
-    filterset_class = filters.SAMapFilter
+    serializer_class = serializers.MetacellTypeSimilaritySerializer
+    filterset_class = filters.MetacellTypeSimilarityFilter
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -436,13 +436,13 @@ class MetacellViewSet(ExpressionPrefetchMixin, BaseReadOnlyModelViewSet):
     lookup_field = "name"
 
 
-@extend_schema(summary="List metacell links", tags=["Metacell"])
-class MetacellLinkViewSet(BaseReadOnlyModelViewSet):
-    """List metacell links (visualised in projections) for a given dataset."""
+@extend_schema(summary="List metacell edges", tags=["Metacell"])
+class MetacellEdgeViewSet(BaseReadOnlyModelViewSet):
+    """List metacell edges (visualised in projections) for a given dataset."""
 
-    queryset = models.MetacellLink.objects.prefetch_related("metacell", "metacell2")
-    serializer_class = serializers.MetacellLinkSerializer
-    filterset_class = filters.MetacellLinkFilter
+    queryset = models.MetacellEdge.objects.prefetch_related("metacell", "metacell2")
+    serializer_class = serializers.MetacellEdgeSerializer
+    filterset_class = filters.MetacellEdgeFilter
 
 
 @extend_schema(
@@ -530,7 +530,7 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
                 dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
             ),
             enum=dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
-            examples=[OpenApiExample("Example", value="-pearson_r")],
+            examples=[OpenApiExample("Example", value="-pearson")],
         )
     ],
 )
@@ -997,3 +997,28 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
 
         serializer = self.serializer_class(results, many=True, context={"obsolete": obsolete})
         return Response(serializer.data)
+
+
+@extend_schema(summary="List expression conservation scores", tags=["Cross-species", "Gene"])
+class ExpressionConservationViewSet(BaseReadOnlyModelViewSet):
+    """List expression conservation between orthologous genes across datasets."""
+
+    queryset = (
+        models.ExpressionConservation.objects.select_related(
+            "orthogroup",
+            "gene",
+            "gene__species",
+            "gene2",
+            "gene2__species",
+            "dataset",
+            "dataset2",
+        )
+        .prefetch_related(
+            "gene__domains",
+            "gene2__domains",
+        )
+        .order_by("-conservation_score")
+    )
+
+    serializer_class = serializers.ExpressionConservationSerializer
+    filterset_class = filters.ExpressionConservationFilter

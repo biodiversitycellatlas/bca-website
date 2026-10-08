@@ -14,7 +14,9 @@ registries:
 
 updates:
     - package-ecosystem: "pip"
-      directory: "/"
+      directories:
+          - "/"
+          - "/e2e"
       schedule:
           interval: "weekly"
       cooldown:
@@ -38,6 +40,7 @@ updates:
       directories:
           - "/"
           - "/ghost"
+          - "/e2e"
       schedule:
           interval: "weekly"
       cooldown:

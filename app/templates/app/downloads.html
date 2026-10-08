@@ -10,11 +10,14 @@ Downloads page
     Downloads
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_download_catalog species=species_all datasets=datasets_all name="Biodiversity Cell Atlas data download" description="Downloadable species and dataset files from the Biodiversity Cell Atlas, plus the REST API serving the same data as CSV, TSV and JSON." %}
+{% endblock structured_data %}
+
 {% block subnav %}
     <div class="container-xxl">
-        <h1 class="h3">
-            Data download
-        </h1>
+        <h1 class="h3">Data download</h1>
     </div>
 
     <div class="subnavbar sticky-top py-1">
@@ -36,15 +39,12 @@ Downloads page
                  id="offcanvas"
                  aria-labelledby="bdSidebarOffcanvasLabel">
                 <div class="offcanvas-header border-bottom">
-                    <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">
-                        Data download
-                    </h5>
+                    <h5 class="offcanvas-title" id="bdSidebarOffcanvasLabel">Data download</h5>
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
-                            data-bs-target="#offcanvas">
-                    </button>
+                            data-bs-target="#offcanvas"></button>
                 </div>
 
                 <div class="offcanvas-body">
@@ -98,31 +98,23 @@ Downloads page
 
             <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
                 <div class="col">
-                    {% download_card view='rest:species-list' filename='BCA species - information' title='Species information' description='Details on all BCA species.' img_url="https://images.unsplash.com/photo-1514907283155-ea5f4094c70c" img_author='Shaun Low' img_author_handle='@breadboyshaun' img_width='18rem' %}
+                    {% download_card view='rest:species-list' filename='BCA - species info' title='Species information' description='Details on all species in the BCA database.' img_url="https://images.unsplash.com/photo-1514907283155-ea5f4094c70c" img_author='Shaun Low' img_author_handle='@breadboyshaun' img_width='18rem' %}
                 </div>
             </div>
 
             <table id="species_table" class="display nowrap w-100">
                 <thead>
                     <tr>
-                        <th>
-                            Species
-                        </th>
-                        <th>
-                            Proteome
-                        </th>
-                        <th>
-                            DIAMOND database
-                        </th>
+                        <th>Species</th>
+                        <th>Proteome</th>
+                        <th>DIAMOND database</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% with file_types="Proteome,DIAMOND" %}
                         {% for species in species_all %}
                             <tr>
-                                <td>
-                                    {{ species.get_named_html_link }}
-                                </td>
+                                <td>{{ species.get_named_html_link }}</td>
                                 {% for file_type in file_types|split:"," %}
                                     {% with file=species.files.all|get_file_type:file_type %}
                                         <td>
@@ -149,45 +141,29 @@ Downloads page
 
             <div class="row row-cols-2 row-cols-md-auto g-4 mt-0 mb-4">
                 <div class="col">
-                    {% download_card view='rest:dataset-list' filename='BCA datasets - information' title='Dataset information' description='Details on all BCA datasets.' img_url="https://images.unsplash.com/photo-1708649290066-5f617003b93f" img_author='NEOM' img_author_handle='@neom' img_width='18rem' %}
+                    {% download_card view='rest:dataset-list' filename='BCA - dataset info' title='Dataset information' description='Details on all datasets in the BCA database.' img_url="https://images.unsplash.com/photo-1708649290066-5f617003b93f" img_author='NEOM' img_author_handle='@neom' img_width='18rem' %}
                 </div>
                 <div class="col">
-                    {% download_card view='rest:stats-list' filename='BCA datasets - metacell stats' title='Metacell statistics' description='Cells and UMI counts per metacell.' img_url="https://images.unsplash.com/photo-1508138119323-5452bd81d53d" img_author='Mathieu Turle' img_author_handle='@nbmat' img_width='18rem' %}
+                    {% download_card view='rest:stats-list' filename='BCA - metacell stats' title='Metacell statistics' description='Cells and UMI counts per metacell.' img_url="https://images.unsplash.com/photo-1508138119323-5452bd81d53d" img_author='Mathieu Turle' img_author_handle='@nbmat' img_width='18rem' %}
                 </div>
             </div>
 
             <table id="dataset_table" class="display nowrap w-100">
                 <thead>
                     <tr>
-                        <th>
-                            Dataset name
-                        </th>
-                        <th>
-                            Single cell data
-                        </th>
-                        <th>
-                            Metacell data
-                        </th>
-                        <th>
-                            Metacell counts
-                        </th>
+                        <th>Dataset name</th>
+                        <th>Single cell data</th>
+                        <th>Metacell data</th>
+                        <th>Metacell counts</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for dataset in datasets_all %}
                         <tr>
-                            <td>
-                                {{ dataset.get_named_html_link }}
-                            </td>
-                            <td>
-                                {% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}
-                            </td>
-                            <td>
-                                {% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}
-                            </td>
-                            <td>
-                                {% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}
-                            </td>
+                            <td>{{ dataset.get_named_html_link }}</td>
+                            <td>{% download_dataset_data view='rest:singlecell-list' slug=dataset.slug suffix='single cells' %}</td>
+                            <td>{% download_dataset_data view='rest:metacell-list' slug=dataset.slug suffix='metacells' %}</td>
+                            <td>{% download_dataset_data view='rest:metacellcount-list' slug=dataset.slug suffix='metacell counts' %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

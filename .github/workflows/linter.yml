@@ -23,7 +23,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7.0.0
+              uses: actions/checkout@v7.0.1
               with:
                   # needs full git history
                   fetch-depth: 0
@@ -46,7 +46,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7.0.0
+              uses: actions/checkout@v7.0.1
               with:
                   # needs full git history
                   fetch-depth: 0
@@ -83,13 +83,13 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7.0.0
+              uses: actions/checkout@v7.0.1
               with:
                   fetch-depth: 0
                   persist-credentials: false
 
             - name: Setup Python
-              uses: actions/setup-python@v6.3.0
+              uses: actions/setup-python@v7.0.0
               with:
                   python-version: "3.13"
 
@@ -117,7 +117,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v7.0.0
+              uses: actions/checkout@v7.0.1
               with:
                   persist-credentials: false
 

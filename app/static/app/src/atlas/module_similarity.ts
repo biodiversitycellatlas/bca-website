@@ -4,16 +4,14 @@
 
 import { getViewUrl } from "../utils/urls.ts";
 import { appendDataMenu } from "../buttons/data_dropdown.ts";
-import { createSimilarityPlot } from "./plots/similarity_plot.ts";
+import { createSimilarityHeatmap } from "./plots/similarity_heatmap.ts";
 import { hideSpinner } from "./plots/plot_container.ts";
 
 /**
- * Handler factory for click events on similarity plot.
+ * Handler factory for click events on plot.
  *
  * @param {string} id - Container ID for the heatmap plot.
- * @param {string} dataset1 - Dataset 1 slug to fetch expression data for.
  * @param {string} dataset1html - Dataset 1 HTML representation.
- * @param {string} dataset2 - Dataset 2 slug to fetch expression data for.
  * @param {string} dataset2html - Dataset 1 HTML representation.
  * @param {function} callback - Function to call with id, dataset and selected modules as arguments.
  */
@@ -56,13 +54,24 @@ export function loadModuleSimilarityPlot(
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
+            if (!data.length) {
+                const plot = document.getElementById(`${id}-plot`);
+                plot.parentElement.parentElement.innerHTML = `
+                    <p class="text-muted">
+                        <i class="fa fa-circle-exclamation"></i>
+                        No data available for the selected datasets.
+                    </p>
+                `;
+                return;
+            }
+
             const clickHandler = createClickHandler(
                 id,
                 dataset1html,
                 dataset2html,
                 onClick,
             );
-            createSimilarityPlot(
+            createSimilarityHeatmap(
                 `#${id}-plot`,
                 data,
                 label1,

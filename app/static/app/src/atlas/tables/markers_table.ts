@@ -2,8 +2,7 @@
  * Create interactive DataTables for gene markers.
  */
 
-import $ from "jquery";
-import "datatables.net-bs5";
+import DataTable from "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
 import { makeLinkGene, round, parseArray } from "./utils.ts";
@@ -17,7 +16,7 @@ import { makeLinkGene, round, parseArray } from "./utils.ts";
  */
 export function createMarkersTable(id, dataset, url) {
     const linkGene = makeLinkGene(dataset);
-    $(`#${id}_table`).dataTable({
+    const table = new DataTable(`#${id}_table`, {
         ajax: {
             url: url,
             dataSrc: function (json) {
@@ -49,11 +48,12 @@ export function createMarkersTable(id, dataset, url) {
             { data: "fg_mean_fc", title: "Mean FC", render: round },
             { data: "fg_median_fc", title: "Median FC", render: round },
         ],
-        order: [[5, "des"]],
+        order: [[5, "desc"]],
         createdCell: function (td, cellData) {
-            if ($(td).hasClass("truncate")) {
-                $(td).attr("title", cellData);
+            if (td.classList.contains("truncate")) {
+                td.setAttribute("title", cellData);
             }
         },
     });
+    return table;
 }

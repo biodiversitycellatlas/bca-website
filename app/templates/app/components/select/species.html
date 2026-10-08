@@ -24,14 +24,18 @@ Input:
 
 {% endcomment %}
 
-<!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
+<!-- Hide select and add margin to avoid Flash Of Unstyled Content (FOUC) -->
+<style>
+    #species-select-{{ id }} {
+        margin-bottom: 23px !important;
+        visibility: hidden;
+    }
+</style>
+
 <select id="species-select-{{ id }}"
         class="mb-2 {{ class }}"
-        style="margin-bottom: 23px !important;
-               visibility: hidden"
         placeholder="{{ placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...' }}">
-    <option value="">
-    </option>
+    <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}

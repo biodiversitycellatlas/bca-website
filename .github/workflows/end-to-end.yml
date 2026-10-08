@@ -1,5 +1,5 @@
 ---
-name: Data Portal tests
+name: End-to-end tests
 
 on:
     push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
     e2e-tests:
-        name: End-to-end tests with Playwright
+        name: Playwright Tests
         runs-on: ubuntu-latest
         environment:
             name: test
@@ -21,7 +21,7 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7.0.0
+              uses: actions/checkout@v7.0.1
               with:
                   persist-credentials: false
 
@@ -29,31 +29,36 @@ jobs:
               run: ./scripts/setup.sh e2e
 
             - name: Log in to Docker Hub
-              uses: docker/login-action@v4.4.0
+              uses: docker/login-action@v4.6.0
               with:
                   registry: dhi.io
                   username: ${{ secrets.DOCKERHUB_USERNAME }}
                   password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
             - name: Set up Docker Compose
-              uses: docker/setup-compose-action@v2.3.0
+              uses: docker/setup-compose-action@v2.4.0
 
             - name: Build from Dockerfiles
               run: docker compose build
 
-            - name: Start services
-              run: docker compose up -d
+            - name: Build E2E image
+              run: docker compose build e2e
+
+            - name: Start and wait for services
+              run: docker compose up -d --wait --wait-timeout 180
               env:
                   ENVIRONMENT: test
 
-            - name: Run tests with playwright
+            - name: Create test database
+              run: docker compose exec web python manage.py createtestdb
+
+            - name: Run tests with Playwright
               run: |
-                  bash -c "sleep 80"
-                  docker compose exec web python manage.py createtestdb
-                  docker compose exec web pytest --tracing retain-on-failure \
+                  docker compose run --rm e2e pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
 
-            - uses: actions/upload-artifact@v7
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
                   name: playwright-traces

@@ -4,50 +4,35 @@
     Species entries
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_species_list object_list name="Biodiversity Cell Atlas species" %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Species' paginator %}
 {% endblock heading %}
 
 {% block header %}
-    <th>
-        Species
-    </th>
-    <th>
-        Division
-    </th>
-    <th>
-        Kingdom
-    </th>
-    <th>
-        Phylum
-    </th>
-    <th>
-        Datasets
-    </th>
+    <th>Species</th>
+    <th>Division</th>
+    <th>Kingdom</th>
+    <th>Phylum</th>
+    <th>Datasets</th>
 {% endblock header %}
 
 {% block row %}
-    <td>
-        {{ each.get_named_html_link }}
-    </td>
-    <td>
-        {{ each.division }}
-    </td>
-    <td>
-        {{ each.kingdom }}
-    </td>
-    <td>
-        {{ each.phylum }}
-    </td>
+    <td>{{ each.get_named_html_link }}</td>
+    <td>{{ each.division }}</td>
+    <td>{{ each.kingdom }}</td>
+    <td>{{ each.phylum }}</td>
 
     <td>
         {% if each.datasets %}
             <ul class="mb-0 list-unstyled">
                 {% for dataset in each.datasets.all %}
-                    <li>
-                        {{ dataset.get_html_link }}
-                    </li>
+                    <li>{{ dataset.get_html_link }}</li>
                 {% endfor %}
             </ul>
         {% endif %}

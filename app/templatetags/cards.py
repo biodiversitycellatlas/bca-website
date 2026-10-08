@@ -2,6 +2,7 @@
 Django template tags for generating download links and download cards.
 """
 
+import random
 from urllib.parse import urlparse, urlunparse
 
 from django import template
@@ -51,14 +52,8 @@ def _build_card_context(title, description, **kwargs):
     return {"title": title, "description": description, **kwargs, **img}
 
 
-@register.inclusion_tag("app/components/links/links_list.html")
-def links_list(items):
-    """List of links to be used in a card."""
-    return {"items": items}
-
-
-@register.inclusion_tag("app/components/links/card.html")
-def card(title, description=None, links=None, **kwargs):
+@register.inclusion_tag("app/components/cards/card.html")
+def card(title, description=None, links=None, visible_count=None, collapsed_label=None, **kwargs):
     """
     Render a card with information.
 
@@ -66,6 +61,8 @@ def card(title, description=None, links=None, **kwargs):
         title (str): Title displayed on card.
         description (str): Description displayed on card.
         links (str): List of links displayed on card.
+        visible_count (int, optional): Number of links to show before collapsing the rest.
+        collapsed_label (str, optional): Label of the collapse toggle.
         **kwargs (optional): Image arguments (see `_build_card_context`).
 
     Returns:
@@ -73,10 +70,18 @@ def card(title, description=None, links=None, **kwargs):
     """
     if links is not None:
         kwargs["links"] = links
+
+    if visible_count is not None:
+        kwargs["visible_items"] = links[:visible_count]
+        kwargs["collapsed_items"] = links[visible_count:]
+
+    if kwargs.get("collapsed_items"):
+        kwargs["collapse_id"] = f"collapsed-items-{random.getrandbits(8)}"
+        kwargs["collapsed_label"] = collapsed_label or "View all"
     return _build_card_context(title, description, **kwargs)
 
 
-@register.inclusion_tag("app/components/links/download_card.html")
+@register.inclusion_tag("app/components/cards/download_card.html")
 def download_card(title, description, view, filename, **kwargs):
     """
     Render a card containing downloadable links.

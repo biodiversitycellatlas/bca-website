@@ -32,6 +32,10 @@ PLAUSIBLE_SCRIPT_URL = get_env("PLAUSIBLE_SCRIPT_URL", default=None)
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
 
+# License covering the data served by the portal. Required by the Bioschemas
+# Dataset profile, so it is a setting rather than a per-dataset model field.
+BCA_DATA_LICENSE = get_env("BCA_APP_DATA_LICENSE", "https://creativecommons.org/licenses/by/4.0/")
+
 DIAMOND_VERSION = get_diamond_version()
 GOATOOLS_VERSION = get_goatools_version()
 
@@ -73,8 +77,9 @@ INSTALLED_APPS = [
     "rest.apps.RestConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.postgres",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
@@ -213,7 +218,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
     "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest.schema.FormatDescriptionAutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
         "drf_orjson_renderer.renderers.ORJSONRenderer",
