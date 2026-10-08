@@ -6,19 +6,20 @@ import TomSelect from "tom-select";
 
 import { getViewUrl } from "../utils/urls.ts";
 
+function createBadge(text) {
+    return `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${text} genes</small></span>`;
+}
+
+function createDescriptionText(text) {
+    return `<span class="text-muted"><small>${text}</small></span>`;
+}
+
 /**
  * Render search result options for TomSelect input.
  *
  * @param {Object} item - Search result item (gene or dataset)
  * @param {Function} escape - Function to escape HTML content
  * @returns {string} HTML string representing the search result option
- */
-/**
- * Render search result options for TomSelect dropdown.
- *
- * @param {Object} item - Search result item with group, name, etc.
- * @param {Function} escape - Function to escape HTML content.
- * @returns {string} HTML string for the option.
  */
 function displaySearchResults(item, escape) {
     const group = escape(item.group);
@@ -29,33 +30,15 @@ function displaySearchResults(item, escape) {
         const domains_array = item.domains;
         for (let i = 0; i < domains_array.length; i++) {
             if (domains_array[i] !== "") {
-                badges += `
-                    <span class="badge rounded-pill text-bg-secondary">
-                        <small>${escape(domains_array[i])}</small>
-                    </span>
-                `;
+                badges += createBadge(escape(domains_array[i]));
             }
         }
 
-        const desc =
-            item.description === null
-                ? ""
-                : `
-                    <span class="text-muted">
-                        <small>${escape(item.description)}</small>
-                    </span>
-                `;
-
+        const desc = item.description ? createDescriptionText(escape(item.description)) : "";
         const sp = item.species_name || "";
         const words = sp.split(" ");
-        const shortenedName =
-            words.length > 1
-                ? words
-                      .map((word, index) =>
-                          index === 0 ? `${word[0]}.` : word,
-                      )
-                      .join(" ")
-                : sp;
+
+        const shortenedName = words.length > 1 ? `${words[0][0]}. ${words.slice(1).join(" ")}` : sp;
         const species = shortenedName
             ? `
                 <span class='text-muted float-end'>
@@ -65,54 +48,27 @@ function displaySearchResults(item, escape) {
 
         res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
     } else if (group === "gene_list") {
-        const count_badge =
-            item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
-                : "";
-        const desc = item.description
-            ? `<span class="text-muted"><small>${escape(item.description)}</small></span>`
-            : "";
+        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
+        const desc = item.description ? createDescriptionText(escape(item.description)) : "";
         res = `<div class='option'>${escape(item.name)} ${desc} ${count_badge}</div>`;
     } else if (group === "gene_module") {
-        const count_badge =
-            item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
-                : "";
-        const dataset_name = item.dataset
-            ? `<span class="text-muted"><small>${escape(item.dataset)}</small></span>`
-            : "";
+        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
+        const dataset_name = item.dataset ? createDescriptionText(escape(item.dataset)) : "";
         res = `<div class='option'>${escape(item.name)} ${dataset_name} ${count_badge}</div>`;
     } else if (group === "domain") {
-        const count_badge =
-            item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
-                : "";
+        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
         res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
     } else if (group === "dataset") {
         const imgURL = escape(item.image_url || item.species_image_url);
         const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
-        const desc = !item.species_common_name
-            ? ""
-            : `
-                <span class="text-muted">
-                    <small>${escape(item.species_common_name)}</small>
-                </span>
-            `;
+        const desc = !item.species_common_name ? "" : createDescriptionText(escape(item.species_common_name));
 
         const meta_array = item.species_meta.map((i) => escape(i.value));
         let badges = "";
         for (let i = 0; i < meta_array.length; i++) {
             const elem = meta_array[i];
-            if (
-                elem &&
-                !item.species.includes(elem) &&
-                !item.species_common_name
-            ) {
-                badges += `
-                    <span class="species-meta badge rounded-pill text-bg-secondary">
-                        <small>${elem}</small>
-                    </span>
-                `;
+            if (elem && !item.species.includes(elem) && !item.species_common_name) {
+                badges += createBadge(elem);
             }
         }
         const dataset_label = !item.name ? "" : `(${escape(item.name)})`;
@@ -123,17 +79,6 @@ function displaySearchResults(item, escape) {
 
 /**
  * Initialize the navbar search input.
- *
- * Configures TomSelect with:
- * - Autocomplete for datasets and genes
- * - Keyboard shortcut (/) to focus the search input
- * - Redirect on selection
- */
-/**
- * Initialize the navbar search with TomSelect.
- *
- * Fetches dataset and gene search results on input,
- * groups them by category, and navigates on selection.
  */
 export function initSearch() {
     const search = new TomSelect("#bca-search", {
@@ -153,19 +98,8 @@ export function initSearch() {
         },
         valueField: "id",
         labelField: "id",
-        searchField: [
-            "gene_name",
-            "species_name",
-            "description",
-            "domains",
-            "name",
-            "species",
-        ],
-        score: function () {
-            return function () {
-                return 1;
-            };
-        },
+        searchField: [ "gene_name", "species_name", "description", "domains", "name", "species" ],
+        score: () => () => 1, // always return score of 1 for all results (already sorted)
         render: {
             item: () => `<div>Search the BCA...</div>`,
             option: displaySearchResults,
@@ -187,14 +121,8 @@ export function initSearch() {
         load: function (query, callback) {
             if (!query.length) return callback();
 
-            const datasetsUrl = getViewUrl("rest:dataset-list", {
-                q: query,
-                limit: 5,
-            });
-            const genesUrl = getViewUrl("rest:genesearch-list", {
-                q: query,
-                limit: 3,
-            });
+            const datasetsUrl = getViewUrl("rest:dataset-list", { q: query, limit: 5 });
+            const genesUrl = getViewUrl("rest:genesearch-list", { q: query, limit: 3 });
 
             Promise.all([
                 fetch(datasetsUrl)
@@ -269,23 +197,17 @@ export function initSearch() {
                         gene_list: {
                             label: "Gene list",
                             category: "genes",
-                            count: gene_data.gene_lists
-                                ? gene_data.gene_lists.length
-                                : 0,
+                            count: gene_data.gene_lists ? gene_data.gene_lists.length : 0,
                         },
                         gene_module: {
                             label: "Gene module",
                             category: "genes",
-                            count: gene_data.gene_modules
-                                ? gene_data.gene_modules.length
-                                : 0,
+                            count: gene_data.gene_modules ? gene_data.gene_modules.length : 0,
                         },
                         domain: {
                             label: "Domain",
                             category: "genes",
-                            count: gene_data.domains
-                                ? gene_data.domains.length
-                                : 0,
+                            count: gene_data.domains ? gene_data.domains.length : 0,
                         },
                     };
 
