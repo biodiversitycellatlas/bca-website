@@ -284,7 +284,9 @@ function renderDatasets(data, container = "#results") {
         appendResult(title, url, subtitle, url, description, badges, container);
     });
     if (container === "#results") {
-        $("#results_count").text(formatResultsCount(data.count, "result", time));
+        $("#results_count").text(
+            formatResultsCount(data.count, "result", time)
+        );
         renderPagination(data.count, state.limit, state.offset);
     }
 }
@@ -311,7 +313,9 @@ function renderSummary(datasetData, geneData) {
         `(${(datasetData.count || 0).toLocaleString()} total)`,
     );
     const totalGeneCount = (geneData.genes || []).length;
-    $("#summary-gene-count").text(`(${formatResultsCount(totalGeneCount, "gene")})`);
+    $("#summary-gene-count").text(
+        `(${formatResultsCount(totalGeneCount, "gene")})`
+    );
 
     $("#summary-view").show();
     $("#category-view").hide();
@@ -389,7 +393,9 @@ export function loadSearchResults() {
                 const count =
                     (datasetData.count || 0) +
                     (geneData.genes ? geneData.genes.length : 0);
-                $("#results_count").text(formatResultsCount(count, "result", time));
+                $("#results_count").text(
+                    formatResultsCount(count, "result", time)
+                );
 
                 updateCategoryCounts(datasetData.count || 0, geneData);
                 $("#pagination-nav").hide();
