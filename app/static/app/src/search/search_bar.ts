@@ -67,7 +67,7 @@ function displaySearchResults(item, escape) {
     } else if (group === "gene_list") {
         const count_badge =
             item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
                 : "";
         const desc = item.description
             ? `<span class="text-muted"><small>${escape(item.description)}</small></span>`
@@ -76,7 +76,7 @@ function displaySearchResults(item, escape) {
     } else if (group === "gene_module") {
         const count_badge =
             item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
                 : "";
         const dataset_name = item.dataset
             ? `<span class="text-muted"><small>${escape(item.dataset)}</small></span>`
@@ -85,7 +85,7 @@ function displaySearchResults(item, escape) {
     } else if (group === "domain") {
         const count_badge =
             item.gene_count > 0
-                ? `<span class="badge rounded-pill text-bg-info ms-1"><small>${item.gene_count} genes</small></span>`
+                ? `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${item.gene_count} genes</small></span>`
                 : "";
         res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
     } else if (group === "dataset") {
