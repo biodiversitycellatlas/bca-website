@@ -743,7 +743,7 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
                 "dataset",
                 str,
                 required=False,
-                description="The [dataset's slug](#/operations/datasets_list). When omitted, searches across all species.",
+                description="The [dataset's slug](#/operations/datasets_list). If omitted, searches in all species.",
                 examples=[OpenApiExample("Dataset", value="amphimedon-queenslandica-adult")],
             ),
             OpenApiParameter(
