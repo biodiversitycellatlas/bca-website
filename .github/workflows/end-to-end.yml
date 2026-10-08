@@ -1,5 +1,5 @@
 ---
-name: Data Portal tests
+name: End-to-end tests
 
 on:
     push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
     e2e-tests:
-        name: End-to-end tests with Playwright
+        name: Playwright Tests
         runs-on: ubuntu-latest
         environment:
             name: test
@@ -41,19 +41,24 @@ jobs:
             - name: Build from Dockerfiles
               run: docker compose build
 
-            - name: Start services
-              run: docker compose up -d
+            - name: Build E2E image
+              run: docker compose build e2e
+
+            - name: Start and wait for services
+              run: docker compose up -d --wait --wait-timeout 180
               env:
                   ENVIRONMENT: test
 
-            - name: Run tests with playwright
+            - name: Create test database
+              run: docker compose exec web python manage.py createtestdb
+
+            - name: Run tests with Playwright
               run: |
-                  bash -c "sleep 80"
-                  docker compose exec web python manage.py createtestdb
-                  docker compose exec web pytest --tracing retain-on-failure \
+                  docker compose run --rm e2e pytest --tracing retain-on-failure \
                       --browser firefox --browser chromium e2e/ -v
 
-            - uses: actions/upload-artifact@v7
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
                   name: playwright-traces
