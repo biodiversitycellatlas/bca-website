@@ -7,7 +7,8 @@ import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
+from django.contrib.postgres.search import TrigramStrictWordSimilarity
+from django.db.models import Case, Count, F, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, ValidationError
@@ -793,6 +794,12 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
 
         data = {}
         for key, (filterset_cls, queryset, serializer_cls) in self.SEARCHES.items():
+            if key == "genes" and q:
+                count, genes = self._search_genes(q, species=species, offset=offset, limit=limit)
+                data[key] = serializer_cls(genes, many=True, context=context).data
+                data[f"{key}_count"] = count
+                continue
+
             qs = filterset_cls(data=params, queryset=queryset).qs
             count = qs.count()
             sliced = qs[offset : offset + limit]
@@ -800,6 +807,45 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
             data[f"{key}_count"] = count
 
         return Response(data)
+
+    def _search_genes(self, q, species, offset, limit):
+        """Search genes by similarity, one indexed scan per source joined by UNION."""
+
+        def matches(field, lookup):
+            queryset = models.Gene.objects.all()
+            if species:
+                queryset = queryset.filter(species__scientific_name=species)
+            return (
+                queryset.filter(**{f"{lookup}__trigram_strict_word_similar": q})
+                .order_by()
+                .annotate(similarity=TrigramStrictWordSimilarity(F(field), Value(q)))
+                .values("id", "similarity")
+            )
+
+        domains = models.Gene.objects.all()
+        if species:
+            domains = domains.filter(species__scientific_name=species)
+        domains = (
+            domains.filter(domains__name__trigram_strict_word_similar=q)
+            .order_by()
+            .annotate(similarity=TrigramStrictWordSimilarity(F("domains__name"), Value(q)))
+            .values("id", "similarity")
+        )
+
+        combined = matches("name", "name").union(matches("description", "description"), domains)
+
+        best = {}
+        for entry in combined:
+            gene_id = entry["id"]
+            if gene_id not in best or entry["similarity"] > best[gene_id]:
+                best[gene_id] = entry["similarity"]
+
+        ranked = sorted(best.items(), key=lambda item: (-item[1], item[0]))
+        count = len(ranked)
+        ids = [gene_id for gene_id, _ in ranked[offset : offset + limit]]
+
+        index = {gene.pk: gene for gene in models.Gene.objects.filter(pk__in=ids)}
+        return count, [index[gene_id] for gene_id in ids]
 
 
 @extend_schema(

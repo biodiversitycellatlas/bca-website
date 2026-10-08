@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 
 
 class AutoSlugMixin(models.Model):
@@ -701,6 +702,7 @@ class Domain(ExternalQueryMixin, models.Model):
         """Meta options."""
 
         ordering = ["name"]
+        indexes = [ GinIndex(fields=["name"], name="domain_name_trgm_gin", opclasses=["gin_trgm_ops"]) ]
 
     def __str__(self):
         """String representation."""
@@ -792,6 +794,13 @@ class Gene(DynamicSlugMixin):
 
         unique_together = ["name", "species"]
         ordering = ["species", "name"]
+        indexes = [
+            GinIndex(
+                fields=["name", "description"],
+                name="gene_name_desc_trgm_gin",
+                opclasses=["gin_trgm_ops", "gin_trgm_ops"],
+            ),
+        ]
 
     def __str__(self):
         """String representation."""
