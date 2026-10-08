@@ -258,15 +258,13 @@ function getDatasetItemProps(item) {
 }
 
 function getGeneItemProps(item) {
+    const species = item.species || state.species || "";
     return {
         title: item.gene,
         subtitle: item.species || "",
         description: item.description || "",
         badges: item.domains || [],
-        url: getViewUrl("gene_entry", {
-            species: item.species,
-            gene: item.gene,
-        }),
+        url: getViewUrl("gene_entry", { species, gene: item.gene }),
     };
 }
 

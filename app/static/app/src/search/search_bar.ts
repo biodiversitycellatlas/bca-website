@@ -233,7 +233,7 @@ export function initSearch() {
                 const dataset = item.slug;
                 window.location.href = getViewUrl("atlas", { dataset });
             } else if (item.group === "gene") {
-                const gene = item.gene_name;
+                const gene = item.name;
                 const species = item.species_name;
                 if (species) {
                     window.location.href = getViewUrl("gene_entry", {
