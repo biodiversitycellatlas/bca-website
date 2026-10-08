@@ -310,7 +310,7 @@ function renderSummary(datasetData, geneData) {
     renderGenes(geneData, "#summary-gene-results");
 
     $("#summary-dataset-count").text(
-        `(${(datasetData.count || 0).toLocaleString()} total)`,
+        `(${formatResultsCount(datasetData.count, "dataset")})`
     );
     const totalGeneCount = (geneData.genes || []).length;
     $("#summary-gene-count").text(
