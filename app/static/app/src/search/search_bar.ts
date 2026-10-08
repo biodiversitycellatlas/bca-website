@@ -175,7 +175,7 @@ export function initSearch() {
                 const count = `
                     <a href="${search}?q=${encodeURIComponent(query)}&category=${data.category}">
                         <span class="badge rounded-pill pt-1 background-primary">
-                            ${data.count} results <i class="fa fa-circle-chevron-right"></i>
+                            ${data.count} ${data.count === 1 ? "result" : "results"} <i class="fa fa-circle-chevron-right"></i>
                         </span>
                     </a>`;
                 return `

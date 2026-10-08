@@ -10,6 +10,27 @@ import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
 
 let state = {};
 
+let searchStart = null;
+let time = null;
+
+/**
+ * Build the results count text and append the elapsed search time.
+ *
+ * @param {number} count - Number of results.
+ * @param {string} [suffix="result"] - Suffix to append after the count.
+ * @param {number|null} [elapsed=null] - Elapsed time to append in milliseconds (null to omit).
+ * @returns {string} e.g. "4 results in 0.32s".
+ */
+function formatResultsCount(count, suffix = "result", elapsed = null) {
+    suffix += count === 1 ? "" : "s";
+    const text = `${count.toLocaleString()} ${suffix}`;
+
+    if (elapsed === null) return text;
+
+    const time = (elapsed / 1000).toFixed(2);
+    return `${text} in ${time}s`;
+}
+
 /**
  * Read search state from the current URL query parameters.
  *
@@ -85,7 +106,7 @@ function showEmpty(query) {
     $("#empty-state").show();
     $("#empty-query").text(query);
     $("#pagination-nav").hide();
-    $("#results_count").text("0 results");
+    $("#results_count").text(formatResultsCount(0, "result", time));
 }
 
 /**
@@ -263,7 +284,7 @@ function renderDatasets(data, container = "#results") {
         appendResult(title, url, subtitle, url, description, badges, container);
     });
     if (container === "#results") {
-        $("#results_count").text(`${data.count.toLocaleString()} results`);
+        $("#results_count").text(formatResultsCount(data.count, "result", time));
         renderPagination(data.count, state.limit, state.offset);
     }
 }
@@ -277,7 +298,7 @@ function renderGenes(data, container = "#results") {
     });
     if (container === "#results") {
         const totalCount = data.genes_count || 0;
-        $("#results_count").text(`${totalCount.toLocaleString()} genes`);
+        $("#results_count").text(formatResultsCount(totalCount, "gene", time));
         renderPagination(totalCount, state.limit, state.offset);
     }
 }
@@ -290,7 +311,7 @@ function renderSummary(datasetData, geneData) {
         `(${(datasetData.count || 0).toLocaleString()} total)`,
     );
     const totalGeneCount = (geneData.genes || []).length;
-    $("#summary-gene-count").text(`(${totalGeneCount} genes)`);
+    $("#summary-gene-count").text(`(${formatResultsCount(totalGeneCount, "gene")})`);
 
     $("#summary-view").show();
     $("#category-view").hide();
@@ -323,6 +344,8 @@ export function loadSearchResults() {
 
     if (!q) return;
 
+    searchStart = performance.now();
+    time = null;
     showLoading();
     updateSidebar();
 
@@ -350,6 +373,7 @@ export function loadSearchResults() {
             fetch(gsUrl).then((r) => r.json()),
         ])
             .then(([datasetData, geneData]) => {
+                time = performance.now() - searchStart;
                 $("#loading-spinner").hide();
 
                 if (
@@ -365,7 +389,7 @@ export function loadSearchResults() {
                 const count =
                     (datasetData.count || 0) +
                     (geneData.genes ? geneData.genes.length : 0);
-                $("#results_count").text(`${count.toLocaleString()} results`);
+                $("#results_count").text(formatResultsCount(count, "result", time));
 
                 updateCategoryCounts(datasetData.count || 0, geneData);
                 $("#pagination-nav").hide();
@@ -377,6 +401,7 @@ export function loadSearchResults() {
         fetch(getViewUrl("rest:dataset-list", params))
             .then((res) => res.json())
             .then((data) => {
+                time = performance.now() - searchStart;
                 $("#loading-spinner").hide();
                 $("#summary-view").hide();
                 $("#category-view").show();
@@ -404,6 +429,7 @@ export function loadSearchResults() {
         fetch(getViewUrl("rest:genesearch-list", geneParams))
             .then((res) => res.json())
             .then((data) => {
+                time = performance.now() - searchStart;
                 $("#loading-spinner").hide();
                 $("#summary-view").hide();
                 $("#category-view").show();
