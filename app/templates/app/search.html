@@ -12,10 +12,15 @@ Search page
 
 {% block content %}
 
+    <style>
+        .display-none { display: none; }
+        #search-form { max-width: 500px; }
+    </style>
+
     <h1 class="h3 pt-2 mb-3">Search results</h1>
 
     <div class="d-flex flex-row align-items-center gap-2 mb-3">
-        <form class="input-group" id="search-form" style="max-width: 500px;">
+        <form class="input-group" id="search-form">
             <input id="search"
                    type="text"
                    class="form-control"
@@ -90,12 +95,12 @@ Search page
             </div>
             <div class="col-12 col-md-9 col-lg-10">
                 <!-- Loading spinner -->
-                <div id="loading-spinner" class="loading-state" style="display:none;">
+                <div id="loading-spinner" class="loading-state display-none">
                     <div class="loader"></div>
                 </div>
 
                 <!-- Empty state -->
-                <div id="empty-state" class="text-center py-5" style="display:none;">
+                <div id="empty-state" class="text-center py-5 display-none">
                     <p class="text-muted fs-5">
                         <i class="fa fa-search fa-fw"></i>
                         No results found for "<span id="empty-query" class="fw-semibold"></span>"
@@ -103,7 +108,7 @@ Search page
                 </div>
 
                 <!-- Summary view (no category) -->
-                <div id="summary-view" style="display:none;">
+                <div id="summary-view" class="display-none">
                     <section id="summary-datasets" class="mb-4">
                         <h5 class="mb-3">
                             Datasets
@@ -141,15 +146,14 @@ Search page
                 </template>
 
                 <!-- Single category results (datasets or genes) -->
-                <div id="category-view" style="display:none;">
+                <div id="category-view" class="display-none">
                     <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
                          id="results"></div>
                 </div>
 
                 <!-- Error state -->
                 <div id="error-state"
-                     class="alert alert-danger text-center py-4"
-                     style="display:none">
+                     class="alert alert-danger text-center py-4 display-none">
                     <i class="fa fa-circle-exclamation fa-fw me-1"></i>
                     <span id="error-message">Error loading results. Please try again.</span>
                 </div>
@@ -157,8 +161,8 @@ Search page
                 {% block pagination %}
                     {% if query %}
                         <nav id="pagination-nav"
-                             aria-label="Search results navigation"
-                             style="display:none">
+                             class="display-none"
+                             aria-label="Search results navigation">
                             <ul class="pagination justify-content-center" id="pagination">
                             </ul>
                         </nav>
