@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from app.managers import ExpressionDataManager
 from app import models
 from . import filters, serializers, services
-from .utils import get_enum_description, get_path_param, parse_species_dataset
+from .utils import fetch_genes_with_relations, get_enum_description, get_path_param, parse_species_dataset
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -280,7 +280,7 @@ class GeneModuleEigengeneViewSet(BaseReadOnlyModelViewSet):
 class GeneViewSet(BaseReadOnlyModelViewSet):
     """List genes."""
 
-    queryset = models.Gene.objects.prefetch_related("species", "domains")
+    queryset = fetch_genes_with_relations()
     serializer_class = serializers.GeneSerializer
     filterset_class = filters.GeneFilter
     lookup_field = "name"
@@ -844,7 +844,7 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
         count = len(ranked)
         ids = [gene_id for gene_id, _ in ranked[offset : offset + limit]]
 
-        index = {gene.pk: gene for gene in models.Gene.objects.filter(pk__in=ids)}
+        index = fetch_genes_with_relations(ids).in_bulk(ids)
         return count, [index[gene_id] for gene_id in ids]
 
 
