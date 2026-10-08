@@ -251,16 +251,10 @@ function setupPaginationHandlers() {
 function getDatasetItemProps(item) {
     const title = item.dataset_html + (item.name ? ` - ${item.name}` : "");
     const subtitle = item.species_common_name || "";
-    const badges = item.species_meta
-        .map((i) => i.value)
-        .filter((i) => !title.includes(i) && !subtitle.includes(i));
-    return {
-        title,
-        subtitle,
-        description: item.species_description,
-        badges,
-        url: getViewUrl("atlas", { dataset: item.slug }),
-    };
+    const description = item.species_description;
+    const badges = item.species_meta.map((i) => i.value).filter((i) => !title.includes(i) && !subtitle.includes(i));
+    const url = getViewUrl("atlas", { dataset: item.slug });
+    return { title, subtitle, description, badges, url };
 }
 
 function getGeneItemProps(item) {
