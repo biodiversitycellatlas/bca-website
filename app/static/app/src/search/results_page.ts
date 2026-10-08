@@ -112,7 +112,15 @@ function showError() {
  * @param {string[]} badges - Badge strings.
  * @param {string} thumbnail - Image URL for thumbnail.
  */
-function appendResult(title, title_url, subtitle, subtitle_url, description, badges, container = "#results") {
+function appendResult(
+    title,
+    title_url,
+    subtitle,
+    subtitle_url,
+    description,
+    badges,
+    container = "#results",
+) {
     const template = $("#result-template");
     const $clone = $(template.html());
 
@@ -135,11 +143,17 @@ function appendResult(title, title_url, subtitle, subtitle_url, description, bad
     ({ title_mod, subtitle_mod, description_mod } = mods);
 
     $clone.find(".result-title").html(title_mod).attr("href", title_url);
-    $clone.find(".result-subtitle").html(subtitle_mod).attr("href", subtitle_url);
+    $clone
+        .find(".result-subtitle")
+        .html(subtitle_mod)
+        .attr("href", subtitle_url);
     $clone.find(".result-description").html(description_mod);
 
     badges = badges
-        .map((item) => `<span class="badge bg-secondary species-meta me-1">${item}</span>`)
+        .map(
+            (item) =>
+                `<span class="badge bg-secondary species-meta me-1">${item}</span>`,
+        )
         .join(" ");
     $clone.find(".result-badges").html(badges);
 
@@ -172,7 +186,7 @@ function renderPagination(total, limit, offset) {
 
     const maxVisible = 7;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
     if (endPage - startPage + 1 < maxVisible) {
         startPage = Math.max(1, endPage - maxVisible + 1);
     }
@@ -203,7 +217,11 @@ function setupPaginationHandlers() {
         e.preventDefault();
         const offset = parseInt($(this).data("offset"));
         if (!isNaN(offset) && offset >= 0) {
-            $(this).closest("li").addClass("active").siblings().removeClass("active");
+            $(this)
+                .closest("li")
+                .addClass("active")
+                .siblings()
+                .removeClass("active");
             updateQuery("offset", offset.toString());
         }
     });
@@ -215,7 +233,13 @@ function getDatasetItemProps(item) {
     const badges = item.species_meta
         .map((i) => i.value)
         .filter((i) => !title.includes(i) && !subtitle.includes(i));
-    return { title, subtitle, description: item.species_description, badges, url: getViewUrl("atlas", { dataset: item.slug }) };
+    return {
+        title,
+        subtitle,
+        description: item.species_description,
+        badges,
+        url: getViewUrl("atlas", { dataset: item.slug }),
+    };
 }
 
 function getGeneItemProps(item) {
@@ -224,14 +248,18 @@ function getGeneItemProps(item) {
         subtitle: item.species || "",
         description: item.description || "",
         badges: item.domains || [],
-        url: getViewUrl("gene_entry", { species: item.species, gene: item.gene }),
+        url: getViewUrl("gene_entry", {
+            species: item.species,
+            gene: item.gene,
+        }),
     };
 }
 
 function renderDatasets(data, container = "#results") {
     $(container).empty();
     data.results.forEach((item) => {
-        const { title, url, subtitle, description, badges } = getDatasetItemProps(item);
+        const { title, url, subtitle, description, badges } =
+            getDatasetItemProps(item);
         appendResult(title, url, subtitle, url, description, badges, container);
     });
     if (container === "#results") {
@@ -243,7 +271,8 @@ function renderDatasets(data, container = "#results") {
 function renderGenes(data, container = "#results") {
     $(container).empty();
     (data.genes || []).forEach((item) => {
-        const { title, url, subtitle, description, badges } = getGeneItemProps(item);
+        const { title, url, subtitle, description, badges } =
+            getGeneItemProps(item);
         appendResult(title, url, subtitle, url, description, badges, container);
     });
     if (container === "#results") {
@@ -257,7 +286,9 @@ function renderSummary(datasetData, geneData) {
     renderDatasets(datasetData, "#summary-dataset-results");
     renderGenes(geneData, "#summary-gene-results");
 
-    $("#summary-dataset-count").text(`(${(datasetData.count || 0).toLocaleString()} total)`);
+    $("#summary-dataset-count").text(
+        `(${(datasetData.count || 0).toLocaleString()} total)`,
+    );
     const totalGeneCount = (geneData.genes || []).length;
     $("#summary-gene-count").text(`(${totalGeneCount} genes)`);
 
@@ -272,7 +303,8 @@ function renderSummary(datasetData, geneData) {
  * @param {Object} geneData - Gene search API response with _count fields.
  */
 function updateCategoryCounts(datasetCount, geneData) {
-    const geneCount = (geneData.genes_count || 0) +
+    const geneCount =
+        (geneData.genes_count || 0) +
         (geneData.gene_lists_count || 0) +
         (geneData.gene_modules_count || 0) +
         (geneData.domains_count || 0);
@@ -320,15 +352,19 @@ export function loadSearchResults() {
             .then(([datasetData, geneData]) => {
                 $("#loading-spinner").hide();
 
-                if ((!datasetData.results || !datasetData.results.length) &&
-                    (!geneData.genes || !geneData.genes.length)) {
+                if (
+                    (!datasetData.results || !datasetData.results.length) &&
+                    (!geneData.genes || !geneData.genes.length)
+                ) {
                     showEmpty(q);
                     return;
                 }
 
                 renderSummary(datasetData, geneData);
 
-                const count = (datasetData.count || 0) + (geneData.genes ? geneData.genes.length : 0);
+                const count =
+                    (datasetData.count || 0) +
+                    (geneData.genes ? geneData.genes.length : 0);
                 $("#results_count").text(`${count.toLocaleString()} results`);
 
                 updateCategoryCounts(datasetData.count || 0, geneData);
@@ -373,7 +409,8 @@ export function loadSearchResults() {
                 $("#category-view").show();
 
                 const hasGenes = data.genes && data.genes.length;
-                const hasOthers = (data.gene_lists && data.gene_lists.length) ||
+                const hasOthers =
+                    (data.gene_lists && data.gene_lists.length) ||
                     (data.gene_modules && data.gene_modules.length) ||
                     (data.domains && data.domains.length);
 
@@ -426,7 +463,10 @@ export function initSearchPage() {
         if ($speciesSelect.length) {
             let isInitial = true;
             $speciesSelect.on("change", function () {
-                if (isInitial) { isInitial = false; return; }
+                if (isInitial) {
+                    isInitial = false;
+                    return;
+                }
                 const value = $(this).val() || "";
                 updateQuery("species", value);
             });

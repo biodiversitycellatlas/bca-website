@@ -197,8 +197,12 @@ export function initSearch() {
             });
 
             Promise.all([
-                fetch(datasetsUrl).then((res) => res.json()).catch(() => ({ results: [], count: 0 })),
-                fetch(genesUrl).then((res) => res.json()).catch(() => ({})),
+                fetch(datasetsUrl)
+                    .then((res) => res.json())
+                    .catch(() => ({ results: [], count: 0 })),
+                fetch(genesUrl)
+                    .then((res) => res.json())
+                    .catch(() => ({})),
             ])
                 .then(([dataset_data, gene_data]) => {
                     const dataset_options = dataset_data.results.map(
@@ -221,15 +225,15 @@ export function initSearch() {
                         }),
                     );
 
-                    const gene_list_options = (
-                        gene_data.gene_lists || []
-                    ).map((item) => ({
-                        id: `gene_list_${item.name}`,
-                        group: "gene_list",
-                        name: item.name,
-                        description: item.description,
-                        gene_count: item.gene_count || 0,
-                    }));
+                    const gene_list_options = (gene_data.gene_lists || []).map(
+                        (item) => ({
+                            id: `gene_list_${item.name}`,
+                            group: "gene_list",
+                            name: item.name,
+                            description: item.description,
+                            gene_count: item.gene_count || 0,
+                        }),
+                    );
 
                     const gene_module_options = (
                         gene_data.gene_modules || []
@@ -260,9 +264,7 @@ export function initSearch() {
                         gene: {
                             label: "Gene",
                             category: "genes",
-                            count: gene_data.genes
-                                ? gene_data.genes.length
-                                : 0,
+                            count: gene_data.genes ? gene_data.genes.length : 0,
                         },
                         gene_list: {
                             label: "Gene list",
