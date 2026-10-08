@@ -1,15 +1,7 @@
-from django.db import connection
 from drf_spectacular.utils import OpenApiParameter
 
 from app import models
 from app.utils import get_dataset
-
-
-def check_model_exists(model):
-    try:
-        return model._meta.db_table in connection.introspection.table_names()
-    except Exception:
-        return False
 
 
 def fetch_genes_with_relations(ids=None):
