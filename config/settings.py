@@ -158,6 +158,10 @@ else:
         }
     }
 
+# Match threshold for the search API's trigram queries
+OPTIONS = DATABASES["default"].setdefault("OPTIONS", {})
+OPTIONS["options"] = "-c pg_trgm.strict_word_similarity_threshold=0.3"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -9,8 +9,9 @@ from django.db.models import (
     Case,
     Count,
     F,
+    Field,
     FloatField,
-    Max,
+    OuterRef,
     Q,
     Subquery,
     Sum,
@@ -193,30 +194,76 @@ class QueryFilterSet(FilterSet):
 
     # Array of strings to use when querying
     query_fields = []
-    threshold = 0.3
+
+    def _split_query_field(self, queryset, field):
+        """
+        Resolve a query field path from the queryset's model.
+
+        Returns:
+            tuple: ("direct", field) for single-valued relations. ("multi", sub_model, back_name, outer_path, rest_path)
+            for multi-valued relations.
+        """
+        parts = field.split("__")
+        model = queryset.model
+        prefix = []
+        for i, part in enumerate(parts):
+            field_obj = model._meta.get_field(part)
+            if field_obj.many_to_many or field_obj.one_to_many:
+                if isinstance(field_obj, Field):
+                    # Forward many-to-many: match via the reverse query name
+                    back_name = field_obj.related_query_name()
+                else:
+                    # Reverse relation: match via the linking field declared on the related model (e.g. Meta.species)
+                    back_name = field_obj.field.name
+                return ("multi", field_obj.related_model, back_name, "__".join(prefix) or "pk", "__".join(parts[i + 1 :]))
+            if field_obj.is_relation:
+                model = field_obj.related_model
+            prefix.append(part)
+        return ("direct", field)
 
     def query(self, queryset, name, value):
         """
-        Filter queryset by fuzzy text search across query_fields,
-        annotating similarity and sorting by threshold.
+        Filter queryset by fuzzy text search across query_fields.
+
+        Uses PostgreSQL trigram predicates for indexed filtering with GIN trigram indexes. Related fields use an IN
+        subquery to preserve parallel query plans. Annotates similarity for relevance ordering, using the best match
+        across multi-valued relations to avoid duplicate rows.
         """
+        if not value or not self.query_fields:
+            return queryset
 
-        if value:
-            expr = []
-            for field in self.query_fields:
-                # Aggregate to avoid multiple results from query lookups (e.g., meta__value)
-                results = Max(TrigramStrictWordSimilarity(value, field))
-                expr.append(results)
+        condition = Q()
+        parts = []
+        for field in self.query_fields:
+            split = self._split_query_field(queryset, field)
+            if split[0] == "direct":
+                condition |= Q(**{f"{field}__trigram_strict_word_similar": value})
+                parts.append(TrigramStrictWordSimilarity(value, field))
+            else:
+                _, sub_model, back_name, outer_path, rest_path = split
+                # Runs once per statement, not per outer row.
+                condition |= Q(
+                    **{
+                        f"{outer_path}__in": sub_model.objects.filter(
+                            **{f"{rest_path}__trigram_strict_word_similar": value}
+                        ).values(back_name)
+                    }
+                )
+                best_match = (
+                    sub_model.objects.filter(**{back_name: OuterRef(outer_path)})
+                    .annotate(top_similarity=TrigramStrictWordSimilarity(value, rest_path))
+                    .order_by("-top_similarity")
+                    .values("top_similarity")[:1]
+                )
+                parts.append(Subquery(best_match))
 
-            # Use the greatest value if multiple exist
-            similarity = Greatest(*expr) if len(expr) > 1 else expr[0]
+        # Use the greatest value if multiple exist
+        similarity = Greatest(*parts) if len(parts) > 1 else parts[0]
+        queryset = queryset.filter(condition).annotate(similarity=similarity)
 
-            # Filter results based on a given threshold
-            queryset = queryset.annotate(similarity=similarity).filter(similarity__gt=self.threshold)
-
-            # If unsorted, sort results by similarity
-            if not queryset.query.order_by:
-                queryset = queryset.order_by("-similarity")
+        # If unsorted, sort results by similarity
+        if not queryset.query.order_by:
+            queryset = queryset.order_by("-similarity")
         return queryset
 
 
@@ -307,10 +354,13 @@ class DomainFilter(QueryFilterSet):
         # Annotate gene count
         queryset = queryset.annotate(gene_count=Count("gene", distinct=True))
 
-        # Order by gene count
+        # Order by similarity (if available) and gene count
         order = self.form.cleaned_data.get("order_by_gene_count")
         if order:
-            queryset = queryset.order_by("-gene_count")
+            ordering = ["-gene_count"]
+            if "similarity" in queryset.query.annotations:
+                ordering = ["-similarity", "-gene_count"]
+            queryset = queryset.order_by(*ordering)
         return queryset
 
 
@@ -361,10 +411,14 @@ class GeneModuleFilter(QueryFilterSet):
         """Order by gene count."""
         queryset = super().filter_queryset(queryset)
 
-        # Annotate and order by gene count
+        # Order by similarity (if available) and gene count
         order = self.form.cleaned_data.get("order_by_gene_count")
         if order:
-            queryset = queryset.annotate(gene_count=Count("genes", distinct=True)).order_by("dataset", "-gene_count")
+            queryset = queryset.annotate(gene_count=Count("genes", distinct=True))
+            ordering = ["dataset", "-gene_count"]
+            if "similarity" in queryset.query.annotations:
+                ordering = ["-similarity", "dataset", "-gene_count"]
+            queryset = queryset.order_by(*ordering)
 
         return queryset
 
