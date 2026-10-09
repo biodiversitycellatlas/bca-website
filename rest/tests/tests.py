@@ -164,7 +164,7 @@ class GeneSearchTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         mouse = Species.objects.create(scientific_name="Mus musculus")
-        cls.adult_mouse = mouse.datasets.create(name="adult")
+        cls.adult_mouse = mouse.datasets.create(name="adult", image_url="https://example.com/adult.png")
 
         # Create genes
         mouse.genes.create(name="Trp53")
@@ -213,6 +213,8 @@ class GeneSearchTests(APITestCase):
         assert {s["gene"] for s in data["genes"]} == {"Actb", "Brca1", "Brca2"}
         assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
         assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
+        assert {s["dataset_label"] for s in data["gene_modules"]} == {"Mus musculus (adult)"}
+        assert {s["image_url"] for s in data["gene_modules"]} == {"https://example.com/adult.png"}
         assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
         assert {s["description"] for s in data["domains"]} == {"Protein kinase domain", "Zinc finger domain"}
 

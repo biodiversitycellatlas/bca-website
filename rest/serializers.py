@@ -353,6 +353,8 @@ class GeneModuleSerializer(serializers.ModelSerializer):
 
     dataset = serializers.CharField(source="dataset.slug", help_text="Dataset slug.")
     module = serializers.CharField(source="name", help_text="Gene module name.")
+    dataset_label = serializers.CharField(source="dataset.get_label", help_text="Dataset label.")
+    image_url = serializers.CharField(source="dataset.get_image_url", help_text="Dataset image URL.")
     gene_count = serializers.IntegerField(source="genes.count", help_text="Number of genes in gene module.")
     gene_hubs = serializers.SerializerMethodField(help_text="Top 5 genes ordered by membership score.")
     top_tf = serializers.SerializerMethodField(help_text="Top 5 transcription factors ordered by membership score.")
@@ -370,7 +372,7 @@ class GeneModuleSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.GeneModule
-        fields = ["dataset", "module", "gene_count", "top_tf", "gene_hubs"]
+        fields = ["dataset", "module", "dataset_label", "image_url", "gene_count", "top_tf", "gene_hubs"]
 
 
 class GeneModuleMembershipSerializer(serializers.ModelSerializer):

@@ -364,10 +364,10 @@ const categories = {
         countKey: "gene_modules_count",
         props: cardProps({
             title: "module",
-            subtitle: "dataset",
+            subtitle: "dataset_label",
             description: "",
             badges: geneCountBadges,
-            image: "",
+            image: "image_url",
             url: (item) => getViewUrl("gene_module_entry", { dataset: item.dataset, gene_module: item.module }),
         }),
     },
