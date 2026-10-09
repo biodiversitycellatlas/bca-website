@@ -195,22 +195,22 @@ export function initSearch() {
                         gene: {
                             label: "Gene",
                             category: "genes",
-                            count: gene_data.genes ? gene_data.genes.length : 0,
+                            count: gene_data.genes_count || 0,
                         },
                         gene_list: {
                             label: "Gene list",
                             category: "genes",
-                            count: gene_data.gene_lists ? gene_data.gene_lists.length : 0,
+                            count: gene_data.gene_lists_count || 0,
                         },
                         gene_module: {
                             label: "Gene module",
                             category: "genes",
-                            count: gene_data.gene_modules ? gene_data.gene_modules.length : 0,
+                            count: gene_data.gene_modules_count || 0,
                         },
                         domain: {
                             label: "Domain",
                             category: "genes",
-                            count: gene_data.domains ? gene_data.domains.length : 0,
+                            count: gene_data.domains_count || 0,
                         },
                     };
 

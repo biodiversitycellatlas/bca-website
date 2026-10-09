@@ -83,6 +83,19 @@ export function updateQuery(key, value) {
 }
 
 /**
+ * Build a URL for a search category view, preserving the current filters.
+ *
+ * @param {string} category - Category value ("datasets" or "genes").
+ * @returns {string} Relative URL including the category query parameter.
+ */
+function buildCategoryUrl(category) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("category", category);
+    params.delete("offset");
+    return "?" + params.toString();
+}
+
+/**
  * Show loading spinner and hide all result sections.
  */
 function showLoading() {
@@ -330,13 +343,11 @@ function renderSummary(datasetData, geneData) {
     renderDatasets(datasetData, "#summary-dataset-results");
     renderGenes(geneData, "#summary-gene-results");
 
-    $("#summary-dataset-count").text(
-        `(${formatResultsCount(datasetData.count, "dataset")})`
-    );
-    const totalGeneCount = (geneData.genes || []).length;
-    $("#summary-gene-count").text(
-        `(${formatResultsCount(totalGeneCount, "gene")})`
-    );
+    $("#summary-dataset-count")
+        .text(`(${formatResultsCount(datasetData.count, "dataset")})`)
+    const totalGeneCount = geneData.genes_count || 0;
+    $("#summary-gene-count")
+        .text(`(${formatResultsCount(totalGeneCount, "gene")})`)
 
     $("#summary-view").show();
     $("#category-view").hide();
@@ -412,8 +423,7 @@ export function loadSearchResults() {
                 renderSummary(datasetData, geneData);
 
                 const count =
-                    (datasetData.count || 0) +
-                    (geneData.genes ? geneData.genes.length : 0);
+                    (datasetData.count || 0) + (geneData.genes_count || 0);
                 $("#results_count").text(
                     formatResultsCount(count, "result", time)
                 );
