@@ -35,6 +35,8 @@ function displaySearchResults(item, escape) {
         }
 
         const desc = item.description ? createDescriptionText(escape(item.description)) : "";
+        const imgURL = item.species_image ? escape(item.species_image) : "";
+        const img = imgURL ? `<img src="${imgURL}" class="w-25px"> ` : "";
         const sp = item.species_name || "";
         const words = sp.split(" ");
 
@@ -42,7 +44,7 @@ function displaySearchResults(item, escape) {
         const species = shortenedName
             ? `
                 <span class='text-muted float-end'>
-                    <small><i>${shortenedName}</i></small>
+                    ${img}<small><i>${shortenedName}</i></small>
                 </span>`
             : "";
 
@@ -148,6 +150,7 @@ export function initSearch() {
                             group: "gene",
                             name: item.gene,
                             species_name: item.species || "",
+                            species_image: item.species_image_url || "",
                             description: item.description,
                             domains: item.domains || [],
                         }),

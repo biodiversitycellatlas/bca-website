@@ -131,7 +131,8 @@ function showError() {
  * @param {string} subtitle_url - Subtitle link URL.
  * @param {string} description - Description text.
  * @param {string[]} badges - Badge strings.
- * @param {string} thumbnail - Image URL for thumbnail.
+ * @param {string} [image=""] - Image URL for the result.
+ * @param {string} [container="#results"] - Container selector.
  */
 function appendResult(
     title,
@@ -140,6 +141,7 @@ function appendResult(
     subtitle_url,
     description,
     badges,
+    image = "",
     container = "#results",
 ) {
     const template = $("#result-template");
@@ -169,6 +171,14 @@ function appendResult(
         .html(subtitle_mod)
         .attr("href", subtitle_url);
     $clone.find(".result-description").html(description_mod);
+
+    if (image) {
+        $clone
+            .find(".result-image")
+            .attr("src", image)
+            .attr("alt", `Image of ${subtitle || title}`)
+            .removeClass("d-none");
+    }
 
     badges = badges
         .map(
@@ -264,6 +274,7 @@ function getGeneItemProps(item) {
         subtitle: item.species || "",
         description: item.description || "",
         badges: item.domains || [],
+        image: item.species_image_url || "",
         url: getViewUrl("gene_entry", { species, gene: item.gene }),
     };
 }
@@ -273,7 +284,16 @@ function renderDatasets(data, container = "#results") {
     data.results.forEach((item) => {
         const { title, url, subtitle, description, badges } =
             getDatasetItemProps(item);
-        appendResult(title, url, subtitle, url, description, badges, container);
+        appendResult(
+            title,
+            url,
+            subtitle,
+            url,
+            description,
+            badges,
+            "",
+            container,
+        );
     });
     if (container === "#results") {
         $("#results_count").text(
@@ -286,9 +306,18 @@ function renderDatasets(data, container = "#results") {
 function renderGenes(data, container = "#results") {
     $(container).empty();
     (data.genes || []).forEach((item) => {
-        const { title, url, subtitle, description, badges } =
+        const { title, url, subtitle, description, badges, image } =
             getGeneItemProps(item);
-        appendResult(title, url, subtitle, url, description, badges, container);
+        appendResult(
+            title,
+            url,
+            subtitle,
+            url,
+            description,
+            badges,
+            image,
+            container,
+        );
     });
     if (container === "#results") {
         const totalCount = data.genes_count || 0;
