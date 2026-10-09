@@ -321,7 +321,6 @@ const categories = {
         endpoint: "rest:dataset-list",
         key: "results",
         countKey: "count",
-        suffix: "dataset",
         props: cardProps({
             title: (item) => item.dataset_html + (item.name ? ` - ${item.name}` : ""),
             subtitle: "species_common_name",
@@ -335,7 +334,6 @@ const categories = {
         endpoint: "rest:genesearch-list",
         key: "genes",
         countKey: "genes_count",
-        suffix: "gene",
         props: cardProps({
             title: "gene",
             subtitle: "species",
@@ -349,7 +347,6 @@ const categories = {
         endpoint: "rest:genesearch-list",
         key: "gene_lists",
         countKey: "gene_lists_count",
-        suffix: "gene list",
         props: cardProps({
             title: "name",
             subtitle: "name",
@@ -363,7 +360,6 @@ const categories = {
         endpoint: "rest:genesearch-list",
         key: "gene_modules",
         countKey: "gene_modules_count",
-        suffix: "gene module",
         props: cardProps({
             title: "module",
             subtitle: "dataset",
@@ -377,7 +373,6 @@ const categories = {
         endpoint: "rest:genesearch-list",
         key: "domains",
         countKey: "domains_count",
-        suffix: "domain",
         props: cardProps({
             title: "name",
             subtitle: "name",
@@ -390,7 +385,7 @@ const categories = {
 };
 
 function renderResults(data, category, container = "#results") {
-    const { key, countKey, suffix, props } = categories[category];
+    const { key, countKey, props } = categories[category];
     $(container).empty();
     (data[key] || []).forEach((item) => {
         const { title, url, subtitle, description, badges, image } = props(item);
@@ -399,7 +394,7 @@ function renderResults(data, category, container = "#results") {
     if (container === "#results") {
         const totalCount = data[countKey] || 0;
         $("#results_count").text(
-            formatResultsCount(totalCount, suffix, time)
+            formatResultsCount(totalCount, "result", time)
         );
         renderPagination(totalCount, state.limit, state.offset);
     }
@@ -408,12 +403,12 @@ function renderResults(data, category, container = "#results") {
 function renderSummary(datasetData, geneData) {
     for (const category of Object.keys(categories)) {
         const data = category === "datasets" ? datasetData : geneData;
-        const { countKey, suffix } = categories[category];
+        const { countKey } = categories[category];
         const $section = $(`section[data-category="${category}"]`);
         renderResults(data, category, $section.find(".summary-results"));
         $section
             .find(".summary-count")
-            .text(`(${formatResultsCount(data[countKey] || 0, suffix)})`)
+            .text(`(${(data[countKey] || 0).toLocaleString()})`)
             .attr("href", buildCategoryUrl(category));
     }
 
