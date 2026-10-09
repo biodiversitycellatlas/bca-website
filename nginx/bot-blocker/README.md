@@ -11,18 +11,18 @@ Vendored snapshot of [mitchellkrogza/nginx-ultimate-bad-bot-blocker](https://git
 
 ## File roles
 
-| File | Scope | Purpose |
-|---|---|---|
-| `conf.d/globalblacklist.conf` | `http` | All the maps/geos: `$bad_bot`, `$bad_words`, `$bad_referer`, `$validate_client`, bot zones |
-| `conf.d/botblocker-nginx-settings.conf` | `http` | Hash-size tunables, `flood` + `addr` DDoS limit zones |
-| `bots.d/blockbots.conf` | `server` | Enforces the `$bad_bot` / `$bad_words` / `$bad_referer` checks |
-| `bots.d/ddos.conf` | `server` | Applies `flood` + `addr` zones |
-| `bots.d/whitelist-ips.conf` | included from maps | Add IPs you never want blocked |
-| `bots.d/whitelist-domains.conf` | included from maps | Add referrer domains to never flag |
-| `bots.d/blacklist-ips.conf` | included from maps | Add IPs you always want blocked |
-| `bots.d/blacklist-user-agents.conf` | included from maps | Add extra UAs to always block |
-| `bots.d/bad-referrer-words.conf` | included from maps | Add referrer substrings to flag |
-| `bots.d/custom-bad-referrers.conf` | included from maps | Add specific referrer URLs to flag |
+| File                                    | Scope              | Purpose                                                                                    |
+| --------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------ |
+| `conf.d/globalblacklist.conf`           | `http`             | All the maps/geos: `$bad_bot`, `$bad_words`, `$bad_referer`, `$validate_client`, bot zones |
+| `conf.d/botblocker-nginx-settings.conf` | `http`             | Hash-size tunables, `flood` + `addr` DDoS limit zones                                      |
+| `bots.d/blockbots.conf`                 | `server`           | Enforces the `$bad_bot` / `$bad_words` / `$bad_referer` checks                             |
+| `bots.d/ddos.conf`                      | `server`           | Applies `flood` + `addr` zones                                                             |
+| `bots.d/whitelist-ips.conf`             | included from maps | Add IPs you never want blocked                                                             |
+| `bots.d/whitelist-domains.conf`         | included from maps | Add referrer domains to never flag                                                         |
+| `bots.d/blacklist-ips.conf`             | included from maps | Add IPs you always want blocked                                                            |
+| `bots.d/blacklist-user-agents.conf`     | included from maps | Add extra UAs to always block                                                              |
+| `bots.d/bad-referrer-words.conf`        | included from maps | Add referrer substrings to flag                                                            |
+| `bots.d/custom-bad-referrers.conf`      | included from maps | Add specific referrer URLs to flag                                                         |
 
 Local customisations go into the `whitelist-*` / `blacklist-*` / `custom-*` files — those are the ones the upstream project explicitly reserves for site-level additions. Editing `globalblacklist.conf` directly is pointless because the update loop will overwrite it.
 
@@ -74,7 +74,7 @@ After the first successful tick (seven days later):
 
 ### Refresh the vendored seed from upstream
 
-The in-container loop keeps the *running* config current, but the files here only change when you refresh them deliberately. Do that whenever you rebuild the image and want the seed to match current upstream:
+The in-container loop keeps the _running_ config current, but the files here only change when you refresh them deliberately. Do that whenever you rebuild the image and want the seed to match current upstream:
 
 ```sh
 cd nginx/bot-blocker
@@ -96,8 +96,8 @@ Both intervals are env-overridable. Add to the `nginx:` service in `compose.prod
 
 ```yaml
 environment:
-    - NGXBLOCKER_INITIAL_WAIT=86400     # 1 day instead of 7
-    - NGXBLOCKER_UPDATE_INTERVAL=43200  # 12 hours instead of 24
+    - NGXBLOCKER_INITIAL_WAIT=86400 # 1 day instead of 7
+    - NGXBLOCKER_UPDATE_INTERVAL=43200 # 12 hours instead of 24
 ```
 
 Then `podman compose up -d --no-deps --force-recreate nginx`.

@@ -7,8 +7,8 @@
 set -eu
 
 BASE_URL="https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master"
-INITIAL_WAIT="${NGXBLOCKER_INITIAL_WAIT:-604800}"   # 7 days
-UPDATE_INTERVAL="${NGXBLOCKER_UPDATE_INTERVAL:-86400}"   # 24 hours
+INITIAL_WAIT="${NGXBLOCKER_INITIAL_WAIT:-604800}"      # 7 days
+UPDATE_INTERVAL="${NGXBLOCKER_UPDATE_INTERVAL:-86400}" # 24 hours
 
 CONF_D_FILES="botblocker-nginx-settings.conf globalblacklist.conf"
 BOTS_D_FILES="blockbots.conf ddos.conf \

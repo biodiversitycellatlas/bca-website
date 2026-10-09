@@ -2,11 +2,9 @@
 
 import json
 import re
-from typing import Dict
 
 import h5py
 import numpy as np
-
 from django.urls import reverse
 
 from ..models import Dataset, Gene, GeneList, MetacellTypeSimilarity, Ortholog, Species
@@ -299,7 +297,7 @@ def get_cell_atlas_links(url_name, dataset=None):
     return links
 
 
-def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
+def read_hdf5(hdf_file: str, gene: str) -> dict[str, float]:
     """Reads the expression values for a given gene from HDF5 file
 
     Args:
@@ -321,7 +319,7 @@ def read_hdf5(hdf_file: str, gene: str) -> Dict[str, float]:
         return result
 
 
-def create_positions_dictionary(a_list: np.typing.ArrayLike) -> Dict[int, str]:
+def create_positions_dictionary(a_list: np.typing.ArrayLike) -> dict[int, str]:
     """Creates a dictionary from positions to elements in the array
 
     Args:

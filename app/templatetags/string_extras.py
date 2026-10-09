@@ -1,6 +1,7 @@
 """Custom Django filters and tags to manipulate strings."""
 
 import hashlib
+
 from django import template
 
 register = template.Library()
