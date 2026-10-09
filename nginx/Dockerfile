@@ -21,3 +21,8 @@ RUN curl -fsSL --retry 3 \
 # Background update loop started by entrypoint.sh.
 COPY update-ngxblocker.sh /usr/local/bin/update-ngxblocker.sh
 RUN chmod +x /usr/local/bin/update-ngxblocker.sh
+
+# Any <400 response (including the HTTP → HTTPS 301) means the nginx master
+# is up and accepting connections. curl -f treats 4xx/5xx as failures.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -fsS http://localhost/ -o /dev/null || exit 1
