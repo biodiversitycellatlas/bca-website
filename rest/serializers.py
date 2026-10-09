@@ -244,6 +244,7 @@ class GeneSerializer(serializers.ModelSerializer):
 
     gene = serializers.CharField(source="name", help_text="Gene name.")
     species = serializers.CharField(required=False, help_text="Species.")
+    species_image_url = serializers.CharField(source="species.image_url", required=False, help_text="Species image URL.")
     genelists = serializers.StringRelatedField(many=True, help_text="Gene lists.")
     domains = serializers.StringRelatedField(many=True, help_text="Protein domains.")
     orthogroups = serializers.SlugRelatedField(
@@ -256,6 +257,7 @@ class GeneSerializer(serializers.ModelSerializer):
         model = models.Gene
         fields = [
             "species",
+            "species_image_url",
             "gene",
             "description",
             "domains",
@@ -272,6 +274,7 @@ class GeneSerializer(serializers.ModelSerializer):
 
             if species:
                 self.fields.pop("species")
+                self.fields.pop("species_image_url")
 
         super().__init__(*args, **kwargs)
 
@@ -284,7 +287,7 @@ class GeneNoSpeciesSerializer(GeneSerializer):
     class Meta(GeneSerializer.Meta):
         """Meta configuration."""
 
-        fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
+        fields = [f for f in GeneSerializer.Meta.fields if f not in ("species", "species_image_url")]
 
 
 class GeneRequestSerializer(serializers.ModelSerializer):

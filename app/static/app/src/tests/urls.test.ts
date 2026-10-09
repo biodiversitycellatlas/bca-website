@@ -6,6 +6,7 @@ beforeAll(() => {
     window.APP_URLS = {
         gene_module_entry:
             "/entry/gene-module/DATASET_PLACEHOLDER/GENE_MODULE_PLACEHOLDER/",
+        gene_entry: "/entry/gene/SPECIES_PLACEHOLDER/GENE_PLACEHOLDER/",
         "rest:metacellcount-list": "/api/metacellcount",
         "rest:metacellgeneexpression-list": "/api/metacellgeneexpression",
         "rest:genelist-list": "/api/genelist",
@@ -132,5 +133,15 @@ describe("getViewUrl", () => {
         expect(url).toBe(
             "/api/metacellcount?dataset=mus-musculus&gene=BRCA2&limit=15&species=mouse&extra=value",
         );
+    });
+
+    it("builds gene detail URLs with species and gene in the path", () => {
+        const url = getViewUrl("gene_entry", { species: "Mus musculus", gene: "Trp53" });
+        expect(url).toBe("/entry/gene/Mus%20musculus/Trp53/");
+    });
+
+    it("collapses the empty gene placeholder for species-only gene URLs", () => {
+        const url = getViewUrl("gene_entry", { species: "mus-musculus" });
+        expect(url).toBe("/entry/gene/mus-musculus/");
     });
 });

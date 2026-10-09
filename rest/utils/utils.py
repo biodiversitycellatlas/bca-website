@@ -1,14 +1,15 @@
-from django.db import connection
 from drf_spectacular.utils import OpenApiParameter
 
+from app import models
 from app.utils import get_dataset
 
 
-def check_model_exists(model):
-    try:
-        return model._meta.db_table in connection.introspection.table_names()
-    except Exception:
-        return False
+def fetch_genes_with_relations(ids=None):
+    """Fetch genes with the relations serialized by GeneSerializer."""
+
+    genes = models.Gene.objects
+    queryset = genes.all() if ids is None else genes.filter(pk__in=ids)
+    return queryset.select_related("species").prefetch_related("domains", "genelists", "orthogroups")
 
 
 def parse_species_dataset(value):

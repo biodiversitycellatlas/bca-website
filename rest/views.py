@@ -7,7 +7,8 @@ import tempfile
 from urllib.parse import unquote_plus
 
 from django.conf import settings
-from django.db.models import Case, Count, IntegerField, Prefetch, Value, When, Q
+from django.contrib.postgres.search import TrigramStrictWordSimilarity
+from django.db.models import Case, Count, F, IntegerField, Prefetch, Value, When, Q
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, ValidationError
@@ -16,7 +17,7 @@ from rest_framework.response import Response
 from app.managers import ExpressionDataManager
 from app import models
 from . import filters, serializers, services
-from .utils import get_enum_description, get_path_param, parse_species_dataset
+from .utils import fetch_genes_with_relations, get_enum_description, get_path_param, parse_species_dataset
 
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -279,7 +280,7 @@ class GeneModuleEigengeneViewSet(BaseReadOnlyModelViewSet):
 class GeneViewSet(BaseReadOnlyModelViewSet):
     """List genes."""
 
-    queryset = models.Gene.objects.prefetch_related("species", "domains")
+    queryset = fetch_genes_with_relations()
     serializer_class = serializers.GeneSerializer
     filterset_class = filters.GeneFilter
     lookup_field = "name"
@@ -742,8 +743,8 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
             OpenApiParameter(
                 "dataset",
                 str,
-                required=True,
-                description="The [dataset's slug](#/operations/datasets_list).",
+                required=False,
+                description="The [dataset's slug](#/operations/datasets_list). If omitted, searches in all species.",
                 examples=[OpenApiExample("Dataset", value="amphimedon-queenslandica-adult")],
             ),
             OpenApiParameter(
@@ -751,6 +752,13 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
                 str,
                 description="Query string to search.",
                 examples=[OpenApiExample("Query", value="ATP")],
+            ),
+            OpenApiParameter(
+                "species",
+                str,
+                required=False,
+                description="Filter by species scientific name. Only used when `dataset` is not provided.",
+                examples=[OpenApiExample("Species", value="Amphimedon queenslandica")],
             ),
             OpenApiParameter(
                 "limit",
@@ -763,26 +771,81 @@ class GeneSearchViewSet(BaseReadOnlyModelViewSet):
         q = request.query_params.get("q")
         dataset = request.query_params.get("dataset")
         limit = int(request.query_params.get("limit", 3))
+        offset = int(request.query_params.get("offset", 0))
+        species = request.query_params.get("species")
 
-        species = parse_species_dataset(dataset).species.scientific_name
-        params = {
-            "q": q,
-            "species": species,
-            "dataset": dataset,
-            "order_by_gene_count": True,
-        }
-
-        resp = Response(
-            {
-                key: serializer(
-                    filterset(data=params, queryset=queryset).qs[:limit],
-                    many=True,
-                    context={"species": species},
-                ).data
-                for key, (filterset, queryset, serializer) in self.SEARCHES.items()
+        if dataset:
+            species = parse_species_dataset(dataset).species.scientific_name
+            params = {
+                "q": q,
+                "species": species,
+                "dataset": dataset,
+                "order_by_gene_count": True,
             }
+            context = {"species": species}
+        else:
+            params = {
+                "q": q,
+                "order_by_gene_count": True,
+            }
+            if species:
+                params["species"] = species
+            context = {"species": species} if species else {}
+
+        data = {}
+        for key, (filterset_cls, queryset, serializer_cls) in self.SEARCHES.items():
+            if key == "genes" and q:
+                count, genes = self._search_genes(q, species=species, offset=offset, limit=limit)
+                data[key] = serializer_cls(genes, many=True, context=context).data
+                data[f"{key}_count"] = count
+                continue
+
+            qs = filterset_cls(data=params, queryset=queryset).qs
+            count = qs.count()
+            sliced = qs[offset : offset + limit]
+            data[key] = serializer_cls(sliced, many=True, context=context).data
+            data[f"{key}_count"] = count
+
+        return Response(data)
+
+    def _search_genes(self, q, species, offset, limit):
+        """Search genes by similarity, one indexed scan per source joined by UNION."""
+
+        def matches(field, lookup):
+            queryset = models.Gene.objects.all()
+            if species:
+                queryset = queryset.filter(species__scientific_name=species)
+            return (
+                queryset.filter(**{f"{lookup}__trigram_strict_word_similar": q})
+                .order_by()
+                .annotate(similarity=TrigramStrictWordSimilarity(F(field), Value(q)))
+                .values("id", "similarity")
+            )
+
+        domains = models.Gene.objects.all()
+        if species:
+            domains = domains.filter(species__scientific_name=species)
+        domains = (
+            domains.filter(domains__name__trigram_strict_word_similar=q)
+            .order_by()
+            .annotate(similarity=TrigramStrictWordSimilarity(F("domains__name"), Value(q)))
+            .values("id", "similarity")
         )
-        return resp
+
+        combined = matches("name", "name").union(matches("description", "description"), domains)
+
+        best = {}
+        for entry in combined:
+            gene_id = entry["id"]
+            if gene_id not in best or entry["similarity"] > best[gene_id]:
+                best[gene_id] = entry["similarity"]
+
+        ranked = sorted(best.items(), key=lambda item: (-item[1], item[0]))
+        count = len(ranked)
+        ids = [gene_id for gene_id, _ in ranked[offset : offset + limit]]
+
+        index = fetch_genes_with_relations(ids).in_bulk(ids)
+        return count, [index[gene_id] for gene_id in ids]
 
 
 @extend_schema(
