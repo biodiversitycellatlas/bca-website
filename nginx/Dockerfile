@@ -1,3 +1,8 @@
+# checkov:skip=CKV_DOCKER_3: The DHI nginx base image ships as USER 0 by
+# design — the nginx master process binds privileged ports (80, 443) and
+# forks workers. Overriding to a non-root USER would require either
+# NET_BIND_SERVICE caps or a sysctl tweak at the podman level; neither
+# belongs in the Dockerfile.
 FROM dhi.io/nginx:1.31.6-debian13-dev
 
 # curl + ca-certs so the in-container update loop can fetch ngxblocker
