@@ -1,5 +1,8 @@
 {
     "Disable": {
         "IndentSize": true
-    }
+    },
+    "Exclude": [
+        "^nginx/bot-blocker/"
+    ]
 }
