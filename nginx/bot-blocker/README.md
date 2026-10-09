@@ -63,13 +63,13 @@ podman logs bca-nginx-1 2>&1 | grep ngxblocker
 
 Expected after a fresh deploy:
 
-```
+```text
 [ngxblocker-update] 2026-10-09T10:04:36Z update loop started; initial wait 604800s, then every 86400s
 ```
 
 After the first successful tick (seven days later):
 
-```
+```text
 [ngxblocker-update] 2026-10-16T10:04:36Z updated and reloaded
 ```
 
