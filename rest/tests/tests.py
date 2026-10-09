@@ -196,8 +196,8 @@ class GeneSearchTests(APITestCase):
         genelist3.genes.add(*mouse.genes.filter(name__startswith="Brca"))
 
         # Create domains
-        domain1 = Domain.objects.create(name="Kinase")
-        domain2 = Domain.objects.create(name="Zinc finger")
+        domain1 = Domain.objects.create(name="Kinase", description="Protein kinase domain")
+        domain2 = Domain.objects.create(name="Zinc finger", description="Zinc finger domain")
         domain1.gene_set.add(*genes[0:3])
         domain2.gene_set.add(*genes[4:6])
 
@@ -214,6 +214,7 @@ class GeneSearchTests(APITestCase):
         assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
         assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
         assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
+        assert {s["description"] for s in data["domains"]} == {"Protein kinase domain", "Zinc finger domain"}
 
     def test_get_query(self):
         """Test setting query string."""
@@ -497,8 +498,8 @@ class DomainsTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        domain1 = Domain.objects.create(name="Domain1")
-        domain2 = Domain.objects.create(name="Domain2")
+        domain1 = Domain.objects.create(name="Domain1", description="First domain")
+        domain2 = Domain.objects.create(name="Domain2", description="Second domain")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
         gene1.domains.set([domain1, domain2])
         gene1.save()
@@ -510,6 +511,7 @@ class DomainsTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(domains) == 2
         assert {s["name"] for s in domains} == {"Domain1", "Domain2"}
+        assert {s["description"] for s in domains} == {"First domain", "Second domain"}
 
 
 class CorrelatedGenesTest(APITestCase):

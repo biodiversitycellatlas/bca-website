@@ -351,7 +351,7 @@ const categories = {
         countKey: "gene_lists_count",
         props: cardProps({
             title: "name",
-            subtitle: "name",
+            subtitle: "",
             description: "description",
             badges: geneCountBadges,
             image: "",
@@ -377,8 +377,8 @@ const categories = {
         countKey: "domains_count",
         props: cardProps({
             title: "name",
-            subtitle: "name",
-            description: "",
+            subtitle: "",
+            description: "description",
             badges: geneCountBadges,
             image: "",
             url: (item) => getViewUrl("domain_entry", { domain: item.name }),

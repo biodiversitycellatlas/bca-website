@@ -319,7 +319,7 @@ class DomainSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.Domain
-        fields = ["name", "gene_count"]
+        fields = ["name", "description", "gene_count"]
 
 
 class GeneListSerializer(serializers.ModelSerializer):
