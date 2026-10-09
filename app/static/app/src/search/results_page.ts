@@ -427,15 +427,15 @@ function renderSummary(datasetData, geneData) {
  * @param {Object} geneData - Gene search API response with _count fields.
  */
 function updateCategoryCounts(datasetCount, geneData) {
-    $("#count-datasets").text(`(${(datasetCount || 0).toLocaleString()})`);
-    $("#count-genes").text(`(${(geneData.genes_count || 0).toLocaleString()})`);
-    $("#count-gene-lists").text(
-        `(${(geneData.gene_lists_count || 0).toLocaleString()})`
-    );
-    $("#count-gene-modules").text(
-        `(${(geneData.gene_modules_count || 0).toLocaleString()})`
-    );
-    $("#count-domains").text(`(${(geneData.domains_count || 0).toLocaleString()})`);
+    for (const category of Object.keys(categories)) {
+        const count =
+            category === "datasets"
+                ? datasetCount
+                : geneData[categories[category].countKey];
+        $(`.category-btn[data-category="${category}"] .category-count`).text(
+            `(${(count || 0).toLocaleString()})`
+        );
+    }
 }
 
 /**

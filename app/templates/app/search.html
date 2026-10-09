@@ -49,7 +49,7 @@ Search page
                                 <button type="button"
                                         class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == item.category %}active{% endif %}"
                                         data-category="{{ item.category }}">
-                                    {{ item.label }}{% if item.category %} <span class="category-count" id="count-{{ item.category }}"></span>{% endif %}
+                                    {{ item.label }}{% if item.category %} <span class="category-count"></span>{% endif %}
                                 </button>
                             {% endfor %}
                         </div>
