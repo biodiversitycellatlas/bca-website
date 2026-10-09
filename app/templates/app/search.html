@@ -45,22 +45,13 @@ Search page
                         </span>
 
                         <div class="d-flex flex-row flex-md-column gx-2 gy-1 p-1">
-                            <button type="button"
-                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if not query.category %}active{% endif %}"
-                                    data-category="">
-                                Summary
-                            </button>
-                            <button type="button"
-                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'datasets' %}active{% endif %}"
-                                    data-category="datasets">
-                                Datasets <span class="category-count" id="count-datasets"></span>
-                            </button>
-
-                            <button type="button"
-                                    class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == 'genes' %}active{% endif %}"
-                                    data-category="genes">
-                                Genes <span class="category-count" id="count-genes"></span>
-                            </button>
+                            {% for item in search_categories %}
+                                <button type="button"
+                                        class="btn btn-link btn-sm text-start nav-link p-1 category-btn {% if query.category == item.category %}active{% endif %}"
+                                        data-category="{{ item.category }}">
+                                    {{ item.label }}{% if item.category %} <span class="category-count" id="count-{{ item.category }}"></span>{% endif %}
+                                </button>
+                            {% endfor %}
                         </div>
                     </div>
 
@@ -109,28 +100,19 @@ Search page
 
                 <!-- Summary view (no category) -->
                 <div id="summary-view" class="display-none">
-                    <section id="summary-datasets" class="mb-4">
-                        <h5 class="mb-3">
-                            Datasets
-                            <a class="small fw-normal"
-                               id="summary-dataset-count"
-                               href="#"
-                               data-category="datasets"></a>
-                        </h5>
-                        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
-                             id="summary-dataset-results"></div>
-                    </section>
-                    <section id="summary-genes" class="mb-4">
-                        <h5 class="mb-3">
-                            Genes
-                            <a class="small fw-normal"
-                               id="summary-gene-count"
-                               href="#"
-                               data-category="genes"></a>
-                        </h5>
-                        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4"
-                             id="summary-gene-results"></div>
-                    </section>
+                    {% for item in search_categories %}
+                        {% if item.category %}
+                            <section class="mb-4" data-category="{{ item.category }}">
+                                <h5 class="mb-3">
+                                    {{ item.label }}
+                                    <a class="small fw-normal summary-count"
+                                       href="#"
+                                       data-category="{{ item.category }}"></a>
+                                </h5>
+                                <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-6 g-4 summary-results"></div>
+                            </section>
+                        {% endif %}
+                    {% endfor %}
                 </div>
 
                 <!-- Template for individual result cards -->

@@ -349,10 +349,20 @@ class SearchView(TemplateView):
 
     template_name = "app/search.html"
 
+    SEARCH_CATEGORIES = [
+        {"category": "", "label": "Summary"},
+        {"category": "datasets", "label": "Datasets"},
+        {"category": "genes", "label": "Genes"},
+        {"category": "gene_lists", "label": "Gene lists"},
+        {"category": "gene_modules", "label": "Gene modules"},
+        {"category": "domains", "label": "Domains"},
+    ]
+
     def get_context_data(self, **kwargs):
         """Add dataset dictionary and search query to context."""
         context = super().get_context_data(**kwargs)
         context["species_dict"] = get_species_dict()
+        context["search_categories"] = self.SEARCH_CATEGORIES
 
         query = self.request.GET
         if query:

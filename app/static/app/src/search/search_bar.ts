@@ -199,17 +199,17 @@ export function initSearch() {
                         },
                         gene_list: {
                             label: "Gene list",
-                            category: "genes",
+                            category: "gene_lists",
                             count: gene_data.gene_lists_count || 0,
                         },
                         gene_module: {
                             label: "Gene module",
-                            category: "genes",
+                            category: "gene_modules",
                             count: gene_data.gene_modules_count || 0,
                         },
                         domain: {
                             label: "Domain",
-                            category: "genes",
+                            category: "domains",
                             count: gene_data.domains_count || 0,
                         },
                     };
@@ -250,7 +250,7 @@ export function initSearch() {
                 });
             } else if (item.group === "gene_module") {
                 const dataset = item.dataset;
-                const module_name = item.module_name;
+                const module_name = item.name;
                 window.location.href = getViewUrl("gene_module_entry", {
                     dataset,
                     gene_module: module_name,
