@@ -101,6 +101,8 @@ function buildCategoryUrl(category) {
  */
 function showLoading() {
     $("#loading-spinner").css("display", "flex");
+    $("#mockup").hide();
+    $("#sidebar").show();
     $("#summary-view").hide();
     $("#category-view").hide();
     $("#empty-state").hide();
@@ -442,7 +444,18 @@ export function loadSearchResults() {
     state = readStateFromUrl();
     const { q, category, species, limit, offset } = state;
 
-    if (!q) return;
+    if (!q) {
+        $("#loading-spinner").hide();
+        $("#summary-view").hide();
+        $("#category-view").hide();
+        $("#empty-state").hide();
+        $("#error-state").hide();
+        $("#pagination-nav").hide();
+        $("#sidebar").hide();
+        $("#mockup").show();
+        $("#results_count").text("");
+        return;
+    }
 
     searchStart = performance.now();
     time = null;

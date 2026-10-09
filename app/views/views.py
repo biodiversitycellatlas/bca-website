@@ -363,8 +363,5 @@ class SearchView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["species_dict"] = get_species_dict()
         context["search_categories"] = self.SEARCH_CATEGORIES
-
-        query = self.request.GET
-        if query:
-            context["query"] = query
+        context["query"] = self.request.GET
         return context
