@@ -345,9 +345,11 @@ function renderSummary(datasetData, geneData) {
 
     $("#summary-dataset-count")
         .text(`(${formatResultsCount(datasetData.count, "dataset")})`)
+        .attr("href", buildCategoryUrl("datasets"));
     const totalGeneCount = geneData.genes_count || 0;
     $("#summary-gene-count")
         .text(`(${formatResultsCount(totalGeneCount, "gene")})`)
+        .attr("href", buildCategoryUrl("genes"));
 
     $("#summary-view").show();
     $("#category-view").hide();
@@ -507,6 +509,11 @@ export function initSearchPage() {
     $(".category-btn").on("click", function () {
         const category = $(this).data("category") || "";
         updateQuery("category", category);
+    });
+
+    $("#summary-dataset-count, #summary-gene-count").on("click", function (e) {
+        e.preventDefault();
+        updateQuery("category", $(this).data("category"));
     });
 
     $(".limit-btn").on("click", function (e) {
