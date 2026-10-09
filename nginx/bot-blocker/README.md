@@ -5,8 +5,9 @@ Vendored snapshot of [mitchellkrogza/nginx-ultimate-bad-bot-blocker](https://git
 ## How it fits into the stack
 
 - Files here are the **seed**. `nginx/Dockerfile` copies them into `/etc/nginx/bot-blocker-seed/` inside the image.
-- On every container start, `nginx/entrypoint.sh` seeds them into `/etc/nginx/conf.d/` and `/etc/nginx/bots.d/`.
-- `nginx/update-ngxblocker.sh` runs in the background: sleeps 7 days after boot, then every 24 h fetches the latest upstream files, validates with `nginx -t`, promotes on success and rolls back on failure. All transitions log to stderr.
+- `globalblacklist.conf` is `.gitignore`d because upstream updates it several times a day — vendoring would be constant PR noise. `nginx/Dockerfile` fetches a fresh copy at build time so the baked seed always matches recent upstream.
+- On every container start, `nginx/entrypoint.sh` copies the seed into `/etc/nginx/conf.d/` and `/etc/nginx/bots.d/`.
+- `nginx/update-ngxblocker.sh` runs in the background: sleeps 7 days after boot, then every 24 h fetches the latest `globalblacklist.conf`, validates with `nginx -t`, promotes on success and rolls back on failure. The other files are stable enough that re-fetching them would be waste. All transitions log to stderr.
 - `nginx/nginx.prod.conf.template` enables the blocker by including `blockbots.conf` + `ddos.conf` inside each HTTPS `server {}` block.
 
 ## File roles
@@ -24,7 +25,7 @@ Vendored snapshot of [mitchellkrogza/nginx-ultimate-bad-bot-blocker](https://git
 | `bots.d/bad-referrer-words.conf`        | included from maps | Add referrer substrings to flag                                                            |
 | `bots.d/custom-bad-referrers.conf`      | included from maps | Add specific referrer URLs to flag                                                         |
 
-Local customisations go into the `whitelist-*` / `blacklist-*` / `custom-*` files — those are the ones the upstream project explicitly reserves for site-level additions. Editing `globalblacklist.conf` directly is pointless because the update loop will overwrite it.
+Local customisations go into the `whitelist-*` / `blacklist-*` / `custom-*` files — those are the ones the upstream project explicitly reserves for site-level additions. Editing `globalblacklist.conf` is pointless: it's `.gitignore`d, rebuilt from upstream on each image build, and overwritten by the update loop.
 
 ## Useful commands
 
@@ -74,12 +75,12 @@ After the first successful tick (seven days later):
 
 ### Refresh the vendored seed from upstream
 
-The in-container loop keeps the _running_ config current, but the files here only change when you refresh them deliberately. Do that whenever you rebuild the image and want the seed to match current upstream:
+Only the slow-moving files are vendored — `botblocker-nginx-settings.conf` (upstream last touched years ago) and the `bots.d/*` files (also years-old). You rarely need to refresh them, but when you do:
 
 ```sh
 cd nginx/bot-blocker
 BASE=https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master
-for f in conf.d/botblocker-nginx-settings.conf conf.d/globalblacklist.conf \
+for f in conf.d/botblocker-nginx-settings.conf \
          bots.d/blockbots.conf bots.d/ddos.conf \
          bots.d/whitelist-ips.conf bots.d/whitelist-domains.conf \
          bots.d/blacklist-ips.conf bots.d/blacklist-user-agents.conf \
@@ -87,6 +88,8 @@ for f in conf.d/botblocker-nginx-settings.conf conf.d/globalblacklist.conf \
   curl -fsSL "$BASE/$f" -o "$f"
 done
 ```
+
+`globalblacklist.conf` is intentionally not in this list — it comes from the build-time fetch and the daily in-container update.
 
 Then review the diff and commit.
 

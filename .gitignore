@@ -43,3 +43,9 @@ htmlcov
 .venv
 !.env.template
 source/
+
+# nginx-ultimate-bad-bot-blocker — upstream updates this file multiple times
+# a day, so vendoring it would mean constant PR noise. nginx/Dockerfile
+# fetches it fresh at build time, and the in-container update loop refreshes
+# it daily. Other bot-blocker files are stable enough to vendor.
+nginx/bot-blocker/conf.d/globalblacklist.conf

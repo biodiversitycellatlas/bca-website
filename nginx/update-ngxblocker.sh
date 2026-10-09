@@ -1,71 +1,49 @@
 #!/bin/sh
-# Fetch the latest nginx-ultimate-bad-bot-blocker config from GitHub,
+# Fetch the latest globalblacklist.conf from nginx-ultimate-bad-bot-blocker,
 # validate it with `nginx -t`, promote in place and reload nginx.
+#
+# Only globalblacklist.conf is refreshed at runtime — the other ngxblocker
+# files (bots.d/*, botblocker-nginx-settings.conf) change at most a couple
+# of times per year and are vendored, so re-fetching them would be waste.
 #
 # Runs forever in the background, started by entrypoint.sh.
 # Logs go to stderr → `podman logs bca-nginx-1`.
 set -eu
 
-BASE_URL="https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master"
+URL="https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/conf.d/globalblacklist.conf"
+TARGET="/etc/nginx/conf.d/globalblacklist.conf"
 INITIAL_WAIT="${NGXBLOCKER_INITIAL_WAIT:-604800}"      # 7 days
 UPDATE_INTERVAL="${NGXBLOCKER_UPDATE_INTERVAL:-86400}" # 24 hours
 
-CONF_D_FILES="botblocker-nginx-settings.conf globalblacklist.conf"
-BOTS_D_FILES="blockbots.conf ddos.conf \
-whitelist-ips.conf whitelist-domains.conf \
-blacklist-ips.conf blacklist-user-agents.conf \
-bad-referrer-words.conf custom-bad-referrers.conf"
-
 log() { printf '[ngxblocker-update] %s %s\n' "$(date -u +%FT%TZ)" "$*" >&2; }
 
-fetch_all() {
-    tmp="$1"
-    mkdir -p "$tmp/conf.d" "$tmp/bots.d"
-    for f in $CONF_D_FILES; do
-        curl -fsSL --retry 3 --connect-timeout 10 --max-time 60 \
-            "$BASE_URL/conf.d/$f" -o "$tmp/conf.d/$f" || return 1
-    done
-    for f in $BOTS_D_FILES; do
-        curl -fsSL --retry 3 --connect-timeout 10 --max-time 60 \
-            "$BASE_URL/bots.d/$f" -o "$tmp/bots.d/$f" || return 1
-    done
-}
-
-promote_or_rollback() {
-    tmp="$1"
-    backup="$(mktemp -d)"
-    mkdir -p "$backup/conf.d" "$backup/bots.d"
-
-    # Snapshot current ngxblocker files so we can revert if validation fails
-    for f in $CONF_D_FILES; do
-        [ -f "/etc/nginx/conf.d/$f" ] && cp "/etc/nginx/conf.d/$f" "$backup/conf.d/$f"
-    done
-    for f in $BOTS_D_FILES; do
-        [ -f "/etc/nginx/bots.d/$f" ] && cp "/etc/nginx/bots.d/$f" "$backup/bots.d/$f"
-    done
-
-    cp "$tmp/conf.d/"*.conf /etc/nginx/conf.d/
-    cp "$tmp/bots.d/"*.conf /etc/nginx/bots.d/
-
-    if nginx -t 2>/dev/null; then
-        if nginx -s reload 2>/dev/null; then
-            log "updated and reloaded"
-            rm -rf "$backup"
-            return 0
-        fi
-        log "reload failed — rolling back"
-    else
-        log "nginx -t failed on new config — rolling back"
+update_once() {
+    tmp="$(mktemp)"
+    if ! curl -fsSL --retry 3 --connect-timeout 10 --max-time 60 "$URL" -o "$tmp"; then
+        log "fetch failed — skipping this cycle"
+        rm -f "$tmp"
+        return 1
     fi
 
-    # Revert
-    for f in $CONF_D_FILES; do
-        [ -f "$backup/conf.d/$f" ] && cp "$backup/conf.d/$f" "/etc/nginx/conf.d/$f"
-    done
-    for f in $BOTS_D_FILES; do
-        [ -f "$backup/bots.d/$f" ] && cp "$backup/bots.d/$f" "/etc/nginx/bots.d/$f"
-    done
-    rm -rf "$backup"
+    if cmp -s "$tmp" "$TARGET"; then
+        log "no change upstream"
+        rm -f "$tmp"
+        return 0
+    fi
+
+    backup="$(mktemp)"
+    cp "$TARGET" "$backup"
+    cp "$tmp" "$TARGET"
+
+    if nginx -t 2>/dev/null && nginx -s reload 2>/dev/null; then
+        log "updated and reloaded"
+        rm -f "$tmp" "$backup"
+        return 0
+    fi
+
+    log "validation or reload failed — rolling back"
+    cp "$backup" "$TARGET"
+    rm -f "$tmp" "$backup"
     return 1
 }
 
@@ -73,12 +51,6 @@ log "update loop started; initial wait ${INITIAL_WAIT}s, then every ${UPDATE_INT
 sleep "$INITIAL_WAIT"
 
 while true; do
-    tmp="$(mktemp -d)"
-    if fetch_all "$tmp"; then
-        promote_or_rollback "$tmp" || true
-    else
-        log "fetch failed — skipping this cycle"
-    fi
-    rm -rf "$tmp"
+    update_once || true
     sleep "$UPDATE_INTERVAL"
 done
