@@ -106,6 +106,7 @@ function showLoading() {
     $("#empty-state").hide();
     $("#error-state").hide();
     $("#results_count").text("");
+    $(".category-count").empty();
 }
 
 /**
