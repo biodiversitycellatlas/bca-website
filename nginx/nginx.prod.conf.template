@@ -8,8 +8,10 @@ set_real_ip_from 10.89.0.0/24;
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
 
-# --- Bot detection by User-Agent ---
-map $http_user_agent $bad_bot {
+# --- Bot detection by User-Agent (hand-maintained list of AI scrapers and
+#     SEO crawlers that layers on top of ngxblocker's broader globalblacklist).
+#     Named $ai_scraper to avoid colliding with ngxblocker's own $bad_bot. ---
+map $http_user_agent $ai_scraper {
     default 0;
 
     # AI scrapers
@@ -53,7 +55,7 @@ map $http_user_agent $bad_bot {
 # when the key is an empty string — so non-bots (0 → "") are never rate-limited.
 # NOTE: if copying this pattern elsewhere, be careful not to invert the polarity:
 # bots must map to a real key ($binary_remote_addr) and non-bots to "".
-map $bad_bot $bot_limit_key {
+map $ai_scraper $bot_limit_key {
     1   $binary_remote_addr;
     0   "";
 }
@@ -162,6 +164,10 @@ server {
     ssl_certificate /etc/nginx/certs/server.crt;
     ssl_certificate_key /etc/nginx/certs/server.key;
 
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
+
     location / {
         limit_req zone=bot_req burst=20 nodelay;
         limit_req_status 429;
@@ -224,6 +230,10 @@ server {
     ssl_certificate /etc/nginx/certs/server.crt;
     ssl_certificate_key /etc/nginx/certs/server.key;
 
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
+
     location / {
         limit_req zone=bot_req burst=20 nodelay;
         limit_req_status 429;
@@ -267,6 +277,10 @@ server {
     # --- Wildcard SSL Certificate Paths (same as above) ---
     ssl_certificate /etc/nginx/certs/server.crt;
     ssl_certificate_key /etc/nginx/certs/server.key;
+
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
 
     # Plausible requires specific proxy headers for correct operation,
     # especially for X-Forwarded-Proto to handle the HTTPS connection.
