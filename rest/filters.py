@@ -35,7 +35,6 @@ from .aggregates import Median
 from .functions import ArrayPosition
 from .utils import check_model_exists, parse_species_dataset
 
-
 logger = logging.getLogger(__name__)
 
 

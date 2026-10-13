@@ -1,6 +1,6 @@
 import math
-import tempfile
 import os.path
+import tempfile
 
 from django.core.files import File as DjangoFile
 from django.test import override_settings
@@ -8,20 +8,20 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from app.models import (
-    Species,
     Dataset,
-    Gene,
-    SingleCell,
-    Metacell,
-    MetacellType,
     DatasetFile,
-    GeneList,
     Domain,
-    GeneCorrelation,
-    Orthogroup,
-    MetacellEdge,
-    MetacellTypeSimilarity,
     ExpressionConservation,
+    Gene,
+    GeneCorrelation,
+    GeneList,
+    Metacell,
+    MetacellEdge,
+    MetacellType,
+    MetacellTypeSimilarity,
+    Orthogroup,
+    SingleCell,
+    Species,
     SpeciesFile,
 )
 
@@ -93,9 +93,9 @@ class DatasetTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert {s["species"] for s in datasets_stats} == {"Mouse", "Rat"}
         assert {s["dataset"] for s in datasets_stats} == {"DMouse", "DRat"}
-        assert {s["genes"] for s in datasets_stats} == {0, 0}
-        assert {s["cells"] for s in datasets_stats} == {0, 0}
-        assert {s["metacells"] for s in datasets_stats} == {0, 0}
+        assert {s["genes"] for s in datasets_stats} == {0}
+        assert {s["cells"] for s in datasets_stats} == {0}
+        assert {s["metacells"] for s in datasets_stats} == {0}
 
     def test_get_stats(self):
         response = self.client.get("/api/v1/stats/rat-drat/", format="json")
