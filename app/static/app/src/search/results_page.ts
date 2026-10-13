@@ -13,6 +13,8 @@ let state = {};
 let searchStart = null;
 let time = null;
 
+let lastCountsKey = null;
+
 /**
  * Build the results count text and append the elapsed search time.
  *
@@ -108,7 +110,6 @@ function showLoading() {
     $("#empty-state").hide();
     $("#error-state").hide();
     $("#results_count").text("");
-    $(".category-count").empty();
 }
 
 /**
@@ -419,19 +420,20 @@ function renderSummary(datasetData, geneData) {
 }
 
 /**
- * Update category count badges in sidebar.
+ * Update the sidebar result count for each category.
  *
- * @param {number} datasetCount - Total dataset count.
- * @param {Object} geneData - Gene search API response with _count fields.
+ * @param {string} endpoint - Endpoint that produced the response.
+ * @param {Object} data - API response containing per-category counts.
  */
-function updateCategoryCounts(datasetCount, geneData) {
+function updateCategoryCounts(endpoint, data) {
     for (const category of Object.keys(categories)) {
-        const count =
-            category === "datasets"
-                ? datasetCount
-                : geneData[categories[category].countKey];
+        if (categories[category].endpoint !== endpoint) continue;
+
+        const count = data[categories[category].countKey];
+        if (count == null) continue;
+
         $(`.category-btn[data-category="${category}"] .category-count`).text(
-            `(${(count || 0).toLocaleString()})`
+            `(${count.toLocaleString()})`
         );
     }
 }
@@ -454,7 +456,16 @@ export function loadSearchResults() {
         $("#sidebar").hide();
         $("#mockup").show();
         $("#results_count").text("");
+        $(".category-count").empty();
+        lastCountsKey = null;
         return;
+    }
+
+    // Reset counts when the query or the species change.
+    const countsKey = `${q}|${species}`;
+    if (countsKey !== lastCountsKey) {
+        lastCountsKey = countsKey;
+        $(".category-count").empty();
     }
 
     searchStart = performance.now();
@@ -474,8 +485,8 @@ export function loadSearchResults() {
             geneParams.species = species.replace("_", " ");
         }
 
-        const dsUrl = getViewUrl("rest:dataset-list", dsParams);
-        const gsUrl = getViewUrl("rest:genesearch-list", geneParams);
+        const dsUrl = getViewUrl(categories.datasets.endpoint, dsParams);
+        const gsUrl = getViewUrl(categories.genes.endpoint, geneParams);
 
         Promise.all([
             fetch(dsUrl).then((r) => r.json()),
@@ -500,7 +511,8 @@ export function loadSearchResults() {
                 $("#results_count")
                     .text(formatResultsCount(count, "result", time));
 
-                updateCategoryCounts(datasetData.count || 0, geneData);
+                updateCategoryCounts(categories.datasets.endpoint, datasetData);
+                updateCategoryCounts(categories.genes.endpoint, geneData);
                 $("#pagination-nav").hide();
             })
             .catch(() => {
@@ -527,28 +539,14 @@ function loadCategory(category, params) {
             time = performance.now() - searchStart;
             $("#loading-spinner").hide();
             $("#summary-view").hide();
-            $("#category-view").show();
 
             if (!data[key] || !data[key].length) {
                 showEmpty(q);
-                return;
+            } else {
+                $("#category-view").show();
+                renderResults(data, category);
             }
-            renderResults(data, category);
-
-            // Refresh sidebar counts using the complementary endpoint (limit 1)
-            const otherEndpoint = endpoint === "rest:dataset-list" ? "rest:genesearch-list" : "rest:dataset-list";
-            const countParams = { q, limit: 1 };
-            const { species } = state;
-            if (species) countParams.species = species.replace("_", " ");
-
-            fetch(getViewUrl(otherEndpoint, countParams))
-                .then((r) => r.json())
-                .then((otherData) => {
-                    const datasetCount = endpoint === "rest:dataset-list" ? data.count || 0 : otherData.count || 0;
-                    const geneData = endpoint === "rest:dataset-list" ? otherData : data;
-                    updateCategoryCounts(datasetCount, geneData);
-                })
-                .catch(() => {});
+            updateCategoryCounts(endpoint, data);
         })
         .catch(() => {
             showError();
