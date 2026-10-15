@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "django==5.2.17",
+    "django==5.2.18",
     "django-colorfield==0.14.0",
     "django-extensions==4.1",
     "gunicorn==26.2.0",
