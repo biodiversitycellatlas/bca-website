@@ -7,7 +7,9 @@ WORKDIR /code
 
 COPY e2e/requirements.txt requirements.txt
 
-RUN PLAYWRIGHT_VERSION=$(grep driverVersion /ms-playwright/.docker-info | grep -Eo '[0-9.]+') \
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN PLAYWRIGHT_VERSION=$(grep driverVersion /ms-playwright/.docker-info | grep -Eo "[0-9.]+") \
     && pip install --no-cache-dir -r requirements.txt playwright==${PLAYWRIGHT_VERSION}
 
 USER pwuser
