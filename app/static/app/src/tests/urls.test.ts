@@ -136,7 +136,10 @@ describe("getViewUrl", () => {
     });
 
     it("builds gene detail URLs with species and gene in the path", () => {
-        const url = getViewUrl("gene_entry", { species: "Mus musculus", gene: "Trp53" });
+        const url = getViewUrl("gene_entry", {
+            species: "Mus musculus",
+            gene: "Trp53",
+        });
         expect(url).toBe("/entry/gene/Mus%20musculus/Trp53/");
     });
 

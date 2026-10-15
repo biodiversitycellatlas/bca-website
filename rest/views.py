@@ -8,14 +8,15 @@ from urllib.parse import unquote_plus
 
 from django.conf import settings
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
-from django.db.models import Case, Count, F, IntegerField, Prefetch, Value, When, Q
+from django.db.models import Case, Count, F, IntegerField, Prefetch, Q, Value, When
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 
-from app.managers import ExpressionDataManager
 from app import models
+from app.managers import ExpressionDataManager
+
 from . import filters, serializers, services
 from .utils import fetch_genes_with_relations, get_enum_description, get_path_param, parse_species_dataset
 

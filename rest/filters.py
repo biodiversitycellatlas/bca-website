@@ -181,7 +181,13 @@ class QueryFilterSet(FilterSet):
                 else:
                     # Reverse relation: match via the linking field declared on the related model (e.g. Meta.species)
                     back_name = field_obj.field.name
-                return ("multi", field_obj.related_model, back_name, "__".join(prefix) or "pk", "__".join(parts[i + 1 :]))
+                return (
+                    "multi",
+                    field_obj.related_model,
+                    back_name,
+                    "__".join(prefix) or "pk",
+                    "__".join(parts[i + 1 :]),
+                )
             if field_obj.is_relation:
                 model = field_obj.related_model
             prefix.append(part)

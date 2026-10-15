@@ -6,11 +6,11 @@ from operator import attrgetter
 
 from django.conf import settings
 from django.db.models import Avg, Max, Min, StdDev, Sum
-from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
-
+from drf_spectacular.utils import OpenApiExample, extend_schema_field, extend_schema_serializer
 from rest_framework import serializers
 
 from app import models
+
 from .aggregates import PercentileCont
 
 
@@ -244,7 +244,9 @@ class GeneSerializer(serializers.ModelSerializer):
 
     gene = serializers.CharField(source="name", help_text="Gene name.")
     species = serializers.CharField(required=False, help_text="Species.")
-    species_image_url = serializers.CharField(source="species.image_url", required=False, help_text="Species image URL.")
+    species_image_url = serializers.CharField(
+        source="species.image_url", required=False, help_text="Species image URL."
+    )
     genelists = serializers.StringRelatedField(many=True, help_text="Gene lists.")
     domains = serializers.StringRelatedField(many=True, help_text="Protein domains.")
     orthogroups = serializers.SlugRelatedField(

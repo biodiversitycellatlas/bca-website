@@ -13,7 +13,7 @@ from ..models import (
     Ortholog,
     Species,
 )
-from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict, get_species_dict
+from ..utils import get_dataset, get_dataset_dict, get_gene_list, get_species, get_species_dict
 
 
 class EntryView(TemplateView):

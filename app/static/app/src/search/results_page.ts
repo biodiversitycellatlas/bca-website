@@ -199,7 +199,10 @@ function appendResult(
     }
 
     badges = badges
-        .map((item) => `<span class="badge bg-secondary species-meta me-1">${item}</span>`)
+        .map(
+            (item) =>
+                `<span class="badge bg-secondary species-meta me-1">${item}</span>`,
+        )
         .join(" ");
     $clone.find(".result-badges").html(badges);
 
@@ -325,7 +328,8 @@ const categories = {
         key: "results",
         countKey: "count",
         props: cardProps({
-            title: (item) => item.dataset_html + (item.name ? ` - ${item.name}` : ""),
+            title: (item) =>
+                item.dataset_html + (item.name ? ` - ${item.name}` : ""),
             subtitle: "species_common_name",
             description: "species_description",
             badges: datasetBadges,
@@ -343,7 +347,11 @@ const categories = {
             description: "description",
             badges: (item) => item.domains || [],
             image: "species_image_url",
-            url: (item) => getViewUrl("gene_entry", { species: item.species || state.species || "", gene: item.gene }),
+            url: (item) =>
+                getViewUrl("gene_entry", {
+                    species: item.species || state.species || "",
+                    gene: item.gene,
+                }),
         }),
     },
     gene_lists: {
@@ -356,7 +364,8 @@ const categories = {
             description: "description",
             badges: geneCountBadges,
             image: "",
-            url: (item) => getViewUrl("gene_list_entry", { gene_list: item.name }),
+            url: (item) =>
+                getViewUrl("gene_list_entry", { gene_list: item.name }),
         }),
     },
     gene_modules: {
@@ -369,7 +378,11 @@ const categories = {
             description: "",
             badges: geneCountBadges,
             image: "image_url",
-            url: (item) => getViewUrl("gene_module_entry", { dataset: item.dataset, gene_module: item.module }),
+            url: (item) =>
+                getViewUrl("gene_module_entry", {
+                    dataset: item.dataset,
+                    gene_module: item.module,
+                }),
         }),
     },
     domains: {
@@ -391,13 +404,23 @@ function renderResults(data, category, container = "#results") {
     const { key, countKey, props } = categories[category];
     $(container).empty();
     (data[key] || []).forEach((item) => {
-        const { title, url, subtitle, description, badges, image } = props(item);
-        appendResult(title, url, subtitle, url, description, badges, image, container);
+        const { title, url, subtitle, description, badges, image } =
+            props(item);
+        appendResult(
+            title,
+            url,
+            subtitle,
+            url,
+            description,
+            badges,
+            image,
+            container,
+        );
     });
     if (container === "#results") {
         const totalCount = data[countKey] || 0;
         $("#results_count").text(
-            formatResultsCount(totalCount, "result", time)
+            formatResultsCount(totalCount, "result", time),
         );
         renderPagination(totalCount, state.limit, state.offset);
     }
@@ -433,7 +456,7 @@ function updateCategoryCounts(endpoint, data) {
         if (count == null) continue;
 
         $(`.category-btn[data-category="${category}"] .category-count`).text(
-            `(${count.toLocaleString()})`
+            `(${count.toLocaleString()})`,
         );
     }
 }
@@ -496,8 +519,11 @@ export function loadSearchResults() {
                 time = performance.now() - searchStart;
                 $("#loading-spinner").hide();
 
-                const dataFor = (name) => name === "datasets" ? datasetData : geneData;
-                const hasResults = Object.keys(categories).some((name) => dataFor(name)[categories[name].key]?.length);
+                const dataFor = (name) =>
+                    name === "datasets" ? datasetData : geneData;
+                const hasResults = Object.keys(categories).some(
+                    (name) => dataFor(name)[categories[name].key]?.length,
+                );
 
                 if (!hasResults) {
                     showEmpty(q);
@@ -506,10 +532,14 @@ export function loadSearchResults() {
 
                 renderSummary(datasetData, geneData);
 
-                const count = Object.keys(categories)
-                    .reduce((sum, name) => sum + (dataFor(name)[categories[name].countKey] || 0), 0);
-                $("#results_count")
-                    .text(formatResultsCount(count, "result", time));
+                const count = Object.keys(categories).reduce(
+                    (sum, name) =>
+                        sum + (dataFor(name)[categories[name].countKey] || 0),
+                    0,
+                );
+                $("#results_count").text(
+                    formatResultsCount(count, "result", time),
+                );
 
                 updateCategoryCounts(categories.datasets.endpoint, datasetData);
                 updateCategoryCounts(categories.genes.endpoint, geneData);

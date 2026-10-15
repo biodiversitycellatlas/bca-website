@@ -3,15 +3,14 @@
 import hashlib
 import re
 from pathlib import Path
-from typing import Optional
 
 from colorfield.fields import ColorField
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.indexes import GinIndex
 
 
 class AutoSlugMixin(models.Model):
@@ -523,7 +522,7 @@ class Meta(models.Model):
     source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True)
 
     @property
-    def query_url(self) -> Optional[str]:
+    def query_url(self) -> str | None:
         """Build query URL."""
         url = getattr(self.source, "query_url", None)
         term = self.query_term
@@ -702,7 +701,7 @@ class Domain(ExternalQueryMixin, models.Model):
         """Meta options."""
 
         ordering = ["name"]
-        indexes = [ GinIndex(fields=["name"], name="domain_name_trgm_gin", opclasses=["gin_trgm_ops"]) ]
+        indexes = [GinIndex(fields=["name"], name="domain_name_trgm_gin", opclasses=["gin_trgm_ops"])]
 
     def __str__(self):
         """String representation."""
@@ -751,7 +750,7 @@ class Gene(DynamicSlugMixin):
     @property
     def slug(self):
         """Slugify gene based on species and gene name."""
-        return slugify(f"{self.species.slug}_{str(self)}")
+        return slugify(f"{self.species.slug}_{self!s}")
 
     def genelist_names(self):
         """Return all gene list names associated with this gene."""

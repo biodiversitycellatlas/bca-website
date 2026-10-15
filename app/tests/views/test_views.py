@@ -1,23 +1,22 @@
 """Test miscellaneous views."""
 
-import json
-import ssl
 import io
+import json
 import os
-
-from contextlib import redirect_stdout, redirect_stderr
+import ssl
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 
 from bs4 import BeautifulSoup
-from django.test import TestCase, Client, override_settings
 from django.conf import settings
 from django.http import FileResponse
+from django.test import Client, TestCase, override_settings
 
 from app.models import Dataset
-from app.utils import bioschemas
-from app.views import DocumentationView
 from app.tests.test_utils import assert_conforms
 from app.tests.views.test_atlas_views import DataTestCase
+from app.utils import bioschemas
+from app.views import DocumentationView
 
 
 @override_settings(GHOST_INTERNAL_URL="https://biodiversitycellatlas.org")
@@ -107,7 +106,7 @@ class SpeciesFileDownloadViewTests(DataTestCase):
         assert response.get("Content-Disposition") == f'attachment; filename="{filename}"'
 
         # Test file content
-        expected = (">Brca1\nMACDEFGHIK\nLMNPQRSTVW\n>Brca2\nMACDEFGHIK\n").encode("utf-8")
+        expected = b">Brca1\nMACDEFGHIK\nLMNPQRSTVW\n>Brca2\nMACDEFGHIK\n"
         content = b"".join(response.streaming_content)
         assert content == expected
 

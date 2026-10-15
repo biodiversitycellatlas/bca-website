@@ -3,19 +3,19 @@
 import os
 
 from django.conf import settings
-from django.http import FileResponse, JsonResponse, Http404
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import render
+from django.templatetags.static import static
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, TemplateView
-from django.urls import reverse
-from django.templatetags.static import static
-from django.shortcuts import render
 
-from ..models import Dataset, GlobalFile, SpeciesFile, Species, SingleCell
+from ..models import Dataset, GlobalFile, SingleCell, Species, SpeciesFile
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
-from ..utils.markdown import MarkdownPage
 from ..utils.cache import get_validated_cache, set_validated_cache
+from ..utils.markdown import MarkdownPage
 
 
 class IndexView(TemplateView):

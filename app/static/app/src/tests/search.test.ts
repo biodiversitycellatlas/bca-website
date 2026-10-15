@@ -7,8 +7,10 @@ const APP_URLS = {
     "rest:genesearch-list": "/api/search/gene/",
     atlas: "/atlas/DATASET_PLACEHOLDER/",
     gene_entry: "/entry/gene/SPECIES_PLACEHOLDER/GENE_PLACEHOLDER/",
-    gene_list_entry: "/entry/gene-list/GENE_LIST_PLACEHOLDER/SPECIES_PLACEHOLDER/",
-    gene_module_entry: "/entry/gene-module/DATASET_PLACEHOLDER/GENE_MODULE_PLACEHOLDER/",
+    gene_list_entry:
+        "/entry/gene-list/GENE_LIST_PLACEHOLDER/SPECIES_PLACEHOLDER/",
+    gene_module_entry:
+        "/entry/gene-module/DATASET_PLACEHOLDER/GENE_MODULE_PLACEHOLDER/",
     domain_entry: "/entry/domain/DOMAIN_PLACEHOLDER/SPECIES_PLACEHOLDER/",
 };
 

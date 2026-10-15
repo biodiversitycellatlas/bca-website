@@ -34,13 +34,18 @@ function displaySearchResults(item, escape) {
             }
         }
 
-        const desc = item.description ? createDescriptionText(escape(item.description)) : "";
+        const desc = item.description
+            ? createDescriptionText(escape(item.description))
+            : "";
         const imgURL = item.species_image ? escape(item.species_image) : "";
         const img = imgURL ? `<img src="${imgURL}" class="w-25px"> ` : "";
         const sp = item.species_name || "";
         const words = sp.split(" ");
 
-        const shortenedName = words.length > 1 ? `${words[0][0]}. ${words.slice(1).join(" ")}` : sp;
+        const shortenedName =
+            words.length > 1
+                ? `${words[0][0]}. ${words.slice(1).join(" ")}`
+                : sp;
         const species = shortenedName
             ? `
                 <span class='text-muted float-end'>
@@ -50,26 +55,39 @@ function displaySearchResults(item, escape) {
 
         res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
     } else if (group === "gene_list") {
-        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
-        const desc = item.description ? createDescriptionText(escape(item.description)) : "";
+        const count_badge =
+            item.gene_count > 0 ? createBadge(item.gene_count) : "";
+        const desc = item.description
+            ? createDescriptionText(escape(item.description))
+            : "";
         res = `<div class='option'>${escape(item.name)} ${desc} ${count_badge}</div>`;
     } else if (group === "gene_module") {
-        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
-        const dataset_name = item.dataset ? createDescriptionText(escape(item.dataset)) : "";
+        const count_badge =
+            item.gene_count > 0 ? createBadge(item.gene_count) : "";
+        const dataset_name = item.dataset
+            ? createDescriptionText(escape(item.dataset))
+            : "";
         res = `<div class='option'>${escape(item.name)} ${dataset_name} ${count_badge}</div>`;
     } else if (group === "domain") {
-        const count_badge = item.gene_count > 0 ? createBadge(item.gene_count) : "";
+        const count_badge =
+            item.gene_count > 0 ? createBadge(item.gene_count) : "";
         res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
     } else if (group === "dataset") {
         const imgURL = escape(item.image_url || item.species_image_url);
         const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
-        const desc = !item.species_common_name ? "" : createDescriptionText(escape(item.species_common_name));
+        const desc = !item.species_common_name
+            ? ""
+            : createDescriptionText(escape(item.species_common_name));
 
         const meta_array = item.species_meta.map((i) => escape(i.value));
         let badges = "";
         for (let i = 0; i < meta_array.length; i++) {
             const elem = meta_array[i];
-            if (elem && !item.species.includes(elem) && !item.species_common_name) {
+            if (
+                elem &&
+                !item.species.includes(elem) &&
+                !item.species_common_name
+            ) {
                 badges += createBadge(elem);
             }
         }
@@ -100,7 +118,14 @@ export function initSearch() {
         },
         valueField: "id",
         labelField: "id",
-        searchField: [ "gene_name", "species_name", "description", "domains", "name", "species" ],
+        searchField: [
+            "gene_name",
+            "species_name",
+            "description",
+            "domains",
+            "name",
+            "species",
+        ],
         score: () => () => 1, // always return score of 1 for all results (already sorted)
         render: {
             item: () => `<div>Search the BCA...</div>`,
@@ -123,8 +148,14 @@ export function initSearch() {
         load: function (query, callback) {
             if (!query.length) return callback();
 
-            const datasetsUrl = getViewUrl("rest:dataset-list", { q: query, limit: 5 });
-            const genesUrl = getViewUrl("rest:genesearch-list", { q: query, limit: 3 });
+            const datasetsUrl = getViewUrl("rest:dataset-list", {
+                q: query,
+                limit: 5,
+            });
+            const genesUrl = getViewUrl("rest:genesearch-list", {
+                q: query,
+                limit: 3,
+            });
 
             Promise.all([
                 fetch(datasetsUrl)
