@@ -13,7 +13,7 @@ from ..models import (
     Ortholog,
     Species,
 )
-from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict, get_species_dict
+from ..utils import get_dataset, get_dataset_dict, get_gene_list, get_species, get_species_dict
 
 
 class EntryView(TemplateView):
@@ -102,6 +102,11 @@ class GeneDetailView(DetailView):
     template_name = "app/entries/gene_detail.html"
     slug_field = "name"
     slug_url_kwarg = "gene"
+
+    def get_queryset(self):
+        """Scope genes to the species in the URL."""
+        qs = super().get_queryset()
+        return qs.filter(species=get_species(self.kwargs["species"]))
 
 
 class GeneListListView(FilteredListView):
