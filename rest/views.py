@@ -971,10 +971,10 @@ class EnrichmentAnalysisViewSet(viewsets.ViewSet):
         obsolete = validated["obsolete"] or False
 
         go_obo = models.GlobalFile.objects.get(type="go-basic-obo").file.path
-        emapper = dataset.species.files.get(type="eggnog-mapper").file.path
+        functional_annotation = dataset.species.files.get(type="functional-annotation").file.path
 
         service = services.GeneOntologyEnrichmentService(
-            go_obo, emapper, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
+            go_obo, functional_annotation, background, qvalue=qvalue, methods=["bonferroni"], load_obsolete=obsolete
         )
         results = service.run(genes, sort=True)
 
