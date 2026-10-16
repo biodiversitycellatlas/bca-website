@@ -68,7 +68,7 @@ class SpeciesChoiceFilter(ChoiceFilter):
         anchor_url = "#/operations/species_list"
         label = label or f"The <a href='{anchor_url}'>species' scientific name</a>."
         choices = update_species_choices()
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+        super().__init__(*args, field_name=field_name, label=label, choices=choices, **kwargs)
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -117,7 +117,7 @@ class DatasetChoiceFilter(ChoiceFilter):
         label = label or f"The <a href='{anchor_url}'>dataset's slug</a>."
         choices = update_dataset_choices()
 
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+        super().__init__(*args, field_name=field_name, label=label, choices=choices, **kwargs)
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""

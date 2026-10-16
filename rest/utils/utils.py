@@ -1,7 +1,11 @@
+import logging
+
 from drf_spectacular.utils import OpenApiParameter
 
 from app import models
 from app.utils import get_dataset
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_genes_with_relations(ids=None):
@@ -46,7 +50,8 @@ def get_path_param(name, filter_cls):
             description=get_enum_description(f.label, dict(f.extra["choices"])),
             enum=[i for (i, _) in f.field.choices if i],
         )
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 - schema generation should retain a basic parameter on failure
+        logger.warning("Could not build documented path parameter %s: %s", name, exc)
         return OpenApiParameter(name, str, OpenApiParameter.PATH)
 
 

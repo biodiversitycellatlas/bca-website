@@ -207,7 +207,7 @@ class StatsSerializer(serializers.ModelSerializer):
     def get_umis(self, obj) -> int:
         """Return sum of UMIs in the dataset."""
         res = self.get_metacell_counts(obj).aggregate(Sum("umis")).values()
-        return list(res)[0]
+        return next(iter(res))
 
     def get_genes(self, obj) -> int:
         """Return total number of genes in the dataset."""

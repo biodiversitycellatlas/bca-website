@@ -805,7 +805,7 @@ class AlignTests(APITestCase):
 
     def test_post(self):
         url = "/api/v1/align/"
-        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRPRS", type="aminoacids", species="Alignspecies")
+        data = {"sequences": "MSIWFSIAILSVLVPFVQLTPIRPRS", "type": "aminoacids", "species": "Alignspecies"}
 
         response = self.client.post(url, data, format="json")
 

@@ -20,6 +20,8 @@ from app.managers import ExpressionDataManager
 from . import filters, serializers, services
 from .utils import fetch_genes_with_relations, get_enum_description, get_path_param, parse_species_dataset
 
+logger = logging.getLogger(__name__)
+
 
 class BaseReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(exclude=True)
@@ -488,7 +490,7 @@ class SingleCellGeneExpressionViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(instance=data, many=True)
             return Response(serializer.data)
         except OSError:
-            logging.exception(f"Error reading expression data for {gene} in {dataset}")
+            logger.exception("Error reading expression data for %s in %s", gene, dataset)
             return Response("detail: error reading expression data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -943,7 +945,8 @@ class AlignViewSet(viewsets.ViewSet):
             query_file.write(sequences)
             query_file.write("\n")
             query_path = query_file.name
-        out_path = tempfile.NamedTemporaryFile(suffix=".m8").name
+        with tempfile.NamedTemporaryFile(suffix=".m8", delete=False) as out_file:
+            out_path = out_file.name
 
         results = []
         try:

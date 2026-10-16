@@ -2,7 +2,7 @@
 
 import logging
 
-from django.db import connection
+from django.db import DatabaseError, connection
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django_filters.rest_framework import ChoiceFilter
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def check_model_exists(model):
     try:
         return model._meta.db_table in connection.introspection.table_names()
-    except Exception:
+    except DatabaseError:
         return False
 
 
@@ -44,7 +44,7 @@ def update_species_choices():
                 ]
                 choices = sorted(choices, key=lambda x: x[0])
                 _cached_species_choices = choices
-            except Exception as exc:
+            except DatabaseError as exc:
                 logger.debug("Could not update species choices: %s", exc)
     else:
         choices = _cached_species_choices
@@ -66,7 +66,7 @@ def update_dataset_choices():
                 choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
                 choices = sorted(choices, key=lambda x: x[0])
                 _cached_dataset_choices = choices
-            except Exception as exc:
+            except DatabaseError as exc:
                 logger.debug("Could not update dataset choices: %s", exc)
     else:
         choices = _cached_dataset_choices

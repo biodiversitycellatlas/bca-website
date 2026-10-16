@@ -4,8 +4,8 @@ import io
 import json
 import os
 import ssl
+import time
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -138,8 +138,8 @@ class TestDocumentationView(TestCase):
         assert "Metacells" in response.context["index"]
 
         metadata = response.context["metadata"]
-        assert "title" in metadata.keys()
-        assert "linkTitle" in metadata.keys()
+        assert "title" in metadata
+        assert "linkTitle" in metadata
 
     def test_404(self):
         # Test 404 on non-existing page
@@ -182,7 +182,7 @@ class TestAboutView(TestCase):
         template = response.templates[0].origin.name
 
         mtime = os.path.getmtime(template)
-        mtime_str = datetime.fromtimestamp(mtime).strftime("%d %B %Y")
+        mtime_str = time.strftime("%d %B %Y", time.localtime(mtime))
 
         content = response.content.decode()
         assert "Last updated" in content
