@@ -10,10 +10,10 @@ import { highlightMatch, addWordBreakOpportunities } from "../utils/utils.ts";
 
 let state = {};
 
-let searchStart = null;
-let time = null;
+let searchStartedAt = null;
+let elapsedMs = null;
 
-let lastCountsKey = null;
+let previousCountsKey = null;
 
 /**
  * Build the results count text and append the elapsed search time.
@@ -29,8 +29,8 @@ function formatResultsCount(count, suffix = "result", elapsed = null) {
 
     if (elapsed === null) return text;
 
-    const time = (elapsed / 1000).toFixed(2);
-    return `${text} in ${time}s`;
+    const seconds = (elapsed / 1000).toFixed(2);
+    return `${text} in ${seconds}s`;
 }
 
 /**
@@ -99,16 +99,31 @@ function buildCategoryUrl(category) {
 }
 
 /**
+ * Show the requested search-page views and hide all other page views.
+ *
+ * @param {string[]} visibleElements - Selectors for views to show.
+ */
+function showPageElements(visibleElements) {
+    const pageElements = [
+        "#loading-spinner",
+        "#mockup",
+        "#sidebar",
+        "#summary-view",
+        "#category-view",
+        "#no-results-state",
+        "#error-state",
+        "#pagination-nav",
+    ];
+    $(pageElements.join(", ")).hide();
+    $(visibleElements.join(", ")).show();
+}
+
+/**
  * Show loading spinner and hide all result sections.
  */
 function showLoading() {
+    showPageElements(["#loading-spinner", "#sidebar"]);
     $("#loading-spinner").css("display", "flex");
-    $("#mockup").hide();
-    $("#sidebar").show();
-    $("#summary-view").hide();
-    $("#category-view").hide();
-    $("#empty-state").hide();
-    $("#error-state").hide();
     $("#results_count").text("");
 }
 
@@ -118,25 +133,16 @@ function showLoading() {
  * @param {string} query - The search query.
  */
 function showEmpty(query) {
-    $("#loading-spinner").hide();
-    $("#summary-view").hide();
-    $("#category-view").hide();
-    $("#empty-state").show();
+    showPageElements(["#no-results-state", "#sidebar"]);
     $("#empty-query").text(query);
-    $("#pagination-nav").hide();
-    $("#results_count").text(formatResultsCount(0, "result", time));
+    $("#results_count").text(formatResultsCount(0, "result", elapsedMs));
 }
 
 /**
  * Show error state when API calls fail.
  */
 function showError() {
-    $("#loading-spinner").hide();
-    $("#summary-view").hide();
-    $("#category-view").hide();
-    $("#empty-state").hide();
-    $("#pagination-nav").hide();
-    $("#error-state").show();
+    showPageElements(["#error-state", "#sidebar"]);
     $("#results_count").text("Error loading results");
 }
 
@@ -144,9 +150,9 @@ function showError() {
  * Append a single search result card to the results container.
  *
  * @param {string} title - Main title.
- * @param {string} title_url - Title link URL.
+ * @param {string} titleUrl - Title link URL.
  * @param {string} subtitle - Subtitle text.
- * @param {string} subtitle_url - Subtitle link URL.
+ * @param {string} subtitleUrl - Subtitle link URL.
  * @param {string} description - Description text.
  * @param {string[]} badges - Badge strings.
  * @param {string} [image=""] - Image URL for the result.
@@ -154,9 +160,9 @@ function showError() {
  */
 function appendResult(
     title,
-    title_url,
+    titleUrl,
     subtitle,
-    subtitle_url,
+    subtitleUrl,
     description,
     badges,
     image = "",
@@ -165,30 +171,27 @@ function appendResult(
     const template = $("#result-template");
     const $clone = $(template.html());
 
-    let title_mod = title,
-        subtitle_mod = subtitle,
-        description_mod = description;
-
+    let titleHtml = title;
+    let subtitleHtml = subtitle;
+    let descriptionHtml = description;
     const query = state.q;
     if (query) {
-        title_mod = highlightMatch(title_mod, query);
-        subtitle_mod = highlightMatch(subtitle_mod, query);
-        description_mod = highlightMatch(description_mod, query);
+        titleHtml = highlightMatch(titleHtml, query);
+        subtitleHtml = highlightMatch(subtitleHtml, query);
+        descriptionHtml = highlightMatch(descriptionHtml, query);
         badges = badges.map((item) => highlightMatch(item, query));
     }
 
-    const mods = { title_mod, subtitle_mod, description_mod };
-    for (const key in mods) {
-        mods[key] = addWordBreakOpportunities(mods[key] || "", "_/");
-    }
-    ({ title_mod, subtitle_mod, description_mod } = mods);
+    titleHtml = addWordBreakOpportunities(titleHtml || "", "_/");
+    subtitleHtml = addWordBreakOpportunities(subtitleHtml || "", "_/");
+    descriptionHtml = addWordBreakOpportunities(descriptionHtml || "", "_/");
 
-    $clone.find(".result-title").html(title_mod).attr("href", title_url);
+    $clone.find(".result-title").html(titleHtml).attr("href", titleUrl);
     $clone
         .find(".result-subtitle")
-        .html(subtitle_mod)
-        .attr("href", subtitle_url);
-    $clone.find(".result-description").html(description_mod);
+        .html(subtitleHtml)
+        .attr("href", subtitleUrl);
+    $clone.find(".result-description").html(descriptionHtml);
 
     if (image) {
         $clone
@@ -314,6 +317,12 @@ function geneCountBadges(item) {
     return count ? [`${count.toLocaleString()} genes`] : [];
 }
 
+/**
+ * Get dataset metadata badges not already shown in its title or subtitle.
+ *
+ * @param {Object} item - Dataset search result.
+ * @returns {string[]} Metadata values to display as badges.
+ */
 function datasetBadges(item) {
     const title = item.dataset_html + (item.name ? ` - ${item.name}` : "");
     const subtitle = item.species_common_name || "";
@@ -400,6 +409,15 @@ const categories = {
     },
 };
 
+/**
+ * Render a category's API results into cards in the given container.
+ *
+ * Updates the result count and pagination when rendering the main results list.
+ *
+ * @param {Object} data - API response containing the category's results and count.
+ * @param {string} category - Category key in `categories`.
+ * @param {string} [container="#results"] - Selector for the results container.
+ */
 function renderResults(data, category, container = "#results") {
     const { key, countKey, props } = categories[category];
     $(container).empty();
@@ -420,12 +438,18 @@ function renderResults(data, category, container = "#results") {
     if (container === "#results") {
         const totalCount = data[countKey] || 0;
         $("#results_count").text(
-            formatResultsCount(totalCount, "result", time),
+            formatResultsCount(totalCount, "result", elapsedMs),
         );
         renderPagination(totalCount, state.limit, state.offset);
     }
 }
 
+/**
+ * Render the summary sections from dataset and gene-search API responses.
+ *
+ * @param {Object} datasetData - Dataset search API response.
+ * @param {Object} geneData - Gene search API response.
+ */
 function renderSummary(datasetData, geneData) {
     for (const category of Object.keys(categories)) {
         const data = category === "datasets" ? datasetData : geneData;
@@ -437,9 +461,7 @@ function renderSummary(datasetData, geneData) {
             .text(`(${(data[countKey] || 0).toLocaleString()})`)
             .attr("href", buildCategoryUrl(category));
     }
-
-    $("#summary-view").show();
-    $("#category-view").hide();
+    showPageElements(["#summary-view", "#sidebar"]);
 }
 
 /**
@@ -470,29 +492,22 @@ export function loadSearchResults() {
     const { q, category, species, limit, offset } = state;
 
     if (!q) {
-        $("#loading-spinner").hide();
-        $("#summary-view").hide();
-        $("#category-view").hide();
-        $("#empty-state").hide();
-        $("#error-state").hide();
-        $("#pagination-nav").hide();
-        $("#sidebar").hide();
-        $("#mockup").show();
+        showPageElements(["#mockup"]);
         $("#results_count").text("");
         $(".category-count").empty();
-        lastCountsKey = null;
+        previousCountsKey = null;
         return;
     }
 
     // Reset counts when the query or the species change.
     const countsKey = `${q}|${species}`;
-    if (countsKey !== lastCountsKey) {
-        lastCountsKey = countsKey;
+    if (countsKey !== previousCountsKey) {
+        previousCountsKey = countsKey;
         $(".category-count").empty();
     }
 
-    searchStart = performance.now();
-    time = null;
+    searchStartedAt = performance.now();
+    elapsedMs = null;
     showLoading();
     updateSidebar();
 
@@ -516,8 +531,7 @@ export function loadSearchResults() {
             fetch(gsUrl).then((r) => r.json()),
         ])
             .then(([datasetData, geneData]) => {
-                time = performance.now() - searchStart;
-                $("#loading-spinner").hide();
+                elapsedMs = performance.now() - searchStartedAt;
 
                 const dataFor = (name) =>
                     name === "datasets" ? datasetData : geneData;
@@ -538,12 +552,11 @@ export function loadSearchResults() {
                     0,
                 );
                 $("#results_count").text(
-                    formatResultsCount(count, "result", time),
+                    formatResultsCount(count, "result", elapsedMs),
                 );
 
                 updateCategoryCounts(categories.datasets.endpoint, datasetData);
                 updateCategoryCounts(categories.genes.endpoint, geneData);
-                $("#pagination-nav").hide();
             })
             .catch(() => {
                 showError();
@@ -566,14 +579,12 @@ function loadCategory(category, params) {
     fetch(getViewUrl(endpoint, params))
         .then((res) => res.json())
         .then((data) => {
-            time = performance.now() - searchStart;
-            $("#loading-spinner").hide();
-            $("#summary-view").hide();
+            elapsedMs = performance.now() - searchStartedAt;
 
             if (!data[key] || !data[key].length) {
                 showEmpty(q);
             } else {
-                $("#category-view").show();
+                showPageElements(["#category-view", "#sidebar"]);
                 renderResults(data, category);
             }
             updateCategoryCounts(endpoint, data);
