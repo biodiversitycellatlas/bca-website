@@ -6,6 +6,12 @@ services:
             args:
                 DJANGO_DEPENDENCIES: .
     nginx:
+        # Build a thin extension of the DHI nginx image that bundles curl and
+        # the vendored nginx-ultimate-bad-bot-blocker configs. Image name is
+        # a local tag so the DHI base image stays untouched in the registry.
+        image: bca-nginx:local
+        build:
+            context: ./nginx
         ports:
             - "443:443"
         env_file: [.env]
