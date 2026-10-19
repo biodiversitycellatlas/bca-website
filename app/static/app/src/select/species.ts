@@ -113,7 +113,7 @@ export function initSpeciesSelect(
             }
         },
         onDropdownOpen: function () {
-            this.clear();
+            this.clear(true);
             setTimeout(() => {
                 if (species) {
                     const current = this.getOption(species);

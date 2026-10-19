@@ -50,6 +50,14 @@ function readStateFromUrl() {
 }
 
 /**
+ * Convert the species slug in the URL to the scientific name expected by search APIs.
+ */
+function getSpeciesName(species) {
+    const name = species.replace(/[-_]/g, " ");
+    return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+/**
  * Update sidebar active states for category and limit buttons.
  */
 function updateSidebar() {
@@ -515,15 +523,15 @@ export function loadSearchResults() {
     updateSidebar();
 
     const params = { q: q, limit: limit, offset: offset };
-    if (species) params.species = species.replace("_", " ");
+    if (species) params.species = getSpeciesName(species);
 
     if (!category) {
         // Summary mode: fetch both datasets and genes (always from offset 0)
         const dsParams = { q: q, limit: Math.min(limit, 6) };
         const geneParams = { q: q, limit: 3 };
         if (species) {
-            dsParams.species = species.replace("_", " ");
-            geneParams.species = species.replace("_", " ");
+            dsParams.species = getSpeciesName(species);
+            geneParams.species = getSpeciesName(species);
         }
 
         const dsUrl = getViewUrl(categories.datasets.endpoint, dsParams);
@@ -624,20 +632,22 @@ export function initSearchPage() {
         updateQuery("limit", limit);
     });
 
+    const $speciesSelect = $("#species-select-");
     $("#clear-species").on("click", function () {
-        updateQuery("species", "");
+        const speciesSelect = $speciesSelect[0];
+        if (speciesSelect?.tomselect) {
+            speciesSelect.tomselect.clear();
+        } else if ($speciesSelect.length) {
+            $speciesSelect.val("").trigger("change");
+        } else {
+            updateQuery("species", "");
+        }
     });
 
     setupPaginationHandlers();
 
-    const $speciesSelect = $("#species-select-");
     if ($speciesSelect.length) {
-        let isInitial = true;
         $speciesSelect.on("change", function () {
-            if (isInitial) {
-                isInitial = false;
-                return;
-            }
             const value = $(this).val() || "";
             updateQuery("species", value);
         });

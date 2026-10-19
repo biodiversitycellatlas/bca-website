@@ -5,6 +5,7 @@ import {
     loadSearchResults,
     updateQuery,
 } from "../search/results_page";
+import { initSpeciesSelect } from "../select/species";
 
 // Mock global variables
 beforeAll(() => {
@@ -180,7 +181,7 @@ describe("search page", () => {
     });
 
     it("fetches and renders summary results with normalized species and category counts", async () => {
-        setSearchUrl("?q=ATP&species=Homo_sapiens&limit=12");
+        setSearchUrl("?q=ATP&species=mus-musculus&limit=12");
 
         const requested = stubFetch((url) =>
             url.includes("datasets")
@@ -200,7 +201,8 @@ describe("search page", () => {
         await loadSearchResults();
 
         expect(requested).toHaveLength(2);
-        expect(requested[0]).toContain("species=Homo+sapiens");
+        expect(requested[0]).toContain("species=Mus+musculus");
+        expect(requested[1]).toContain("species=Mus+musculus");
         expect(requested[0]).toContain("limit=6");
         expect(requested[1]).toContain("limit=3");
         expect(isHidden("#summary-view")).toBe(false);
@@ -358,25 +360,16 @@ describe("search page", () => {
         params = new URLSearchParams(window.location.search);
         expect(params.get("limit")).toBe("36");
 
-        document
-            .querySelector("#species-select-")!
-            .dispatchEvent(new Event("change", { bubbles: true }));
-        await waitForSearch();
-        params = new URLSearchParams(window.location.search);
-        expect(params.has("species")).toBe(false);
-
         const species = document.querySelector(
             "#species-select-",
         ) as HTMLSelectElement;
         species.innerHTML =
-            '<option value="Homo_sapiens" selected>Human</option>';
-        species.value = "Homo_sapiens";
-
-        // Clears initialization guard
+            '<option value="mus-musculus" selected>Mouse</option>';
+        species.value = "mus-musculus";
         species.dispatchEvent(new Event("change", { bubbles: true }));
         await waitForSearch();
         params = new URLSearchParams(window.location.search);
-        expect(params.get("species")).toBe("Homo_sapiens");
+        expect(params.get("species")).toBe("mus-musculus");
 
         document
             .querySelector("#clear-species")!
@@ -384,6 +377,7 @@ describe("search page", () => {
         await waitForSearch();
         params = new URLSearchParams(window.location.search);
         expect(params.has("species")).toBe(false);
+        expect(species.value).toBe("");
 
         const form = document.querySelector("#search-form") as HTMLFormElement;
         (form.elements.namedItem("q") as HTMLInputElement).value = "new query";
@@ -409,5 +403,27 @@ describe("search page", () => {
         expect(
             document.querySelector("#results .result-title")?.textContent,
         ).toBe("ATP1");
+    });
+
+    it("does not run a search when opening the species selector", async () => {
+        setSearchUrl("?q=ATP&species=mus-musculus");
+        const species = document.querySelector(
+            "#species-select-",
+        ) as HTMLSelectElement;
+        species.innerHTML = `
+            <option value=""></option>
+            <option value="mus-musculus" selected>Mouse</option>
+            <option value="homo-sapiens">Human</option>
+        `;
+        species.value = "mus-musculus";
+        const requested = stubFetch();
+
+        await initSearchPage();
+        const select = initSpeciesSelect("", "mus-musculus", "none", false, "", "");
+        select.open();
+
+        const params = new URLSearchParams(window.location.search);
+        expect(params.get("species")).toBe("mus-musculus");
+        expect(requested).toHaveLength(2);
     });
 });
