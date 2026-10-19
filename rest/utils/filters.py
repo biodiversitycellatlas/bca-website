@@ -3,8 +3,6 @@
 import logging
 
 from django.db import DatabaseError, connection
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
 from django_filters.rest_framework import ChoiceFilter
 
 from app import models
@@ -27,65 +25,31 @@ def skip_param(queryset, name, value):
     return queryset
 
 
-_cached_species_choices = None
-
-
 def update_species_choices():
-    """Update species choices, cached until species change."""
-    global _cached_species_choices
-
-    if _cached_species_choices is None:
-        choices = []
-        if check_model_exists(models.Species):
-            try:
-                choices = [
-                    (s.scientific_name, s.common_name if s.common_name is not None else s.get_html())
-                    for s in models.Species.objects.all()
-                ]
-                choices = sorted(choices, key=lambda x: x[0])
-                _cached_species_choices = choices
-            except DatabaseError as exc:
-                logger.debug("Could not update species choices: %s", exc)
-    else:
-        choices = _cached_species_choices
-
+    """Return current species choices."""
+    choices = []
+    if check_model_exists(models.Species):
+        try:
+            choices = [
+                (s.scientific_name, s.common_name if s.common_name is not None else s.get_html())
+                for s in models.Species.objects.all()
+            ]
+            choices = sorted(choices, key=lambda x: x[0])
+        except DatabaseError as exc:
+            logger.debug("Could not update species choices: %s", exc)
     return choices
-
-
-_cached_dataset_choices = None
 
 
 def update_dataset_choices():
-    """Update dataset choices, cached until datasets change."""
-    global _cached_dataset_choices
-
-    if _cached_dataset_choices is None:
-        choices = []
-        if check_model_exists(models.Dataset):
-            try:
-                choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-                choices = sorted(choices, key=lambda x: x[0])
-                _cached_dataset_choices = choices
-            except DatabaseError as exc:
-                logger.debug("Could not update dataset choices: %s", exc)
-    else:
-        choices = _cached_dataset_choices
-
+    """Return current dataset choices."""
+    choices = []
+    if check_model_exists(models.Dataset):
+        try:
+            choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
+            choices = sorted(choices, key=lambda x: x[0])
+        except DatabaseError as exc:
+            logger.debug("Could not update dataset choices: %s", exc)
     return choices
-
-
-@receiver([post_save, post_delete], sender=models.Species)
-def invalidate_species_choices(**_kwargs):
-    """Clear cached species choices when species change."""
-    global _cached_species_choices
-    _cached_species_choices = None
-
-
-@receiver([post_save, post_delete], sender=models.Dataset)
-def invalidate_dataset_choices(**_kwargs):
-    """Clear cached dataset choices when datasets change."""
-    global _cached_dataset_choices
-    _cached_dataset_choices = None
 
 
 def create_fc_type_choice_filter(mode, ignore_mode=False):

@@ -42,14 +42,9 @@ from .utils import (
 
 
 class SpeciesChoiceField(ChoiceField):
-    """Forcing dynamic updating of species choices"""
+    """Field for species choices."""
 
     null_label = None
-
-    def valid_value(self, value):
-        """Update dataset choices before validation."""
-        self.choices = update_species_choices()
-        return super().valid_value(value)
 
 
 class SpeciesChoiceFilter(ChoiceFilter):
@@ -67,8 +62,13 @@ class SpeciesChoiceFilter(ChoiceFilter):
         field_name = field_name or self.default_field_name
         anchor_url = "#/operations/species_list"
         label = label or f"The <a href='{anchor_url}'>species' scientific name</a>."
-        choices = update_species_choices()
-        super().__init__(*args, field_name=field_name, label=label, choices=choices, **kwargs)
+        super().__init__(*args, field_name=field_name, label=label, choices=(), **kwargs)
+
+    @property
+    def field(self):
+        field = super().field
+        field.choices = update_species_choices()
+        return field
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -92,15 +92,9 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
 
 class DatasetChoiceField(ChoiceField):
-    """Fix to dynamically uodate dataset choices."""
+    """Field for dataset choices."""
 
     null_label = None
-
-    def valid_value(self, value):
-        """Update dataset choices before validation."""
-
-        self.choices = update_dataset_choices()
-        return super().valid_value(value)
 
 
 class DatasetChoiceFilter(ChoiceFilter):
@@ -115,9 +109,13 @@ class DatasetChoiceFilter(ChoiceFilter):
         field_name = field_name or self.default_field_name
         anchor_url = "#/operations/datasets_list"
         label = label or f"The <a href='{anchor_url}'>dataset's slug</a>."
-        choices = update_dataset_choices()
+        super().__init__(*args, field_name=field_name, label=label, choices=(), **kwargs)
 
-        super().__init__(*args, field_name=field_name, label=label, choices=choices, **kwargs)
+    @property
+    def field(self):
+        field = super().field
+        field.choices = update_dataset_choices()
+        return field
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""
