@@ -1,6 +1,10 @@
 import { beforeAll, beforeEach, describe, expect, it } from "bun:test";
 
-import { initSearchPage, loadSearchResults, updateQuery } from "../search/results_page";
+import {
+    initSearchPage,
+    loadSearchResults,
+    updateQuery,
+} from "../search/results_page";
 
 // Mock global variables
 beforeAll(() => {
@@ -9,8 +13,10 @@ beforeAll(() => {
         "rest:genesearch-list": "/api/search/gene/",
         atlas: "/atlas/DATASET_PLACEHOLDER/",
         gene_entry: "/entry/gene/SPECIES_PLACEHOLDER/GENE_PLACEHOLDER/",
-        gene_list_entry: "/entry/gene-list/GENE_LIST_PLACEHOLDER/SPECIES_PLACEHOLDER/",
-        gene_module_entry: "/entry/gene-module/DATASET_PLACEHOLDER/GENE_MODULE_PLACEHOLDER/",
+        gene_list_entry:
+            "/entry/gene-list/GENE_LIST_PLACEHOLDER/SPECIES_PLACEHOLDER/",
+        gene_module_entry:
+            "/entry/gene-module/DATASET_PLACEHOLDER/GENE_MODULE_PLACEHOLDER/",
         domain_entry: "/entry/domain/DOMAIN_PLACEHOLDER/SPECIES_PLACEHOLDER/",
     };
 });
@@ -62,7 +68,8 @@ function buildPage() {
             <span class="category-count"></span>
         </button>`;
 
-    const limitTemplate = (limit) => `<a class="limit-btn" data-limit="${limit}" href="#">${limit}</a>`;
+    const limitTemplate = (limit) =>
+        `<a class="limit-btn" data-limit="${limit}" href="#">${limit}</a>`;
 
     const sectionTemplate = (category) => `
         <section data-category="${category}">
@@ -148,8 +155,8 @@ function stubFetch(handler?: (url: string) => Response) {
 
         const genes = [{ gene: "ATP1", species: "Human" }];
         const result = url.includes("datasets")
-                ? { results: [], count: 0 }
-                : { genes, genes_count: 1 };
+            ? { results: [], count: 0 }
+            : { genes, genes_count: 1 };
         return response(result);
     };
     return requested;
@@ -202,17 +209,22 @@ describe("search page", () => {
         const result = document.querySelectorAll(".summary-results .result");
         expect(result).toHaveLength(2);
 
-        const categoryCount = document.querySelector('.category-btn[data-category="gene_modules"] .category-count');
+        const categoryCount = document.querySelector(
+            '.category-btn[data-category="gene_modules"] .category-count',
+        );
         expect(categoryCount?.textContent).toBe("(4)");
 
-        const resultsCount = document.querySelector("#results_count")?.textContent;
+        const resultsCount =
+            document.querySelector("#results_count")?.textContent;
         expect(resultsCount).toMatch(/15 results in \d+\.\d{2}s/);
     });
 
     it("show empty state for no results", async () => {
         setSearchUrl("?q=missing");
         stubFetch((url) => {
-            const empty = url.includes("datasets") ? { results: [] } : { genes: [] };
+            const empty = url.includes("datasets")
+                ? { results: [] }
+                : { genes: [] };
             return response(empty);
         });
         await loadSearchResults();
@@ -233,7 +245,8 @@ describe("search page", () => {
         };
         await loadSearchResults();
         expect(isHidden("#error-state")).toBe(false);
-        const resultsCount = document.querySelector("#results_count")?.textContent;
+        const resultsCount =
+            document.querySelector("#results_count")?.textContent;
         expect(resultsCount).toBe("Error loading results");
 
         setSearchUrl("?q=ATP&category=genes");
@@ -267,7 +280,9 @@ describe("search page", () => {
             /25 results in/,
         );
         expect(isHidden("#pagination-nav")).toBe(false);
-        expect(document.querySelectorAll("#pagination .page-link")).toHaveLength(5);
+        expect(
+            document.querySelectorAll("#pagination .page-link"),
+        ).toHaveLength(5);
 
         document
             .querySelector('#pagination a[aria-label="Next"]')!
@@ -275,7 +290,7 @@ describe("search page", () => {
                 new Event("click", { bubbles: true, cancelable: true }),
             );
         await waitForSearch();
-        let params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(window.location.search);
         expect(params.get("offset")).toBe("12");
         expect(requested.at(-1)).toContain("offset=12");
 
@@ -292,13 +307,17 @@ describe("search page", () => {
             expect(results).toHaveLength(1);
         }
 
-        const resultBadges = document.querySelector("#results .result-badges")?.textContent;
+        const resultBadges = document.querySelector(
+            "#results .result-badges",
+        )?.textContent;
         expect(resultBadges).toContain("2 genes");
     });
 
     it("hides pagination for one page and handles invalid category and query updates", async () => {
         setSearchUrl("?q=ATP&category=genes&limit=12");
-        stubFetch(() => response({ genes: [SEARCH_RESULTS.gene], genes_count: 1 }));
+        stubFetch(() =>
+            response({ genes: [SEARCH_RESULTS.gene], genes_count: 1 }),
+        );
         await loadSearchResults();
         expect(isHidden("#pagination-nav")).toBe(true);
 
@@ -346,8 +365,11 @@ describe("search page", () => {
         params = new URLSearchParams(window.location.search);
         expect(params.has("species")).toBe(false);
 
-        const species = document.querySelector("#species-select-") as HTMLSelectElement;
-        species.innerHTML = '<option value="Homo_sapiens" selected>Human</option>';
+        const species = document.querySelector(
+            "#species-select-",
+        ) as HTMLSelectElement;
+        species.innerHTML =
+            '<option value="Homo_sapiens" selected>Human</option>';
         species.value = "Homo_sapiens";
 
         // Clears initialization guard
