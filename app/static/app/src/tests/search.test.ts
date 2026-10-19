@@ -433,4 +433,39 @@ describe("search page", () => {
         expect(params.get("species")).toBe("mus-musculus");
         expect(requested).toHaveLength(2);
     });
+
+    it("clears the Tom Select species control", async () => {
+        setSearchUrl("?q=ATP&species=mus-musculus");
+        const species = document.querySelector(
+            "#species-select-",
+        ) as HTMLSelectElement;
+        species.innerHTML =
+            '<option value=""></option><option value="mus-musculus" selected>Mouse</option>';
+        await initSearchPage();
+        const select = initSpeciesSelect("", "mus-musculus", "none", false, "", "");
+
+        document.querySelector("#clear-species")!.dispatchEvent(
+            new Event("click", { bubbles: true }),
+        );
+        await waitForSearch();
+
+        expect(select.getValue()).toBe("");
+
+        const params = new URLSearchParams(window.location.search);
+        expect(params.has("species")).toBe(false);
+    });
+
+    it("clears the species query when the selector is unavailable", async () => {
+        setSearchUrl("?q=ATP&species=mus-musculus");
+        document.querySelector("#species-select-")!.remove();
+        await initSearchPage();
+
+        document.querySelector("#clear-species")!.dispatchEvent(
+            new Event("click", { bubbles: true }),
+        );
+        await waitForSearch();
+
+        const params = new URLSearchParams(window.location.search);
+        expect(params.has("species")).toBe(false);
+    });
 });

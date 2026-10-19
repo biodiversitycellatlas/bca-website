@@ -636,7 +636,8 @@ export function initSearchPage() {
     $("#clear-species").on("click", function () {
         const speciesSelect = $speciesSelect[0];
         if (speciesSelect?.tomselect) {
-            speciesSelect.tomselect.clear();
+            speciesSelect.tomselect.clear(true);
+            updateQuery("species", "");
         } else if ($speciesSelect.length) {
             $speciesSelect.val("").trigger("change");
         } else {
