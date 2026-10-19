@@ -1,11 +1,9 @@
+import os
+
 import pytest
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 
-@pytest.fixture(scope="class")
-def live_server_url(request):
-    """Provide live server URL to test class."""
-    server = StaticLiveServerTestCase
-    server.setUpClass()
-    request.addfinalizer(server.tearDownClass)
-    return server.live_server_url
+@pytest.fixture()
+def browser_context_args(browser_context_args):
+    base_url = os.getenv("PYTEST_BASE_URL", "http://web:8000")
+    return {**browser_context_args, "base_url": base_url}

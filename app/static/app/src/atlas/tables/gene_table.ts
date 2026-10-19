@@ -5,7 +5,7 @@
 import DataTable from "datatables.net-bs5";
 import "datatables.net-select-bs5";
 
-import { buildDataQuery, filterData } from "../plots/utils.ts";
+import { buildDataQuery } from "../plots/utils.ts";
 import { makeLinkGene, linkDomains } from "./utils.ts";
 
 /**
@@ -84,8 +84,11 @@ export function createGeneTable(
             data: function (d) {
                 return buildDataQuery(d, species, genes, method);
             },
-            dataFilter: filterData,
-            dataSrc: "results",
+            dataSrc: {
+                data: "results",
+                recordsTotal: "count",
+                recordsFiltered: "count",
+            },
             cache: true,
         },
         pageLength: 10,

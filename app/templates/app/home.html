@@ -44,9 +44,7 @@ Features:
     {% load string_extras %}
 
     <div class="px-2 text-center">
-        <h1 class="d-none">
-            Biodiversity Cell Atlas: Data Portal
-        </h1>
+        <h1 class="d-none">Biodiversity Cell Atlas: Data Portal</h1>
 
         <img title="Biodiversity Cell Atlas"
              fetchpriority="high"
@@ -56,9 +54,7 @@ Features:
              class="img-fluid bca-logo"
              src="{% static 'app/images/logos/BCA/BCALogotypeDesign_2024_Primary_Logo_Color.svg' %}">
 
-        <h2 class="h5 fw-semibold text-body-emphasis">
-            BCA Data Portal
-        </h2>
+        <h2 class="h5 fw-semibold text-body-emphasis">BCA Data Portal</h2>
 
         <p class="lead mb-3 mx-auto bca-lead">
             Explore and download single-cell datasets
@@ -67,30 +63,18 @@ Features:
 
         <div class="d-flex justify-content-center text-center gap-3">
             <div class="fixed-width">
-                <p class="h3 mb-0">
-                    {{ counter.cells|human_number }}
-                </p>
-                <p>
-                    cells
-                </p>
+                <p class="h3 mb-0">{{ counter.cells|human_number }}</p>
+                <p>cells</p>
             </div>
 
             <a href="{% url 'species_entry' %}" class="fixed-width">
-                <p class="h3 mb-0">
-                    {{ counter.species|human_number }}
-                </p>
-                <p>
-                    species
-                </p>
+                <p class="h3 mb-0">{{ counter.species|human_number }}</p>
+                <p>species</p>
             </a>
 
             <a href="{% url 'dataset_entry' %}" class="fixed-width">
-                <p class="h3 mb-0">
-                    {{ counter.datasets|human_number }}
-                </p>
-                <p>
-                    datasets
-                </p>
+                <p class="h3 mb-0">{{ counter.datasets|human_number }}</p>
+                <p>datasets</p>
             </a>
         </div>
     </div>
@@ -103,8 +87,7 @@ Features:
     <div id="tree_container"
          class="container d-flex align-items-center justify-content-center"
          aria-label="Tree of life.">
-        <div id="tree">
-        </div>
+        <div id="tree"></div>
     </div>
 
     <div class="text-center mt-3">
@@ -114,26 +97,20 @@ Features:
                    name="tree_layout"
                    id="tree_layout_linear"
                    autocomplete="off">
-            <label class="btn btn-outline-primary btn-xs" for="tree_layout_linear">
-                Linear
-            </label>
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_linear">Linear</label>
             <input type="radio"
                    class="btn-check"
                    name="tree_layout"
                    id="tree_layout_radial"
                    autocomplete="off"
                    checked>
-            <label class="btn btn-outline-primary btn-xs" for="tree_layout_radial">
-                Radial
-            </label>
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_radial">Radial</label>
             <input type="radio"
                    class="btn-check"
                    name="tree_layout"
                    id="tree_layout_unrooted"
                    autocomplete="off">
-            <label class="btn btn-outline-primary btn-xs" for="tree_layout_unrooted">
-                Unrooted
-            </label>
+            <label class="btn btn-outline-primary btn-xs" for="tree_layout_unrooted">Unrooted</label>
         </div>
     </div>
 
@@ -153,9 +130,7 @@ Features:
     {% endcomment %}
 
     <!-- Data portal features -->
-    <h2 class="h3 mt-5" id="features">
-        BCA Data Portal features
-    </h2>
+    <h2 class="h3 mt-5" id="features">BCA Data Portal features</h2>
 
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
         {% url 'atlas_info' dataset=example_dataset.slug as info_url %}
@@ -202,9 +177,7 @@ Features:
     <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
         {% load cards %}
         {% for post in posts.latest %}
-            <div class="col">
-                {% news_card title=post.title date=post.date|date:"j F Y" img_url=post.image link=post.link %}
-            </div>
+            <div class="col">{% news_card title=post.title date=post.date|date:"j F Y" img_url=post.image link=post.link %}</div>
         {% empty %}
             <span class="text-secondary"><i>No posts available.</i></span>
         {% endfor %}
@@ -214,7 +187,7 @@ Features:
     {% load lists %}
     {% load dict_extras %}
 
-    <div class="row row-cols-1 row-cols-md-3 align-items-stretch  g-4 py-2">
+    <div class="row row-cols-1 row-cols-md-3 align-items-stretch g-4 py-2">
         {% for category in "publications,meetings,tutorials"|split:"," %}
             <div class="col">
                 <h2 class="h4" id="{{ category }}">

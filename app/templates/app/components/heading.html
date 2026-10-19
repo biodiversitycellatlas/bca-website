@@ -1,29 +1,23 @@
-<{{ tag|default:"h1" }}
-{% if id %}
-    id={{ id }}
-{% endif %}
-class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
+<{{ tag|default:"h1" }} {% if id %} id={{ id }} {% endif %} class="{{ h_class }} d-flex flex-wrap pt-2 mb-3">
+    <span>
+        {{ title|safe }}
+        {% if help %}
+            <i class="fa fa-circle-question fs-5 text-secondary"
+               data-bs-toggle="tooltip"
+               data-bs-placement="bottom"
+               data-bs-title="{{ help }}"></i>
+        {% endif %}
+    </span>
 
-<span>
-    {{ title|safe }}
-    {% if help %}
-        <i class="fa fa-circle-question fs-5 text-secondary"
-           data-bs-toggle="tooltip"
-           data-bs-placement="bottom"
-           data-bs-title="{{ help }}"></i>
-    {% endif %}
-</span>
+    <div class="d-flex ms-auto gap-2">
+        {% load headings %}
 
-<div class="d-flex ms-auto gap-2">
-    {% load headings %}
+        {% if clipboard_button %}
+            {% clipboard_button id %}
+        {% endif %}
 
-    {% if clipboard_button %}
-        {% clipboard_button id %}
-    {% endif %}
-
-    {% if data_dropdown %}
-        {% data_dropdown id %}
-    {% endif %}
-</div>
-
+        {% if data_dropdown %}
+            {% data_dropdown id %}
+        {% endif %}
+    </div>
 </{{ tag|default:"h1" }}>

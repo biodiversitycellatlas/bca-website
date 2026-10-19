@@ -26,45 +26,25 @@
 {% endblock heading %}
 
 {% block header %}
-    <th>
-        Gene
-    </th>
-    <th>
-        Symbol
-    </th>
-    <th class="entry-description">
-        Description
-    </th>
-    <th>
-        Domains
-    </th>
+    <th>Gene</th>
+    <th>Symbol</th>
+    <th class="entry-description">Description</th>
+    <th>Domains</th>
 
     {% if not species %}
-        <th>
-            Species
-        </th>
+        <th>Species</th>
     {% endif %}
 {% endblock header %}
 
 {% block row %}
-    <td>
-        {{ each.get_html_link }}
-    </td>
-    <td>
-        {{ each.symbol|default:'—' }}
-    </td>
-    <td class="entry-description">
-        {{ each.description|default:'—' }}
-    </td>
-    <td>
-        {{ each.get_domain_html_links|default:'—' }}
-    </td>
+    <td>{{ each.get_html_link }}</td>
+    <td>{{ each.symbol|default:'—' }}</td>
+    <td class="entry-description">{{ each.description|default:'—' }}</td>
+    <td>{{ each.get_domain_html_links|default:'—' }}</td>
 
     {% if not species %}
         {% load entry_links %}
-        <td>
-            {% species_genelist_link each.species gene_list %}
-        </td>
+        <td>{% species_genelist_link each.species gene_list %}</td>
     {% endif %}
 {% endblock row %}
 

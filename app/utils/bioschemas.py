@@ -247,6 +247,10 @@ def build_scholarly_article(publication):
 
     No conformance is claimed: Bioschemas' only ScholarlyArticle profile is a
     draft, so this stays a plain schema.org node.
+
+    `CreativeWork` is co-typed alongside `ScholarlyArticle` because Google's
+    parser does not resolve the subclass and rejects the node as a `citation`
+    value, which schema.org restricts to `CreativeWork` or `Text`.
     """
     if publication is None:
         return None
@@ -269,7 +273,7 @@ def build_scholarly_article(publication):
 
     return _drop_empty(
         {
-            "@type": "ScholarlyArticle",
+            "@type": ["ScholarlyArticle", "CreativeWork"],
             "@id": url,
             "name": publication.title,
             "url": url,
