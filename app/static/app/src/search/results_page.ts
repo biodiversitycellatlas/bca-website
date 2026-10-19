@@ -65,6 +65,7 @@ function updateSidebar() {
  *
  * @param {string} key - Query parameter name.
  * @param {string} value - New value (removes key if empty).
+ * @returns {Promise<void>} Resolves when the updated search has rendered.
  */
 export function updateQuery(key, value) {
     const params = new URLSearchParams(window.location.search);
@@ -82,7 +83,7 @@ export function updateQuery(key, value) {
         history.pushState({}, "", newUrl);
     }
     state = readStateFromUrl();
-    loadSearchResults();
+    return loadSearchResults();
 }
 
 /**
@@ -486,6 +487,8 @@ function updateCategoryCounts(endpoint, data) {
 /**
  * Load search results from API based on current URL state.
  * Supports summary, datasets, and genes modes.
+ *
+ * @returns {Promise<void>} Resolves when the search has rendered.
  */
 export function loadSearchResults() {
     state = readStateFromUrl();
@@ -496,7 +499,7 @@ export function loadSearchResults() {
         $("#results_count").text("");
         $(".category-count").empty();
         previousCountsKey = null;
-        return;
+        return Promise.resolve();
     }
 
     // Reset counts when the query or the species change.
@@ -526,7 +529,7 @@ export function loadSearchResults() {
         const dsUrl = getViewUrl(categories.datasets.endpoint, dsParams);
         const gsUrl = getViewUrl(categories.genes.endpoint, geneParams);
 
-        Promise.all([
+        return Promise.all([
             fetch(dsUrl).then((r) => r.json()),
             fetch(gsUrl).then((r) => r.json()),
         ])
@@ -562,8 +565,9 @@ export function loadSearchResults() {
                 showError();
             });
     } else if (categories[category]) {
-        loadCategory(category, params);
+        return loadCategory(category, params);
     }
+    return Promise.resolve();
 }
 
 /**
@@ -576,7 +580,7 @@ function loadCategory(category, params) {
     const { endpoint, key } = categories[category];
     const q = state.q;
 
-    fetch(getViewUrl(endpoint, params))
+    return fetch(getViewUrl(endpoint, params))
         .then((res) => res.json())
         .then((data) => {
             elapsedMs = performance.now() - searchStartedAt;
@@ -598,6 +602,8 @@ function loadCategory(category, params) {
  * Initialize the search page.
  *
  * Sets up event handlers and loads initial search results.
+ *
+ * @returns {Promise<void>} Resolves when the initial search has rendered.
  */
 export function initSearchPage() {
     state = readStateFromUrl();
@@ -624,20 +630,18 @@ export function initSearchPage() {
 
     setupPaginationHandlers();
 
-    $(function () {
-        const $speciesSelect = $("#species-select-");
-        if ($speciesSelect.length) {
-            let isInitial = true;
-            $speciesSelect.on("change", function () {
-                if (isInitial) {
-                    isInitial = false;
-                    return;
-                }
-                const value = $(this).val() || "";
-                updateQuery("species", value);
-            });
-        }
-    });
+    const $speciesSelect = $("#species-select-");
+    if ($speciesSelect.length) {
+        let isInitial = true;
+        $speciesSelect.on("change", function () {
+            if (isInitial) {
+                isInitial = false;
+                return;
+            }
+            const value = $(this).val() || "";
+            updateQuery("species", value);
+        });
+    }
 
     $("#search-form").on("submit", function (event) {
         event.preventDefault();
@@ -657,5 +661,5 @@ export function initSearchPage() {
         loadSearchResults();
     });
 
-    loadSearchResults();
+    return loadSearchResults();
 }
