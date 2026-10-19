@@ -419,7 +419,14 @@ describe("search page", () => {
         const requested = stubFetch();
 
         await initSearchPage();
-        const select = initSpeciesSelect("", "mus-musculus", "none", false, "", "");
+        const select = initSpeciesSelect(
+            "",
+            "mus-musculus",
+            "none",
+            false,
+            "",
+            "",
+        );
         select.open();
 
         const params = new URLSearchParams(window.location.search);
