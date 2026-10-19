@@ -4,6 +4,18 @@
 
 import vegaEmbed from "vega-embed";
 
+function abbreviateGenusName(label) {
+    if (typeof label !== "string") return label;
+
+    const parts = label.trim().split(/\s+/);
+    if (parts.length < 2) return label;
+    if (parts[1].toLowerCase() === "sp." || parts[1].toLowerCase() === "sp") {
+        return label;
+    }
+
+    return `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
+}
+
 /**
  * Renders an alluvial diagram to compare similarity scores between metacell types
  * from two species
@@ -33,6 +45,9 @@ export function createCellTypeAlluvial(
     ) {
         [dataset_label, dataset2_label] = [dataset2_label, dataset_label];
     }
+
+    dataset_label = abbreviateGenusName(dataset_label);
+    dataset2_label = abbreviateGenusName(dataset2_label);
 
     const genePairCountField = scoreField
         .replace(/_score$/, "_gene_pair_count")
