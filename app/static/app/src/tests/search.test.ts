@@ -442,11 +442,18 @@ describe("search page", () => {
         species.innerHTML =
             '<option value=""></option><option value="mus-musculus" selected>Mouse</option>';
         await initSearchPage();
-        const select = initSpeciesSelect("", "mus-musculus", "none", false, "", "");
-
-        document.querySelector("#clear-species")!.dispatchEvent(
-            new Event("click", { bubbles: true }),
+        const select = initSpeciesSelect(
+            "",
+            "mus-musculus",
+            "none",
+            false,
+            "",
+            "",
         );
+
+        document
+            .querySelector("#clear-species")!
+            .dispatchEvent(new Event("click", { bubbles: true }));
         await waitForSearch();
 
         expect(select.getValue()).toBe("");
@@ -460,9 +467,9 @@ describe("search page", () => {
         document.querySelector("#species-select-")!.remove();
         await initSearchPage();
 
-        document.querySelector("#clear-species")!.dispatchEvent(
-            new Event("click", { bubbles: true }),
-        );
+        document
+            .querySelector("#clear-species")!
+            .dispatchEvent(new Event("click", { bubbles: true }));
         await waitForSearch();
 
         const params = new URLSearchParams(window.location.search);
