@@ -212,7 +212,8 @@ class SearchViewTest(DataTestCase):
         response = self.client.get("/search/")
         assert response.status_code == 200
         assert "species_dict" in response.context
-        assert "query" not in response.context
+        assert "query" in response.context
+        assert not response.context["query"]
 
     def test_search_view_context_with_query(self):
         response = self.client.get("/search/", {"q": "test"})
