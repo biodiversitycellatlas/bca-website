@@ -71,7 +71,7 @@ jobs:
               run: pip install bandit[sarif,toml]
 
             - name: Run Bandit
-              run: bandit -x $EXCLUDE -r "." -f sarif -o results.sarif
+              run: bandit -x "$EXCLUDE" -r "." -f sarif -o results.sarif
               continue-on-error: true
               env:
                   EXCLUDE: ".git,./scripts,__pycache__,**/test*.py"
