@@ -56,8 +56,17 @@ jobs:
             security-events: write # upload SARIF results
 
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.x"
+
             - name: Run Bandit and upload results to GitHub Security tab
               uses: PyCQA/bandit-action@v1
               with:
                   exclude: ".git,./scripts,__pycache__,**/test*.py"
-                  python-version: "3.x"
