@@ -60,3 +60,4 @@ jobs:
               uses: PyCQA/bandit-action@v1
               with:
                   exclude: ".git,./scripts,__pycache__,**/test*.py"
+                  python-version: "3.x"
