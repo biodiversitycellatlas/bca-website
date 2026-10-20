@@ -3,6 +3,7 @@
  */
 
 import DataTable from "datatables.net-bs5";
+import "datatables.net-select-bs5";
 
 import { getViewUrl } from "../utils/urls.ts";
 import { createStatsPlot } from "./plots/stats_plot.ts";
