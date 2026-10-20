@@ -101,8 +101,11 @@ class DownloadsView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add all species and datasets to context."""
         context = super().get_context_data(**kwargs)
-        context["species_all"] = Species.objects.all()
-        context["datasets_all"] = Dataset.objects.all()
+        # `files` is walked again per species (and `species` again per dataset)
+        # to build the page's Bioschemas structured data -- prefetch/select so
+        # that doesn't add a second N+1 on top of the template's own lookups.
+        context["species_all"] = Species.objects.all().prefetch_related("files")
+        context["datasets_all"] = Dataset.objects.select_related("species").all()
         return context
 
 

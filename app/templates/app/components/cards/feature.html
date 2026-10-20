@@ -28,12 +28,8 @@ Input:
              height="auto">
 
         <div class="card-body">
-            <h3 class="h5 card-title">
-                {{ title }}
-            </h3>
-            <p class="card-text">
-                {{ description }}
-            </p>
+            <h3 class="h5 card-title">{{ title }}</h3>
+            <p class="card-text">{{ description }}</p>
 
             {% if example_url or docs_url or explore_url %}
                 {% if example_url %}

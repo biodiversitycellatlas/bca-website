@@ -32,6 +32,10 @@ PLAUSIBLE_SCRIPT_URL = get_env("PLAUSIBLE_SCRIPT_URL", default=None)
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
 
+# License covering the data served by the portal. Required by the Bioschemas
+# Dataset profile, so it is a setting rather than a per-dataset model field.
+BCA_DATA_LICENSE = get_env("BCA_APP_DATA_LICENSE", "https://creativecommons.org/licenses/by/4.0/")
+
 DIAMOND_VERSION = get_diamond_version()
 GOATOOLS_VERSION = get_goatools_version()
 
@@ -65,6 +69,9 @@ if get_env("ENVIRONMENT") == "prod":
     SECURE_HSTS_SECONDS = 30
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+# Remove COOP to fix macOS Quick Look preview of Data Portal pages (low risk)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 # Application definition
 

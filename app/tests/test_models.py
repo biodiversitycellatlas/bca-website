@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from datetime import datetime
 
-from app.models import Publication, Source, Species, DBVersion, GeneModule, Orthogroup
+from app.models import Domain, Gene, Publication, Source, Species, DBVersion, GeneModule, Orthogroup
 
 
 class TestSpeciesModel(TestCase):
@@ -22,10 +22,17 @@ class TestSpeciesModel(TestCase):
             scientific_name="Amphineuron queenslandicum",
             description="random sponge",
         )
+        Gene.objects.create(name="hugene1", species=cls.human)
 
     def test_slug(self):
         assert self.human.slug == "homo-sapiens"
         assert self.sponge.slug == "amphineuron-queenslandicum"
+
+    def test_get_html(self):
+        assert self.human.get_html() == "<i>Homo sapiens</i>"
+
+    def test_get_genes_html_link(self):
+        assert "<i>Homo sapiens</i>" in self.human.get_genes_html_link()
 
 
 class TestDatasetModel(TestCase):
@@ -247,3 +254,15 @@ class TestDBVersionModel(TestCase):
         """Using NULL for both version and commit should violate database constraint."""
         with pytest.raises(IntegrityError):
             DBVersion.objects.create(description="Invalid")
+
+
+class TestDomain(TestCase):
+    """Test Domain model."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.human = Species.objects.create(scientific_name="Homo sapiens")
+        cls.domain = Domain.objects.create(name="domain1", description="domain1")
+
+    def test_get_html_link(self):
+        assert self.domain.get_html_link() == '<a href="/entry/domain/domain1/">domain1</a>'

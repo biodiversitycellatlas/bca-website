@@ -11,7 +11,7 @@ Input:
 
 {% load static %}
 
-{% if type == 'gene-lists' %}
+{% if type == "gene-lists" %}
     {% include "../modals/list_editor.html" with id="expression" type="gene_lists" %}
 {% endif %}
 
@@ -28,7 +28,7 @@ Input:
 <form novalidate action="#{{ id }}">
     <div class="row g-2 mb-4 align-items-start">
         <div class="col-auto">
-            {% if type|default:'markers' == 'markers' %}
+            {% if type|default:"markers" == "markers" %}
                 <div class="d-flex justify-content-between align-items-center small">
                     <label class="col-form-label">
                         <i class="fa fa-list-check"></i> Genes
@@ -59,7 +59,7 @@ Input:
                         </div>
                     </div>
                 </div>
-            {% elif type == 'gene-lists' %}
+            {% elif type == "gene-lists" %}
                 <div class="d-flex justify-content-between align-items-center small">
                     <label class="col-form-label">
                         <i class="fa fa-list-check"></i> Genes
@@ -106,9 +106,7 @@ Input:
                     <div class="mx-4 mb-3 w-250px">
 
                         <div class="d-flex justify-content-between align-items-center small">
-                            <label class="col-form-label">
-                                Filter metacells
-                            </label>
+                            <label class="col-form-label">Filter metacells</label>
                             <button type="button"
                                     id="select_all_metacells"
                                     class="btn btn-link btn-sm d-block text-end"
@@ -182,9 +180,7 @@ Input:
         </div>
 
         <div class="col-auto">
-            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-35px">
-                Apply
-            </button>
+            <button id="{{ id }}_submit" type="submit" class="btn btn-primary mt-35px">Apply</button>
         </div>
     </div>
 </form>
@@ -223,11 +219,9 @@ Input:
 </script>
 
 <!-- Use column due to vega-lite's bug with containers for concatenated plots -->
-{% if type|default:'markers' == 'markers' or query.genes %}
+{% if type|default:"markers" == "markers" or query.genes %}
     <div class="row">
-        <div class="col-10 col-sm-11">
-            {% include "../plot_container.html" with id=id ratio="16/9" %}
-        </div>
+        <div class="col-10 col-sm-11">{% include "../plot_container.html" with id=id ratio="16/9" %}</div>
     </div>
 
     <script type="module">
@@ -236,7 +230,7 @@ Input:
             loadExpressionData("{{id}}", "{{dataset.slug}}", "{{query.genes}}");
         });
     </script>
-{% elif type == 'gene-lists' and not query.genes %}
+{% elif type == "gene-lists" and not query.genes %}
     <p class="text-muted">
         <i class="fa fa-circle-exclamation"></i>
         Select genes to render heatmap.

@@ -530,7 +530,7 @@ class MetacellGeneExpressionViewSet(BaseReadOnlyModelViewSet):
                 dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
             ),
             enum=dict(filters.CorrelatedGenesFilter().base_filters["ordering"].extra["choices"]),
-            examples=[OpenApiExample("Example", value="-pearson_r")],
+            examples=[OpenApiExample("Example", value="-pearson")],
         )
     ],
 )
