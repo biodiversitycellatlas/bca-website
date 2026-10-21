@@ -50,7 +50,7 @@ jobs:
 
     bandit:
         name: Python security (Bandit)
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
 
         permissions:
             security-events: write # upload SARIF results
@@ -60,4 +60,3 @@ jobs:
               uses: PyCQA/bandit-action@v1
               with:
                   exclude: ".git,./scripts,__pycache__,**/test*.py"
-                  python-version: "3.9"
