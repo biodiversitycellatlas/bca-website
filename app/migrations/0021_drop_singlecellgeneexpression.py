@@ -8,7 +8,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='SingleCellGeneExpression'
-        )
+        migrations.RunSQL('DROP TABLE IF EXISTS app_singlecellgeneexpression;')
     ]
