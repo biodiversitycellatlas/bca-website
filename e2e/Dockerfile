@@ -1,7 +1,7 @@
 # Playwright E2E test runner
 
 # Playwright version must match the browser binaries in the image
-FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
+FROM mcr.microsoft.com/playwright/python:v1.64.1-noble
 
 WORKDIR /code
 
