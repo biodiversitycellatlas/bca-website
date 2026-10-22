@@ -81,6 +81,7 @@ services:
 
     db:
         image: dhi.io/postgres:18.1-debian13-dev
+        shm_size: 1g
         restart: always
         env_file: [.env]
         volumes:
