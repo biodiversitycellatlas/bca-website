@@ -8,6 +8,7 @@ from app.apps import AppConfig
 from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
+from app.systemchecks.metadata import check_metadata
 from app.systemchecks.postgresql_tables import check_tables
 
 
@@ -71,3 +72,20 @@ class TestPostgresTablesCheck(TestCase):
         for error in errors:
             if error.obj == "genemodule":
                 assert error.id == "bca.E003"
+
+
+class TestMetadataCheck(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(
+            common_name="metadatacheck",
+            scientific_name="metadatacheck",
+            description="metadatacheck Species",
+        )
+        dataset = Dataset.objects.create(species=species, name="metadatacheckdataset", description="metadatacheckdataset")
+
+    def test_execution(self):
+        errors = check_metadata([AppConfig], deploy=True)
+        for error in errors:
+            if error.obj == "metadatacheckdataset":
+                assert error.id == "bca.E004"

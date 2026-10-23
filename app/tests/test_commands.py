@@ -95,3 +95,10 @@ class DumpBioschemasCommandTest(DataTestCase):
         """Non-zero exit makes it usable as a CI check that markup has not vanished."""
         with pytest.raises(CommandError, match="No JSON-LD served by"):
             call_command("dump_bioschemas", "/about/", stdout=StringIO())
+
+
+class MetadataCommandTest(TestCase):
+    def test_command_output(self):
+        out = StringIO()
+        call_command("metadata", stdout=out)
+        self.assertIn("Successfully checked metadata", out.getvalue())
