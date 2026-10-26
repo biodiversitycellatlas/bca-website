@@ -9,6 +9,8 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
+from app.management.metadata_existence import check_metadata_existence
+from app.models import Dataset, DatasetQualityControl, QualityControl, Species
 from app.tests.test_utils import assert_conforms
 from app.tests.views.utils import DataTestCase
 
@@ -102,3 +104,27 @@ class MetadataCommandTest(TestCase):
         out = StringIO()
         call_command("metadata", stdout=out)
         self.assertIn("Successfully checked metadata", out.getvalue())
+
+
+class MetadataExistenceTest(TestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.human = Species.objects.create(
+            common_name="metahuman",
+            scientific_name="Meta Homo",
+            description="random human",
+        )
+        cls.dataset = Dataset.objects.create(name="Meta Homo - adult", description="random human", species=cls.human)
+        cls.quality_control = QualityControl.objects.create(
+            type="Mapping", name="Number of eyes", description="number of eyes"
+        )
+        DatasetQualityControl.objects.create(
+            dataset=cls.dataset,
+            metric=cls.quality_control,
+            value="two",
+        )
+
+    def test_metadata_existence(self):
+        errors = check_metadata_existence()
+        "4 errors for number of {cells, metacells, umis, genes) and 1 for metric eyes"
+        assert len(errors) == 5
