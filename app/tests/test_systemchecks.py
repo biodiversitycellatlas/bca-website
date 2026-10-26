@@ -115,7 +115,6 @@ class TestMetadataCheck(TestCase):
         metacell1 = Metacell.objects.create(name="meta1", dataset=self.dataset, type=type1, x=1, y=1)
         SingleCell.objects.create(name="singleCell", dataset=self.dataset, metacell=metacell1)
         MetacellCount.objects.create(dataset=self.dataset, metacell=metacell1, cells=20, umis=200)
-        self.species.genes.create(name="mygene")
-
+        Gene.objects.create(name="metagene1", species=self.species)
         errors = check_metadata([AppConfig], deploy=True)
         assert len(errors) == 0
