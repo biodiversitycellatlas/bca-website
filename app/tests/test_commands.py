@@ -121,7 +121,7 @@ class MetadataExistenceTest(TestCase):
         DatasetQualityControl.objects.create(
             dataset=cls.dataset,
             metric=cls.quality_control,
-            value="two",
+            value="2",
         )
 
     def test_metadata_existence(self):

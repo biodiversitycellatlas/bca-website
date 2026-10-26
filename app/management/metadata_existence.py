@@ -28,10 +28,9 @@ def check_metadata_existence() -> list[Error]:
 
         for qc in QualityControl.objects.all():
             dqcs = list(DatasetQualityControl.objects.filter(dataset=dset))
-            dqcs_names = [e.metric for e in dqcs]
+            dqcs_names = [e.metric.name for e in dqcs]
             dqcs_values = [e.value for e in dqcs]
             dqcs_dict = dict(zip(dqcs_names, dqcs_values))
-
             if qc.name not in dqcs_names:
                 errors.append(
                     Error(
