@@ -27,6 +27,6 @@ class Command(BaseCommand):
         if not errors:
             self.stdout.write(self.style.SUCCESS("Successfully checked metadata"))
         else:
-            self.stdout.write(self.style.SUCCESS("Problems with metadata"))
+            self.stdout.write(self.style.ERROR("Problems with metadata"))
             for error in errors:
                 self.stdout.write(error.msg)

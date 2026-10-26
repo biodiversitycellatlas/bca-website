@@ -10,9 +10,11 @@ from app.models import (
     DatasetQualityControl,
     Gene,
     Metacell,
+    MetacellCount,
     MetacellGeneExpression,
     MetacellType,
     QualityControl,
+    SingleCell,
     Species,
     SpeciesFile,
 )
@@ -87,13 +89,13 @@ class TestPostgresTablesCheck(TestCase):
 class TestMetadataCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
-        species = Species.objects.create(
+        cls.species = Species.objects.create(
             common_name="metadatacheck",
             scientific_name="metadatacheck",
             description="metadatacheck Species",
         )
         cls.dataset = Dataset.objects.create(
-            species=species, name="metadatacheckdataset", description="metadatacheckdataset"
+            species=cls.species, name="metadatacheckdataset", description="metadatacheckdataset"
         )
         quality_control = QualityControl.objects.create(
             type="Mapping", name="Number of eyes", description="number of eyes"
@@ -107,3 +109,13 @@ class TestMetadataCheck(TestCase):
     def test_execution(self):
         errors = check_metadata([AppConfig], deploy=True)
         assert len(errors) == 4
+
+    def test_execution_without_errors(self):
+        type1 = MetacellType.objects.create(name="type1", dataset=self.dataset)
+        metacell1 = Metacell.objects.create(name="meta1", dataset=self.dataset, type=type1, x=1, y=1)
+        SingleCell.objects.create(name="singleCell", dataset=self.dataset, metacell=metacell1)
+        MetacellCount.objects.create(dataset=self.dataset, metacell=metacell1, cells=20, umis=200)
+        self.species.genes.create(name="mygene")
+
+        errors = check_metadata([AppConfig], deploy=True)
+        assert len(errors) == 0
