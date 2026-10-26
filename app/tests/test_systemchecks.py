@@ -5,7 +5,7 @@ from django.core.files import File as DjangoFile
 from django.test import TestCase, override_settings
 
 from app.apps import AppConfig
-from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
+from app.models import Dataset, Gene, Metacell, MetacellGeneExpression, MetacellType, Species, SpeciesFile
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.metadata import check_metadata
@@ -82,7 +82,7 @@ class TestMetadataCheck(TestCase):
             scientific_name="metadatacheck",
             description="metadatacheck Species",
         )
-        dataset = Dataset.objects.create(species=species, name="metadatacheckdataset", description="metadatacheckdataset")
+        Dataset.objects.create(species=species, name="metadatacheckdataset", description="metadatacheckdataset")
 
     def test_execution(self):
         errors = check_metadata([AppConfig], deploy=True)
