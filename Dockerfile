@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy tools and libraries
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
+# hadolint ignore=SC2086
 RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
     cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libselinux* /usr/lib/ && \
@@ -41,6 +42,7 @@ COPY --chown=nonroot:nonroot . .
 FROM dhi.io/python:3.14.8-debian13 AS prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
     description="Biodiversity Cell Atlas website and data portal"
+# hadolint ignore=DL3066
 USER nonroot
 
 # Copy application folder
@@ -65,6 +67,7 @@ COPY --from=dev /opt/python/ /opt/python/
 ENV VIRTUAL_ENV=/opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 
+# hadolint ignore=DL3025
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
     CMD python scripts/healthcheck.py
