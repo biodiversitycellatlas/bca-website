@@ -1,3 +1,6 @@
+# Get postgreSQL client
+FROM dhi.io/postgres:18.1-debian13-dev AS postgres
+
 # Get diamond aligner
 FROM docker.io/buchfink/diamond:version2.1.24 AS diamond
 
@@ -16,10 +19,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy tools and libraries
 COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
+COPY --from=postgres /opt/postgresql/18/bin/* /usr/bin/
+COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
 # hadolint ignore=SC2086
 RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
+    cp -a /usr/lib/${arch}/libcom_err* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libgssapi_krb5* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libk5crypto* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkeyutils* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkrb5* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libkrb5support* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/liblber* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libldap* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libsasl2* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libselinux* /usr/lib/ && \
+    mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
     ldconfig
 
 WORKDIR /usr/src/app
@@ -59,7 +74,16 @@ COPY --from=dev /usr/bin/git /usr/bin/
 COPY --from=dev /usr/bin/grep /usr/bin/
 COPY --from=dev /usr/bin/mkdir /usr/bin/
 COPY --from=dev /usr/bin/sh /usr/bin/
+COPY --from=dev /usr/lib/libcom_err* /usr/lib/
+COPY --from=dev /usr/lib/libgssapi_krb5* /usr/lib/
+COPY --from=dev /usr/lib/libk5crypto* /usr/lib/
+COPY --from=dev /usr/lib/libkeyutils* /usr/lib/
+COPY --from=dev /usr/lib/libkrb5* /usr/lib/
+COPY --from=dev /usr/lib/libkrb5support* /usr/lib/
+COPY --from=dev /usr/lib/liblber* /usr/lib/
+COPY --from=dev /usr/lib/libldap* /usr/lib/
 COPY --from=dev /usr/lib/libpcre2* /usr/lib/
+COPY --from=dev /usr/lib/libsasl2* /usr/lib/
 COPY --from=dev /usr/lib/libselinux* /usr/lib/
 
 # Copy Python packages from virtual environment
