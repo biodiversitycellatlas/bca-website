@@ -12,7 +12,6 @@ FROM dhi.io/python:3.14.8-debian13-dev AS dev
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl=8.14.* \
     dpkg-dev=1.22.* \
     git=1:2.47.* \
     && rm -rf /var/lib/apt/lists/*
@@ -22,33 +21,19 @@ COPY --from=bun /usr/local/bin/bun* /usr/bin/
 COPY --from=diamond /usr/local/bin/diamond /usr/bin/
 COPY --from=postgres /opt/postgresql/18/bin/* /usr/bin/
 COPY --from=postgres /opt/postgresql/18/lib/libpq.so* /usr/lib/
+# hadolint ignore=SC2086
 RUN arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
-    cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libselinux* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libbrotlicommon* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libbrotlidec* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libcom_err* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libgnutls* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libgssapi_krb5* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libhogweed* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libidn2* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libk5crypto* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libkeyutils* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libkrb5* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libkrb5support* /usr/lib/ && \
     cp -a /usr/lib/${arch}/liblber* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libldap* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libnettle* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libnghttp2* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libnghttp3* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libp11-kit* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libpsl* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/librtmp* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libpcre2* /usr/lib/ && \
     cp -a /usr/lib/${arch}/libsasl2* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libssh2* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libtasn1* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libunistring* /usr/lib/ && \
-    cp -a /usr/lib/${arch}/libcurl* /usr/lib/ && \
+    cp -a /usr/lib/${arch}/libselinux* /usr/lib/ && \
     mv /usr/lib/libpq.so* /usr/lib/${arch}/ && \
     ldconfig
 
@@ -72,6 +57,7 @@ COPY --chown=nonroot:nonroot . .
 FROM dhi.io/python:3.14.8-debian13 AS prod
 LABEL maintainer="Biodiversity Cell Atlas <bca@biodiversitycellatlas.org>" \
     description="Biodiversity Cell Atlas website and data portal"
+# hadolint ignore=DL3066
 USER nonroot
 
 # Copy application folder
@@ -106,6 +92,7 @@ ENV VIRTUAL_ENV=/opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
     CMD python scripts/healthcheck.py
 EXPOSE 8000
