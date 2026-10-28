@@ -1,0 +1,170 @@
+/**
+ * Gene expression visualizations.
+ */
+
+import vegaEmbed from "vega-embed";
+
+import { getMetacellOrder } from "../../utils/metacell.ts";
+import { escapeString } from "../../utils/utils.ts";
+
+/**
+ * Render bubble plot showing expression levels of a single gene across metacells.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the gene to visualize.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ */
+export function createExpressionBubblePlot(id, gene, data) {
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
+
+    const chart = {
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+        //"title": { "text": gene, "fontWeight": "normal", "anchor": "start" },
+        transform: [
+            { calculate: "datum.umifrac * 10", as: "umifrac" },
+            { fold: ["umifrac", "fold_change"] },
+        ],
+        data: { name: "gene_data", values: data },
+        width: "container",
+        mark: { type: "circle", tooltip: { content: "data" } },
+        encoding: {
+            x: {
+                field: "metacell_index",
+                type: "quantitative",
+                title: "Metacell",
+                axis: {
+                    labels: false,
+                    ticks: false,
+                },
+                scale: { nice: false },
+            },
+            y: { field: "key", title: "" },
+            size: {
+                field: "value",
+                type: "quantitative",
+                impute: { value: 0 },
+                legend: null,
+            },
+            color: {
+                field: "metacell_type",
+                scale: { range: { field: "metacell_color" } },
+                legend: null,
+                // "legend": { "orient": "bottom", "direction": "horizontal", "columns": 4 }
+            },
+            tooltip: [
+                { field: "metacell_name" },
+                { field: "metacell_type" },
+                { field: "umi_raw" },
+                { field: "umifrac" },
+                { field: "fold_change" },
+            ],
+        },
+        params: [
+            // Pan and zoom plot
+            {
+                name: "brush",
+                select: { type: "interval", encodings: ["x"] },
+                bind: "scales",
+            },
+        ],
+        scale: {
+            type: "ordinal",
+            nice: false,
+            tickStep: 1,
+        },
+    };
+    vegaEmbed(id, chart, { renderer: "canvas" }).catch(console.error);
+}
+
+/**
+ * Render comparison scatter plot of two genes' expression across metacells
+ * with regression line and correlation stats.
+ *
+ * @param {string} id - DOM element ID where the plot will be embedded.
+ * @param {string} gene - Name of the first gene.
+ * @param {string} gene2 - Name of the second gene.
+ * @param {Array} data - Array of objects containing metacell expression data.
+ * @param {Object} stats - Object containing correlation statistics (pearson, spearman).
+ */
+export function createExpressionComparisonPlot(id, gene, gene2, data, stats) {
+    const escapedGene = escapeString(gene),
+        escapedGene2 = escapeString(gene2);
+
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: getMetacellOrder(obj.metacell_order, obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
+
+    const chart = {
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+        title: {
+            text: [`Pearson: ${stats.pearson}`],
+            fontWeight: "normal",
+            anchor: "end",
+        },
+        transform: [
+            { calculate: "datum.umifrac * 10", as: "umifrac" },
+            {
+                pivot: "gene_name",
+                groupby: ["metacell_index", "metacell_type", "metacell_color"],
+                value: "fold_change",
+            },
+            {
+                joinaggregate: [
+                    { op: "min", field: escapedGene, as: "xMin" },
+                    { op: "max", field: escapedGene, as: "xMax" },
+                    { op: "min", field: escapedGene2, as: "yMin" },
+                    { op: "max", field: escapedGene2, as: "yMax" },
+                ],
+            },
+        ],
+        data: { name: "data", values: data },
+        width: "container",
+        encoding: {
+            x: {
+                field: escapedGene,
+                type: "quantitative",
+                title: gene + " fold-change",
+            },
+            y: {
+                field: escapedGene2,
+                type: "quantitative",
+                title: gene2 + " fold-change",
+            },
+        },
+        layer: [
+            {
+                // Add regression line
+                mark: {
+                    type: "line",
+                    color: "gray",
+                    strokeWidth: 1.5,
+                    clip: true,
+                },
+                transform: [{ regression: escapedGene, on: escapedGene2 }],
+            },
+            {
+                mark: { type: "circle", tooltip: { content: "data" } },
+                encoding: {
+                    color: {
+                        field: "metacell_type",
+                        scale: { range: { field: "metacell_color" } },
+                        legend: null,
+                    },
+                },
+                params: [
+                    // Pan and zoom plot
+                    { name: "brush", select: "interval", bind: "scales" },
+                ],
+            },
+        ],
+    };
+    vegaEmbed(id, chart, { renderer: "canvas" }).catch(console.error);
+}

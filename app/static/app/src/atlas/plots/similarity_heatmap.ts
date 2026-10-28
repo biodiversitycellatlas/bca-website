@@ -1,0 +1,105 @@
+/**
+ * Gene module similarity heatmap.
+ */
+
+import vegaEmbed from "vega-embed";
+
+import { COLOR_SCALE } from "./metacell_heatmap.ts";
+
+export let viewSimilarityHeatmap;
+
+let lastClicked = null;
+
+/**
+ * Render plot of gene module similarity for a given dataset.
+ *
+ * @param {string} id - DOM element ID where the heatmap will be embedded.
+ * @param {Array} data - Array of objects with similarity across gene modules.
+ * @param {string} dataset_label - Label to annotate the first dataset
+ * @param {string} dataset2_label - Label to annotate the second dataset
+ * @param {function} clickListener - Function to call when user clicks in the plot.
+ */
+export function createSimilarityHeatmap(
+    id,
+    data,
+    dataset_label,
+    dataset2_label = null,
+    clickListener = null,
+) {
+    const chart = {
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+        description: "Bubble chart of module similarities",
+        data: { values: data },
+        width: "container",
+        height: "container",
+        transform: [
+            {
+                joinaggregate: [
+                    { op: "distinct", field: "module", as: "x_count" },
+                    { op: "distinct", field: "module2", as: "y_count" },
+                ],
+            },
+        ],
+        mark: {
+            type: "rect",
+            tooltip: { content: "data" },
+            cursor: clickListener ? "pointer" : "cursor",
+        },
+        encoding: {
+            x: {
+                field: "module",
+                type: "ordinal",
+                axis: {
+                    labels: true,
+                    labelExpr:
+                        "data('data_0')[0].x_count < 30 ? datum.label : ''",
+                    ticks: false,
+                    domain: false,
+                    title: {
+                        expr: `data('data_0')[0].x_count + ' Gene Modules: ${dataset_label}'`,
+                    },
+                },
+                sort: { field: "index" },
+            },
+            y: {
+                field: "module2",
+                type: "ordinal",
+                axis: {
+                    labels: true,
+                    labelExpr:
+                        "data('data_0')[0].y_count < 30 ? datum.label : ''",
+                    ticks: false,
+                    domain: false,
+                    title: {
+                        expr: `data('data_0')[0].y_count + ' Gene Modules: ${dataset2_label}'`,
+                    },
+                },
+                sort: { field: "index" },
+            },
+            color: {
+                field: "similarity",
+                type: "quantitative",
+                scale: { domain: [0, 1], range: COLOR_SCALE },
+                legend: { title: "Similarity", format: ".0%" },
+            },
+        },
+        view: { stroke: null },
+    };
+
+    vegaEmbed(id, chart, { renderer: "canvas" })
+        .then((res) => {
+            viewSimilarityHeatmap = res.view;
+
+            // Add click event listener to update other components
+            if (!clickListener) return;
+            viewSimilarityHeatmap.addEventListener("click", (event, item) => {
+                const datum = item?.datum ?? null;
+                // Only call listener if clicking on different datum
+                if (datum && datum !== lastClicked) {
+                    lastClicked = datum;
+                    clickListener(event, item);
+                }
+            });
+        })
+        .catch(console.error);
+}

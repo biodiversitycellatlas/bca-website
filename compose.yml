@@ -1,6 +1,6 @@
 services:
     nginx:
-        image: nginx:1.29
+        image: dhi.io/nginx:1.31.7-debian13-dev
         ports:
             - "${WEB_PORT:-8080}:80"
         volumes:
@@ -38,9 +38,10 @@ services:
             - mail__options__host=${GHOST_MAIL_OPTIONS_HOST}
             - mail__options__port=${GHOST_MAIL_OPTIONS_PORT}
             - mail__transport=${GHOST_MAIL_TRANSPORT}
+            - mail__from=${GHOST_MAIL_FROM}
 
     mailpit:
-        image: axllent/mailpit:v1.28
+        image: docker.io/axllent/mailpit:v1.31.6
         env_file: [.env]
         container_name: mailpit
         restart: unless-stopped
@@ -49,7 +50,9 @@ services:
             - "8025:8025" # Web UI
 
     web:
-        build: .
+        build:
+            context: .
+            target: dev
         # user: "${DOCKER_WEB_USER:-bca}"
         restart: always
         env_file: [.env]
@@ -64,32 +67,33 @@ services:
             - static_files:/usr/src/app/static
             - ./data:/usr/src/app/data
             # Postgres files
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
+            - ./.pgpass:/postgres/.pgpass:ro
+            - ./.pg_service.conf:/postgres/.pg_service.conf:ro
         environment:
             - PGPASSFILE=/postgres/.pgpass
             - PGSERVICEFILE=/postgres/.pg_service.conf
+        healthcheck:
+            test: ["CMD", "python", "scripts/healthcheck.py"]
+            interval: 30s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
 
     db:
-        image: postgres:18.1-trixie
+        image: dhi.io/postgres:18.1-debian13-dev
+        shm_size: 1g
         restart: always
         env_file: [.env]
-        command: |
-            postgres
-                -c max_wal_size=2GB
-                -c maintenance_work_mem=4GB
-                -c work_mem=64MB
         volumes:
             - db_data:/var/lib/postgresql
             - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-            - ./.pgpass:/postgres/.pgpass
-            - ./.pg_service.conf:/postgres/.pg_service.conf
+            - .pgpass:/var/lib/postgresql/.pgpass:ro
+            - .pg_service.conf:/var/lib/postgresql/.pg_service.conf:ro
         environment:
-            - PGPASSFILE=/postgres/.pgpass
-            - PGSERVICEFILE=/postgres/.pg_service.conf
+            - PGPASSFILE=/var/lib/postgresql/.pgpass
+            - PGSERVICEFILE=/var/lib/postgresql/.pg_service.conf
             - POSTGRES_DB=bca
             - POSTGRES_HOST=db
-            - POSTGRES_HOST_AUTH_METHOD=trust
             - POSTGRES_PORT=5432
             - PGUSER=postgres
             - POSTGRES_USER=postgres

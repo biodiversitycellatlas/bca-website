@@ -1,16 +1,18 @@
 import os
+import tempfile
 
 from django.core.files import File as DjangoFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from app.apps import AppConfig
-from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression, GeneModule
+from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.postgresql_tables import check_tables
 
 
-class FilesSystemCheckTest(TestCase):
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class TestFilesSystemCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(
@@ -23,11 +25,11 @@ class FilesSystemCheckTest(TestCase):
 
     def test_execution(self):
         errors = check_application_files([AppConfig], deploy=True)
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "bca.E001")
+        assert len(errors) == 1
+        assert errors[0].id == "bca.E001"
 
 
-class MetacellGeneExpressionCheckTest(TestCase):
+class TestMetacellGeneExpressionCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(
@@ -45,11 +47,11 @@ class MetacellGeneExpressionCheckTest(TestCase):
 
     def test_execution(self):
         errors = check_negative_umis([AppConfig], deploy=True)
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "bca.E002")
+        assert len(errors) == 1
+        assert errors[0].id == "bca.E002"
 
 
-class PostgresTablesCheckTest(TestCase):
+class TestPostgresTablesCheck(TestCase):
     @classmethod
     def setUpTestData(cls):
         speciesP = Species.objects.create(
@@ -57,9 +59,10 @@ class PostgresTablesCheckTest(TestCase):
             scientific_name="postgrescheck",
             description="postgrescheck Species",
         )
-        dataset1 = Dataset.objects.create(species=speciesP, name="psqlcheckdataset", description="psqlcheckdataset")
-        gene1 = Gene.objects.create(species=speciesP, name="geneP", description="geneP")
-        GeneModule.objects.create(name="psql", gene=gene1, dataset=dataset1, membership_score=4.1)
+        dataset1 = speciesP.datasets.create(name="psqlcheckdataset", description="psqlcheckdataset")
+        gene1 = speciesP.genes.create(name="geneP", description="geneP")
+        gm = dataset1.gene_modules.create(name="psql")
+        gm.membership.create(membership_score=4.1, gene=gene1)
 
     # In test mode there are several empty tables.
     # Looking only for table 'genemodule':
@@ -67,4 +70,4 @@ class PostgresTablesCheckTest(TestCase):
         errors = check_tables([AppConfig], deploy=True)
         for error in errors:
             if error.obj == "genemodule":
-                self.assertEqual(error.id, "bca.E003")
+                assert error.id == "bca.E003"

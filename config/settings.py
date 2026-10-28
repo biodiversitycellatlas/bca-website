@@ -17,7 +17,8 @@ import sys
 
 import orjson
 
-from .pre_settings import get_diamond_version, get_env, get_latest_git_tag
+from .pre_settings import get_diamond_version, get_goatools_version, get_env, get_latest_git_tag
+from rest.settings import sort_api_tags
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_DOMAIN = "biodiversitycellatlas.org"
@@ -31,7 +32,12 @@ PLAUSIBLE_SCRIPT_URL = get_env("PLAUSIBLE_SCRIPT_URL", default=None)
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
 
+# License covering the data served by the portal. Required by the Bioschemas
+# Dataset profile, so it is a setting rather than a per-dataset model field.
+BCA_DATA_LICENSE = get_env("BCA_APP_DATA_LICENSE", "https://creativecommons.org/licenses/by/4.0/")
+
 DIAMOND_VERSION = get_diamond_version()
+GOATOOLS_VERSION = get_goatools_version()
 
 # Max sequences for alignment
 MAX_ALIGNMENT_SEQS = get_env("BCA_APP_MAX_ALIGNMENT_SEQS", 100, type="int")
@@ -64,6 +70,9 @@ if get_env("ENVIRONMENT") == "prod":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+# Remove COOP to fix macOS Quick Look preview of Data Portal pages (low risk)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -71,8 +80,9 @@ INSTALLED_APPS = [
     "rest.apps.RestConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.postgres",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
@@ -94,11 +104,12 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
+E2E = get_env("E2E", type="bool")
 TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
-if DEBUG and not TESTING:
+if DEBUG and not TESTING and not E2E:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
-    INTERNAL_IPS = get_env("DJANGO_INTERNAL_IPS", "", type="array")
+    INTERNAL_IPS = type("c", (), {"__contains__": lambda *a: True})()
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": "debug_toolbar.middleware.show_toolbar_with_docker",
     }
@@ -130,7 +141,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 POSTGRES_SERVICE = get_env("POSTGRES_SERVICE")
 
-if POSTGRES_SERVICE:
+# Django bug: services not supported in tests: https://code.djangoproject.com/ticket/33685
+if POSTGRES_SERVICE and not TESTING:
     DATABASES = {
         "default": {
             "ENGINE": "django_prometheus.db.backends.postgresql",
@@ -183,6 +195,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 # https://docs.djangoproject.com/en/5.1/topics/files/
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "config.storage.JSModuleManifestStorage",
+    },
+}
+
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
@@ -200,7 +221,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
     "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest.schema.FormatDescriptionAutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
         "drf_orjson_renderer.renderers.ORJSONRenderer",
@@ -213,22 +234,6 @@ REST_FRAMEWORK = {
         orjson.OPT_SERIALIZE_NUMPY,
     ),
 }
-
-
-def sort_api_tags():
-    """Return sorted API tags."""
-
-    tags = [
-        "Species",
-        "Dataset",
-        "Gene",
-        "Metacell",
-        "Single cell",
-        "Cross-species",
-        "Sequence alignment",
-    ]
-    return [{"name": tag} for tag in tags]
-
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Biodiversity Cell Atlas: Data Portal API",
@@ -253,6 +258,10 @@ if get_env("DJANGO_LOGGING", type="bool"):
             },
         },
         "loggers": {
+            "django.request": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
             "django.db.backends": {
                 "handlers": ["console"],
                 "level": "DEBUG",

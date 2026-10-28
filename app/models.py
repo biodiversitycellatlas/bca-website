@@ -10,12 +10,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.contrib.postgres.fields import ArrayField
 
 
 class AutoSlugMixin(models.Model):
     """Abstract mixin to add an automatic slug to the model."""
 
-    slug = models.SlugField(unique=True, null=True)
+    slug = models.SlugField(unique=True, null=True, max_length=255)
 
     class Meta:
         """Meta options."""
@@ -115,8 +116,8 @@ class ExternalQueryMixin:
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
-    def get_html_link(self, url=None, show_common_name=False):
-        """Return HTML representation linking to the Dataset."""
+    def get_html_link(self, url=None, show_common_name=False, inline=False):
+        """Return HTML representation linking to species or dataset."""
         url = self.get_absolute_url() if url is None else url
         image_url = self.get_image_url()
         html = self.get_html()
@@ -130,10 +131,12 @@ class HtmlLinkMixin:
                 <span class="text-secondary small">{name}</span>
             """
 
+        # Inline other HTML elements or not
+        link_class = "d-flex align-items-center gap-1" if not inline else ""
+
         html = f"""
-            <a class="d-flex align-items-center gap-1" href="{url}">
-                <img class="rounded" alt="Image of {label}"
-                     width="25px" src="{image_url}">
+            <a class="{link_class}" href="{url}">
+                <img class="rounded" alt="Image of {label}" width="25px" src="{image_url}">
                 <span>{html}</span>
             </a>
         """
@@ -142,6 +145,10 @@ class HtmlLinkMixin:
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
         return self.get_html_link(url=url, show_common_name=True)
+
+    def get_inline_html_link(self, url=None):
+        """Return inline HTML representation."""
+        return self.get_html_link(url=url, inline=True)
 
 
 class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
@@ -210,7 +217,7 @@ class Species(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
             html = f"<i>{genus}</i>{unspecified}"
         else:
             html = f"<i>{species}</i>"
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
 
     def get_genes_html_link(self):
         """Return HTML representation linking to list of genes."""
@@ -246,7 +253,7 @@ class Source(models.Model):
                 <span>{self.name}</span>
             </a>
         """
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
 
     def __str__(self):
         """String representation."""
@@ -311,6 +318,7 @@ class Publication(ExternalQueryMixin, models.Model):
 class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     """Dataset model."""
 
+    internal_id = models.CharField(max_length=255, blank=True, null=True, help_text="Internal identifier.")
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="datasets")
     name = models.CharField(max_length=255, default=None, null=True, help_text="Name of the dataset.")
     description = models.TextField(blank=True, null=True, help_text="Description of the dataset.")
@@ -318,6 +326,7 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
     date_created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the dataset was created.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Timestamp when the dataset was last updated.")
 
+    platform = models.CharField(max_length=255, blank=True, null=True, help_text="Sequencing platform.")
     publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True, help_text="Dataset publication.")
     # version = models.CharField(max_length=50, blank=True, null=True)
     # is_public = models.BooleanField(default=True)
@@ -408,7 +417,7 @@ class DatasetQualityControl(models.Model):
 
 
 class FileMixin(models.Model):
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
     checksum = models.CharField(max_length=64, editable=False, help_text="SHA256 digest.")
     file = models.FileField(help_text="File.")
     type = models.CharField(max_length=255, help_text="File type.")
@@ -425,13 +434,14 @@ class FileMixin(models.Model):
             self.checksum = hasher.hexdigest()
 
             if not self.slug:
-                if isinstance(self, SpeciesFile):
-                    base = f"{self.species.scientific_name}-{self.type}"
-                if isinstance(self, DatasetFile):
-                    base = f"{self.dataset.get_label()}-{self.type}"
-                self.slug = slugify(base)
+                self.slug = slugify(self.label)
         self.full_clean()
         super().save(*args, **kwargs)
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return self.type
 
     @property
     def ext(self):
@@ -443,31 +453,54 @@ class FileMixin(models.Model):
         """Return filename."""
         return f"{self}.{self.ext}"
 
+    def __str__(self):
+        """String representation."""
+        return self.label
+
+
+class GlobalFile(FileMixin):
+    """File model for global files."""
+
+    file_types = {
+        "go-basic-obo": "Gene Ontology OBO file (basic version)",
+        "tree-of-life": "Tree of Life Newick file",
+    }
+    type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
 
 class SpeciesFile(FileMixin):
     """File model for a species."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="files")
-    file_types = {"Proteome": "Proteome", "DIAMOND": "DIAMOND"}
+    file_types = {
+        "Proteome": "Proteome",
+        "DIAMOND": "DIAMOND database",
+        "eggnog-mapper": "eggNOG-mapper functional annotation",
+    }
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return f"{self.species.scientific_name} - {self.type}"
 
     class Meta:
         """Meta options."""
 
         unique_together = ["species", "type"]
 
-    def __str__(self):
-        """String representation."""
-        return f"{self.species.scientific_name} - {self.type}"
-
 
 class DatasetFile(FileMixin):
     """File model for a Dataset."""
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
-
     file_types = {"singlecell_umifrac": "singlecell_umifrac"}
     type = models.CharField(max_length=255, choices=file_types, help_text="File type.")
+
+    @property
+    def label(self):
+        """Return formatted label."""
+        return f"{self.dataset.get_label()} - {self.type}"
 
     class Meta:
         """Meta options."""
@@ -549,12 +582,37 @@ class MetacellType(DynamicSlugMixin):
         return NotImplemented
 
 
-class MetacellLink(models.Model):
-    """Metacell link model (used for scatter plots)."""
+class CellType(DynamicSlugMixin):
+    """Cell type model."""
 
-    metacell = models.ForeignKey("Metacell", related_name="from_links", on_delete=models.CASCADE)
-    metacell2 = models.ForeignKey("Metacell", related_name="to_links", on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_links")
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="cell_types")
+    name = models.CharField()
+    color = ColorField(default="#AAAAAA")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["dataset", "name"]
+        indexes = [models.Index(fields=["dataset", "name"])]
+
+    def __str__(self):
+        """String representation."""
+        return self.name
+
+    def __lt__(self, other):
+        """Compare object with another by name."""
+        if isinstance(other, CellType):
+            return self.name < other.name
+        return NotImplemented
+
+
+class MetacellEdge(models.Model):
+    """Metacell edge model (used for scatter plots)."""
+
+    metacell = models.ForeignKey("Metacell", related_name="from_edges", on_delete=models.CASCADE)
+    metacell2 = models.ForeignKey("Metacell", related_name="to_edges", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacell_edges")
+    weight = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         """String representation."""
@@ -567,9 +625,14 @@ class Metacell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="metacells")
     type = models.ForeignKey(MetacellType, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100)
-    x = models.FloatField()
-    y = models.FloatField()
-    links = models.ManyToManyField("self", through="MetacellLink", symmetrical=True)
+
+    x = models.FloatField(null=True)
+    y = models.FloatField(null=True)
+    cytotrace = models.FloatField(null=True)
+    median_umis = models.FloatField(null=True)
+    order = models.PositiveIntegerField(null=True, blank=True)
+
+    edges = models.ManyToManyField("self", through="MetacellEdge", symmetrical=True)
 
     class Meta:
         """Meta options."""
@@ -596,8 +659,12 @@ class SingleCell(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="sc")
     name = models.CharField(max_length=100)
     metacell = models.ForeignKey(Metacell, on_delete=models.SET_NULL, blank=True, null=True)
+    type = models.ForeignKey(CellType, on_delete=models.SET_NULL, blank=True, null=True)
+
     x = models.FloatField(null=True)
     y = models.FloatField(null=True)
+    cytotrace = models.FloatField(null=True)
+    median_umis = models.FloatField(null=True)
 
     class Meta:
         """Meta options."""
@@ -613,6 +680,7 @@ class Domain(ExternalQueryMixin, models.Model):
     """Gene domain model."""
 
     name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=400, blank=True, null=True)
 
     source_name = "Pfam"
     query_term_field = "name"
@@ -627,7 +695,7 @@ class Domain(ExternalQueryMixin, models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -655,7 +723,7 @@ class GeneList(models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -672,15 +740,11 @@ class Gene(DynamicSlugMixin):
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="genes")
     name = models.CharField(max_length=100)
+    symbol = models.CharField(max_length=100, blank=True, null=True, help_text="Gene symbol.")
     description = models.CharField(max_length=400, blank=True, null=True)
     domains = models.ManyToManyField(Domain)
     genelists = models.ManyToManyField(GeneList, related_name="genes")
     correlations = models.ManyToManyField("self", through="GeneCorrelation", symmetrical=True)
-
-    @property
-    def orthogroup(self):
-        """Return orthogroup for this gene."""
-        return getattr(self.ortholog_set.first(), "orthogroup", None)
 
     @property
     def slug(self):
@@ -697,32 +761,31 @@ class Gene(DynamicSlugMixin):
         """Return absolute URL for this entry."""
         return reverse("gene_entry", args=[self.species.slug, self.name])
 
-    def get_html_link(self):
+    def get_html_link(self, url=None):
         """Return link to this entry formatted in HTML."""
-        url = self.get_absolute_url()
+        url = self.get_absolute_url() if url is None else url
         label = self.name
 
         html = f'<a class="text-break" href="{url}">{label}</a>'
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
 
-    def get_orthogroup_html_link(self):
-        """Return link to orthogroup in HTML format."""
-        # Get a ortholog object based on orthogroup
-        ortholog = self.ortholog_set.first()
-        if ortholog is None:
-            return ""
-
-        url = ortholog.get_absolute_url()
-        label = ortholog.orthogroup
-
-        html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
+    def get_orthogroup_html_links(self):
+        """Return link to orthogroups in HTML format."""
+        orthogroups = self.orthogroups.all()
+        html = ", ".join(o.get_html_link() for o in orthogroups)
+        return mark_safe(html)  # nosec B703, B308
 
     def get_domain_html_links(self):
-        """Return comma-separated domain links of a gene in HTML format."""
+        """Return comma-separated domain links for a gene in HTML format."""
         domains = self.domains.all()
         html = ", ".join(d.get_html_link() for d in domains)
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
+
+    def get_genelist_html_links(self):
+        """Return comma-separated gene list links for a gene in HTML format."""
+        lists = self.genelists.all()
+        html = ", ".join(e.get_html_link() for e in lists)
+        return mark_safe(html)  # nosec B703, B308
 
     class Meta:
         """Meta options."""
@@ -738,15 +801,9 @@ class Gene(DynamicSlugMixin):
 class GeneModule(models.Model):
     """Gene module model."""
 
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="modules")
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_modules")
     name = models.CharField(max_length=100)
-    membership_score = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
-
-    @property
-    def gene_modules(self):
-        """Return all gene modules for the same module."""
-        return GeneModule.objects.filter(name=self.name, dataset=self.dataset)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="gene_modules")
+    genes = models.ManyToManyField("Gene", through="GeneModuleMembership")
 
     def get_absolute_url(self):
         """Return absolute URL for this entry."""
@@ -758,17 +815,63 @@ class GeneModule(models.Model):
         label = self.name
 
         html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703, B308
+
+    def get_gene_hubs(self, n=5):
+        """Return top gene hubs."""
+        return self.membership.order_by("-membership_score")[:n]
+
+    def get_top_transcription_factors(self, n=5):
+        """Return top transcription factors."""
+        tf_genes = self.membership.filter(
+            gene__species=self.dataset.species, gene__genelists__name="Transcription factors"
+        )
+        return tf_genes.order_by("-membership_score")[:n]
 
     class Meta:
         """Meta options."""
 
-        unique_together = ["gene", "dataset"]
+        ordering = ["dataset", "name"]
         indexes = [models.Index(fields=["name"], name="app_genemodule_name_idx")]
 
     def __str__(self):
         """String representation."""
         return str(self.name)
+
+
+class GeneModuleMembership(models.Model):
+    """Gene module membership for each gene."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="membership")
+    gene = models.ForeignKey("Gene", on_delete=models.CASCADE, related_name="modules")
+    membership_score = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ("gene", "module")
+        ordering = ["module__dataset__order", "module__name"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.module} - {self.gene} - {self.membership_score}"
+
+
+class GeneModuleEigengene(models.Model):
+    """Module eigengene values for each metacell."""
+
+    module = models.ForeignKey("GeneModule", on_delete=models.CASCADE, related_name="eigengene_values")
+    metacell = models.ForeignKey("Metacell", on_delete=models.CASCADE)
+    eigengene_value = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ("module", "metacell")
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.module} - {self.metacell} - {self.eigengene_value}"
 
 
 class GeneCorrelation(models.Model):
@@ -807,6 +910,16 @@ class MetacellGeneExpression(models.Model):
         unique_together = ["gene", "metacell", "dataset"]
         verbose_name = "metacell gene expression"
         verbose_name_plural = verbose_name
+        indexes = [
+            # Covering index for the markers query (rest.views.MetacellMarkerViewSet):
+            # an index-only scan of a dataset slice, pre-ordered by gene for a
+            # streaming GroupAggregate. Created concurrently in migration 0014.
+            models.Index(
+                fields=["dataset", "gene"],
+                include=["metacell", "umi_raw", "fold_change"],
+                name="app_mge_dataset_gene_covering",
+            ),
+        ]
 
     def __str__(self):
         """String representation."""
@@ -833,36 +946,48 @@ class SingleCellGeneExpression(models.Model):
         return f"{self.gene} {self.single_cell}"
 
 
+class Orthogroup(models.Model):
+    """Orthogroup model."""
+
+    name = models.CharField(max_length=100, unique=True)
+    genes = models.ManyToManyField(Gene, through="Ortholog", related_name="orthogroups")
+
+    def get_absolute_url(self):
+        """Return absolute URL for this entry."""
+        return reverse("orthogroup_entry", args=[self.name])
+
+    def get_html_link(self, label=None):
+        """Return link to this entry formatted in HTML."""
+        # Get a ortholog object based on orthogroup
+        url = self.get_absolute_url()
+        label = label or str(self)
+
+        html = f'<a href="{url}">{label}</a>'
+        return mark_safe(html)  # nosec B703, B308
+
+    class Meta:
+        """Meta options."""
+
+        ordering = ["name"]
+
+    def __str__(self):
+        """String representation."""
+        count = self.orthologs.count()
+        label = "orthologs" if count != 1 else "ortholog"
+        return f"{self.name} ({count} {label})"
+
+
 class Ortholog(models.Model):
     """Ortholog model."""
 
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="orthologs")
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    orthogroup = models.CharField()
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, related_name="orthologs")
+    orthogroup = models.ForeignKey(Orthogroup, on_delete=models.CASCADE, related_name="orthologs")
 
     @property
     def expression(self):
         """Return all values of metacell gene expression."""
         return self.gene.mge.all()
-
-    @property
-    def orthologs(self):
-        """Return all ortholog genes for this object's orthogroup."""
-        orthogroup = self.orthogroup
-        return Ortholog.objects.filter(orthogroup=orthogroup)
-
-    def get_absolute_url(self):
-        """Return absolute URL for this entry."""
-        return reverse("orthogroup_entry", args=[self.orthogroup])
-
-    def get_html_link(self):
-        """Return link to this entry formatted in HTML."""
-        # Get a ortholog object based on orthogroup
-        url = self.get_absolute_url()
-        label = self.orthogroup
-
-        html = f'<a href="{url}">{label}</a>'
-        return mark_safe(html)
 
     class Meta:
         """Meta options."""
@@ -873,21 +998,72 @@ class Ortholog(models.Model):
 
     def __str__(self):
         """String representation."""
-        return f"{self.orthogroup} {self.gene}"
+        return f"{self.orthogroup.name}:{self.gene} ({self.species})"
 
 
-class SAMap(models.Model):
-    """SAMap scores model."""
+class ExpressionConservation(models.Model):
+    """Expression conservation between two orthologs across datasets."""
 
-    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap")
-    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="samap2")
-    samap = models.DecimalField(max_digits=5, decimal_places=2)
+    orthogroup = models.ForeignKey(
+        Orthogroup,
+        on_delete=models.CASCADE,
+        related_name="conservations",
+        help_text="Orthogroup the conservation belongs to.",
+    )
+    gene = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations_as", help_text="First gene in the ortholog pair."
+    )
+    gene2 = models.ForeignKey(
+        Gene, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Second gene in the ortholog pair."
+    )
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations_as", help_text="Dataset for the first gene."
+    )
+    dataset2 = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="conservations2_as", help_text="Dataset for the second gene."
+    )
+    conservation_score = models.FloatField(help_text="Expression conservation score.")
+    is_one_to_one = models.BooleanField(default=True, help_text="Whether the ortholog pair is one-to-one.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = [["gene", "gene2", "dataset", "dataset2"]]
+        indexes = [
+            models.Index(fields=["gene"]),
+            models.Index(fields=["gene2"]),
+        ]
+        ordering = ["orthogroup"]
+        verbose_name = "Expression conservation score"
+        verbose_name_plural = "Expression conservation scores"
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.gene} - {self.gene2} ({self.orthogroup.name})"
+
+
+class MetacellTypeSimilarity(models.Model):
+    """Similarity scores between two metacell types."""
+
+    metacelltype = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="source")
+    metacelltype2 = models.ForeignKey(MetacellType, on_delete=models.CASCADE, related_name="target")
+
+    samap_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    samap_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
+
+    aucell_1to2 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_2to1 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    aucell_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
+
+    pesci_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    pesci_gene_pairs = ArrayField(ArrayField(models.PositiveIntegerField(), size=2), null=True, blank=True)
 
     class Meta:
         """Meta options."""
 
         unique_together = ["metacelltype", "metacelltype2"]
-        verbose_name = "SAMAP score"
+        verbose_name = "Metacell type similarity"
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         """String representation."""
@@ -897,19 +1073,41 @@ class SAMap(models.Model):
 
 
 class DBVersion(models.Model):
-    """Log of all database version releases."""
+    """Log of all database changes."""
 
-    version = models.CharField(max_length=50, unique=True, help_text="e.g., 2026.02.11")
-    description = models.TextField(blank=True, help_text="Notes on changes.")
-    populated_at = models.DateTimeField(
-        auto_now_add=True, help_text="The timestamp when this data version was populated in the database."
+    version = models.CharField(max_length=50, null=True, default=None, help_text="e.g., 2026.02.11")
+    description = models.TextField(help_text="Notes on changes.")
+    populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
+    commit = models.CharField(
+        max_length=40, null=True, default=None, help_text="Git commit hash associated with this change."
     )
+
+    def get_short_commit(self, length=7):
+        """Return abbreviated commit hash (first characters)."""
+        return self.commit[:length] if self.commit else None
 
     class Meta:
         # Orders so the latest version is always first
         ordering = ["-populated_at"]
         verbose_name = "Database Version Log"
 
+        # Database-level constraint to require either version or git commit hash
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(version__isnull=False) | models.Q(commit__isnull=False),
+                name="require_version_or_commit",
+                violation_error_message="Either version or git commit hash must be provided.",
+            ),
+        ]
+
     def __str__(self):
         """String representation."""
-        return f"{self.version}"
+
+        short_commit = self.get_short_commit()
+        if self.version and short_commit:
+            res = f"{self.version} ({short_commit})"
+        elif self.version:
+            res = self.version
+        elif short_commit:
+            res = short_commit
+        return res

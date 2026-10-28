@@ -2,8 +2,18 @@
 
 from django.views.generic import DetailView, ListView, TemplateView
 
-from ..models import Dataset, Domain, Gene, GeneList, GeneModule, Ortholog, Species
-from ..utils import get_dataset, get_gene_list, get_species
+from ..models import (
+    Dataset,
+    Domain,
+    Gene,
+    GeneList,
+    GeneModule,
+    GeneModuleMembership,
+    Orthogroup,
+    Ortholog,
+    Species,
+)
+from ..utils import get_dataset, get_gene_list, get_species, get_dataset_dict, get_species_dict
 
 
 class EntryView(TemplateView):
@@ -78,6 +88,12 @@ class GeneListView(FilteredListView):
     template_name = "app/entries/gene_list.html"
     filter_by = "species"
 
+    def get_context_data(self, **kwargs):
+        """Add species to context."""
+        context = super().get_context_data(**kwargs)
+        context["species_dict"] = get_species_dict()
+        return context
+
 
 class GeneDetailView(DetailView):
     """Display details for a specific gene."""
@@ -115,6 +131,7 @@ class GeneListDetailView(FilteredListView):
         """Add gene list to context."""
         context = super().get_context_data(**kwargs)
         context["gene_list"] = get_gene_list(self.kwargs.get("gene_list"))
+        context["species_dict"] = get_species_dict()
         return context
 
 
@@ -155,15 +172,16 @@ class GeneModuleListView(FilteredListView):
     paginate_by = 20
     template_name = "app/entries/gene_module_list.html"
 
-    def get_queryset(self):
-        """Return unique queryset items based on dataset and gene module name."""
-        return super().get_queryset().distinct("dataset", "name")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dataset_dict"] = get_dataset_dict()
+        return context
 
 
-class GeneModuleDetailView(FilteredListView):
+class GeneModuleDetailView(ListView):
     """Display list of genes for a specific gene module and dataset."""
 
-    model = GeneModule
+    model = GeneModuleMembership
     paginate_by = 20
     template_name = "app/entries/gene_module_detail.html"
 
@@ -172,7 +190,7 @@ class GeneModuleDetailView(FilteredListView):
         qs = super().get_queryset()
         module = self.kwargs.get("gene_module")
         dataset = get_dataset(self.kwargs.get("dataset"))
-        return qs.filter(name=module, dataset=dataset)
+        return qs.filter(module__name=module, module__dataset=dataset)
 
     def get_context_data(self, **kwargs):
         """Add module and dataset to context."""
@@ -185,14 +203,9 @@ class GeneModuleDetailView(FilteredListView):
 class OrthogroupListView(ListView):
     """Display list of unique orthogroups."""
 
-    model = Ortholog
+    model = Orthogroup
     paginate_by = 20
     template_name = "app/entries/orthogroup_list.html"
-
-    def get_queryset(self):
-        """Return distinct orthogroups ordered by name."""
-        qs = super().get_queryset()
-        return qs.order_by("orthogroup").distinct("orthogroup")
 
 
 class OrthogroupDetailView(ListView):
@@ -203,10 +216,10 @@ class OrthogroupDetailView(ListView):
     template_name = "app/entries/orthogroup_detail.html"
 
     def get_queryset(self):
-        """Filter queryset by orthogroup."""
+        """Filter queryset by domain."""
         qs = super().get_queryset()
         orthogroup = self.kwargs.get("orthogroup")
-        return qs.filter(orthogroup=orthogroup)
+        return qs.filter(orthogroup__name=orthogroup)
 
     def get_context_data(self, **kwargs):
         """Add orthogroup to context."""

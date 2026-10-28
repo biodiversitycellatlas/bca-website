@@ -4,27 +4,24 @@
     Dataset entries
 {% endblock title %}
 
+{% block structured_data %}
+    {% load bioschemas %}
+    {% bioschemas_data_catalog datasets=object_list name="Biodiversity Cell Atlas datasets" description="Single-cell transcriptomic datasets available in the Biodiversity Cell Atlas." %}
+{% endblock structured_data %}
+
 {% block heading %}
     {% load entry_links %}
     {% render_header_counter 'Datasets' paginator %}
 {% endblock heading %}
 
 {% block header %}
-    <th>
-        Dataset
-    </th>
-    <th>
-        Source
-    </th>
+    <th>Dataset</th>
+    <th>Source</th>
 {% endblock header %}
 
 {% block row %}
-    <td>
-        {{ each.get_named_html_link }}
-    </td>
-    <td>
-        {{ each.publication.get_source_html_link }}
-    </td>
+    <td>{{ each.get_named_html_link }}</td>
+    <td>{{ each.publication.get_source_html_link }}</td>
 {% endblock row %}
 
 {% block unfound %}

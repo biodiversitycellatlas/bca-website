@@ -21,7 +21,7 @@ Input:
 {% endblock title %}
 
 {% block subnav %}
-    {% include "../components/select/atlas.html" with redirect="arg" class="atlas-select" optgroup_columns="true" %}
+    {% include "../components/select/atlas.html" with redirect="arg" class="atlas-select" optgroup_columns="true" view="atlas" %}
 {% endblock subnav %}
 
 {% block content %}
@@ -31,6 +31,11 @@ Input:
             height: 140px;
             text-align: center;
             color: white;
+        }
+
+        .row-placeholder {
+            display: block;
+            margin-bottom: 0.5rem;
         }
 
         #row1 {
@@ -67,16 +72,11 @@ Input:
                 </p>
             </div>
             <div class="col-8">
-                <span id="row1" class="placeholder"></span>
-                <br />
-                <span id="row2" class="placeholder"></span>
-                <br />
-                <span id="row3" class="placeholder"></span>
-                <br />
-                <span id="row4" class="placeholder"></span>
-                <br />
-                <span id="row5" class="placeholder"></span>
-                <br />
+                <span id="row1" class="placeholder row-placeholder"></span>
+                <span id="row2" class="placeholder row-placeholder"></span>
+                <span id="row3" class="placeholder row-placeholder"></span>
+                <span id="row4" class="placeholder row-placeholder"></span>
+                <span id="row5" class="placeholder row-placeholder"></span>
             </div>
         </div>
     </div>

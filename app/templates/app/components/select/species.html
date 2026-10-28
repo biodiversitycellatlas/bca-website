@@ -24,15 +24,18 @@ Input:
 
 {% endcomment %}
 
-<!-- Make select invisible and with margin of 30px to avoid Flash Of Unstyled Content (FOUC) -->
-<select id="species-select"
+<!-- Hide select and add margin to avoid Flash Of Unstyled Content (FOUC) -->
+<style>
+    #species-select-{{ id }} {
+        margin-bottom: 23px !important;
+        visibility: hidden;
+    }
+</style>
+
+<select id="species-select-{{ id }}"
         class="mb-2 {{ class }}"
-        style="margin-bottom: 23px !important;
-               visibility: hidden;
-               max-width: 200px"
         placeholder="{{ placeholder|default:'Search species by nomenclature, taxonomic rank, division, ...' }}">
-    <option value="">
-    </option>
+    <option value=""></option>
     {% for phylum, species_list in species_dict.items %}
         <optgroup label="{{ phylum }}">
             {% for elem in species_list %}
@@ -53,11 +56,14 @@ Input:
 <script type="module">
     {% load static %}
     import { initSpeciesSelect }
-        from "{% static 'app/js/select/species.js' %}";
+        from "{% static 'app/dist/select/species.js' %}";
     document.addEventListener('DOMContentLoaded', function() {
-        let species = "{{species.slug}}",
+        let id = "{{id}}",
+            species = "{{species.slug}}",
             redirect = "{{redirect}}",
-            optgroup_columns = "{{optgroup_columns}}" === "true";
-        initSpeciesSelect(species, redirect, optgroup_columns);
+            optgroup_columns = "{{optgroup_columns}}" === "true",
+            view = "{{view}}",
+            extraParams = "{{extraParams}}";
+        initSpeciesSelect(id, species, redirect, optgroup_columns, view, extraParams);
     });
 </script>

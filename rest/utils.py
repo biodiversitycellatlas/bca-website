@@ -36,11 +36,47 @@ def get_enum_description(description, enum):
 
 
 def get_path_param(name, filter_cls):
-    f = filter_cls()
-    return OpenApiParameter(
-        name,
-        str,
-        OpenApiParameter.PATH,
-        description=get_enum_description(f.label, dict(f.extra["choices"])),
-        enum=[i for (i, _) in f.field.choices if i],
-    )
+    try:
+        f = filter_cls()
+        return OpenApiParameter(
+            name,
+            str,
+            OpenApiParameter.PATH,
+            description=get_enum_description(f.label, dict(f.extra["choices"])),
+            enum=[i for (i, _) in f.field.choices if i],
+        )
+    except Exception:
+        return OpenApiParameter(name, str, OpenApiParameter.PATH)
+
+
+def group_by_key(queryset, key_field, value_field, extra_field=None):
+    """
+    Groups values from a queryset by a specified key field.
+
+    Args:
+        queryset: Django queryset to extract values from.
+        key_field (str): Field name for the dictionary key.
+        value_field (str): Field name for the dictionary value.
+        extra_field (str, optional): Field name for extra value to nest.
+
+    Returns:
+        dict: Dictionary mapping keys to values or dictionary of dictionaries if extra_field is used.
+    """
+    result = {}
+    fields = [key_field, value_field] + ([extra_field] if extra_field else [])
+
+    for values in queryset.values_list(*fields):
+        key, value = values[0], values[1]
+
+        if extra_field:
+            extra = values[2]
+            c = result.setdefault(key, {})
+            v = c.setdefault(value, set())
+            if extra is not None:  # avoid adding None to get empty set
+                v.add(extra)
+        else:
+            c = result.setdefault(key, set())
+            if value is not None:  # avoid adding None to get empty set
+                c.add(value)
+
+    return result

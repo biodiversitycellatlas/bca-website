@@ -21,16 +21,8 @@ spaces_around_operators = true
 spaces_around_brackets = false
 
 
-[rest/test_fixtures/**]
-charset = unset
-end_of_line = unset
-insert_final_newline = unset
-trim_trailing_whitespace = unset
-indent_style = unset
-indent_size = unset
-
-
-[app/tests/test_fixtures/**]
+# Ignore all test_fixtures folders
+[**/test_fixtures/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset

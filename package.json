@@ -1,28 +1,34 @@
 {
-    "name": "app",
+    "name": "portal",
     "scripts": {
-        "list": "find app/static/app/ts/ -name '*.ts' -not -path '*/tests/*'",
-        "build": "bun build $(bun run list) --outdir app/static/app/js --outbase app/static/app/ts/ --minify"
+        "clean:portal": "bun -e \"import { rm } from 'node:fs/promises'; await rm('app/static/app/dist', { recursive: true, force: true })\"",
+        "list:portal": "find app/static/app/src/ -type f -not -path '*/tests/*' -not -name '.*'",
+        "bundle:portal": "bun build $(bun run list:portal) --outdir app/static/app/dist --outbase app/static/app/src/ --sourcemap --minify --splitting --chunk-naming 'chunk-[hash].[ext]'",
+        "build:portal": "bun run clean:portal && bun run bundle:portal",
+        "build:rest": "bun build rest/static/rest/src/* --outdir rest/static/rest/dist --sourcemap --minify",
+        "build": "bun run build:portal && bun run build:rest"
     },
     "dependencies": {
-        "@fontsource/rubik": "5.2.8",
-        "@fortawesome/fontawesome-free": "7.1.0",
+        "@fontsource/rubik": "5.3.0",
+        "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.4.24",
+        "autoprefixer": "10.6.1",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
-        "datatables.net-bs5": "2.3.7",
-        "datatables.net-select-bs5": "3.1.3",
-        "ion-rangeslider": "2.3.1",
+        "datatables.net-bs5": "3.1.2",
+        "datatables.net-rowgroup-bs5": "2.1.1",
+        "datatables.net-select-bs5": "4.1.1",
+        "ion-rangeslider": "2.5.0",
         "jquery": "3.7.1",
-        "postcss": "8.5.6",
-        "postcss-cli": "11.0.1",
-        "tom-select": "2.4.5",
-        "vega-embed": "7.1.0"
+        "postcss": "8.5.30",
+        "postcss-cli": "12.0.0",
+        "tom-select": "2.6.2",
+        "phylotree": "2.6.0",
+        "vega-embed": "7.3.0"
     },
     "devDependencies": {
-        "@happy-dom/global-registrator": "20.5.0",
-        "@types/bun": "1.3.8"
+        "@happy-dom/global-registrator": "21.0.1",
+        "@types/bun": "1.4.3"
     },
     "private": true,
     "type": "module"

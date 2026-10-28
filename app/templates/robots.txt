@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /api/v1/*/
+Crawl-delay: 10

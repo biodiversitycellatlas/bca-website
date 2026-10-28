@@ -3,102 +3,134 @@
 from django.urls import reverse
 
 from app.views import AtlasView
-from app.models import Gene
+from app.models import Gene, MetacellTypeSimilarity
 from app.tests.views.utils import DataTestCase
 
 
 class AtlasViewTest(DataTestCase):
     def test_atlas_view_basic(self):
         response = self.client.get("/atlas/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("icon", response.context)
-        self.assertIn("dataset_dict", response.context)
-        self.assertIn("links", response.context)
+        assert response.status_code == 200
+        assert "icon" in response.context
+        assert "dataset_dict" in response.context
+        assert "links" in response.context
 
     def test_get_species_icon_random(self):
         icon = AtlasView().get_species_icon()
-        self.assertIsInstance(icon, str)
+        assert isinstance(icon, str)
 
     def test_invalid_dataset_warning(self):
         response = self.client.get("/atlas/?dataset=invalid-dataset")
-        self.assertIn("warning", response.context)
-        self.assertIn("Invalid dataset", response.context["warning"]["title"])
+        assert "warning" in response.context
+        assert "Invalid dataset" in response.context["warning"]["title"]
 
     def test_invalid_dataset_redirect(self):
         response = self.client.get("/atlas/invalid/")
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse("atlas"), response.url)
+        assert response.status_code == 302
+        assert reverse("atlas") in response.url
 
 
 class AtlasInfoViewTest(DataTestCase):
     def test_dataset(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/")
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         context = response.context
-        self.assertEqual(context["dataset"], self.adult_mouse)
-        self.assertEqual(context["species"].common_name, "mouse")
-        self.assertIn("dataset_dict", context)
-        self.assertIn("links", context)
+        assert context["dataset"] == self.adult_mouse
+        assert context["species"].common_name == "mouse"
+        assert "dataset_dict" in context
+        assert "links" in context
 
         # Test quality control metrics
-        self.assertIn("qc_metrics", context)
+        assert "qc_metrics" in context
         for metric in context["qc_metrics"]:
-            self.assertIn("title", metric)
-            self.assertIn("values", metric)
+            assert "title" in metric
+            assert "values" in metric
 
 
 class AtlasOverviewViewTest(DataTestCase):
     def test_dataset(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/overview/")
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
+
+    def test_dataset_with_unnanotated_metacells(self):
+        self.adult_mouse.metacells.create(name="1")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/overview/")
+        assert response.status_code == 200
 
 
 class AtlasGeneViewTest(DataTestCase):
     def test_index(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("gene", response.context)
-        self.assertEqual(response.context["gene"], "")
-        self.assertNotIn("warning", response.context)
+        assert response.status_code == 200
+        assert "gene" in response.context
+        assert response.context["gene"] == ""
+        assert "warning" not in response.context
 
     def test_valid_gene(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/{self.brca1.name}/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("gene", response.context)
-        self.assertIsInstance(response.context["gene"], Gene)
-        self.assertEqual(response.context["gene"].name, self.brca1.name)
+        assert response.status_code == 200
+        assert "gene" in response.context
+        assert isinstance(response.context["gene"], Gene)
+        assert response.context["gene"].name == self.brca1.name
 
         # No warnings expected
-        self.assertNotIn("warning", response.context)
+        assert "warning" not in response.context
 
     def test_invalid_gene(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/gene/invalid-gene/")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["gene"], "")
-        self.assertIn("warning", response.context)
+        assert response.status_code == 200
+        assert response.context["gene"] == ""
+        assert "warning" in response.context
 
         # Raise warning for invalid gene
         warning = response.context["warning"]
-        self.assertIn("Invalid gene", warning["title"])
-        self.assertIn("Please check available genes", warning["description"])
+        assert "Invalid gene" in warning["title"]
+        assert "Please check available genes" in warning["description"]
 
 
 class AtlasPanelViewTest(DataTestCase):
     def test_gene_panel(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/panel/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("metacell_dict", response.context)
+        assert response.status_code == 200
+        assert "metacell_dict" in response.context
+
+
+class AtlasModuleViewTest(DataTestCase):
+    def test_gene_modules(self):
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/modules/")
+        assert response.status_code == 200
+        assert "Module activity" in response.content.decode()
 
 
 class AtlasMarkersViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/markers/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("metacell_dict", response.context)
+        assert response.status_code == 200
+        assert "metacell_dict" in response.context
+
+    def test_markers_with_nonnumeric_metacell_names(self):
+        self.adult_mouse.metacells.create(name="acrmil01_MC_00204")
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/markers/?metacells=acrmil01_MC_00204")
+        assert response.status_code == 200
+        assert response.context["metacells"] == ["acrmil01_MC_00204"]
 
 
 class AtlasCompareViewTest(DataTestCase):
     def test_gene_markers(self):
         response = self.client.get(f"/atlas/{self.adult_mouse.slug}/compare/")
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
+
+    def test_compare_datasets_filtered(self):
+        human_dataset = self.human.datasets.create(name="fetal")
+        t1 = self.adult_mouse.metacell_types.create(name="t1")
+        t2 = human_dataset.metacell_types.create(name="t2")
+        MetacellTypeSimilarity.objects.create(metacelltype=t1, metacelltype2=t2, samap_score=0.8)
+        human_dataset.gene_modules.create(name="blue").genes.add(self.brca1_human)
+
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/compare/")
+        dict_ = response.context["compare_dataset_dict"]
+        datasets = {elem["dataset"] for elems in dict_.values() for elem in elems}
+
+        assert human_dataset in datasets
+        assert self.baby_mouse not in datasets

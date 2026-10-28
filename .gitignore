@@ -1,3 +1,6 @@
+# nginx
+nginx*.conf
+
 # Django
 *.log
 *.pot
@@ -5,11 +8,14 @@
 __pycache__
 db.sqlite3
 media
-**/data
-app/static/app/js
+data/
+!scripts/data/
+
+# Django static files
 app/static/app/images/logos/BCA/PNG/*
 app/static/app/images/logos/BCA/EPS/*
-htmlcov
+app/static/app/dist
+rest/static/rest/dist
 
 # Postgres
 .pg_service.conf
@@ -25,6 +31,7 @@ htmlcov
 super-linter-output
 node_modules
 .coverage
+htmlcov
 
 # SSL certificates
 *.crt
@@ -36,3 +43,9 @@ node_modules
 .venv
 !.env.template
 source/
+
+# nginx-ultimate-bad-bot-blocker — upstream updates this file multiple times
+# a day, so vendoring it would mean constant PR noise. nginx/Dockerfile
+# fetches it fresh at build time, and the in-container update loop refreshes
+# it daily. Other bot-blocker files are stable enough to vendor.
+nginx/bot-blocker/conf.d/globalblacklist.conf

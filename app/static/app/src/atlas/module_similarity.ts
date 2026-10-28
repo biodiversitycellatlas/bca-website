@@ -1,0 +1,92 @@
+/**
+ * Module activity.
+ */
+
+import { getViewUrl } from "../utils/urls.ts";
+import { appendDataMenu } from "../buttons/data_dropdown.ts";
+import { createSimilarityHeatmap } from "./plots/similarity_heatmap.ts";
+import { hideSpinner } from "./plots/plot_container.ts";
+
+/**
+ * Handler factory for click events on plot.
+ *
+ * @param {string} id - Container ID for the heatmap plot.
+ * @param {string} dataset1html - Dataset 1 HTML representation.
+ * @param {string} dataset2html - Dataset 1 HTML representation.
+ * @param {function} callback - Function to call with id, dataset and selected modules as arguments.
+ */
+export function createClickHandler(id, dataset1html, dataset2html, callback) {
+    return function handleClick(event, item) {
+        callback(id, dataset1html, dataset2html, item.datum);
+    };
+}
+
+/**
+ * Fetch module eigengenes for the given dataset and create a heatmap plot.
+ *
+ * @param {string} id - Container ID for the heatmap plot.
+ * @param {string} dataset1 - Slug for the first dataset.
+ * @param {string} label1 - Label for the first dataset
+ * @param {string} dataset1html - HTML linking to the first dataset.
+ * @param {string} dataset2 - Slug for the second dataset.
+ * @param {string} label2 - Label for the second dataset.
+ * @param {string} dataset2html - HTML linking to the second dataset.
+ * @param {function} onClick - Function to call when user selects two modules in the plot.
+ */
+export function loadModuleSimilarityPlot(
+    id,
+    dataset1,
+    label1,
+    dataset1html,
+    dataset2 = null,
+    label2 = null,
+    dataset2html = null,
+    onClick = null,
+) {
+    // Compare datasets (unless dataset2 is null)
+    const url = getViewUrl("rest:genemodulesimilarity-list", {
+        dataset: dataset1,
+        limit: 0,
+        dataset2,
+        sort_modules: 1,
+    });
+
+    fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.length) {
+                const plot = document.getElementById(`${id}-plot`);
+                plot.parentElement.parentElement.innerHTML = `
+                    <p class="text-muted">
+                        <i class="fa fa-circle-exclamation"></i>
+                        No data available for the selected datasets.
+                    </p>
+                `;
+                return;
+            }
+
+            const clickHandler = createClickHandler(
+                id,
+                dataset1html,
+                dataset2html,
+                onClick,
+            );
+            createSimilarityHeatmap(
+                `#${id}-plot`,
+                data,
+                label1,
+                label2,
+                clickHandler,
+            );
+
+            // Automatically compare modules with highest similarity score
+            const mostSimilar = data.reduce((a, b) =>
+                a.similarity > b.similarity ? a : b,
+            );
+            onClick(id, dataset1html, dataset2html, mostSimilar);
+        })
+        .catch((error) => console.error("Error fetching data:", error))
+        .finally(() => hideSpinner(id));
+
+    appendDataMenu(id, url, "Similarity");
+}

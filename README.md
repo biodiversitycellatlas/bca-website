@@ -23,18 +23,21 @@ hundreds of species.
 
 This project uses:
 
-- [Podman Compose][] to manage multiple [Podman][] containers (using
+- [Podman Compose][] to manage multiple [Podman][] containers (using the
   [docker-compose][Docker Compose] backend for compatibility)
-- [Ghost][], a blog-focused Content Management System (CMS) for the main website
-    - [Mailpit][] provides a web interface to read Ghost transactional emails
-- [Django][], a high-level Python web framework powering the data portal, with additional dependencies (see [`Dockerfile`](Dockerfile))
+- [Nginx][] as a reverse proxy
+- [Ghost][] Content Management System (CMS) to serve the project website and blog
+  (see [`ghost/Dockerfile`](ghost/Dockerfile))
+    - [Mailpit][] to provide a web interface for Ghost transactional emails
+- [Django][] to power the Data Portal (see [`Dockerfile`](Dockerfile))
+  with the following dependencies:
     - [Bun][] to build JavaScript and CSS assets from external libraries
-    - [DIAMOND][] for fast sequence alignment
+    - [DIAMOND][] to quickly align user-provided sequences
     - [Gunicorn][] to serve the Django app in production
-- [PostgreSQL][], a relational database
-- [Nginx][], a reverse proxy
+- [PostgreSQL][] as the relational database system supporting the Data Portal
+- [Plausible][] to store visitor analytics
 
-The project configuration is defined in [`compose.yml`](compose.yml).
+The project configuration is defined in [`compose.yml`](compose.yml) and [`compose.prod.yml`](compose.prod.yml).
 
 ### Initial setup
 
@@ -50,13 +53,12 @@ Then, download the project directory from GitHub and follow these steps:
 # Go to the project directory
 cd bca-website
 
-# Copy the *.template files to avoid the .template suffix
-cp .env.template .env
-cp .pg_service.conf.template .pg_service.conf
-cp .pgpass.template .pgpass
+# Run setup.sh to setup configuration files from *.template files (edit them afterwards as needed):
+# env.template, nginx/nginx.conf, .pg_service.conf, .pgpass
+./scripts/setup.sh
 
-# Fix the permissions for .pgpass
-chmod 600 .pgpass
+# Log in to the Docker Hardened Images registry using your Docker credentials
+podman login dhi.io
 
 # Start Podman Compose to locally deploy the web app
 # - Prepares, downloads and starts all containers
@@ -67,6 +69,18 @@ podman compose up -d --build
 # Create a superuser (only required once for database setup)
 podman compose exec web python manage.py createsuperuser
 ```
+
+#### Docker Hardened Images for GitHub Actions and Dependabot
+
+[Docker Hardened Images (DHI)][DHI] are security-hardened images provided by Docker.
+This repository uses images hosted on the `dhi.io` registry, so Docker
+authentication is required to run the project:
+
+1. Log in to your Docker account and [create a Personal Action Token (PAT)][Docker PAT]
+2. Add the following secrets to **GitHub Action** ([Settings → Secrets and variables → Actions][GitHub Actions secrets]):
+    - `DOCKER_USERNAME`: your Docker account username
+    - `DOCKER_PASSWORD`: your Docker PAT (not your account password)
+3. Add the same secrets to **Dependabot** ([Settings → Secrets and variables → Actions][Dependabot secrets])
 
 ### Development
 
@@ -123,13 +137,13 @@ production-specific settings:
 podman compose -d
 ```
 
-## Main website (Ghost)
+## Project website (Ghost)
 
-The main website is built with the [Ghost][] blogging platform. Base templates
+The project website is built with the [Ghost][] blogging platform. Base templates
 in the [`ghost/`](ghost) folder modify the default theme.
 
 Transactional emails (like those sent to reset passwords and create new user
-accounts) can be read by opening [Mailpit][] web interface at localhost:1025.
+accounts) can be read by opening the [Mailpit][] web interface at localhost:1025.
 
 ## Data Portal (Django app)
 
@@ -275,9 +289,11 @@ Run all Django unit tests with:
 # Locally deploy the web app
 podman compose up -d --build
 
-# Run Django tests and report coverage in HTML (open the HTML file with a web browser)
+# Run Django tests and report coverage in HTML
 podman compose exec web coverage run manage.py test
 podman compose exec web coverage html
+
+# Open the HTML file with a web browser
 ```
 
 ### Run Bun tests for TypeScript files
@@ -293,6 +309,23 @@ podman compose exec web bun test --coverage
 
 # Run Bun tests in watch mode to automatically re-run tests on file changes
 podman compose exec web bun test --watch
+```
+
+### Run end-to-end tests
+
+The `e2e` service is defined in [`compose.e2e.yml`](compose.e2e.yml) and enables end-to-end Playwright testing.
+This configuration uses a separate Postgres volume so the dev database is not overwritten.
+
+```bash
+# Set COMPOSE_FILE in .env: COMPOSE_FILE=compose.yml:compose.e2e.yml
+# Locally deploy the web app
+podman compose up -d --build
+
+# Create the test database (only required once)
+podman compose exec web python manage.py createtestdb
+
+# Run end-to-end Playwright tests with pytest
+podman compose run --rm e2e pytest e2e/ -v
 ```
 
 ## Linters
@@ -332,19 +365,19 @@ on the version used in the [GitHub workflow](.github/workflows/linter.yml)):
 
 ```bash
 # Run in check mode on changed files
-./superlinter.sh check
+./scripts/superlinter.py check
 
 # Run in fix mode on changed files
-./superlinter.sh fix
+./scripts/superlinter.py fix
 
 # Run in fix mode on changed files using Python and JS linters only
-./superlinter.sh fix --python --js
+./scripts/superlinter.py fix --python --js
 
 # Run in fix mode on all codebase
-./superlinter.sh fix --all
+./scripts/superlinter.py fix --all
 
 # Print all available options
-./superlinter.sh
+./scripts/superlinter.py --help
 ```
 
 The environment files that Super-Linter automatically loads are available in
@@ -367,9 +400,14 @@ The environment files that Super-Linter automatically loads are available in
 [Podman Desktop]: https://podman-desktop.io
 [Docker Compose]: https://docs.docker.com/compose
 [docker-compose]: https://docs.docker.com/compose/install/standalone/
+[DHI]: https://www.docker.com/products/hardened-images/
+[Docker PAT]: https://docs.docker.com/security/access-tokens/
+[GitHub Actions secrets]: https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
+[Dependabot secrets]: https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/configuring-access-to-private-registries-for-dependabot#adding-a-repository-secret-for-dependabot
 [Django]: https://djangoproject.com
 [PostgreSQL]: https://postgresql.org
 [Nginx]: https://nginx.org
+[Plausible]: https://plausible.io
 [Bun]: https://bun.com
 [Gunicorn]: https://gunicorn.org
 [DIAMOND]: https://github.com/bbuchfink/diamond

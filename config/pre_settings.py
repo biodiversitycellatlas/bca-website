@@ -4,7 +4,7 @@ Functions to prepare settings.py setup.
 
 import os
 import re
-import subprocess
+import subprocess  # nosec B603, B404
 
 
 # Global variables
@@ -21,6 +21,13 @@ def get_command_output(cmd):
 def get_diamond_version():
     """Get version of DIAMOND installed."""
     output = get_command_output(["diamond", "--version"])
+    version = re.search(r"[\w\.]+", output.split()[-1]).group()
+    return version
+
+
+def get_goatools_version():
+    """Get version of GOATOOLS installed."""
+    output = get_command_output(["goatools", "--version"])
     version = re.search(r"[\w\.]+", output.split()[-1]).group()
     return version
 

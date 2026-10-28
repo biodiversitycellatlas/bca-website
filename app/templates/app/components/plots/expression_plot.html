@@ -8,11 +8,11 @@ Input:
 
 {% endcomment %}
 
-{% include "../plot_container.html" with id=gene.slug %}
+{% include "../plot_container.html" with id=gene.slug height="72px" %}
 
 {% load static %}
 <!-- Plot gene expression data -->
 <script type="module">
-    import { loadGeneExpression } from "{% static 'app/js/atlas/expression_single.js' %}";
+    import { loadGeneExpression } from "{% static 'app/dist/atlas/expression_single.js' %}";
     loadGeneExpression("{{dataset.slug}}", "{{dataset}}", "{{gene.slug}}", "{{gene}}");
 </script>

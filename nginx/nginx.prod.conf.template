@@ -1,0 +1,332 @@
+# =========================================================
+# Shared configuration (applies to all servers)
+# =========================================================
+
+# --- Real IP resolution (Podman bridge SNAT means $remote_addr is always the
+#     nginx container; real client IPs arrive via X-Forwarded-For from the CRG proxy) ---
+set_real_ip_from 10.89.0.0/24;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+# --- Bot detection by User-Agent (hand-maintained list of AI scrapers and
+#     SEO crawlers that layers on top of ngxblocker's broader globalblacklist).
+#     Named $ai_scraper to avoid colliding with ngxblocker's own $bad_bot. ---
+map $http_user_agent $ai_scraper {
+    default 0;
+
+    # AI scrapers
+    ~*anthropic-ai    1;
+    ~*ChatGPT         1;
+    ~*Claude          1;
+    ~*ClaudeBot       1;
+    ~*cohere-ai       1;
+    ~*CCBot           1;
+    ~*GPTBot          1;
+    ~*PerplexityBot   1;
+    ~*Google-Extended 1;
+
+    # SEO crawlers
+    ~*AhrefsBot       1;
+    ~*DataForSeoBot   1;
+    ~*DotBot          1;
+    ~*Majestic        1;
+    ~*SemrushBot      1;
+    ~*YouBot          1;
+
+    # Generic scrapers / other bots
+    ~*Amazonbot       1;
+    ~*Applebot        1;
+    ~*AwarioBot       1;
+    ~*AwarioRssBot    1;
+    ~*AwarioSmartBot  1;
+    ~*Baiduspider     1;
+    ~*Bytespider      1;
+    ~*Diffbot         1;
+    ~*FacebookBot     1;
+    ~*ImagesiftBot    1;
+    ~*magpie-crawler  1;
+    ~*omgili          1;
+    ~*peer39_crawler  1;
+    ~*Petalbot        1;
+    ~*Yandex          1;
+}
+
+# Map bot flag to a rate-limit key. nginx skips limit_req/limit_conn zones entirely
+# when the key is an empty string — so non-bots (0 → "") are never rate-limited.
+# NOTE: if copying this pattern elsewhere, be careful not to invert the polarity:
+# bots must map to a real key ($binary_remote_addr) and non-bots to "".
+map $ai_scraper $bot_limit_key {
+    1   $binary_remote_addr;
+    0   "";
+}
+
+# --- Known bot-farm CIDR ranges (Chinese cloud providers) ---
+# Only applied to /api/event — blocks fake Plausible event injection from data
+# centre IPs while leaving the rest of the site fully accessible.
+geo $remote_addr $bot_farm_cidr {
+    default         0;
+
+    # Tencent Cloud
+    43.128.0.0/14   1;
+    43.132.0.0/14   1;
+    43.152.0.0/15   1;
+    43.156.0.0/14   1;
+    43.164.0.0/14   1;
+    43.192.0.0/15   1;
+    49.51.0.0/16    1;
+    113.186.0.0/16  1;
+    170.106.0.0/16  1;
+
+    # Alibaba Cloud
+    8.210.0.0/15    1;
+    8.216.0.0/14    1;
+    47.236.0.0/15   1;
+    47.238.0.0/16   1;
+    47.243.0.0/16   1;
+    47.245.0.0/16   1;
+    150.5.0.0/16    1;
+
+    # China Telecom
+    101.47.0.0/16   1;
+
+    # China Unicom
+    163.7.0.0/16    1;
+}
+
+# --- Plausible origin allowlist ---
+map $http_origin $valid_plausible_origin {
+    "https://${DJANGO_HOSTNAME}"  1;
+    "https://www.${GHOST_HOSTNAME}"      1;
+    "https://${GHOST_HOSTNAME}"          1;
+    default                              0;
+}
+
+# --- Rate limiting zones (bots only) ---
+# bot_req: max 5 requests/second per bot IP, with a burst allowance of 20 (nodelay)
+limit_req_zone $bot_limit_key zone=bot_req:10m rate=5r/s;
+# bot_conn: max 5 concurrent connections per bot IP to prevent worker pool exhaustion
+limit_conn_zone $bot_limit_key zone=bot_conn:10m;
+
+# --- Gzip compression ---
+gzip on;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+gzip_min_length 256;
+gzip_comp_level 5;
+gzip_vary on;
+
+# --- Shared SSL settings (allowed at http level) ---
+ssl_session_timeout 1d;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+ssl_prefer_server_ciphers on;
+
+# --- Security headers ---
+add_header X-Content-Type-Options nosniff;
+add_header X-Frame-Options SAMEORIGIN;
+add_header X-XSS-Protection "1; mode=block";
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+proxy_hide_header Strict-Transport-Security;
+
+# ----------------------------------------------------------------------
+# Buffer & Header Optimizations
+# ----------------------------------------------------------------------
+# These settings prevent "413 Request Entity Too Large" or "502 Bad Gateway"
+# errors when handling large cookies, heavy RSS payloads (like Ghost),
+# or large upstream headers from Django.
+
+# Buffers for the initial client request line and headers
+client_header_buffer_size 16k;
+large_client_header_buffers 4 32k;
+
+# Buffers for responses received from the proxied server (Django/Ghost)
+proxy_buffer_size 128k;
+proxy_buffers 4 256k;
+proxy_busy_buffers_size 256k;
+
+# HTTP to HTTPS Redirection for portal.biodiversitycellatlas.org
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DJANGO_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
+    listen [::]:443 ssl http2; # IPv6 support
+    server_name ${DJANGO_HOSTNAME};
+
+    # Wildcard SSL certs (dynamic via env vars + symlink)
+    ssl_certificate /etc/nginx/certs/server.crt;
+    ssl_certificate_key /etc/nginx/certs/server.key;
+
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
+
+    location / {
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    location /metrics {
+        # Prometheus scrapes from within the Podman network; CRG staff may access
+        # from the internal LAN. Block all external internet access.
+        allow 10.89.0.0/24;   # Podman internal network (Prometheus container)
+        allow 10.0.0.0/8;     # CRG internal network
+        deny all;
+
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /static/;
+        access_log off;
+        expires 30d;
+    }
+
+    location /data/ {
+        alias /data/;
+        access_log off;
+        expires 30d;
+    }
+}
+
+
+# HTTP to HTTPS Redirection for biodiversitycellatlas.org and www.biodiversitycellatlas.org
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${GHOST_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+
+server {
+    listen 443 ssl http2; # Listen on port 443 for SSL, enable HTTP/2
+    listen [::]:443 ssl http2; # IPv6 support
+    server_name ${GHOST_HOSTNAME} www.${GHOST_HOSTNAME};
+
+    # --- Wildcard SSL Certificate Paths (same as above) ---
+    ssl_certificate /etc/nginx/certs/server.crt;
+    ssl_certificate_key /etc/nginx/certs/server.key;
+
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
+
+    location / {
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+
+        proxy_pass ${GHOST_INTERNAL_URL};   # Ghost internal URL with default port
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-NginX-Proxy true;
+
+        # Add/Adjust Proxy Timeouts (as discussed, to prevent 504s for slow Ghost responses)
+        proxy_read_timeout 120s;
+        proxy_connect_timeout 120s;
+        proxy_send_timeout 120s;
+
+        # Other important proxy settings
+        proxy_redirect off;
+        proxy_buffering off; # Important for Ghost's admin panel responsiveness
+        client_max_body_size 50m;
+
+    }
+}
+
+# HTTP to HTTPS Redirection for Plausible
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${PLAUSIBLE_HOSTNAME};
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl; # Listen on port 443 for SSL
+    listen [::]:443 ssl; # IPv6 support
+    server_name ${PLAUSIBLE_HOSTNAME};
+
+    # --- Wildcard SSL Certificate Paths (same as above) ---
+    ssl_certificate /etc/nginx/certs/server.crt;
+    ssl_certificate_key /etc/nginx/certs/server.key;
+
+    # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
+    include /etc/nginx/bots.d/blockbots.conf;
+    include /etc/nginx/bots.d/ddos.conf;
+
+    # Plausible requires specific proxy headers for correct operation,
+    # especially for X-Forwarded-Proto to handle the HTTPS connection.
+
+    # Restrict event ingestion to our own domains — prevents third-party sites
+    # from polluting analytics by spoofing this endpoint.
+    location = /api/event {
+        if ($bot_farm_cidr) { return 403; }
+        # Real Chrome always has a 4-part build number (e.g. Chrome/131.0.6778.70).
+        # The exact major.0.0.0 pattern is never emitted by a real browser.
+        if ($http_user_agent ~* "Chrome/[0-9]+\.0\.0\.0") { return 403; }
+        if ($valid_plausible_origin = 0) { return 403; }
+
+        proxy_pass http://plausible:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        client_max_body_size 50m;
+        proxy_http_version 1.1;
+    }
+
+    location / {
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+
+        proxy_pass http://plausible:8000; # Proxy to the internal container name and port
+
+        # Standard Proxy Headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # CRITICAL: Tell Plausible it's an HTTPS request
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_redirect off;
+
+        # Plausible may have a large body size for file uploads/downloads
+        client_max_body_size 50m;
+
+        # --- CRITICAL for WebSockets (LiveView) ---
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}

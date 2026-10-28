@@ -4,8 +4,5 @@
 ALTER SYSTEM SET max_wal_size = '2GB'; -- noqa
 SELECT pg_reload_conf();
 
--- Activate trigram similarity search
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
 -- Create databases if needed
 CREATE DATABASE ghost;

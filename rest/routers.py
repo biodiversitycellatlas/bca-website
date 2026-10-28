@@ -8,22 +8,31 @@ router.register("datasets", views.DatasetViewSet)
 router.register("stats", views.StatsViewSet, basename="stats")
 
 router.register("genes", views.GeneViewSet)
+router.register("gene_search", views.GeneSearchViewSet, basename="genesearch")
 
 router.register("gene_lists", views.GeneListViewSet)
 router.register("domains", views.DomainViewSet)
 router.register("correlated", views.CorrelatedGenesViewSet, basename="correlated")
 
+router.register("modules", views.GeneModuleViewSet)
+router.register("module_membership", views.GeneModuleMembershipViewSet)
+router.register("module_eigengenes", views.GeneModuleEigengeneViewSet)
+router.register("module_similarity", views.GeneModuleSimilarityViewSet, basename="genemodulesimilarity")
+router.register("module_similarity_genes", views.GeneModuleSimilarityGenesViewSet, basename="genemodulesimilaritygenes")
+
 router.register("orthologs", views.OrthologViewSet)
 router.register("ortholog_counts", views.OrthologCountViewSet, basename="orthologcount")
-router.register("samap", views.SAMapViewSet)
+router.register("expression_conservation", views.ExpressionConservationViewSet, basename="expressionconservation")
 
 router.register("metacells", views.MetacellViewSet)
-router.register("metacell_links", views.MetacellLinkViewSet, basename="metacelllink")
+router.register("metacell_edges", views.MetacellEdgeViewSet, basename="metacelledge")
 router.register("metacell_expression", views.MetacellGeneExpressionViewSet)
 router.register("markers", views.MetacellMarkerViewSet, basename="metacellmarker")
 router.register("metacell_counts", views.MetacellCountViewSet, basename="metacellcount")
+router.register("metacell_type_similarity", views.MetacellTypeSimilarityViewSet)
 
 router.register("single_cells", views.SingleCellViewSet)
 router.register("single_cell_expression", views.SingleCellGeneExpressionViewSet)
 
 router.register("align", views.AlignViewSet, basename="align")
+router.register("enrichment", views.EnrichmentAnalysisViewSet, basename="enrichment")

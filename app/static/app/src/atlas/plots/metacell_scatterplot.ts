@@ -1,0 +1,257 @@
+/**
+ * Metacell projection scatterplot.
+ */
+
+import vegaEmbed from "vega-embed";
+
+import { COLOR_SCALE } from "./metacell_heatmap.ts";
+
+export let viewMetacellProjection;
+
+/**
+ * Generate color scale based on data type and color.
+ *
+ * @param {Array} data - Array of objects with 'type' and 'color' properties.
+ * @returns {Object} scale - Object with 'domain' (unique types) and 'range' (corresponding colors).
+ */
+function generateColorScale(data) {
+    const colors = {};
+    data.forEach(({ type, color }) => {
+        if (type) colors[type] = color || "#AAAAAA";
+    });
+
+    const sorted_colors = {};
+    Object.keys(colors)
+        .sort()
+        .forEach((key) => {
+            sorted_colors[key] = colors[key];
+        });
+
+    const scale = {
+        domain: Object.keys(sorted_colors),
+        range: Object.values(sorted_colors),
+    };
+    return scale;
+}
+
+/**
+ * Create metacell projection chart.
+ *
+ * @param {string} id - CSS selector for target element.
+ * @param {string} species - Species name.
+ * @param {Object} data - Object with `sc_data`, `mc_data`, `mc_edges`.
+ * @param {string} [color="cell_type"] - Data field for coloring (e.g. `cell_type`,
+ *     `cytotrace`, `median_umis`, `expression`).
+ * @param {string|null} [gene=null] - Optional gene name for subtitle.
+ */
+export function createMetacellProjection(
+    id,
+    species,
+    data,
+    colorBy = "cell_type",
+    gene = null,
+) {
+    const metacellColorScale = generateColorScale(data["mc_data"]);
+    // Improve metacell label
+    const mc_data = data["mc_data"].map((mc) => ({
+        ...mc,
+        label: String(parseInt(mc.name.split("_").pop(), 10)),
+    }));
+    const colorScale = { domainMin: 0, clamp: true, range: COLOR_SCALE };
+    const neutralColor = "#F1F7FE"; // For undefined values
+
+    // Plot coloring: vega-lite conditions do not support updating the legend when
+    // changing the field/type used for colouring.
+    let scColor,
+        mcColor,
+        scaleType = "shared";
+    if (colorBy == "cell_type") {
+        scColor = {
+            field: "metacell_type",
+            scale: metacellColorScale,
+            title: "Cell type",
+        };
+        mcColor = {
+            field: "type",
+            scale: metacellColorScale,
+            title: "Cell type",
+        };
+    } else if (colorBy == "cytotrace") {
+        scColor = mcColor = {
+            field: "cytotrace",
+            scale: { ...colorScale, domainMax: 1 },
+            type: "quantitative",
+            title: "CytoTRACE",
+        };
+    } else if (colorBy == "median_umis") {
+        scColor = mcColor = {
+            field: "median_umis",
+            scale: colorScale,
+            type: "quantitative",
+            title: "Median UMIs",
+        };
+    } else {
+        scaleType = "independent";
+
+        scColor = {
+            condition: { test: "datum.umifrac == null", value: neutralColor },
+            title: "UMI/10K",
+            field: "umifrac",
+            type: "quantitative",
+            scale: colorScale,
+        };
+
+        mcColor = {
+            condition: {
+                test: "datum.log2_fold_change == null",
+                value: neutralColor,
+            },
+            title: "Log\u2082 FC",
+            field: "log2_fold_change",
+            type: "quantitative",
+            scale: colorScale,
+        };
+    }
+
+    // Prepare chart
+    const chart = {
+        $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+        title: {
+            text: {
+                expr: "data('sc_data').length + ' cells, ' + data('mc_data').length + ' metacells'",
+            },
+            subtitle: gene !== null ? gene + " expression" : null,
+            fontWeight: "normal",
+            anchor: "start",
+        },
+        width: "container",
+        height: "container",
+        params: [
+            { name: "showCells", bind: { element: "#projection-cells" } },
+            {
+                name: "showMetacells",
+                bind: { element: "#projection-metacells" },
+            },
+            { name: "showLabels", bind: { element: "#projection-labels" } },
+            { name: "showLinks", bind: { element: "#projection-links" } },
+        ],
+        layer: [
+            {
+                // Single-cell layer
+                data: { name: "sc_data", values: data["sc_data"] },
+                mark: {
+                    type: "circle",
+                    tooltip: { encoding: "data" },
+                    invalid: null,
+                },
+
+                // Avoid drawing cells with null coordinates
+                transform: [
+                    { filter: "datum.x != null && datum.y != null" },
+                    {
+                        calculate: `datum.${scColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
+                ],
+
+                // Avoid this transform for cells: this changes axis limits
+                // "transform": [ { "filter": "showCells == 'true'" } ],
+
+                params: [{ name: "brush", select: { type: "interval" } }],
+                encoding: {
+                    x: { field: "x", type: "quantitative" },
+                    y: { field: "y", type: "quantitative" },
+                    color: scColor,
+                    opacity: {
+                        condition: {
+                            test: "showCells == 'true'",
+                            value: 0.7,
+                            type: "nominal",
+                        },
+                        value: 0,
+                    },
+                    order: { field: "is_na", sort: "descending" },
+                    tooltip: {
+                        condition: {
+                            test: "showCells == 'false'",
+                            value: null,
+                        },
+                    },
+                },
+            },
+            {
+                // Metacell edges layer
+                data: { name: "mc_edges", values: data["mc_edges"] },
+                mark: "rule",
+                transform: [{ filter: "showLinks == 'true'" }],
+                encoding: {
+                    x: { field: "metacell_x", type: "quantitative" },
+                    x2: { field: "metacell2_x", type: "quantitative" },
+                    y: { field: "metacell_y", type: "quantitative" },
+                    y2: { field: "metacell2_y", type: "quantitative" },
+                    color: { value: "#B7B7B7" },
+                },
+            },
+            {
+                // Metacell layer
+                data: { name: "mc_data", values: mc_data },
+                mark: {
+                    type: "circle",
+                    stroke: "white",
+                    strokeWidth: 1,
+                    tooltip: { encoding: "data" },
+                    invalid: null,
+                },
+                transform: [
+                    {
+                        calculate:
+                            "datum.fold_change == null ? null : log(datum.fold_change) / log(2)",
+                        as: "log2_fold_change",
+                    },
+                    {
+                        calculate: `datum.${mcColor.field} == null ? 1 : 0`,
+                        as: "is_na",
+                    },
+                    { filter: "showMetacells == 'true'" },
+                ],
+                encoding: {
+                    x: { field: "x", type: "quantitative" },
+                    y: { field: "y", type: "quantitative" },
+                    size: { value: 400 },
+                    color: mcColor,
+                    opacity: { value: 0.7 },
+                    order: { field: "is_na", sort: "descending" },
+                },
+            },
+            {
+                // Metacell label
+                data: { name: "mc_data" },
+                mark: "text",
+                transform: [{ filter: "showLabels == 'true'" }],
+                encoding: {
+                    x: { field: "x", type: "quantitative" },
+                    y: { field: "y", type: "quantitative" },
+                    text: { field: "label" },
+                    opacity: { value: 0.7 },
+                },
+            },
+        ],
+        config: {
+            style: { cell: { stroke: "transparent" } },
+            axis: {
+                domain: false,
+                grid: false,
+                ticks: false,
+                labels: false,
+                title: null,
+            },
+        },
+        resolve: { scale: { color: scaleType } },
+    };
+
+    vegaEmbed(id, chart, { renderer: "canvas" })
+        .then((res) => {
+            viewMetacellProjection = res.view;
+        })
+        .catch(console.error);
+}
