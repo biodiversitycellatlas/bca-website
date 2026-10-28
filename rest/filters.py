@@ -66,9 +66,9 @@ class SpeciesChoiceFilter(ChoiceFilter):
 
     @property
     def field(self):
-        field = super().field
-        field.choices = update_species_choices()
-        return field
+        _field = super().field
+        _field.choices = update_species_choices()
+        return _field
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -113,9 +113,9 @@ class DatasetChoiceFilter(ChoiceFilter):
 
     @property
     def field(self):
-        field = super().field
-        field.choices = update_dataset_choices()
-        return field
+        _field = super().field
+        _field.choices = update_dataset_choices()
+        return _field
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""
