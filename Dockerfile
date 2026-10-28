@@ -67,8 +67,8 @@ COPY --from=dev /opt/python/ /opt/python/
 ENV VIRTUAL_ENV=/opt/python/
 ENV PATH="/opt/python/bin:$PATH"
 
-# hadolint ignore=DL3025
 SHELL ["/usr/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
     CMD python scripts/healthcheck.py
 EXPOSE 8000
