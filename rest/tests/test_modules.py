@@ -213,10 +213,7 @@ class GeneModuleSimilarity(GeneModulesData):
             assert m["shared_genes_module2"] == shared2
 
     def run_similarity_genes_tests(self, sim, expected):
-        actual = [
-            (m["overlap"], m["dataset"], m["module"], m["gene"], tuple(m["orthogroups"]))
-            for m in sim
-        ]
+        actual = [(m["overlap"], m["dataset"], m["module"], m["gene"], tuple(m["orthogroups"])) for m in sim]
         expected = [
             (overlap, dataset, module, gene, tuple(orthogroups))
             for overlap, dataset, module, gene, orthogroups in expected
