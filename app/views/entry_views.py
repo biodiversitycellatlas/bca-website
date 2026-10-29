@@ -103,6 +103,10 @@ class GeneDetailView(DetailView):
     slug_field = "name"
     slug_url_kwarg = "gene"
 
+    def get_queryset(self):
+        """Restrict gene lookup to the species in the URL."""
+        return super().get_queryset().filter(species__slug=self.kwargs["species"])
+
 
 class GeneListListView(FilteredListView):
     """Display all gene lists for a species."""
