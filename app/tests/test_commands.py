@@ -9,8 +9,8 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
-from app.management.metadata_existence import check_metadata_existence
 from app.models import Dataset, DatasetQualityControl, QualityControl, Species
+from app.systemchecks.metadata import check_metadata_existence
 from app.tests.test_utils import assert_conforms
 from app.tests.views.utils import DataTestCase
 
@@ -102,7 +102,7 @@ class DumpBioschemasCommandTest(DataTestCase):
 class MetadataCommandTest(TestCase):
     def test_command_output(self):
         out = StringIO()
-        call_command("metadata", stdout=out)
+        call_command("check_metadata", stdout=out)
         self.assertIn("Successfully checked metadata", out.getvalue())
 
 

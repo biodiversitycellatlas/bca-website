@@ -2,7 +2,7 @@ from typing import TextIO
 
 from django.core.management import BaseCommand
 
-from app.management.metadata_existence import check_metadata_existence
+from app.systemchecks.metadata import check_metadata_existence
 
 
 class Command(BaseCommand):
