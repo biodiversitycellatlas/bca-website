@@ -10,7 +10,6 @@ from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
 from app.models import Dataset, DatasetQualityControl, QualityControl, Species
-from app.systemchecks.metadata import check_metadata_existence
 from app.tests.test_utils import assert_conforms
 from app.tests.views.utils import DataTestCase
 
