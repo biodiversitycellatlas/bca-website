@@ -100,31 +100,26 @@ class DumpBioschemasCommandTest(DataTestCase):
 
 
 class MetadataCommandTest(TestCase):
-    def test_command_output(self):
+    def test_without_errors(self):
         out = StringIO()
         call_command("check_metadata", stdout=out)
         self.assertIn("Successfully checked metadata", out.getvalue())
 
-
-class MetadataExistenceTest(TestCase):
-    @classmethod
-    def setUpTestData(cls) -> None:
-        cls.human = Species.objects.create(
+    def test_with_errors(self):
+        human = Species.objects.create(
             common_name="metahuman",
             scientific_name="Meta Homo",
             description="random human",
         )
-        cls.dataset = Dataset.objects.create(name="Meta Homo - adult", description="random human", species=cls.human)
-        cls.quality_control = QualityControl.objects.create(
+        dataset = Dataset.objects.create(name="Meta Homo - adult", description="random human", species=human)
+        quality_control = QualityControl.objects.create(
             type="Mapping", name="Number of eyes", description="number of eyes"
         )
         DatasetQualityControl.objects.create(
-            dataset=cls.dataset,
-            metric=cls.quality_control,
+            dataset=dataset,
+            metric=quality_control,
             value="2",
         )
-
-    def test_metadata_existence(self):
-        errors = check_metadata_existence()
-        "4 errors for number of {cells, metacells, umis, genes) and 1 for metric eyes"
-        assert len(errors) == 5
+        out = StringIO()
+        call_command("check_metadata", stdout=out)
+        self.assertIn("Problems with metadata", out.getvalue())
