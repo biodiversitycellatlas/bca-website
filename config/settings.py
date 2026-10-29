@@ -11,14 +11,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from pathlib import Path
 import secrets
 import sys
+from pathlib import Path
 
 import orjson
 
-from .pre_settings import get_diamond_version, get_goatools_version, get_env, get_latest_git_tag
 from rest.settings import sort_api_tags
+
+from .pre_settings import get_diamond_version, get_env, get_goatools_version, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_DOMAIN = "biodiversitycellatlas.org"
@@ -31,6 +32,10 @@ PLAUSIBLE_SCRIPT_URL = get_env("PLAUSIBLE_SCRIPT_URL", default=None)
 
 GITHUB_URL = "https://github.com/biodiversitycellatlas/bca-website"
 GIT_VERSION = get_latest_git_tag()
+
+# License covering the data served by the portal. Required by the Bioschemas
+# Dataset profile, so it is a setting rather than a per-dataset model field.
+BCA_DATA_LICENSE = get_env("BCA_APP_DATA_LICENSE", "https://creativecommons.org/licenses/by/4.0/")
 
 DIAMOND_VERSION = get_diamond_version()
 GOATOOLS_VERSION = get_goatools_version()
@@ -66,6 +71,9 @@ if get_env("ENVIRONMENT") == "prod":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+# Remove COOP to fix macOS Quick Look preview of Data Portal pages (low risk)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -73,8 +81,9 @@ INSTALLED_APPS = [
     "rest.apps.RestConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.postgres",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
@@ -153,6 +162,10 @@ else:
         }
     }
 
+# Match threshold for the search API's trigram queries
+OPTIONS = DATABASES["default"].setdefault("OPTIONS", {})
+OPTIONS["options"] = "-c pg_trgm.strict_word_similarity_threshold=0.3"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -213,7 +226,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # no permissions required
     "DEFAULT_PERMISSION_CLASSES": [],  # no permissions required
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest.schema.FormatDescriptionAutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest.pagination.StandardPagination",
     "DEFAULT_RENDERER_CLASSES": [
         "drf_orjson_renderer.renderers.ORJSONRenderer",

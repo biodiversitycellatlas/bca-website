@@ -8,8 +8,11 @@ Input:
 - img_url
 - date
 
+The hash of img_url is used to map each card to their background image.
+
 {% endcomment %}
 
+{% load string_extras %}
 <style>
     .news.card {
         background-repeat: no-repeat;
@@ -17,15 +20,16 @@ Input:
         background-size: 800px;
         clip-path: url(#gaudi1);
     }
+
+    .news.card.card-{{ img_url|hash }} {
+        background-image: url('{{ img_url }}');
+    }
 </style>
 
 <a href="{{ link }}" target="_blank">
-    <div class="news card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm text-shadow"
-         style="background-image: url('{{ img_url }}')">
+    <div class="news card card-{{ img_url|hash }} card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-sm text-shadow">
         <div class="d-flex flex-column h-100 p-5 text-white">
-            <h2 class="h4">
-                {{ title }}
-            </h2>
+            <h2 class="h4">{{ title }}</h2>
             <ul class="d-flex list-unstyled mt-auto">
                 <li class="d-flex align-items-center">
                     <span><small>

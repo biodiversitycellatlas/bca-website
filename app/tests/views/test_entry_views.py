@@ -55,9 +55,19 @@ class GeneViewTests(DataTestCase):
         self.assertContains(response, self.mouse.get_named_html_link())
 
         # Check datasets
-        self.assertContains(response, "BCA datasets")
+        self.assertContains(response, "Datasets")
         for d in self.mouse.datasets.all():
             self.assertContains(response, d)
+
+    def test_gene_detail_with_same_name_in_another_species(self):
+        human_gene = self.human.genes.create(name=self.brca1.name)
+
+        for species, gene in ((self.mouse, self.brca1), (self.human, human_gene)):
+            with self.subTest(species=species.slug):
+                response = self.client.get(f"/entry/gene/{species.slug}/{gene.name}/")
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context["gene"], gene)
 
 
 class GeneListViewTests(DataTestCase):

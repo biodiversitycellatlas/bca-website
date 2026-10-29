@@ -6,7 +6,7 @@ import vegaEmbed from "vega-embed";
 
 import { COLOR_SCALE } from "./metacell_heatmap.ts";
 
-export let viewSimilarityPlot;
+export let viewSimilarityHeatmap;
 
 let lastClicked = null;
 
@@ -19,7 +19,7 @@ let lastClicked = null;
  * @param {string} dataset2_label - Label to annotate the second dataset
  * @param {function} clickListener - Function to call when user clicks in the plot.
  */
-export function createSimilarityPlot(
+export function createSimilarityHeatmap(
     id,
     data,
     dataset_label,
@@ -79,7 +79,7 @@ export function createSimilarityPlot(
             color: {
                 field: "similarity",
                 type: "quantitative",
-                scale: { range: COLOR_SCALE },
+                scale: { domain: [0, 1], range: COLOR_SCALE },
                 legend: { title: "Similarity", format: ".0%" },
             },
         },
@@ -88,11 +88,11 @@ export function createSimilarityPlot(
 
     vegaEmbed(id, chart, { renderer: "canvas" })
         .then((res) => {
-            viewSimilarityPlot = res.view;
+            viewSimilarityHeatmap = res.view;
 
             // Add click event listener to update other components
             if (!clickListener) return;
-            viewSimilarityPlot.addEventListener("click", (event, item) => {
+            viewSimilarityHeatmap.addEventListener("click", (event, item) => {
                 const datum = item?.datum ?? null;
                 // Only call listener if clicking on different datum
                 if (datum && datum !== lastClicked) {

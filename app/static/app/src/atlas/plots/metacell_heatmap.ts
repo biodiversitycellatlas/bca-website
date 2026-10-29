@@ -4,6 +4,11 @@
 
 import vegaEmbed from "vega-embed";
 
+import {
+    getMetacellIndex,
+    getMetacellPositions,
+} from "../../utils/metacell.ts";
+
 export let viewExpressionHeatmap;
 export let viewActivityHeatmap;
 
@@ -22,7 +27,7 @@ function createMetacellRugPlot(orient = "top") {
         mark: "rect",
         encoding: {
             x: {
-                field: "metacell_name",
+                field: "metacell_index",
                 axis: {
                     labels: false,
                     ticks: false,
@@ -53,6 +58,9 @@ function createMetacellRugPlot(orient = "top") {
  * @param {string} valueLabel - Label for the color legend.
  * @param {string} [boundaryColor="black"] - Color for metacell boundary lines.
  * @param {Array} [clip=[null, null]] - Min/max clipping range for color scaling.
+ * @param {boolean} [sortByYIndex=false] - Sort Y-axis values by the trailing number of their name.
+ * @param {boolean} [fallbackMetacellIndex=true] - Fall back to the trailing number of the metacell name
+ *   when no stored order is available. If disabled, metacells keep their position in the data.
  *
  * @returns {Object} Vega-Lite specification for the heatmap.
  */
@@ -65,7 +73,21 @@ function createMetacellHeatmap(
     valueLabel,
     boundaryColor = "black",
     clip = [null, null],
+    sortByYIndex = false,
+    fallbackMetacellIndex = true,
 ) {
+    // Position each metacell by its stored order, falling back to the trailing
+    // number of its name (or its position in the data when disabled)
+    const metacellPositions = getMetacellPositions(data, fallbackMetacellIndex);
+
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_index: metacellPositions.get(obj.metacell_name),
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+        y_index: sortByYIndex ? getMetacellIndex(obj[yField]) : null,
+    }));
+
     const metacellBoundaryLines = {
         mark: "rule",
         transform: [
@@ -73,20 +95,20 @@ function createMetacellHeatmap(
             {
                 window: [{ op: "row_number", as: "rn" }],
                 groupby: ["metacell_type"],
-                sort: [{ field: "metacell_name", order: "ascending" }],
+                sort: [{ field: "metacell_index", order: "ascending" }],
             },
             { filter: "datum.rn === 1" },
 
             // Discard first value (overlaps the Y-axis grid line)
             {
                 window: [{ op: "row_number", as: "rn_all" }],
-                sort: [{ field: "metacell_name", order: "ascending" }],
+                sort: [{ field: "metacell_index", order: "ascending" }],
             },
             { filter: "datum.rn_all > 1" },
         ],
         encoding: {
             // Position first mark to the left
-            x: { field: "metacell_name", bandPosition: 0 },
+            x: { field: "metacell_index", bandPosition: 0 },
             color: { value: boundaryColor },
             strokeWidth: { value: 0.5 },
         },
@@ -97,7 +119,6 @@ function createMetacellHeatmap(
         height: "container",
         data: { name: "exprData", values: data },
         transform: [
-            { calculate: "toNumber(datum.metacell_name)", as: "metacell_name" },
             {
                 joinaggregate: [
                     { op: "distinct", field: yField, as: "y_count" },
@@ -108,6 +129,7 @@ function createMetacellHeatmap(
                     },
                 ],
             },
+            { filter: `datum.${valueField} >= ${clip[0]}` },
         ],
         vconcat: [
             createMetacellRugPlot(),
@@ -119,14 +141,14 @@ function createMetacellHeatmap(
                         mark: { type: "rect", tooltip: { content: "data" } },
                         encoding: {
                             x: {
-                                field: "metacell_name",
+                                field: "metacell_index",
                                 axis: { labels: false, ticks: false },
                                 title: "",
                             },
                             y: {
                                 field: yField,
                                 axis: {
-                                    labels: true,
+                                    labels: false,
                                     labelExpr:
                                         "data('data_0')[0].y_count < 80 ? datum.label : ''",
                                     ticks: false,
@@ -134,7 +156,9 @@ function createMetacellHeatmap(
                                         expr: `data('data_0')[0].y_count + ' ${yLabel}'`,
                                     },
                                 },
-                                sort: { field: "index" },
+                                sort: sortByYIndex
+                                    ? { field: "y_index" }
+                                    : { field: "index" },
                             },
                             color: {
                                 field: valueField,
@@ -176,8 +200,8 @@ export function createExpressionHeatmap(id, data, clip = [0, null]) {
         data,
         "gene_name",
         "Genes",
-        "log2_fold_change",
-        "Log\u2082 FC",
+        "fold_change",
+        "FC",
         "gray",
         clip,
     );
@@ -204,6 +228,8 @@ export function createActivityHeatmap(id, data, clip = [-0.1, 0.2]) {
         "Eigengene values",
         "black",
         clip,
+        false,
+        true,
     );
 
     vegaEmbed(id, chart, { renderer: "canvas" })

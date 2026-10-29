@@ -187,6 +187,12 @@ export function createStatsPlot(
     color_by_metacell = true,
     counts = true,
 ) {
+    data = data.map((obj) => ({
+        ...obj,
+        metacell_type: obj.metacell_type || "Unannotated",
+        metacell_color: obj.metacell_color || "#AAAAAA",
+    }));
+
     const chart = {
         $schema: "https://vega.github.io/schema/vega-lite/v6.json",
         title: { text: title },

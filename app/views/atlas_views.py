@@ -11,9 +11,12 @@ from django.views.generic import TemplateView
 
 from ..models import Dataset
 from ..utils import (
+    get_cell_atlas_links,
+    get_compare_dataset_dict,
     get_dataset,
     get_dataset_dict,
     get_metacell_dict,
+    get_metacell_order,
 )
 
 
@@ -150,7 +153,8 @@ class AtlasView(BaseAtlasView):
                 "spider",
                 "hippo",
             ]
-            species = random.choice(species)
+            species = random.choice(species)  # nosec B311
+
         return species
 
     def get_context_data(self, **kwargs):
@@ -184,6 +188,51 @@ class AtlasView(BaseAtlasView):
         if dataset and isinstance(dataset, Dataset):
             return redirect("atlas_info", dataset.slug)
         return super().get(request, *args, **kwargs)
+
+
+class BaseAtlasView(TemplateView):
+    """
+    Base view for dataset-specific Cell Atlas pages.
+
+    Redirects to standard Atlas view with a warning for invalid datasets.
+    """
+
+    model = Dataset
+    template_name = "app/atlas/info.html"
+
+    def get_context_data(self, **kwargs):
+        """Add dataset, species, links, and query to context."""
+        context = super().get_context_data(**kwargs)
+
+        # Get URL query parameters
+        query = self.request.GET
+        context["query"] = query
+        dataset = context["dataset"]
+
+        d = get_dataset(dataset)
+        if isinstance(d, Dataset):
+            context["dataset"] = d
+            context["species"] = d.species
+            context["dataset_dict"] = get_dataset_dict()
+            context["compare_dataset_dict"] = context["dataset_dict"]
+
+            # Prepare Cell Atlas links
+            url_name = self.request.resolver_match.url_name
+            context["links"] = get_cell_atlas_links(url_name, d)
+        else:
+            context["dataset"] = dataset
+
+        return context
+
+    def get(self, *args, **kwargs):
+        """Redirect if dataset is invalid, else proceed normally."""
+        context = self.get_context_data(**kwargs)
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
+            if dataset is None:
+                dataset = "invalid"
+            return redirect(reverse("atlas") + "?dataset=" + dataset)
+        return super().get(*args, **kwargs)
 
 
 class AtlasInfoView(BaseAtlasView):
@@ -272,6 +321,12 @@ class AtlasGeneModuleView(BaseAtlasView):
     template_name = "app/atlas/modules.html"
 
 
+class AtlasEnrichmentView(BaseAtlasView):
+    """Gene ontology enrichment page for a specific dataset."""
+
+    template_name = "app/atlas/enrichment.html"
+
+
 class AtlasPanelView(BaseAtlasView):
     """Gene panel page for selected metacells."""
 
@@ -310,14 +365,12 @@ class AtlasMarkersView(BaseAtlasView):
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
-                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells))
-                    .values_list("name", flat=True)
-                    .distinct()
+                    dataset.metacells.filter(Q(name__in=metacells) | Q(type__name__in=metacells)).distinct()
                 )
-                selected = [int(s) for s in selected]
-                selected.sort()
+                # Sort metacells by stored order (fallback to trailing number, e.g. 204 in "acrmil01_MC_00204")
+                selected.sort(key=lambda obj: get_metacell_order(obj.order, obj.name))
 
-                context["metacells"] = selected
+                context["metacells"] = [obj.name for obj in selected]
             else:
                 context["warning"] = {
                     "title": "Invalid URL!",
@@ -334,6 +387,13 @@ class AtlasCompareView(BaseAtlasView):
     def get_context_data(self, **kwargs):
         """Add second dataset and species for comparison if valid."""
         context = super().get_context_data(**kwargs)
+
+        dataset = context["dataset"]
+        if not isinstance(dataset, Dataset):
+            return context
+
+        # Only allow datasets with data to compare in both SAMap and gene modules
+        context["compare_dataset_dict"] = get_compare_dataset_dict(dataset)
 
         # Parse URL query parameters and get dataset to compare SAMap scores
         try:

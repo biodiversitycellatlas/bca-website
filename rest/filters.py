@@ -7,16 +7,16 @@ from django.db.models import (
     Case,
     Count,
     F,
+    Field,
     FloatField,
-    IntegerField,
-    Max,
+    OuterRef,
     Q,
     Subquery,
     Sum,
     When,
     Window,
 )
-from django.db.models.functions import Cast, Greatest, Log, Rank
+from django.db.models.functions import Greatest, Log, Rank
 from django.forms import ChoiceField
 from django_filters.rest_framework import (
     BooleanFilter,
@@ -28,44 +28,23 @@ from django_filters.rest_framework import (
 )
 
 from app import models
+from app.utils.utils import get_metacell_order
 
 from .aggregates import Median
 from .functions import ArrayPosition
-from .utils import check_model_exists, parse_species_dataset
-
-
-def skip_param(queryset, name, value):
-    """
-    Document a query parameter without altering the queryset.
-    Useful if the actual param is altered elsewhere.
-    """
-    return queryset
-
-
-def update_species_choices():
-    """Update species choices"""
-    choices = []
-    if check_model_exists(models.Species):
-        choices = [
-            (
-                s.scientific_name,
-                s.common_name if s.common_name is not None else s.get_html(),
-            )
-            for s in models.Species.objects.all()
-        ]
-        choices = sorted(choices, key=lambda x: x[0])
-    return choices
+from .utils import (
+    create_fc_type_choice_filter,
+    parse_species_dataset,
+    skip_param,
+    update_dataset_choices,
+    update_species_choices,
+)
 
 
 class SpeciesChoiceField(ChoiceField):
-    """Forcing dynamic updating of species choices"""
+    """Field for species choices."""
 
     null_label = None
-
-    def valid_value(self, value):
-        """Update dataset choices before validation."""
-        self.choices = update_species_choices()
-        return super().valid_value(value)
 
 
 class SpeciesChoiceFilter(ChoiceFilter):
@@ -83,8 +62,13 @@ class SpeciesChoiceFilter(ChoiceFilter):
         field_name = field_name or self.default_field_name
         anchor_url = "#/operations/species_list"
         label = label or f"The <a href='{anchor_url}'>species' scientific name</a>."
-        choices = update_species_choices()
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+        super().__init__(*args, field_name=field_name, label=label, choices=(), **kwargs)
+
+    @property
+    def field(self):
+        _field = super().field
+        _field.choices = update_species_choices()
+        return _field
 
     def filter(self, qs, value):
         """Filter queryset. Optimised to avoid inner joins."""
@@ -107,26 +91,10 @@ class SpeciesChoiceFilter(ChoiceFilter):
         return qs
 
 
-def update_dataset_choices():
-    """Update dataset choices based on available datasets."""
-
-    choices = []
-    if check_model_exists(models.Dataset):
-        choices = [(d.slug, str(d)) for d in models.Dataset.objects.all()]
-        choices = sorted(choices, key=lambda x: x[0])
-    return choices
-
-
 class DatasetChoiceField(ChoiceField):
-    """Fix to dynamically uodate dataset choices."""
+    """Field for dataset choices."""
 
     null_label = None
-
-    def valid_value(self, value):
-        """Update dataset choices before validation."""
-
-        self.choices = update_dataset_choices()
-        return super().valid_value(value)
 
 
 class DatasetChoiceFilter(ChoiceFilter):
@@ -141,9 +109,13 @@ class DatasetChoiceFilter(ChoiceFilter):
         field_name = field_name or self.default_field_name
         anchor_url = "#/operations/datasets_list"
         label = label or f"The <a href='{anchor_url}'>dataset's slug</a>."
-        choices = update_dataset_choices()
+        super().__init__(*args, field_name=field_name, label=label, choices=(), **kwargs)
 
-        super().__init__(field_name=field_name, label=label, choices=choices, *args, **kwargs)
+    @property
+    def field(self):
+        _field = super().field
+        _field.choices = update_dataset_choices()
+        return _field
 
     def get_dataset_id_field(self, field):
         """Return the dataset ID field name for filtering."""
@@ -186,30 +158,82 @@ class QueryFilterSet(FilterSet):
 
     # Array of strings to use when querying
     query_fields = []
-    threshold = 0.3
+
+    def _split_query_field(self, queryset, field):
+        """
+        Resolve a query field path from the queryset's model.
+
+        Returns:
+            tuple: ("direct", field) for single-valued relations. ("multi", sub_model, back_name, outer_path, rest_path)
+            for multi-valued relations.
+        """
+        parts = field.split("__")
+        model = queryset.model
+        prefix = []
+        for i, part in enumerate(parts):
+            field_obj = model._meta.get_field(part)
+            if field_obj.many_to_many or field_obj.one_to_many:
+                if isinstance(field_obj, Field):
+                    # Forward many-to-many: match via the reverse query name
+                    back_name = field_obj.related_query_name()
+                else:
+                    # Reverse relation: match via the linking field declared on the related model (e.g. Meta.species)
+                    back_name = field_obj.field.name
+                return (
+                    "multi",
+                    field_obj.related_model,
+                    back_name,
+                    "__".join(prefix) or "pk",
+                    "__".join(parts[i + 1 :]),
+                )
+            if field_obj.is_relation:
+                model = field_obj.related_model
+            prefix.append(part)
+        return ("direct", field)
 
     def query(self, queryset, name, value):
         """
-        Filter queryset by fuzzy text search across query_fields,
-        annotating similarity and sorting by threshold.
+        Filter queryset by fuzzy text search across query_fields.
+
+        Uses PostgreSQL trigram predicates for indexed filtering with GIN trigram indexes. Related fields use an IN
+        subquery to preserve parallel query plans. Annotates similarity for relevance ordering, using the best match
+        across multi-valued relations to avoid duplicate rows.
         """
+        if not value or not self.query_fields:
+            return queryset
 
-        if value:
-            expr = []
-            for field in self.query_fields:
-                # Aggregate to avoid multiple results from query lookups (e.g., meta__value)
-                results = Max(TrigramStrictWordSimilarity(value, field))
-                expr.append(results)
+        condition = Q()
+        parts = []
+        for field in self.query_fields:
+            split = self._split_query_field(queryset, field)
+            if split[0] == "direct":
+                condition |= Q(**{f"{field}__trigram_strict_word_similar": value})
+                parts.append(TrigramStrictWordSimilarity(value, field))
+            else:
+                _, sub_model, back_name, outer_path, rest_path = split
+                # Runs once per statement, not per outer row.
+                condition |= Q(
+                    **{
+                        f"{outer_path}__in": sub_model.objects.filter(
+                            **{f"{rest_path}__trigram_strict_word_similar": value}
+                        ).values(back_name)
+                    }
+                )
+                best_match = (
+                    sub_model.objects.filter(**{back_name: OuterRef(outer_path)})
+                    .annotate(top_similarity=TrigramStrictWordSimilarity(value, rest_path))
+                    .order_by("-top_similarity")
+                    .values("top_similarity")[:1]
+                )
+                parts.append(Subquery(best_match))
 
-            # Use the greatest value if multiple exist
-            similarity = Greatest(*expr) if len(expr) > 1 else expr[0]
+        # Use the greatest value if multiple exist
+        similarity = Greatest(*parts) if len(parts) > 1 else parts[0]
+        queryset = queryset.filter(condition).annotate(similarity=similarity)
 
-            # Filter results based on a given threshold
-            queryset = queryset.annotate(similarity=similarity).filter(similarity__gt=self.threshold)
-
-            # If unsorted, sort results by similarity
-            if not queryset.query.order_by:
-                queryset = queryset.order_by("-similarity")
+        # If unsorted, sort results by similarity
+        if not queryset.query.order_by:
+            queryset = queryset.order_by("-similarity")
         return queryset
 
 
@@ -300,10 +324,13 @@ class DomainFilter(QueryFilterSet):
         # Annotate gene count
         queryset = queryset.annotate(gene_count=Count("gene", distinct=True))
 
-        # Order by gene count
+        # Order by similarity (if available) and gene count
         order = self.form.cleaned_data.get("order_by_gene_count")
         if order:
-            queryset = queryset.order_by("-gene_count")
+            ordering = ["-gene_count"]
+            if "similarity" in queryset.query.annotations:
+                ordering = ["-similarity", "-gene_count"]
+            queryset = queryset.order_by(*ordering)
         return queryset
 
 
@@ -354,10 +381,14 @@ class GeneModuleFilter(QueryFilterSet):
         """Order by gene count."""
         queryset = super().filter_queryset(queryset)
 
-        # Annotate and order by gene count
+        # Order by similarity (if available) and gene count
         order = self.form.cleaned_data.get("order_by_gene_count")
         if order:
-            queryset = queryset.annotate(gene_count=Count("genes", distinct=True)).order_by("dataset", "-gene_count")
+            queryset = queryset.annotate(gene_count=Count("genes", distinct=True))
+            ordering = ["dataset", "-gene_count"]
+            if "similarity" in queryset.query.annotations:
+                ordering = ["-similarity", "dataset", "-gene_count"]
+            queryset = queryset.order_by(*ordering)
 
         return queryset
 
@@ -414,7 +445,15 @@ class SortAcrossMetacellFilter(BooleanFilter):
         if not value:
             return queryset
 
-        sorted_field = (
+        def sort_key(metacell_name, metacell_order):
+            # Order metacells by their stored position in heatmaps, falling back
+            # to the trailing number of their name (e.g. 204 in "acrmil01_MC_00204")
+            order = get_metacell_order(metacell_order, metacell_name)
+            if order is not None:
+                return (0, -order)
+            return (1, metacell_name)
+
+        ranked = (
             queryset.annotate(
                 rank=Window(
                     expression=Rank(),
@@ -423,11 +462,11 @@ class SortAcrossMetacellFilter(BooleanFilter):
                 )
             )
             .filter(rank=1)
-            .order_by(-Cast("metacell__name", IntegerField()))
-            .values_list(self.sort_field, flat=True)
+            .values_list("metacell__name", "metacell__order", self.sort_field)
         )
 
-        sorted_field = list(sorted_field)
+        # Sort genes by the metacell with highest gene expression
+        sorted_field = [field for _, _, field in sorted(ranked, key=lambda row: sort_key(row[0], row[1]))]
         return queryset.order_by(ArrayPosition(self.sort_field, array=sorted_field))
 
 
@@ -494,22 +533,44 @@ class OrthologCountFilter(FilterSet):
         fields = ["orthogroup", "species"]
 
 
-class SAMapFilter(FilterSet):
-    """Filter set for SAMap scores."""
+class MetacellTypeSimilarityFilter(FilterSet):
+    """Filter set to fetch metacell similarity scores."""
 
     dataset = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
     dataset2 = DatasetChoiceFilter(field_name=["metacelltype", "metacelltype2"], required=True)
-    threshold = NumberFilter(
+    min_samap = NumberFilter(
         label="Filter SAMap alignment scores (default: no filtering). Recommended: <kbd>5</kbd>",
-        field_name="samap",
+        field_name="samap_score",
         lookup_expr="gte",
+    )
+    min_pesci = NumberFilter(
+        label="Filter Pesci scores (default: no filtering). Recommended: <kbd>5</kbd>",
+        field_name="pesci_score",
+        lookup_expr="gte",
+    )
+    min_aucell = NumberFilter(
+        label="Filter AUCell scores (default: no filtering). Recommended: <kbd>5</kbd>",
+        method="filter_min_aucell",
     )
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.SAMap
-        fields = ["dataset", "dataset2", "threshold"]
+        model = models.MetacellTypeSimilarity
+        fields = ["dataset", "dataset2", "min_samap", "min_pesci", "min_aucell"]
+
+    def filter_min_aucell(self, queryset, name, value):
+        """Filter AUCell scores for the direction along the requested datasets."""
+        try:
+            dataset = parse_species_dataset(self.data.get("dataset"))
+        except (TypeError, ValueError):
+            # Fall back to the 1to2 score
+            return queryset.filter(aucell_1to2__gte=value)
+
+        return queryset.filter(
+            Q(metacelltype__dataset=dataset, aucell_1to2__gte=value)
+            | Q(metacelltype2__dataset=dataset, aucell_2to1__gte=value)
+        )
 
     @property
     def qs(self):
@@ -563,15 +624,15 @@ class MetacellFilter(FilterSet):
         fields = ["dataset"]
 
 
-class MetacellLinkFilter(FilterSet):
-    """Filter set for metacell links."""
+class MetacellEdgeFilter(FilterSet):
+    """Filter set for metacell edges."""
 
     dataset = DatasetChoiceFilter(field_name="metacell", required=True)
 
     class Meta:
         """Configuration for model and filterable fields."""
 
-        model = models.MetacellLink
+        model = models.MetacellEdge
         fields = ["dataset"]
 
 
@@ -745,7 +806,7 @@ class CorrelatedGenesFilter(QueryFilterSet):
         fields=(("spearman", "spearman"), ("pearson", "pearson")),
         field_labels={
             "spearman": "Spearman's correlation coefficient",
-            "pearson_r": "Pearson's correlation coefficient",
+            "pearson": "Pearson's correlation coefficient",
         },
     )
     q = CharFilter(
@@ -777,53 +838,6 @@ class CorrelatedGenesFilter(QueryFilterSet):
 
         model = models.GeneCorrelation
         fields = ["dataset", "gene"]
-
-
-def create_fc_type_choice_filter(mode, ignore_mode=False):
-    """
-    Build a ChoiceFilter for fold-change filtering.
-
-    Args:
-        mode (str): "minimum" or "maximum", determines filter type.
-        ignore_mode (bool): Whether to include an "ignore" option.
-
-    Returns:
-        ChoiceFilter: Configured filter for fold-change thresholding.
-    """
-
-    if mode == "minimum":
-        var = "fc_min"
-        sign = "≥"
-        target = "foreground (i.e., selected) metacells"
-        default = "mean"
-        method = "filter_fc_min"
-        required = True
-    else:
-        var = "bg_fc_max"
-        sign = "≤"
-        target = "background (i.e., non-selected) metacells"
-        default = "ignore"
-        method = "filter_fc_max_bg"
-        required = False
-
-    choices = [
-        [
-            item,
-            f"Keep genes whose {item} fold-change across {target} {sign} <kbd>{var}</kbd>",
-        ]
-        for item in ["mean", "median"]
-    ]
-
-    if ignore_mode:
-        choices.append(["ignore", "Skip this filtering"])
-
-    res = ChoiceFilter(
-        choices=choices,
-        label=(f"Type of filtering to use for the {mode} fold-change threshold (default: <kbd>{default}</kbd>)."),
-        method=method,
-        required=required,
-    )
-    return res
 
 
 class MetacellMarkerFilter(FilterSet):
@@ -922,3 +936,50 @@ class MetacellMarkerFilter(FilterSet):
 
         model = models.Gene
         fields = ["dataset"]
+
+
+class ExpressionConservationFilter(FilterSet):
+    """Filter set for ortholog expression conservation."""
+
+    gene = CharFilter(
+        method="filter_gene",
+        label="[Gene symbol](#/operations/genes_list) to retrieve expression conservation for.",
+        help_text="Gene symbol to retrieve expression conservation for.",
+    )
+    orthogroup = CharFilter(field_name="orthogroup__name", help_text="Orthogroup name to filter by.")
+    dataset = CharFilter(
+        method="filter_dataset",
+        label="Dataset slug. Filters rows where the dataset appears on either side.",
+        help_text="Dataset slug. Filters rows where the dataset appears on either side.",
+    )
+    is_one_to_one = BooleanFilter(help_text="Whether the ortholog pair is one-to-one.")
+
+    ordering = OrderingFilter(
+        fields=(
+            ("conservation_score", "conservation_score"),
+            ("dataset", "dataset__slug"),
+        ),
+        field_labels={
+            "conservation_score": "Expression conservation score",
+            "dataset": "Dataset",
+        },
+    )
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.ExpressionConservation
+        fields = ["gene", "orthogroup", "dataset", "is_one_to_one"]
+
+    def filter_gene(self, queryset, name, value):
+        """Filter conservation rows involving the given gene."""
+        if value:
+            gid = models.Gene.objects.filter(name=value).values_list("id")[0][0]
+            queryset = queryset.filter(Q(gene=gid) | Q(gene2=gid)).distinct()
+        return queryset
+
+    def filter_dataset(self, queryset, name, value):
+        """Filter conservation rows involving the given dataset."""
+        if value:
+            queryset = queryset.filter(Q(dataset__slug=value) | Q(dataset2__slug=value))
+        return queryset

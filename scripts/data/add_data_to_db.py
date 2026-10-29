@@ -174,14 +174,14 @@ def add_metacell_links(dataset, mc2d):
     for idx, fr in enumerate(links_fr):
         to = links_to[idx]
         if fr != to:
-            mc_link = models.MetacellLink(
+            mc_edge = models.MetacellEdge(
                 dataset=dataset,
                 metacell=models.Metacell.objects.filter(dataset=dataset, name=fr)[0],
                 metacell2=models.Metacell.objects.filter(dataset=dataset, name=to)[0],
             )
-            mc_links_list.append(mc_link)
+            mc_links_list.append(mc_edge)
 
-    return validate_and_bulk_create(models.MetacellLink, mc_links_list)
+    return validate_and_bulk_create(models.MetacellEdge, mc_links_list)
 
 
 def add_metacell_stats(dataset):

@@ -1,6 +1,7 @@
 import math
-import tempfile
 import os.path
+import tempfile
+from unittest.mock import patch
 
 from django.core.files import File as DjangoFile
 from django.test import override_settings
@@ -8,21 +9,34 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from app.models import (
-    Species,
     Dataset,
-    Gene,
-    SingleCell,
-    Metacell,
-    MetacellType,
     DatasetFile,
-    GeneList,
     Domain,
+    ExpressionConservation,
+    Gene,
     GeneCorrelation,
+    GeneList,
+    Metacell,
+    MetacellEdge,
+    MetacellType,
+    MetacellTypeSimilarity,
     Orthogroup,
-    MetacellLink,
-    SAMap,
+    SingleCell,
+    Species,
     SpeciesFile,
 )
+
+
+class SchemaTests(APITestCase):
+    """Tests for OpenAPI schema generation."""
+
+    def test_format_parameter_description(self):
+        response = self.client.get("/api/v1/schema/?format=json")
+        assert response.status_code == status.HTTP_200_OK
+        schema = response.json()
+        params = schema["paths"]["/api/v1/species/"]["get"]["parameters"]
+        format_param = next(p for p in params if p["name"] == "format")
+        assert format_param["description"] == "Response format."
 
 
 class SpeciesTests(APITestCase):
@@ -47,6 +61,12 @@ class SpeciesTests(APITestCase):
         assert species["common_name"] == "rat"
         assert species["scientific_name"] == "Rat"
         assert species["description"] == "rat"
+
+    def test_search_by_metadata(self):
+        Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
+        response = self.client.get("/api/v1/species/?q=Chordata", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["scientific_name"] for item in response.data["results"]] == ["Mouse"]
 
 
 class DatasetTests(APITestCase):
@@ -74,15 +94,21 @@ class DatasetTests(APITestCase):
         assert dataset["dataset"] == "DMouse"
         assert dataset["species"] == "Mouse"
 
+    def test_search_by_species_metadata(self):
+        Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
+        response = self.client.get("/api/v1/datasets/?q=Chordata", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["dataset"] for item in response.data["results"]] == ["DMouse"]
+
     def test_retrieve_stats(self):
         response = self.client.get("/api/v1/stats/", format="json")
         datasets_stats = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
         assert {s["species"] for s in datasets_stats} == {"Mouse", "Rat"}
         assert {s["dataset"] for s in datasets_stats} == {"DMouse", "DRat"}
-        assert {s["genes"] for s in datasets_stats} == {0, 0}
-        assert {s["cells"] for s in datasets_stats} == {0, 0}
-        assert {s["metacells"] for s in datasets_stats} == {0, 0}
+        assert {s["genes"] for s in datasets_stats} == {0}
+        assert {s["cells"] for s in datasets_stats} == {0}
+        assert {s["metacells"] for s in datasets_stats} == {0}
 
     def test_get_stats(self):
         response = self.client.get("/api/v1/stats/rat-drat/", format="json")
@@ -123,6 +149,20 @@ class GeneTests(APITestCase):
         assert len(genes) == 2
         assert {s["gene"] for s in genes} == subset
 
+    def test_search_by_domain_name(self):
+        gene = Gene.objects.get(name="Gene1")
+        domain = Domain.objects.create(name="Kinase")
+        domain.gene_set.add(gene)
+        response = self.client.get("/api/v1/genes/?q=Kinase", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["gene"] for item in response.data["results"]] == ["Gene1"]
+
+    def test_species_filter_omits_species_from_results(self):
+        response = self.client.get("/api/v1/genes/?species=Mus%20musculus", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert "species" not in response.data["results"][0]
+        assert "species_image_url" not in response.data["results"][0]
+
     def test_post(self):
         url = "/api/v1/genes/"
         payload = {}
@@ -151,7 +191,7 @@ class GeneSearchTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         mouse = Species.objects.create(scientific_name="Mus musculus")
-        cls.adult_mouse = mouse.datasets.create(name="adult")
+        cls.adult_mouse = mouse.datasets.create(name="adult", image_url="https://example.com/adult.png")
 
         # Create genes
         mouse.genes.create(name="Trp53")
@@ -183,8 +223,8 @@ class GeneSearchTests(APITestCase):
         genelist3.genes.add(*mouse.genes.filter(name__startswith="Brca"))
 
         # Create domains
-        domain1 = Domain.objects.create(name="Kinase")
-        domain2 = Domain.objects.create(name="Zinc finger")
+        domain1 = Domain.objects.create(name="Kinase", description="Protein kinase domain")
+        domain2 = Domain.objects.create(name="Zinc finger", description="Zinc finger domain")
         domain1.gene_set.add(*genes[0:3])
         domain2.gene_set.add(*genes[4:6])
 
@@ -200,7 +240,10 @@ class GeneSearchTests(APITestCase):
         assert {s["gene"] for s in data["genes"]} == {"Actb", "Brca1", "Brca2"}
         assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
         assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
+        assert {s["dataset_label"] for s in data["gene_modules"]} == {"Mus musculus (adult)"}
+        assert {s["image_url"] for s in data["gene_modules"]} == {"https://example.com/adult.png"}
         assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
+        assert {s["description"] for s in data["domains"]} == {"Protein kinase domain", "Zinc finger domain"}
 
     def test_get_query(self):
         """Test setting query string."""
@@ -232,6 +275,15 @@ class GeneSearchTests(APITestCase):
         assert data["gene_lists"] == []
         assert {s["module"] for s in data["gene_modules"]} == {"yellow"}
         assert data["domains"] == []
+
+    def test_get_query_without_dataset(self):
+        response = self.client.get(
+            "/api/v1/gene_search/?q=brca&species=Mus%20musculus&limit=1&offset=1",
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["genes_count"] == 2
+        assert [item["gene"] for item in response.data["genes"]] == ["Brca2"]
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -274,6 +326,14 @@ class SingleCellGeneExpressionTests(APITestCase):
             if entry["single_cell"] == "c5":
                 assert math.isclose(float(entry["umifrac"]), 10000, rel_tol=0.001)
 
+    @patch("rest.views.ExpressionDataManager.create_singlecellexpression_models", side_effect=OSError)
+    def test_expression_file_error(self, _create_models):
+        with self.assertLogs("rest.views", level="ERROR"):
+            response = self.client.get("/api/v1/single_cell_expression/?dataset=rat-drat&gene=g1")
+
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert response.data == "detail: error reading expression data"
+
 
 class SingleCellTests(APITestCase):
     """Tests SingleCell endpoint"""
@@ -304,9 +364,9 @@ class MetacellTests(APITestCase):
         dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
 
         type1 = dataset1.metacell_types.create(name="type1")
-        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1)
-        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2)
-        MetacellLink.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
+        meta1 = dataset1.metacells.create(name="meta1", type=type1, x=1, y=1, order=2)
+        meta2 = dataset1.metacells.create(name="meta2", type=type1, x=2, y=2, order=1)
+        MetacellEdge.objects.create(dataset=dataset1, metacell=meta1, metacell2=meta2)
 
         gene1 = species1.genes.create(name="gene1", description="gene1")
         dataset1.mge.create(gene=gene1, metacell=meta1, umi_raw=1, umifrac=1.41, fold_change=4)
@@ -323,15 +383,16 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(metacells) == 2
         assert {s["name"] for s in metacells} == {"meta1", "meta2"}
+        assert {s["order"] for s in metacells} == {1, 2}
 
-    def test_retrieve_links(self):
-        url = "/api/v1/metacell_links/?dataset=species3-dataset3"
+    def test_retrieve_edges(self):
+        url = "/api/v1/metacell_edges/?dataset=species3-dataset3"
         response = self.client.get(url, format="json")
-        metacell_links = response.data["results"]
+        metacell_edges = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(metacell_links) == 1
-        assert metacell_links[0]["metacell"] == "meta1"
-        assert metacell_links[0]["metacell2"] == "meta2"
+        assert len(metacell_edges) == 1
+        assert metacell_edges[0]["metacell"] == "meta1"
+        assert metacell_edges[0]["metacell2"] == "meta2"
 
     def test_retrieve_gene_expression(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3"
@@ -341,6 +402,7 @@ class MetacellTests(APITestCase):
         assert len(metacell_gene_expression) == 4
         assert {s["gene_name"] for s in metacell_gene_expression} == {"gene1", "gene2"}
         assert {s["metacell_name"] for s in metacell_gene_expression} == {"meta1", "meta2"}
+        assert {s["metacell_order"] for s in metacell_gene_expression} == {1, 2}
 
     def test_retrieve_gene_expression_single_gene(self):
         url = "/api/v1/metacell_expression/?dataset=species3-dataset3&genes=gene2"
@@ -358,6 +420,101 @@ class MetacellTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(markers) == 2
         assert markers[0]["name"] == "gene1"
+
+    def test_retrieve_gene_expression_sorted(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct, order=2)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct, order=1)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
+        # gene1 peaks at mc2 (order 1) and gene2 at mc1 (order 2): highest order first
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene2", "gene2", "gene1", "gene1"]
+
+    def test_retrieve_gene_expression_sorted_without_order(self):
+        species = Species.objects.create(common_name="acrmil01", scientific_name="Acropora millepora")
+        dataset = species.datasets.create(name="dataset")
+        mct = dataset.metacell_types.create(name="type")
+        mc1 = dataset.metacells.create(name="acrmil01_MC_00001", type=mct)
+        mc2 = dataset.metacells.create(name="acrmil01_MC_00204", type=mct)
+
+        gene1 = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene1, metacell=mc1, fold_change=1)
+        dataset.mge.create(gene=gene1, metacell=mc2, fold_change=5)
+
+        gene2 = species.genes.create(name="gene2", description="gene2")
+        dataset.mge.create(gene=gene2, metacell=mc1, fold_change=6)
+        dataset.mge.create(gene=gene2, metacell=mc2, fold_change=2)
+
+        url = "/api/v1/metacell_expression/?dataset=acropora-millepora-dataset&sort_genes=true"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        metacell_gene_expression = response.data["results"]
+        assert len(metacell_gene_expression) == 4
+        # gene1 peaks at mc2 (trailing 204) and gene2 at mc1 (trailing 1): highest first
+        assert [s["gene_name"] for s in metacell_gene_expression] == ["gene1", "gene1", "gene2", "gene2"]
+
+    def test_retrieve_with_unannotated_metacells(self):
+        species = Species.objects.create(common_name="nemve", scientific_name="Nematostella vectensis")
+        dataset = species.datasets.create(name="adult")
+
+        untyped = dataset.metacells.create(name="nemve01_MC_00001")
+        dataset.metacells.create(name="nemve01_MC_00002", type=dataset.metacell_types.create(name="type"), order=5)
+
+        gene = species.genes.create(name="gene1", description="gene1")
+        dataset.mge.create(gene=gene, metacell=untyped, fold_change=4)
+
+        module = dataset.gene_modules.create(name="blue")
+        module.eigengene_values.create(metacell=untyped, eigengene_value=0.5)
+
+        dataset.metacell_stats.create(metacell=untyped, cells=10, umis=100)
+
+        SingleCell.objects.create(name="cell1", dataset=dataset)
+
+        # Endpoints returning metacell_type/metacell_color (None for untyped metacells)
+        endpoints = {
+            "/api/v1/metacell_expression/?dataset=nematostella-vectensis-adult": "metacell_name",
+            "/api/v1/metacell_counts/?dataset=nematostella-vectensis-adult": "metacell",
+            "/api/v1/module_eigengenes/?dataset=nematostella-vectensis-adult": "metacell_name",
+        }
+        for url, name in endpoints.items():
+            response = self.client.get(url, format="json")
+            assert response.status_code == status.HTTP_200_OK, url
+            untyped_row = next(r for r in response.data["results"] if r[name] == "nemve01_MC_00001")
+            assert untyped_row["metacell_type"] is None, url
+            assert untyped_row["metacell_color"] is None, url
+            assert untyped_row["metacell_order"] is None, url
+
+        # Metacell endpoint returns type/color
+        response = self.client.get("/api/v1/metacells/?dataset=nematostella-vectensis-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        untyped_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00001")
+        typed_row = next(r for r in response.data["results"] if r["name"] == "nemve01_MC_00002")
+        assert untyped_row["type"] is None
+        assert untyped_row["color"] is None
+        assert untyped_row["order"] is None
+        assert typed_row["order"] == 5
+
+        # Single cell without metacell returns null metacell info
+        response = self.client.get("/api/v1/single_cells/?dataset=nematostella-vectensis-adult", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        cell = next(r for r in response.data["results"] if r["name"] == "cell1")
+        assert cell["metacell_name"] is None
+        assert cell["metacell_type"] is None
+        assert cell["metacell_color"] is None
 
 
 class GeneListTests(APITestCase):
@@ -387,8 +544,8 @@ class DomainsTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        domain1 = Domain.objects.create(name="Domain1")
-        domain2 = Domain.objects.create(name="Domain2")
+        domain1 = Domain.objects.create(name="Domain1", description="First domain")
+        domain2 = Domain.objects.create(name="Domain2", description="Second domain")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
         gene1.domains.set([domain1, domain2])
         gene1.save()
@@ -400,6 +557,7 @@ class DomainsTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(domains) == 2
         assert {s["name"] for s in domains} == {"Domain1", "Domain2"}
+        assert {s["description"] for s in domains} == {"First domain", "Second domain"}
 
 
 class CorrelatedGenesTest(APITestCase):
@@ -433,17 +591,19 @@ class OrthologsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
-        gene2 = Gene.objects.create(species=species1, name="gene2", description="gene2")
-        gene3 = Gene.objects.create(species=species1, name="gene3", description="gene3")
-        gene4 = Gene.objects.create(species=species1, name="gene4", description="gene4")
+        cls.species1 = Species.objects.create(
+            common_name="species1", scientific_name="species1", description="species1"
+        )
+        cls.gene1 = Gene.objects.create(species=cls.species1, name="gene1", description="gene1")
+        cls.gene2 = Gene.objects.create(species=cls.species1, name="gene2", description="gene2")
+        cls.gene3 = Gene.objects.create(species=cls.species1, name="gene3", description="gene3")
+        cls.gene4 = Gene.objects.create(species=cls.species1, name="gene4", description="gene4")
 
-        og1 = Orthogroup.objects.create(name="orthogroup1")
-        species1.orthologs.create(orthogroup=og1, gene=gene1)
-        species1.orthologs.create(orthogroup=og1, gene=gene2)
-        species1.orthologs.create(orthogroup=og1, gene=gene3)
-        species1.orthologs.create(orthogroup=og1, gene=gene4)
+        cls.og1 = Orthogroup.objects.create(name="orthogroup1")
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene1)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene2)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene3)
+        cls.species1.orthologs.create(orthogroup=cls.og1, gene=cls.gene4)
 
     def test_retrieve(self):
         url = "/api/v1/orthologs/"
@@ -463,31 +623,190 @@ class OrthologsTests(APITestCase):
         assert ortholog_counts[0]["gene_count"] == 4
 
 
-class SAMapTests(APITestCase):
-    """Tests SAMap endpoint"""
+class ExpressionConservationTests(OrthologsTests):
+    """Tests ExpressionConservation endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        species2 = Species.objects.create(common_name="species2", scientific_name="species2", description="species2")
+        cls.dataset = cls.species1.datasets.create(name="dataset")
+        cls.dataset2 = species2.datasets.create(name="dataset2")
+        cls.gene5 = species2.genes.create(name="gene5", description="gene5")
+        og2 = Orthogroup.objects.create(name="orthogroup2")
+        ExpressionConservation.objects.create(
+            orthogroup=cls.og1,
+            gene=cls.gene1,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
+            conservation_score=0.9,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=cls.og1,
+            gene=cls.gene2,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
+            conservation_score=0.8,
+            is_one_to_one=True,
+        )
+        ExpressionConservation.objects.create(
+            orthogroup=og2,
+            gene=cls.gene3,
+            gene2=cls.gene5,
+            dataset=cls.dataset,
+            dataset2=cls.dataset2,
+            conservation_score=0.5,
+            is_one_to_one=False,
+        )
+
+    def test_retrieve(self):
+        url = "/api/v1/expression_conservation/"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 3
+        assert {r["gene"] for r in results} == {"gene1", "gene2", "gene3"}
+        assert {r["conservation_score"] for r in results} == {0.9, 0.8, 0.5}
+
+    def test_str(self):
+        ec = ExpressionConservation.objects.first()
+        assert str(ec) == f"{ec.gene} - {ec.gene2} ({ec.orthogroup.name})"
+
+    def test_filter_by_gene(self):
+        url = "/api/v1/expression_conservation/?gene=gene1"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 1
+        assert results[0]["gene"] == "gene5"
+        assert results[0]["conservation_score"] == 0.9
+
+    def test_filter_by_orthogroup(self):
+        url = "/api/v1/expression_conservation/?orthogroup=orthogroup1"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 2
+        url = "/api/v1/expression_conservation/?orthogroup=orthogroup2"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 1
+
+    def test_filter_by_is_one_to_one(self):
+        url = "/api/v1/expression_conservation/?is_one_to_one=true"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 2
+
+    def test_filter_by_dataset(self):
+        url = "/api/v1/expression_conservation/?dataset=species1-dataset"
+        response = self.client.get(url, format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 3
+
+
+class MetacellTypeSimilarityTests(APITestCase):
+    """Tests MetacellTypeSimilarity endpoint"""
 
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species3", scientific_name="species3", description="species3")
         species2 = Species.objects.create(common_name="species4", scientific_name="species4", description="species4")
-        dataset1 = Dataset.objects.create(species=species1, name="dataset3", description="dataset3")
-        dataset2 = Dataset.objects.create(species=species2, name="dataset4", description="dataset4")
-        type1 = MetacellType.objects.create(name="type1", dataset=dataset1)
-        type2 = MetacellType.objects.create(name="type2", dataset=dataset1)
-        type3 = MetacellType.objects.create(name="type3", dataset=dataset2)
-        type4 = MetacellType.objects.create(name="type4", dataset=dataset2)
-        SAMap.objects.create(metacelltype=type1, metacelltype2=type3, samap=0.8)
-        SAMap.objects.create(metacelltype=type2, metacelltype2=type4, samap=0.7)
+        dataset1 = species1.datasets.create(name="dataset3", description="dataset3")
+        dataset2 = species2.datasets.create(name="dataset4", description="dataset4")
+
+        cls.type1 = dataset1.metacell_types.create(name="type1")
+        cls.type2 = dataset1.metacell_types.create(name="type2")
+        cls.type3 = dataset2.metacell_types.create(name="type3")
+        cls.type4 = dataset2.metacell_types.create(name="type4")
+        type1, type2, type3, type4 = cls.type1, cls.type2, cls.type3, cls.type4
+
+        gene1 = species1.genes.create(name="gene1", description="gene1")
+        gene2 = species2.genes.create(name="gene2", description="gene2")
+        gene3 = species1.genes.create(name="gene3", description="gene3")
+        gene4 = species2.genes.create(name="gene4", description="gene4")
+
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type1,
+            metacelltype2=type3,
+            samap_score=80,
+            samap_gene_pairs=[[gene1.id, gene2.id]],
+            aucell_1to2=80,
+            aucell_2to1=30,
+        )
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type2,
+            metacelltype2=type4,
+            samap_score=70,
+            samap_gene_pairs=[[gene3.id, gene4.id]],
+            aucell_1to2=10,
+            aucell_2to1=10,
+        )
+        MetacellTypeSimilarity.objects.create(
+            metacelltype=type3,
+            metacelltype2=type1,
+            samap_score=60,
+            samap_gene_pairs=[[gene1.id, gene2.id]],
+            aucell_1to2=90,
+            aucell_2to1=90,
+        )
 
     def test_retrieve(self):
-        url = "/api/v1/samap/?dataset=species3-dataset3&dataset2=species4-dataset4"
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
         response = self.client.get(url, format="json")
-        samaps = response.data["results"]
+        comparison = response.data["results"]
         assert response.status_code == status.HTTP_200_OK
-        assert len(samaps) == 2
-        assert {s["metacell_type"] for s in samaps} == {"type1", "type2"}
-        assert {s["metacell2_type"] for s in samaps} == {"type3", "type4"}
-        assert {s["samap"] for s in samaps} == {0.8, 0.7}
+        assert len(comparison) == 3
+        assert {s["metacell_type"] for s in comparison} == {"type1", "type2"}
+        assert {s["metacell2_type"] for s in comparison} == {"type3", "type4"}
+        assert {s["samap_score"] for s in comparison} == {80, 70, 60}
+        pairs = {s["samap_score"]: s["samap_gene_pairs"] for s in comparison}
+        assert pairs[80] == [["gene1", "gene2"]]
+        assert pairs[70] == [["gene3", "gene4"]]
+        assert pairs[60] == [["gene2", "gene1"]]
+
+    def test_retrieve_without_gene_pairs(self):
+        MetacellTypeSimilarity.objects.create(metacelltype=self.type1, metacelltype2=self.type4, samap_score=50)
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4"
+        response = self.client.get(url, format="json")
+        comparison = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert {s["samap_gene_pairs"] for s in comparison if s["samap_score"] == 50} == {None}
+
+    def test_filter_min_aucell(self):
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4&min_aucell=50"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        results = response.data["results"]
+        assert len(results) == 2
+        pairs = {(s["metacell_type"], s["metacell2_type"]) for s in results}
+        assert pairs == {("type1", "type3")}
+
+        # Filter all out
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4&min_aucell=100"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) == 0
+
+        # Directional tests
+        url = "/api/v1/metacell_type_similarity/?dataset=species3-dataset3&dataset2=species4-dataset4&min_aucell=50"
+        response = self.client.get(url, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) == 2
+        assert response.data["results"][0]["metacell_type"] == "type1"
+
+        url_swapped = (
+            "/api/v1/metacell_type_similarity/?dataset=species4-dataset4&dataset2=species3-dataset3&min_aucell=50"
+        )
+        response = self.client.get(url_swapped, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["results"][0]["metacell_type"] == "type3"
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -530,7 +849,7 @@ class AlignTests(APITestCase):
 
     def test_post(self):
         url = "/api/v1/align/"
-        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRPRS", type="aminoacids", species="Alignspecies")
+        data = {"sequences": "MSIWFSIAILSVLVPFVQLTPIRPRS", "type": "aminoacids", "species": "Alignspecies"}
 
         response = self.client.post(url, data, format="json")
 

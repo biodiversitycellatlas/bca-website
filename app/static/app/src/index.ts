@@ -11,6 +11,9 @@ import "ion-rangeslider/css/ion.rangeSlider.min.css";
 import "tom-select/dist/css/tom-select.bootstrap5.min.css";
 import "phylotree/dist/phylotree.css";
 
+// Local CSS imports
+import "./styles/phylotree.css";
+
 // Fonts
 import "@fontsource/rubik"; // Rubik typeface
 
