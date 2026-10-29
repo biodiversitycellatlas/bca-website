@@ -1,6 +1,7 @@
 import math
 import os.path
 import tempfile
+from unittest.mock import patch
 
 from django.core.files import File as DjangoFile
 from django.test import override_settings
@@ -61,6 +62,12 @@ class SpeciesTests(APITestCase):
         assert species["scientific_name"] == "Rat"
         assert species["description"] == "rat"
 
+    def test_search_by_metadata(self):
+        Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
+        response = self.client.get("/api/v1/species/?q=Chordata", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["scientific_name"] for item in response.data["results"]] == ["Mouse"]
+
 
 class DatasetTests(APITestCase):
     """Test Datasets Endpoint"""
@@ -86,6 +93,12 @@ class DatasetTests(APITestCase):
         assert dataset["slug"] == "mouse-dmouse"
         assert dataset["dataset"] == "DMouse"
         assert dataset["species"] == "Mouse"
+
+    def test_search_by_species_metadata(self):
+        Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
+        response = self.client.get("/api/v1/datasets/?q=Chordata", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["dataset"] for item in response.data["results"]] == ["DMouse"]
 
     def test_retrieve_stats(self):
         response = self.client.get("/api/v1/stats/", format="json")
@@ -136,6 +149,20 @@ class GeneTests(APITestCase):
         assert len(genes) == 2
         assert {s["gene"] for s in genes} == subset
 
+    def test_search_by_domain_name(self):
+        gene = Gene.objects.get(name="Gene1")
+        domain = Domain.objects.create(name="Kinase")
+        domain.gene_set.add(gene)
+        response = self.client.get("/api/v1/genes/?q=Kinase", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert [item["gene"] for item in response.data["results"]] == ["Gene1"]
+
+    def test_species_filter_omits_species_from_results(self):
+        response = self.client.get("/api/v1/genes/?species=Mus%20musculus", format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert "species" not in response.data["results"][0]
+        assert "species_image_url" not in response.data["results"][0]
+
     def test_post(self):
         url = "/api/v1/genes/"
         payload = {}
@@ -164,7 +191,7 @@ class GeneSearchTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         mouse = Species.objects.create(scientific_name="Mus musculus")
-        cls.adult_mouse = mouse.datasets.create(name="adult")
+        cls.adult_mouse = mouse.datasets.create(name="adult", image_url="https://example.com/adult.png")
 
         # Create genes
         mouse.genes.create(name="Trp53")
@@ -196,8 +223,8 @@ class GeneSearchTests(APITestCase):
         genelist3.genes.add(*mouse.genes.filter(name__startswith="Brca"))
 
         # Create domains
-        domain1 = Domain.objects.create(name="Kinase")
-        domain2 = Domain.objects.create(name="Zinc finger")
+        domain1 = Domain.objects.create(name="Kinase", description="Protein kinase domain")
+        domain2 = Domain.objects.create(name="Zinc finger", description="Zinc finger domain")
         domain1.gene_set.add(*genes[0:3])
         domain2.gene_set.add(*genes[4:6])
 
@@ -213,7 +240,10 @@ class GeneSearchTests(APITestCase):
         assert {s["gene"] for s in data["genes"]} == {"Actb", "Brca1", "Brca2"}
         assert {s["name"] for s in data["gene_lists"]} == {"RBP", "TF", "Custom list"}
         assert {s["module"] for s in data["gene_modules"]} == {"blue", "green", "yellow"}
+        assert {s["dataset_label"] for s in data["gene_modules"]} == {"Mus musculus (adult)"}
+        assert {s["image_url"] for s in data["gene_modules"]} == {"https://example.com/adult.png"}
         assert {s["name"] for s in data["domains"]} == {"Kinase", "Zinc finger"}
+        assert {s["description"] for s in data["domains"]} == {"Protein kinase domain", "Zinc finger domain"}
 
     def test_get_query(self):
         """Test setting query string."""
@@ -245,6 +275,15 @@ class GeneSearchTests(APITestCase):
         assert data["gene_lists"] == []
         assert {s["module"] for s in data["gene_modules"]} == {"yellow"}
         assert data["domains"] == []
+
+    def test_get_query_without_dataset(self):
+        response = self.client.get(
+            "/api/v1/gene_search/?q=brca&species=Mus%20musculus&limit=1&offset=1",
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["genes_count"] == 2
+        assert [item["gene"] for item in response.data["genes"]] == ["Brca2"]
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -286,6 +325,14 @@ class SingleCellGeneExpressionTests(APITestCase):
                 assert math.isclose(float(entry["umifrac"]), 2142.857, rel_tol=0.001)
             if entry["single_cell"] == "c5":
                 assert math.isclose(float(entry["umifrac"]), 10000, rel_tol=0.001)
+
+    @patch("rest.views.ExpressionDataManager.create_singlecellexpression_models", side_effect=OSError)
+    def test_expression_file_error(self, _create_models):
+        with self.assertLogs("rest.views", level="ERROR"):
+            response = self.client.get("/api/v1/single_cell_expression/?dataset=rat-drat&gene=g1")
+
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert response.data == "detail: error reading expression data"
 
 
 class SingleCellTests(APITestCase):
@@ -497,8 +544,8 @@ class DomainsTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         species1 = Species.objects.create(common_name="species1", scientific_name="species1", description="species1")
-        domain1 = Domain.objects.create(name="Domain1")
-        domain2 = Domain.objects.create(name="Domain2")
+        domain1 = Domain.objects.create(name="Domain1", description="First domain")
+        domain2 = Domain.objects.create(name="Domain2", description="Second domain")
         gene1 = Gene.objects.create(species=species1, name="gene1", description="gene1")
         gene1.domains.set([domain1, domain2])
         gene1.save()
@@ -510,6 +557,7 @@ class DomainsTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(domains) == 2
         assert {s["name"] for s in domains} == {"Domain1", "Domain2"}
+        assert {s["description"] for s in domains} == {"First domain", "Second domain"}
 
 
 class CorrelatedGenesTest(APITestCase):
@@ -801,7 +849,7 @@ class AlignTests(APITestCase):
 
     def test_post(self):
         url = "/api/v1/align/"
-        data = dict(sequences="MSIWFSIAILSVLVPFVQLTPIRPRS", type="aminoacids", species="Alignspecies")
+        data = {"sequences": "MSIWFSIAILSVLVPFVQLTPIRPRS", "type": "aminoacids", "species": "Alignspecies"}
 
         response = self.client.post(url, data, format="json")
 

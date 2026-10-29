@@ -3,19 +3,19 @@
 import os
 
 from django.conf import settings
-from django.http import FileResponse, JsonResponse, Http404
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import render
+from django.templatetags.static import static
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, TemplateView
-from django.urls import reverse
-from django.templatetags.static import static
-from django.shortcuts import render
 
-from ..models import Dataset, GlobalFile, SpeciesFile, Species, SingleCell
+from ..models import Dataset, GlobalFile, SingleCell, Species, SpeciesFile
 from ..templatetags.bca_website_links import bca_url, github_url
 from ..utils import get_dataset_dict, get_species_dict
 from ..utils.blog import get_latest_posts
-from ..utils.markdown import MarkdownPage
 from ..utils.cache import get_validated_cache, set_validated_cache
+from ..utils.markdown import MarkdownPage
 
 
 class IndexView(TemplateView):
@@ -349,12 +349,19 @@ class SearchView(TemplateView):
 
     template_name = "app/search.html"
 
+    SEARCH_CATEGORIES = [
+        {"category": "", "label": "Summary"},
+        {"category": "datasets", "label": "Datasets"},
+        {"category": "genes", "label": "Genes"},
+        {"category": "gene_lists", "label": "Gene lists"},
+        {"category": "gene_modules", "label": "Gene modules"},
+        {"category": "domains", "label": "Domains"},
+    ]
+
     def get_context_data(self, **kwargs):
         """Add dataset dictionary and search query to context."""
         context = super().get_context_data(**kwargs)
         context["species_dict"] = get_species_dict()
-
-        query = self.request.GET
-        if query:
-            context["query"] = query
+        context["search_categories"] = self.SEARCH_CATEGORIES
+        context["query"] = self.request.GET
         return context

@@ -107,6 +107,17 @@ limit_req_zone $bot_limit_key zone=bot_req:10m rate=5r/s;
 # bot_conn: max 5 concurrent connections per bot IP to prevent worker pool exhaustion
 limit_conn_zone $bot_limit_key zone=bot_conn:10m;
 
+# --- Proxy cache for read-only portal entry pages ---
+# Stored in the container's ephemeral fs — acceptable since it warms up quickly
+# and we never want stale data to survive a container restart anyway.
+# keys_zone=20m holds ~160k cache keys; max_size=500m caps disk usage.
+proxy_cache_path /var/cache/nginx/portal
+    levels=1:2
+    keys_zone=portal_cache:20m
+    max_size=500m
+    inactive=2h
+    use_temp_path=off;
+
 # --- Gzip compression ---
 gzip on;
 gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
@@ -167,6 +178,43 @@ server {
     # nginx-ultimate-bad-bot-blocker: broad UA/referrer/IP blocklist + DDoS limits
     include /etc/nginx/bots.d/blockbots.conf;
     include /etc/nginx/bots.d/ddos.conf;
+
+    # Cache read-only entry pages (gene, domain, orthogroup, etc.).
+    # These pages are identical for all anonymous visitors and change only
+    # when datasets are reloaded — a 1h TTL is safe and cuts Django load
+    # dramatically when bots crawl the same pages repeatedly.
+    #
+    # Cache bypass: skip and don't store if the user has a Django session
+    # cookie (logged-in staff / admin users get fresh responses).
+    #
+    # Cache invalidation: the cache lives in the container's ephemeral fs and
+    # is wiped on every restart. For a mid-run flush after a dataset reload:
+    #   find /var/cache/nginx/portal -type f -delete && nginx -s reload
+    location ~* ^/entry/ {
+        proxy_cache              portal_cache;
+        proxy_cache_key          "$scheme$request_method$host$request_uri";
+        proxy_cache_valid        200 1h;
+        proxy_cache_valid        404 1m;
+        proxy_cache_lock         on;
+        proxy_cache_use_stale    error timeout updating http_500 http_502 http_503 http_504;
+        proxy_cache_background_update on;
+
+        proxy_cache_bypass       $cookie_sessionid;
+        proxy_no_cache           $cookie_sessionid;
+
+        add_header X-Cache-Status $upstream_cache_status always;
+
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
 
     location / {
         limit_req zone=bot_req burst=20 nodelay;
