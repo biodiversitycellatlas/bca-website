@@ -1,14 +1,19 @@
-from django.db import connection
+import logging
+
 from drf_spectacular.utils import OpenApiParameter
 
+from app import models
 from app.utils import get_dataset
 
+logger = logging.getLogger(__name__)
 
-def check_model_exists(model):
-    try:
-        return model._meta.db_table in connection.introspection.table_names()
-    except Exception:
-        return False
+
+def fetch_genes_with_relations(ids=None):
+    """Fetch genes with the relations serialized by GeneSerializer."""
+
+    genes = models.Gene.objects
+    queryset = genes.all() if ids is None else genes.filter(pk__in=ids)
+    return queryset.select_related("species").prefetch_related("domains", "genelists", "orthogroups")
 
 
 def parse_species_dataset(value):
@@ -45,7 +50,8 @@ def get_path_param(name, filter_cls):
             description=get_enum_description(f.label, dict(f.extra["choices"])),
             enum=[i for (i, _) in f.field.choices if i],
         )
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 - schema generation should retain a basic parameter on failure
+        logger.warning("Could not build documented path parameter %s: %s", name, exc)
         return OpenApiParameter(name, str, OpenApiParameter.PATH)
 
 
