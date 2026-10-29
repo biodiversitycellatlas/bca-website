@@ -14,7 +14,7 @@
         "datatables.net-bs5": "3.1.2",
         "datatables.net-rowgroup-bs5": "2.1.1",
         "datatables.net-select-bs5": "4.1.1",
-        "ion-rangeslider": "2.5.0",
+        "ion-rangeslider": "2.6.0",
         "jquery": "3.7.1",
         "phylotree": "2.6.0",
         "postcss": "8.5.30",
@@ -219,7 +219,7 @@
 
     "internmap": ["internmap@2.0.3", "", {}, "sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg=="],
 
-    "ion-rangeslider": ["ion-rangeslider@2.5.0", "", { "peerDependencies": { "jquery": ">=1.8" } }, "sha512-e90XrKAc8q096e6Y88id5ObqOUH5IcmqidYnqkaQeXf+RUKQaJFOzpmz8GrSlKImxwkRB04zo909OQ6pEqIcyw=="],
+    "ion-rangeslider": ["ion-rangeslider@2.6.0", "", { "peerDependencies": { "jquery": ">=1.8" } }, "sha512-y/8JBjXizBzb165YnOC1Dc8JqmW2DOWf4KBKBeHeqAgMU1FS1vtd9hy1Qz9bnsD6yNjkqNF93Eur3/TVJxhZcw=="],
 
     "is-stream": ["is-stream@2.0.1", "", {}, "sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg=="],
 
