@@ -11,14 +11,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from pathlib import Path
 import secrets
 import sys
+from pathlib import Path
 
 import orjson
 
-from .pre_settings import get_diamond_version, get_goatools_version, get_env, get_latest_git_tag
 from rest.settings import sort_api_tags
+
+from .pre_settings import get_diamond_version, get_env, get_goatools_version, get_latest_git_tag
 
 # GLOBAL VARIABLES: registered in context_processors.py
 BCA_DOMAIN = "biodiversitycellatlas.org"
@@ -160,6 +161,10 @@ else:
             "PORT": get_env("POSTGRES_PORT"),
         }
     }
+
+# Match threshold for the search API's trigram queries
+OPTIONS = DATABASES["default"].setdefault("OPTIONS", {})
+OPTIONS["options"] = "-c pg_trgm.strict_word_similarity_threshold=0.3"
 
 
 # Password validation

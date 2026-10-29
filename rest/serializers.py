@@ -207,7 +207,7 @@ class StatsSerializer(serializers.ModelSerializer):
     def get_umis(self, obj) -> int:
         """Return sum of UMIs in the dataset."""
         res = self.get_metacell_counts(obj).aggregate(Sum("umis")).values()
-        return list(res)[0]
+        return next(iter(res))
 
     def get_genes(self, obj) -> int:
         """Return total number of genes in the dataset."""
@@ -244,6 +244,9 @@ class GeneSerializer(serializers.ModelSerializer):
 
     gene = serializers.CharField(source="name", help_text="Gene name.")
     species = serializers.CharField(required=False, help_text="Species.")
+    species_image_url = serializers.CharField(
+        source="species.image_url", required=False, help_text="Species image URL."
+    )
     genelists = serializers.StringRelatedField(many=True, help_text="Gene lists.")
     domains = serializers.StringRelatedField(many=True, help_text="Protein domains.")
     orthogroups = serializers.SlugRelatedField(
@@ -256,6 +259,7 @@ class GeneSerializer(serializers.ModelSerializer):
         model = models.Gene
         fields = [
             "species",
+            "species_image_url",
             "gene",
             "description",
             "domains",
@@ -272,6 +276,7 @@ class GeneSerializer(serializers.ModelSerializer):
 
             if species:
                 self.fields.pop("species")
+                self.fields.pop("species_image_url")
 
         super().__init__(*args, **kwargs)
 
@@ -284,7 +289,7 @@ class GeneNoSpeciesSerializer(GeneSerializer):
     class Meta(GeneSerializer.Meta):
         """Meta configuration."""
 
-        fields = [f for f in GeneSerializer.Meta.fields if f != "species"]
+        fields = [f for f in GeneSerializer.Meta.fields if f not in ("species", "species_image_url")]
 
 
 class GeneRequestSerializer(serializers.ModelSerializer):
@@ -316,7 +321,7 @@ class DomainSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.Domain
-        fields = ["name", "gene_count"]
+        fields = ["name", "description", "gene_count"]
 
 
 class GeneListSerializer(serializers.ModelSerializer):
@@ -350,6 +355,8 @@ class GeneModuleSerializer(serializers.ModelSerializer):
 
     dataset = serializers.CharField(source="dataset.slug", help_text="Dataset slug.")
     module = serializers.CharField(source="name", help_text="Gene module name.")
+    dataset_label = serializers.CharField(source="dataset.get_label", help_text="Dataset label.")
+    image_url = serializers.CharField(source="dataset.get_image_url", help_text="Dataset image URL.")
     gene_count = serializers.IntegerField(source="genes.count", help_text="Number of genes in gene module.")
     gene_hubs = serializers.SerializerMethodField(help_text="Top 5 genes ordered by membership score.")
     top_tf = serializers.SerializerMethodField(help_text="Top 5 transcription factors ordered by membership score.")
@@ -367,7 +374,7 @@ class GeneModuleSerializer(serializers.ModelSerializer):
         """Meta configuration."""
 
         model = models.GeneModule
-        fields = ["dataset", "module", "gene_count", "top_tf", "gene_hubs"]
+        fields = ["dataset", "module", "dataset_label", "image_url", "gene_count", "top_tf", "gene_hubs"]
 
 
 class GeneModuleMembershipSerializer(serializers.ModelSerializer):

@@ -33,6 +33,9 @@ node_modules
 .coverage
 htmlcov
 
+# E2E tests
+/test-results
+
 # SSL certificates
 *.crt
 *.key
