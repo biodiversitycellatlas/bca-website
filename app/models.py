@@ -582,6 +582,36 @@ class MetacellType(DynamicSlugMixin):
         return NotImplemented
 
 
+class CellTypeTree(models.Model):
+    """Cell type trees per dataset."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="cell_type_trees")
+    newick = models.TextField(help_text="Cell type tree in Newick format.")
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset} cell type tree"
+
+
+class CellTypeTreeNode(models.Model):
+    """Metadata for a node in a cell type tree."""
+
+    tree = models.ForeignKey(CellTypeTree, on_delete=models.CASCADE, related_name="nodes")
+    node = models.CharField(max_length=255)
+    color = ColorField(default="#AAAAAA")
+    significant = models.BooleanField(null=True, blank=True)
+    markers = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["tree", "node"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.tree} - {self.node}"
+
+
 class CellType(DynamicSlugMixin):
     """Cell type model."""
 
