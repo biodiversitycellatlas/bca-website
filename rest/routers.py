@@ -5,6 +5,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register("species", views.SpeciesViewSet)
 router.register("datasets", views.DatasetViewSet)
+router.register("cell_type_trees", views.CellTypeTreeViewSet, basename="celltypetree")
 router.register("stats", views.StatsViewSet, basename="stats")
 
 router.register("genes", views.GeneViewSet)
