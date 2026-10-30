@@ -56,7 +56,27 @@ jobs:
             security-events: write # upload SARIF results
 
         steps:
-            - name: Run Bandit and upload results to GitHub Security tab
-              uses: PyCQA/bandit-action@v1
+            - name: Checkout code
+              uses: actions/checkout@v7.0.1
               with:
-                  exclude: ".git,./scripts,__pycache__,**/test*.py"
+                  persist-credentials: false
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.x"
+
+            - name: Install Bandit
+              shell: bash
+              run: pip install bandit[sarif,toml]
+
+            - name: Run Bandit
+              run: bandit -x "$EXCLUDE" -r "." -f sarif -o results.sarif
+              continue-on-error: true
+              env:
+                  EXCLUDE: ".git,./scripts,__pycache__,**/test*.py"
+
+            - name: Upload SARIF file
+              uses: github/codeql-action/upload-sarif@v4.39.0
+              with:
+                  sarif_file: results.sarif
