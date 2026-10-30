@@ -5,9 +5,22 @@ from django.core.files import File as DjangoFile
 from django.test import TestCase, override_settings
 
 from app.apps import AppConfig
-from app.models import Species, SpeciesFile, Dataset, Gene, MetacellType, Metacell, MetacellGeneExpression
+from app.models import (
+    Dataset,
+    DatasetQualityControl,
+    Gene,
+    Metacell,
+    MetacellCount,
+    MetacellGeneExpression,
+    MetacellType,
+    QualityControl,
+    SingleCell,
+    Species,
+    SpeciesFile,
+)
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
+from app.systemchecks.metadata import check_metadata
 from app.systemchecks.postgresql_tables import check_tables
 
 
@@ -71,3 +84,37 @@ class TestPostgresTablesCheck(TestCase):
         for error in errors:
             if error.obj == "genemodule":
                 assert error.id == "bca.E003"
+
+
+class TestMetadataCheck(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.species = Species.objects.create(
+            common_name="metadatacheck",
+            scientific_name="metadatacheck",
+            description="metadatacheck Species",
+        )
+        cls.dataset = Dataset.objects.create(
+            species=cls.species, name="metadatacheckdataset", description="metadatacheckdataset"
+        )
+        quality_control = QualityControl.objects.create(
+            type="Mapping", name="Number of eyes", description="number of eyes"
+        )
+        DatasetQualityControl.objects.create(
+            dataset=cls.dataset,
+            metric=quality_control,
+            value="two",
+        )
+
+    def test_execution(self):
+        errors = check_metadata([AppConfig], deploy=True)
+        assert len(errors) == 4
+
+    def test_execution_without_errors(self):
+        type1 = MetacellType.objects.create(name="type1", dataset=self.dataset)
+        metacell1 = Metacell.objects.create(name="meta1", dataset=self.dataset, type=type1, x=1, y=1)
+        SingleCell.objects.create(name="singleCell", dataset=self.dataset, metacell=metacell1)
+        MetacellCount.objects.create(dataset=self.dataset, metacell=metacell1, cells=20, umis=200)
+        Gene.objects.create(name="metagene1", species=self.species)
+        errors = check_metadata([AppConfig], deploy=True)
+        assert len(errors) == 0

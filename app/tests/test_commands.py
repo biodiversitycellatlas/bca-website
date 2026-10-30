@@ -9,6 +9,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
+from app.models import Dataset, DatasetQualityControl, QualityControl, Species
 from app.tests.test_utils import assert_conforms
 from app.tests.views.utils import DataTestCase
 
@@ -95,3 +96,29 @@ class DumpBioschemasCommandTest(DataTestCase):
         """Non-zero exit makes it usable as a CI check that markup has not vanished."""
         with pytest.raises(CommandError, match="No JSON-LD served by"):
             call_command("dump_bioschemas", "/about/", stdout=StringIO())
+
+
+class MetadataCommandTest(TestCase):
+    def test_without_errors(self):
+        out = StringIO()
+        call_command("check_metadata", stdout=out)
+        self.assertIn("Successfully checked metadata", out.getvalue())
+
+    def test_with_errors(self):
+        human = Species.objects.create(
+            common_name="metahuman",
+            scientific_name="Meta Homo",
+            description="random human",
+        )
+        dataset = Dataset.objects.create(name="Meta Homo - adult", description="random human", species=human)
+        quality_control = QualityControl.objects.create(
+            type="Mapping", name="Number of eyes", description="number of eyes"
+        )
+        DatasetQualityControl.objects.create(
+            dataset=dataset,
+            metric=quality_control,
+            value="2",
+        )
+        out = StringIO()
+        call_command("check_metadata", stdout=out)
+        self.assertIn("Problems with metadata", out.getvalue())
