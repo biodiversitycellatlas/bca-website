@@ -45,7 +45,7 @@ function displaySearchResults(item, escape) {
         const words = sp.split(" ");
 
         const shortenedName =
-            words.length > 1
+            words.length > 1 && !/\bsp\.$/i.test(sp)
                 ? `${words[0][0]}. ${words.slice(1).join(" ")}`
                 : sp;
         const species = shortenedName
