@@ -177,7 +177,7 @@ export function initSearch() {
                             ),
                             id: `dataset_${item.slug}`,
                             group: "dataset",
-                            name: item.species,
+                            name: item.dataset,
                         }),
                     );
 
