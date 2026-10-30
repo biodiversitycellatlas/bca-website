@@ -460,7 +460,7 @@ class MetacellEdgeViewSet(BaseReadOnlyModelViewSet):
             "query",
             True,
             "gene name",
-            examples=[OpenApiExample("Example", value="Spolac_c99997_g1")],
+            examples=[OpenApiExample("Example", value="9999")],
         ),
         OpenApiParameter(
             "dataset",
@@ -468,7 +468,7 @@ class MetacellEdgeViewSet(BaseReadOnlyModelViewSet):
             "query",
             True,
             "dataset slug",
-            examples=[OpenApiExample("Example", value="spongilla-lacustris")],
+            examples=[OpenApiExample("Example", value="spongilla-lacustris-adult")],
         ),
     ],
 )
