@@ -68,7 +68,7 @@ test = [
 ]
 
 dataload = [
-    "pandas==3.0.6",
+    "pandas==3.1.0",
     "psutil==7.2.2",
     "rds2py==0.10.6",
     "scipy==1.18.1",
