@@ -55,25 +55,28 @@ function displaySearchResults(item, escape) {
                 </span>`
             : "";
 
-        res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
+        res = `${escape(item.name)} ${desc} ${badges} ${species}`;
     } else if (group === "gene_list") {
         const count_badge =
             item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
         const desc = item.description
             ? createDescriptionText(escape(item.description))
             : "";
-        res = `<div class='option'>${escape(item.name)} ${desc} ${count_badge}</div>`;
+        res = `${escape(item.name)} ${desc} ${count_badge}`;
     } else if (group === "gene_module") {
         const count_badge =
             item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
         const dataset_name = item.dataset
             ? createDescriptionText(escape(item.dataset))
             : "";
-        res = `<div class='option'>${escape(item.name)} ${dataset_name} ${count_badge}</div>`;
+        res = `${escape(item.name)} ${dataset_name} ${count_badge}`;
     } else if (group === "domain") {
         const count_badge =
             item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
-        res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
+        const desc = item.description
+            ? createDescriptionText(escape(item.description))
+            : "";
+        res = `${escape(item.name)} ${desc} ${count_badge}`;
     } else if (group === "dataset") {
         const imgURL = escape(item.image_url || item.species_image_url);
         const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
@@ -94,8 +97,9 @@ function displaySearchResults(item, escape) {
             }
         }
         const dataset_label = !item.name ? "" : `(${escape(item.name)})`;
-        res = `<div class='option'>${img}<i>${escape(item.species)}</i> ${dataset_label} ${desc} ${badges}</div>`;
+        res = `${img}<i>${escape(item.species)}</i> ${dataset_label} ${desc} ${badges}`;
     }
+    res = `<div class='option'>${res}</div>`;
     return res;
 }
 
@@ -209,6 +213,7 @@ export function initSearch() {
                         id: `gene_module_${item.module}`,
                         group: "gene_module",
                         name: item.module,
+                        description: item.description,
                         dataset: item.dataset,
                         gene_count: item.gene_count || 0,
                     }));
@@ -218,6 +223,7 @@ export function initSearch() {
                             id: `domain_${item.name}`,
                             group: "domain",
                             name: item.name,
+                            description: item.description,
                             gene_count: item.gene_count || 0,
                         }),
                     );
