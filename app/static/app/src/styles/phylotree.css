@@ -1,3 +1,9 @@
+/* phylotree CSS */
+
+.internal-node {
+    cursor: pointer;
+}
+
 .phylotree-node-text {
     cursor: pointer;
 }

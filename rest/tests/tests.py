@@ -9,6 +9,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from app.models import (
+    CellTypeTree,
+    CellTypeTreeNode,
     Dataset,
     DatasetFile,
     Domain,
@@ -93,6 +95,40 @@ class DatasetTests(APITestCase):
         assert dataset["slug"] == "mouse-dmouse"
         assert dataset["dataset"] == "DMouse"
         assert dataset["species"] == "Mouse"
+
+    def test_get_cell_type_trees(self):
+        dataset = Dataset.objects.get(name="DMouse")
+        tree = CellTypeTree.objects.create(dataset=dataset, newick="(tip1,tip2)root;")
+        CellTypeTreeNode.objects.create(
+            tree=tree,
+            node="root",
+            color="#123456",
+            significant=True,
+            markers=[{"id": "gene-1", "avg_log2_fc": 2.1, "pvalue": 0.01, "qvalue": 0.02}],
+        )
+        response = self.client.get("/api/v1/cell_type_trees/", {"dataset": "mouse-dmouse"}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == [
+            {
+                "id": tree.id,
+                "newick": "(tip1,tip2)root;",
+                "nodes": [
+                    {
+                        "node": "root",
+                        "color": "#123456",
+                        "significant": True,
+                        "markers": [{"id": "gene-1", "avg_log2_fc": 2.1, "pvalue": 0.01, "qvalue": 0.02}],
+                    }
+                ],
+            }
+        ]
+
+    def test_cell_type_tree_returns_empty_list_when_missing(self):
+        response = self.client.get("/api/v1/cell_type_trees/", {"dataset": "mouse-dmouse"}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == []
 
     def test_search_by_species_metadata(self):
         Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
