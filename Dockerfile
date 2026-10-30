@@ -12,8 +12,8 @@ FROM dhi.io/python:3.14.8-debian13-dev AS dev
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    dpkg-dev=1.22.* \
-    git=1:2.47.* \
+    dpkg-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy tools and libraries
