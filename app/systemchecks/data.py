@@ -22,9 +22,11 @@ from app.models import (
     SingleCell,
 )
 
+
 @register(checks.Tags.files, deploy=True)
 def check_data(app_configs, **kwargs) -> list[Error]:
     return check_data_existence()
+
 
 # Models that need to be queried by species are represented with tuples:
 datachecks = {
@@ -42,6 +44,7 @@ datachecks = {
     Ortholog: ("Ortholog", True),
     SingleCell: "Single Cell",
 }
+
 
 def check_data_existence() -> list[Error]:
     """Checks the existence of values in all datasets"""

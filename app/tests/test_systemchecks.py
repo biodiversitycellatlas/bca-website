@@ -122,7 +122,6 @@ class TestMetadataCheck(TestCase):
 
 
 class TestDataCheck(TestCase):
-
     def test_execution_without_errors(self):
         errors = check_metadata([AppConfig], deploy=True)
         assert len(errors) == 0

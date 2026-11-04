@@ -139,4 +139,4 @@ class DataCommandTest(TestCase):
         Dataset.objects.create(name="Data Homo - adult", description="random human", species=human)
         out = StringIO()
         call_command("check_data", stdout=out)
-        self.assertGreater( out.getvalue().count("\n"), 16)
+        self.assertGreater(out.getvalue().count("\n"), 16)
