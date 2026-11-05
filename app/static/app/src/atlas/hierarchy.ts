@@ -45,29 +45,40 @@ export function initCellTypeHierarchy(id, dataset) {
 
     return fetch(url)
         .then((response) => {
-            if (!response.ok) throw new Error(`Request failed (${response.status}).`);
+            if (!response.ok)
+                throw new Error(`Request failed (${response.status}).`);
             return response.json();
         })
         .then((treesData) => {
             const treeData = treesData[0];
-            if (!treeData || typeof treeData.newick !== "string" || !treeData.newick) {
+            if (
+                !treeData ||
+                typeof treeData.newick !== "string" ||
+                !treeData.newick
+            ) {
                 throw new Error("The tree endpoint returned invalid data.");
             }
 
             const tree = createDendrogram(`${id}-tree`, treeData.newick);
 
             // Prepare interface actions
-            document.getElementById("tree-type")?.addEventListener("change", (e) => {
-                updateTreeType(tree, e.target.value);
-            });
+            document
+                .getElementById("tree-type")
+                ?.addEventListener("change", (e) => {
+                    updateTreeType(tree, e.target.value);
+                });
 
-            document.getElementById("align-tips")?.addEventListener("change", (e) => {
-                updateAlignTips(tree, e.target.checked);
-            });
+            document
+                .getElementById("align-tips")
+                ?.addEventListener("change", (e) => {
+                    updateAlignTips(tree, e.target.checked);
+                });
 
-            document.getElementById("scale-bar")?.addEventListener("change", (e) => {
-                updateScaleBar(tree, e.target.checked);
-            });
+            document
+                .getElementById("scale-bar")
+                ?.addEventListener("change", (e) => {
+                    updateScaleBar(tree, e.target.checked);
+                });
 
             return tree;
         });

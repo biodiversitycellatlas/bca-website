@@ -302,6 +302,7 @@ class AtlasGeneView(BaseAtlasView):
         gene = context.get("gene")
         if gene:
             # Fetch information on selected gene
+            dataset = context.get("dataset")
             obj = dataset.species.genes.filter(name=gene)
             if obj:
                 context["gene"] = obj.first()
@@ -361,7 +362,7 @@ class AtlasMarkersView(BaseAtlasView):
         query = self.request.GET
         if query:
             context["query"] = query
-            if "metacells" in query.keys():
+            if "metacells" in query:
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(
