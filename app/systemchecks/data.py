@@ -83,9 +83,8 @@ def check_data_existence() -> list[Error]:
                     id="bca.E005",
                 )
             )
-        num_entries = (
-            MetacellTypeSimilarity.objects.filter(metacelltype__dataset=dset)
-            | MetacellTypeSimilarity.objects.filter(metacelltype2__dataset=dset)
+        num_entries = MetacellTypeSimilarity.objects.filter(
+            Q(metacelltype__dataset=dset) | Q(metacelltype2__dataset=dset)
         ).count()
         if num_entries == 0:
             errors.append(
