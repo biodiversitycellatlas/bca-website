@@ -28,8 +28,6 @@ from app.models import (
 def check_data(app_configs, **kwargs) -> list[Warning]:
     return check_data_existence()
 
-
-# Models that need to be queried by species are represented with tuples:
 datachecks = {
     CellType: "Cell Type",
     DatasetFile: "Dataset File",
