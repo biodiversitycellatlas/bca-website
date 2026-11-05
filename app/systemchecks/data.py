@@ -68,7 +68,7 @@ def check_data_existence() -> list[Error]:
                     )
                 )
         num_entries = (
-            ExpressionConservation.objects.filter(dataset=dset) | ExpressionConservation.objects.filter(dataset2=dset)
+            ExpressionConservation.objects.filter(Q(dataset=dset) | Q(dataset2=dset))
         ).count()
         if num_entries == 0:
             errors.append(
