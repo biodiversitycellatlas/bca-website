@@ -1,5 +1,5 @@
 from django.core import checks
-from django.core.checks import Error, register
+from django.core.checks import Warning, register
 from django.db.models.query_utils import Q
 
 from app.models import (
@@ -25,7 +25,7 @@ from app.models import (
 
 
 @register(checks.Tags.files, deploy=True)
-def check_data(app_configs, **kwargs) -> list[Error]:
+def check_data(app_configs, **kwargs) -> list[Warning]:
     return check_data_existence()
 
 
@@ -47,7 +47,7 @@ datachecks = {
 }
 
 
-def check_data_existence() -> list[Error]:
+def check_data_existence() -> list[Warning]:
     """Checks the existence of values in all datasets"""
     errors = []
     for dset in Dataset.objects.all():
@@ -59,7 +59,7 @@ def check_data_existence() -> list[Error]:
 
             if num_entries == 0:
                 errors.append(
-                    Error(
+                    Warning(
                         msg=f"Dataset {dset} has no records for {model_description}",
                         hint=model.__class__.__name__,
                         obj=dset,
@@ -69,7 +69,7 @@ def check_data_existence() -> list[Error]:
         num_entries = (ExpressionConservation.objects.filter(Q(dataset=dset) | Q(dataset2=dset))).count()
         if num_entries == 0:
             errors.append(
-                Error(
+                Warning(
                     msg=f"Dataset {dset} has no records for Expression Conservation",
                     hint="ExpressionConservation",
                     obj=dset,
@@ -81,7 +81,7 @@ def check_data_existence() -> list[Error]:
         ).count()
         if num_entries == 0:
             errors.append(
-                Error(
+                Warning(
                     msg=f"Dataset {dset} has no records for Metacell Type Similarity",
                     hint="MetacellTypeSimilarity",
                     obj=dset,
@@ -91,7 +91,7 @@ def check_data_existence() -> list[Error]:
         num_entries = GeneModuleEigengene.objects.filter(module__dataset=dset).count()
         if num_entries == 0:
             errors.append(
-                Error(
+                Warning(
                     msg=f"Dataset {dset} has no records for GeneModule Eigengene",
                     hint="GeneModuleEigengene",
                     obj=dset,
@@ -101,7 +101,7 @@ def check_data_existence() -> list[Error]:
         num_entries = GeneModuleMembership.objects.filter(module__dataset=dset).count()
         if num_entries == 0:
             errors.append(
-                Error(
+                Warning(
                     msg=f"Dataset {dset} has no records for GeneModule Membership",
                     hint="GeneModuleMembership",
                     obj=dset,
