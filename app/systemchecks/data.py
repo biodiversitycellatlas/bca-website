@@ -105,7 +105,7 @@ def check_data_existence() -> list[Error]:
                     id="bca.E005",
                 )
             )
-        GeneModuleMembership.objects.filter(module__dataset=dset).count()
+        num_entries = GeneModuleMembership.objects.filter(module__dataset=dset).count()
         if num_entries == 0:
             errors.append(
                 Error(
