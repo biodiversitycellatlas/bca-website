@@ -1,5 +1,6 @@
 from django.core import checks
 from django.core.checks import Error, register
+from django.db.models.query_utils import Q
 
 from app.models import (
     CellType,
@@ -33,15 +34,15 @@ datachecks = {
     CellType: "Cell Type",
     DatasetFile: "Dataset File",
     DatasetQualityControl: "Dataset Quality Control",
-    Gene: ("Gene", True),
+    Gene: "Gene",
     GeneCorrelation: "Gene Correlation",
     GeneModule: "Gene Module",
-    Meta: ("Meta", True),
+    Meta: "Meta",
     Metacell: "MetaCell",
     MetacellCount: "Meta Cell Count",
     MetacellGeneExpression: "MetaCell Gene Expression",
     MetacellType: "MetaCell Type",
-    Ortholog: ("Ortholog", True),
+    Ortholog: "Ortholog",
     SingleCell: "Single Cell",
 }
 
@@ -50,26 +51,22 @@ def check_data_existence() -> list[Error]:
     """Checks the existence of values in all datasets"""
     errors = []
     for dset in Dataset.objects.all():
-        for model, model_data in datachecks.items():
-            model_description = model_data
-
+        for model, model_description in datachecks.items():
             if hasattr(model, "dataset"):
-                num_entries = model.objects.filter(species=dset.species).count()
-            else:
                 num_entries = model.objects.filter(dataset=dset).count()
+            else:
+                num_entries = model.objects.filter(species=dset.species).count()
 
             if num_entries == 0:
                 errors.append(
                     Error(
                         msg=f"Dataset {dset} has no records for {model_description}",
-                        hint=model_description,
+                        hint=model.__class__.__name__,
                         obj=dset,
                         id="bca.E005",
                     )
                 )
-        num_entries = (
-            ExpressionConservation.objects.filter(Q(dataset=dset) | Q(dataset2=dset))
-        ).count()
+        num_entries = (ExpressionConservation.objects.filter(Q(dataset=dset) | Q(dataset2=dset))).count()
         if num_entries == 0:
             errors.append(
                 Error(
