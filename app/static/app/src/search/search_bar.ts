@@ -6,8 +6,10 @@ import TomSelect from "tom-select";
 
 import { getViewUrl } from "../utils/urls.ts";
 
-function createBadge(text) {
-    return `<span class="badge rounded-pill text-bg-secondary ms-1"><small>${text} genes</small></span>`;
+function createBadge(text, suffix = "", meta = false) {
+    const classes = ["badge", "rounded-pill", "text-bg-secondary", "ms-1"];
+    if (meta) classes.push("species-meta");
+    return `<span class="${classes.join(" ")}"><small>${text}${suffix}</small></span>`;
 }
 
 function createDescriptionText(text) {
@@ -30,7 +32,7 @@ function displaySearchResults(item, escape) {
         const domains_array = item.domains;
         for (let i = 0; i < domains_array.length; i++) {
             if (domains_array[i] !== "") {
-                badges += createBadge(escape(domains_array[i]));
+                badges += createBadge(escape(domains_array[i]), "", true);
             }
         }
 
@@ -43,7 +45,7 @@ function displaySearchResults(item, escape) {
         const words = sp.split(" ");
 
         const shortenedName =
-            words.length > 1
+            words.length > 1 && !/\bsp\.$/i.test(sp)
                 ? `${words[0][0]}. ${words.slice(1).join(" ")}`
                 : sp;
         const species = shortenedName
@@ -53,25 +55,28 @@ function displaySearchResults(item, escape) {
                 </span>`
             : "";
 
-        res = `<div class='option'>${escape(item.name)} ${desc} ${badges} ${species}</div>`;
+        res = `${escape(item.name)} ${desc} ${badges} ${species}`;
     } else if (group === "gene_list") {
         const count_badge =
-            item.gene_count > 0 ? createBadge(item.gene_count) : "";
+            item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
         const desc = item.description
             ? createDescriptionText(escape(item.description))
             : "";
-        res = `<div class='option'>${escape(item.name)} ${desc} ${count_badge}</div>`;
+        res = `${escape(item.name)} ${desc} ${count_badge}`;
     } else if (group === "gene_module") {
         const count_badge =
-            item.gene_count > 0 ? createBadge(item.gene_count) : "";
+            item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
         const dataset_name = item.dataset
             ? createDescriptionText(escape(item.dataset))
             : "";
-        res = `<div class='option'>${escape(item.name)} ${dataset_name} ${count_badge}</div>`;
+        res = `${escape(item.name)} ${dataset_name} ${count_badge}`;
     } else if (group === "domain") {
         const count_badge =
-            item.gene_count > 0 ? createBadge(item.gene_count) : "";
-        res = `<div class='option'>${escape(item.name)} ${count_badge}</div>`;
+            item.gene_count > 0 ? createBadge(item.gene_count, " genes") : "";
+        const desc = item.description
+            ? createDescriptionText(escape(item.description))
+            : "";
+        res = `${escape(item.name)} ${desc} ${count_badge}`;
     } else if (group === "dataset") {
         const imgURL = escape(item.image_url || item.species_image_url);
         const img = !imgURL ? "" : `<img src="${imgURL}" class="w-25px"> `;
@@ -88,12 +93,13 @@ function displaySearchResults(item, escape) {
                 !item.species.includes(elem) &&
                 !item.species_common_name
             ) {
-                badges += createBadge(elem);
+                badges += createBadge(elem, "", true);
             }
         }
         const dataset_label = !item.name ? "" : `(${escape(item.name)})`;
-        res = `<div class='option'>${img}<i>${escape(item.species)}</i> ${dataset_label} ${desc} ${badges}</div>`;
+        res = `${img}<i>${escape(item.species)}</i> ${dataset_label} ${desc} ${badges}`;
     }
+    res = `<div class='option'>${res}</div>`;
     return res;
 }
 
@@ -123,6 +129,7 @@ export function initSearch() {
             "species_name",
             "description",
             "domains",
+            "meta_values",
             "name",
             "species",
         ],
@@ -169,9 +176,12 @@ export function initSearch() {
                     const dataset_options = dataset_data.results.map(
                         (item) => ({
                             ...item,
+                            meta_values: (item.species_meta || []).map(
+                                (meta) => meta.value,
+                            ),
                             id: `dataset_${item.slug}`,
                             group: "dataset",
-                            name: item.species,
+                            name: item.dataset,
                         }),
                     );
 
@@ -203,6 +213,7 @@ export function initSearch() {
                         id: `gene_module_${item.module}`,
                         group: "gene_module",
                         name: item.module,
+                        description: item.description,
                         dataset: item.dataset,
                         gene_count: item.gene_count || 0,
                     }));
@@ -212,6 +223,7 @@ export function initSearch() {
                             id: `domain_${item.name}`,
                             group: "domain",
                             name: item.name,
+                            description: item.description,
                             gene_count: item.gene_count || 0,
                         }),
                     );
