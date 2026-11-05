@@ -51,13 +51,9 @@ def check_data_existence() -> list[Error]:
     errors = []
     for dset in Dataset.objects.all():
         for model, model_data in datachecks.items():
-            use_species = False
-            if isinstance(model_data, tuple):
-                (model_description, use_species) = model_data
-            else:
-                model_description = model_data
+            model_description = model_data
 
-            if use_species:
+            if hasattr(model, "dataset"):
                 num_entries = model.objects.filter(species=dset.species).count()
             else:
                 num_entries = model.objects.filter(dataset=dset).count()
