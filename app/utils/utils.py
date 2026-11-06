@@ -177,7 +177,7 @@ def convert_queryset_to_json(qs):
 
 
 def get_species(species):
-    """Returns species if found, oterhwise returns None."""
+    """Return species if found, oterhwise returns None."""
     if isinstance(species, Species):
         return species
 
@@ -190,7 +190,7 @@ def get_species(species):
 
 
 def get_dataset(dataset):
-    """Returns dataset if found, oterhwise returns None."""
+    """Return dataset if found, oterhwise returns None."""
     if isinstance(dataset, Dataset):
         return dataset
 
@@ -213,7 +213,7 @@ def parse_gene_slug(slug):
 
 
 def get_gene_list(gene_list):
-    """Returns gene list if found, oterhwise returns None."""
+    """Return gene list if found, oterhwise returns None."""
     if isinstance(gene_list, GeneList):
         return gene_list
 

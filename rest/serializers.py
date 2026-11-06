@@ -105,6 +105,28 @@ class DatasetSerializer(serializers.ModelSerializer):
         ]
 
 
+class CellTypeTreeNodeSerializer(serializers.ModelSerializer):
+    """Cell type tree node metadata serializer."""
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.CellTypeTreeNode
+        fields = ["node", "color", "significant", "markers"]
+
+
+class CellTypeTreeSerializer(serializers.ModelSerializer):
+    """Cell type tree and its node metadata serializer."""
+
+    nodes = CellTypeTreeNodeSerializer(many=True, read_only=True)
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.CellTypeTree
+        fields = ["id", "newick", "nodes"]
+
+
 class SpeciesSerializer(serializers.ModelSerializer):
     """Serializer for Species model."""
 
