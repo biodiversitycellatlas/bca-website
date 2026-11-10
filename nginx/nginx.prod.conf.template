@@ -118,6 +118,17 @@ proxy_cache_path /var/cache/nginx/portal
     inactive=2h
     use_temp_path=off;
 
+# --- Proxy cache for read-only API responses ---
+# Separate zone from portal_cache to allow independent sizing/TTL.
+# API responses vary by query params (gene, dataset, etc.) so more keys
+# are expected; 1 GB cap keeps memory bounded.
+proxy_cache_path /var/cache/nginx/api
+    levels=1:2
+    keys_zone=api_cache:20m
+    max_size=1g
+    inactive=1h
+    use_temp_path=off;
+
 # --- Gzip compression ---
 gzip on;
 gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
@@ -201,6 +212,39 @@ server {
 
         proxy_cache_bypass       $cookie_sessionid;
         proxy_no_cache           $cookie_sessionid;
+
+        add_header X-Cache-Status $upstream_cache_status always;
+
+        limit_req zone=bot_req burst=20 nodelay;
+        limit_req_status 429;
+        limit_conn bot_conn 5;
+
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    # Cache read-only API responses (GET/HEAD only — POST passes through).
+    # 30-minute TTL balances freshness with Django load reduction.
+    # Cache bypass: skip for authenticated users (Django session cookie).
+    # Cache invalidation: same as /entry/ — flush on dataset reload:
+    #   find /var/cache/nginx/api -type f -delete && nginx -s reload
+    location ~* ^/api/ {
+        proxy_cache              api_cache;
+        proxy_cache_key          "$scheme$request_method$host$request_uri";
+        proxy_cache_valid        200 30m;
+        proxy_cache_valid        404 1m;
+        proxy_cache_lock         on;
+        proxy_cache_use_stale    error timeout updating http_500 http_502 http_503 http_504;
+        proxy_cache_background_update on;
+
+        proxy_cache_bypass       $cookie_sessionid;
+        proxy_no_cache           $cookie_sessionid;
+
+        proxy_cache_methods      GET HEAD;
 
         add_header X-Cache-Status $upstream_cache_status always;
 
