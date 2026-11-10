@@ -213,6 +213,12 @@ server {
         proxy_cache_bypass       $cookie_sessionid;
         proxy_no_cache           $cookie_sessionid;
 
+        # add_header at this scope disables inheritance of the http-scope
+        # security headers, so repeat them alongside X-Cache-Status.
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Cache-Status $upstream_cache_status always;
 
         limit_req zone=bot_req burst=20 nodelay;
@@ -246,6 +252,12 @@ server {
 
         proxy_cache_methods      GET HEAD;
 
+        # add_header at this scope disables inheritance of the http-scope
+        # security headers, so repeat them alongside X-Cache-Status.
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Cache-Status $upstream_cache_status always;
 
         limit_req zone=bot_req burst=20 nodelay;
