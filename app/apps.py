@@ -13,6 +13,7 @@ class AppConfig(AppConfig):
     def ready(self):
         super().ready()
 
+        from .systemchecks.data import check_data  # noqa: F401
         from .systemchecks.files import check_application_files  # noqa: F401
         from .systemchecks.metacellgenexpression import check_negative_umis  # noqa: F401
         from .systemchecks.metadata import check_metadata  # noqa: F401

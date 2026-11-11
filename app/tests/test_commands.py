@@ -122,3 +122,21 @@ class MetadataCommandTest(TestCase):
         out = StringIO()
         call_command("check_metadata", stdout=out)
         self.assertIn("Problems with metadata", out.getvalue())
+
+
+class DataCommandTest(TestCase):
+    def test_without_errors(self):
+        out = StringIO()
+        call_command("check_data", stdout=out)
+        self.assertIn("Successfully checked data", out.getvalue())
+
+    def test_with_errors(self):
+        human = Species.objects.create(
+            common_name="datahuman",
+            scientific_name="data Homo",
+            description="human data test",
+        )
+        Dataset.objects.create(name="Data Homo - adult", description="random human", species=human)
+        out = StringIO()
+        call_command("check_data", stdout=out)
+        self.assertGreater(out.getvalue().count("\n"), 16)

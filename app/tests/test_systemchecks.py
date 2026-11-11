@@ -18,6 +18,7 @@ from app.models import (
     Species,
     SpeciesFile,
 )
+from app.systemchecks.data import check_data
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.metadata import check_metadata
@@ -118,3 +119,19 @@ class TestMetadataCheck(TestCase):
         Gene.objects.create(name="metagene1", species=self.species)
         errors = check_metadata([AppConfig], deploy=True)
         assert len(errors) == 0
+
+
+class TestDataCheck(TestCase):
+    def test_execution_without_errors(self):
+        errors = check_metadata([AppConfig], deploy=True)
+        assert len(errors) == 0
+
+    def test_execution_with_errors(self):
+        human = Species.objects.create(
+            common_name="datahuman",
+            scientific_name="data Homo",
+            description="human data test",
+        )
+        Dataset.objects.create(name="Data Homo - adult", description="random human", species=human)
+        errors = check_data([AppConfig], deploy=True)
+        assert len(errors) == 17

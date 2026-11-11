@@ -12,7 +12,7 @@
         "@fontsource/rubik": "5.3.0",
         "@fortawesome/fontawesome-free": "7.3.1",
         "@phosphor-icons/web": "2.1.2",
-        "autoprefixer": "10.6.1",
+        "autoprefixer": "10.6.2",
         "bootstrap": "5.3.8",
         "d3": "7.9.0",
         "datatables.net-bs5": "3.1.2",
@@ -20,7 +20,7 @@
         "datatables.net-select-bs5": "4.1.1",
         "ion-rangeslider": "2.6.0",
         "jquery": "3.7.1",
-        "postcss": "8.5.31",
+        "postcss": "8.5.32",
         "postcss-cli": "12.0.0",
         "tom-select": "2.6.2",
         "phylotree": "2.6.1",
@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "@happy-dom/global-registrator": "21.0.4",
-        "@types/bun": "1.4.3"
+        "@types/bun": "1.4.4"
     },
     "private": true,
     "type": "module"

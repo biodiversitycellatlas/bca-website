@@ -25,7 +25,7 @@ def check_metadata_existence() -> list[Error]:
             if value is None or value == 0:
                 errors.append(
                     Error(
-                        msg=f"The number of {key} must be positive in dataset {dset}",
+                        msg=f"Dataset {dset}: the number of {key} must be positive",
                         hint="metadata entries",
                         obj=dset,
                         id="bca.E004",
@@ -40,7 +40,7 @@ def check_metadata_existence() -> list[Error]:
             if qc.name not in dqcs_names:
                 errors.append(
                     Warning(
-                        msg=f"Missing Metric {qc.name} In dataset {dset} ",
+                        msg=f"Dataset {dset}: Missing Metric {qc.name}",
                         hint="metadata entries",
                         obj=dset,
                         id="bca.E004",
@@ -50,7 +50,7 @@ def check_metadata_existence() -> list[Error]:
                 if dqcs_dict[qc.name] is None or len(dqcs_dict[qc.name]) < 3:
                     errors.append(
                         Error(
-                            msg=f"Metric {qc.name} does not have a proper value {dqcs_dict[qc.name]} in dataset {dset}",
+                            msg=f"Dataset {dset}: Metric {qc.name} does not have a proper value {dqcs_dict[qc.name]}",
                             hint="metadata entries",
                             obj=dset,
                             id="bca.E004",

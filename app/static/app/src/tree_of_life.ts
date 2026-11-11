@@ -51,6 +51,7 @@ export function createTreeOfLife(id, file, opts = {}) {
                 responsive: true,
                 brush: false,
                 "is-radial": true,
+                "show-menu": false,
                 selectable: false,
                 collapsible: false,
                 "max-radius": 2000,
