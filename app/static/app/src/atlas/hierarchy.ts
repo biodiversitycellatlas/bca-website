@@ -50,7 +50,7 @@ export function initCellTypeHierarchy(id, dataset) {
             return response.json();
         })
         .then((treesData) => {
-            const treeData = treesData[0];
+            const treeData = treesData.results[0];
             if (
                 !treeData ||
                 typeof treeData.newick !== "string" ||

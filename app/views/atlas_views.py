@@ -11,7 +11,6 @@ from django.views.generic import TemplateView
 
 from ..models import Dataset
 from ..utils import (
-    get_cell_atlas_links,
     get_compare_dataset_dict,
     get_dataset,
     get_dataset_dict,
@@ -55,12 +54,6 @@ class BaseAtlasView(TemplateView):
                 "url_view": "atlas_modules",
             },
             {
-                "name": "Gene and orthologs",
-                "icon": "bezier-curve",
-                "url_view": "atlas_gene",
-                "tooltip": "Visualise gene and ortholog expression",
-            },
-            {
                 "name": "Cell type markers",
                 "icon": "list-ol",
                 "url_view": "atlas_markers",
@@ -72,10 +65,22 @@ class BaseAtlasView(TemplateView):
                 "url_view": "atlas_hierarchy",
             },
             {
+                "name": "Gene view",
+                "icon": "bezier-curve",
+                "url_view": "atlas_gene",
+                "tooltip": "Visualise gene and ortholog expression",
+            },
+            {
+                "name": "Gene ontology",
+                "icon": "arrow-trend-up",
+                "url_view": "atlas_enrichment",
+                "tooltip": "Analyze GO enrichment",
+            },
+            {
                 "name": "Cross-species",
                 "icon": "scale-unbalanced",
                 "url_view": "atlas_compare",
-                "tooltip": "Compare genes between cell types of different species",
+                "tooltip": "Compare genes between cell types and gene modules across different species",
             },
         ]
 
@@ -119,14 +124,11 @@ class BaseAtlasView(TemplateView):
         return context
 
     def get(self, *args, **kwargs):
-        """Proceed normally unless dataset is invalid."""
-        context = self.get_context_data(**kwargs)
-        dataset = context.get("dataset")
-
-        if dataset is None or isinstance(dataset, Dataset):
-            return super().get(*args, **kwargs)
-        else:
+        """Redirect to standard Atlas view if dataset is invalid."""
+        dataset = kwargs.get("dataset")
+        if dataset is not None and get_dataset(dataset) is None:
             return redirect(reverse("atlas") + "?dataset=" + dataset)
+        return super().get(*args, **kwargs)
 
 
 class AtlasView(BaseAtlasView):
@@ -188,51 +190,6 @@ class AtlasView(BaseAtlasView):
         if dataset and isinstance(dataset, Dataset):
             return redirect("atlas_info", dataset.slug)
         return super().get(request, *args, **kwargs)
-
-
-class BaseAtlasView(TemplateView):
-    """
-    Base view for dataset-specific Cell Atlas pages.
-
-    Redirects to standard Atlas view with a warning for invalid datasets.
-    """
-
-    model = Dataset
-    template_name = "app/atlas/info.html"
-
-    def get_context_data(self, **kwargs):
-        """Add dataset, species, links, and query to context."""
-        context = super().get_context_data(**kwargs)
-
-        # Get URL query parameters
-        query = self.request.GET
-        context["query"] = query
-        dataset = context["dataset"]
-
-        d = get_dataset(dataset)
-        if isinstance(d, Dataset):
-            context["dataset"] = d
-            context["species"] = d.species
-            context["dataset_dict"] = get_dataset_dict()
-            context["compare_dataset_dict"] = context["dataset_dict"]
-
-            # Prepare Cell Atlas links
-            url_name = self.request.resolver_match.url_name
-            context["links"] = get_cell_atlas_links(url_name, d)
-        else:
-            context["dataset"] = dataset
-
-        return context
-
-    def get(self, *args, **kwargs):
-        """Redirect if dataset is invalid, else proceed normally."""
-        context = self.get_context_data(**kwargs)
-        dataset = context["dataset"]
-        if not isinstance(dataset, Dataset):
-            if dataset is None:
-                dataset = "invalid"
-            return redirect(reverse("atlas") + "?dataset=" + dataset)
-        return super().get(*args, **kwargs)
 
 
 class AtlasInfoView(BaseAtlasView):

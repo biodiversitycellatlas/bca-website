@@ -5,7 +5,6 @@ import re
 
 import h5py
 import numpy as np
-from django.urls import reverse
 
 from ..models import Dataset, Gene, GeneList, MetacellTypeSimilarity, Ortholog, Species
 
@@ -222,79 +221,6 @@ def get_gene_list(gene_list):
     except GeneList.DoesNotExist:
         obj = None
     return obj
-
-
-def get_cell_atlas_links(url_name, dataset=None):
-    """Returns links to Cell Atlas navigation bar."""
-    links = [
-        {
-            "name": "Information",
-            "icon": "dna",
-            "url_names": ["atlas", "atlas_info"],
-            "url_view": "atlas_info",
-            "tooltip": "",
-        },
-        {
-            "name": "Atlas overview",
-            "icon": "diagram-project",
-            "url_names": ["atlas_overview"],
-            "url_view": "atlas_overview",
-            "tooltip": "",
-        },
-        {
-            "name": "Gene lists",
-            "icon": "solar-panel",
-            "url_names": ["atlas_panel"],
-            "url_view": "atlas_panel",
-            "tooltip": "",
-        },
-        {
-            "name": "Gene modules",
-            "icon": "puzzle-piece",
-            "url_names": ["atlas_modules"],
-            "url_view": "atlas_modules",
-            "tooltip": "",
-        },
-        {
-            "name": "Cell type markers",
-            "icon": "list-ol",
-            "url_names": ["atlas_markers"],
-            "url_view": "atlas_markers",
-            "tooltip": "Identify genes with specific expression patterns in selected metacells",
-        },
-        {
-            "name": "Gene view",
-            "icon": "bezier-curve",
-            "url_names": ["atlas_gene"],
-            "url_view": "atlas_gene",
-            "tooltip": "Visualise gene and ortholog expression",
-        },
-        {
-            "name": "Gene ontology",
-            "icon": "arrow-trend-up",
-            "url_names": ["atlas_enrichment"],
-            "url_view": "atlas_enrichment",
-            "tooltip": "Analyze GO enrichment",
-        },
-        {
-            "name": "Cross-species",
-            "icon": "scale-unbalanced",
-            "url_names": ["atlas_compare"],
-            "url_view": "atlas_compare",
-            "tooltip": "Compare cell types and gene modules across different species",
-        },
-    ]
-
-    for link in links:
-        link["active"] = url_name in link["url_names"]
-        link["disabled"] = dataset is None
-        if link["active"]:
-            link["href"] = "#top"
-        elif dataset is not None:
-            link["href"] = reverse(link["url_view"], args=[dataset.slug])
-        else:
-            link["href"] = "#"
-    return links
 
 
 def read_hdf5(hdf_file: str, gene: str) -> dict[str, float]:
