@@ -160,13 +160,16 @@ class TestNewickParser(TestCase):
     def test_single_node(self):
         assert parse_newick_labels("root;") == {"root"}
 
+    def test_unrooted_tree(self):
+        assert parse_newick_labels("a,b,c;") == {"a", "b", "c"}
+
     def test_invalid_newick(self):
         with self.assertRaises(ValueError):
             parse_newick_labels("(a,b;")
         with self.assertRaises(ValueError):
-            parse_newick_labels("a,b,c;")
+            parse_newick_labels("(a,b")
         with self.assertRaises(ValueError):
-            parse_newick_labels('("unterminated,b);')
+            parse_newick_labels("a)b;")
 
 
 class TestCellTypeTreeCheck(TestCase):
