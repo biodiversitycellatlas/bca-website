@@ -6,6 +6,8 @@ from django.test import TestCase, override_settings
 
 from app.apps import AppConfig
 from app.models import (
+    CellTypeTree,
+    CellTypeTreeNode,
     Dataset,
     DatasetQualityControl,
     Gene,
@@ -18,11 +20,13 @@ from app.models import (
     Species,
     SpeciesFile,
 )
+from app.systemchecks.cell_type_trees import check_cell_type_tree_consistency
 from app.systemchecks.data import check_data
 from app.systemchecks.files import check_application_files
 from app.systemchecks.metacellgenexpression import check_negative_umis
 from app.systemchecks.metadata import check_metadata
 from app.systemchecks.postgresql_tables import check_tables
+from app.utils.newick import parse_newick_labels
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -135,3 +139,69 @@ class TestDataCheck(TestCase):
         Dataset.objects.create(name="Data Homo - adult", description="random human", species=human)
         errors = check_data([AppConfig], deploy=True)
         assert len(errors) == 17
+
+
+class TestNewickParser(TestCase):
+    def test_simple_tree(self):
+        assert parse_newick_labels("(a,b)c;") == {"a", "b", "c"}
+
+    def test_nested_tree(self):
+        assert parse_newick_labels("((a,b)c,(d,e)f)root;") == {"a", "b", "c", "d", "e", "f", "root"}
+
+    def test_quoted_labels(self):
+        assert parse_newick_labels('("Node 2",b)root;') == {"Node 2", "b", "root"}
+
+    def test_branch_lengths(self):
+        assert parse_newick_labels("(a:0.1,b:0.2)c:1.0;") == {"a", "b", "c"}
+
+    def test_comments(self):
+        assert parse_newick_labels("(a[&&NHX:Id=1],b)c;") == {"a", "b", "c"}
+
+    def test_single_node(self):
+        assert parse_newick_labels("root;") == {"root"}
+
+    def test_invalid_newick(self):
+        with self.assertRaises(ValueError):
+            parse_newick_labels("(a,b;")
+        with self.assertRaises(ValueError):
+            parse_newick_labels("a,b,c;")
+        with self.assertRaises(ValueError):
+            parse_newick_labels('("unterminated,b);')
+
+
+class TestCellTypeTreeCheck(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        species = Species.objects.create(
+            common_name="treecheck", scientific_name="TreeCheckSp", description="tree check species"
+        )
+        dataset = Dataset.objects.create(species=species, name="DTreeCheck", description="tree check dataset")
+        cls.tree = CellTypeTree.objects.create(dataset=dataset, newick="((a,b)c,d)root;")
+
+    def test_consistent_tree(self):
+        for node in ["a", "b", "c", "d", "root"]:
+            CellTypeTreeNode.objects.create(tree=self.tree, node=node)
+        assert check_cell_type_tree_consistency() == []
+
+    def test_newick_label_without_node_row(self):
+        CellTypeTreeNode.objects.create(tree=self.tree, node="root")
+        errors = check_cell_type_tree_consistency()
+        assert len(errors) == 4
+        assert all(e.id == "bca.E006" for e in errors)
+
+    def test_node_row_not_in_newick(self):
+        for node in ["a", "b", "c", "d", "root", "extra"]:
+            CellTypeTreeNode.objects.create(tree=self.tree, node=node)
+        errors = check_cell_type_tree_consistency()
+        assert len(errors) == 1
+        assert "extra" in errors[0].msg
+
+    def test_invalid_newick(self):
+        CellTypeTree.objects.create(dataset=self.tree.dataset, newick="(a,b;")
+        errors = check_cell_type_tree_consistency()
+        assert any("invalid Newick" in e.msg for e in errors)
+
+    def test_empty_newick(self):
+        CellTypeTree.objects.create(dataset=self.tree.dataset, newick="   ")
+        errors = check_cell_type_tree_consistency()
+        assert any("empty" in e.msg for e in errors)
