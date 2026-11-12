@@ -11,6 +11,7 @@ from rest_framework.test import APITestCase
 from app.models import (
     CellTypeTree,
     CellTypeTreeNode,
+    CellTypeTreeNodeMarker,
     Dataset,
     DatasetFile,
     Domain,
@@ -98,18 +99,27 @@ class DatasetTests(APITestCase):
 
     def test_get_cell_type_trees(self):
         dataset = Dataset.objects.get(name="DMouse")
+        gene = Gene.objects.create(species=Species.objects.get(scientific_name="Mouse"), name="Mm-123")
         tree = CellTypeTree.objects.create(dataset=dataset, newick="(tip1,tip2)root;")
-        CellTypeTreeNode.objects.create(
+        node = CellTypeTreeNode.objects.create(
             tree=tree,
             node="root",
             color="#123456",
             significant=True,
-            markers=[{"id": "gene-1", "avg_log2_fc": 2.1, "pvalue": 0.01, "qvalue": 0.02}],
+        )
+        CellTypeTreeNodeMarker.objects.create(
+            node=node,
+            gene=gene,
+            p_value=0.01,
+            q_value=0.02,
+            avg_log2fc=2.1,
+            pct_1=0.6,
+            pct_2=0.2,
         )
         response = self.client.get("/api/v1/cell_type_trees/", {"dataset": "mouse-dmouse"}, format="json")
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == [
+        assert response.data["results"] == [
             {
                 "id": tree.id,
                 "newick": "(tip1,tip2)root;",
@@ -118,7 +128,16 @@ class DatasetTests(APITestCase):
                         "node": "root",
                         "color": "#123456",
                         "significant": True,
-                        "markers": [{"id": "gene-1", "avg_log2_fc": 2.1, "pvalue": 0.01, "qvalue": 0.02}],
+                        "markers": [
+                            {
+                                "gene": "Mm-123",
+                                "p_value": 0.01,
+                                "q_value": 0.02,
+                                "avg_log2fc": 2.1,
+                                "pct_1": 0.6,
+                                "pct_2": 0.2,
+                            }
+                        ],
                     }
                 ],
             }
@@ -128,7 +147,7 @@ class DatasetTests(APITestCase):
         response = self.client.get("/api/v1/cell_type_trees/", {"dataset": "mouse-dmouse"}, format="json")
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == []
+        assert response.data["results"] == []
 
     def test_search_by_species_metadata(self):
         Species.objects.get(scientific_name="Mouse").meta_set.create(key="phylum", value="Chordata")
