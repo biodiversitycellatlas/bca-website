@@ -4,6 +4,7 @@
 
 import { phylotree } from "phylotree";
 import { getViewUrl } from "../utils/urls.ts";
+import { showMessage } from "../utils/utils.ts";
 
 /**
  * Create dendrogram plot.
@@ -38,10 +39,12 @@ function createDendrogram(id, newick) {
  * Visualise cell type hierarchy.
  *
  * @param {string} id - Base identifier for the tree container.
+ * @param {string} html - Dataset HTML link.
  * @param {string} dataset - Dataset slug.
  */
-export function initCellTypeHierarchy(id, dataset) {
+export function initCellTypeHierarchy(id, html, dataset) {
     const url = getViewUrl("rest:celltypetree-list", { dataset });
+    const treeContainerId = `${id}-tree`;
 
     return fetch(url)
         .then((response) => {
@@ -51,15 +54,14 @@ export function initCellTypeHierarchy(id, dataset) {
         })
         .then((treesData) => {
             const treeData = treesData.results[0];
-            if (
-                !treeData ||
-                typeof treeData.newick !== "string" ||
-                !treeData.newick
-            ) {
-                throw new Error("The tree endpoint returned invalid data.");
+            if (!treeData || !treeData.newick) {
+                // No tree available for this dataset: show a message and disable the toolbar
+                showMessage(treeContainerId, `No cell type hierarchy found for ${html}`);
+                disableToolbar();
+                return;
             }
 
-            const tree = createDendrogram(`${id}-tree`, treeData.newick);
+            const tree = createDendrogram(treeContainerId, treeData.newick);
 
             // Prepare interface actions
             document
@@ -82,6 +84,18 @@ export function initCellTypeHierarchy(id, dataset) {
 
             return tree;
         });
+}
+
+/**
+ * Disable the tree toolbar controls.
+ */
+function disableToolbar() {
+    ["align-tips", "scale-bar", "linear-tree", "radial-tree", "unrooted-tree"].forEach(
+        (elId) => {
+            const el = document.getElementById(elId);
+            if (el) el.disabled = true;
+        }
+    );
 }
 
 /**

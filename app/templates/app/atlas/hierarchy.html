@@ -92,7 +92,7 @@ Input:
 
     <script type="module">
         import { initCellTypeHierarchy } from "{% static 'app/dist/atlas/hierarchy.js' %}";
-        initCellTypeHierarchy("hierarchy", "{{dataset.slug}}");
+        initCellTypeHierarchy("hierarchy", `{{dataset.get_inline_html_link}}`, "{{dataset.slug}}");
     </script>
 
 {% endblock content %}
