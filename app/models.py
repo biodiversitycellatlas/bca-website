@@ -582,6 +582,57 @@ class MetacellType(DynamicSlugMixin):
         return NotImplemented
 
 
+class CellTypeTree(models.Model):
+    """Cell type trees per dataset."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="cell_type_trees")
+    newick = models.TextField(help_text="Cell type tree in Newick format.")
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset} cell type tree"
+
+
+class CellTypeTreeNode(models.Model):
+    """Metadata for a node in a cell type tree."""
+
+    tree = models.ForeignKey(CellTypeTree, on_delete=models.CASCADE, related_name="nodes")
+    node = models.CharField(max_length=255)
+    color = ColorField(default="#AAAAAA")
+    significant = models.BooleanField(null=True, blank=True)
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["tree", "node"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.tree} - {self.node}"
+
+
+class CellTypeTreeNodeMarker(models.Model):
+    """Precomputed marker gene statistics for a cell type tree node."""
+
+    node = models.ForeignKey(CellTypeTreeNode, on_delete=models.CASCADE, related_name="markers")
+    gene = models.ForeignKey("Gene", on_delete=models.CASCADE, related_name="node_markers")
+    p_value = models.FloatField()
+    q_value = models.FloatField()
+    avg_log2fc = models.FloatField()
+    pct_1 = models.FloatField(help_text="Fraction of group 1 (focus node) expressing the gene.")
+    pct_2 = models.FloatField(help_text="Fraction of group 2 (comparison) expressing the gene.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["node", "gene"]
+        indexes = [models.Index(fields=["gene"], name="app_cttnode_marker_gene_idx")]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.node} - {self.gene}"
+
+
 class CellType(DynamicSlugMixin):
     """Cell type model."""
 
