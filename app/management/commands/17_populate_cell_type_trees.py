@@ -93,10 +93,10 @@ class Command(BaseCommand):
             node_meta = {}
 
         if markers_file.is_file():
-            marker_rows, missing_genes = self.read_node_markers(markers_file, dataset)
+            marker_rows, missing_genes, missing_gene_names, skipped_rows = self.read_node_markers(markers_file, dataset)
         else:
             self.stdout.write(self.style.WARNING(f"  {markers_file.name} not found; no markers."))
-            marker_rows, missing_genes = [], 0
+            marker_rows, missing_genes, missing_gene_names, skipped_rows = [], 0, [], []
 
         node_names = set(node_meta) | {row["focus_node"] for row in marker_rows}
 
@@ -104,6 +104,17 @@ class Command(BaseCommand):
         self.stdout.write(f"  Nodes: {len(node_names)}")
         self.stdout.write(f"  Markers: {len(marker_rows)}")
         self.stdout.write(f"  Missing genes: {missing_genes}")
+
+        if len(missing_gene_names) > 1:
+            self.stdout.write(f"  Skipped markers (showing 6 of {len(skipped_rows)}):")
+            for row in skipped_rows[:6]:
+                self.stdout.write(
+                    f"    gene={row['gene']} node={row['focus_node']} p_val={row['p_val']} "
+                    f"avg_log2FC={row['avg_log2FC']} pct.1={row['pct.1']} pct.2={row['pct.2']}"
+                )
+            self.stdout.write(f"  Missing gene names (showing 6 of {len(missing_gene_names)}):")
+            for name in missing_gene_names[:6]:
+                self.stdout.write(f"    {name}")
 
         if dry_run:
             return {
@@ -180,12 +191,23 @@ class Command(BaseCommand):
 
         marker_rows = []
         missing_genes = 0
+        missing_gene_names = []
+        seen_missing = set()
+        skipped_rows = []
 
         for row in rows:
             focus_node = row["focus_node"]
             gene = genes.get(row["gene"])
 
-            if not focus_node or gene is None:
+            if gene is None:
+                missing_genes += 1
+                if row["gene"] and row["gene"] not in seen_missing:
+                    seen_missing.add(row["gene"])
+                    missing_gene_names.append(row["gene"])
+                skipped_rows.append(row)
+                continue
+
+            if not focus_node:
                 missing_genes += 1
                 continue
 
@@ -201,7 +223,7 @@ class Command(BaseCommand):
                 }
             )
 
-        return marker_rows, missing_genes
+        return marker_rows, missing_genes, missing_gene_names, skipped_rows
 
     def create_nodes(self, tree, node_names, node_meta):
         """Create the tree's nodes and return a node-name to node mapping."""
