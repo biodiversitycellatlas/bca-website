@@ -26,9 +26,9 @@ Input:
     {% load headings %}
     {% h1 "Cell type hierarchy" id="trees" %}
 
-    <div id="plot-options" class="row g-2 mb-4 align-items-end">
+    <form id="plot-options" class="row g-2 mb-4 align-items-end">
         <!-- Toggle visibility -->
-        <div class="col-auto">
+        <fieldset class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
                 <label class="col-form-label">
                     <i class="fa fa-eye"></i> View options
@@ -50,10 +50,10 @@ Input:
                        checked>
                 <label class="btn btn-outline-primary" for="scale-bar">Scale bar</label>
             </div>
-        </div>
+        </fieldset>
 
         <!-- Tree type -->
-        <div class="col-auto">
+        <fieldset class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
                 <label class="col-form-label">
                     <i class="fa fa-tree"></i> Tree type
@@ -85,8 +85,8 @@ Input:
                        autocomplete="off">
                 <label class="btn btn-outline-primary" for="unrooted-tree">Unrooted</label>
             </div>
-        </div>
-    </div>
+        </fieldset>
+    </form>
 
     <div id="hierarchy-tree"></div>
 

@@ -64,23 +64,14 @@ export function initCellTypeHierarchy(id, html, dataset) {
             const tree = createDendrogram(treeContainerId, treeData.newick);
 
             // Prepare interface actions
-            document
-                .getElementById("tree-type")
-                ?.addEventListener("change", (e) => {
-                    updateTreeType(tree, e.target.value);
-                });
+            const treeType = document.getElementById("tree-type");
+            treeType?.addEventListener("change", (e) => updateTreeType(tree, e.target.value));
 
-            document
-                .getElementById("align-tips")
-                ?.addEventListener("change", (e) => {
-                    updateAlignTips(tree, e.target.checked);
-                });
+            const alignTips = document.getElementById("align-tips");
+            alignTips?.addEventListener("change", (e) => updateAlignTips(tree, e.target.checked));
 
-            document
-                .getElementById("scale-bar")
-                ?.addEventListener("change", (e) => {
-                    updateScaleBar(tree, e.target.checked);
-                });
+            const scaleBar = document.getElementById("scale-bar");
+            scaleBar?.addEventListener("change", (e) => updateScaleBar(tree, e.target.checked));
 
             return tree;
         });
@@ -90,12 +81,8 @@ export function initCellTypeHierarchy(id, html, dataset) {
  * Disable the tree toolbar controls.
  */
 function disableToolbar() {
-    ["align-tips", "scale-bar", "linear-tree", "radial-tree", "unrooted-tree"].forEach(
-        (elId) => {
-            const el = document.getElementById(elId);
-            if (el) el.disabled = true;
-        }
-    );
+    const fieldsets = document.querySelectorAll("#plot-options fieldset");
+    fieldsets.forEach(fieldset => fieldset.disabled = true);
 }
 
 /**
