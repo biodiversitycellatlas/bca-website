@@ -13,9 +13,10 @@ Python usage:
 
 import gzip
 import re
-import requests
 
+import requests
 from goatools.obo_parser import GODag
+
 from scripts.utils.project import get_project_root
 
 
