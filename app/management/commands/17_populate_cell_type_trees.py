@@ -93,10 +93,10 @@ class Command(BaseCommand):
             node_meta = {}
 
         if markers_file.is_file():
-            marker_rows, missing_genes, missing_gene_names, skipped_rows = self.read_node_markers(markers_file, dataset)
+            marker_rows, missing_genes, missing_gene_names = self.read_node_markers(markers_file, dataset)
         else:
             self.stdout.write(self.style.WARNING(f"  {markers_file.name} not found; no markers."))
-            marker_rows, missing_genes, missing_gene_names, skipped_rows = [], 0, [], []
+            marker_rows, missing_genes, missing_gene_names = [], 0, []
 
         node_names = set(node_meta) | {row["focus_node"] for row in marker_rows}
 
@@ -106,19 +106,13 @@ class Command(BaseCommand):
         self.stdout.write(f"  Missing genes: {missing_genes}")
 
         if len(missing_gene_names) > 1:
-            self.stdout.write(f"  Skipped markers (showing 6 of {len(skipped_rows)}):")
-            for row in skipped_rows[:6]:
-                self.stdout.write(
-                    f"    gene={row['gene']} node={row['focus_node']} p_val={row['p_val']} "
-                    f"avg_log2FC={row['avg_log2FC']} pct.1={row['pct.1']} pct.2={row['pct.2']}"
-                )
             self.stdout.write(f"  Missing gene names from file (showing 6 of {len(missing_gene_names)}):")
             for name in missing_gene_names[:6]:
                 self.stdout.write(f"    {name}")
             db_gene_names = list(
                 Gene.objects.filter(species=dataset.species).order_by("id").values_list("name", flat=True)[:6]
             )
-            self.stdout.write(f"  Gene names in database for {dataset.species!r} (showing up to 6):")
+            self.stdout.write(f"  Gene names in database for {dataset.species} (showing up to 6):")
             if db_gene_names:
                 for name in db_gene_names:
                     self.stdout.write(f"    {name}")
@@ -196,24 +190,24 @@ class Command(BaseCommand):
         rows = self.read_tsv(path, required=MARKERS_COLUMNS)
 
         gene_names = {row["gene"] for row in rows if row["gene"]}
-        genes = {gene.name: gene for gene in Gene.objects.filter(species=dataset.species, name__in=gene_names)}
+        # Also match the - -> _ variant, since some species store names with underscores.
+        lookup_names = gene_names | {name.replace("-", "_") for name in gene_names}
+        genes = {gene.name: gene for gene in Gene.objects.filter(species=dataset.species, name__in=lookup_names)}
 
         marker_rows = []
         missing_genes = 0
         missing_gene_names = []
         seen_missing = set()
-        skipped_rows = []
 
         for row in rows:
             focus_node = row["focus_node"]
-            gene = genes.get(row["gene"])
+            gene = genes.get(row["gene"]) or genes.get(row["gene"].replace("-", "_"))
 
             if gene is None:
                 missing_genes += 1
                 if row["gene"] and row["gene"] not in seen_missing:
                     seen_missing.add(row["gene"])
                     missing_gene_names.append(row["gene"])
-                skipped_rows.append(row)
                 continue
 
             if not focus_node:
@@ -232,7 +226,7 @@ class Command(BaseCommand):
                 }
             )
 
-        return marker_rows, missing_genes, missing_gene_names, skipped_rows
+        return marker_rows, missing_genes, missing_gene_names
 
     def create_nodes(self, tree, node_names, node_meta):
         """Create the tree's nodes and return a node-name to node mapping."""
