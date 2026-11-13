@@ -2,10 +2,17 @@
  * Cell type hierarchies.
  */
 
+import $ from "jquery";
 import { phylotree } from "phylotree";
-import { appendDataMenu } from "../buttons/data_dropdown.ts";
+import { updateDataMenu } from "../buttons/data_dropdown.ts";
+import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
+
+// Current phylotree instance, updated on each (re)load.
+let currentTree = null;
+// Token so only the latest tree load renders its result (avoids stale races).
+let loadToken = 0;
 
 /**
  * Create dendrogram plot.
@@ -37,16 +44,19 @@ function createDendrogram(id, newick) {
 }
 
 /**
- * Visualise cell type hierarchy.
+ * Load and render the cell type hierarchy for a dataset.
  *
- * @param {string} id - Base identifier for the tree container.
+ * @param {string} treeContainerId - Tree container identifier.
  * @param {string} html - Dataset HTML link.
  * @param {string} dataset - Dataset slug.
+ * @param {number} specificityMin - Minimum marker specificity (0-100).
  */
-export function initCellTypeHierarchy(id, html, dataset) {
-    const url = getViewUrl("rest:celltypetree-list", { dataset });
-    appendDataMenu("trees", url, "Cell type hierarchy");
-    const treeContainerId = `${id}-tree`;
+function loadTree(treeContainerId, html, dataset, specificityMin) {
+    const token = ++loadToken;
+    const params = { dataset };
+    if (specificityMin > 0) params.specificity_min = specificityMin;
+    const url = getViewUrl("rest:celltypetree-list", params);
+    updateDataMenu("trees", url, "Cell type hierarchy");
 
     return fetch(url)
         .then((response) => {
@@ -55,33 +65,74 @@ export function initCellTypeHierarchy(id, html, dataset) {
             return response.json();
         })
         .then((treesData) => {
+            if (token !== loadToken) return; // a newer load superseded this one
             const treeData = treesData.results[0];
             if (!treeData || !treeData.newick) {
                 // No tree available for this dataset: show a message and disable the toolbar
                 showMessage(treeContainerId, `No cell type hierarchy found for ${html}`);
                 disableToolbar();
+                currentTree = null;
                 return;
             }
 
-            const tree = createDendrogram(treeContainerId, treeData.newick);
-
-            // Prepare interface actions
-            const treeType = document.getElementById("tree-type");
-            treeType?.addEventListener("change", (e) => updateTreeType(tree, e.target.value));
-
-            const alignTips = document.getElementById("align-tips");
-            alignTips?.addEventListener("change", (e) => updateAlignTips(tree, e.target.checked));
-
-            const scaleBar = document.getElementById("scale-bar");
-            scaleBar?.addEventListener("change", (e) => updateScaleBar(tree, e.target.checked));
-
-            return tree;
+            currentTree = createDendrogram(treeContainerId, treeData.newick);
+            applyViewOptions(currentTree);
+            return currentTree;
         })
         .catch((error) => {
+            if (token !== loadToken) return;
             console.error("Error fetching cell type hierarchy:", error);
             showMessage(treeContainerId, `Error loading cell type hierarchy for ${html}`);
             disableToolbar();
+            currentTree = null;
         });
+}
+
+/**
+ * Visualise cell type hierarchy.
+ *
+ * @param {string} id - Base identifier for the tree container.
+ * @param {string} html - Dataset HTML link.
+ * @param {string} dataset - Dataset slug.
+ */
+export function initCellTypeHierarchy(id, html, dataset) {
+    const treeContainerId = `${id}-tree`;
+
+    // View option controls operate on the current tree instance.
+    document.getElementById("tree-type")?.addEventListener("change", (e) => {
+        if (currentTree) updateTreeType(currentTree, e.target.value);
+    });
+    document.getElementById("align-tips")?.addEventListener("change", (e) => {
+        if (currentTree) updateAlignTips(currentTree, e.target.checked);
+    });
+    document.getElementById("scale-bar")?.addEventListener("change", (e) => {
+        if (currentTree) updateScaleBar(currentTree, e.target.checked);
+    });
+
+    // Marker specificity slider, applied on button click.
+    initRangeSlider("#specificity_min", { min: 0, max: 100, from: 0, step: 1 });
+    document.getElementById("apply_specificity")?.addEventListener("click", () => {
+        const value = Number($("#specificity_min").val());
+        document.getElementById("specificity_label").textContent =
+            value > 0 ? `≥ ${value}% specific` : "All markers";
+        loadTree(treeContainerId, html, dataset, value);
+    });
+
+    loadTree(treeContainerId, html, dataset, 0);
+}
+
+/**
+ * Apply the current view option controls to a freshly rendered tree.
+ *
+ * @param {Object} tree - phylotree instance.
+ */
+function applyViewOptions(tree) {
+    const treeType = document.querySelector('input[name="tree-type"]:checked');
+    if (treeType) updateTreeType(tree, treeType.value);
+    const alignTips = document.getElementById("align-tips");
+    if (alignTips) updateAlignTips(tree, alignTips.checked);
+    const scaleBar = document.getElementById("scale-bar");
+    if (scaleBar) updateScaleBar(tree, scaleBar.checked);
 }
 
 /**

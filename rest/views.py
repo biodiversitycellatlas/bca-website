@@ -8,7 +8,8 @@ from urllib.parse import unquote_plus
 
 from django.conf import settings
 from django.contrib.postgres.search import TrigramStrictWordSimilarity
-from django.db.models import Case, Count, F, IntegerField, Prefetch, Q, Value, When
+from django.db.models import Case, Count, ExpressionWrapper, F, FloatField, IntegerField, Prefetch, Q, Value, When
+from django.db.models.functions import Greatest
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.exceptions import NotFound, ValidationError
@@ -121,6 +122,18 @@ class StatsViewSet(viewsets.ReadOnlyModelViewSet):
     summary="List cell type trees for a dataset",
     description="Return cell type trees for a dataset and their node attributes, including gene markers.",
     tags=["Cell type tree"],
+    parameters=[
+        OpenApiParameter(
+            "specificity_min",
+            int,
+            description=(
+                "Minimum marker specificity (0-100) to keep. Specificity is "
+                "(pct_1 - pct_2) * 100 clamped to [0, 100]: how much more a gene is "
+                "expressed in the focus node than in the comparison group. "
+                "Default 0 keeps all markers."
+            ),
+        ),
+    ],
 )
 class CellTypeTreeViewSet(BaseReadOnlyModelViewSet):
     """List cell type trees and their node attributes for a dataset."""
@@ -128,6 +141,24 @@ class CellTypeTreeViewSet(BaseReadOnlyModelViewSet):
     queryset = models.CellTypeTree.objects.prefetch_related("nodes__markers__gene")
     serializer_class = serializers.CellTypeTreeSerializer
     filterset_class = filters.CellTypeTreeFilter
+
+    def get_queryset(self):
+        """Prefetch nodes and markers, optionally filtering markers by specificity."""
+        markers = models.CellTypeTreeNodeMarker.objects.prefetch_related("gene")
+        specificity_min = self.request.query_params.get("specificity_min")
+        if specificity_min is not None:
+            markers = (
+                markers.annotate(
+                    specificity=ExpressionWrapper(
+                        Greatest((F("pct_1") - F("pct_2")) * 100, Value(0)),
+                        output_field=FloatField(),
+                    )
+                )
+                .filter(specificity__gte=specificity_min)
+            )
+        return models.CellTypeTree.objects.prefetch_related(
+            Prefetch("nodes__markers", queryset=markers)
+        )
 
 
 @extend_schema(
