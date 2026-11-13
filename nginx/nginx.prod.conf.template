@@ -151,6 +151,14 @@ add_header X-XSS-Protection "1; mode=block";
 add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 proxy_hide_header Strict-Transport-Security;
 
+# --- Runtime DNS resolution for proxied upstreams ---
+# Resolve upstream hostnames at request time (not just at config-load),
+# so container recreates with a new IP self-heal without an nginx reload.
+# $RESOLVER is set in entrypoint.sh from the first nameserver in
+# /etc/resolv.conf (Podman aardvark-dns gateway / Docker's 127.0.0.11).
+# Only location blocks that use a variable in proxy_pass benefit from this.
+resolver $RESOLVER valid=30s ipv6=off;
+
 # ----------------------------------------------------------------------
 # Buffer & Header Optimizations
 # ----------------------------------------------------------------------
@@ -206,6 +214,11 @@ server {
     include /etc/nginx/bots.d/blockbots.conf;
     include /etc/nginx/bots.d/ddos.conf;
 
+    # Upstream hostnames via variables so the http-scope resolver re-resolves
+    # them at request time (survives upstream container recreate).
+    set $django_upstream   web;
+    set $exporter_upstream nginx-exporter;
+
     # Cache read-only entry pages (gene, domain, orthogroup, etc.).
     # These pages are identical for all anonymous visitors and change only
     # when datasets are reloaded — a 1h TTL is safe and cuts Django load
@@ -240,7 +253,7 @@ server {
         limit_req_status 429;
         limit_conn bot_conn 5;
 
-        proxy_pass http://web:8000;
+        proxy_pass http://$django_upstream:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -278,7 +291,7 @@ server {
         limit_req_status 429;
         limit_conn bot_conn 5;
 
-        proxy_pass http://web:8000;
+        proxy_pass http://$django_upstream:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -291,7 +304,7 @@ server {
         limit_req_status 429;
         limit_conn bot_conn 5;
 
-        proxy_pass http://web:8000;
+        proxy_pass http://$django_upstream:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -306,7 +319,7 @@ server {
         allow 10.0.0.0/8;     # CRG internal network
         deny all;
 
-        proxy_pass http://web:8000;
+        proxy_pass http://$django_upstream:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -321,12 +334,6 @@ server {
         allow 10.0.0.0/8;
         deny all;
 
-        # Re-resolve nginx-exporter at request time so a container recreate
-        # (new IP) is picked up without an nginx reload. $RESOLVER is set by
-        # entrypoint.sh to the first nameserver in the container's
-        # /etc/resolv.conf (Podman/Docker's internal DNS).
-        resolver $RESOLVER valid=30s ipv6=off;
-        set $exporter_upstream nginx-exporter;
         proxy_pass http://$exporter_upstream:9113/metrics;
         proxy_set_header Host $host;
         proxy_redirect off;
@@ -370,12 +377,16 @@ server {
     include /etc/nginx/bots.d/blockbots.conf;
     include /etc/nginx/bots.d/ddos.conf;
 
+    # Hostname via variable so the http-scope resolver re-resolves at
+    # request time. Service name matches compose.yml.
+    set $ghost_upstream ghost;
+
     location / {
         limit_req zone=bot_req burst=20 nodelay;
         limit_req_status 429;
         limit_conn bot_conn 5;
 
-        proxy_pass ${GHOST_INTERNAL_URL};   # Ghost internal URL with default port
+        proxy_pass http://$ghost_upstream:2368;
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -418,6 +429,10 @@ server {
     include /etc/nginx/bots.d/blockbots.conf;
     include /etc/nginx/bots.d/ddos.conf;
 
+    # Hostname via variable so the http-scope resolver re-resolves at
+    # request time.
+    set $plausible_upstream plausible;
+
     # Plausible requires specific proxy headers for correct operation,
     # especially for X-Forwarded-Proto to handle the HTTPS connection.
 
@@ -430,7 +445,7 @@ server {
         if ($http_user_agent ~* "Chrome/[0-9]+\.0\.0\.0") { return 403; }
         if ($valid_plausible_origin = 0) { return 403; }
 
-        proxy_pass http://plausible:8000;
+        proxy_pass http://$plausible_upstream:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -445,7 +460,7 @@ server {
         limit_req_status 429;
         limit_conn bot_conn 5;
 
-        proxy_pass http://plausible:8000; # Proxy to the internal container name and port
+        proxy_pass http://$plausible_upstream:8000;
 
         # Standard Proxy Headers
         proxy_set_header Host $host;

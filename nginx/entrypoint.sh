@@ -29,7 +29,7 @@ export RESOLVER="${RESOLVER:-127.0.0.11}"
 echo "[NGINX] Using DNS resolver: $RESOLVER"
 
 # Substitute variables into config
-envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $GHOST_INTERNAL_URL $PLAUSIBLE_HOSTNAME $RESOLVER' \
+envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $PLAUSIBLE_HOSTNAME $RESOLVER' \
     </etc/nginx/nginx.prod.conf.template \
     >/etc/nginx/conf.d/default.conf
 
