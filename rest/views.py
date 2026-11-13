@@ -125,9 +125,7 @@ class StatsViewSet(viewsets.ReadOnlyModelViewSet):
 class CellTypeTreeViewSet(BaseReadOnlyModelViewSet):
     """List cell type trees and their node attributes for a dataset."""
 
-    queryset = models.CellTypeTree.objects.prefetch_related(
-        Prefetch("nodes", queryset=models.CellTypeTreeNode.objects.order_by("id").prefetch_related("markers"))
-    )
+    queryset = models.CellTypeTree.objects.prefetch_related("nodes__markers__gene")
     serializer_class = serializers.CellTypeTreeSerializer
     filterset_class = filters.CellTypeTreeFilter
 
