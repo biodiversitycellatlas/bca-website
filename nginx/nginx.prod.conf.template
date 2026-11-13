@@ -321,7 +321,13 @@ server {
         allow 10.0.0.0/8;
         deny all;
 
-        proxy_pass http://nginx-exporter:9113/metrics;
+        # Re-resolve nginx-exporter at request time so a container recreate
+        # (new IP) is picked up without an nginx reload. $RESOLVER is set by
+        # entrypoint.sh to the first nameserver in the container's
+        # /etc/resolv.conf (Podman/Docker's internal DNS).
+        resolver $RESOLVER valid=30s ipv6=off;
+        set $exporter_upstream nginx-exporter;
+        proxy_pass http://$exporter_upstream:9113/metrics;
         proxy_set_header Host $host;
         proxy_redirect off;
     }

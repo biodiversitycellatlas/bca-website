@@ -20,8 +20,16 @@ if [ -d /etc/nginx/bot-blocker-seed ]; then
     cp /etc/nginx/bot-blocker-seed/bots.d/*.conf /etc/nginx/bots.d/
 fi
 
+# Pick the first nameserver from the container's resolv.conf so nginx
+# can re-resolve upstream hostnames at request time (see the `resolver`
+# directive in the template). Fall back to Docker/Podman's standard
+# internal DNS address if nothing is found.
+RESOLVER="$(awk '/^nameserver/ {print $2; exit}' /etc/resolv.conf 2>/dev/null)"
+export RESOLVER="${RESOLVER:-127.0.0.11}"
+echo "[NGINX] Using DNS resolver: $RESOLVER"
+
 # Substitute variables into config
-envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $GHOST_INTERNAL_URL $PLAUSIBLE_HOSTNAME' \
+envsubst '$DJANGO_HOSTNAME $GHOST_HOSTNAME $GHOST_INTERNAL_URL $PLAUSIBLE_HOSTNAME $RESOLVER' \
     </etc/nginx/nginx.prod.conf.template \
     >/etc/nginx/conf.d/default.conf
 
