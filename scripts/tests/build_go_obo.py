@@ -13,9 +13,10 @@ Python usage:
 
 import gzip
 import re
-import requests
 
+import requests
 from goatools.obo_parser import GODag
+
 from scripts.utils.project import get_project_root
 
 
@@ -54,7 +55,7 @@ class GeneOntologyOboBuilder:
         """Extract GO terms and parent terms from annotation file."""
 
         # Get parent terms from GO OBO file
-        go_dag = GODag(self.obo_file, load_obsolete=True)
+        go_dag = GODag(str(self.obo_file.absolute().as_posix()), load_obsolete=True)
 
         go_ids = set()
         go_pattern = re.compile(r"GO:\d{7}")
