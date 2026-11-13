@@ -1,4 +1,3 @@
-# ruff: noqa: N999
 """Populate cell type trees, nodes, and node markers from per-dataset files."""
 
 from pathlib import Path
@@ -137,11 +136,11 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"  Dataset with internal_id={internal_id!r} does not exist."))
             return None
         except Dataset.MultipleObjectsReturned:
-            self.stdout.write(self.style.ERROR(f"  Multiple Datasets found with internal_id={internal_id!r}."))
+            self.stdout.write(self.style.ERROR(f"  Multiple datasets found with internal_id {internal_id!r}."))
             return None
 
     def read_newick(self, path):
-        """Read the Newick tree string, or None if the file is missing or empty."""
+        """Read Newick tree from file."""
         if not path.is_file():
             self.stdout.write(self.style.ERROR(f"  {path.name} not found."))
             return None
