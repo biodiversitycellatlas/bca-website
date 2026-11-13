@@ -88,7 +88,11 @@ Input:
         </fieldset>
     </form>
 
-    <div id="hierarchy-tree"></div>
+    <div id="hierarchy-tree">
+        <div id="hierarchy-tree-spinner" class="loading-state">
+            <div class="loader"></div>
+        </div>
+    </div>
 
     <script type="module">
         import { initCellTypeHierarchy } from "{% static 'app/dist/atlas/hierarchy.js' %}";

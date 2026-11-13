@@ -76,6 +76,11 @@ export function initCellTypeHierarchy(id, html, dataset) {
             scaleBar?.addEventListener("change", (e) => updateScaleBar(tree, e.target.checked));
 
             return tree;
+        })
+        .catch((error) => {
+            console.error("Error fetching cell type hierarchy:", error);
+            showMessage(treeContainerId, `Error loading cell type hierarchy for ${html}`);
+            disableToolbar();
         });
 }
 
