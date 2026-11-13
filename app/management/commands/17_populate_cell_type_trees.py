@@ -112,9 +112,18 @@ class Command(BaseCommand):
                     f"    gene={row['gene']} node={row['focus_node']} p_val={row['p_val']} "
                     f"avg_log2FC={row['avg_log2FC']} pct.1={row['pct.1']} pct.2={row['pct.2']}"
                 )
-            self.stdout.write(f"  Missing gene names (showing 6 of {len(missing_gene_names)}):")
+            self.stdout.write(f"  Missing gene names from file (showing 6 of {len(missing_gene_names)}):")
             for name in missing_gene_names[:6]:
                 self.stdout.write(f"    {name}")
+            db_gene_names = list(
+                Gene.objects.filter(species=dataset.species).order_by("id").values_list("name", flat=True)[:6]
+            )
+            self.stdout.write(f"  Gene names in database for {dataset.species!r} (showing up to 6):")
+            if db_gene_names:
+                for name in db_gene_names:
+                    self.stdout.write(f"    {name}")
+            else:
+                self.stdout.write("    (none - no Gene rows for this species)")
 
         if dry_run:
             return {
