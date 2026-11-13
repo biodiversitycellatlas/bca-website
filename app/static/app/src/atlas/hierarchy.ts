@@ -3,6 +3,7 @@
  */
 
 import { phylotree } from "phylotree";
+import { appendDataMenu } from "../buttons/data_dropdown.ts";
 import { getViewUrl } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
 
@@ -44,6 +45,7 @@ function createDendrogram(id, newick) {
  */
 export function initCellTypeHierarchy(id, html, dataset) {
     const url = getViewUrl("rest:celltypetree-list", { dataset });
+    appendDataMenu("trees", url, "Cell type hierarchy");
     const treeContainerId = `${id}-tree`;
 
     return fetch(url)
