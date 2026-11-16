@@ -408,6 +408,7 @@ function showTooltip(circle, name, dataset) {
             info: false,
             lengthChange: false,
             autoWidth: false,
+            scrollX: true,
         });
     }
 
