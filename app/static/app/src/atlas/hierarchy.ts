@@ -3,7 +3,9 @@
  */
 
 import DataTable from "datatables.net-bs5";
+import "datatables.net-responsive-bs5";
 import { phylotree } from "phylotree";
+
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import {
     linkDomains,
@@ -391,16 +393,16 @@ function showTooltip(circle, name, dataset) {
                 specificity: Math.max(m.pct_1 - m.pct_2, 0),
             })),
             columns: [
-                { data: "gene", title: "Gene", render: linkGene },
-                { data: "description", title: "Description", orderable: false, className: "truncate" },
-                { data: "domains", title: "Domains", orderable: false, render: linkDomains, className: "truncate" },
-                { data: "genelists", title: "Gene lists", orderable: false, render: linkGeneLists, className: "truncate" },
-                { data: "p_value", title: "p-value", render: roundSignificantDigits },
-                { data: "q_value", title: "q-value", render: roundSignificantDigits },
-                { data: "log2fc", title: "log2FC", render: round },
-                { data: "pct1", title: "pct 1", render: roundPercentage },
-                { data: "pct2", title: "pct 2", render: roundPercentage },
-                { data: "specificity", title: "Specificity", render: roundPercentage },
+                { data: "gene", title: "Gene", render: linkGene, className: "all" },
+                { data: "description", title: "Description", orderable: false, className: "truncate all" },
+                { data: "domains", title: "Domains", orderable: false, render: linkDomains, className: "truncate all" },
+                { data: "genelists", title: "Gene lists", orderable: false, render: linkGeneLists, className: "truncate all" },
+                { data: "p_value", title: "p-value", render: roundSignificantDigits, className: "max-mobile-p" },
+                { data: "q_value", title: "q-value", render: roundSignificantDigits, className: "max-mobile-p" },
+                { data: "log2fc", title: "log2FC", render: round, className: "max-mobile-p" },
+                { data: "pct1", title: "pct 1", render: roundPercentage, className: "max-mobile-p" },
+                { data: "pct2", title: "pct 2", render: roundPercentage, className: "max-mobile-p" },
+                { data: "specificity", title: "Specificity", render: roundPercentage, className: "all" },
             ],
             order: [[9, "desc"]],
             searching: false,
@@ -409,6 +411,7 @@ function showTooltip(circle, name, dataset) {
             lengthChange: false,
             autoWidth: false,
             scrollX: true,
+            responsive: true,
         });
     }
 
