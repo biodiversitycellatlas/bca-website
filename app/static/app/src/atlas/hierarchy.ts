@@ -31,29 +31,16 @@ let treeContainerId = null;
 let markerCounts = new Map();
 // Highest marker count across nodes, used to scale circle radii.
 let maxMarkerCount = 0;
-// Shared tooltip element for marker circles, created on demand.
-let tooltipEl = null;
-// Scrollable content inside the tooltip.
-let tooltipBody = null;
-// Circle the tooltip is anchored to (so it follows the node on scroll).
-let tooltipCircle = null;
-// Node name whose tooltip is pinned by a click (null = not pinned).
-let pinnedNode = null;
-// Pending hide timer, so the tooltip doesn't flicker when the cursor moves onto it.
-let hideTimer = null;
-// Node name currently shown in the tooltip.
-let tooltipNode = null;
-// True while the tooltip is being dragged by its header.
+// Map of node name -> marker tooltip state (element, DataTable, pin/drag state).
+let tooltips = new Map();
+// Drag state (only one tooltip is dragged at a time).
 let dragging = false;
-// True once the tooltip has been dragged away from its node (no longer anchored).
-let detached = false;
-// Cursor offset from the tooltip's top-left while dragging.
+let dragTooltip = null;
+// Cursor offset from the dragged tooltip's top-left.
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 // True if the current drag moved the tooltip (suppresses the trailing click).
 let dragMoved = false;
-// Current marker DataTable instance (destroyed before each new tooltip).
-let markerTable = null;
 
 /**
  * Create dendrogram plot.
@@ -140,26 +127,42 @@ function loadTree(treeContainerId, html, dataset) {
 export function initCellTypeHierarchy(id, html, dataset) {
     treeContainerId = `${id}-tree`;
 
-    // Keep the marker tooltip anchored to its node while scrolling/resizing.
-    const repositionTooltip = () => {
-        if (detached) return;
-        if (tooltipEl && tooltipEl.style.display === "block") positionTooltip();
+    // Keep each anchored tooltip next to its node while scrolling/resizing.
+    const repositionTooltips = () => {
+        for (const [name, t] of tooltips) {
+            if (!t.detached && t.el.style.display === "block") positionTooltip(name);
+        }
     };
-    window.addEventListener("scroll", repositionTooltip, true);
-    window.addEventListener("resize", repositionTooltip);
+    window.addEventListener("scroll", repositionTooltips, true);
+    window.addEventListener("resize", repositionTooltips);
 
-    // Drag the tooltip by its header; it detaches from the node and the arrow hides.
+    // Drag a tooltip by its header; it detaches from the node and the arrow hides.
+    document.addEventListener("mousedown", (e) => {
+        const header = e.target.closest(".marker-tooltip-header");
+        if (!header || e.target.closest(".marker-tooltip-close")) return;
+        const el = header.closest(".marker-tooltip");
+        const t = tooltips.get(el.dataset.node);
+        if (!t) return;
+        e.preventDefault();
+        const rect = el.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        dragging = true;
+        dragTooltip = t;
+        dragMoved = false;
+    });
     document.addEventListener("mousemove", (e) => {
-        if (!dragging) return;
+        if (!dragging || !dragTooltip) return;
         dragMoved = true;
-        detached = true;
-        pinnedNode = tooltipNode;
-        tooltipEl.classList.add("no-arrow");
-        tooltipEl.style.left = `${e.clientX - dragOffsetX}px`;
-        tooltipEl.style.top = `${e.clientY - dragOffsetY}px`;
+        dragTooltip.detached = true;
+        dragTooltip.pinned = true;
+        dragTooltip.el.classList.add("no-arrow");
+        dragTooltip.el.style.left = `${e.clientX - dragOffsetX}px`;
+        dragTooltip.el.style.top = `${e.clientY - dragOffsetY}px`;
     });
     document.addEventListener("mouseup", () => {
         dragging = false;
+        dragTooltip = null;
     });
 
     // View option controls operate on the current tree instance.
@@ -173,19 +176,24 @@ export function initCellTypeHierarchy(id, html, dataset) {
         if (currentTree) updateScaleBar(currentTree, e.target.checked);
     });
 
-    // Clicking outside a marker circle (or the pinned tooltip) unpins it.
+    // Close a tooltip via its button; clicking elsewhere dismisses hover (non-pinned) ones.
     document.addEventListener("click", (e) => {
         // Ignore the click that ends a drag.
         if (dragMoved) {
             dragMoved = false;
             return;
         }
-        const target = e.target;
-        const onCircle = target.classList?.contains("marker-count-circle");
-        const onTooltip = target.closest?.(".marker-tooltip");
-        if (pinnedNode && !onCircle && !onTooltip) {
-            pinnedNode = null;
-            hideTooltip();
+        const closeBtn = e.target.closest(".marker-tooltip-close");
+        if (closeBtn) {
+            closeTooltip(closeBtn.closest(".marker-tooltip").dataset.node);
+            return;
+        }
+        const onCircle = e.target.classList?.contains("marker-count-circle");
+        const onTooltip = e.target.closest?.(".marker-tooltip");
+        if (!onCircle && !onTooltip) {
+            for (const [name, t] of [...tooltips]) {
+                if (!t.pinned) closeTooltip(name);
+            }
         }
     });
 
@@ -286,54 +294,49 @@ function nodeStyler(element, data, dataset) {
         .attr("stroke-width", 1)
         .style("cursor", "pointer")
         .on("mouseenter", (event, d) => {
-            if (!pinnedNode) {
-                cancelHide();
-                showTooltip(event.currentTarget, d, dataset);
-            }
+            showTooltip(event.currentTarget, d, dataset);
         })
-        .on("mouseleave", () => {
-            if (!pinnedNode) scheduleHide();
+        .on("mouseleave", (event, d) => {
+            scheduleHide(d);
         })
         .on("click", (event, d) => {
-            event.stopPropagation();
-            if (pinnedNode === d) {
-                pinnedNode = null;
-                hideTooltip();
-            } else {
-                pinnedNode = d;
-                showTooltip(event.currentTarget, d, dataset);
+            // Ignore the click that ends a drag.
+            if (dragMoved) {
+                dragMoved = false;
+                return;
             }
+            event.stopPropagation();
+            showTooltip(event.currentTarget, d, dataset);
+            pinTooltip(d);
         });
 }
 
 /**
- * Get (creating if needed) the shared marker tooltip element.
+ * Get (creating if needed) the marker tooltip state for a node.
  *
- * @returns {HTMLElement} The tooltip element.
+ * @param {string} name - Node name.
+ * @param {SVGElement} circle - The circle to anchor the tooltip to.
+ * @returns {Object} The tooltip state for the node.
  */
-function getTooltipEl() {
-    if (!tooltipEl) {
-        tooltipEl = document.createElement("div");
-        tooltipEl.className = "marker-tooltip";
-        tooltipBody = document.createElement("div");
-        tooltipBody.className = "marker-tooltip-body";
-        tooltipEl.appendChild(tooltipBody);
-        // Keep the tooltip open (and scrollable) while the cursor is over it.
-        tooltipEl.addEventListener("mouseenter", cancelHide);
-        tooltipEl.addEventListener("mouseleave", scheduleHide);
-        // Start dragging the tooltip when the header is pressed.
-        tooltipEl.addEventListener("mousedown", (e) => {
-            if (!e.target.closest(".marker-tooltip-header")) return;
-            e.preventDefault();
-            const rect = tooltipEl.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            dragging = true;
-            dragMoved = false;
-        });
-        document.body.appendChild(tooltipEl);
+function getOrCreateTooltip(name, circle) {
+    let t = tooltips.get(name);
+    if (t) {
+        t.circle = circle;
+        return t;
     }
-    return tooltipEl;
+    const el = document.createElement("div");
+    el.className = "marker-tooltip";
+    el.dataset.node = name;
+    const body = document.createElement("div");
+    body.className = "marker-tooltip-body";
+    el.appendChild(body);
+    // Keep the tooltip open (and scrollable) while the cursor is over it.
+    el.addEventListener("mouseenter", () => cancelHide(name));
+    el.addEventListener("mouseleave", () => scheduleHide(name));
+    document.body.appendChild(el);
+    t = { el, body, circle, table: null, pinned: false, detached: false, hideTimer: null };
+    tooltips.set(name, t);
+    return t;
 }
 
 /**
@@ -343,10 +346,12 @@ function getTooltipEl() {
  * @param {string} name - Node name.
  */
 function showTooltip(circle, name, dataset) {
-    const el = getTooltipEl();
-    if (markerTable) {
-        markerTable.destroy();
-        markerTable = null;
+    const t = getOrCreateTooltip(name, circle);
+    cancelHide(name);
+    // Already showing for this node: just re-anchor (its data is unchanged).
+    if (t.el.style.display === "block") {
+        if (!t.detached) positionTooltip(name);
+        return;
     }
     const linkGene = makeLinkGene(dataset);
     const node = currentTreeData()?.nodes.find((n) => n.node === name);
@@ -363,16 +368,16 @@ function showTooltip(circle, name, dataset) {
         fragment.appendChild(document.createTextNode("No markers"));
     }
 
-    tooltipBody.replaceChildren(fragment);
-    tooltipBody.scrollTop = 0;
-    el.style.display = "block";
-    el.classList.remove("no-arrow");
-    tooltipNode = name;
-    detached = false;
-    tooltipCircle = circle;
+    t.body.replaceChildren(fragment);
+    t.body.scrollTop = 0;
+    t.el.style.display = "block";
 
+    if (t.table) {
+        t.table.destroy();
+        t.table = null;
+    }
     if (markers.length) {
-        markerTable = new DataTable(tooltipBody.querySelector("table"), {
+        t.table = new DataTable(t.body.querySelector("table"), {
             data: markers.map((m) => ({
                 gene: m.gene,
                 description: m.description,
@@ -407,53 +412,86 @@ function showTooltip(circle, name, dataset) {
     }
 
     // Position after the table is rendered so the height (and arrow) are correct.
-    positionTooltip();
+    if (!t.detached) positionTooltip(name);
 }
 
 /**
- * Position the tooltip next to its anchored circle, within the viewport.
+ * Position a node's tooltip next to its anchored circle, within the viewport.
+ *
+ * @param {string} name - Node name.
  */
-function positionTooltip() {
-    const el = getTooltipEl();
-    if (!tooltipCircle) return;
-    const rect = tooltipCircle.getBoundingClientRect();
+function positionTooltip(name) {
+    const t = tooltips.get(name);
+    if (!t || !t.circle) return;
+    const rect = t.circle.getBoundingClientRect();
 
     const offset = 12;
     const { innerWidth } = window;
-    const toLeft = rect.right + offset + el.offsetWidth > innerWidth;
-    const left = toLeft ? rect.left - el.offsetWidth - offset : rect.right + offset;
+    const toLeft = rect.right + offset + t.el.offsetWidth > innerWidth;
+    const left = toLeft ? rect.left - t.el.offsetWidth - offset : rect.right + offset;
 
     // The tooltip follows the node even off-screen
-    const top = rect.top + rect.height / 2 - el.offsetHeight / 2;
-    el.classList.toggle("arrow-right", toLeft);
-    el.style.left = `${left}px`;
-    el.style.top = `${top}px`;
+    const top = rect.top + rect.height / 2 - t.el.offsetHeight / 2;
+    t.el.classList.toggle("arrow-right", toLeft);
+    t.el.style.left = `${left}px`;
+    t.el.style.top = `${top}px`;
 }
 
 /**
- * Hide the tooltip (no-op while a tooltip is pinned).
+ * Close (remove) a node's tooltip, destroying its DataTable.
+ *
+ * @param {string} name - Node name.
  */
-function hideTooltip() {
-    if (pinnedNode) return;
-    tooltipCircle = null;
-    if (tooltipEl) tooltipEl.style.display = "none";
+function closeTooltip(name) {
+    const t = tooltips.get(name);
+    if (!t) return;
+    clearTimeout(t.hideTimer);
+    if (t.table) t.table.destroy();
+    t.el.remove();
+    tooltips.delete(name);
 }
 
 /**
- * Schedule hiding the tooltip after a short delay (skipped while pinned).
+ * Close every open tooltip.
+ */
+function closeAllTooltips() {
+    for (const name of [...tooltips.keys()]) closeTooltip(name);
+}
+
+/**
+ * Pin a node's tooltip so it stays open (dismissed only via its close button).
+ *
+ * @param {string} name - Node name.
+ */
+function pinTooltip(name) {
+    const t = tooltips.get(name);
+    if (!t) return;
+    t.pinned = true;
+    cancelHide(name);
+}
+
+/**
+ * Schedule closing a node's tooltip after a short delay (skipped while pinned).
  * The delay lets the cursor move onto the tooltip to scroll it.
+ *
+ * @param {string} name - Node name.
  */
-function scheduleHide() {
-    if (pinnedNode || dragging) return;
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideTooltip, 150);
+function scheduleHide(name) {
+    const t = tooltips.get(name);
+    if (!t || t.pinned || dragging) return;
+    clearTimeout(t.hideTimer);
+    t.hideTimer = setTimeout(() => closeTooltip(name), 150);
 }
 
 /**
  * Cancel a pending tooltip hide.
+ *
+ * @param {string} name - Node name.
  */
-function cancelHide() {
-    clearTimeout(hideTimer);
+function cancelHide(name) {
+    const t = tooltips.get(name);
+    if (!t) return;
+    clearTimeout(t.hideTimer);
 }
 
 /**
@@ -462,6 +500,7 @@ function cancelHide() {
  */
 function reRenderTree(dataset) {
     if (!treeData) return;
+    closeAllTooltips();
     computeMarkerCounts();
     currentTree = createDendrogram(treeContainerId, treeData.newick, dataset);
     applyViewOptions(currentTree);

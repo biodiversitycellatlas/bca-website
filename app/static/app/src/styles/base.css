@@ -122,6 +122,11 @@ body {
     cursor: grabbing;
 }
 
+.marker-tooltip-close {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 .marker-tooltip-body table {
     font-size: 0.75rem;
 }
