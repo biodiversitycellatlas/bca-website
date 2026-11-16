@@ -22,6 +22,10 @@ let treeContainerId = null;
 let markerCounts = new Map();
 // Highest marker count across nodes, used to scale circle radii.
 let maxMarkerCount = 0;
+// Shared tooltip element for marker circles, created on demand.
+let tooltipEl = null;
+// Node name whose tooltip is pinned by a click (null = not pinned).
+let pinnedNode = null;
 
 /**
  * Create dendrogram plot.
@@ -119,6 +123,14 @@ export function initCellTypeHierarchy(id, html, dataset) {
         if (currentTree) updateScaleBar(currentTree, e.target.checked);
     });
 
+    // Clicking outside a marker circle unpins its tooltip.
+    document.addEventListener("click", (e) => {
+        if (pinnedNode && !e.target.classList.contains("marker-count-circle")) {
+            pinnedNode = null;
+            hideTooltip();
+        }
+    });
+
     // Marker specificity slider, applied on button click.
     initRangeSlider("#specificity_min", { min: 0, max: 100, from: 0, step: 1 });
     document.getElementById("apply_specificity")?.addEventListener("click", () => {
@@ -206,7 +218,85 @@ function nodeStyler(element, data) {
         .attr("fill", "#4c72b0")
         .attr("fill-opacity", 0.35)
         .attr("stroke", "#4c72b0")
-        .attr("stroke-width", 1);
+        .attr("stroke-width", 1)
+        .style("cursor", "pointer")
+        .on("mouseenter", (event, d) => {
+            if (!pinnedNode) showTooltip(d, event.clientX, event.clientY);
+        })
+        .on("mousemove", (event) => {
+            if (!pinnedNode) positionTooltip(event.clientX, event.clientY);
+        })
+        .on("mouseleave", () => {
+            if (!pinnedNode) hideTooltip();
+        })
+        .on("click", (event, d) => {
+            event.stopPropagation();
+            if (pinnedNode === d) {
+                pinnedNode = null;
+                hideTooltip();
+            } else {
+                pinnedNode = d;
+                showTooltip(d, event.clientX, event.clientY);
+            }
+        });
+}
+
+/**
+ * Get (creating if needed) the shared marker tooltip element.
+ *
+ * @returns {HTMLElement} The tooltip element.
+ */
+function getTooltipEl() {
+    if (!tooltipEl) {
+        tooltipEl = document.createElement("div");
+        tooltipEl.className = "marker-tooltip";
+        document.body.appendChild(tooltipEl);
+    }
+    return tooltipEl;
+}
+
+/**
+ * Show the marker tooltip for a node near the given cursor position.
+ *
+ * @param {string} name - Node name.
+ * @param {number} x - Cursor x (viewport).
+ * @param {number} y - Cursor y (viewport).
+ */
+function showTooltip(name, x, y) {
+    const el = getTooltipEl();
+    const node = currentTreeData()?.nodes.find((n) => n.node === name);
+    const genes = node ? node.markers.map((m) => m.gene) : [];
+    el.innerHTML = `<strong>${name}</strong><br>${
+        genes.length ? genes.join(", ") : "No markers"
+    }`;
+    el.style.display = "block";
+    positionTooltip(x, y);
+}
+
+/**
+ * Position the tooltip near the cursor, keeping it within the viewport.
+ *
+ * @param {number} x - Cursor x (viewport).
+ * @param {number} y - Cursor y (viewport).
+ */
+function positionTooltip(x, y) {
+    const el = getTooltipEl();
+    const offset = 12;
+    let left = x + offset;
+    let top = y + offset;
+    const { innerWidth, innerHeight } = window;
+    if (left + el.offsetWidth > innerWidth) left = x - el.offsetWidth - offset;
+    if (top + el.offsetHeight > innerHeight) top = y - el.offsetHeight - offset;
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+}
+
+/**
+ * Hide the tooltip (no-op while a tooltip is pinned).
+ */
+function hideTooltip() {
+    if (pinnedNode) return;
+    if (tooltipEl) tooltipEl.style.display = "none";
 }
 
 /**
