@@ -6,6 +6,7 @@ import DataTable from "datatables.net-bs5";
 import { phylotree } from "phylotree";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import {
+    makeLinkGene,
     round,
     roundPercentage,
     roundSignificantDigits,
@@ -58,7 +59,7 @@ let markerTable = null;
  * @param {string} id - Container identifier.
  * @param {string} newick - Graph tree in Newick format.
  */
-function createDendrogram(id, newick) {
+function createDendrogram(id, newick, dataset) {
     const containerId = `#${id}`;
 
     const tree = new phylotree(newick);
@@ -72,7 +73,7 @@ function createDendrogram(id, newick) {
         brush: false,
         // Replace phylotree's fixed internal-node dots with marker-count circles.
         node_circle_size: () => 0,
-        "node-styler": nodeStyler,
+        "node-styler": (element, data) => nodeStyler(element, data, dataset),
     });
 
     // Force element to display
@@ -114,7 +115,7 @@ function loadTree(treeContainerId, html, dataset) {
             }
 
             computeMarkerCounts();
-            currentTree = createDendrogram(treeContainerId, treeData.newick);
+            currentTree = createDendrogram(treeContainerId, treeData.newick, dataset);
             applyViewOptions(currentTree);
             return currentTree;
         })
@@ -198,7 +199,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
         },
         onFinish: (data) => {
             applySpecificityFilter(data.from);
-            reRenderTree();
+            reRenderTree(dataset);
         },
     });
 
@@ -266,7 +267,7 @@ function radiusForCount(count) {
  * @param {Object} element - D3 selection of the node's SVG group.
  * @param {Object} data - The phylotree node.
  */
-function nodeStyler(element, data) {
+function nodeStyler(element, data, dataset) {
     const name = data.data.name;
     const count = markerCounts.get(name) || 0;
     // No circle for nodes without markers.
@@ -285,7 +286,7 @@ function nodeStyler(element, data) {
         .on("mouseenter", (event, d) => {
             if (!pinnedNode) {
                 cancelHide();
-                showTooltip(event.currentTarget, d);
+                showTooltip(event.currentTarget, d, dataset);
             }
         })
         .on("mouseleave", () => {
@@ -298,7 +299,7 @@ function nodeStyler(element, data) {
                 hideTooltip();
             } else {
                 pinnedNode = d;
-                showTooltip(event.currentTarget, d);
+                showTooltip(event.currentTarget, d, dataset);
             }
         });
 }
@@ -339,12 +340,13 @@ function getTooltipEl() {
  * @param {SVGElement} circle - The circle element to anchor to.
  * @param {string} name - Node name.
  */
-function showTooltip(circle, name) {
+function showTooltip(circle, name, dataset) {
     const el = getTooltipEl();
     if (markerTable) {
         markerTable.destroy();
         markerTable = null;
     }
+    const linkGene = makeLinkGene(dataset);
     const node = currentTreeData()?.nodes.find((n) => n.node === name);
     const markers = node ? node.markers : [];
 
@@ -379,7 +381,7 @@ function showTooltip(circle, name) {
                 specificity: Math.max(m.pct_1 - m.pct_2, 0),
             })),
             columns: [
-                { data: "gene", title: "Gene" },
+                { data: "gene", title: "Gene", render: linkGene },
                 { data: "p_value", title: "p-value", render: roundSignificantDigits },
                 { data: "q_value", title: "q-value", render: roundSignificantDigits },
                 { data: "log2fc", title: "log2FC", render: round },
@@ -450,10 +452,10 @@ function cancelHide() {
  * Re-render the tree from the cached Newick (no re-fetch) so the marker-count
  * circles are added, removed, and resized to match the current filter.
  */
-function reRenderTree() {
+function reRenderTree(dataset) {
     if (!treeData) return;
     computeMarkerCounts();
-    currentTree = createDendrogram(treeContainerId, treeData.newick);
+    currentTree = createDendrogram(treeContainerId, treeData.newick, dataset);
     applyViewOptions(currentTree);
 }
 
