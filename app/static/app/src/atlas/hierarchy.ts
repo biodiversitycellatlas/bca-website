@@ -143,7 +143,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
         document.getElementById("specificity_label").textContent =
             value > 0 ? `≥ ${value}% specific` : "All markers";
         applySpecificityFilter(value);
-        updateMarkerCircles();
+        reRenderTree();
     });
 
     loadTree(treeContainerId, html, dataset);
@@ -213,9 +213,10 @@ function radiusForCount(count) {
 function nodeStyler(element, data) {
     const name = data.data.name;
     const count = markerCounts.get(name) || 0;
+    // No circle for nodes without markers.
     element
         .selectAll(".marker-count-circle")
-        .data([name])
+        .data(count > 0 ? [name] : [])
         .join("circle")
         .attr("class", "marker-count-circle")
         .attr("data-node-name", name)
@@ -280,6 +281,7 @@ function showTooltip(name, x, y) {
     el.innerHTML = `<strong>${name}</strong><br>${
         genes.length ? genes.join(", ") : "No markers"
     }`;
+    el.scrollTop = 0;
     el.style.display = "block";
     positionTooltip(x, y);
 }
@@ -328,16 +330,14 @@ function cancelHide() {
 }
 
 /**
- * Update the radii of the already-rendered marker-count circles.
+ * Re-render the tree from the cached Newick (no re-fetch) so the marker-count
+ * circles are added, removed, and resized to match the current filter.
  */
-function updateMarkerCircles() {
+function reRenderTree() {
+    if (!treeData) return;
     computeMarkerCounts();
-    const container = document.getElementById(treeContainerId);
-    if (!container) return;
-    container.querySelectorAll(".marker-count-circle").forEach((circle) => {
-        const name = circle.getAttribute("data-node-name");
-        circle.setAttribute("r", radiusForCount(markerCounts.get(name) || 0));
-    });
+    currentTree = createDendrogram(treeContainerId, treeData.newick);
+    applyViewOptions(currentTree);
 }
 
 /**
