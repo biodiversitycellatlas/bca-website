@@ -30,21 +30,28 @@ function updateText(id, from_min_id, suffix = "") {
  * Initializes an ionRangeSlider on the given selector with base and custom options,
  * optionally linking text update callbacks to update the label text.
  *
+ * Any `onStart`/`onChange`/`onUpdate` callbacks passed in `opts` are invoked
+ * (with the slider `data`) alongside the text callback, if one is configured.
+ *
  * @param {string} selector - jQuery selector for the slider element(s).
  * @param {object} opts - Custom ionRangeSlider options to override base settings.
  * @param {Array} [textArgs] - Optional array of arguments to pass to `updateText` to create callbacks.
  */
 export function initRangeSlider(selector, opts, textArgs) {
     const baseOpts = { grid: true, skin: "round" };
-    const callback = textArgs ? updateText(...textArgs) : undefined;
+    const textCallback = textArgs ? updateText(...textArgs) : undefined;
+    const wrap = (fn) => (data) => {
+        if (textCallback) textCallback(data);
+        if (fn) fn(data);
+    };
 
     const slider = $(selector);
     slider.ionRangeSlider({
         ...baseOpts,
         ...opts,
-        onStart: callback,
-        onChange: callback,
-        onUpdate: callback,
+        onStart: wrap(opts.onStart),
+        onChange: wrap(opts.onChange),
+        onUpdate: wrap(opts.onUpdate),
     });
     return slider.data("ionRangeSlider");
 }

@@ -136,14 +136,20 @@ export function initCellTypeHierarchy(id, html, dataset) {
         }
     });
 
-    // Marker specificity slider, applied on button click.
-    initRangeSlider("#specificity_min", { min: 0, max: 100, from: 0, step: 1 });
-    document.getElementById("apply_specificity")?.addEventListener("click", () => {
-        const value = Number(document.getElementById("specificity_min").value);
-        document.getElementById("specificity_label").textContent =
-            value > 0 ? `≥ ${value}% specific` : "All markers";
-        applySpecificityFilter(value);
-        reRenderTree();
+    // Marker specificity slider: label updates live, tree re-renders on release.
+    initRangeSlider("#specificity_min", {
+        min: 0,
+        max: 100,
+        from: 0,
+        step: 1,
+        onUpdate: (data) => {
+            document.getElementById("specificity_label").textContent =
+                data.from > 0 ? `≥ ${data.from}% specific` : "All markers";
+        },
+        onChange: (data) => {
+            applySpecificityFilter(data.from);
+            reRenderTree();
+        },
     });
 
     loadTree(treeContainerId, html, dataset);
