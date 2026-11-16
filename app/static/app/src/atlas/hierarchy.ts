@@ -399,9 +399,9 @@ function showTooltip(circle, name, dataset) {
                 { data: "genelists", title: "Gene lists", orderable: false, render: linkGeneLists, className: "truncate all" },
                 { data: "p_value", title: "p-value", render: roundSignificantDigits, className: "max-mobile-p" },
                 { data: "q_value", title: "q-value", render: roundSignificantDigits, className: "max-mobile-p" },
-                { data: "log2fc", title: "log2FC", render: round, className: "max-mobile-p" },
-                { data: "pct1", title: "pct 1", render: roundPercentage, className: "max-mobile-p" },
-                { data: "pct2", title: "pct 2", render: roundPercentage, className: "max-mobile-p" },
+                { data: "log2fc", title: "log2 Fold-Change", render: round, className: "max-mobile-p" },
+                { data: "pct1", title: "DGE % (node)", render: roundPercentage, className: "max-mobile-p" },
+                { data: "pct2", title: "DGE % (sister node)", render: roundPercentage, className: "max-mobile-p" },
                 { data: "specificity", title: "Specificity", render: roundPercentage, className: "all" },
             ],
             order: [[9, "desc"]],
@@ -430,13 +430,16 @@ function positionTooltip(name) {
     const rect = t.circle.getBoundingClientRect();
 
     const offset = 12;
+    const margin = 8;
     const { innerWidth } = window;
-    const toLeft = rect.right + offset + t.el.offsetWidth > innerWidth;
-    const left = toLeft ? rect.left - t.el.offsetWidth - offset : rect.right + offset;
 
-    // The tooltip follows the node even off-screen
-    const top = rect.top + rect.height / 2 - t.el.offsetHeight / 2;
-    t.el.classList.toggle("arrow-right", toLeft);
+    // Show below the circle, centered on it, clamped to the viewport.
+    const top = rect.bottom + offset;
+    const centeredLeft = rect.left + rect.width / 2 - t.el.offsetWidth / 2;
+    const left = Math.max(margin, Math.min(centeredLeft, innerWidth - t.el.offsetWidth - margin));
+
+    // Point the arrow at the circle's center (relative to the tooltip).
+    t.el.style.setProperty("--marker-tooltip-arrow", `${rect.left + rect.width / 2 - left}px`);
     t.el.style.left = `${left}px`;
     t.el.style.top = `${top}px`;
 }
