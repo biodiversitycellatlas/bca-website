@@ -55,7 +55,7 @@ body {
     position: fixed;
     z-index: 998;
     display: none;
-    max-width: 460px;
+    max-width: 640px;
     background: var(--dropdown-menu-color);
     backdrop-filter: var(--dropdown-menu-blur);
     box-shadow: var(--dropdown-menu-shadow);
@@ -130,6 +130,11 @@ body {
 .marker-tooltip-body table td {
     padding: 0.15rem 0.4rem;
     white-space: nowrap;
+}
+
+/* Keep the long gene-info columns compact in the tooltip. */
+.marker-tooltip-body table .truncate {
+    max-width: 120px;
 }
 
 /* Sticky table header, just below the sticky node title. */

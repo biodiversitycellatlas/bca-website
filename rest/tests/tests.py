@@ -131,6 +131,9 @@ class DatasetTests(APITestCase):
                         "markers": [
                             {
                                 "gene": "Mm-123",
+                                "description": None,
+                                "domains": [],
+                                "genelists": [],
                                 "p_value": 0.01,
                                 "q_value": 0.02,
                                 "avg_log2fc": 2.1,

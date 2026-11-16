@@ -6,6 +6,8 @@ import DataTable from "datatables.net-bs5";
 import { phylotree } from "phylotree";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import {
+    linkDomains,
+    linkGeneLists,
     makeLinkGene,
     round,
     roundPercentage,
@@ -373,6 +375,9 @@ function showTooltip(circle, name, dataset) {
         markerTable = new DataTable(tooltipBody.querySelector("table"), {
             data: markers.map((m) => ({
                 gene: m.gene,
+                description: m.description,
+                domains: m.domains,
+                genelists: m.genelists,
                 p_value: m.p_value,
                 q_value: m.q_value,
                 log2fc: m.avg_log2fc,
@@ -382,6 +387,9 @@ function showTooltip(circle, name, dataset) {
             })),
             columns: [
                 { data: "gene", title: "Gene", render: linkGene },
+                { data: "description", title: "Description", orderable: false, className: "truncate" },
+                { data: "domains", title: "Domains", orderable: false, render: linkDomains, className: "truncate" },
+                { data: "genelists", title: "Gene lists", orderable: false, render: linkGeneLists, className: "truncate" },
                 { data: "p_value", title: "p-value", render: roundSignificantDigits },
                 { data: "q_value", title: "q-value", render: roundSignificantDigits },
                 { data: "log2fc", title: "log2FC", render: round },
@@ -389,7 +397,7 @@ function showTooltip(circle, name, dataset) {
                 { data: "pct2", title: "pct 2", render: roundPercentage },
                 { data: "specificity", title: "Specificity", render: roundPercentage },
             ],
-            order: [[6, "desc"]],
+            order: [[9, "desc"]],
             searching: false,
             paging: false,
             info: false,
