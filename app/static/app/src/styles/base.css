@@ -52,16 +52,13 @@ body {
 
 /* Tooltip for gene markers in cell type trees */
 .marker-tooltip {
-    position: fixed;
     z-index: 999;
-    display: none;
     /* Shrink to fit the viewport on narrow screens (the table scrolls via scrollX). */
     max-width: min(640px, calc(100vw - 2rem));
     background: var(--dropdown-menu-color);
     backdrop-filter: var(--dropdown-menu-blur);
     box-shadow: var(--dropdown-menu-shadow);
     border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0.375rem;
 }
 
 /* Tooltip for gene markers in cell type trees: arrow on top pointing up at the node. */
@@ -87,11 +84,8 @@ body {
 .marker-tooltip-body {
     --tooltip-header-height: 2rem;
     max-height: 240px;
-    overflow: auto;
-    padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
     line-height: 1.4;
-    color: #212529;
     word-wrap: break-word;
 }
 
@@ -100,22 +94,13 @@ body {
     position: sticky;
     top: 0;
     z-index: 1;
-    display: flex;
-    align-items: center;
     height: var(--tooltip-header-height);
-    margin: -0.5rem -0.75rem 0;
-    padding: 0 0.75rem;
     backdrop-filter: var(--dropdown-menu-blur);
     cursor: grab;
 }
 
 .marker-tooltip-header:active {
     cursor: grabbing;
-}
-
-.marker-tooltip-close {
-    margin-left: auto;
-    flex-shrink: 0;
 }
 
 .marker-tooltip-body table {

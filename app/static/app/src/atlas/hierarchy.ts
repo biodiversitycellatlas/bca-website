@@ -132,7 +132,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
     // Keep each anchored tooltip next to its node while scrolling/resizing.
     const repositionTooltips = () => {
         for (const [name, t] of tooltips) {
-            if (!t.detached && t.el.style.display === "block") positionTooltip(name);
+            if (!t.detached && !t.el.classList.contains("d-none")) positionTooltip(name);
         }
     };
     window.addEventListener("scroll", repositionTooltips, true);
@@ -327,10 +327,10 @@ function getOrCreateTooltip(name, circle) {
         return t;
     }
     const el = document.createElement("div");
-    el.className = "marker-tooltip";
+    el.className = "marker-tooltip position-fixed rounded d-none";
     el.dataset.node = name;
     const body = document.createElement("div");
-    body.className = "marker-tooltip-body";
+    body.className = "marker-tooltip-body overflow-auto p-2 px-3 text-body";
     el.appendChild(body);
     // Keep the tooltip open (and scrollable) while the cursor is over it.
     el.addEventListener("mouseenter", () => cancelHide(name));
@@ -351,7 +351,7 @@ function showTooltip(circle, name, dataset) {
     const t = getOrCreateTooltip(name, circle);
     cancelHide(name);
     // Already showing for this node: just re-anchor (its data is unchanged).
-    if (t.el.style.display === "block") {
+    if (!t.el.classList.contains("d-none")) {
         if (!t.detached) positionTooltip(name);
         return;
     }
@@ -372,7 +372,7 @@ function showTooltip(circle, name, dataset) {
 
     t.body.replaceChildren(fragment);
     t.body.scrollTop = 0;
-    t.el.style.display = "block";
+    t.el.classList.remove("d-none");
 
     if (t.table) {
         t.table.destroy();
