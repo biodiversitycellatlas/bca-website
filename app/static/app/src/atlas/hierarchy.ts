@@ -184,11 +184,11 @@ export function initCellTypeHierarchy(id, html, dataset) {
         max: 100,
         from: 0,
         step: 1,
-        onUpdate: (data) => {
+        onChange: (data) => {
             document.getElementById("specificity_label").textContent =
                 data.from > 0 ? `≥ ${data.from}% specific` : "All markers";
         },
-        onChange: (data) => {
+        onFinish: (data) => {
             applySpecificityFilter(data.from);
             reRenderTree();
         },
