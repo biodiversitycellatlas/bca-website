@@ -7,8 +7,9 @@ Cell type hierarchies
 Features:
 - Phylogenetic tree showing metacell-based hierarchies:
     - Fetches via REST API
-    - Download data button
-    - Copy link to clipboard button
+- Node/edge coloring toggle (on by default)
+- Download data button
+- Copy link to clipboard button
 
 Input:
 - dataset: Dataset object
@@ -49,6 +50,13 @@ Input:
                        autocomplete="off"
                        {% if query.scale_bar == 'false' %}{% else %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="scale-bar">Scale bar</label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="colors"
+                       autocomplete="off"
+                       {% if query.colors == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="colors">Color</label>
             </div>
         </fieldset>
 

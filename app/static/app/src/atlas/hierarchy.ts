@@ -72,6 +72,7 @@ function createDendrogram(id, newick, dataset) {
         // #999 }`, which beats presentation attributes, so use an inline
         // style with !important for the color to actually apply.
         "edge-styler": (element, d) => {
+            if (!colorsEnabled()) return;
             const color = nodeColors.get(d.target.data.name) || "#AAAAAA";
             element.style("stroke", color, "important");
         },
@@ -194,6 +195,13 @@ export function initCellTypeHierarchy(id, html, dataset) {
     document.getElementById("scale-bar")?.addEventListener("change", (e) => {
         if (currentTree) updateScaleBar(currentTree, e.target.checked);
         setUrlParam("scale_bar", String(e.target.checked), "true");
+    });
+
+    // Node/edge colors are applied by the stylers at render time, so a
+    // toggle just re-renders the tree.
+    document.getElementById("colors")?.addEventListener("change", (e) => {
+        reRenderTree(dataset);
+        setUrlParam("colors", String(e.target.checked), "true");
     });
 
     // Close a tooltip via its button; clicking elsewhere dismisses hover (non-pinned) ones.
@@ -324,23 +332,30 @@ function nodeStyler(element, data, dataset) {
     const count = markerCounts.get(name) || 0;
     // phylotree.css styles node shapes (.node circle) with stylesheet rules,
     // which beat presentation attributes, so use inline styles with
-    // !important (as in the phylotree "colored by host" example).
+    // !important (as in the phylotree "colored by host" example). When
+    // coloring is off, apply no styles at all to fall back to the defaults.
+    const colored = colorsEnabled();
     // Colour the tip label according to the node's color.
     if (!data.children) {
-        element.selectAll("text").style("fill", color, "important");
+        const text = element.selectAll("text");
+        if (colored) text.style("fill", color, "important");
     }
     // No circle for nodes without markers.
-    element
+    let circles = element
         .selectAll(".marker-count-circle")
         .data(count > 0 ? [name] : [])
         .join("circle")
         .attr("class", "marker-count-circle")
         .attr("data-node-name", name)
         .attr("r", () => radiusForCount(count))
-        .style("fill", color, "important")
-        .attr("fill-opacity", 0.35)
-        .style("stroke", color, "important")
-        .style("stroke-width", "1px", "important")
+        .attr("fill-opacity", 0.35);
+    if (colored) {
+        circles = circles
+            .style("fill", color, "important")
+            .style("stroke", color, "important")
+            .style("stroke-width", "1px", "important");
+    }
+    circles
         .style("cursor", "pointer")
         .on("mouseenter", (event, d) => {
             showTooltip(event.currentTarget, d, dataset);
@@ -545,6 +560,15 @@ function cancelHide(name) {
     const t = tooltips.get(name);
     if (!t) return;
     clearTimeout(t.hideTimer);
+}
+
+/**
+ * Whether node/edge coloring is enabled via the "Colors" view option.
+ *
+ * @returns {boolean} True if the tree should be colored.
+ */
+function colorsEnabled() {
+    return document.getElementById("colors")?.checked ?? true;
 }
 
 /**
