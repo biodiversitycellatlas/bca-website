@@ -150,6 +150,20 @@ export function roundSignificantDigits(data, type) {
 }
 
 /**
+ * Round a 0-1 fraction to a whole percentage for display or filtering.
+ *
+ * @param {number|string} data - The fraction to convert.
+ * @param {string} type - Rendering type: "display", "filter", etc.
+ * @returns {string|number} Percentage for display or original for other types.
+ */
+export function roundPercentage(data, type) {
+    if (type === "display" || type === "filter") {
+        return `${Math.round(parseFloat(data) * 100)}%`;
+    }
+    return data;
+}
+
+/**
  * Convert an array into a comma-separated string for display.
  *
  * @param {Array|string} data - Array of values to join.

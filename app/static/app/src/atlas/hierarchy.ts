@@ -2,8 +2,14 @@
  * Cell type hierarchies.
  */
 
+import DataTable from "datatables.net-bs5";
 import { phylotree } from "phylotree";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
+import {
+    round,
+    roundPercentage,
+    roundSignificantDigits,
+} from "./tables/utils.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
@@ -43,6 +49,8 @@ let dragOffsetX = 0;
 let dragOffsetY = 0;
 // True if the current drag moved the tooltip (suppresses the trailing click).
 let dragMoved = false;
+// Current marker DataTable instance (destroyed before each new tooltip).
+let markerTable = null;
 
 /**
  * Create dendrogram plot.
@@ -333,6 +341,10 @@ function getTooltipEl() {
  */
 function showTooltip(circle, name) {
     const el = getTooltipEl();
+    if (markerTable) {
+        markerTable.destroy();
+        markerTable = null;
+    }
     const node = currentTreeData()?.nodes.find((n) => n.node === name);
     const markers = node ? node.markers : [];
 
@@ -342,25 +354,6 @@ function showTooltip(circle, name) {
     fragment.querySelector(".marker-tooltip-title").textContent = name;
     fragment.querySelector(".marker-tooltip-count").textContent =
         `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
-    const tbody = fragment.querySelector("tbody");
-    const rowTemplate = document.getElementById("marker-row-template");
-    const sorted = [...markers].sort(
-        (a, b) =>
-            Math.max((b.pct_1 - b.pct_2) * 100, 0) -
-            Math.max((a.pct_1 - a.pct_2) * 100, 0)
-    );
-    for (const m of sorted) {
-        const tr = rowTemplate.content.firstElementChild.cloneNode(true);
-        const cells = tr.children;
-        cells[0].textContent = m.gene;
-        cells[1].textContent = formatPValue(m.p_value);
-        cells[2].textContent = formatPValue(m.q_value);
-        cells[3].textContent = m.avg_log2fc.toFixed(2);
-        cells[4].textContent = `${Math.round(m.pct_1 * 100)}%`;
-        cells[5].textContent = `${Math.round(m.pct_2 * 100)}%`;
-        cells[6].textContent = `${Math.round(Math.max((m.pct_1 - m.pct_2) * 100, 0))}%`;
-        tbody.appendChild(tr);
-    }
     if (!markers.length) {
         fragment.querySelector("table").remove();
         fragment.appendChild(document.createTextNode("No markers"));
@@ -373,19 +366,38 @@ function showTooltip(circle, name) {
     tooltipNode = name;
     detached = false;
     tooltipCircle = circle;
-    positionTooltip();
-}
 
-/**
- * Format a p/q value compactly (scientific notation for very small values).
- *
- * @param {number} v - The value to format.
- * @returns {string} Formatted value.
- */
-function formatPValue(v) {
-    if (v === 0) return "0";
-    if (v < 1e-4) return v.toExponential(2);
-    return v.toFixed(4);
+    if (markers.length) {
+        markerTable = new DataTable(tooltipBody.querySelector("table"), {
+            data: markers.map((m) => ({
+                gene: m.gene,
+                p_value: m.p_value,
+                q_value: m.q_value,
+                log2fc: m.avg_log2fc,
+                pct1: m.pct_1,
+                pct2: m.pct_2,
+                specificity: Math.max(m.pct_1 - m.pct_2, 0),
+            })),
+            columns: [
+                { data: "gene", title: "Gene" },
+                { data: "p_value", title: "p-value", render: roundSignificantDigits },
+                { data: "q_value", title: "q-value", render: roundSignificantDigits },
+                { data: "log2fc", title: "log2FC", render: round },
+                { data: "pct1", title: "pct 1", render: roundPercentage },
+                { data: "pct2", title: "pct 2", render: roundPercentage },
+                { data: "specificity", title: "Specificity", render: roundPercentage },
+            ],
+            order: [[6, "desc"]],
+            searching: false,
+            paging: false,
+            info: false,
+            lengthChange: false,
+            autoWidth: false,
+        });
+    }
+
+    // Position after the table is rendered so the height (and arrow) are correct.
+    positionTooltip();
 }
 
 /**
