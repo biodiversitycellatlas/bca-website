@@ -2,7 +2,6 @@
  * Cell type hierarchies.
  */
 
-import $ from "jquery";
 import { phylotree } from "phylotree";
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
@@ -13,6 +12,10 @@ import { showMessage } from "../utils/utils.ts";
 let currentTree = null;
 // Token so only the latest tree load renders its result (avoids stale races).
 let loadToken = 0;
+// Full (unfiltered) tree data from the API, fetched once.
+let treeData = null;
+// Tree data with markers filtered by the current specificity threshold.
+let filteredTreeData = null;
 
 /**
  * Create dendrogram plot.
@@ -49,13 +52,10 @@ function createDendrogram(id, newick) {
  * @param {string} treeContainerId - Tree container identifier.
  * @param {string} html - Dataset HTML link.
  * @param {string} dataset - Dataset slug.
- * @param {number} specificityMin - Minimum marker specificity (0-100).
  */
-function loadTree(treeContainerId, html, dataset, specificityMin) {
+function loadTree(treeContainerId, html, dataset) {
     const token = ++loadToken;
-    const params = { dataset };
-    if (specificityMin > 0) params.specificity_min = specificityMin;
-    const url = getViewUrl("rest:celltypetree-list", params);
+    const url = getViewUrl("rest:celltypetree-list", { dataset });
     updateDataMenu("trees", url, "Cell type hierarchy");
 
     return fetch(url)
@@ -66,7 +66,7 @@ function loadTree(treeContainerId, html, dataset, specificityMin) {
         })
         .then((treesData) => {
             if (token !== loadToken) return; // a newer load superseded this one
-            const treeData = treesData.results[0];
+            treeData = treesData.results[0];
             if (!treeData || !treeData.newick) {
                 // No tree available for this dataset: show a message and disable the toolbar
                 showMessage(treeContainerId, `No cell type hierarchy found for ${html}`);
@@ -112,13 +112,31 @@ export function initCellTypeHierarchy(id, html, dataset) {
     // Marker specificity slider, applied on button click.
     initRangeSlider("#specificity_min", { min: 0, max: 100, from: 0, step: 1 });
     document.getElementById("apply_specificity")?.addEventListener("click", () => {
-        const value = Number($("#specificity_min").val());
+        const value = Number(document.getElementById("specificity_min").value);
         document.getElementById("specificity_label").textContent =
             value > 0 ? `≥ ${value}% specific` : "All markers";
-        loadTree(treeContainerId, html, dataset, value);
+        applySpecificityFilter(value);
     });
 
-    loadTree(treeContainerId, html, dataset, 0);
+    loadTree(treeContainerId, html, dataset);
+}
+
+/**
+ * Filter the cached markers by minimum specificity.
+ *
+ * @param {number} specificityMin - Minimum marker specificity (0-100).
+ */
+function applySpecificityFilter(specificityMin) {
+    if (!treeData) return;
+    filteredTreeData = {
+        ...treeData,
+        nodes: treeData.nodes.map((node) => ({
+            ...node,
+            markers: node.markers.filter(
+                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= specificityMin
+            ),
+        })),
+    };
 }
 
 /**
