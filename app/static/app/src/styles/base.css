@@ -41,6 +41,15 @@ body {
     max-width: 300px;
 }
 
+/* Sticky plot options bar (below the subnavbar) */
+.sticky-plot-options {
+    position: sticky;
+    z-index: 1019;
+    background: white;
+    top: 90px;
+    padding-bottom: 5px;
+}
+
 /* Tooltip for cell type tree node marker circles (hover / click-to-pin).
    Styled to match the frosted dropdown menu. */
 .marker-tooltip {
