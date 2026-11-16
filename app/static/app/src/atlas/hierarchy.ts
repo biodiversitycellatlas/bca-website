@@ -16,6 +16,12 @@ let loadToken = 0;
 let treeData = null;
 // Tree data with markers filtered by the current specificity threshold.
 let filteredTreeData = null;
+// Tree container element id, set on init.
+let treeContainerId = null;
+// Map of node name -> number of (currently filtered) markers.
+let markerCounts = new Map();
+// Highest marker count across nodes, used to scale circle radii.
+let maxMarkerCount = 0;
 
 /**
  * Create dendrogram plot.
@@ -35,6 +41,9 @@ function createDendrogram(id, newick) {
         reroot: false,
         responsive: true,
         brush: false,
+        // Replace phylotree's fixed internal-node dots with marker-count circles.
+        node_circle_size: () => 0,
+        "node-styler": nodeStyler,
     });
 
     // Force element to display
@@ -75,6 +84,7 @@ function loadTree(treeContainerId, html, dataset) {
                 return;
             }
 
+            computeMarkerCounts();
             currentTree = createDendrogram(treeContainerId, treeData.newick);
             applyViewOptions(currentTree);
             return currentTree;
@@ -96,7 +106,7 @@ function loadTree(treeContainerId, html, dataset) {
  * @param {string} dataset - Dataset slug.
  */
 export function initCellTypeHierarchy(id, html, dataset) {
-    const treeContainerId = `${id}-tree`;
+    treeContainerId = `${id}-tree`;
 
     // View option controls operate on the current tree instance.
     document.getElementById("tree-type")?.addEventListener("change", (e) => {
@@ -116,6 +126,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
         document.getElementById("specificity_label").textContent =
             value > 0 ? `≥ ${value}% specific` : "All markers";
         applySpecificityFilter(value);
+        updateMarkerCircles();
     });
 
     loadTree(treeContainerId, html, dataset);
@@ -137,6 +148,78 @@ function applySpecificityFilter(specificityMin) {
             ),
         })),
     };
+}
+
+/**
+ * Tree data reflecting the current specificity filter (unfiltered if none).
+ *
+ * @returns {Object|null} The tree data to use for marker counts.
+ */
+function currentTreeData() {
+    return filteredTreeData || treeData;
+}
+
+/**
+ * Recompute per-node marker counts from the current (filtered) tree data.
+ */
+function computeMarkerCounts() {
+    markerCounts = new Map();
+    maxMarkerCount = 0;
+    const data = currentTreeData();
+    if (!data) return;
+    for (const node of data.nodes) {
+        const count = node.markers.length;
+        markerCounts.set(node.node, count);
+        if (count > maxMarkerCount) maxMarkerCount = count;
+    }
+}
+
+/**
+ * Circle radius for a given marker count (area scales with count).
+ *
+ * @param {number} count - Number of markers.
+ * @returns {number} Radius in pixels.
+ */
+function radiusForCount(count) {
+    const minR = 2;
+    const maxR = 14;
+    if (maxMarkerCount <= 0) return minR;
+    return minR + (maxR - minR) * Math.sqrt(count / maxMarkerCount);
+}
+
+/**
+ * phylotree node styler: draw a circle at each node sized by its marker count.
+ *
+ * @param {Object} element - D3 selection of the node's SVG group.
+ * @param {Object} data - The phylotree node.
+ */
+function nodeStyler(element, data) {
+    const name = data.data.name;
+    const count = markerCounts.get(name) || 0;
+    element
+        .selectAll(".marker-count-circle")
+        .data([name])
+        .join("circle")
+        .attr("class", "marker-count-circle")
+        .attr("data-node-name", name)
+        .attr("r", () => radiusForCount(count))
+        .attr("fill", "#4c72b0")
+        .attr("fill-opacity", 0.35)
+        .attr("stroke", "#4c72b0")
+        .attr("stroke-width", 1);
+}
+
+/**
+ * Update the radii of the already-rendered marker-count circles.
+ */
+function updateMarkerCircles() {
+    computeMarkerCounts();
+    const container = document.getElementById(treeContainerId);
+    if (!container) return;
+    container.querySelectorAll(".marker-count-circle").forEach((circle) => {
+        const name = circle.getAttribute("data-node-name");
+        circle.setAttribute("r", radiusForCount(markerCounts.get(name) || 0));
+    });
 }
 
 /**
