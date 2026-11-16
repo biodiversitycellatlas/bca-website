@@ -26,6 +26,8 @@ let maxMarkerCount = 0;
 let tooltipEl = null;
 // Node name whose tooltip is pinned by a click (null = not pinned).
 let pinnedNode = null;
+// Pending hide timer, so the tooltip doesn't flicker when the cursor moves onto it.
+let hideTimer = null;
 
 /**
  * Create dendrogram plot.
@@ -123,9 +125,12 @@ export function initCellTypeHierarchy(id, html, dataset) {
         if (currentTree) updateScaleBar(currentTree, e.target.checked);
     });
 
-    // Clicking outside a marker circle unpins its tooltip.
+    // Clicking outside a marker circle (or the pinned tooltip) unpins it.
     document.addEventListener("click", (e) => {
-        if (pinnedNode && !e.target.classList.contains("marker-count-circle")) {
+        const target = e.target;
+        const onCircle = target.classList?.contains("marker-count-circle");
+        const onTooltip = target.closest?.(".marker-tooltip");
+        if (pinnedNode && !onCircle && !onTooltip) {
             pinnedNode = null;
             hideTooltip();
         }
@@ -221,13 +226,16 @@ function nodeStyler(element, data) {
         .attr("stroke-width", 1)
         .style("cursor", "pointer")
         .on("mouseenter", (event, d) => {
-            if (!pinnedNode) showTooltip(d, event.clientX, event.clientY);
+            if (!pinnedNode) {
+                cancelHide();
+                showTooltip(d, event.clientX, event.clientY);
+            }
         })
         .on("mousemove", (event) => {
             if (!pinnedNode) positionTooltip(event.clientX, event.clientY);
         })
         .on("mouseleave", () => {
-            if (!pinnedNode) hideTooltip();
+            if (!pinnedNode) scheduleHide();
         })
         .on("click", (event, d) => {
             event.stopPropagation();
@@ -250,6 +258,9 @@ function getTooltipEl() {
     if (!tooltipEl) {
         tooltipEl = document.createElement("div");
         tooltipEl.className = "marker-tooltip";
+        // Keep the tooltip open (and scrollable) while the cursor is over it.
+        tooltipEl.addEventListener("mouseenter", cancelHide);
+        tooltipEl.addEventListener("mouseleave", scheduleHide);
         document.body.appendChild(tooltipEl);
     }
     return tooltipEl;
@@ -297,6 +308,23 @@ function positionTooltip(x, y) {
 function hideTooltip() {
     if (pinnedNode) return;
     if (tooltipEl) tooltipEl.style.display = "none";
+}
+
+/**
+ * Schedule hiding the tooltip after a short delay (skipped while pinned).
+ * The delay lets the cursor move onto the tooltip to scroll it.
+ */
+function scheduleHide() {
+    if (pinnedNode) return;
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideTooltip, 150);
+}
+
+/**
+ * Cancel a pending tooltip hide.
+ */
+function cancelHide() {
+    clearTimeout(hideTimer);
 }
 
 /**
