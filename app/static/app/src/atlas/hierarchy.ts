@@ -32,6 +32,17 @@ let tooltipCircle = null;
 let pinnedNode = null;
 // Pending hide timer, so the tooltip doesn't flicker when the cursor moves onto it.
 let hideTimer = null;
+// Node name currently shown in the tooltip.
+let tooltipNode = null;
+// True while the tooltip is being dragged by its header.
+let dragging = false;
+// True once the tooltip has been dragged away from its node (no longer anchored).
+let detached = false;
+// Cursor offset from the tooltip's top-left while dragging.
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+// True if the current drag moved the tooltip (suppresses the trailing click).
+let dragMoved = false;
 
 /**
  * Create dendrogram plot.
@@ -120,10 +131,25 @@ export function initCellTypeHierarchy(id, html, dataset) {
 
     // Keep the marker tooltip anchored to its node while scrolling/resizing.
     const repositionTooltip = () => {
+        if (detached) return;
         if (tooltipEl && tooltipEl.style.display === "block") positionTooltip();
     };
     window.addEventListener("scroll", repositionTooltip, true);
     window.addEventListener("resize", repositionTooltip);
+
+    // Drag the tooltip by its header; it detaches from the node and the arrow hides.
+    document.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+        dragMoved = true;
+        detached = true;
+        pinnedNode = tooltipNode;
+        tooltipEl.classList.add("no-arrow");
+        tooltipEl.style.left = `${e.clientX - dragOffsetX}px`;
+        tooltipEl.style.top = `${e.clientY - dragOffsetY}px`;
+    });
+    document.addEventListener("mouseup", () => {
+        dragging = false;
+    });
 
     // View option controls operate on the current tree instance.
     document.getElementById("tree-type")?.addEventListener("change", (e) => {
@@ -138,6 +164,11 @@ export function initCellTypeHierarchy(id, html, dataset) {
 
     // Clicking outside a marker circle (or the pinned tooltip) unpins it.
     document.addEventListener("click", (e) => {
+        // Ignore the click that ends a drag.
+        if (dragMoved) {
+            dragMoved = false;
+            return;
+        }
         const target = e.target;
         const onCircle = target.classList?.contains("marker-count-circle");
         const onTooltip = target.closest?.(".marker-tooltip");
@@ -279,6 +310,16 @@ function getTooltipEl() {
         // Keep the tooltip open (and scrollable) while the cursor is over it.
         tooltipEl.addEventListener("mouseenter", cancelHide);
         tooltipEl.addEventListener("mouseleave", scheduleHide);
+        // Start dragging the tooltip when the header is pressed.
+        tooltipEl.addEventListener("mousedown", (e) => {
+            if (!e.target.closest(".marker-tooltip-header")) return;
+            e.preventDefault();
+            const rect = tooltipEl.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            dragging = true;
+            dragMoved = false;
+        });
         document.body.appendChild(tooltipEl);
     }
     return tooltipEl;
@@ -328,6 +369,9 @@ function showTooltip(circle, name) {
     tooltipBody.replaceChildren(fragment);
     tooltipBody.scrollTop = 0;
     el.style.display = "block";
+    el.classList.remove("no-arrow");
+    tooltipNode = name;
+    detached = false;
     tooltipCircle = circle;
     positionTooltip();
 }
@@ -378,7 +422,7 @@ function hideTooltip() {
  * The delay lets the cursor move onto the tooltip to scroll it.
  */
 function scheduleHide() {
-    if (pinnedNode) return;
+    if (pinnedNode || dragging) return;
     clearTimeout(hideTimer);
     hideTimer = setTimeout(hideTooltip, 150);
 }

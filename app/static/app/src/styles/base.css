@@ -90,6 +90,11 @@ body {
     border-right: 1px solid rgba(0, 0, 0, 0.15);
 }
 
+/* No arrow once the tooltip has been dragged away from its node. */
+.marker-tooltip.no-arrow::before {
+    content: none;
+}
+
 .marker-tooltip-body {
     --tooltip-header-height: 2rem;
     max-height: 240px;
@@ -101,7 +106,7 @@ body {
     word-wrap: break-word;
 }
 
-/* Sticky node title while the tooltip body scrolls. */
+/* Sticky node title while the tooltip body scrolls; drag handle for the tooltip. */
 .marker-tooltip-header {
     position: sticky;
     top: 0;
@@ -113,6 +118,11 @@ body {
     padding: 0 0.75rem;
     background: var(--dropdown-menu-color);
     backdrop-filter: var(--dropdown-menu-blur);
+    cursor: grab;
+}
+
+.marker-tooltip-header:active {
+    cursor: grabbing;
 }
 
 .marker-tooltip-body table {
