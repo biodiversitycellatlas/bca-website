@@ -143,12 +143,13 @@ Input:
 
     <!-- Node tooltip: title, marker count, and marker table (filled by JS). -->
     <template id="marker-tooltip-template">
-        <div class="marker-tooltip-header d-flex align-items-center mt-n2 mx-n3 px-3">
+        <div class="marker-tooltip-header d-flex align-items-center">
+            <i class="fa fa-grip me-2 flex-shrink-0" title="Drag to pin tooltip"></i>
             <strong class="marker-tooltip-title"></strong>
             <span class="badge text-bg-secondary ms-1 marker-tooltip-count"></span>
             <button type="button" class="btn-close marker-tooltip-close ms-auto flex-shrink-0" aria-label="Close"></button>
         </div>
-        <table class="table table-sm table-striped mt-2 mb-0">
+        <table class="table table-sm table-striped">
             <thead>
                 <tr>
                     <th>Gene</th>

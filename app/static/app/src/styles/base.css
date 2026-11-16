@@ -55,8 +55,6 @@ body {
     z-index: 999;
     /* Shrink to fit the viewport on narrow screens (the table scrolls via scrollX). */
     max-width: min(640px, calc(100vw - 2rem));
-    background: var(--dropdown-menu-color);
-    backdrop-filter: var(--dropdown-menu-blur);
     box-shadow: var(--dropdown-menu-shadow);
     border: 1px solid rgba(0, 0, 0, 0.15);
 }
@@ -70,8 +68,7 @@ body {
     width: 10px;
     height: 10px;
     transform: translate(-50%, -50%) rotate(45deg);
-    background: var(--dropdown-menu-color);
-    backdrop-filter: var(--dropdown-menu-blur);
+    background: #fff;
     border-top: 1px solid rgba(0, 0, 0, 0.15);
     border-left: 1px solid rgba(0, 0, 0, 0.15);
 }
@@ -83,13 +80,12 @@ body {
 
 .marker-tooltip-body {
     --tooltip-header-height: 2rem;
-    max-height: 240px;
     font-size: 0.8rem;
     line-height: 1.4;
     word-wrap: break-word;
 }
 
-/* Sticky node title while the tooltip body scrolls; drag handle for the tooltip. */
+/* Node title bar and drag handle for the tooltip. */
 .marker-tooltip-header {
     position: sticky;
     top: 0;

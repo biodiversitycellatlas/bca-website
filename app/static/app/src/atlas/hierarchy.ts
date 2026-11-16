@@ -389,10 +389,10 @@ function getOrCreateTooltip(name, circle) {
         return t;
     }
     const el = document.createElement("div");
-    el.className = "marker-tooltip position-fixed rounded d-none";
+    el.className = "marker-tooltip position-fixed rounded bg-white d-none";
     el.dataset.node = name;
     const body = document.createElement("div");
-    body.className = "marker-tooltip-body overflow-auto p-2 px-3 text-body";
+    body.className = "marker-tooltip-body p-2 px-3 text-body";
     el.appendChild(body);
     // Keep the tooltip open (and scrollable) while the cursor is over it.
     el.addEventListener("mouseenter", () => cancelHide(name));
@@ -467,6 +467,10 @@ function showTooltip(circle, name, dataset) {
                 { data: "specificity", title: "Specificity", render: roundPercentage, className: "all" },
             ],
             order: [[9, "desc"]],
+            // DataTable handles the vertical scrolling (fixed header) and
+            // collapses the viewport to the natural height when the rows fit.
+            scrollY: "180px",
+            scrollCollapse: true,
             searching: false,
             paging: false,
             info: false,
