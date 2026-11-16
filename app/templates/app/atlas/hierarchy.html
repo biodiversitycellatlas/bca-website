@@ -133,8 +133,10 @@ Input:
 
     <!-- Node tooltip: title, marker count, and marker table (filled by JS). -->
     <template id="marker-tooltip-template">
-        <strong class="marker-tooltip-title"></strong>
-        <span class="badge text-bg-secondary ms-1 marker-tooltip-count"></span>
+        <div class="marker-tooltip-header">
+            <strong class="marker-tooltip-title"></strong>
+            <span class="badge text-bg-secondary ms-1 marker-tooltip-count"></span>
+        </div>
         <table class="table table-sm table-striped mt-2 mb-0">
             <thead>
                 <tr>

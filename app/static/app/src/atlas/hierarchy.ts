@@ -303,7 +303,12 @@ function showTooltip(circle, name) {
         `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
     const tbody = fragment.querySelector("tbody");
     const rowTemplate = document.getElementById("marker-row-template");
-    for (const m of markers) {
+    const sorted = [...markers].sort(
+        (a, b) =>
+            Math.max((b.pct_1 - b.pct_2) * 100, 0) -
+            Math.max((a.pct_1 - a.pct_2) * 100, 0)
+    );
+    for (const m of sorted) {
         const tr = rowTemplate.content.firstElementChild.cloneNode(true);
         const cells = tr.children;
         cells[0].textContent = m.gene;
