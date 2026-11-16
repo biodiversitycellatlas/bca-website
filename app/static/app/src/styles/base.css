@@ -105,6 +105,14 @@ body {
 
 .marker-tooltip-body table {
     font-size: 0.75rem;
+    /* Fit the tooltip width: columns share the space, long ones truncate (no scrollX). */
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Let table-layout:fixed (not a fixed 200px) size the truncatable columns. */
+.marker-tooltip-body table .truncate {
+    max-width: none;
 }
 
 .marker-tooltip-body table th,
