@@ -48,3 +48,23 @@ export function getViewUrl(view, params = {}) {
     finalUrl = finalUrl.replaceAll("%2C", ",");
     return finalUrl;
 }
+
+/**
+ * Update a single URL query param without a page reload.
+ *
+ * When `defaultValue` is provided and `value` equals it, the param is removed
+ * so a shared URL only carries non-default options.
+ *
+ * @param {string} name - Param name.
+ * @param {string} value - New value.
+ * @param {string} [defaultValue] - Value that means "default" (param removed).
+ */
+export function setUrlParam(name, value, defaultValue) {
+    const url = new URL(window.location);
+    if (defaultValue !== undefined && value === defaultValue) {
+        url.searchParams.delete(name);
+    } else {
+        url.searchParams.set(name, value);
+    }
+    window.history.replaceState({}, "", url);
+}

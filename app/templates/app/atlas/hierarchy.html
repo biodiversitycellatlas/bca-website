@@ -40,14 +40,14 @@ Input:
                        class="btn-check"
                        id="align-tips"
                        autocomplete="off"
-                       checked>
+                       {% if query.align_tips == 'false' %}{% else %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="align-tips">Align tips</label>
 
                 <input type="checkbox"
                        class="btn-check"
                        id="scale-bar"
                        autocomplete="off"
-                       checked>
+                       {% if query.scale_bar == 'false' %}{% else %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="scale-bar">Scale bar</label>
             </div>
         </fieldset>
@@ -66,7 +66,7 @@ Input:
                        id="linear-tree"
                        value="linear"
                        autocomplete="off"
-                       checked>
+                       {% if query.tree_type == 'radial' or query.tree_type == 'unrooted' %}{% else %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="linear-tree">Linear</label>
 
                 <input type="radio"
@@ -74,7 +74,8 @@ Input:
                        name="tree-type"
                        id="radial-tree"
                        value="radial"
-                       autocomplete="off">
+                       autocomplete="off"
+                       {% if query.tree_type == 'radial' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="radial-tree">Radial</label>
 
                 <input type="radio"
@@ -82,7 +83,8 @@ Input:
                        name="tree-type"
                        id="unrooted-tree"
                        value="unrooted"
-                       autocomplete="off">
+                       autocomplete="off"
+                       {% if query.tree_type == 'unrooted' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="unrooted-tree">Unrooted</label>
             </div>
         </fieldset>
@@ -104,7 +106,7 @@ Input:
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                         data-bs-auto-close="outside">
-                    <span id="specificity_label">All markers</span>
+                    <span id="specificity_label">{% if query.specificity_min|default:"0" != "0" %}≥ {{ query.specificity_min }}% specific{% else %}All markers{% endif %}</span>
                 </button>
                 <div class="dropdown-menu">
                     <div class="mx-4 mb-3" style="width: 250px">
@@ -115,7 +117,7 @@ Input:
                                class="js-range-slider opacity-0"
                                id="specificity_min"
                                name="specificity_min"
-                               value="0"
+                               value="{{ query.specificity_min|default:0 }}"
                                min="0"
                                max="100"
                                step="1">

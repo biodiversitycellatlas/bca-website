@@ -16,7 +16,7 @@ import {
     roundSignificantDigits,
 } from "./tables/utils.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
-import { getViewUrl } from "../utils/urls.ts";
+import { getViewUrl, setUrlParam } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
 
 // Current phylotree instance, updated on each (re)load.
@@ -167,15 +167,18 @@ export function initCellTypeHierarchy(id, html, dataset) {
         dragTooltip = null;
     });
 
-    // View option controls operate on the current tree instance.
+    // View option controls operate on the current tree instance and sync to the URL.
     document.getElementById("tree-type")?.addEventListener("change", (e) => {
         if (currentTree) updateTreeType(currentTree, e.target.value);
+        setUrlParam("tree_type", e.target.value, "linear");
     });
     document.getElementById("align-tips")?.addEventListener("change", (e) => {
         if (currentTree) updateAlignTips(currentTree, e.target.checked);
+        setUrlParam("align_tips", String(e.target.checked), "true");
     });
     document.getElementById("scale-bar")?.addEventListener("change", (e) => {
         if (currentTree) updateScaleBar(currentTree, e.target.checked);
+        setUrlParam("scale_bar", String(e.target.checked), "true");
     });
 
     // Close a tooltip via its button; clicking elsewhere dismisses hover (non-pinned) ones.
@@ -200,10 +203,18 @@ export function initCellTypeHierarchy(id, html, dataset) {
     });
 
     // Marker specificity slider: label updates live, tree re-renders on release.
+    // The initial value is set in the template from the Django context.
+    const specificityFrom = Math.max(
+        0,
+        Math.min(
+            100,
+            parseInt(document.getElementById("specificity_min").value, 10) || 0,
+        ),
+    );
     initRangeSlider("#specificity_min", {
         min: 0,
         max: 100,
-        from: 0,
+        from: specificityFrom,
         step: 1,
         onChange: (data) => {
             document.getElementById("specificity_label").textContent =
@@ -212,10 +223,21 @@ export function initCellTypeHierarchy(id, html, dataset) {
         onFinish: (data) => {
             applySpecificityFilter(data.from);
             reRenderTree(dataset);
+            setUrlParam("specificity_min", String(data.from), "0");
         },
     });
+    if (specificityFrom > 0) {
+        document.getElementById("specificity_label").textContent =
+            `≥ ${specificityFrom}% specific`;
+    }
 
-    loadTree(treeContainerId, html, dataset);
+    // Apply the initial specificity filter (from the URL) once the tree has loaded.
+    loadTree(treeContainerId, html, dataset).then((tree) => {
+        if (tree && specificityFrom > 0) {
+            applySpecificityFilter(specificityFrom);
+            reRenderTree(dataset);
+        }
+    });
 }
 
 /**
