@@ -24,6 +24,10 @@ let markerCounts = new Map();
 let maxMarkerCount = 0;
 // Shared tooltip element for marker circles, created on demand.
 let tooltipEl = null;
+// Scrollable content inside the tooltip.
+let tooltipBody = null;
+// Circle the tooltip is anchored to (so it follows the node on scroll).
+let tooltipCircle = null;
 // Node name whose tooltip is pinned by a click (null = not pinned).
 let pinnedNode = null;
 // Pending hide timer, so the tooltip doesn't flicker when the cursor moves onto it.
@@ -113,6 +117,13 @@ function loadTree(treeContainerId, html, dataset) {
  */
 export function initCellTypeHierarchy(id, html, dataset) {
     treeContainerId = `${id}-tree`;
+
+    // Keep the marker tooltip anchored to its node while scrolling/resizing.
+    const repositionTooltip = () => {
+        if (tooltipEl && tooltipEl.style.display === "block") positionTooltip();
+    };
+    window.addEventListener("scroll", repositionTooltip, true);
+    window.addEventListener("resize", repositionTooltip);
 
     // View option controls operate on the current tree instance.
     document.getElementById("tree-type")?.addEventListener("change", (e) => {
@@ -235,11 +246,8 @@ function nodeStyler(element, data) {
         .on("mouseenter", (event, d) => {
             if (!pinnedNode) {
                 cancelHide();
-                showTooltip(d, event.clientX, event.clientY);
+                showTooltip(event.currentTarget, d);
             }
-        })
-        .on("mousemove", (event) => {
-            if (!pinnedNode) positionTooltip(event.clientX, event.clientY);
         })
         .on("mouseleave", () => {
             if (!pinnedNode) scheduleHide();
@@ -251,7 +259,7 @@ function nodeStyler(element, data) {
                 hideTooltip();
             } else {
                 pinnedNode = d;
-                showTooltip(d, event.clientX, event.clientY);
+                showTooltip(event.currentTarget, d);
             }
         });
 }
@@ -265,6 +273,9 @@ function getTooltipEl() {
     if (!tooltipEl) {
         tooltipEl = document.createElement("div");
         tooltipEl.className = "marker-tooltip";
+        tooltipBody = document.createElement("div");
+        tooltipBody.className = "marker-tooltip-body";
+        tooltipEl.appendChild(tooltipBody);
         // Keep the tooltip open (and scrollable) while the cursor is over it.
         tooltipEl.addEventListener("mouseenter", cancelHide);
         tooltipEl.addEventListener("mouseleave", scheduleHide);
@@ -274,38 +285,76 @@ function getTooltipEl() {
 }
 
 /**
- * Show the marker tooltip for a node near the given cursor position.
+ * Show the marker tooltip for a node, anchored to its circle.
  *
+ * @param {SVGElement} circle - The circle element to anchor to.
  * @param {string} name - Node name.
- * @param {number} x - Cursor x (viewport).
- * @param {number} y - Cursor y (viewport).
  */
-function showTooltip(name, x, y) {
+function showTooltip(circle, name) {
     const el = getTooltipEl();
     const node = currentTreeData()?.nodes.find((n) => n.node === name);
-    const genes = node ? node.markers.map((m) => m.gene) : [];
-    el.innerHTML = `<strong>${name}</strong><br>${
-        genes.length ? genes.join(", ") : "No markers"
-    }`;
-    el.scrollTop = 0;
+    const markers = node ? node.markers : [];
+
+    const fragment = document
+        .getElementById("marker-tooltip-template")
+        .content.cloneNode(true);
+    fragment.querySelector(".marker-tooltip-title").textContent = name;
+    fragment.querySelector(".marker-tooltip-count").textContent =
+        `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
+    const tbody = fragment.querySelector("tbody");
+    const rowTemplate = document.getElementById("marker-row-template");
+    for (const m of markers) {
+        const tr = rowTemplate.content.firstElementChild.cloneNode(true);
+        const cells = tr.children;
+        cells[0].textContent = m.gene;
+        cells[1].textContent = formatPValue(m.p_value);
+        cells[2].textContent = formatPValue(m.q_value);
+        cells[3].textContent = m.avg_log2fc.toFixed(2);
+        cells[4].textContent = `${Math.round(m.pct_1 * 100)}%`;
+        cells[5].textContent = `${Math.round(m.pct_2 * 100)}%`;
+        cells[6].textContent = `${Math.round(Math.max((m.pct_1 - m.pct_2) * 100, 0))}%`;
+        tbody.appendChild(tr);
+    }
+    if (!markers.length) {
+        fragment.querySelector("table").remove();
+        fragment.appendChild(document.createTextNode("No markers"));
+    }
+
+    tooltipBody.replaceChildren(fragment);
+    tooltipBody.scrollTop = 0;
     el.style.display = "block";
-    positionTooltip(x, y);
+    tooltipCircle = circle;
+    positionTooltip();
 }
 
 /**
- * Position the tooltip near the cursor, keeping it within the viewport.
+ * Format a p/q value compactly (scientific notation for very small values).
  *
- * @param {number} x - Cursor x (viewport).
- * @param {number} y - Cursor y (viewport).
+ * @param {number} v - The value to format.
+ * @returns {string} Formatted value.
  */
-function positionTooltip(x, y) {
+function formatPValue(v) {
+    if (v === 0) return "0";
+    if (v < 1e-4) return v.toExponential(2);
+    return v.toFixed(4);
+}
+
+/**
+ * Position the tooltip next to its anchored circle, within the viewport.
+ */
+function positionTooltip() {
     const el = getTooltipEl();
+    if (!tooltipCircle) return;
+    const rect = tooltipCircle.getBoundingClientRect();
+
     const offset = 12;
-    let left = x + offset;
-    let top = y + offset;
-    const { innerWidth, innerHeight } = window;
-    if (left + el.offsetWidth > innerWidth) left = x - el.offsetWidth - offset;
-    if (top + el.offsetHeight > innerHeight) top = y - el.offsetHeight - offset;
+    const { innerWidth } = window;
+    const toLeft = rect.right + offset + el.offsetWidth > innerWidth;
+    const left = toLeft ? rect.left - el.offsetWidth - offset : rect.right + offset;
+
+    // The tooltip follows the node even off-screen
+    const top = rect.top + rect.height / 2 - el.offsetHeight / 2;
+    el.classList.toggle("arrow-right", toLeft);
     el.style.left = `${left}px`;
     el.style.top = `${top}px`;
 }
@@ -315,6 +364,7 @@ function positionTooltip(x, y) {
  */
 function hideTooltip() {
     if (pinnedNode) return;
+    tooltipCircle = null;
     if (tooltipEl) tooltipEl.style.display = "none";
 }
 

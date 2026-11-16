@@ -131,6 +131,39 @@ Input:
         </div>
     </div>
 
+    <!-- Node tooltip: title, marker count, and marker table (filled by JS). -->
+    <template id="marker-tooltip-template">
+        <strong class="marker-tooltip-title"></strong>
+        <span class="badge text-bg-secondary ms-1 marker-tooltip-count"></span>
+        <table class="table table-sm table-striped mt-2 mb-0">
+            <thead>
+                <tr>
+                    <th>Gene</th>
+                    <th>p-value</th>
+                    <th>q-value</th>
+                    <th>log2FC</th>
+                    <th>pct 1</th>
+                    <th>pct 2</th>
+                    <th>Specificity</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </template>
+
+    <!-- One marker table row (cells filled by JS). -->
+    <template id="marker-row-template">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </template>
+
     <script type="module">
         import { initCellTypeHierarchy } from "{% static 'app/dist/atlas/hierarchy.js' %}";
         initCellTypeHierarchy("hierarchy", `{{dataset.get_inline_html_link}}`, "{{dataset.slug}}");
