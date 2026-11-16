@@ -31,6 +31,8 @@ let filteredTreeData = null;
 let treeContainerId = null;
 // Map of node name -> number of (currently filtered) markers.
 let markerCounts = new Map();
+// Map of node name -> node color (from the API), used to colour nodes and tips.
+let nodeColors = new Map();
 // Highest marker count across nodes, used to scale circle radii.
 let maxMarkerCount = 0;
 // Map of node name -> marker tooltip state (element, DataTable, pin/drag state).
@@ -65,6 +67,14 @@ function createDendrogram(id, newick, dataset) {
         // Replace phylotree's fixed internal-node dots with marker-count circles.
         node_circle_size: () => 0,
         "node-styler": (element, data) => nodeStyler(element, data, dataset),
+        // Colour each edge by its target node's color (as in the phylotree
+        // "colored by host" example). phylotree.css sets `.branch { stroke:
+        // #999 }`, which beats presentation attributes, so use an inline
+        // style with !important for the color to actually apply.
+        "edge-styler": (element, d) => {
+            const color = nodeColors.get(d.target.data.name) || "#AAAAAA";
+            element.style("stroke", color, "important");
+        },
     });
 
     // Force element to display
@@ -72,6 +82,11 @@ function createDendrogram(id, newick, dataset) {
     container.style.position = "relative";
     container.innerHTML = "";
     container.appendChild(tree.display.show());
+
+    // The edge-styler only runs in refresh(), which phylotree doesn't call on
+    // render; re-apply edge colors after every render (initial + option changes).
+    tree.display.on("rendered", () => tree.display.refresh());
+    tree.display.refresh();
 
     return tree;
 }
@@ -272,12 +287,14 @@ function currentTreeData() {
  */
 function computeMarkerCounts() {
     markerCounts = new Map();
+    nodeColors = new Map();
     maxMarkerCount = 0;
     const data = currentTreeData();
     if (!data) return;
     for (const node of data.nodes) {
         const count = node.markers.length;
         markerCounts.set(node.node, count);
+        nodeColors.set(node.node, node.color);
         if (count > maxMarkerCount) maxMarkerCount = count;
     }
 }
@@ -303,7 +320,15 @@ function radiusForCount(count) {
  */
 function nodeStyler(element, data, dataset) {
     const name = data.data.name;
+    const color = nodeColors.get(name) || "#AAAAAA";
     const count = markerCounts.get(name) || 0;
+    // phylotree.css styles node shapes (.node circle) with stylesheet rules,
+    // which beat presentation attributes, so use inline styles with
+    // !important (as in the phylotree "colored by host" example).
+    // Colour the tip label according to the node's color.
+    if (!data.children) {
+        element.selectAll("text").style("fill", color, "important");
+    }
     // No circle for nodes without markers.
     element
         .selectAll(".marker-count-circle")
@@ -312,10 +337,10 @@ function nodeStyler(element, data, dataset) {
         .attr("class", "marker-count-circle")
         .attr("data-node-name", name)
         .attr("r", () => radiusForCount(count))
-        .attr("fill", "#4c72b0")
+        .style("fill", color, "important")
         .attr("fill-opacity", 0.35)
-        .attr("stroke", "#4c72b0")
-        .attr("stroke-width", 1)
+        .style("stroke", color, "important")
+        .style("stroke-width", "1px", "important")
         .style("cursor", "pointer")
         .on("mouseenter", (event, d) => {
             showTooltip(event.currentTarget, d, dataset);
