@@ -145,29 +145,30 @@ Input:
     <template id="marker-tooltip-template">
         <div class="marker-tooltip position-fixed rounded bg-white d-none">
             <div class="marker-tooltip-body text-body">
-                <div class="marker-tooltip-header d-flex align-items-center">
+                <div class="marker-tooltip-header rounded-top d-flex align-items-center p-2">
                     <i class="marker-tooltip-icon fa fa-grip me-2 flex-shrink-0" title="Drag to pin tooltip"></i>
                     <strong class="marker-tooltip-title"></strong>
-                    <span class="marker-tooltip-count badge ms-1"></span>
                     <button type="button" class="btn-close marker-tooltip-close ms-auto flex-shrink-0" aria-label="Close"></button>
                 </div>
-                <table class="table table-sm table-striped">
-                    <thead>
-                        <tr>
-                            <th>Gene</th>
-                            <th>Description</th>
-                            <th>Domains</th>
-                            <th>Gene lists</th>
-                            <th>p-value</th>
-                            <th>q-value</th>
-                            <th>log2FC</th>
-                            <th>pct 1</th>
-                            <th>pct 2</th>
-                            <th>Specificity</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="px-2 pb-2">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Gene</th>
+                                <th>Description</th>
+                                <th>Domains</th>
+                                <th>Gene lists</th>
+                                <th>p-value</th>
+                                <th>q-value</th>
+                                <th>log2FC</th>
+                                <th>pct 1</th>
+                                <th>pct 2</th>
+                                <th>Specificity</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </template>

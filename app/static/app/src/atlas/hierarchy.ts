@@ -424,14 +424,11 @@ function showTooltip(circle, name, dataset) {
 
     const title = t.el.querySelector(".marker-tooltip-title");
     title.textContent = name;
-    const badge = t.el.querySelector(".marker-tooltip-count");
-    badge.textContent = `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
 
-    // Color the grip, title, and badge based on node color
+    // Color the grip and title based on node color
     const color = nodeColors.get(name);
     if (color) {
         title.style.color = color;
-        badge.style.backgroundColor = color;
         t.el.querySelector(".marker-tooltip-icon").style.color = color;
     }
 
@@ -458,9 +455,9 @@ function showTooltip(circle, name, dataset) {
             })),
             columns: [
                 { data: "gene", title: "Gene", render: linkGene, className: "all" },
-                { data: "description", title: "Description", orderable: false, className: "truncate all" },
-                { data: "domains", title: "Domains", orderable: false, render: linkDomains, className: "truncate all" },
-                { data: "genelists", title: "Gene lists", orderable: false, render: linkGeneLists, className: "truncate all" },
+                { data: "description", title: "Description", className: "truncate all" },
+                { data: "domains", title: "Domains", render: linkDomains, className: "truncate all" },
+                { data: "genelists", title: "Gene lists", render: linkGeneLists, className: "truncate all" },
                 { data: "p_value", title: "p-value", render: roundSignificantDigits, className: "max-mobile-p" },
                 { data: "q_value", title: "q-value", render: roundSignificantDigits, className: "max-mobile-p" },
                 { data: "log2fc", title: "log2 Fold-Change", render: round, className: "max-mobile-p" },
@@ -473,12 +470,21 @@ function showTooltip(circle, name, dataset) {
             // collapses the viewport to the natural height when the rows fit.
             scrollY: "180px",
             scrollCollapse: true,
-            searching: false,
             paging: false,
-            info: false,
             lengthChange: false,
-            autoWidth: false,
             responsive: true,
+            language: {
+                // Like the default, the total goes in the appended part.
+                info: "_TOTAL_ markers",
+                infoFiltered: "(_MAX_ total)",
+                infoEmpty: "No matching markers",
+            },
+            layout: {
+                topEnd: "search",
+                topStart: "info",
+                bottomEnd: null,
+                bottomStart: null,
+            },
         });
     } else {
         // The shell persists, so keep the table and just show a message row.
