@@ -388,12 +388,13 @@ function getOrCreateTooltip(name, circle) {
         t.circle = circle;
         return t;
     }
-    const el = document.createElement("div");
-    el.className = "marker-tooltip position-fixed rounded bg-white d-none";
+    // The tooltip shell is cloned once per node; each show only updates the
+    // dynamic parts (title, badge, table) in place.
+    const el = document
+        .getElementById("marker-tooltip-template")
+        .content.firstElementChild.cloneNode(true);
     el.dataset.node = name;
-    const body = document.createElement("div");
-    body.className = "marker-tooltip-body p-2 px-3 text-body";
-    el.appendChild(body);
+    const body = el.querySelector(".marker-tooltip-body");
     // Keep the tooltip open (and scrollable) while the cursor is over it.
     el.addEventListener("mouseenter", () => cancelHide(name));
     el.addEventListener("mouseleave", () => scheduleHide(name));
@@ -421,12 +422,9 @@ function showTooltip(circle, name, dataset) {
     const node = currentTreeData()?.nodes.find((n) => n.node === name);
     const markers = node ? node.markers : [];
 
-    const fragment = document
-        .getElementById("marker-tooltip-template")
-        .content.cloneNode(true);
-    const title = fragment.querySelector(".marker-tooltip-title");
+    const title = t.el.querySelector(".marker-tooltip-title");
     title.textContent = name;
-    const badge = fragment.querySelector(".marker-tooltip-count");
+    const badge = t.el.querySelector(".marker-tooltip-count");
     badge.textContent = `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
 
     // Color the grip, title, and badge based on node color
@@ -434,15 +432,9 @@ function showTooltip(circle, name, dataset) {
     if (color) {
         title.style.color = color;
         badge.style.backgroundColor = color;
-        fragment.querySelector(".marker-tooltip-icon").style.color = color;
+        t.el.querySelector(".marker-tooltip-icon").style.color = color;
     }
 
-    if (!markers.length) {
-        fragment.querySelector("table").remove();
-        fragment.appendChild(document.createTextNode("No markers"));
-    }
-
-    t.body.replaceChildren(fragment);
     t.body.scrollTop = 0;
     t.el.classList.remove("d-none");
 
@@ -488,6 +480,15 @@ function showTooltip(circle, name, dataset) {
             autoWidth: false,
             responsive: true,
         });
+    } else {
+        // The shell persists, so keep the table and just show a message row.
+        const tbody = t.body.querySelector("table tbody");
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 10;
+        cell.textContent = "No markers";
+        row.appendChild(cell);
+        tbody.replaceChildren(row);
     }
 
     // Position after the table is rendered so the height (and arrow) are correct.
