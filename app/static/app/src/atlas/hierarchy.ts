@@ -424,9 +424,19 @@ function showTooltip(circle, name, dataset) {
     const fragment = document
         .getElementById("marker-tooltip-template")
         .content.cloneNode(true);
-    fragment.querySelector(".marker-tooltip-title").textContent = name;
-    fragment.querySelector(".marker-tooltip-count").textContent =
-        `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
+    const title = fragment.querySelector(".marker-tooltip-title");
+    title.textContent = name;
+    const badge = fragment.querySelector(".marker-tooltip-count");
+    badge.textContent = `${markers.length} ${markers.length === 1 ? "marker" : "markers"}`;
+
+    // Color the grip, title, and badge based on node color
+    const color = nodeColors.get(name);
+    if (color) {
+        title.style.color = color;
+        badge.style.backgroundColor = color;
+        fragment.querySelector(".marker-tooltip-icon").style.color = color;
+    }
+
     if (!markers.length) {
         fragment.querySelector("table").remove();
         fragment.appendChild(document.createTextNode("No markers"));
