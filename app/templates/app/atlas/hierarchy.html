@@ -5,11 +5,9 @@
 Cell type hierarchies
 
 Features:
-- Phylogenetic tree showing metacell-based hierarchies:
+- Phylogenetic tree showing cell type hierarchies
     - Fetches via REST API
 - Node/edge coloring toggle (on by default)
-- Download data button
-- Copy link to clipboard button
 
 Input:
 - dataset: Dataset object
@@ -21,6 +19,23 @@ Input:
 {% endblock title %}
 
 {% block content %}
+
+    <style>
+        /* Hide the focus select until TomSelect replaces it (avoids FOUC) */
+        #focus-node {
+            visibility: hidden;
+        }
+
+        /* Pin the focus control width */
+        #focus-node + .ts-wrapper {
+            width: 200px;
+        }
+
+        /* Keep the selected item and the search input on one line */
+        #focus-node + .ts-wrapper .ts-control input {
+            min-width: 0;
+        }
+    </style>
 
     {% load static %}
 
@@ -97,6 +112,43 @@ Input:
             </div>
         </fieldset>
 
+        <!-- Labelling -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-tag"></i> Labelling
+                </label>
+            </div>
+            <div class="btn-group d-flex" role="group">
+                <input type="checkbox"
+                       class="btn-check"
+                       id="tip-labels"
+                       autocomplete="off"
+                       {% if query.tip_labels == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="tip-labels">Tips</label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="internal-names"
+                       autocomplete="off"
+                       {% if query.internal_names == 'true' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="internal-names">Nodes</label>
+            </div>
+        </fieldset>
+
+        <!-- Focus -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-microscope"></i> Focus
+                </label>
+                <button type="button" class="btn btn-link btn-sm p-0" id="focus-reset">Reset</button>
+            </div>
+            <select id="focus-node" aria-label="Focus on a subtree" placeholder="Full tree">
+                <option value="">Full tree</option>
+            </select>
+        </fieldset>
+
         <!-- Marker specificity filter -->
         <fieldset class="col-auto">
             <div class="d-flex justify-content-between align-items-center small">
@@ -148,6 +200,10 @@ Input:
                 <div class="marker-tooltip-header rounded-top d-flex align-items-center p-2">
                     <i class="marker-tooltip-icon fa fa-grip me-2 flex-shrink-0" title="Drag to pin tooltip"></i>
                     <strong class="marker-tooltip-title"></strong>
+                    <span class="marker-tooltip-count badge ms-1"></span>
+                    <button type="button" class="btn btn-link btn-sm p-0 marker-tooltip-focus me-2 flex-shrink-0" title="Focus on this node">
+                        <i class="fa fa-microscope me-1"></i> Focus
+                    </button>
                     <button type="button" class="btn-close marker-tooltip-close ms-auto flex-shrink-0" aria-label="Close"></button>
                 </div>
                 <div class="px-2 pb-2">

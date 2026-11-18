@@ -53,7 +53,7 @@
 
 .marker-tooltip-body table {
     font-size: 0.75rem;
-    /* Fit the tooltip width: columns share the space, long ones truncate (no scrollX). */
+    /* Fit the tooltip width: columns share the space, long ones truncate. */
     table-layout: fixed;
     width: 100%;
 }
@@ -66,6 +66,11 @@
 .marker-tooltip-body table th,
 .marker-tooltip-body table td {
     padding: 0.15rem 0.4rem;
+}
+
+/* Data cells stay on one line (long ones ellipsize via .truncate); headers are
+   allowed to wrap so they don't run into each other when the tooltip is narrow. */
+.marker-tooltip-body table td {
     white-space: nowrap;
 }
 

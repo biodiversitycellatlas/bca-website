@@ -2,80 +2,49 @@
  * Cell type hierarchies.
  */
 
-import DataTable from "datatables.net-bs5";
-import "datatables.net-responsive-bs5";
 import { phylotree } from "phylotree";
+import TomSelect from "tom-select";
 
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
-import {
-    linkDomains,
-    linkGeneLists,
-    makeLinkGene,
-    round,
-    roundPercentage,
-    roundSignificantDigits,
-} from "./tables/utils.ts";
+import { attachMarkerTooltip, closeTooltips, initMarkerTooltips } from "./tables/marker_tooltips.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl, setUrlParam } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
 
-// Current phylotree instance, updated on each (re)load.
-let currentTree = null;
-// Token so only the latest tree load renders its result (avoids stale races).
-let loadToken = 0;
-// Full (unfiltered) tree data from the API, fetched once.
-let treeData = null;
-// Tree data with markers filtered by the current specificity threshold.
-let filteredTreeData = null;
-// Tree container element id, set on init.
-let treeContainerId = null;
-// Map of node name -> number of (currently filtered) markers.
-let markerCounts = new Map();
-// Map of node name -> node color (from the API), used to colour nodes and tips.
-let nodeColors = new Map();
-// Highest marker count across nodes, used to scale circle radii.
-let maxMarkerCount = 0;
-// Map of node name -> marker tooltip state (element, DataTable, pin/drag state).
-let tooltips = new Map();
-// Drag state (only one tooltip is dragged at a time).
-let dragging = false;
-let dragTooltip = null;
-// Cursor offset from the dragged tooltip's top-left.
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-// True if the current drag moved the tooltip (suppresses the trailing click).
-let dragMoved = false;
+const viewOptions = {
+    "align-tips": (tree, control) => updateAlignTips(tree, control.checked),
+    "scale-bar": (tree, control) => updateScaleBar(tree, control.checked),
+    "tip-labels": (tree, control) => updateTipLabels(tree, control.checked),
+};
 
 /**
  * Create dendrogram plot.
  *
  * @param {string} id - Container identifier.
  * @param {string} newick - Graph tree in Newick format.
+ * @param {string} dataset - Dataset slug.
+ * @param {Object} stats - Node stats: { markers, colors, max }.
+ * @param {string} [rootName] - Name to give the root (phylotree renames it to "root").
  */
-function createDendrogram(id, newick, dataset) {
+function createDendrogram(id, newick, dataset, stats, rootName) {
     const containerId = `#${id}`;
 
     const tree = new phylotree(newick);
+    if (rootName) tree.nodes.data.name = rootName;
     tree.render({
         container: containerId,
         "align-tips": true,
         "show-scale": true,
-        zoom: false,
+        "internal-names": areInternalNamesEnabled(),
+        zoom: true,
         reroot: false,
         responsive: true,
         brush: false,
-        // Replace phylotree's fixed internal-node dots with marker-count circles.
-        node_circle_size: () => 0,
-        "node-styler": (element, data) => nodeStyler(element, data, dataset),
-        // Colour each edge by its target node's color (as in the phylotree
-        // "colored by host" example). phylotree.css sets `.branch { stroke:
-        // #999 }`, which beats presentation attributes, so use an inline
-        // style with !important for the color to actually apply.
-        "edge-styler": (element, d) => {
-            if (!colorsEnabled()) return;
-            const color = nodeColors.get(d.target.data.name) || "#AAAAAA";
-            element.style("stroke", color, "important");
-        },
+        selectable: false,
+        "show-menu": false,
+        node_circle_size: () => 0, // suppress internal nodes
+        "node-styler": (element, data) => styleDendrogramNodes(element, data, dataset, stats),
+        "edge-styler": (element, data) => styleDendrogramEdges(element, data, stats),
     });
 
     // Force element to display
@@ -84,54 +53,50 @@ function createDendrogram(id, newick, dataset) {
     container.innerHTML = "";
     container.appendChild(tree.display.show());
 
-    // The edge-styler only runs in refresh(), which phylotree doesn't call on
-    // render; re-apply edge colors after every render (initial + option changes).
+    // Re-apply edge colors after every render
     tree.display.on("rendered", () => tree.display.refresh());
     tree.display.refresh();
+
+    // Only zoom/pan while holding Ctrl or Cmd
+    tree.display.zoomBehavior?.filter((event) => event.ctrlKey || event.metaKey);
 
     return tree;
 }
 
 /**
- * Load and render the cell type hierarchy for a dataset.
+ * Load the cell type hierarchy for a dataset.
  *
- * @param {string} treeContainerId - Tree container identifier.
+ * @param {string} containerId - Tree container element id.
  * @param {string} html - Dataset HTML link.
  * @param {string} dataset - Dataset slug.
+ * @returns {Promise<Object|null>} The tree data, or null if unavailable.
  */
-function loadTree(treeContainerId, html, dataset) {
-    const token = ++loadToken;
+function loadTree(containerId, html, dataset) {
     const url = getViewUrl("rest:celltypetree-list", { dataset });
     updateDataMenu("trees", url, "Cell type hierarchy");
 
     return fetch(url)
         .then((response) => {
-            if (!response.ok)
+            if (!response.ok) {
                 throw new Error(`Request failed (${response.status}).`);
+            }
             return response.json();
         })
         .then((treesData) => {
-            if (token !== loadToken) return; // a newer load superseded this one
-            treeData = treesData.results[0];
-            if (!treeData || !treeData.newick) {
-                // No tree available for this dataset: show a message and disable the toolbar
-                showMessage(treeContainerId, `No cell type hierarchy found for ${html}`);
+            const data = treesData.results[0];
+            if (!data || !data.newick) {
+                // No tree available for this dataset
+                showMessage(containerId, `No cell type hierarchy found for ${html}`);
                 disableToolbar();
-                currentTree = null;
-                return;
+                return null;
             }
-
-            computeMarkerCounts();
-            currentTree = createDendrogram(treeContainerId, treeData.newick, dataset);
-            applyViewOptions(currentTree);
-            return currentTree;
+            return data;
         })
         .catch((error) => {
-            if (token !== loadToken) return;
             console.error("Error fetching cell type hierarchy:", error);
-            showMessage(treeContainerId, `Error loading cell type hierarchy for ${html}`);
+            showMessage(containerId, `Error loading cell type hierarchy for ${html}`);
             disableToolbar();
-            currentTree = null;
+            return null;
         });
 }
 
@@ -143,444 +108,236 @@ function loadTree(treeContainerId, html, dataset) {
  * @param {string} dataset - Dataset slug.
  */
 export function initCellTypeHierarchy(id, html, dataset) {
-    treeContainerId = `${id}-tree`;
+    const containerId = `${id}-tree`;
+    let tree;
+    let treeData;
+    initMarkerTooltips();
+    initViewOptionControls(() => tree);
 
-    // Keep each anchored tooltip next to its node while scrolling/resizing.
-    const repositionTooltips = () => {
-        for (const [name, t] of tooltips) {
-            if (!t.detached && !t.el.classList.contains("d-none")) positionTooltip(name);
-        }
-    };
-    window.addEventListener("scroll", repositionTooltips, true);
-    window.addEventListener("resize", repositionTooltips);
-
-    // Drag a tooltip by its header; it detaches from the node and the arrow hides.
-    document.addEventListener("mousedown", (e) => {
-        const header = e.target.closest(".marker-tooltip-header");
-        if (!header || e.target.closest(".marker-tooltip-close")) return;
-        const el = header.closest(".marker-tooltip");
-        const t = tooltips.get(el.dataset.node);
-        if (!t) return;
-        e.preventDefault();
-        const rect = el.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left;
-        dragOffsetY = e.clientY - rect.top;
-        dragging = true;
-        dragTooltip = t;
-        dragMoved = false;
-    });
-    document.addEventListener("mousemove", (e) => {
-        if (!dragging || !dragTooltip) return;
-        dragMoved = true;
-        dragTooltip.detached = true;
-        dragTooltip.pinned = true;
-        dragTooltip.el.classList.add("no-arrow");
-        dragTooltip.el.style.left = `${e.clientX - dragOffsetX}px`;
-        dragTooltip.el.style.top = `${e.clientY - dragOffsetY}px`;
-    });
-    document.addEventListener("mouseup", () => {
-        dragging = false;
-        dragTooltip = null;
-    });
-
-    // View option controls operate on the current tree instance and sync to the URL.
-    document.getElementById("tree-type")?.addEventListener("change", (e) => {
-        if (currentTree) updateTreeType(currentTree, e.target.value);
-        setUrlParam("tree_type", e.target.value, "linear");
-    });
-    document.getElementById("align-tips")?.addEventListener("change", (e) => {
-        if (currentTree) updateAlignTips(currentTree, e.target.checked);
-        setUrlParam("align_tips", String(e.target.checked), "true");
-    });
-    document.getElementById("scale-bar")?.addEventListener("change", (e) => {
-        if (currentTree) updateScaleBar(currentTree, e.target.checked);
-        setUrlParam("scale_bar", String(e.target.checked), "true");
-    });
-
-    // Node/edge colors are applied by the stylers at render time, so a
-    // toggle just re-renders the tree.
-    document.getElementById("colors")?.addEventListener("change", (e) => {
-        reRenderTree(dataset);
+    const colors = document.getElementById("colors");
+    colors?.addEventListener("change", (e) => {
+        tree = renderTree(containerId, dataset, treeData, tree);
         setUrlParam("colors", String(e.target.checked), "true");
     });
 
-    // Close a tooltip via its button; clicking elsewhere dismisses hover (non-pinned) ones.
-    document.addEventListener("click", (e) => {
-        // Ignore the click that ends a drag.
-        if (dragMoved) {
-            dragMoved = false;
-            return;
-        }
-        const closeBtn = e.target.closest(".marker-tooltip-close");
-        if (closeBtn) {
-            closeTooltip(closeBtn.closest(".marker-tooltip").dataset.node);
-            return;
-        }
-        const onCircle = e.target.classList?.contains("marker-count-circle");
-        const onTooltip = e.target.closest?.(".marker-tooltip");
-        if (!onCircle && !onTooltip) {
-            for (const [name, t] of [...tooltips]) {
-                if (!t.pinned) closeTooltip(name);
-            }
-        }
+    const internalNames = document.getElementById("internal-names");
+    internalNames?.addEventListener("change", (e) => {
+        tree = renderTree(containerId, dataset, treeData, tree);
+        setUrlParam("internal_names", String(e.target.checked), "false");
     });
 
-    // Marker specificity slider: label updates live, tree re-renders on release.
-    // The initial value is set in the template from the Django context.
-    const specificityFrom = Math.max(
-        0,
-        Math.min(
-            100,
-            parseInt(document.getElementById("specificity_min").value, 10) || 0,
-        ),
-    );
+    // Marker specificity slider
+    const specificityFrom = Math.max(0, Math.min(100, getSpecificityMin()));
     initRangeSlider("#specificity_min", {
         min: 0,
         max: 100,
         from: specificityFrom,
         step: 1,
-        onChange: (data) => {
-            document.getElementById("specificity_label").textContent =
-                data.from > 0 ? `≥ ${data.from}% specific` : "All markers";
-        },
+        onChange: (data) => updateSpecificityLabel(data.from),
         onFinish: (data) => {
-            applySpecificityFilter(data.from);
-            reRenderTree(dataset);
+            tree = renderTree(containerId, dataset, treeData, tree);
             setUrlParam("specificity_min", String(data.from), "0");
         },
     });
-    if (specificityFrom > 0) {
-        document.getElementById("specificity_label").textContent =
-            `≥ ${specificityFrom}% specific`;
-    }
 
-    // Apply the initial specificity filter (from the URL) once the tree has loaded.
-    loadTree(treeContainerId, html, dataset).then((tree) => {
-        if (tree && specificityFrom > 0) {
-            applySpecificityFilter(specificityFrom);
-            reRenderTree(dataset);
-        }
+    // Focus on a subtree
+    let lastFocus = "";
+    const focusSelect = new TomSelect("#focus-node", {
+        allowEmptyOption: true,
+        // Clear the current item on open so a search can be typed directly
+        onDropdownOpen: function () {
+            this.clear(true);
+        },
+        // Restore the selection if the dropdown is closed without a pick
+        onDropdownClose: function () {
+            if (!this.getValue() && lastFocus) this.setValue(lastFocus, true);
+        },
+        onChange: (value) => {
+            lastFocus = value;
+            setUrlParam("focus_node", value, "");
+            if (!treeData) return;
+            tree = renderTree(containerId, dataset, treeData, tree);
+        },
+    });
+
+    // Reset the focus to the full tree
+    document.getElementById("focus-reset")?.addEventListener("click", () => {
+        if (focusSelect.getValue()) focusSelect.setValue("");
+    });
+
+    // Focus on the node of a marker tooltip (dispatched by the tooltip's Focus button)
+    document.addEventListener("hierarchy:focus-node", (e) => {
+        const name = e.detail;
+        if (focusSelect.getValue() !== name) focusSelect.setValue(name);
+    });
+
+    updateSpecificityLabel(specificityFrom);
+
+    // Render tree
+    loadTree(containerId, html, dataset).then((loaded) => {
+        if (!loaded) return;
+        treeData = loaded;
+        tree = renderTree(containerId, dataset, treeData);
+        addFocusOptions(focusSelect, tree);
     });
 }
 
 /**
- * Filter the cached markers by minimum specificity.
+ * The current minimum marker specificity (0-100) from the slider.
  *
- * @param {number} specificityMin - Minimum marker specificity (0-100).
+ * @returns {number} The slider value.
  */
-function applySpecificityFilter(specificityMin) {
-    if (!treeData) return;
-    filteredTreeData = {
-        ...treeData,
-        nodes: treeData.nodes.map((node) => ({
+function getSpecificityMin() {
+    return parseInt(document.getElementById("specificity_min").value, 10) || 0;
+}
+
+/**
+ * Update the specificity filter label.
+ *
+ * @param {number} min - Minimum specificity (0-100).
+ */
+function updateSpecificityLabel(min) {
+    const label = document.getElementById("specificity_label");
+    label.textContent = min > 0 ? `≥ ${min}% specific` : "All markers";
+}
+
+/**
+ * Tree data based on the specificity filter.
+ *
+ * @param {Object} data - The full (unfiltered) tree data.
+ * @returns {Object} The tree data to use for marker counts and tooltips.
+ */
+function getFilteredTreeData(data) {
+    const min = getSpecificityMin();
+    if (!min) return data;
+
+    return {
+        ...data,
+        nodes: data.nodes.map((node) => ({
             ...node,
             markers: node.markers.filter(
-                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= specificityMin
+                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= min
             ),
         })),
     };
 }
 
 /**
- * Tree data reflecting the current specificity filter (unfiltered if none).
+ * Compute node stats using the filtered tree data.
  *
- * @returns {Object|null} The tree data to use for marker counts.
+ * @param {Array} nodes - The (filtered) tree data nodes.
+ * @returns {Object} The node stats: { markers, colors, max }.
  */
-function currentTreeData() {
-    return filteredTreeData || treeData;
-}
+function computeNodeStats(nodes) {
+    const markers = new Map();
+    const colors = new Map();
+    let max = 0;
 
-/**
- * Recompute per-node marker counts from the current (filtered) tree data.
- */
-function computeMarkerCounts() {
-    markerCounts = new Map();
-    nodeColors = new Map();
-    maxMarkerCount = 0;
-    const data = currentTreeData();
-    if (!data) return;
-    for (const node of data.nodes) {
-        const count = node.markers.length;
-        markerCounts.set(node.node, count);
-        nodeColors.set(node.node, node.color);
-        if (count > maxMarkerCount) maxMarkerCount = count;
+    for (const node of nodes) {
+        markers.set(node.node, node.markers);
+        colors.set(node.node, node.color);
+        if (node.markers.length > max) max = node.markers.length;
     }
+    return { markers, colors, max };
 }
 
 /**
  * Circle radius for a given marker count (area scales with count).
  *
  * @param {number} count - Number of markers.
+ * @param {number} max - Largest marker count across nodes.
  * @returns {number} Radius in pixels.
  */
-function radiusForCount(count) {
+function getRadiusForCount(count, max) {
     const minR = 2;
     const maxR = 14;
-    if (maxMarkerCount <= 0) return minR;
-    return minR + (maxR - minR) * Math.sqrt(count / maxMarkerCount);
+    if (max <= 0) return minR;
+    return minR + (maxR - minR) * Math.sqrt(count / max);
 }
 
 /**
- * phylotree node styler: draw a circle at each node sized by its marker count.
+ * Edge styler: colour each edge by its target node's color.
+ *
+ * @param {Object} element - D3 selection of the edge.
+ * @param {Object} data - The phylotree edge.
+ */
+function styleDendrogramEdges(element, data, stats) {
+    if (!areColorsEnabled()) return;
+    const color = stats.colors.get(data.target.data.name) || "#AAAAAA";
+    element.style("stroke", color, "important");
+}
+
+/**
+ * Node styler: draw a circle at each node sized by its marker count,
+ * with a solid inner circle sized by its transcription factor count.
  *
  * @param {Object} element - D3 selection of the node's SVG group.
  * @param {Object} data - The phylotree node.
+ * @param {string} dataset - Dataset slug.
  */
-function nodeStyler(element, data, dataset) {
+function styleDendrogramNodes(element, data, dataset, stats) {
     const name = data.data.name;
-    const color = nodeColors.get(name) || "#AAAAAA";
-    const count = markerCounts.get(name) || 0;
-    // phylotree.css styles node shapes (.node circle) with stylesheet rules,
-    // which beat presentation attributes, so use inline styles with
-    // !important (as in the phylotree "colored by host" example). When
-    // coloring is off, apply no styles at all to fall back to the defaults.
-    const colored = colorsEnabled();
-    // Colour the tip label according to the node's color.
+    const { colors, markers } = stats;
+    const nodeMarkers = markers.get(name) ?? [];
+    const color = colors.get(name) || "#AAAAAA";
+    const count = nodeMarkers.length;
+
+    const colored = areColorsEnabled();
+
+    // Colour the tip label according to the node's color
     if (!data.children) {
         const text = element.selectAll("text");
         if (colored) text.style("fill", color, "important");
     }
-    // No circle for nodes without markers.
+
+    // Restore internal labels when tip labels are off
+    if (data.children && areInternalNamesEnabled()) {
+        element.selectAll("text").text(name);
+    }
+
+    // Transcription factors among the filtered markers
+    const tfCount = nodeMarkers.filter((m) => (m.genelists ?? []).includes("Transcription factors")).length;
+    const outerR = getRadiusForCount(count, stats.max);
+    // TF disc area proportional to its share of the marker count
+    const tfR = count > 0 ? outerR * Math.sqrt(tfCount / count) : 0;
+
+    // Outer circle: all filtered markers (translucent); inner circle: TFs (solid)
     let circles = element
         .selectAll(".marker-count-circle")
         .data(count > 0 ? [name] : [])
         .join("circle")
         .attr("class", "marker-count-circle")
-        .attr("data-node-name", name)
-        .attr("r", () => radiusForCount(count))
+        .attr("r", outerR)
         .attr("fill-opacity", 0.35);
+
+    let tfCircles = element
+        .selectAll(".marker-tf-circle")
+        .data(tfCount > 0 ? [name] : [])
+        .join("circle")
+        .attr("class", "marker-tf-circle")
+        .attr("r", tfR);
+
     if (colored) {
         circles = circles
             .style("fill", color, "important")
             .style("stroke", color, "important")
             .style("stroke-width", "1px", "important");
-    }
-    circles
-        .style("cursor", "pointer")
-        .on("mouseenter", (event, d) => {
-            showTooltip(event.currentTarget, d, dataset);
-        })
-        .on("mouseleave", (event, d) => {
-            scheduleHide(d);
-        })
-        .on("click", (event, d) => {
-            // Ignore the click that ends a drag.
-            if (dragMoved) {
-                dragMoved = false;
-                return;
-            }
-            event.stopPropagation();
-            showTooltip(event.currentTarget, d, dataset);
-            pinTooltip(d);
-        });
-}
-
-/**
- * Get (creating if needed) the marker tooltip state for a node.
- *
- * @param {string} name - Node name.
- * @param {SVGElement} circle - The circle to anchor the tooltip to.
- * @returns {Object} The tooltip state for the node.
- */
-function getOrCreateTooltip(name, circle) {
-    let t = tooltips.get(name);
-    if (t) {
-        t.circle = circle;
-        return t;
-    }
-    // The tooltip shell is cloned once per node; each show only updates the
-    // dynamic parts (title, badge, table) in place.
-    const el = document
-        .getElementById("marker-tooltip-template")
-        .content.firstElementChild.cloneNode(true);
-    el.dataset.node = name;
-    const body = el.querySelector(".marker-tooltip-body");
-    // Keep the tooltip open (and scrollable) while the cursor is over it.
-    el.addEventListener("mouseenter", () => cancelHide(name));
-    el.addEventListener("mouseleave", () => scheduleHide(name));
-    document.body.appendChild(el);
-    t = { el, body, circle, table: null, pinned: false, detached: false, hideTimer: null };
-    tooltips.set(name, t);
-    return t;
-}
-
-/**
- * Show the marker tooltip for a node, anchored to its circle.
- *
- * @param {SVGElement} circle - The circle element to anchor to.
- * @param {string} name - Node name.
- */
-function showTooltip(circle, name, dataset) {
-    const t = getOrCreateTooltip(name, circle);
-    cancelHide(name);
-    // Already showing for this node: just re-anchor (its data is unchanged).
-    if (!t.el.classList.contains("d-none")) {
-        if (!t.detached) positionTooltip(name);
-        return;
-    }
-    const linkGene = makeLinkGene(dataset);
-    const node = currentTreeData()?.nodes.find((n) => n.node === name);
-    const markers = node ? node.markers : [];
-
-    const title = t.el.querySelector(".marker-tooltip-title");
-    title.textContent = name;
-
-    // Color the grip and title based on node color
-    const color = nodeColors.get(name);
-    if (color) {
-        title.style.color = color;
-        t.el.querySelector(".marker-tooltip-icon").style.color = color;
+        tfCircles = tfCircles.style("fill", color, "important");
     }
 
-    t.body.scrollTop = 0;
-    t.el.classList.remove("d-none");
-
-    if (t.table) {
-        t.table.destroy();
-        t.table = null;
+    // Hover to show, click to pin, drag the header to detach
+    for (const circle of [circles, tfCircles]) {
+        circle
+            .style("cursor", "pointer")
+            .each(function () {
+                attachMarkerTooltip(this, name, {
+                    dataset,
+                    markers: nodeMarkers,
+                    color: colors.get(name),
+                    isInternal: !!data.children,
+                });
+            });
     }
-    if (markers.length) {
-        t.table = new DataTable(t.body.querySelector("table"), {
-            data: markers.map((m) => ({
-                gene: m.gene,
-                description: m.description,
-                domains: m.domains,
-                genelists: m.genelists,
-                p_value: m.p_value,
-                q_value: m.q_value,
-                log2fc: m.avg_log2fc,
-                pct1: m.pct_1,
-                pct2: m.pct_2,
-                specificity: Math.max(m.pct_1 - m.pct_2, 0),
-            })),
-            columns: [
-                { data: "gene", title: "Gene", render: linkGene, className: "all" },
-                { data: "description", title: "Description", className: "truncate all" },
-                { data: "domains", title: "Domains", render: linkDomains, className: "truncate all" },
-                { data: "genelists", title: "Gene lists", render: linkGeneLists, className: "truncate all" },
-                { data: "p_value", title: "p-value", render: roundSignificantDigits, className: "max-mobile-p" },
-                { data: "q_value", title: "q-value", render: roundSignificantDigits, className: "max-mobile-p" },
-                { data: "log2fc", title: "log2 Fold-Change", render: round, className: "max-mobile-p" },
-                { data: "pct1", title: "Gene-expressing cells (node)", render: roundPercentage, className: "max-mobile-p" },
-                { data: "pct2", title: "Gene-expressing cells (sister node)", render: roundPercentage, className: "max-mobile-p" },
-                { data: "specificity", title: "Specificity", render: roundPercentage, className: "all" },
-            ],
-            order: [[9, "desc"]],
-            // DataTable handles the vertical scrolling (fixed header) and
-            // collapses the viewport to the natural height when the rows fit.
-            scrollY: "180px",
-            scrollCollapse: true,
-            paging: false,
-            lengthChange: false,
-            responsive: true,
-            language: {
-                // Like the default, the total goes in the appended part.
-                info: "_TOTAL_ markers",
-                infoFiltered: "(_MAX_ total)",
-                infoEmpty: "No matching markers",
-            },
-            layout: {
-                topEnd: "search",
-                topStart: "info",
-                bottomEnd: null,
-                bottomStart: null,
-            },
-        });
-    } else {
-        // The shell persists, so keep the table and just show a message row.
-        const tbody = t.body.querySelector("table tbody");
-        const row = document.createElement("tr");
-        const cell = document.createElement("td");
-        cell.colSpan = 10;
-        cell.textContent = "No markers";
-        row.appendChild(cell);
-        tbody.replaceChildren(row);
-    }
-
-    // Position after the table is rendered so the height (and arrow) are correct.
-    if (!t.detached) positionTooltip(name);
-}
-
-/**
- * Position a node's tooltip next to its anchored circle, within the viewport.
- *
- * @param {string} name - Node name.
- */
-function positionTooltip(name) {
-    const t = tooltips.get(name);
-    if (!t || !t.circle) return;
-    const rect = t.circle.getBoundingClientRect();
-
-    const offset = 12;
-    const margin = 8;
-    const { innerWidth } = window;
-
-    // Show below the circle, centered on it, clamped to the viewport.
-    const top = rect.bottom + offset;
-    const centeredLeft = rect.left + rect.width / 2 - t.el.offsetWidth / 2;
-    const left = Math.max(margin, Math.min(centeredLeft, innerWidth - t.el.offsetWidth - margin));
-
-    // Point the arrow at the circle's center (relative to the tooltip).
-    t.el.style.setProperty("--marker-tooltip-arrow", `${rect.left + rect.width / 2 - left}px`);
-    t.el.style.left = `${left}px`;
-    t.el.style.top = `${top}px`;
-}
-
-/**
- * Close (remove) a node's tooltip, destroying its DataTable.
- *
- * @param {string} name - Node name.
- */
-function closeTooltip(name) {
-    const t = tooltips.get(name);
-    if (!t) return;
-    clearTimeout(t.hideTimer);
-    if (t.table) t.table.destroy();
-    t.el.remove();
-    tooltips.delete(name);
-}
-
-/**
- * Close every open tooltip.
- */
-function closeAllTooltips() {
-    for (const name of [...tooltips.keys()]) closeTooltip(name);
-}
-
-/**
- * Pin a node's tooltip so it stays open (dismissed only via its close button).
- *
- * @param {string} name - Node name.
- */
-function pinTooltip(name) {
-    const t = tooltips.get(name);
-    if (!t) return;
-    t.pinned = true;
-    cancelHide(name);
-}
-
-/**
- * Schedule closing a node's tooltip after a short delay (skipped while pinned).
- * The delay lets the cursor move onto the tooltip to scroll it.
- *
- * @param {string} name - Node name.
- */
-function scheduleHide(name) {
-    const t = tooltips.get(name);
-    if (!t || t.pinned || dragging) return;
-    clearTimeout(t.hideTimer);
-    t.hideTimer = setTimeout(() => closeTooltip(name), 150);
-}
-
-/**
- * Cancel a pending tooltip hide.
- *
- * @param {string} name - Node name.
- */
-function cancelHide(name) {
-    const t = tooltips.get(name);
-    if (!t) return;
-    clearTimeout(t.hideTimer);
 }
 
 /**
@@ -588,38 +345,121 @@ function cancelHide(name) {
  *
  * @returns {boolean} True if the tree should be colored.
  */
-function colorsEnabled() {
+function areColorsEnabled() {
     return document.getElementById("colors")?.checked ?? true;
 }
 
 /**
- * Re-render the tree from the cached Newick (no re-fetch) so the marker-count
- * circles are added, removed, and resized to match the current filter.
+ * Whether internal node names are enabled via the "Internal names" view option.
+ *
+ * @returns {boolean} True if internal names should be drawn.
  */
-function reRenderTree(dataset) {
-    if (!treeData) return;
-    closeAllTooltips();
-    computeMarkerCounts();
-    currentTree = createDendrogram(treeContainerId, treeData.newick, dataset);
-    applyViewOptions(currentTree);
+function areInternalNamesEnabled() {
+    return document.getElementById("internal-names")?.checked ?? false;
 }
 
 /**
- * Apply the current view option controls to a freshly rendered tree.
+ * Render the tree from the full tree data, applying the current
+ * specificity filter and focused subtree.
+ *
+ * @param {string} containerId - Tree container element id.
+ * @param {string} dataset - Dataset slug.
+ * @param {Object|null} treeData - The full (unfiltered) tree data.
+ * @param {Object} tree - The current tree instance, used to extract the focused subtree.
+ * @returns {Object|undefined} The new tree instance, or undefined if no data has loaded.
+ */
+function renderTree(containerId, dataset, treeData, tree) {
+    if (!treeData) return;
+    closeTooltips();
+    const data = getFilteredTreeData(treeData);
+    const focus = document.getElementById("focus-node")?.value || "";
+    const newick = focus ? getSubtreeNewick(tree, focus) : "";
+    const source = newick ? { ...data, newick, rootName: focus } : data;
+    const stats = computeNodeStats(source.nodes);
+    const newTree = createDendrogram(containerId, source.newick, dataset, stats, source.rootName);
+    applyViewOptions(newTree);
+    return newTree;
+}
+
+/**
+ * Bind view option controls: apply values and append to URL.
+ *
+ * @param {Function} getTree - Returns the current tree instance (or undefined).
+ */
+function initViewOptionControls(getTree) {
+    for (const radio of document.querySelectorAll('input[name="tree-type"]')) {
+        radio.addEventListener("change", (e) => {
+            const tree = getTree();
+            if (tree) updateTreeType(tree, e.target.value);
+            setUrlParam("tree_type", e.target.value, "linear");
+        });
+    }
+
+    for (const [name, apply] of Object.entries(viewOptions)) {
+        const control = document.getElementById(name);
+        control?.addEventListener("change", (e) => {
+            const tree = getTree();
+            if (tree) apply(tree, e.target);
+            setUrlParam(name.replace(/-/g, "_"), String(e.target.checked), "true");
+        });
+    }
+}
+
+/**
+ * Serialise the subtree rooted at a node to Newick.
+ *
+ * @param {Object} tree - phylotree instance.
+ * @param {string} name - Name of the subtree root.
+ * @returns {string} The subtree in Newick format (empty string if the node is not found).
+ */
+function getSubtreeNewick(tree, name) {
+    const target = tree.nodes.descendants().find((n) => n.data.name === name);
+    if (!target) return "";
+
+    // Iterative postorder traversal (parents after all of their descendants)
+    const order = [];
+    const stack = [[target, false]];
+    while (stack.length) {
+        const [node, processed] = stack.pop();
+        if (processed) {
+            order.push(node);
+        } else {
+            stack.push([node, true]);
+            for (const child of [...(node.children ?? [])].reverse()) stack.push([child, false]);
+        }
+    }
+
+    // Serialize: each node's children were the last results pushed
+    const newicks = [];
+    for (const node of order) {
+        const name = node.data.name;
+        const safeName = /[()\[\];:,"]/.test(name) ? `"${name}"` : name;
+
+        if (!node.children) {
+            newicks.push(safeName);
+        } else {
+            const children = newicks.splice(newicks.length - node.children.length, node.children.length);
+            newicks.push(`(${children.join(",")})${safeName}`);
+        }
+    }
+    return newicks.pop();
+}
+
+/**
+ * Apply current view options to dendrogram.
  *
  * @param {Object} tree - phylotree instance.
  */
 function applyViewOptions(tree) {
-    const treeType = document.querySelector('input[name="tree-type"]:checked');
-    if (treeType) updateTreeType(tree, treeType.value);
-    const alignTips = document.getElementById("align-tips");
-    if (alignTips) updateAlignTips(tree, alignTips.checked);
-    const scaleBar = document.getElementById("scale-bar");
-    if (scaleBar) updateScaleBar(tree, scaleBar.checked);
+    updateTreeType(tree, document.querySelector('input[name="tree-type"]:checked')?.value ?? "linear");
+    for (const [name, apply] of Object.entries(viewOptions)) {
+        const control = document.getElementById(name);
+        if (control) apply(tree, control);
+    }
 }
 
 /**
- * Disable the tree toolbar controls.
+ * Disable toolbar controls.
  */
 function disableToolbar() {
     const fieldsets = document.querySelectorAll("#plot-options fieldset");
@@ -627,7 +467,7 @@ function disableToolbar() {
 }
 
 /**
- * Updates the tree layout mode.
+ * Update tree layout mode.
  *
  * @param {Object} tree - phylotree instance.
  * @param {string} mode - Tree layout: "linear", "radial", or "unrooted".
@@ -639,7 +479,7 @@ function updateTreeType(tree, mode) {
 }
 
 /**
- * Toggles the alignment of tree tips.
+ * Toggle tree tip alignment.
  *
  * @param {Object} tree - phylotree instance.
  * @param {boolean} align - Align tree tips.
@@ -650,7 +490,7 @@ function updateAlignTips(tree, align) {
 }
 
 /**
- * Toggles the scale bar visibility.
+ * Toggle scale bar.
  *
  * @param {Object} tree - phylotree instance.
  * @param {boolean} show - Display the scale bar.
@@ -658,4 +498,32 @@ function updateAlignTips(tree, align) {
 function updateScaleBar(tree, show) {
     tree.display.options["show-scale"] = show;
     tree.display.update();
+}
+
+/**
+ * Toggle tip name visibility.
+ *
+ * @param {Object} tree - phylotree instance.
+ * @param {boolean} show - Show tip names.
+ */
+function updateTipLabels(tree, show) {
+    tree.display.options["show-labels"] = show;
+    tree.display.update();
+}
+
+/**
+ * Add the tree's internal nodes to the focus dropdown, restoring any URL focus.
+ *
+ * @param {Object} focusSelect - The focus TomSelect instance.
+ * @param {Object} tree - The full (unfocused) tree instance.
+ */
+function addFocusOptions(focusSelect, tree) {
+    for (const node of tree.nodes.descendants()) {
+        // Skip leaves and the root (focusing on the root is the full tree)
+        if (!node.children || node === tree.nodes) continue;
+        focusSelect.addOption({ value: node.data.name, text: node.data.name });
+    }
+    // Restore the focused node from the URL
+    const focus = new URLSearchParams(window.location.search).get("focus_node");
+    if (focus && focusSelect.getOption(focus, true)) focusSelect.setValue(focus);
 }

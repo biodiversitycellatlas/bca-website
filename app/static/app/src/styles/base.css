@@ -41,10 +41,10 @@ body {
     max-width: 300px;
 }
 
-/* Sticky plot options bar (below the subnavbar) */
+/* Sticky plot options bar (below the subnavbar), above marker tooltips */
 .sticky-plot-options {
     position: sticky;
-    z-index: 990;
+    z-index: 1000;
     background: white;
     top: 90px;
     padding-bottom: 5px;
