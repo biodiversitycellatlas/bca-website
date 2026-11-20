@@ -19,7 +19,7 @@
         "phylotree": "2.6.1",
         "postcss": "8.5.32",
         "postcss-cli": "12.0.0",
-        "tom-select": "2.6.2",
+        "tom-select": "2.7.0",
         "vega-embed": "7.3.0",
       },
       "devDependencies": {
@@ -371,7 +371,7 @@
 
     "tinyglobby": ["tinyglobby@0.2.15", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.3" } }, "sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ=="],
 
-    "tom-select": ["tom-select@2.6.2", "", { "dependencies": { "@orchidjs/sifter": "^1.1.0", "@orchidjs/unicode-variants": "^1.1.2" } }, "sha512-eiXIkk82XzzUTOVQDFpy+ZGejuqdTvMukyUyeZBQaKnqW42UoTiTZnrod/eX0rkqJEc4rZY9DZ3zdjV07i29wQ=="],
+    "tom-select": ["tom-select@2.7.0", "", { "dependencies": { "@orchidjs/sifter": "^1.1.0", "@orchidjs/unicode-variants": "^1.1.2" } }, "sha512-i/iuTfrzYfGPAILfgPdU9/CCSm8XcnomjO2bHjAcFQPV7od0ghVngjaMfB5x5Agkrpe+49/tK6soegrwWyi6Lg=="],
 
     "topojson-client": ["topojson-client@3.1.0", "", { "dependencies": { "commander": "2" }, "bin": { "topo2geo": "bin/topo2geo", "topomerge": "bin/topomerge", "topoquantize": "bin/topoquantize" } }, "sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw=="],
 
