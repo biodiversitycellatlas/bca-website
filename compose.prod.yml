@@ -60,7 +60,7 @@ services:
         # No depends_on: nginx — nginx depends on this service, so the reverse
         # would create a cycle. The exporter retries its scrape until nginx
         # answers, so order-of-start between them doesn't matter.
-        image: nginx/nginx-prometheus-exporter:1.4.0
+        image: nginx/nginx-prometheus-exporter:1.5.0
         command: --nginx.scrape-uri=http://nginx:8081/nginx_status
         restart: unless-stopped
 
