@@ -3,7 +3,7 @@
 # forks workers. Overriding to a non-root USER would require either
 # NET_BIND_SERVICE caps or a sysctl tweak at the podman level; neither
 # belongs in the Dockerfile.
-FROM dhi.io/nginx:1.31.6-debian13-dev
+FROM dhi.io/nginx:1.31.9-debian13-dev
 
 # curl + ca-certs so the in-container update loop can fetch ngxblocker
 # updates from GitHub. kept to a single layer to minimise image bloat.
