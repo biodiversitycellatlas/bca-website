@@ -339,7 +339,7 @@ function styleDendrogramNodes(element, data, dataset, stats) {
             .style("fill", color, "important")
             .style("stroke", color, "important")
             .style("stroke-width", "1px", "important");
-        tfCircles = tfCircles.style("fill", color, "important");
+        tfCircles.style("fill", color, "important");
     }
 
     // Hover to show, click to pin, drag the header to detach
@@ -457,7 +457,7 @@ function getSubtreeNewick(tree, name) {
     const newicks = [];
     for (const node of order) {
         const name = node.data.name;
-        const safeName = /[()\[\];:,"]/.test(name) ? `"${name}"` : name;
+        const safeName = /[()[];:,"]/.test(name) ? `"${name}"` : name;
 
         if (!node.children) {
             newicks.push(safeName);
