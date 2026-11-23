@@ -315,7 +315,8 @@ function styleDendrogramNodes(element, data, dataset, stats) {
         .data(tfCount > 0 ? [name] : [])
         .join("circle")
         .attr("class", "marker-tf-circle")
-        .attr("r", tfR);
+        .attr("r", tfR)
+        .style("pointer-events", "none");
 
     if (colored) {
         circles = circles
@@ -326,18 +327,16 @@ function styleDendrogramNodes(element, data, dataset, stats) {
     }
 
     // Hover to show, click to pin, drag the header to detach
-    for (const circle of [circles, tfCircles]) {
-        circle
-            .style("cursor", "pointer")
-            .each(function () {
-                attachMarkerTooltip(this, name, {
-                    dataset,
-                    markers: nodeMarkers,
-                    color: colors.get(name),
-                    isInternal: !!data.children,
-                });
+    circles
+        .style("cursor", "pointer")
+        .each(function () {
+            attachMarkerTooltip(this, name, {
+                dataset,
+                markers: nodeMarkers,
+                color: colors.get(name),
+                isInternal: !!data.children,
             });
-    }
+        });
 }
 
 /**
