@@ -6,7 +6,11 @@ import { phylotree } from "phylotree";
 import TomSelect from "tom-select";
 
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
-import { attachMarkerTooltip, closeTooltips, initMarkerTooltips } from "./tables/marker_tooltips.ts";
+import {
+    attachMarkerTooltip,
+    closeTooltips,
+    initMarkerTooltips,
+} from "./tables/marker_tooltips.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl, setUrlParam } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
@@ -43,8 +47,10 @@ function createDendrogram(id, newick, dataset, stats, rootName) {
         selectable: false,
         "show-menu": false,
         node_circle_size: () => 0, // suppress internal nodes
-        "node-styler": (element, data) => styleDendrogramNodes(element, data, dataset, stats),
-        "edge-styler": (element, data) => styleDendrogramEdges(element, data, stats),
+        "node-styler": (element, data) =>
+            styleDendrogramNodes(element, data, dataset, stats),
+        "edge-styler": (element, data) =>
+            styleDendrogramEdges(element, data, stats),
     });
 
     // Force element to display
@@ -58,7 +64,9 @@ function createDendrogram(id, newick, dataset, stats, rootName) {
     tree.display.refresh();
 
     // Only zoom/pan while holding Ctrl or Cmd
-    tree.display.zoomBehavior?.filter((event) => event.ctrlKey || event.metaKey);
+    tree.display.zoomBehavior?.filter(
+        (event) => event.ctrlKey || event.metaKey,
+    );
 
     return tree;
 }
@@ -86,7 +94,10 @@ function loadTree(containerId, html, dataset) {
             const data = treesData.results[0];
             if (!data || !data.newick) {
                 // No tree available for this dataset
-                showMessage(containerId, `No cell type hierarchy found for ${html}`);
+                showMessage(
+                    containerId,
+                    `No cell type hierarchy found for ${html}`,
+                );
                 disableToolbar();
                 return null;
             }
@@ -94,7 +105,10 @@ function loadTree(containerId, html, dataset) {
         })
         .catch((error) => {
             console.error("Error fetching cell type hierarchy:", error);
-            showMessage(containerId, `Error loading cell type hierarchy for ${html}`);
+            showMessage(
+                containerId,
+                `Error loading cell type hierarchy for ${html}`,
+            );
             disableToolbar();
             return null;
         });
@@ -216,7 +230,7 @@ function getFilteredTreeData(data) {
         nodes: data.nodes.map((node) => ({
             ...node,
             markers: node.markers.filter(
-                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= min
+                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= min,
             ),
         })),
     };
@@ -296,7 +310,9 @@ function styleDendrogramNodes(element, data, dataset, stats) {
     }
 
     // Transcription factors among the filtered markers
-    const tfCount = nodeMarkers.filter((m) => (m.genelists ?? []).includes("Transcription factors")).length;
+    const tfCount = nodeMarkers.filter((m) =>
+        (m.genelists ?? []).includes("Transcription factors"),
+    ).length;
     const outerR = getRadiusForCount(count, stats.max);
     // TF disc area proportional to its share of the marker count
     const tfR = count > 0 ? outerR * Math.sqrt(tfCount / count) : 0;
@@ -327,16 +343,14 @@ function styleDendrogramNodes(element, data, dataset, stats) {
     }
 
     // Hover to show, click to pin, drag the header to detach
-    circles
-        .style("cursor", "pointer")
-        .each(function () {
-            attachMarkerTooltip(this, name, {
-                dataset,
-                markers: nodeMarkers,
-                color: colors.get(name),
-                isInternal: !!data.children,
-            });
+    circles.style("cursor", "pointer").each(function () {
+        attachMarkerTooltip(this, name, {
+            dataset,
+            markers: nodeMarkers,
+            color: colors.get(name),
+            isInternal: !!data.children,
         });
+    });
 }
 
 /**
@@ -375,7 +389,13 @@ function renderTree(containerId, dataset, treeData, tree) {
     const newick = focus ? getSubtreeNewick(tree, focus) : "";
     const source = newick ? { ...data, newick, rootName: focus } : data;
     const stats = computeNodeStats(source.nodes);
-    const newTree = createDendrogram(containerId, source.newick, dataset, stats, source.rootName);
+    const newTree = createDendrogram(
+        containerId,
+        source.newick,
+        dataset,
+        stats,
+        source.rootName,
+    );
     applyViewOptions(newTree);
     return newTree;
 }
@@ -399,7 +419,11 @@ function initViewOptionControls(getTree) {
         control?.addEventListener("change", (e) => {
             const tree = getTree();
             if (tree) apply(tree, e.target);
-            setUrlParam(name.replace(/-/g, "_"), String(e.target.checked), "true");
+            setUrlParam(
+                name.replace(/-/g, "_"),
+                String(e.target.checked),
+                "true",
+            );
         });
     }
 }
@@ -424,7 +448,8 @@ function getSubtreeNewick(tree, name) {
             order.push(node);
         } else {
             stack.push([node, true]);
-            for (const child of [...(node.children ?? [])].reverse()) stack.push([child, false]);
+            for (const child of [...(node.children ?? [])].reverse())
+                stack.push([child, false]);
         }
     }
 
@@ -437,7 +462,10 @@ function getSubtreeNewick(tree, name) {
         if (!node.children) {
             newicks.push(safeName);
         } else {
-            const children = newicks.splice(newicks.length - node.children.length, node.children.length);
+            const children = newicks.splice(
+                newicks.length - node.children.length,
+                node.children.length,
+            );
             newicks.push(`(${children.join(",")})${safeName}`);
         }
     }
@@ -450,7 +478,11 @@ function getSubtreeNewick(tree, name) {
  * @param {Object} tree - phylotree instance.
  */
 function applyViewOptions(tree) {
-    updateTreeType(tree, document.querySelector('input[name="tree-type"]:checked')?.value ?? "linear");
+    updateTreeType(
+        tree,
+        document.querySelector('input[name="tree-type"]:checked')?.value ??
+            "linear",
+    );
     for (const [name, apply] of Object.entries(viewOptions)) {
         const control = document.getElementById(name);
         if (control) apply(tree, control);
@@ -462,7 +494,7 @@ function applyViewOptions(tree) {
  */
 function disableToolbar() {
     const fieldsets = document.querySelectorAll("#plot-options fieldset");
-    fieldsets.forEach(fieldset => fieldset.disabled = true);
+    fieldsets.forEach((fieldset) => (fieldset.disabled = true));
 }
 
 /**
@@ -524,5 +556,6 @@ function addFocusOptions(focusSelect, tree) {
     }
     // Restore the focused node from the URL
     const focus = new URLSearchParams(window.location.search).get("focus_node");
-    if (focus && focusSelect.getOption(focus, true)) focusSelect.setValue(focus);
+    if (focus && focusSelect.getOption(focus, true))
+        focusSelect.setValue(focus);
 }

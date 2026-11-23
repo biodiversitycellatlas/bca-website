@@ -17,7 +17,6 @@ import {
     roundSignificantDigits,
 } from "./utils.ts";
 
-
 const tooltips = new Map();
 
 // Track tooltip drag behaviour
@@ -46,22 +45,31 @@ class MarkerTooltip {
         const title = this.el.querySelector(".marker-tooltip-title");
         title.textContent = name;
         const badge = this.el.querySelector(".marker-tooltip-count");
-        const tfCount = data.markers.filter((m) => (m.genelists ?? []).includes("Transcription factors")).length;
+        const tfCount = data.markers.filter((m) =>
+            (m.genelists ?? []).includes("Transcription factors"),
+        ).length;
         badge.textContent = `${data.markers.length} ${data.markers.length === 1 ? "marker" : "markers"}${tfCount ? ` (${tfCount} TFs)` : ""}`;
         // Color the grip, title, and badge with the node's color.
         if (data.color) {
             title.style.color = data.color;
-            this.el.querySelector(".marker-tooltip-icon").style.color = data.color;
+            this.el.querySelector(".marker-tooltip-icon").style.color =
+                data.color;
             badge.style.backgroundColor = data.color;
         }
-        this.el.addEventListener("mouseenter", () => clearTimeout(this.hideTimer));
+        this.el.addEventListener("mouseenter", () =>
+            clearTimeout(this.hideTimer),
+        );
         this.el.addEventListener("mouseleave", () => this.scheduleHide());
         // Focusing only makes sense for internal nodes (a tip is a one-node tree)
         if (data.isInternal) {
             this.el
                 .querySelector(".marker-tooltip-focus")
                 .addEventListener("click", () => {
-                    document.dispatchEvent(new CustomEvent("hierarchy:focus-node", { detail: this.name }));
+                    document.dispatchEvent(
+                        new CustomEvent("hierarchy:focus-node", {
+                            detail: this.name,
+                        }),
+                    );
                 });
         } else {
             this.el.querySelector(".marker-tooltip-focus")?.remove();
@@ -108,11 +116,18 @@ class MarkerTooltip {
 
         // Show below the marker circle, centered on it, clamped to the viewport
         const top = rect.bottom + offset;
-        const centeredLeft = rect.left + rect.width / 2 - this.el.offsetWidth / 2;
-        const left = Math.max(margin, Math.min(centeredLeft, innerWidth - this.el.offsetWidth - margin));
+        const centeredLeft =
+            rect.left + rect.width / 2 - this.el.offsetWidth / 2;
+        const left = Math.max(
+            margin,
+            Math.min(centeredLeft, innerWidth - this.el.offsetWidth - margin),
+        );
 
         // Point the arrow at the circle's center (relative to the tooltip)
-        this.el.style.setProperty("--marker-tooltip-arrow", `${rect.left + rect.width / 2 - left}px`);
+        this.el.style.setProperty(
+            "--marker-tooltip-arrow",
+            `${rect.left + rect.width / 2 - left}px`,
+        );
         this.el.style.left = `${left}px`;
         this.el.style.top = `${top}px`;
     }
@@ -180,16 +195,65 @@ class MarkerTooltip {
                 specificity: Math.max(m.pct_1 - m.pct_2, 0),
             })),
             columns: [
-                { data: "gene", title: "Gene", render: linkGene, className: "all" },
-                { data: "description", title: "Description", className: "truncate all" },
-                { data: "domains", title: "Domains", render: linkDomains, className: "truncate all" },
-                { data: "genelists", title: "Gene lists", render: linkGeneLists, className: "truncate all" },
-                { data: "p_value", title: "p-value", render: roundSignificantDigits, className: "max-mobile-p" },
-                { data: "q_value", title: "q-value", render: roundSignificantDigits, className: "max-mobile-p" },
-                { data: "log2fc", title: "log2 Fold-Change", render: round, className: "max-mobile-p" },
-                { data: "pct1", title: "Gene-expressing cells (node)", render: roundPercentage, className: "max-mobile-p" },
-                { data: "pct2", title: "Gene-expressing cells (sister node)", render: roundPercentage, className: "max-mobile-p" },
-                { data: "specificity", title: "Specificity", render: roundPercentage, className: "all" },
+                {
+                    data: "gene",
+                    title: "Gene",
+                    render: linkGene,
+                    className: "all",
+                },
+                {
+                    data: "description",
+                    title: "Description",
+                    className: "truncate all",
+                },
+                {
+                    data: "domains",
+                    title: "Domains",
+                    render: linkDomains,
+                    className: "truncate all",
+                },
+                {
+                    data: "genelists",
+                    title: "Gene lists",
+                    render: linkGeneLists,
+                    className: "truncate all",
+                },
+                {
+                    data: "p_value",
+                    title: "p-value",
+                    render: roundSignificantDigits,
+                    className: "max-mobile-p",
+                },
+                {
+                    data: "q_value",
+                    title: "q-value",
+                    render: roundSignificantDigits,
+                    className: "max-mobile-p",
+                },
+                {
+                    data: "log2fc",
+                    title: "log2 Fold-Change",
+                    render: round,
+                    className: "max-mobile-p",
+                },
+                {
+                    data: "pct1",
+                    title: "Gene-expressing cells (node)",
+                    render: roundPercentage,
+                    className: "max-mobile-p",
+                },
+                {
+                    data: "pct2",
+                    title: "Gene-expressing cells (sister node)",
+                    render: roundPercentage,
+                    className: "max-mobile-p",
+                },
+                {
+                    data: "specificity",
+                    title: "Specificity",
+                    render: roundPercentage,
+                    className: "all",
+                },
             ],
             order: [[9, "desc"]],
             scrollY: "180px",
@@ -236,7 +300,8 @@ export function initMarkerTooltips() {
     // Keep each anchored tooltip next to its node while scrolling/resizing
     const repositionTooltips = () => {
         for (const t of tooltips.values()) {
-            if (!t.detached && !t.el.classList.contains("d-none")) t.reposition();
+            if (!t.detached && !t.el.classList.contains("d-none"))
+                t.reposition();
         }
     };
     window.addEventListener("scroll", repositionTooltips, true);
@@ -247,14 +312,22 @@ export function initMarkerTooltips() {
         const header = e.target.closest(".marker-tooltip-header");
         // Buttons in the header must not start a drag (re-appending the tooltip
         // mid-press would cancel their click event)
-        if (!header || e.target.closest(".marker-tooltip-close, .marker-tooltip-focus")) return;
+        if (
+            !header ||
+            e.target.closest(".marker-tooltip-close, .marker-tooltip-focus")
+        )
+            return;
         const el = header.closest(".marker-tooltip");
         const t = tooltips.get(el.dataset.node);
         if (!t) return;
 
         e.preventDefault();
         const rect = el.getBoundingClientRect();
-        drag = { t, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top };
+        drag = {
+            t,
+            offsetX: e.clientX - rect.left,
+            offsetY: e.clientY - rect.top,
+        };
         t.toFront();
     });
 
@@ -294,8 +367,12 @@ export function attachMarkerTooltip(circle, name, data) {
     // The node-styler re-runs on refresh; bind only once per element
     if (circle._markerTooltip) return;
     circle._markerTooltip = true;
-    circle.addEventListener("mouseenter", () => getOrCreateTooltip(name, data).show(circle, data));
-    circle.addEventListener("mouseleave", () => tooltips.get(name)?.scheduleHide());
+    circle.addEventListener("mouseenter", () =>
+        getOrCreateTooltip(name, data).show(circle, data),
+    );
+    circle.addEventListener("mouseleave", () =>
+        tooltips.get(name)?.scheduleHide(),
+    );
     circle.addEventListener("click", (e) => {
         e.stopPropagation();
         const t = getOrCreateTooltip(name, data);
