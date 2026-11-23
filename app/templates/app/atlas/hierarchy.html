@@ -20,6 +20,23 @@ Input:
 
 {% block content %}
 
+    <style>
+        /* Hide the focus select until TomSelect replaces it (avoids FOUC) */
+        #focus-node {
+            visibility: hidden;
+        }
+
+        /* Pin the focus control width */
+        #focus-node + .ts-wrapper {
+            width: 200px;
+        }
+
+        /* Keep the selected item and the search input on one line */
+        #focus-node + .ts-wrapper .ts-control input {
+            min-width: 0;
+        }
+    </style>
+
     {% load static %}
 
     {% load headings %}
@@ -118,6 +135,21 @@ Input:
                        {% if query.internal_names == 'true' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="internal-names">Nodes</label>
             </div>
+        </fieldset>
+
+        <!-- Focus -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-microscope"></i> Focus
+                </label>
+                <button type="button" class="btn btn-link btn-sm p-0" id="focus-reset">Reset</button>
+            </div>
+            <select id="focus-node"
+                    aria-label="Focus on a subtree"
+                    placeholder="Full tree">
+                <option value="">Full tree</option>
+            </select>
         </fieldset>
 
     </form>

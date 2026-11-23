@@ -3,6 +3,7 @@
  */
 
 import { phylotree } from "phylotree";
+import TomSelect from "tom-select";
 
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
 import { getViewUrl, setUrlParam } from "../utils/urls.ts";
@@ -132,11 +133,43 @@ export function initCellTypeHierarchy(id, html, dataset) {
         setUrlParam("internal_names", String(e.target.checked), "false");
     });
 
+    // Focus on a subtree
+    let lastFocus = "";
+    const focusSelect = new TomSelect("#focus-node", {
+        allowEmptyOption: true,
+        // Clear the current item on open so a search can be typed directly
+        onDropdownOpen: function () {
+            this.clear(true);
+        },
+        // Restore the selection if the dropdown is closed without a pick
+        onDropdownClose: function () {
+            if (!this.getValue() && lastFocus) this.setValue(lastFocus, true);
+        },
+        onChange: (value) => {
+            lastFocus = value;
+            setUrlParam("focus_node", value, "");
+            if (!treeData) return;
+            tree = renderTree(containerId, dataset, treeData, tree);
+        },
+    });
+
+    // Reset the focus to the full tree
+    document.getElementById("focus-reset")?.addEventListener("click", () => {
+        if (focusSelect.getValue()) focusSelect.setValue("");
+    });
+
+    // Focus on the node of a marker tooltip (dispatched by the tooltip's Focus button)
+    document.addEventListener("hierarchy:focus-node", (e) => {
+        const name = e.detail;
+        if (focusSelect.getValue() !== name) focusSelect.setValue(name);
+    });
+
     // Render tree
     loadTree(containerId, html, dataset).then((loaded) => {
         if (!loaded) return;
         treeData = loaded;
         tree = renderTree(containerId, dataset, treeData);
+        addFocusOptions(focusSelect, tree);
     });
 }
 
@@ -266,21 +299,29 @@ function areInternalNamesEnabled() {
 }
 
 /**
- * Render the tree from the full tree data.
+ * Render the tree from the full tree data, applying the current
+ * specificity filter and focused subtree.
  *
  * @param {string} containerId - Tree container element id.
  * @param {string} dataset - Dataset slug.
- * @param {Object|null} treeData - The tree data.
+ * @param {Object|null} treeData - The full (unfiltered) tree data.
+ * @param {Object} tree - The current tree instance, used to extract the focused subtree.
  * @returns {Object|undefined} The new tree instance, or undefined if no data has loaded.
  */
-function renderTree(containerId, dataset, treeData) {
+function renderTree(containerId, dataset, treeData, tree) {
     if (!treeData) return;
-    const stats = computeNodeStats(treeData.nodes);
+    const focus = document.getElementById("focus-node")?.value || "";
+    const newick = focus ? getSubtreeNewick(tree, focus) : "";
+    const source = newick
+        ? { ...treeData, newick, rootName: focus }
+        : treeData;
+    const stats = computeNodeStats(source.nodes);
     const newTree = createDendrogram(
         containerId,
-        treeData.newick,
+        source.newick,
         dataset,
         stats,
+        source.rootName,
     );
     applyViewOptions(newTree);
     return newTree;
@@ -312,6 +353,50 @@ function initViewOptionControls(getTree) {
             );
         });
     }
+}
+
+/**
+ * Serialise the subtree rooted at a node to Newick.
+ *
+ * @param {Object} tree - phylotree instance.
+ * @param {string} name - Name of the subtree root.
+ * @returns {string} The subtree in Newick format (empty string if the node is not found).
+ */
+function getSubtreeNewick(tree, name) {
+    const target = tree.nodes.descendants().find((n) => n.data.name === name);
+    if (!target) return "";
+
+    // Iterative postorder traversal (parents after all of their descendants)
+    const order = [];
+    const stack = [[target, false]];
+    while (stack.length) {
+        const [node, processed] = stack.pop();
+        if (processed) {
+            order.push(node);
+        } else {
+            stack.push([node, true]);
+            for (const child of [...(node.children ?? [])].reverse())
+                stack.push([child, false]);
+        }
+    }
+
+    // Serialize: each node's children were the last results pushed
+    const newicks = [];
+    for (const node of order) {
+        const name = node.data.name;
+        const safeName = /[()\[\];:,"]/.test(name) ? `"${name}"` : name;
+
+        if (!node.children) {
+            newicks.push(safeName);
+        } else {
+            const children = newicks.splice(
+                newicks.length - node.children.length,
+                node.children.length,
+            );
+            newicks.push(`(${children.join(",")})${safeName}`);
+        }
+    }
+    return newicks.pop();
 }
 
 /**
@@ -382,4 +467,22 @@ function updateScaleBar(tree, show) {
 function updateTipLabels(tree, show) {
     tree.display.options["show-labels"] = show;
     tree.display.update();
+}
+
+/**
+ * Add the tree's internal nodes to the focus dropdown, restoring any URL focus.
+ *
+ * @param {Object} focusSelect - The focus TomSelect instance.
+ * @param {Object} tree - The full (unfocused) tree instance.
+ */
+function addFocusOptions(focusSelect, tree) {
+    for (const node of tree.nodes.descendants()) {
+        // Skip leaves and the root (focusing on the root is the full tree)
+        if (!node.children || node === tree.nodes) continue;
+        focusSelect.addOption({ value: node.data.name, text: node.data.name });
+    }
+    // Restore the focused node from the URL
+    const focus = new URLSearchParams(window.location.search).get("focus_node");
+    if (focus && focusSelect.getOption(focus, true))
+        focusSelect.setValue(focus);
 }
