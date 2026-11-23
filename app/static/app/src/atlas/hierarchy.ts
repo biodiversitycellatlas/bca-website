@@ -6,6 +6,7 @@ import { phylotree } from "phylotree";
 import TomSelect from "tom-select";
 
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
+import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl, setUrlParam } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
 
@@ -133,6 +134,20 @@ export function initCellTypeHierarchy(id, html, dataset) {
         setUrlParam("internal_names", String(e.target.checked), "false");
     });
 
+    // Marker specificity slider
+    const specificityFrom = Math.max(0, Math.min(100, getSpecificityMin()));
+    initRangeSlider("#specificity_min", {
+        min: 0,
+        max: 100,
+        from: specificityFrom,
+        step: 1,
+        onChange: (data) => updateSpecificityLabel(data.from),
+        onFinish: (data) => {
+            tree = renderTree(containerId, dataset, treeData, tree);
+            setUrlParam("specificity_min", String(data.from), "0");
+        },
+    });
+
     // Focus on a subtree
     let lastFocus = "";
     const focusSelect = new TomSelect("#focus-node", {
@@ -164,6 +179,8 @@ export function initCellTypeHierarchy(id, html, dataset) {
         if (focusSelect.getValue() !== name) focusSelect.setValue(name);
     });
 
+    updateSpecificityLabel(specificityFrom);
+
     // Render tree
     loadTree(containerId, html, dataset).then((loaded) => {
         if (!loaded) return;
@@ -171,6 +188,46 @@ export function initCellTypeHierarchy(id, html, dataset) {
         tree = renderTree(containerId, dataset, treeData);
         addFocusOptions(focusSelect, tree);
     });
+}
+
+/**
+ * The current minimum marker specificity (0-100) from the slider.
+ *
+ * @returns {number} The slider value.
+ */
+function getSpecificityMin() {
+    return parseInt(document.getElementById("specificity_min").value, 10) || 0;
+}
+
+/**
+ * Update the specificity filter label.
+ *
+ * @param {number} min - Minimum specificity (0-100).
+ */
+function updateSpecificityLabel(min) {
+    const label = document.getElementById("specificity_label");
+    label.textContent = min > 0 ? `≥ ${min}% specific` : "All markers";
+}
+
+/**
+ * Tree data based on the specificity filter.
+ *
+ * @param {Object} data - The full (unfiltered) tree data.
+ * @returns {Object} The tree data to use for marker counts and tooltips.
+ */
+function getFilteredTreeData(data) {
+    const min = getSpecificityMin();
+    if (!min) return data;
+
+    return {
+        ...data,
+        nodes: data.nodes.map((node) => ({
+            ...node,
+            markers: node.markers.filter(
+                (m) => Math.max((m.pct_1 - m.pct_2) * 100, 0) >= min,
+            ),
+        })),
+    };
 }
 
 /**
@@ -310,11 +367,10 @@ function areInternalNamesEnabled() {
  */
 function renderTree(containerId, dataset, treeData, tree) {
     if (!treeData) return;
+    const data = getFilteredTreeData(treeData);
     const focus = document.getElementById("focus-node")?.value || "";
     const newick = focus ? getSubtreeNewick(tree, focus) : "";
-    const source = newick
-        ? { ...treeData, newick, rootName: focus }
-        : treeData;
+    const source = newick ? { ...data, newick, rootName: focus } : data;
     const stats = computeNodeStats(source.nodes);
     const newTree = createDendrogram(
         containerId,
