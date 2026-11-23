@@ -63,3 +63,20 @@ export function slugify(text) {
 export function escapeString(text) {
     return text.toString().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Double backslash
 }
+
+/**
+ * Renders an informational message inside a container element, replacing its content.
+ *
+ * @param {string} id - ID of the container element whose content is replaced.
+ * @param {string} message - Message to display.
+ * @param {string} [icon="fa-circle-exclamation"] - Font Awesome icon class.
+ */
+export function showMessage(id, message, icon = "fa-circle-exclamation") {
+    const container = document.getElementById(id);
+    container.innerHTML = `
+        <p class="text-muted">
+            <i class="fa ${icon}"></i>
+            ${message}
+        </p>
+    `;
+}

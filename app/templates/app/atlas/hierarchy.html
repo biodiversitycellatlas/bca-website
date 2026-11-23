@@ -1,0 +1,136 @@
+{% extends "./atlas.html" %}
+
+{% comment %}
+
+Cell type hierarchies
+
+Features:
+- Phylogenetic tree showing cell type hierarchies
+    - Fetches via REST API
+- Node/edge coloring toggle (on by default)
+
+Input:
+- dataset: Dataset object
+
+{% endcomment %}
+
+{% block title %}
+    {{ dataset }} Cell Type Hierarchies
+{% endblock title %}
+
+{% block content %}
+
+    {% load static %}
+
+    {% load headings %}
+    {% h1 "Cell type hierarchy" id="trees" %}
+
+    <form id="plot-options"
+          class="row g-2 mb-4 align-items-end sticky-plot-options">
+        <!-- Toggle visibility -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-eye"></i> View options
+                </label>
+            </div>
+
+            <div class="btn-group d-flex" role="group">
+                <input type="checkbox"
+                       class="btn-check"
+                       id="align-tips"
+                       autocomplete="off"
+                       {% if query.align_tips == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="align-tips">Align tips</label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="scale-bar"
+                       autocomplete="off"
+                       {% if query.scale_bar == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="scale-bar">Scale bar</label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="colors"
+                       autocomplete="off"
+                       {% if query.colors == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="colors">Color</label>
+            </div>
+        </fieldset>
+
+        <!-- Tree type -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-tree"></i> Tree type
+                </label>
+            </div>
+            <div class="btn-group d-flex" id="tree-type" role="group">
+                <input type="radio"
+                       class="btn-check"
+                       name="tree-type"
+                       id="linear-tree"
+                       value="linear"
+                       autocomplete="off"
+                       {% if query.tree_type == 'radial' or query.tree_type == 'unrooted' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="linear-tree">Linear</label>
+
+                <input type="radio"
+                       class="btn-check"
+                       name="tree-type"
+                       id="radial-tree"
+                       value="radial"
+                       autocomplete="off"
+                       {% if query.tree_type == 'radial' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="radial-tree">Radial</label>
+
+                <input type="radio"
+                       class="btn-check"
+                       name="tree-type"
+                       id="unrooted-tree"
+                       value="unrooted"
+                       autocomplete="off"
+                       {% if query.tree_type == 'unrooted' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="unrooted-tree">Unrooted</label>
+            </div>
+        </fieldset>
+
+        <!-- Labelling -->
+        <fieldset class="col-auto">
+            <div class="d-flex justify-content-between align-items-center small">
+                <label class="col-form-label">
+                    <i class="fa fa-tag"></i> Labelling
+                </label>
+            </div>
+            <div class="btn-group d-flex" role="group">
+                <input type="checkbox"
+                       class="btn-check"
+                       id="tip-labels"
+                       autocomplete="off"
+                       {% if query.tip_labels == 'false' %}{% else %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="tip-labels">Tips</label>
+
+                <input type="checkbox"
+                       class="btn-check"
+                       id="internal-names"
+                       autocomplete="off"
+                       {% if query.internal_names == 'true' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="internal-names">Nodes</label>
+            </div>
+        </fieldset>
+
+    </form>
+
+    <div id="hierarchy-tree">
+        <div id="hierarchy-tree-spinner" class="loading-state">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initCellTypeHierarchy } from "{% static 'app/dist/atlas/hierarchy.js' %}";
+        initCellTypeHierarchy("hierarchy", `{{dataset.get_inline_html_link}}`, "{{dataset.slug}}");
+    </script>
+
+{% endblock content %}
