@@ -326,7 +326,7 @@ function styleDendrogramNodes(element, data, dataset, stats) {
         .attr("r", outerR)
         .attr("fill-opacity", 0.35);
 
-    let tfCircles = element
+    const tfCircles = element
         .selectAll(".marker-tf-circle")
         .data(tfCount > 0 ? [name] : [])
         .join("circle")
