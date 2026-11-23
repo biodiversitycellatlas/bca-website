@@ -6,6 +6,11 @@ import { phylotree } from "phylotree";
 import TomSelect from "tom-select";
 
 import { updateDataMenu } from "../buttons/data_dropdown.ts";
+import {
+    attachMarkerTooltip,
+    closeTooltips,
+    initMarkerTooltips,
+} from "./tables/marker_tooltips.ts";
 import { initRangeSlider } from "../utils/range_slider.ts";
 import { getViewUrl, setUrlParam } from "../utils/urls.ts";
 import { showMessage } from "../utils/utils.ts";
@@ -120,6 +125,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
     const containerId = `${id}-tree`;
     let tree;
     let treeData;
+    initMarkerTooltips();
     initViewOptionControls(() => tree);
 
     const colors = document.getElementById("colors");
@@ -335,6 +341,16 @@ function styleDendrogramNodes(element, data, dataset, stats) {
             .style("stroke-width", "1px", "important");
         tfCircles = tfCircles.style("fill", color, "important");
     }
+
+    // Hover to show, click to pin, drag the header to detach
+    circles.style("cursor", "pointer").each(function () {
+        attachMarkerTooltip(this, name, {
+            dataset,
+            markers: nodeMarkers,
+            color: colors.get(name),
+            isInternal: !!data.children,
+        });
+    });
 }
 
 /**
@@ -367,6 +383,7 @@ function areInternalNamesEnabled() {
  */
 function renderTree(containerId, dataset, treeData, tree) {
     if (!treeData) return;
+    closeTooltips();
     const data = getFilteredTreeData(treeData);
     const focus = document.getElementById("focus-node")?.value || "";
     const newick = focus ? getSubtreeNewick(tree, focus) : "";
