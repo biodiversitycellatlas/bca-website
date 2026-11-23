@@ -11,7 +11,7 @@
         "autoprefixer": "10.6.2",
         "bootstrap": "5.3.9",
         "d3": "7.9.2",
-        "datatables.net-bs5": "3.1.2",
+        "datatables.net-bs5": "3.1.5",
         "datatables.net-rowgroup-bs5": "2.1.1",
         "datatables.net-select-bs5": "4.1.1",
         "ion-rangeslider": "2.6.0",
@@ -229,9 +229,9 @@
 
     "d3-zoom": ["d3-zoom@3.0.1", "", { "dependencies": { "d3-dispatch": "1 - 3", "d3-drag": "2 - 3", "d3-interpolate": "1 - 3", "d3-selection": "2 - 3", "d3-transition": "2 - 3" } }, "sha512-kfjD3BDQu/FOatpZ6JdMSyIoDwTxIpI29ySTI2J5ZlDaH1WbuJGQJ2Q9oJkWTEZEW98j6idezoomSD3Cn2zwiw=="],
 
-    "datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+    "datatables.net": ["datatables.net@3.1.5", "", {}, "sha512-phu9fVz1cOhD7kZDO5Ztj15qwghCkmdwX5AezLi+PxfMtnFAq0itpewvXzdwdr6bOwPqO2zuXsXWUU5x3wQptw=="],
 
-    "datatables.net-bs5": ["datatables.net-bs5@3.1.2", "", { "dependencies": { "datatables.net": "3.1.2" } }, "sha512-scWB81ZdmF5wF0r1/uuh1RnmJA4liwlkkIPSAjZQfw+IuRb/eMEd53ouroZWavEbKMzggqvTIMNRgmXVgWd3xg=="],
+    "datatables.net-bs5": ["datatables.net-bs5@3.1.5", "", { "dependencies": { "datatables.net": "3.1.5" } }, "sha512-eGSe7DVcqqI0RKtrjgzFVqqCZoltJSahAKLCJ0nH0WzSfVclhD8maoGbbz/JJQXky1H9c+vzAnbmAevYRBjxOw=="],
 
     "datatables.net-rowgroup": ["datatables.net-rowgroup@2.1.1", "", { "dependencies": { "datatables.net": "^3.1" } }, "sha512-ELnR7NJ3Tej+RqTbQcEqO/b3ZIkOxVvowHBXDBtvdY356ypuq8gnBq9HxM1G6lykZIkMKTRs9V/UAZs1pY957A=="],
 
@@ -484,6 +484,10 @@
     "d3-geo-projection/d3-array": ["d3-array@3.2.4", "", { "dependencies": { "internmap": "1 - 2" } }, "sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg=="],
 
     "d3-geo-projection/d3-geo": ["d3-geo@3.1.1", "", { "dependencies": { "d3-array": "2.5.0 - 3" } }, "sha512-637ln3gXKXOwhalDzinUgY83KzNWZRKbYubaG+fGVuc/dxO64RRljtCTnf5ecMyE1RIdtqpkVcq0IbtU2S8j2Q=="],
+
+    "datatables.net-rowgroup/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-select/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
 
     "topojson-client/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
