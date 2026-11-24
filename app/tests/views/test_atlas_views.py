@@ -2,9 +2,9 @@
 
 from django.urls import reverse
 
-from app.views import AtlasInfoView, AtlasView
 from app.models import Gene, MetacellTypeSimilarity
 from app.tests.views.utils import DataTestCase
+from app.views import AtlasInfoView, AtlasView
 
 
 class AtlasViewTest(DataTestCase):

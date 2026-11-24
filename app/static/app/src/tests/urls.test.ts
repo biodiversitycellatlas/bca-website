@@ -192,7 +192,11 @@ describe("setUrlParam", () => {
     });
 
     it("leaves other view options untouched", () => {
-        window.history.replaceState({}, "", base + "?colors=true&specificity_min=20");
+        window.history.replaceState(
+            {},
+            "",
+            base + "?colors=true&specificity_min=20",
+        );
         setUrlParam("internal_names", "true", "false");
         expect(window.location.search).toBe(
             "?colors=true&specificity_min=20&internal_names=true",
