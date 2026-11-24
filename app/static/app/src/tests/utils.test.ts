@@ -1,9 +1,10 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, beforeEach } from "bun:test";
 import {
     highlightMatch,
     addWordBreakOpportunities,
     slugify,
     escapeString,
+    showMessage,
 } from "../utils/utils";
 
 describe("highlightMatch", () => {
@@ -66,5 +67,30 @@ describe("escapeString", () => {
 
     it("converts input to string if needed", () => {
         expect(escapeString(123)).toBe("123");
+    });
+});
+
+describe("showMessage", () => {
+    beforeEach(() => {
+        document.body.innerHTML =
+            '<div id="msg" class="alert">old content</div>';
+    });
+
+    it("renders the message with the default icon", () => {
+        showMessage("msg", "Something happened");
+
+        const container = document.getElementById("msg");
+        expect(container.innerHTML).toContain("Something happened");
+        expect(container.innerHTML).toContain(
+            '<i class="fa fa-circle-exclamation">',
+        );
+    });
+
+    it("uses a custom icon when provided", () => {
+        showMessage("msg", "Hello", "fa-check");
+
+        const container = document.getElementById("msg");
+        expect(container.innerHTML).toContain('<i class="fa fa-check">');
+        expect(container.innerHTML).not.toContain("fa-circle-exclamation");
     });
 });

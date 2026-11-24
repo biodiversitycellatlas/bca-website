@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll } from "bun:test";
-import { getViewUrl } from "../utils/urls";
+import { describe, it, expect, beforeAll, beforeEach } from "bun:test";
+import { getViewUrl, setUrlParam } from "../utils/urls";
 
 // Mock global variables
 beforeAll(() => {
@@ -10,6 +10,8 @@ beforeAll(() => {
         "rest:metacellcount-list": "/api/metacellcount",
         "rest:metacellgeneexpression-list": "/api/metacellgeneexpression",
         "rest:genelist-list": "/api/genelist",
+        "rest:celltypetree-list": "/api/v1/cell_type_trees/",
+        atlas_hierarchy: "/atlas/DATASET_PLACEHOLDER/hierarchy/",
     };
 });
 
@@ -146,5 +148,54 @@ describe("getViewUrl", () => {
     it("collapses the empty gene placeholder for species-only gene URLs", () => {
         const url = getViewUrl("gene_entry", { species: "mus-musculus" });
         expect(url).toBe("/entry/gene/mus-musculus/");
+    });
+});
+
+describe("setUrlParam", () => {
+    // The hierarchy page keeps its view options in the URL via setUrlParam
+    let base;
+
+    beforeEach(() => {
+        base = new URL(
+            getViewUrl("atlas_hierarchy", { dataset: "adult-mouse" }),
+            window.location.origin,
+        ).href;
+        window.history.replaceState({}, "", base);
+    });
+
+    it("appends a non-default tree layout to the URL", () => {
+        setUrlParam("tree_type", "radial", "linear");
+        expect(window.location.search).toBe("?tree_type=radial");
+    });
+
+    it("updates the focused node", () => {
+        window.history.replaceState({}, "", base + "?focus_node=Tips");
+        setUrlParam("focus_node", "Neurons", "");
+        expect(window.location.search).toBe("?focus_node=Neurons");
+    });
+
+    it("removes the param when the value is the default", () => {
+        window.history.replaceState({}, "", base + "?tree_type=radial");
+        setUrlParam("tree_type", "linear", "linear");
+        expect(window.location.search).toBe("");
+    });
+
+    it("clears the focused node when reset", () => {
+        window.history.replaceState({}, "", base + "?focus_node=Neurons");
+        setUrlParam("focus_node", "", "");
+        expect(window.location.search).toBe("");
+    });
+
+    it("sets an empty value without removing the param when no default is given", () => {
+        setUrlParam("specificity_min", "");
+        expect(window.location.search).toBe("?specificity_min=");
+    });
+
+    it("leaves other view options untouched", () => {
+        window.history.replaceState({}, "", base + "?colors=true&specificity_min=20");
+        setUrlParam("internal_names", "true", "false");
+        expect(window.location.search).toBe(
+            "?colors=true&specificity_min=20&internal_names=true",
+        );
     });
 });
