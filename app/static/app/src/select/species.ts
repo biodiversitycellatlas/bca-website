@@ -36,10 +36,8 @@ function renderOption(item, escape) {
             `;
         }
     }
-    const img = item.image === "None" ? "" : escape(item.image);
     return `
         <div class='option'>
-            <img src="${img}" style="width: 20px;">
             ${item.label} ${description}${badges}
         </div>
     `;
@@ -64,7 +62,6 @@ function renderItem(item, escape) {
     }
     return `
         <div class='option'>
-            <img src="${escape(item.image)}" style="width: 20px;">
             ${item.label} ${description}
         </div>
     `;

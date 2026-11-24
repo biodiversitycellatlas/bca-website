@@ -11,6 +11,8 @@ Comparison page between multiple species
 {% endblock title %}
 
 {% block content %}
+    {% include "../components/warning_alert.html" %}
+
     {% load headings %}
     {% h1 "Compare cell types" id="cell-types" %}
     {% include "../components/plots/samap_plot.html" with id="cell-types" %}

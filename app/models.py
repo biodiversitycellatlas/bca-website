@@ -110,37 +110,43 @@ class ExternalQueryMixin:
                 {label}
             </a>
         """
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703
 
 
 class HtmlLinkMixin:
     """Mixin to get HTML links for Species and Dataset objects."""
 
-    def get_html_link(self, url=None, show_common_name=False, inline=False):
-        """Return HTML representation linking to species or dataset."""
-        url = self.get_absolute_url() if url is None else url
+    def get_image_html(self):
+        """Return HTML image for this species or dataset."""
         image_url = self.get_image_url()
-        html = self.get_html()
         label = self.get_label()
+        return mark_safe(f"<img class='rounded' alt='Image of {label}' width='25px' src='{image_url}'>")  # nosec B703
+
+    def get_html_label_with_image(self, show_common_name=False):
+        """Return HTML of image and label."""
+        html = self.get_html()
         name = self.common_name
 
         # Add species common name
         if show_common_name and name:
-            html = f"""
-                {html}
-                <span class="text-secondary small">{name}</span>
-            """
+            html += f" <span class='text-secondary small'>{name}</span>"
+
+        html = f"{self.get_image_html()} <span>{html}</span>"
+        return mark_safe(html)  # nosec B703
+
+    def get_html_link(self, url=None, show_common_name=False, inline=False):
+        """Return HTML representation linking to species or dataset."""
+        url = self.get_absolute_url() if url is None else url
 
         # Inline other HTML elements or not
         link_class = "d-flex align-items-center gap-1" if not inline else ""
 
         html = f"""
             <a class="{link_class}" href="{url}">
-                <img class="rounded" alt="Image of {label}" width="25px" src="{image_url}">
-                <span>{html}</span>
+                {self.get_html_label_with_image(show_common_name)}
             </a>
         """
-        return mark_safe(html)
+        return mark_safe(html)  # nosec B703
 
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
@@ -328,8 +334,14 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
 
     platform = models.CharField(max_length=255, blank=True, null=True, help_text="Sequencing platform.")
     publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True, help_text="Dataset publication.")
-    # version = models.CharField(max_length=50, blank=True, null=True)
-    # is_public = models.BooleanField(default=True)
+
+    release_stages = {
+        "private": "Private (access-restricted)",
+        "beta": "Public beta",
+        "public": "Public",
+        "deprecated": "Deprecated",
+    }
+    release = models.CharField(max_length=20, default="public", choices=release_stages, help_text="Release stage.")
 
     # Dataset order: only required if relevant, such as in the case of
     # developmental stages
@@ -343,12 +355,41 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
         """Return species common name."""
         return self.species.common_name
 
-    def get_label(self, species=None):
+    @property
+    def is_private(self):
+        """Return whether the dataset is access-restricted."""
+        return self.release == "private"
+
+    @property
+    def is_beta(self):
+        """Return whether the dataset is in beta."""
+        return self.release in ("private", "beta")
+
+    @property
+    def version(self):
+        """Return the most recent dataset version."""
+        return self.versions.first()
+
+    def get_label(self, html=False):
         """Return dataset label."""
-        if species is None:
-            species = self.species
-        dataset = self.name
-        return f"{species} ({dataset})" if dataset else species
+        species = self.species.get_html() if html else self.species
+        label = f"{species} ({self.name})" if self.name else f"{species}"
+
+        # Append non-public release stage to label
+        if self.release != "public":
+            if html:
+                label += f" {self.get_release_badge_html()}"
+            else:
+                label += f" [{self.release}]"
+        return label
+
+    def get_release_badge_html(self):
+        """Return HTML badge for the dataset release stage."""
+        badges = {"beta": "warning", "private": "danger", "deprecated": "secondary"}
+        color = badges.get(self.release)
+        if color is None:
+            return ""
+        return mark_safe(f"<span class='badge p-1 fw-normal text-bg-{color}'>{self.release}</span>")  # nosec B703
 
     def get_image_url(self):
         """Return image URL from dataset or species."""
@@ -356,7 +397,7 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
 
     def get_html(self):
         """Return HTML representation of the dataset."""
-        return mark_safe(self.get_label(self.species.get_html()))
+        return mark_safe(self.get_label(html=True))  # nosec B703
 
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
@@ -383,7 +424,46 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
 
     def __str__(self):
         """String representation."""
-        return self.get_label(self.species.scientific_name)
+        return self.get_label()
+
+
+class DatasetVersion(models.Model):
+    """Dataset version history."""
+
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="versions")
+    db_version = models.ForeignKey(
+        "DBVersion", on_delete=models.SET_NULL, null=True, help_text="Associated version of the database."
+    )
+    description = models.TextField(blank=True, help_text="Description of the changes in this version.")
+    metadata = models.JSONField(default=dict, blank=True, help_text="Free-form per-version metadata.")
+    created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the version was created.")
+
+    class Meta:
+        """Meta options."""
+
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["dataset", "-created"])]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.dataset.slug} - version {self.created:%Y-%m-%d}"
+
+
+class DatasetVersionTool(models.Model):
+    """Tool that contributed to a dataset version (an ingestion uses a pipeline of tools)."""
+
+    dataset_version = models.ForeignKey(DatasetVersion, on_delete=models.CASCADE, related_name="tools")
+    name = models.CharField(max_length=255, help_text="Tool name.")
+    version = models.CharField(max_length=50, blank=True, help_text="Version of the tool.")
+
+    class Meta:
+        """Meta options."""
+
+        unique_together = ["dataset_version", "name"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.name} {self.version}".strip()
 
 
 class QualityControl(models.Model):

@@ -66,6 +66,40 @@ class PublicationSerializer(serializers.ModelSerializer):
         exclude = ["id"]
 
 
+class DBVersionSerializer(serializers.ModelSerializer):
+    """Serializer for the database version log."""
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.DBVersion
+        fields = ["version", "description", "populated_at", "commit"]
+
+
+class DatasetVersionToolSerializer(serializers.ModelSerializer):
+    """Serializer for a tool that contributed to a dataset version."""
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.DatasetVersionTool
+        fields = ["name", "version"]
+
+
+class DatasetVersionSerializer(serializers.ModelSerializer):
+    """Serializer for a dataset version (ingestion history/provenance)."""
+
+    dataset = serializers.CharField(source="dataset.slug", help_text="Dataset slug.")
+    db_version = DBVersionSerializer(allow_null=True, help_text="Database version that populated the data.")
+    tools = DatasetVersionToolSerializer(many=True, read_only=True, help_text="Tools that produced the data.")
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.DatasetVersion
+        fields = ["id", "dataset", "db_version", "description", "tools", "metadata", "created"]
+
+
 class DatasetSerializer(serializers.ModelSerializer):
     """Dataset serializer."""
 
@@ -80,6 +114,7 @@ class DatasetSerializer(serializers.ModelSerializer):
     species_meta = MetaSerializer(source="species.meta_set", many=True, help_text="Species metadata.")
     species_html = serializers.CharField(source="species.get_html_link")
     slug = serializers.CharField(help_text="Dataset slug.")
+    version = DatasetVersionSerializer(read_only=True, allow_null=True, help_text="Dataset version.")
 
     class Meta:
         """Meta configuration."""
@@ -91,12 +126,14 @@ class DatasetSerializer(serializers.ModelSerializer):
             "slug",
             "dataset_html",
             "description",
+            "release",
             "files",
             "image_url",
             "publication",
             "order",
             "date_created",
             "date_updated",
+            "version",
             "species_common_name",
             "species_html",
             "species_image_url",

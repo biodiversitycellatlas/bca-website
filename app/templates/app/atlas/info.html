@@ -60,6 +60,17 @@ Input:
                     </tr>
                     <tr>
                         <td>
+                            <span class="key">Version</span>
+                        </td>
+                        <td class="text-end">
+                            {% with version=dataset.version %}
+                                {{ version.db_version.version|default:"Not available" }}
+                                {{ dataset.get_release_badge_html }}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <span class="key">Processed</span>
                         </td>
                         <td class="text-end">{{ dataset.date_created|date:"j F Y" }}</td>
