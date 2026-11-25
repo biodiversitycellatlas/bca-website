@@ -110,7 +110,7 @@ class ExternalQueryMixin:
                 {label}
             </a>
         """
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
 
 class HtmlLinkMixin:
@@ -120,7 +120,7 @@ class HtmlLinkMixin:
         """Return HTML image for this species or dataset."""
         image_url = self.get_image_url()
         label = self.get_label()
-        return mark_safe(f"<img class='rounded' alt='Image of {label}' width='25px' src='{image_url}'>")  # nosec B703
+        return mark_safe(f"<img class='rounded' alt='Image of {label}' width='25px' src='{image_url}'>")  # nosec B703, B308
 
     def get_html_label_with_image(self, show_common_name=False):
         """Return HTML of image and label."""
@@ -132,7 +132,7 @@ class HtmlLinkMixin:
             html += f" <span class='text-secondary small'>{name}</span>"
 
         html = f"{self.get_image_html()} <span>{html}</span>"
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_html_link(self, url=None, show_common_name=False, inline=False):
         """Return HTML representation linking to species or dataset."""
@@ -146,7 +146,7 @@ class HtmlLinkMixin:
                 {self.get_html_label_with_image(show_common_name)}
             </a>
         """
-        return mark_safe(html)  # nosec B703
+        return mark_safe(html)  # nosec B703, B308
 
     def get_named_html_link(self, url=None):
         """Return HTML representation with common name."""
@@ -389,7 +389,7 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
         color = badges.get(self.release)
         if color is None:
             return ""
-        return mark_safe(f"<span class='badge p-1 fw-normal text-bg-{color}'>{self.release}</span>")  # nosec B703
+        return mark_safe(f"<span class='badge p-1 fw-normal text-bg-{color}'>{self.release}</span>")  # nosec B703, B308
 
     def get_image_url(self):
         """Return image URL from dataset or species."""
@@ -397,7 +397,7 @@ class Dataset(AutoSlugMixin, ImageSourceMixin, HtmlLinkMixin):
 
     def get_html(self):
         """Return HTML representation of the dataset."""
-        return mark_safe(self.get_label(html=True))  # nosec B703
+        return mark_safe(self.get_label(html=True))  # nosec B703, B308
 
     def get_gene_modules_html_link(self):
         """Return HTML representation linking to list of gene modules."""
