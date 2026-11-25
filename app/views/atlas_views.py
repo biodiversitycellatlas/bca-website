@@ -273,7 +273,7 @@ class AtlasMarkersView(BaseAtlasView):
         query = self.request.GET
         if query:
             context["query"] = query
-            if "metacells" in query.keys():
+            if "metacells" in query:
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(

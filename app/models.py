@@ -120,7 +120,8 @@ class HtmlLinkMixin:
         """Return HTML image for this species or dataset."""
         image_url = self.get_image_url()
         label = self.get_label()
-        return mark_safe(f"<img class='rounded' alt='Image of {label}' width='25px' src='{image_url}'>")  # nosec B703, B308
+        html = f"<img class='rounded' alt='Image of {label}' width='25px' src='{image_url}'>"
+        return mark_safe(html)  # nosec B703, B308
 
     def get_html_label_with_image(self, show_common_name=False):
         """Return HTML of image and label."""
