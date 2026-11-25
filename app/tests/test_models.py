@@ -1,10 +1,21 @@
+from datetime import datetime, timedelta
+
 import pytest
 from django.db import IntegrityError
 from django.test import TestCase
+from django.utils import timezone
 
-from datetime import datetime
-
-from app.models import Domain, Gene, Publication, Source, Species, DBVersion, GeneModule, Orthogroup
+from app.models import (
+    DatasetVersion,
+    DBVersion,
+    Domain,
+    Gene,
+    GeneModule,
+    Orthogroup,
+    Publication,
+    Source,
+    Species,
+)
 
 
 class TestSpeciesModel(TestCase):
@@ -56,6 +67,128 @@ class TestDatasetModel(TestCase):
     def test_image_source(self):
         assert self.baby.image_source == "Wikimedia"
         assert self.larva.image_source is None
+
+    def test_release_stage(self):
+        # Default release is public
+        assert self.baby.release == "public"
+        assert not self.baby.is_private
+        assert not self.baby.is_beta
+
+        # Test non-public release stages
+        private = self.human.datasets.create(name="private", release="private")
+        beta = self.human.datasets.create(name="beta", release="beta")
+        deprecated = self.human.datasets.create(name="old", release="deprecated")
+
+        assert private.is_private
+        assert private.is_beta
+        assert beta.is_beta
+        assert not beta.is_private
+        assert not deprecated.is_private
+        assert not deprecated.is_beta
+
+    def test_version(self):
+        assert self.baby.version is None
+
+        first = self.baby.versions.create(description="first")
+        assert self.baby.version == first
+
+        # Make the first version older so ordering is deterministic
+        DatasetVersion.objects.filter(pk=first.pk).update(created=timezone.now() - timedelta(days=1))
+        second = self.baby.versions.create(description="second")
+        assert self.baby.version == second
+
+    def test_get_label(self):
+        assert self.baby.get_label() == "Homo sapiens (baby)"
+
+        unnamed = self.human.datasets.create()
+        assert unnamed.get_label() == "Homo sapiens"
+
+        private = self.human.datasets.create(name="secret", release="private")
+        assert private.get_label() == "Homo sapiens (secret) [private]"
+
+        beta = self.human.datasets.create(name="beta", release="beta")
+        assert beta.get_label() == "Homo sapiens (beta) [beta]"
+
+    def test_get_label_html(self):
+        assert self.baby.get_label(html=True) == "<i>Homo sapiens</i> (baby)"
+
+        beta = self.human.datasets.create(name="beta", release="beta")
+        assert (
+            beta.get_label(html=True)
+            == "<i>Homo sapiens</i> (beta) <span class='badge p-1 fw-normal text-bg-warning'>beta</span>"
+        )
+
+    def test_get_release_badge_html(self):
+        assert self.baby.get_release_badge_html() == ""
+        for release, color in [("beta", "warning"), ("private", "danger"), ("deprecated", "secondary")]:
+            dataset = self.human.datasets.create(name=f"{release} dataset", release=release)
+            assert (
+                dataset.get_release_badge_html()
+                == f"<span class='badge p-1 fw-normal text-bg-{color}'>{release}</span>"
+            )
+
+    def test_get_html(self):
+        assert self.baby.get_html() == "<i>Homo sapiens</i> (baby)"
+
+    def test_string_representation(self):
+        assert str(self.baby) == "Homo sapiens (baby)"
+
+    def test_dataset_version_string_representation(self):
+        db_version = DBVersion.objects.create(version="2026.11.25", description="test")
+        version = self.baby.versions.create(db_version=db_version, description="first")
+        assert str(version) == f"{self.baby.slug} - version {version.created:%Y-%m-%d}"
+
+    def test_dataset_version_tool_string_representation(self):
+        version = self.baby.versions.create(description="first")
+        with_version = version.tools.create(name="bca_preprocessing", version="0.2.0")
+        without_version = version.tools.create(name="bca-utils")
+
+        assert str(with_version) == "bca_preprocessing 0.2.0"
+        assert str(without_version) == "bca-utils"
+
+    def test_dataset_version_tool_name_is_unique_per_version(self):
+        version = self.baby.versions.create(description="first")
+        version.tools.create(name="bca_preprocessing", version="0.2.0")
+
+        with pytest.raises(IntegrityError):
+            version.tools.create(name="bca_preprocessing", version="0.3.0")
+
+
+class TestHtmlLinkMixin(TestCase):
+    """Test HtmlLinkMixin HTML helpers for Species and Dataset."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.mouse = Species.objects.create(
+            scientific_name="Mus musculus",
+            common_name="mouse",
+            image_url="https://example.com/mouse.png",
+        )
+        cls.adult = cls.mouse.datasets.create(name="adult")
+
+    def test_get_image_html(self):
+        assert "img" in self.mouse.get_image_html()
+        assert "img" in self.adult.get_image_html()
+
+    def test_get_html_label_with_image(self):
+        label = self.mouse.get_html_label_with_image()
+        assert "<i>Mus musculus</i>" in label
+        assert "text-secondary" not in label
+
+        label = self.mouse.get_html_label_with_image(show_common_name=True)
+        assert "<span class='text-secondary small'>mouse</span>" in label
+
+    def test_get_html_link(self):
+        link = self.adult.get_html_link()
+        assert f'href="{self.adult.get_absolute_url()}"' in link
+        assert "d-flex align-items-center gap-1" in link
+        assert "<i>Mus musculus</i>" in link
+
+        link = self.adult.get_inline_html_link()
+        assert "d-flex" not in link
+
+        link = self.adult.get_named_html_link()
+        assert "<span class='text-secondary small'>mouse</span>" in link
 
 
 class TestPublicationModel(TestCase):

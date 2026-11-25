@@ -2,9 +2,9 @@
 
 from django.urls import reverse
 
-from app.views import AtlasView
 from app.models import Gene, MetacellTypeSimilarity
 from app.tests.views.utils import DataTestCase
+from app.views import AtlasView
 
 
 class AtlasViewTest(DataTestCase):
@@ -46,6 +46,27 @@ class AtlasInfoViewTest(DataTestCase):
         for metric in context["qc_metrics"]:
             assert "title" in metric
             assert "values" in metric
+
+    def test_public_dataset_has_no_warning(self):
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/")
+        assert response.status_code == 200
+        assert "warning" not in response.context
+
+    def test_private_dataset_warning(self):
+        self.adult_mouse.release = "private"
+        self.adult_mouse.save()
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/")
+        assert response.status_code == 200
+        warning = response.context["warning"]
+        assert "Private dataset" in warning["title"]
+
+    def test_beta_dataset_warning(self):
+        self.adult_mouse.release = "beta"
+        self.adult_mouse.save()
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/")
+        assert response.status_code == 200
+        warning = response.context["warning"]
+        assert "Beta dataset" in warning["title"]
 
 
 class AtlasOverviewViewTest(DataTestCase):
