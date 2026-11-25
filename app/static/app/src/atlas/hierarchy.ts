@@ -168,7 +168,7 @@ export function initCellTypeHierarchy(id, html, dataset) {
         },
         onChange: (value) => {
             lastFocus = value;
-            setUrlParam("focus_node", value, "");
+            setUrlParam("focus_node", value, "", true);
             if (!treeData) return;
             tree = renderTree(containerId, dataset, treeData, tree);
         },
@@ -177,6 +177,19 @@ export function initCellTypeHierarchy(id, html, dataset) {
     // Reset the focus to the full tree
     document.getElementById("focus-reset")?.addEventListener("click", () => {
         if (focusSelect.getValue()) focusSelect.setValue("");
+    });
+
+    // Step through focus states with the browser Back/Forward buttons
+    window.addEventListener("popstate", () => {
+        const focus =
+            new URLSearchParams(window.location.search).get("focus_node") ?? "";
+        if (focusSelect.getValue() === focus) return;
+        lastFocus = focus;
+
+        // Do not trigger onChange to avoid history entry
+        focusSelect.setValue(focus, true);
+        if (!treeData) return;
+        tree = renderTree(containerId, dataset, treeData, tree);
     });
 
     // Focus on the node of a marker tooltip (dispatched by the tooltip's Focus button)

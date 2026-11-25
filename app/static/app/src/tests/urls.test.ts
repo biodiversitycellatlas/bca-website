@@ -202,4 +202,35 @@ describe("setUrlParam", () => {
             "?colors=true&specificity_min=20&internal_names=true",
         );
     });
+
+    // With push = true, the hierarchy page steps focus states through window history
+    it("adds a history entry when the focused node changes", () => {
+        const length = window.history.length;
+        setUrlParam("focus_node", "Neurons", "", true);
+        expect(window.location.search).toBe("?focus_node=Neurons");
+        expect(window.history.length).toBe(length + 1);
+    });
+
+    it("does not add a history entry when the URL is unchanged", () => {
+        const length = window.history.length;
+        setUrlParam("focus_node", "Neurons", "", true);
+        setUrlParam("focus_node", "Neurons", "", true);
+        expect(window.history.length).toBe(length + 1);
+    });
+
+    it("removes the param and adds a history entry when reset to the default", () => {
+        window.history.replaceState({}, "", base + "?focus_node=Neurons");
+        const length = window.history.length;
+        setUrlParam("focus_node", "", "", true);
+        expect(window.location.search).toBe("");
+        expect(window.history.length).toBe(length + 1);
+    });
+
+    it("preserves other query params", () => {
+        window.history.replaceState({}, "", base + "?tree_type=radial");
+        setUrlParam("focus_node", "Neurons", "", true);
+        expect(window.location.search).toBe(
+            "?tree_type=radial&focus_node=Neurons",
+        );
+    });
 });
