@@ -28,8 +28,8 @@
 - Before committing: run the migration check, tests, deployment check, and lint
 - Never commit local config or secrets (`.env`, `.pgpass`, `.pg_service.conf`) — only their `*.template` counterparts
 - NEVER AUTOMATICALLY COMMIT WITHOUT ASKING! DO NOT CREATE PR AND DO NOT PUSH TO REMOTE REPOSITORY WITHOUT CONFIRMATION!
+- PR: title based on titles from previous PRs, descriptions with one-line summary + bulleted "## Changes" section
 - Include rollback steps in PR descriptions for risky changes
-- PR description: one-line summary + bulleted "## Changes" section (match recent PRs)
 
 ## Structure
 
