@@ -199,7 +199,7 @@ class MarkerTooltip {
                     data: "gene",
                     title: "Gene",
                     render: linkGene,
-                    className: "all",
+                    className: "truncate all",
                 },
                 {
                     data: "description",
@@ -252,7 +252,7 @@ class MarkerTooltip {
                     data: "specificity",
                     title: "Specificity",
                     render: roundPercentage,
-                    className: "all",
+                    className: "truncate all",
                 },
             ],
             order: [[9, "desc"]],

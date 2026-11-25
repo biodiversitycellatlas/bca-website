@@ -6,7 +6,7 @@
     outline: 1px solid rgb(0 0 0 / 15%);
 }
 
-/* Tooltip for gene markers in cell type trees: arrow on top pointing up at the node. */
+/* Tooltip for gene markers in cell type trees: arrow on top pointing up at the node */
 .marker-tooltip::before {
     content: "";
     position: absolute;
@@ -33,7 +33,7 @@
     overflow-wrap: break-word;
 }
 
-/* Node title bar and drag handle for the tooltip. */
+/* Node title bar and drag handle for the tooltip */
 .marker-tooltip-header {
     position: sticky;
     top: 0;
@@ -47,22 +47,14 @@
     cursor: grabbing;
 }
 
-/* Keep the search box from stretching across the tooltip. */
 .marker-tooltip-body .dt-search input {
     width: 10rem;
 }
 
 .marker-tooltip-body table {
     font-size: 0.75rem;
-
-    /* Fit the tooltip width: columns share the space, long ones truncate. */
     table-layout: fixed;
     width: 100%;
-}
-
-/* Let table-layout:fixed (not a fixed 200px) size the truncatable columns. */
-.marker-tooltip-body table .truncate {
-    max-width: none;
 }
 
 .marker-tooltip-body table th,
@@ -70,13 +62,10 @@
     padding: 0.15rem 0.4rem;
 }
 
-/* Data cells stay on one line (long ones ellipsize via .truncate); headers are
-   allowed to wrap so they don't run into each other when the tooltip is narrow. */
 .marker-tooltip-body table td {
     white-space: nowrap;
 }
 
-/* Sticky table header, just below the sticky node title. */
 .marker-tooltip-body thead th {
     position: sticky;
     top: var(--tooltip-header-height);
