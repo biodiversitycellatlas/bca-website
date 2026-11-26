@@ -28,7 +28,7 @@
     background-color: color-mix(in srgb, var(--tone) 10%, transparent);
 
     .admonition-title {
-        font-weight: 600;
+        font-weight: bold;
         margin-bottom: 0.25rem;
         color: var(--tone);
     }
