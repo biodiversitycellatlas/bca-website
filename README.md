@@ -19,6 +19,16 @@ molecularly characterizing cell types across the eukaryotic tree of life. Our
 mission is to pave the way for the efficient expansion of cell atlases to
 hundreds of species.
 
+## Publications
+
+- Saraiva-Agostinho N, et al. (2026). The Biodiversity Cell Atlas database: a
+  curated resource for comparative single-cell genomics across the eukaryotic
+  tree of life. *Nucleic Acids Research* (in press).
+  [10.1093/nar/gkag1160](https://doi.org/10.1093/nar/gkag1160)
+- Sebé-Pedrós A, et al. (2025). The Biodiversity Cell Atlas: mapping the tree
+  of life at cellular resolution. *Nature* **645**(8082):877-885.
+  [10.1038/s41586-025-09312-4](https://doi.org/10.1038/s41586-025-09312-4)
+
 ## Overview
 
 This project uses:
