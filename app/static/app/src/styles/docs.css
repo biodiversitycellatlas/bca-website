@@ -1,5 +1,47 @@
 /* Documentation styling */
 
+.docs-sidebar,
+.docs-toc {
+    .sticky-top {
+        top: 98px;
+        z-index: 999;
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+
+        li {
+            font-weight: bold;
+
+            & + li {
+                margin-top: 15px;
+            }
+
+            &:hover {
+                background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            }
+        }
+
+        ul {
+            li {
+                margin-top: 0;
+                font-weight: normal;
+            }
+
+            ul {
+                padding-left: 1rem;
+            }
+        }
+    }
+}
+
+.docs-toolbar {
+    margin-top: -2px;
+    margin-bottom: -2px;
+}
+
 .admonition {
     --tone: black;
 
