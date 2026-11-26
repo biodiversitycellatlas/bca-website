@@ -1,3 +1,13 @@
+/* phylotree CSS */
+
+.internal-node {
+    cursor: pointer;
+}
+
+.internal-node text {
+    font-size: 12px !important;
+}
+
 .phylotree-node-text {
     cursor: pointer;
 }

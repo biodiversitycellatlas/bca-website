@@ -7,7 +7,8 @@ nginx*.conf
 *.pyc
 __pycache__
 db.sqlite3
-media
+media/
+/static
 data/
 !scripts/data/
 

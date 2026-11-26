@@ -11,7 +11,6 @@ from django.views.generic import TemplateView
 
 from ..models import Dataset
 from ..utils import (
-    get_cell_atlas_links,
     get_compare_dataset_dict,
     get_dataset,
     get_dataset_dict,
@@ -20,7 +19,119 @@ from ..utils import (
 )
 
 
-class AtlasView(TemplateView):
+class BaseAtlasView(TemplateView):
+    """
+    Base view for dataset-specific Cell Atlas pages.
+
+    Redirects to standard Atlas view with a warning for invalid datasets.
+    """
+
+    model = Dataset
+    template_name = "app/atlas/info.html"
+
+    def get_cell_atlas_links(self, url_name, dataset=None):
+        """Return links to Cell Atlas navigation bar."""
+
+        links = [
+            {
+                "name": "Information",
+                "icon": "dna",
+                "url_view": "atlas_info",
+            },
+            {
+                "name": "Atlas overview",
+                "icon": "diagram-project",
+                "url_view": "atlas_overview",
+            },
+            {
+                "name": "Gene lists",
+                "icon": "solar-panel",
+                "url_view": "atlas_panel",
+            },
+            {
+                "name": "Gene modules",
+                "icon": "puzzle-piece",
+                "url_view": "atlas_modules",
+            },
+            {
+                "name": "Cell type markers",
+                "icon": "list-ol",
+                "url_view": "atlas_markers",
+                "tooltip": "Identify genes with specific expression patterns in selected metacells",
+            },
+            {
+                "name": "Cell type hierarchy",
+                "icon": "sitemap",
+                "url_view": "atlas_hierarchy",
+            },
+            {
+                "name": "Gene view",
+                "icon": "bezier-curve",
+                "url_view": "atlas_gene",
+                "tooltip": "Visualise gene and ortholog expression",
+            },
+            {
+                "name": "Gene ontology",
+                "icon": "arrow-trend-up",
+                "url_view": "atlas_enrichment",
+                "tooltip": "Analyze GO enrichment",
+            },
+            {
+                "name": "Cross-species",
+                "icon": "scale-unbalanced",
+                "url_view": "atlas_compare",
+                "tooltip": "Compare genes between cell types and gene modules across different species",
+            },
+        ]
+
+        for link in links:
+            link["disabled"] = dataset is None
+            link["active"] = url_name == link.get("url_view")
+            if link["active"]:
+                link["href"] = "#top"
+            elif dataset is not None:
+                d = get_dataset(dataset)
+                if isinstance(d, Dataset):
+                    link["href"] = reverse(link["url_view"], args=[d.slug])
+                else:
+                    link["href"] = reverse("atlas")
+            else:
+                link["href"] = "#"
+        return links
+
+    def get_context_data(self, **kwargs):
+        """Add dataset, species, links, and query to context."""
+        context = super().get_context_data(**kwargs)
+
+        # Get URL query parameters
+        query = self.request.GET
+        context["query"] = query
+        context["dataset_dict"] = get_dataset_dict()
+
+        dataset = context.get("dataset")
+        context["dataset"] = dataset
+
+        if dataset is not None:
+            d = get_dataset(dataset)
+            if isinstance(d, Dataset):
+                context["dataset"] = d
+                context["species"] = d.species
+
+        # Prepare Cell Atlas links
+        url_name = self.request.resolver_match.url_name
+        context["links"] = self.get_cell_atlas_links(url_name, context["dataset"])
+
+        return context
+
+    def get(self, *args, **kwargs):
+        """Redirect to standard Atlas view if dataset is invalid."""
+        dataset = kwargs.get("dataset")
+        if dataset is not None and get_dataset(dataset) is None:
+            return redirect(reverse("atlas") + "?dataset=" + dataset)
+        return super().get(*args, **kwargs)
+
+
+class AtlasView(BaseAtlasView):
     """Main Atlas page with random species icon and dataset selection."""
 
     template_name = "app/atlas/atlas.html"
@@ -52,78 +163,33 @@ class AtlasView(TemplateView):
         """Add icon, dataset info, warnings, and links to context."""
         context = super().get_context_data(**kwargs)
         context["icon"] = self.get_species_icon()
-        context["dataset_dict"] = get_dataset_dict()
 
         query = self.request.GET
         if query and query.get("dataset"):
-            dataset = query["dataset"]
+            dataset = get_dataset(query["dataset"])
             if isinstance(dataset, Dataset):
                 context["dataset"] = dataset
             else:
                 # Warn that dataset is not available in the database
                 context["warning"] = {
-                    "title": f"Invalid dataset <code>{dataset}</code>!",
+                    "title": f"Invalid dataset <code>{query['dataset']}</code>!",
                     "description": "Please check available datasets in the search box above.",
                 }
 
-        # Prepare Cell Atlas links
-        url_name = self.request.resolver_match.url_name
-        context["links"] = get_cell_atlas_links(url_name)
         return context
 
     def get(self, request, *args, **kwargs):
         """Redirect to dataset-specific atlas page if dataset is provided."""
+
         query = self.request.GET
         dataset = request.COOKIES.get("dataset") or query.get("dataset")
 
+        if dataset is not None:
+            dataset = get_dataset(dataset)
+
         if dataset and isinstance(dataset, Dataset):
-            return redirect("atlas_info", dataset)
+            return redirect("atlas_info", dataset.slug)
         return super().get(request, *args, **kwargs)
-
-
-class BaseAtlasView(TemplateView):
-    """
-    Base view for dataset-specific Cell Atlas pages.
-
-    Redirects to standard Atlas view with a warning for invalid datasets.
-    """
-
-    model = Dataset
-    template_name = "app/atlas/info.html"
-
-    def get_context_data(self, **kwargs):
-        """Add dataset, species, links, and query to context."""
-        context = super().get_context_data(**kwargs)
-
-        # Get URL query parameters
-        query = self.request.GET
-        context["query"] = query
-        dataset = context["dataset"]
-
-        d = get_dataset(dataset)
-        if isinstance(d, Dataset):
-            context["dataset"] = d
-            context["species"] = d.species
-            context["dataset_dict"] = get_dataset_dict()
-            context["compare_dataset_dict"] = context["dataset_dict"]
-
-            # Prepare Cell Atlas links
-            url_name = self.request.resolver_match.url_name
-            context["links"] = get_cell_atlas_links(url_name, d)
-        else:
-            context["dataset"] = dataset
-
-        return context
-
-    def get(self, *args, **kwargs):
-        """Redirect if dataset is invalid, else proceed normally."""
-        context = self.get_context_data(**kwargs)
-        dataset = context["dataset"]
-        if not isinstance(dataset, Dataset):
-            if dataset is None:
-                dataset = "invalid"
-            return redirect(reverse("atlas") + "?dataset=" + dataset)
-        return super().get(*args, **kwargs)
 
 
 class AtlasInfoView(BaseAtlasView):
@@ -135,11 +201,7 @@ class AtlasInfoView(BaseAtlasView):
         """Add quality control metrics."""
 
         context = super().get_context_data(**kwargs)
-        dataset = context["dataset"]
-
-        if not isinstance(dataset, Dataset):
-            return context
-
+        dataset = context.get("dataset")
         qc_values = dataset.qc.annotate(name=F("metric__name"), description=F("metric__description")).values(
             "name", "description", "value"
         )
@@ -180,10 +242,7 @@ class AtlasOverviewView(BaseAtlasView):
     def get_context_data(self, **kwargs):
         """Add metacell dictionary if dataset is valid."""
         context = super().get_context_data(**kwargs)
-        dataset = context["dataset"]
-        if not isinstance(dataset, Dataset):
-            return context
-
+        dataset = context.get("dataset")
         context["metacell_dict"] = get_metacell_dict(dataset)
         return context
 
@@ -196,13 +255,11 @@ class AtlasGeneView(BaseAtlasView):
     def get_context_data(self, **kwargs):
         """Add gene info or warning if gene invalid."""
         context = super().get_context_data(**kwargs)
-        dataset = context.get("dataset")
-        if not isinstance(dataset, Dataset):
-            return context
 
         gene = context.get("gene")
         if gene:
             # Fetch information on selected gene
+            dataset = context.get("dataset")
             obj = dataset.species.genes.filter(name=gene)
             if obj:
                 context["gene"] = obj.first()
@@ -237,11 +294,14 @@ class AtlasPanelView(BaseAtlasView):
         """Add metacell dictionary if dataset valid."""
         context = super().get_context_data(**kwargs)
         dataset = context.get("dataset")
-        if not isinstance(dataset, Dataset):
-            return context
-
         context["metacell_dict"] = get_metacell_dict(dataset)
         return context
+
+
+class AtlasCellTypeHierarchyView(BaseAtlasView):
+    """Cell type hierarchy page."""
+
+    template_name = "app/atlas/hierarchy.html"
 
 
 class AtlasMarkersView(BaseAtlasView):
@@ -252,17 +312,14 @@ class AtlasMarkersView(BaseAtlasView):
     def get_context_data(self, **kwargs):
         """Add metacell dictionary, selected metacells, or warnings."""
         context = super().get_context_data(**kwargs)
-        dataset = context["dataset"]
-        if not isinstance(dataset, Dataset):
-            return context
-
+        dataset = context.get("dataset")
         context["metacell_dict"] = get_metacell_dict(dataset)
 
         # Get URL query parameters and prepare table with cell markers
         query = self.request.GET
         if query:
             context["query"] = query
-            if "metacells" in query.keys():
+            if "metacells" in query:
                 # get selected metacells
                 metacells = query["metacells"].split(",")
                 selected = list(

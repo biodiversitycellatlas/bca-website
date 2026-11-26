@@ -2,9 +2,9 @@
 
 from django.urls import reverse
 
-from app.views import AtlasView
 from app.models import Gene, MetacellTypeSimilarity
 from app.tests.views.utils import DataTestCase
+from app.views import AtlasInfoView, AtlasView
 
 
 class AtlasViewTest(DataTestCase):
@@ -28,6 +28,11 @@ class AtlasViewTest(DataTestCase):
         response = self.client.get("/atlas/invalid/")
         assert response.status_code == 302
         assert reverse("atlas") in response.url
+
+    def test_query_dataset_redirect(self):
+        response = self.client.get(f"/atlas/?dataset={self.adult_mouse.slug}")
+        assert response.status_code == 302
+        assert response.url == reverse("atlas_info", args=[self.adult_mouse.slug])
 
 
 class AtlasInfoViewTest(DataTestCase):
@@ -134,3 +139,51 @@ class AtlasCompareViewTest(DataTestCase):
 
         assert human_dataset in datasets
         assert self.baby_mouse not in datasets
+
+
+class AtlasCellTypeHierarchyViewTest(DataTestCase):
+    def test_valid_dataset(self):
+        response = self.client.get(f"/atlas/{self.adult_mouse.slug}/hierarchy/")
+        assert response.status_code == 200
+
+        context = response.context
+        assert context["dataset"] == self.adult_mouse
+        assert context["species"] == self.mouse
+
+
+class BaseAtlasViewTest(DataTestCase):
+    def test_cell_atlas_links(self):
+        """Check the Cell Atlas navigation links."""
+        view = AtlasInfoView()
+
+        with self.subTest(name="active entry"):
+            # Current page is active and anchors to the top of the page
+            links = view.get_cell_atlas_links("atlas_info", self.adult_mouse)
+            link = next(link for link in links if link["url_view"] == "atlas_info")
+            assert link["active"] is True
+            assert link["href"] == "#top"
+            assert link["disabled"] is False
+
+            # Entries for other pages point to that page for the given dataset
+            link = next(link for link in links if link["url_view"] == "atlas_hierarchy")
+            assert link["active"] is False
+            assert link["href"] == reverse("atlas_hierarchy", args=[self.adult_mouse.slug])
+
+        with self.subTest(name="no dataset"):
+            # No dataset selected: only the current page is active and others are disabled
+            links = view.get_cell_atlas_links("atlas_info", None)
+            for link in links:
+                assert link["disabled"] is True
+                if link["url_view"] != "atlas_info":
+                    assert link["active"] is False
+                    assert link["href"] == "#"
+            active = next(link for link in links if link["url_view"] == "atlas_info")
+            assert active["active"] is True
+            assert active["href"] == "#top"
+
+        # An unknown dataset slug falls back to the dataset index page
+        with self.subTest(name="unknown dataset slug"):
+            links = view.get_cell_atlas_links("atlas_info", "no-such-dataset")
+            for link in links:
+                if not link["active"]:
+                    assert link["href"] == reverse("atlas")
