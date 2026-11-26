@@ -23,7 +23,7 @@
 
 - Follow the repo's existing code conventions; reuse existing abstractions (mixins, utils, helper functions) instead of duplicating logic
 - Include migrations with model changes (CI fails `makemigrations --check`); restart `web` after model changes
-- Never hand-edit the gitignored `dist/` output; edit the front-end sources in `app/static/app/src/` or `rest/static/rest/src/`, then rebuild with `bun run build` + `collectstatic`
+- Never hand-edit the gitignored `dist/` output; edit the frontend sources in `app/static/app/src/` or `rest/static/rest/src/`, then rebuild with `bun run build` + `collectstatic`
 - Never write tests that depend on real data — use `app/management/commands/factories.py`, `createtestdb`, or the `test_fixtures/` folders instead
 - Before committing: run the migration check, tests, deployment check, and lint
 - Never commit local config or secrets (`.env`, `.pgpass`, `.pg_service.conf`) — only their `*.template` counterparts
@@ -36,10 +36,10 @@
 
 - `app/` — Django app: models, views, templates, management commands; tests in `app/tests/` (with `app/tests/test_fixtures/`)
 - `app/systemchecks/` — data/metadata checks behind `check_data` and `check_metadata`
-- `app/static/app/src/` — front-end TypeScript/CSS sources for the portal
+- `app/static/app/src/` — frontend TypeScript/CSS sources for the portal
 - `rest/` — DRF API: viewsets, serializers, drf-spectacular schema, enrichment services; tests in `rest/tests/` (with `rest/tests/test_fixtures/`)
 - `config/` — project settings (`config/settings.py`) and URLs
-- `scripts/` — repo tooling (`setup.sh`, `superlinter.py`, health checks); `scripts/data/` holds the one-off data-loading scripts, to be replaced in time with Django management commands
+- `scripts/` — repository tooling (`setup.sh`, `superlinter.py`, health checks); `scripts/data/` holds the one-off data-loading scripts, to be replaced in time with Django management commands
 - `e2e/` — Playwright tests
 - `ghost/` — website config
 - `nginx/` — reverse-proxy config
