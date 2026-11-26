@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("app", "0022_gene_domain_trigram_gin_indexes"),
+        ("app", "0023_cell_type_hierarchy"),
     ]
 
     operations = [
