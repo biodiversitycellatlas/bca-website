@@ -3,12 +3,11 @@ URL routing for the app, including Cell Atlas, database entries,
 downloads, search, health check, and custom error pages.
 """
 
-from django.urls import path
 from django.conf import settings
+from django.urls import path
 from django.views.generic import RedirectView
 
 from . import views
-
 
 BCA_WEBSITE = getattr(settings, "BCA_WEBSITE", "https://biodiversitycellatlas.org")
 
@@ -51,6 +50,11 @@ urlpatterns += [
         "atlas/<str:dataset>/markers/",
         views.AtlasMarkersView.as_view(),
         name="atlas_markers",
+    ),
+    path(
+        "atlas/<str:dataset>/hierarchy/",
+        views.AtlasCellTypeHierarchyView.as_view(),
+        name="atlas_hierarchy",
     ),
     path(
         "atlas/<str:dataset>/compare/",

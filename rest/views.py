@@ -130,6 +130,23 @@ class StatsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @extend_schema(
+    summary="List cell type trees for a dataset",
+    description="Return cell type trees for a dataset and their node attributes, including gene markers.",
+    tags=["Cell type tree"],
+)
+class CellTypeTreeViewSet(BaseReadOnlyModelViewSet):
+    """List cell type trees and their node attributes for a dataset."""
+
+    queryset = models.CellTypeTree.objects.prefetch_related(
+        "nodes__markers__gene",
+        "nodes__markers__gene__domains",
+        "nodes__markers__gene__genelists",
+    )
+    serializer_class = serializers.CellTypeTreeSerializer
+    filterset_class = filters.CellTypeTreeFilter
+
+
+@extend_schema(
     summary="List protein domains",
     tags=["Gene"],
     parameters=[

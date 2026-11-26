@@ -187,7 +187,6 @@ function createGenePairsTable(id, rows, dataset, dataset2) {
             },
         ],
         // orderFixed: [[0, "asc"]],
-        responsive: true,
         scrollX: true,
         scrollY: "400px",
         scrollCollapse: true,

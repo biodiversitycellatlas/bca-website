@@ -48,3 +48,24 @@ export function getViewUrl(view, params = {}) {
     finalUrl = finalUrl.replaceAll("%2C", ",");
     return finalUrl;
 }
+
+/**
+ * Update a single URL query param without a page reload.
+ *
+ * @param {string} name - Param name.
+ * @param {string} value - New value.
+ * @param {string} [defaultValue] - Value that means "default" (param removed).
+ * @param {boolean} [push=false] - Add a history entry (pushState) instead of replacing.
+ */
+export function setUrlParam(name, value, defaultValue, push = false) {
+    const url = new URL(window.location);
+    if (defaultValue !== undefined && value === defaultValue) {
+        url.searchParams.delete(name);
+    } else {
+        url.searchParams.set(name, value);
+    }
+
+    // Avoid duplicate history entry
+    if (push && url.href === window.location.href) return;
+    window.history[push ? "pushState" : "replaceState"]({}, "", url);
+}

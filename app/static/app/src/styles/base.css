@@ -41,6 +41,15 @@ body {
     max-width: 300px;
 }
 
+/* Sticky plot options bar (below the subnavbar), above marker tooltips */
+.sticky-plot-options {
+    position: sticky;
+    z-index: 1000;
+    background: white;
+    top: 90px;
+    padding-bottom: 5px;
+}
+
 .color-bullet {
     color: red;
     -webkit-text-stroke: 0.8px white;

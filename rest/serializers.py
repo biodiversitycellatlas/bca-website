@@ -142,6 +142,55 @@ class DatasetSerializer(serializers.ModelSerializer):
         ]
 
 
+class CellTypeTreeNodeMarkerSerializer(serializers.ModelSerializer):
+    """Precomputed marker gene statistics for a cell type tree node."""
+
+    gene = serializers.CharField(source="gene.name", read_only=True)
+    description = serializers.CharField(source="gene.description", read_only=True, allow_null=True)
+    domains = serializers.StringRelatedField(source="gene.domains", many=True, read_only=True)
+    genelists = serializers.StringRelatedField(source="gene.genelists", many=True, read_only=True)
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.CellTypeTreeNodeMarker
+        fields = [
+            "gene",
+            "description",
+            "domains",
+            "genelists",
+            "p_value",
+            "q_value",
+            "avg_log2fc",
+            "pct_1",
+            "pct_2",
+        ]
+
+
+class CellTypeTreeNodeSerializer(serializers.ModelSerializer):
+    """Cell type tree node metadata serializer."""
+
+    markers = CellTypeTreeNodeMarkerSerializer(many=True, read_only=True)
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.CellTypeTreeNode
+        fields = ["node", "color", "significant", "markers"]
+
+
+class CellTypeTreeSerializer(serializers.ModelSerializer):
+    """Cell type tree and its node metadata serializer."""
+
+    nodes = CellTypeTreeNodeSerializer(many=True, read_only=True)
+
+    class Meta:
+        """Meta configuration."""
+
+        model = models.CellTypeTree
+        fields = ["id", "newick", "nodes"]
+
+
 class SpeciesSerializer(serializers.ModelSerializer):
     """Serializer for Species model."""
 
