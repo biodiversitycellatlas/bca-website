@@ -37,7 +37,9 @@ preferred-citation:
     type: article
     title: "The Biodiversity Cell Atlas database: a curated resource for comparative single-cell genomics across the eukaryotic tree of life"
     journal: "Nucleic Acids Research"
-    year: 2026
+    volume: "55"
+    issue: "D1"
+    year: 2027
     doi: "10.1093/nar/gkag1160"
     url: "https://doi.org/10.1093/nar/gkag1160"
     authors:
@@ -80,7 +82,9 @@ citation:
     - type: article
       title: "The Biodiversity Cell Atlas database: a curated resource for comparative single-cell genomics across the eukaryotic tree of life"
       journal: "Nucleic Acids Research"
-      year: 2026
+      volume: "55"
+      issue: "D1"
+      year: 2027
       doi: "10.1093/nar/gkag1160"
       url: "https://doi.org/10.1093/nar/gkag1160"
       authors:

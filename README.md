@@ -387,13 +387,21 @@ The environment files that Super-Linter automatically loads are available in
 
 ## Publications
 
-- Saraiva-Agostinho N, et al. (2026). The Biodiversity Cell Atlas database: a
-  curated resource for comparative single-cell genomics across the eukaryotic
-  tree of life. _Nucleic Acids Research_ (in press).
-  [10.1093/nar/gkag1160](https://doi.org/10.1093/nar/gkag1160)
-- Sebé-Pedrós A, et al. (2025). The Biodiversity Cell Atlas: mapping the tree
-  of life at cellular resolution. _Nature_ **645**(8082):877-885.
-  [10.1038/s41586-025-09312-4](https://doi.org/10.1038/s41586-025-09312-4)
+- N Saraiva-Agostinho, A Becerra, T Pashkovskaia, B van Waardenburg, A Elek,
+  C Borges Perdomo, T Hermoso Pulido, et al. (2027).
+  **[The Biodiversity Cell Atlas database: a curated resource for comparative
+  single-cell genomics across the eukaryotic tree of life][bca-nar-paper]**.
+  _Nucleic Acids Research_, _55_(D1).
+  [10.1093/nar/gkag1160][bca-nar-paper]
+- A Sebé-Pedrós, A Tanay, MKN Lawniczak, D Arendt, S Aerts, J Archibald,
+  MI Arnone, et al. (2025).
+  **[The Biodiversity Cell Atlas: mapping the tree of life at cellular
+  resolution][bca-nature-paper]**.
+  _Nature_, _645_(8082), 877–885.
+  [10.1038/s41586-025-09312-4][bca-nature-paper]
+
+[bca-nar-paper]: https://doi.org/10.1093/nar/gkag1160
+[bca-nature-paper]: https://doi.org/10.1038/s41586-025-09312-4
 
 ## Contact us
 
