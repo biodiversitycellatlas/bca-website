@@ -171,7 +171,7 @@ class AboutView(TemplateView):
                     "label": "BCA database paper (NAR, 2026)",
                 },
                 {
-                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
+                    "url": "https://doi.org/10.1038/s41586-025-09312-4",
                     "icon": "fa-book-open",
                     "label": "BCA white paper (Nature, 2025)",
                 },
