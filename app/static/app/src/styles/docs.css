@@ -1,56 +1,39 @@
-/* Documentation pages */
+/* Documentation styling */
 
 .admonition {
+    --tone: black;
+
+    &.note,
+    &.tip,
+    &.hint {
+        --tone: var(--bold-dark-color);
+    }
+
+    &.warning,
+    &.important,
+    &.attention {
+        --tone: var(--light-accent-color);
+    }
+
+    &.danger,
+    &.caution,
+    &.error {
+        --tone: #dc3545;
+    }
+
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    border-left: 4px solid;
+    border-left: 4px solid var(--tone);
     border-radius: 0.375rem;
-}
+    background-color: color-mix(in srgb, var(--tone) 10%, transparent);
 
-.admonition .admonition-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
+    .admonition-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--tone);
+    }
 
-.admonition > :last-child {
-    margin-bottom: 0;
-}
-
-.admonition.note,
-.admonition.tip,
-.admonition.hint {
-    background-color: color-mix(in srgb, var(--bold-dark-color) 8%, transparent);
-    border-left-color: var(--bold-dark-color);
-}
-
-.admonition.note .admonition-title,
-.admonition.tip .admonition-title,
-.admonition.hint .admonition-title {
-    color: var(--bold-dark-color);
-}
-
-.admonition.warning,
-.admonition.important,
-.admonition.attention {
-    background-color: color-mix(in srgb, var(--light-accent-color) 12%, transparent);
-    border-left-color: var(--light-accent-color);
-}
-
-.admonition.warning .admonition-title,
-.admonition.important .admonition-title,
-.admonition.attention .admonition-title {
-    color: color-mix(in srgb, var(--light-accent-color) 55%, black);
-}
-
-.admonition.danger,
-.admonition.caution,
-.admonition.error {
-    background-color: #dc354514;
-    border-left-color: #dc3545;
-}
-
-.admonition.danger .admonition-title,
-.admonition.caution .admonition-title,
-.admonition.error .admonition-title {
-    color: #b02a37;
+    > :last-child {
+        margin-bottom: 0;
+    }
 }
