@@ -5,6 +5,8 @@ linkTitle: Metacells
 
 ## Metacell tutorial
 
-Use Metacell2 to cluster single cells into metacells.
+```{note}
+This tutorial is still being written — content will be added soon.
+```
 
-![Polar bear](./images/pb3.jpg)
+Use Metacell2 to cluster single cells into metacells.
