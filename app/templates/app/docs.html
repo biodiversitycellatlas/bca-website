@@ -6,9 +6,15 @@ Documentation: tutorials, guides, etc.
 
 {% endcomment %}
 
+{% load static %}
+
 {% block title %}
     {{ metadata.title|default:'Documentation' }}
 {% endblock title %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'app/dist/styles/docs.css' %}">
+{% endblock extra_css %}
 
 {% block main_class %}
     container-xl overflow-x-clip

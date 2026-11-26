@@ -50,6 +50,9 @@ Dynamic blocks:
         <link rel="stylesheet" href="{% static 'app/dist/styles/slider.css' %}">
         <link rel="stylesheet" href="{% static 'app/dist/styles/tables.css' %}">
 
+        {% block extra_css %}
+        {% endblock extra_css %}
+
         {# Plausible Tracking Snippet #}
         {% include "tracking.html" %}
 
