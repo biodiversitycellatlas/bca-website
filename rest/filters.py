@@ -270,6 +270,18 @@ class CellTypeTreeFilter(FilterSet):
         fields = ["dataset"]
 
 
+class DatasetVersionFilter(FilterSet):
+    """Filter set for dataset versions."""
+
+    dataset = DatasetChoiceFilter(required=True)
+
+    class Meta:
+        """Configuration for model and filterable fields."""
+
+        model = models.DatasetVersion
+        fields = ["dataset"]
+
+
 class GeneFilter(QueryFilterSet):
     """Filter set for genes."""
 

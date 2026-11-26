@@ -14,6 +14,7 @@ from app.models import (
     CellTypeTreeNodeMarker,
     Dataset,
     DatasetFile,
+    DBVersion,
     Domain,
     ExpressionConservation,
     Gene,
@@ -176,6 +177,85 @@ class DatasetTests(APITestCase):
         assert dataset_stats["species"] == "Rat"
         assert dataset_stats["genes"] == 0
         assert dataset_stats["cells"] == 0
+
+    def test_get_includes_release(self):
+        response = self.client.get("/api/v1/datasets/mouse-dmouse/", format="json")
+        dataset = dict(response.data)
+        assert response.status_code == status.HTTP_200_OK
+        assert dataset["release"] == "public"
+
+    def test_get_includes_version(self):
+        dataset = Dataset.objects.get(slug="mouse-dmouse")
+        dataset.release = "beta"
+        dataset.save()
+
+        db_version = DBVersion.objects.create(version="2026.11.25", description="Test database")
+        version = dataset.versions.create(db_version=db_version, description="Initial data", metadata={"cells": 1000})
+        version.tools.create(name="bca_preprocessing", version="0.2.0")
+
+        response = self.client.get("/api/v1/datasets/mouse-dmouse/", format="json")
+        dataset = dict(response.data)
+        assert response.status_code == status.HTTP_200_OK
+        assert dataset["release"] == "beta"
+
+        serialized_version = dataset["version"]
+        assert serialized_version["dataset"] == "mouse-dmouse"
+        assert serialized_version["description"] == "Initial data"
+        assert serialized_version["metadata"] == {"cells": 1000}
+        assert serialized_version["db_version"]["version"] == "2026.11.25"
+        assert serialized_version["db_version"]["description"] == "Test database"
+        assert serialized_version["tools"] == [{"name": "bca_preprocessing", "version": "0.2.0"}]
+        assert serialized_version["created"]
+
+
+class DatasetVersionTests(APITestCase):
+    """Test Dataset Versions Endpoint"""
+
+    @classmethod
+    def setUpTestData(cls):
+        mouse = Species.objects.create(common_name="mouse", scientific_name="Mus musculus")
+        rat = Species.objects.create(common_name="rat", scientific_name="Rattus norvegicus")
+        cls.adult_mouse = mouse.datasets.create(name="adult")
+        rat.datasets.create(name="adult")
+
+        db_version = DBVersion.objects.create(version="2026.11.25", description="Test database")
+        cls.version = cls.adult_mouse.versions.create(
+            db_version=db_version, description="First ingestion", metadata={"cells": 1000}
+        )
+        cls.version.tools.create(name="bca_preprocessing", version="0.2.0")
+
+    def test_retrieve(self):
+        response = self.client.get(f"/api/v1/dataset_versions/?dataset={self.adult_mouse.slug}", format="json")
+        results = response.data["results"]
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) == 1
+
+        version = results[0]
+        assert version["dataset"] == self.adult_mouse.slug
+        assert version["description"] == "First ingestion"
+        assert version["metadata"] == {"cells": 1000}
+        assert version["db_version"]["version"] == "2026.11.25"
+        assert version["tools"] == [{"name": "bca_preprocessing", "version": "0.2.0"}]
+        assert version["created"]
+
+    def test_retrieve_missing_dataset_filter(self):
+        response = self.client.get("/api/v1/dataset_versions/", format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_retrieve_unknown_dataset_filter(self):
+        response = self.client.get("/api/v1/dataset_versions/?dataset=unknown-slug", format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_get(self):
+        response = self.client.get(f"/api/v1/dataset_versions/{self.version.pk}/", format="json")
+        version = dict(response.data)
+        assert response.status_code == status.HTTP_200_OK
+        assert version["dataset"] == self.adult_mouse.slug
+        assert version["description"] == "First ingestion"
+
+    def test_get_missing(self):
+        response = self.client.get("/api/v1/dataset_versions/999999/", format="json")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 class GeneTests(APITestCase):

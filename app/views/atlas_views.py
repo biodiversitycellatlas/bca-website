@@ -116,6 +116,18 @@ class BaseAtlasView(TemplateView):
             if isinstance(d, Dataset):
                 context["dataset"] = d
                 context["species"] = d.species
+                context["compare_dataset_dict"] = context["dataset_dict"]
+
+                if d.is_private:
+                    context["warning"] = {
+                        "title": "Private dataset.",
+                        "description": f"{d.get_inline_html_link()} is not yet publicly available and may change.",
+                    }
+                elif d.is_beta:
+                    context["warning"] = {
+                        "title": "Beta dataset.",
+                        "description": f"{d.get_inline_html_link()} is still in preparation and may change.",
+                    }
 
         # Prepare Cell Atlas links
         url_name = self.request.resolver_match.url_name

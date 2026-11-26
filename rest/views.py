@@ -97,6 +97,18 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
+@extend_schema(summary="List dataset versions", tags=["Dataset"])
+class DatasetVersionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.DatasetVersion.objects.all()
+    serializer_class = serializers.DatasetVersionSerializer
+    filterset_class = filters.DatasetVersionFilter
+
+    def retrieve(self, request, *args, **kwargs):
+        # The required `dataset` filter only applies to the list route.
+        self.filter_backends = []
+        return super().retrieve(request, *args, **kwargs)
+
+
 @extend_schema(summary="List dataset statistics", tags=["Dataset"])
 class StatsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Dataset.objects.all()

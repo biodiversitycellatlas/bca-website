@@ -91,7 +91,6 @@ export function initDatasetSelect(
                         <span class="text-muted small">
                             ${redirect !== "query" ? "Dataset:" : ""}
                         </span>
-                        <img src="${escape(item.image)}" class="w-20px">
                         ${item.label} ${description}
                     </div>`;
             },
@@ -122,9 +121,7 @@ export function initDatasetSelect(
                         badges += ` ${span}<small>${meta_array[i]}</small></span>`;
                     }
                 }
-                const img = item.image === "None" ? "" : escape(item.image);
                 return `<div class='option'>
-                    <img src="${img}" class="w-20px">
                     ${item.label}${description}${badges}
                 </div>`;
             },

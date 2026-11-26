@@ -32,10 +32,6 @@ Input:
         max-width: 200px;
         {% if width %} width: {{ width }} !important; {% endif %}
     }
-
-    .w-20px {
-        width: 20px;
-    }
 </style>
 
 <select id="dataset-select-{{ id }}"
@@ -47,10 +43,9 @@ Input:
             {% for elem in dataset_list %}
                 <option value="{{ elem.dataset.slug }}"
                         data-meta="{{ elem.meta|join:',' }}"
-                        data-image="{{ elem.dataset.image_url|default:elem.dataset.species.image_url }}"
                         data-species="{{ elem.dataset.species }}"
                         data-dataset="{{ elem.dataset.name|default:'' }}"
-                        data-label="{{ elem.dataset.get_html }}"
+                        data-label="{{ elem.dataset.get_html_label_with_image }}"
                         data-name="{{ elem.dataset.species.common_name|default_if_none:'' }}"
                         {% if dataset == elem.dataset or dataset == elem.dataset.slug %}selected{% endif %}>
                     {{ elem.dataset }}

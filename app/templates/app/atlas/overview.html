@@ -25,6 +25,8 @@ Input:
 
 {% block content %}
     <!-- Metacell projection -->
+    {% include "../components/warning_alert.html" %}
+
     {% load headings %}
     {% h1 "Metacell projection" id="projection" %}
     {% include "../components/plots/metacell_projection.html" with id="projection" %}

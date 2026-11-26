@@ -15,6 +15,8 @@ Input:
 
 {% block content %}
     <!-- Gene expression heatmap -->
+    {% include "../components/warning_alert.html" %}
+
     {% load headings %}
     {% h1 "Gene expression heatmap" id="expression" %}
     {% include "../components/plots/expression_heatmap.html" with id="expression" type="gene-lists" %}
