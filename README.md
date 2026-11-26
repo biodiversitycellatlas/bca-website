@@ -19,16 +19,6 @@ molecularly characterizing cell types across the eukaryotic tree of life. Our
 mission is to pave the way for the efficient expansion of cell atlases to
 hundreds of species.
 
-## Publications
-
-- Saraiva-Agostinho N, et al. (2026). The Biodiversity Cell Atlas database: a
-  curated resource for comparative single-cell genomics across the eukaryotic
-  tree of life. *Nucleic Acids Research* (in press).
-  [10.1093/nar/gkag1160](https://doi.org/10.1093/nar/gkag1160)
-- Sebé-Pedrós A, et al. (2025). The Biodiversity Cell Atlas: mapping the tree
-  of life at cellular resolution. *Nature* **645**(8082):877-885.
-  [10.1038/s41586-025-09312-4](https://doi.org/10.1038/s41586-025-09312-4)
-
 ## Overview
 
 This project uses:
@@ -395,7 +385,19 @@ The environment files that Super-Linter automatically loads are available in
 [super-linter.env](.github/linters/super-linter.env) and
 [super-linter-fix.env](.github/linters/super-linter-fix.env).
 
+## Publications
+
+- Saraiva-Agostinho N, et al. (2026). The Biodiversity Cell Atlas database: a
+  curated resource for comparative single-cell genomics across the eukaryotic
+  tree of life. _Nucleic Acids Research_ (in press).
+  [10.1093/nar/gkag1160](https://doi.org/10.1093/nar/gkag1160)
+- Sebé-Pedrós A, et al. (2025). The Biodiversity Cell Atlas: mapping the tree
+  of life at cellular resolution. _Nature_ **645**(8082):877-885.
+  [10.1038/s41586-025-09312-4](https://doi.org/10.1038/s41586-025-09312-4)
+
 ## Contact us
+
+Email us at [bca@biodiversitycellatlas.org](mailto:bca@biodiversitycellatlas.org).
 
 [<img src="app/static/app/images/logos/CRG/LOGOs-CRG-ENG_2014_transparent_back.png" width="250" target="_blank" alt="Centre for Genomic Regulation (CRG)"/>][CRG]
 
