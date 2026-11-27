@@ -473,7 +473,9 @@ class Tool(models.Model):
     tool = models.CharField(max_length=255, help_text="Tool name.")
     version = models.CharField(max_length=50, blank=True, help_text="Tool version.")
     url = models.URLField(blank=True, help_text="URL of the tool.")
-    publication_ids = ArrayField(models.PositiveBigIntegerField(), null=True, blank=True, help_text="Publication IDs associated with the tool.")
+    publication_ids = ArrayField(
+        models.PositiveBigIntegerField(), null=True, blank=True, help_text="Publication IDs associated with the tool."
+    )
     description = models.TextField(blank=True, help_text="Tool description.")
     notes = models.TextField(blank=True, help_text="Notes.")
     pipeline = models.ForeignKey(
