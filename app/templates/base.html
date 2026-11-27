@@ -53,6 +53,9 @@ Dynamic blocks:
         <link rel="stylesheet"
               href="{% static 'app/dist/styles/markers-tooltip.css' %}">
 
+        {% block extra_css %}
+        {% endblock extra_css %}
+
         {# Plausible Tracking Snippet #}
         {% include "tracking.html" %}
 

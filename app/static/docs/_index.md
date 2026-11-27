@@ -1,64 +1,40 @@
 ---
-title: Documentation
+title: 🪸🪼🌿 BCA Data Portal documentation
 ---
 
 ```{warning}
-You are looking at the **dev** documentation. This is not yet stable.
+This documentation is **under construction**.
 ```
 
-## Getting started
+## 👋 Welcome
 
-Welcome to the documentation pages.
+Welcome to the **Biodiversity Cell Atlas (BCA) Data Portal** documentation. These
+pages explain what different parts of the website do and how to work with the data
+programmatically.
 
-### Installation
+## ✨ Coming soon
 
-1. Clone the repository
-2. ~~Install dependencies~~ just run Docker
-3. Run the server
+We're currently writing up the documentation. The type of content that will live
+here includes:
 
-#### Docker vs Podman
+- **Getting started** — first steps exploring a cell atlas and key concepts
+  (metacells, gene modules, etc.).
+- **Using the Cell Atlas** — browsing datasets, querying gene expression of cell
+  type markers and comparing datasets.
+- **Data** — what data and formats are available, how they are computed from raw
+  data and how to cite the project.
 
-![Polar bear](./images/pb.jpg)
+## 🧭 In the meantime
 
-##### Docker
+While the full documentation takes shape, you can already explore the site:
 
-##### Podman
+- **[Browse the Cell Atlas](/atlas/)** — start exploring the available datasets.
+- **[REST API](/rest/)** — query the atlas data programmatically.
+- **[Downloads](/downloads/)** — access the available data files.
+- **[About](/about/)** — credits, citations, and contact information.
 
-## Usage
+## 💬 Feedback
 
-Use the navigation menu[^1] to browse topics.
-
-[^1]: The thing at the top of the page.
-
-## Links
-
-- [test](test)
-
-## Table
-
-| First Header | Second Header |
-| ------------ | ------------- |
-| Content Cell | Content Cell  |
-| Content Cell | Content Cell  |
-
-### Subtable
-
-| First Header | Second Header |
-| ------------ | ------------- |
-| Content Cell | Content Cell  |
-
-#### test
-
-hello
-
-## Code
-
-```R
-a = 5
-b = 6
-
-# Let's sum this
-a + b
-```
-
-Hi
+If you see something that should be improved or is missing, feel free to reach
+us: create an [issue on GitHub](https://github.com/biodiversitycellatlas/bca-website/issues)
+or email us at [bca@biodiversitycellatlas.org](mailto:bca@biodiversitycellatlas.org).
