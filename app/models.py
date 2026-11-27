@@ -467,6 +467,83 @@ class DatasetVersionTool(models.Model):
         return f"{self.name} {self.version}".strip()
 
 
+class Tool(models.Model):
+    """Tool catalog entry, including pipelines."""
+
+    tool = models.CharField(max_length=255, help_text="Tool name.")
+    version = models.CharField(max_length=50, blank=True, help_text="Tool version.")
+    url = models.URLField(blank=True, help_text="URL of the tool.")
+    publication_ids = ArrayField(
+        models.PositiveBigIntegerField(), null=True, blank=True, help_text="Publication IDs associated with the tool."
+    )
+    description = models.TextField(blank=True, help_text="Tool description.")
+    notes = models.TextField(blank=True, help_text="Notes.")
+    pipeline = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tools",
+        help_text="Associated pipeline.",
+    )
+
+    class Meta:
+        """Meta options."""
+
+        constraints = [models.UniqueConstraint(fields=["tool", "version"], name="unique_tool_name_version")]
+        ordering = ["tool"]
+
+    def __str__(self):
+        """String representation."""
+        return f"{self.tool} {self.version}".strip()
+
+
+class Analysis(models.Model):
+    """Analysis run."""
+
+    categories = {
+        "orthology": "Orthology",
+        "phylogeny": "Phylogeny",
+        "cross_species": "Cross-species",
+        "gene_modules": "Gene modules",
+        "expression_conservation": "Expression conservation",
+        "metacell_similarity": "Metacell type similarity",
+        "other": "Other",
+    }
+    category = models.CharField(max_length=50, choices=categories, help_text="Analysis category.")
+    description = models.TextField(blank=True, help_text="Analysis description.")
+    notes = models.TextField(blank=True, help_text="Notes.")
+    metadata = models.JSONField(default=dict, blank=True, help_text="Analysis metadata (such as parameters).")
+    dataset_versions = models.ManyToManyField(
+        DatasetVersion, blank=True, related_name="analyses", help_text="Associated dataset versions."
+    )
+    db_version = models.ForeignKey(
+        "DBVersion",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Database snapshot the analysis ran against.",
+    )
+    tools = models.ManyToManyField(Tool, blank=True, related_name="analyses")
+    created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the analysis was created.")
+
+    class Meta:
+        """Meta options."""
+
+        ordering = ["-created"]
+
+    def get_label(self):
+        """Return analysis label."""
+        if not self.pk:
+            return self.get_category_display()
+        versions = ", ".join(str(dv) for dv in self.dataset_versions.all())
+        return f"{self.get_category_display()}: {versions}" if versions else self.get_category_display()
+
+    def __str__(self):
+        """String representation."""
+        return self.get_label()
+
+
 class QualityControl(models.Model):
     """Quality control metrics."""
 
@@ -1217,7 +1294,7 @@ class DBVersion(models.Model):
 
     version = models.CharField(max_length=50, null=True, default=None, help_text="e.g., 2026.02.11")
     description = models.TextField(help_text="Notes on changes.")
-    populated_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the data was added.")
+    created = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the version was created.")
     commit = models.CharField(
         max_length=40, null=True, default=None, help_text="Git commit hash associated with this change."
     )
@@ -1228,7 +1305,7 @@ class DBVersion(models.Model):
 
     class Meta:
         # Orders so the latest version is always first
-        ordering = ["-populated_at"]
+        ordering = ["-created"]
         verbose_name = "Database Version Log"
 
         # Database-level constraint to require either version or git commit hash
