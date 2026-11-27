@@ -11,7 +11,7 @@
         "autoprefixer": "10.6.2",
         "bootstrap": "5.3.9",
         "d3": "7.9.2",
-        "datatables.net-bs5": "3.1.2",
+        "datatables.net-bs5": "3.1.5",
         "datatables.net-responsive-bs5": "4.1.1",
         "datatables.net-rowgroup-bs5": "2.1.1",
         "datatables.net-select-bs5": "4.1.1",
@@ -210,9 +210,9 @@
 
     "d3-zoom": ["d3-zoom@3.0.1", "", { "dependencies": { "d3-dispatch": "1 - 3", "d3-drag": "2 - 3", "d3-interpolate": "1 - 3", "d3-selection": "2 - 3", "d3-transition": "2 - 3" } }, "sha512-kfjD3BDQu/FOatpZ6JdMSyIoDwTxIpI29ySTI2J5ZlDaH1WbuJGQJ2Q9oJkWTEZEW98j6idezoomSD3Cn2zwiw=="],
 
-    "datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+    "datatables.net": ["datatables.net@3.1.5", "", {}, "sha512-phu9fVz1cOhD7kZDO5Ztj15qwghCkmdwX5AezLi+PxfMtnFAq0itpewvXzdwdr6bOwPqO2zuXsXWUU5x3wQptw=="],
 
-    "datatables.net-bs5": ["datatables.net-bs5@3.1.2", "", { "dependencies": { "datatables.net": "3.1.2" } }, "sha512-scWB81ZdmF5wF0r1/uuh1RnmJA4liwlkkIPSAjZQfw+IuRb/eMEd53ouroZWavEbKMzggqvTIMNRgmXVgWd3xg=="],
+    "datatables.net-bs5": ["datatables.net-bs5@3.1.5", "", { "dependencies": { "datatables.net": "3.1.5" } }, "sha512-eGSe7DVcqqI0RKtrjgzFVqqCZoltJSahAKLCJ0nH0WzSfVclhD8maoGbbz/JJQXky1H9c+vzAnbmAevYRBjxOw=="],
 
     "datatables.net-responsive": ["datatables.net-responsive@4.1.1", "", { "dependencies": { "datatables.net": "^3.1" } }, "sha512-FTo6k/Ov9ULpprImyupEB/3qr4W+7Ia14l1+dfk9voG4X0J6YaNrxftvumzZamZYcs9PZKDV1LXpDUBT8jnmYQ=="],
 
@@ -424,6 +424,18 @@
 
     "d3-geo-projection/commander": ["commander@7.2.0", "", {}, "sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw=="],
 
+    "datatables.net-responsive/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-responsive-bs5/datatables.net-bs5": ["datatables.net-bs5@3.1.6", "", { "dependencies": { "datatables.net": "3.1.6" } }, "sha512-1ajIPTG2t7SdKh4ggd1hPtfpjubDDor2V2g3tunQ1fN9VYIQV7hyBQcy1p8DOF5JwXUAAe/iiPRBvNMJaNS9uw=="],
+
+    "datatables.net-rowgroup/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-rowgroup-bs5/datatables.net-bs5": ["datatables.net-bs5@3.1.6", "", { "dependencies": { "datatables.net": "3.1.6" } }, "sha512-1ajIPTG2t7SdKh4ggd1hPtfpjubDDor2V2g3tunQ1fN9VYIQV7hyBQcy1p8DOF5JwXUAAe/iiPRBvNMJaNS9uw=="],
+
+    "datatables.net-select/datatables.net": ["datatables.net@3.1.2", "", {}, "sha512-6PnhPw9lrPASP2n1t13zW595aKB41j3Qt6iykFVV6aohGtSF3CTjwQ+RsdlrGUQTj/Ji0or8+9Q7mMpf4YY1cQ=="],
+
+    "datatables.net-select-bs5/datatables.net-bs5": ["datatables.net-bs5@3.1.6", "", { "dependencies": { "datatables.net": "3.1.6" } }, "sha512-1ajIPTG2t7SdKh4ggd1hPtfpjubDDor2V2g3tunQ1fN9VYIQV7hyBQcy1p8DOF5JwXUAAe/iiPRBvNMJaNS9uw=="],
+
     "topojson-client/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
     "vega-lite/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
@@ -431,5 +443,11 @@
     "vega-selections/d3-array": ["d3-array@3.2.4", "", { "dependencies": { "internmap": "1 - 2" } }, "sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg=="],
 
     "wrap-ansi/string-width": ["string-width@7.2.0", "", { "dependencies": { "emoji-regex": "^10.3.0", "get-east-asian-width": "^1.0.0", "strip-ansi": "^7.1.0" } }, "sha512-tsaTIkKW9b4N+AEj+SVA+WhJzV7/zMhcSu78mLKWSk7cXMOSHsBKFWUs0fWwq8QyK3MgJBQRX6Gbi4kYbdvGkQ=="],
+
+    "datatables.net-responsive-bs5/datatables.net-bs5/datatables.net": ["datatables.net@3.1.6", "", {}, "sha512-gHQ2TCiDmN7t5FajFAnCiT8AYxLOtmVaDZELedy79mStrRqxJM7yIU/suknM77b5FeqXrHEYDsitAz8jZGJ1Dw=="],
+
+    "datatables.net-rowgroup-bs5/datatables.net-bs5/datatables.net": ["datatables.net@3.1.6", "", {}, "sha512-gHQ2TCiDmN7t5FajFAnCiT8AYxLOtmVaDZELedy79mStrRqxJM7yIU/suknM77b5FeqXrHEYDsitAz8jZGJ1Dw=="],
+
+    "datatables.net-select-bs5/datatables.net-bs5/datatables.net": ["datatables.net@3.1.6", "", {}, "sha512-gHQ2TCiDmN7t5FajFAnCiT8AYxLOtmVaDZELedy79mStrRqxJM7yIU/suknM77b5FeqXrHEYDsitAz8jZGJ1Dw=="],
   }
 }
