@@ -166,9 +166,14 @@ class AboutView(TemplateView):
             ],
             "publications": [
                 {
-                    "url": "https://www.nature.com/articles/s41586-025-09312-4",
+                    "url": "https://doi.org/10.1093/nar/gkag1160",
+                    "icon": "fa-server",
+                    "label": "BCA database paper (NAR, 2027)",
+                },
+                {
+                    "url": "https://doi.org/10.1038/s41586-025-09312-4",
                     "icon": "fa-book-open",
-                    "label": "White paper (Nature, 2025)",
+                    "label": "BCA white paper (Nature, 2025)",
                 },
             ],
             "licenses": [
